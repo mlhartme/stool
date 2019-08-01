@@ -3,11 +3,17 @@
 ### 5.0.2 (pending)
 
 client
-* improved error message if setup is called twice (thanks to Helena R)
+* `setup`: improved error message when called twice (thanks to Helena R)
+* `remove`: improved message: "removing backstage" -> "detaching stage"
 
 server
+* Docker Api fixes to Adjust to engine 19.03.1: 
+  * proper check for warnings
 * fixed permission check in ssh and tunnel api calls
 * properly tagged base image (java:1.0.0)
+
+other
+* update lazy-foss-parent 1.3.0 to 1.3.1
 
 
 ### 5.0.1 (2019-07-11)

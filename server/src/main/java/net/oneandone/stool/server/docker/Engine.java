@@ -742,9 +742,18 @@ public class Engine implements AutoCloseable {
     //--
 
     private void checkWarnings(JsonObject response) throws IOException {
-        if (!JsonNull.INSTANCE.equals(response.get("Warnings"))) {
-            throw new IOException("response warnings: " + response.toString());
+        JsonElement warnings;
+
+        warnings = response.get("Warnings");
+        if (JsonNull.INSTANCE.equals(warnings)) {
+            return;
         }
+        if (warnings.isJsonArray()) {
+            if (warnings.getAsJsonArray().size() == 0) {
+                return;
+            }
+        }
+        throw new IOException("response warnings: " + response.toString());
     }
 
     private JsonObject post(HttpNode dest, JsonObject obj) throws IOException {

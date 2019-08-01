@@ -53,7 +53,7 @@ public class Remove extends StageCommand {
 
         project = Project.lookup(world.getWorking());
         if (project != null && reference.equals(project.getAttachedOpt(globals.servers()))) {
-            console.info.println("removing backstage");
+            console.info.println("detaching stage");
             project.removeBackstage();
         }
     }
