@@ -3,7 +3,9 @@
 ### 5.0.2 (pending)
 
 client
-* `setup`: improved error message when called twice (thanks to Helena R)
+* `setup`: 
+  * improved error message when called twice (thanks to Helena R)
+  * fix stage indicator for zsh (but with tailing newline ...)
 * `remove`: improved message: "removing backstage" -> "detaching stage"
 
 server

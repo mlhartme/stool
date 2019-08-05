@@ -29,8 +29,18 @@ __stageName() {
   grep \"name\" "$1"/config.json | cut -d':' -f2 | cut -d'"' -f2
 }
 
-if [ "x$BASH" != "x" ] ; then
-
+if [ -n "${ZSH_VERSION}" ] ; then
+    if [ -z "${STOOL_NO_PROMPT}" ] ; then
+        __stoolPrompt() {
+            local dir=$(pwd)
+            echo "$(__stageIndicator $dir)"
+        }
+        autoload -Uz add-zsh-hook
+        add-zsh-hook precmd __stoolPrompt
+    # else
+    #   do nothing, the user does not want stool prompt
+    fi
+elif [ -n "${BASH_VERSION}" ] ; then
     #
     # bash prompt
     #
