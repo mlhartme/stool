@@ -4,6 +4,7 @@
 
 client
 * `setup`: 
+  * fixed problem when "dig" is not installed
   * improved error message when called twice (thanks to Helena R)
   * fix stage indicator for zsh (but with tailing newline ...)
 * `remove`: improved message: "removing backstage" -> "detaching stage"

@@ -206,7 +206,7 @@ public class Setup {
         }
         manager.save(gson);
         serverDir().mkdir();
-        home.join("server.yml").writeString(serverYml(hostname));
+        home.join("server.yml").writeString(serverYaml(hostname));
         versionFile().writeString(Main.versionString(world));
     }
 
@@ -218,7 +218,7 @@ public class Setup {
         return versionFile().readString().trim();
     }
 
-    public String serverYml(String dockerHost) throws IOException {
+    public String serverYaml(String dockerHost) throws IOException {
         StringBuilder builder;
         String serverHome;
         FileNode cisotools;
@@ -294,14 +294,14 @@ public class Setup {
     private boolean hasDnsStar(String hostname) throws IOException {
         String ip;
 
-        ip = digIp(hostname);
+        ip = hostip(hostname);
         if (ip.isEmpty()) {
             return false; // no dns entry at all
         }
-        return digIp("subdomain." + hostname).equals(ip);
-    }
-
-    private String digIp(String name) throws IOException {
-        return home.exec("dig", "+short", name).trim();
+        try {
+            return hostip("subdomain." + hostname).equals(ip);
+        } catch (UnknownHostException e) {
+            return false;
+        }
     }
 }

@@ -33,7 +33,9 @@ if [ -n "${ZSH_VERSION}" ] ; then
     if [ -z "${STOOL_NO_PROMPT}" ] ; then
         __stoolPrompt() {
             local dir=$(pwd)
-            echo "$(__stageIndicator $dir)"
+            if [ -n "$dir" ] ; then
+                echo "$(__stageIndicator $dir)"
+            fi
         }
         autoload -Uz add-zsh-hook
         add-zsh-hook precmd __stoolPrompt
