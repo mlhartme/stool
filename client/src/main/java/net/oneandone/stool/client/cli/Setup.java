@@ -157,7 +157,7 @@ public class Setup {
         result = new ServerManager(null);
         console.info.println("Remote servers");
         console.info.println("  Stages are hosted on servers. Please choose the remote servers you want to use:");
-        for (Server server : environment) {
+        for (Server server : environment.allServer()) {
             if (yesNo("    " + server.name + " (" + server.url +  ") [y/n]? ")) {
                 server.addTo(result);
             }
@@ -199,9 +199,9 @@ public class Setup {
         world.resource("files/home").copyDirectory(home);
         manager = new ServerManager(home.join("servers.json"));
         if (server) {
-            manager.add("localhost", "http://" + hostname + ":" + port() + "/api", null);
+            manager.add("localhost", true, "http://" + hostname + ":" + port() + "/api", null);
         }
-        for (Server s : envinronmnt) {
+        for (Server s : envinronmnt.allServer()) {
             s.addTo(manager);
         }
         manager.save(gson);

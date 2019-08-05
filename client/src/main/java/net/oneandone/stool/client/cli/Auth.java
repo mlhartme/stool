@@ -48,7 +48,7 @@ public class Auth {
         if (explicitServer != null) {
             dests.add(manager.get(explicitServer));
         } else {
-            for (Server server : manager) {
+            for (Server server : manager.enabledServer()) {
                 if (server.hasToken()) {
                     dests.add(server);
                 }

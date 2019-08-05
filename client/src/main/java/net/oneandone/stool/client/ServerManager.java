@@ -25,13 +25,13 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ServerManager implements Iterable<Server> {
+public class ServerManager {
     public final FileNode file;
 
     public final FileNode wirelog;
@@ -55,8 +55,8 @@ public class ServerManager implements Iterable<Server> {
         return servers.isEmpty();
     }
 
-    public void add(String name, String url, String token) {
-        servers.put(name, new Server(name, url, token, null, clientInvocation, clientCommand));
+    public void add(String name, boolean enabled, String url, String token) {
+        servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
     }
 
     public Reference reference(String str) throws IOException {
@@ -81,6 +81,9 @@ public class ServerManager implements Iterable<Server> {
         result = lookup(server);
         if (result == null) {
             throw new ArgumentException("unknown server: " + server);
+        }
+        if (!result.enabled) {
+            throw new ArgumentException("server is disabled: " + server);
         }
         return result;
     }
@@ -107,9 +110,11 @@ public class ServerManager implements Iterable<Server> {
         }
         result = new ArrayList<>();
         for (Server server : servers.values()) {
-            if (serverFilter.isEmpty() || server.name.toLowerCase().equals(serverFilter.toLowerCase())) {
-                client = server.connect(file.getWorld());
-                result.addAll(Reference.list(client, client.list(clientFilter)));
+            if (server.enabled) {
+                if (serverFilter.isEmpty() || server.name.toLowerCase().equals(serverFilter.toLowerCase())) {
+                    client = server.connect(file.getWorld());
+                    result.addAll(Reference.list(client, client.list(clientFilter)));
+                }
             }
         }
         return result;
@@ -142,15 +147,26 @@ public class ServerManager implements Iterable<Server> {
 
     public boolean needAuthentication() {
         for (Server server : servers.values()) {
-            if (server.hasToken()) {
+            if (server.enabled && server.hasToken()) {
                 return true;
             }
         }
         return false;
     }
 
-    @Override
-    public Iterator<Server> iterator() {
-        return Collections.unmodifiableCollection(servers.values()).iterator();
+    public Collection<Server> allServer() {
+        return Collections.unmodifiableCollection(servers.values());
+    }
+
+    public Collection<Server> enabledServer() {
+        List<Server> lst;
+
+        lst = new ArrayList<>();
+        for (Server server : servers.values()) {
+            if (server.enabled) {
+                lst.add(server);
+            }
+        }
+        return Collections.unmodifiableList(lst);
     }
 }

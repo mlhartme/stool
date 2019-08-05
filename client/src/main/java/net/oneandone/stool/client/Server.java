@@ -26,13 +26,17 @@ import java.io.IOException;
 public class Server {
     public static Server fromJson(JsonObject obj, FileNode wirelog, String clientInvocation, String clientCommand) {
         JsonElement token;
+        JsonElement enabled;
 
         token = obj.get("token");
-        return new Server(obj.get("name").getAsString(), obj.get("url").getAsString(), token == null ? null : token.getAsString(),
+        enabled = obj.get("enabled");
+        return new Server(obj.get("name").getAsString(), enabled == null || "true".equals(enabled.getAsString()),
+                obj.get("url").getAsString(), token == null ? null : token.getAsString(),
                 wirelog, clientInvocation, clientCommand);
     }
 
     public final String name;
+    public final boolean enabled;
     public final String url;
 
     /** null to work anonymously */
@@ -42,8 +46,9 @@ public class Server {
     private volatile String clientInvocation;
     private volatile String clientCommand;
 
-    public Server(String name, String url, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public Server(String name, boolean enabled, String url, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.name = name;
+        this.enabled = enabled;
         this.url = url;
         this.token = token;
 
@@ -54,7 +59,7 @@ public class Server {
 
     /** looks weired, but this method allows we to keep the token field private */
     public void addTo(ServerManager dest) {
-        dest.add(name, url, token);
+        dest.add(name, enabled, url, token);
     }
 
     public boolean hasToken() {
@@ -76,6 +81,7 @@ public class Server {
 
         result = new JsonObject();
         result.add("name", new JsonPrimitive(name));
+        result.add("enabled", new JsonPrimitive(enabled));
         result.add("url", new JsonPrimitive(url));
         if (token != null) {
             result.add("token", new JsonPrimitive(token));
