@@ -21,6 +21,8 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Server;
 import net.oneandone.stool.client.ServerManager;
+import net.oneandone.sushi.fs.ExistsException;
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -46,9 +48,6 @@ public class Setup {
     public Setup(Globals globals, boolean batch, boolean local, List<String> opts) {
         int idx;
 
-        if (batch) {
-            throw new ArgumentException("cannot ask about server in batch mode");
-        }
         this.world = globals.getWorld();
         this.gson = globals.getGson();
         this.home = globals.getHome();
@@ -68,8 +67,8 @@ public class Setup {
 
     public void run() throws IOException {
         if (home.isDirectory()) {
-            // TODO check for upgrade
-            console.info.println("Nothing to do. Stool is set up in " + home.getAbsolute());
+            console.info.println("Stool is already set up in " + home.getAbsolute() + ", updating servers only.");
+            updateServers();
         } else {
             console.info.println("Stool " + version + " setup in " + home);
             console.info.println();
@@ -78,11 +77,28 @@ public class Setup {
         }
     }
 
+    private void updateServers() throws IOException {
+        ServerManager environment;
+
+        if (batch) {
+            throw new ArgumentException("-batch is not supported in update mode");
+        }
+        if (local) {
+            throw new ArgumentException("-local is not supported in update mode");
+        }
+        environment = updateEnvironment();
+        environment = select(environment, true);
+        console.info.println();
+        console.readline("Press return to update servers, ctrl-c to abort");
+        environment.save(gson);
+        console.info.println("done");
+    }
+
     private void create() throws IOException {
         ServerManager environment;
         String inc;
 
-        environment = environment();
+        environment = createEnvironment();
         if (!batch) {
             console.info.println();
             console.info.println("Ready to create Stool home directory: " + home.getAbsolute());
@@ -114,7 +130,7 @@ public class Setup {
         }
     }
 
-    private boolean yesNo(String str) {
+    private Boolean yesNo(String str) {
         String answer;
 
         while (true) {
@@ -125,52 +141,84 @@ public class Setup {
                     return true;
                 case "n":
                     return false;
+                case "":
+                    return null;
                 default:
                     console.info.println("invalid answer: " + answer);
             }
         }
     }
 
-    private ServerManager environment() throws IOException {
+    private ServerManager createEnvironment() throws IOException {
         ServerManager result;
 
         result = readEnvironment();
         if (!batch && !result.isEmpty()) {
-            result = select(result);
+            result = select(result, false);
         } else {
             result = result.newEnabled();
         }
         return result;
     }
 
-    private ServerManager select(ServerManager environment) {
+    private ServerManager select(ServerManager environment, boolean dflt) {
         ServerManager result;
-        boolean enable;
+        Boolean enable;
+        String yesNo;
 
-        result = new ServerManager(null);
+        result = new ServerManager(environment.file);
         console.info.println("Stages are hosted on servers. Please choose the servers you want to use:");
         for (Server server : environment.allServer()) {
-            enable = yesNo("  " + server.name + " (" + server.url +  ") [y/n]? ");
+            if (dflt) {
+                yesNo = server.enabled ? "Y/n" : "y/N";
+            } else {
+                yesNo = "y/n";
+            }
+            while (true) {
+                enable = yesNo("  " + server.name + " (" + server.url + ") [" + yesNo + "]? ");
+                if (enable == null) {
+                    if (dflt) {
+                        enable = server.enabled;
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
             server.withEnabled(enable).addTo(result);
+        }
+        return result;
+    }
+
+    private ServerManager updateEnvironment() throws IOException {
+        ServerManager result;
+        ServerManager add;
+        FileNode additional;
+
+        result =  new ServerManager(home.join("servers.json"));
+        result.load();
+
+        additional = cisotoolsEnvironment();
+        if (additional != null) {
+            add = new ServerManager(additional);
+            add.load();
+            for (Server s : add.allServer()) {
+                if (result.lookup(s.name) == null) {
+                    s.addTo(result);
+                }
+            }
         }
         return result;
     }
 
     private ServerManager readEnvironment() throws IOException {
         FileNode file;
-        FileNode cisotools;
         ServerManager manager;
 
         if (local) {
             file = null;
         } else {
-            cisotools = cisotools();
-            if (cisotools != null) {
-                file = cisotools.join("stool/environment.json");
-                file.checkExists();
-            } else {
-                file = null;
-            }
+            file = cisotoolsEnvironment();
         }
         manager = new ServerManager(file);
         if (file != null) {
@@ -264,6 +312,13 @@ public class Setup {
         builder.append("    external:\n");
         builder.append("      name: stool");
         return builder.toString();
+    }
+
+    private FileNode cisotoolsEnvironment() throws FileNotFoundException, ExistsException {
+        FileNode cisotools;
+
+        cisotools = cisotools();
+        return cisotools == null ? null : cisotools.join("stool/environment.json").checkFile();
     }
 
     private FileNode cisotools() {

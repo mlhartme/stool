@@ -4,9 +4,12 @@
 
 client
 * `setup`: 
+  * simplified console output: localhost is now part of the normal environment configuration 
+  * you can now re-run setup to update servers
   * fixed problem when "dig" is not installed
   * improved error message when called twice (thanks to Helena R)
   * fix stage indicator for zsh (but with tailing newline ...)
+  * simplified arguments used for integration tests
 * `remove`: improved message: "removing backstage" -> "detaching stage"
 
 server
