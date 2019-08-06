@@ -106,7 +106,6 @@ public class Project {
     private static String svnCheckoutUrl(FileNode dir) throws Failure {
         Launcher launcher;
         String str;
-        int idx;
 
         // note: svn info has a "--show-item" switch, but it's available since Subversion 1.9 or newer only,
         // and it needs multiple invocations to get multiple fields
