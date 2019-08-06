@@ -10,6 +10,7 @@ client
   * improved error message when called twice (thanks to Helena R)
   * fix stage indicator for zsh (but with tailing newline ...)
   * simplified arguments used for integration tests
+* `build`: origin label now includes svn url follows by svn revision
 * `remove`: improved message: "removing backstage" -> "detaching stage"
 
 server

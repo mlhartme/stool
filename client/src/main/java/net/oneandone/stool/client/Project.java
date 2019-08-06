@@ -108,11 +108,34 @@ public class Project {
         String str;
         int idx;
 
+        // note: svn info has a "--show-item" switch, but it's available since Subversion 1.9 or newer only,
+        // and it needs multiple invocations to get multiple fields
         launcher = new Launcher(dir, "svn", "info");
         launcher.env("LC_ALL", "C");
         str = launcher.exec();
-        idx = str.indexOf("URL:") + 4;
-        return str.substring(idx, str.indexOf("\n", idx)).trim();
+        return svnItem(str, "URL") + "@" + svnItem(str, "Revision");
+    }
+
+    private static String svnItem(String str, String item) {
+        int start;
+        int end;
+
+        item = item + ":";
+        if (str.startsWith(item)) {
+            start = item.length();
+        } else {
+            item = "\n" + item;
+            start = str.indexOf(item);
+            if (start < 0) {
+                throw new IllegalStateException(str + " " + item);
+            }
+            start += item.length();
+        }
+        end = str.indexOf("\n", start);
+        if (end < 0) {
+            throw new IllegalStateException(str + " " + item);
+        }
+        return str.substring(start, end).trim();
     }
 
     private static Launcher git(FileNode cwd, String... args) {
