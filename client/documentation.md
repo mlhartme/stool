@@ -984,4 +984,4 @@ There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all 
 ### Building Stool
 
 
-You need Java 8 and Docker to build Stool
+You need Java 8+ and Docker to build Stool.
