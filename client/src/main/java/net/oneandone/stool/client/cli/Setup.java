@@ -204,7 +204,7 @@ public class Setup {
             add.load();
             for (Server s : add.allServer()) {
                 if (result.lookup(s.name) == null) {
-                    s.addTo(result);
+                    s.withEnabled(false).addTo(result);  // default to disabled, because hitting return for all servers must not change anything
                 }
             }
         }
