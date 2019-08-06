@@ -154,6 +154,16 @@ public class ServerManager {
         return false;
     }
 
+    public ServerManager newEnabled() {
+        ServerManager result;
+
+        result = new ServerManager(file);
+        for (Map.Entry<String, Server> entry : servers.entrySet()) {
+            result.servers.put(entry.getKey(), entry.getValue().withEnabled(true));
+        }
+        return result;
+    }
+
     public Collection<Server> allServer() {
         return Collections.unmodifiableCollection(servers.values());
     }

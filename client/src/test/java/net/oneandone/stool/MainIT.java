@@ -69,7 +69,7 @@ public class MainIT {
         System.out.println(project.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        stool("setup", "-batch", "-server", "-environment=noSuchFile", "PORT_FIRST=" + port, "PORT_LAST=" + (port + 20));
+        stool("setup", "-batch", "-local", "PORT_FIRST=" + port, "PORT_LAST=" + (port + 20));
 
         server("rm");
         server("up", "-d");

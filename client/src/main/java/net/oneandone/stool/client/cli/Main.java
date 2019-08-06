@@ -71,7 +71,7 @@ public class Main {
               cli.begin("globals.getWorld", "");
                        cli.begin("globals.getConsole", "");
                 cli.add(Auth.class, "auth server?");
-                cli.add(Setup.class, "setup -batch -server -environment opts*");
+                cli.add(Setup.class, "setup -batch -local opts*");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create -project nameAndServer properties*");
                     cli.add(Build.class, "build -project -nocache -keep=3 -restart -m= warsAndArgs*");

@@ -57,6 +57,10 @@ public class Server {
         this.clientCommand = clientCommand;
     }
 
+    public Server withEnabled(boolean withEnabled) {
+        return new Server(name, withEnabled, url, token, wirelog, clientInvocation, clientCommand);
+    }
+
     /** looks weired, but this method allows we to keep the token field private */
     public void addTo(ServerManager dest) {
         dest.add(name, enabled, url, token);

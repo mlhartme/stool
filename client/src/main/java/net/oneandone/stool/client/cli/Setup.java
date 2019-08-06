@@ -32,20 +32,21 @@ import java.util.List;
 import java.util.Map;
 
 public class Setup {
+    private static final String LOCALHOST = "localhost";
+
     private final World world;
     private final Gson gson;
     private final FileNode home;
     private final Console console;
     private final String version;
     private final boolean batch;
-    private final Boolean explicitServer; // null to ask
-    private final FileNode explicitEnvironment;
+    private final boolean local;
     private final Map<String, String> opts;
 
-    public Setup(Globals globals, boolean batch, Boolean server, FileNode environment, List<String> opts) {
+    public Setup(Globals globals, boolean batch, boolean local, List<String> opts) {
         int idx;
 
-        if (batch && server == null) {
+        if (batch) {
             throw new ArgumentException("cannot ask about server in batch mode");
         }
         this.world = globals.getWorld();
@@ -54,8 +55,7 @@ public class Setup {
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.batch = batch;
-        this.explicitServer = server;
-        this.explicitEnvironment = environment;
+        this.local = local;
         this.opts = new HashMap<>();
         for (String opt : opts) {
             idx = opt.indexOf('=');
@@ -71,7 +71,7 @@ public class Setup {
             // TODO check for upgrade
             console.info.println("Nothing to do. Stool is set up in " + home.getAbsolute());
         } else {
-            console.info.println("Stool " + version + " setup");
+            console.info.println("Stool " + version + " setup in " + home);
             console.info.println();
 
             create();
@@ -79,21 +79,17 @@ public class Setup {
     }
 
     private void create() throws IOException {
-        String hostname;
-        boolean server;
         ServerManager environment;
         String inc;
 
         environment = environment();
-        hostname = "localhost";
-        server = explicitServer == null ? askServer() : explicitServer;
         if (!batch) {
             console.info.println();
             console.info.println("Ready to create Stool home directory: " + home.getAbsolute());
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        doCreate(environment, server, hostname);
+        doCreate(environment);
         inc = home.join("shell.inc").getAbsolute();
         console.info.println("Done.");
         console.info.println();
@@ -101,27 +97,21 @@ public class Setup {
         console.info.println("  Make sure to source " + inc + " in your shell profile");
         console.info.println("  (e.g. with 'echo \". " + inc + "\" >> ~/.bash_profile')");
         console.info.println("  Don't forget to restart your terminal.");
-        if (server) {
+
+        if (environment.lookup("localhost") != null) {
             console.info.println();
-            console.info.println("A local Stool server has been configured - use it like this:");
-            console.info.println("    docker network create stool");
-            console.info.println("    alias sserver=\"docker-compose -f " +  home.join("server.yml").getAbsolute() + "\"");
-            console.info.println("    sserver up -d");
-            console.info.println("    sserver logs");
-            console.info.println("    sserver down");
+            console.info.println("You've enabled a local Stool server to host stages - run it like this:");
+            console.info.println("  docker network create stool");
+            console.info.println("  alias sserver=\"docker-compose -f " +  home.join("server.yml").getAbsolute() + "\"");
+            console.info.println("  sserver up -d");
+            console.info.println("  sserver logs");
+            console.info.println("  sserver down");
         }
         if (environment.needAuthentication()) {
-            console.info.println("At least one of the servers you're using need authentication. Please run");
-            console.info.println("    stool auth");
+            console.info.println("At least one of the servers you're using needs authentication. Please run");
+            console.info.println("  stool auth");
             console.info.println("once to do so.");
         }
-    }
-
-    private boolean askServer() {
-        console.info.println("Local server");
-        console.info.println("  You need a local server if you want to run stages on this machine.");
-        console.info.println("  (Note that a local server requires Docker (with docker-compose) installed on this machine.)");
-        return yesNo("    Setup local server [y/n)]? ");
     }
 
     private boolean yesNo(String str) {
@@ -147,41 +137,48 @@ public class Setup {
         result = readEnvironment();
         if (!batch && !result.isEmpty()) {
             result = select(result);
+        } else {
+            result = result.newEnabled();
         }
         return result;
     }
 
     private ServerManager select(ServerManager environment) {
         ServerManager result;
+        boolean enable;
 
         result = new ServerManager(null);
-        console.info.println("Remote servers");
-        console.info.println("  Stages are hosted on servers. Please choose the remote servers you want to use:");
+        console.info.println("Stages are hosted on servers. Please choose the servers you want to use:");
         for (Server server : environment.allServer()) {
-            if (yesNo("    " + server.name + " (" + server.url +  ") [y/n]? ")) {
-                server.addTo(result);
-            }
+            enable = yesNo("  " + server.name + " (" + server.url +  ") [y/n]? ");
+            server.withEnabled(enable).addTo(result);
         }
         return result;
     }
 
     private ServerManager readEnvironment() throws IOException {
         FileNode file;
+        FileNode cisotools;
         ServerManager manager;
 
-        file = explicitEnvironment != null ? explicitEnvironment : implicitEnvironment();
+        if (local) {
+            file = null;
+        } else {
+            cisotools = cisotools();
+            if (cisotools != null) {
+                file = cisotools.join("stool/environment.json");
+                file.checkExists();
+            } else {
+                file = null;
+            }
+        }
         manager = new ServerManager(file);
-        if (file.exists()) {
+        if (file != null) {
             manager.load();
+        } else {
+            manager.add("localhost", true, "http://" + LOCALHOST + ":" + port() + "/api", null);
         }
         return manager;
-    }
-
-    private FileNode implicitEnvironment() {
-        FileNode cisotools;
-
-        cisotools = cisotools();
-        return cisotools != null ? cisotools.join("stool/environment.json") : world.locateClasspathEntry(getClass()).join("environment.json");
     }
 
     //--
@@ -192,21 +189,18 @@ public class Setup {
         }
     }
 
-    public void doCreate(ServerManager envinronmnt, boolean server, String hostname) throws IOException {
+    public void doCreate(ServerManager environment) throws IOException {
         ServerManager manager;
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
         manager = new ServerManager(home.join("servers.json"));
-        if (server) {
-            manager.add("localhost", true, "http://" + hostname + ":" + port() + "/api", null);
-        }
-        for (Server s : envinronmnt.allServer()) {
+        for (Server s : environment.allServer()) {
             s.addTo(manager);
         }
         manager.save(gson);
         serverDir().mkdir();
-        home.join("server.yml").writeString(serverYaml(hostname));
+        home.join("server.yml").writeString(serverYaml());
         versionFile().writeString(Main.versionString(world));
     }
 
@@ -218,7 +212,7 @@ public class Setup {
         return versionFile().readString().trim();
     }
 
-    public String serverYaml(String dockerHost) throws IOException {
+    public String serverYaml() throws IOException {
         StringBuilder builder;
         String serverHome;
         FileNode cisotools;
@@ -232,7 +226,7 @@ public class Setup {
         port = port();
         portNext = Integer.toString(Integer.parseInt(port) + 1);
         portNextNext = Integer.toString(Integer.parseInt(port) + 2);
-        addIfNew("VHOSTS", Boolean.toString(hasDnsStar(dockerHost)));
+        addIfNew("VHOSTS", Boolean.toString(hasDnsStar()));
         addIfNew("LOGLEVEL", "INFO"); // for documentation purpose
         addIfNew("ENGINE_LOG", "false"); // for engine wire logs
         if (cisotools != null) {
@@ -247,12 +241,12 @@ public class Setup {
         builder.append("    image: contargo.server.lan/cisoops-public/stool-server\n");
         builder.append("    ports:\n");
 
-        builder.append("      - " + hostip(dockerHost) + ":" + port + ":" + port + "\n");
+        builder.append("      - " + hostip(LOCALHOST) + ":" + port + ":" + port + "\n");
         // bind to 127.0.0.1 to forbid access from other machines
         builder.append("      - 127.0.0.1:" + portNext + ":" + portNext + "\n");
         builder.append("      - 127.0.0.1:" + portNextNext + ":" + 9875 + "\n");
         builder.append("    environment:\n");
-        builder.append("      - DOCKER_HOST=" + dockerHost + "\n");
+        builder.append("      - DOCKER_HOST=" + LOCALHOST + "\n");
         builder.append("      - OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + portNext + "\n");
 
         for (Map.Entry<String, String> entry : opts.entrySet()) {
@@ -291,15 +285,15 @@ public class Setup {
         return home.join("version");
     }
 
-    private boolean hasDnsStar(String hostname) throws IOException {
+    private boolean hasDnsStar() throws UnknownHostException {
         String ip;
 
-        ip = hostip(hostname);
+        ip = hostip(LOCALHOST);
         if (ip.isEmpty()) {
             return false; // no dns entry at all
         }
         try {
-            return hostip("subdomain." + hostname).equals(ip);
+            return hostip("subdomain." + LOCALHOST).equals(ip);
         } catch (UnknownHostException e) {
             return false;
         }
