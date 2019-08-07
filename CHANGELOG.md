@@ -21,6 +21,7 @@ server
 
 other
 * update lazy-foss-parent 1.3.0 to 1.3.1
+* update active-markdown 1.0.0 to 1.0.1 (executes ronn in Docker when available)
 
 
 ### 5.0.1 (2019-07-11)

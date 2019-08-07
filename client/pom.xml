@@ -107,7 +107,7 @@
       <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>active-markdown</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
         <configuration>
           <man>true</man>
           <mandir>${project.build.directory}/classes/templates/man/man1</mandir>
