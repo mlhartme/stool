@@ -160,7 +160,6 @@ public class EngineIT {
 
     @Test
     public void turnaround() throws IOException {
-        final long limit = 1024*1024*5;
         String image;
         String message;
         String output;
@@ -174,15 +173,13 @@ public class EngineIT {
             assertNotNull(image);
 
             container = engine.containerCreate(null, image, "foo", null, false,
-                    limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+                    null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             assertNotNull(container);
             assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
             assertNull(engine.containerStats(container));
             engine.containerStart(container);
             stats = engine.containerStats(container);
             assertEquals(0, stats.cpu);
-            assertEquals(limit, stats.memoryLimit);
-            assertTrue(stats.memoryUsage <= stats.memoryLimit);
             assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
             assertNotEquals(0, engine.containerStartedAt(container));
             assertEquals(0, engine.containerWait(container));
@@ -217,7 +214,6 @@ public class EngineIT {
 
     @Test
     public void restart() throws IOException {
-        final long limit = 1024*1024*5;
         String image;
         String message;
         String container;
@@ -227,7 +223,7 @@ public class EngineIT {
         try (Engine engine = create()) {
             image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             container = engine.containerCreate(null, image, "foo", null, false,
-                    limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+                    null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             engine.containerStart(container);
         }
         try (Engine engine = create()) {
@@ -239,10 +235,35 @@ public class EngineIT {
         try (Engine engine = create()) {
             image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             container = engine.containerCreate(null, image, "foo", null, false,
-                    limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+                    null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             engine.containerStart(container);
         }
         try (Engine engine = create()) {
+            engine.containerStop(container, 60);
+
+            engine.containerRemove(container);
+            engine.imageRemove(image, false);
+        }
+    }
+
+    /** I've seen this check fail with strange errors on Manjaro Linux */
+    @Test
+    public void limit() throws IOException {
+        final long limit = 1024*1024*5;
+        Stats stats;
+        String image;
+        String message;
+        String container;
+
+        message = UUID.randomUUID().toString();
+        try (Engine engine = create()) {
+            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            container = engine.containerCreate(null, image, "foo", null, false,
+                    limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+            engine.containerStart(container);
+            stats = engine.containerStats(container);
+            assertEquals(limit, stats.memoryLimit);
+            assertTrue(stats.memoryUsage <= stats.memoryLimit);
             engine.containerStop(container, 60);
 
             engine.containerRemove(container);
