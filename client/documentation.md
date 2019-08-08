@@ -983,4 +983,4 @@ There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all 
 
 ### Building Stool
 
-You need Java 8+ and Docker (with docker-compose) to build Stool.
+See https://github.com/mlhartme/stool/blob/master/DEVELOPMENT.md

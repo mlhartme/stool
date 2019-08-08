@@ -3,8 +3,8 @@
 To build Stool, you need:
 * Java 8+
 * Maven 3+
-* Docker with api 1.38+
-* [Ronn](https://github.com/rtomayko/ronn) to generate the man pages
+* Docker (with api 1.38+) including docker-compose. Make sure you can invoke Docker without sudo.
+
 
 Build with
 
