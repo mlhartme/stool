@@ -5,8 +5,20 @@ To build Stool, you need:
 * Java 8+
 * Maven 3+
 * Git
-* Docker (with api 1.38+) including docker-compose. Make sure you can invoke Docker without sudo.
+* Docker (with api 1.38+) including docker-compose. 
 
+
+## Docker checks
+
+Make sure you can invoke Docker without sudo.
+
+Check journalctl -u docker for error. Note that the following warnings seem to be ok for Stool (i've seen them on Debian and Majaro):
+
+    Your kernal does not support cgroup rt period
+    Your kernel does not support cgroup rt runtime
+
+
+## Building
 
 To get started, checkout the source code with
 

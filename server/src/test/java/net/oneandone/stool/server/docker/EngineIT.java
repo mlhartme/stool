@@ -246,7 +246,7 @@ public class EngineIT {
         }
     }
 
-    /** I've seen this check fail with strange errors on Manjaro Linux */
+    /** I've seen this check fail with strange errors on Manjaro Linux (e.g. "cannot start a stopped process: unknown") */
     @Test
     public void limit() throws IOException {
         final long limit = 1024*1024*5;
