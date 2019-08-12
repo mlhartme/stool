@@ -246,7 +246,9 @@ public class EngineIT {
         }
     }
 
-    /** I've seen this check fail with strange errors on Manjaro Linux (e.g. "cannot start a stopped process: unknown") */
+    /**
+     * I've seen this check fail with strange errors on Manjaro Linux (e.g. "cannot start a stopped process: unknown");
+     * dmsg shows the memory killer, I suspect it's caused by https://github.com/opencontainers/runc/issues/1980 */
     @Test
     public void limit() throws IOException {
         final long limit = 1024*1024*5;
