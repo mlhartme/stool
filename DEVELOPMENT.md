@@ -18,6 +18,17 @@ Check journalctl -u docker for error. Note that the following warnings seem to b
     Your kernel does not support cgroup rt runtime
 
 
+Make sure you have a "stool" network before you run the tests:
+
+    docker network create stool
+
+
+TODO: setup userns mapping for your user?
+* /etc/docker/daemon.json
+* /etc/subuid
+* /etc/subgid
+
+   
 ## Building
 
 To get started, checkout the source code with
