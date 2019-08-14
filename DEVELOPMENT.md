@@ -6,9 +6,39 @@ To build Stool, you need:
 * Maven 3+
 * Git
 * Docker (with api 1.38+) including docker-compose. 
+* TODO: probably depends on cisotools
 
+## Docker setup 
 
-## Docker checks
+Docker on macOS should be fine out of the box (it sets up a Linux VM, and all docker containers run as the current user).
+
+### Linux
+
+Docker on Linux needs some permission tweaking to a) execute containers the a normal user and b) give containers access to the docker socket.
+
+The common way to give a normal user access to the docker socket is to add him to the docker group. Stool needs a different setup (TODO more on that):
+
+* edit /lib/systemd/system/docker.socket and change the group to the primary group of your user
+  (this can't be done in /etc/docker/daemon.json because systemd sets up the socket)
+* setup userns mapping for your Docker daemon (otherwise, bind mounds would create root files). 
+  Replace name with your user name (e.g. mlhartme), uid with your user id (e.g. 1000), and gid with your docker group id (e.g. 998)
+
+* /etc/docker/daemon.json
+
+    {
+      "userns-remap": "stool:docker",
+    }
+
+* /etc/subuid
+
+    name:uid:1
+    name:100000:65535
+
+* /etc/subgid
+
+    docker:gid:1
+    docker:100000:65535
+
 
 Make sure you can invoke Docker without sudo.
 
@@ -23,13 +53,11 @@ Make sure you have a "stool" network before you run the tests:
     docker network create stool
 
 
-TODO: setup userns mapping for your user?
-* /etc/docker/daemon.json
-* /etc/subuid
-* /etc/subgid
-
    
 ## Building
+
+Maven's Javadoc Plugin 3.1.1 has a problem with Debian's Openjdk 11 package, you need to explicitly set JAVA_HOME. Otherwise,
+the javadoc executable cannot be located.
 
 To get started, checkout the source code with
 
