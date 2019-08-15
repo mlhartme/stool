@@ -20,7 +20,7 @@ The common way to give a normal user access to the docker socket is to add him t
 
 * edit /lib/systemd/system/docker.socket and change the group to the primary group of your user
   (this can't be done in /etc/docker/daemon.json because systemd sets up the socket)
-* setup userns mapping for your Docker daemon (otherwise, bind mounds would create root files). 
+* setup user ns mapping for your Docker daemon (otherwise, bind mounds would create root files). 
   Replace name with your user name (e.g. mlhartme), uid with your user id (e.g. 1000), and gid with your docker group id (e.g. 998)
 
 * /etc/docker/daemon.json
