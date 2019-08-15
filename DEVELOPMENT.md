@@ -32,7 +32,7 @@ The common way to give a user access to the docker socket is to add him to the d
   * /etc/docker/daemon.json
  
         {
-          "userns-remap": "name:docker",
+          "userns-remap": "<user>:<group>"
         }
         
   * /etc/subuid
@@ -46,7 +46,12 @@ The common way to give a user access to the docker socket is to add him to the d
         <group>:100000:65535
 
 
-Apply changes with `systemctl restart docker`. Check if `/var/run/docker.sock` is created with the correct primary group. Also check 
+Apply changes with
+
+    systemctl daemon-reload
+    systemctl restart docker
+
+Check if `/var/run/docker.sock` is created with the correct primary group. Also check 
 `journalctl -u docker` for errors. Note that the following warnings seem to be ok for Stool (i've seen them on Debian and Majaro):
 
     Your kernal does not support cgroup rt period
