@@ -21,7 +21,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import jnr.posix.POSIXFactory;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
 import net.oneandone.stool.server.ArgumentException;
@@ -473,11 +472,7 @@ public class Engine implements AutoCloseable {
         if (name != null) {
             node = node.withParameter("name", name);
         }
-        if (priviledged) {
-            body = object("Image", image, "Hostname", hostname);
-        } else {
-            body = object("Image", image, "Hostname", hostname, "User", Long.toString(geteuid()), "Group", Long.toString(getegid()));
-        }
+        body = object("Image", image, "Hostname", hostname);
         if (!labels.isEmpty()) {
             body.add("Labels", obj(labels));
         }
@@ -825,18 +820,6 @@ public class Engine implements AutoCloseable {
             result.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
         }
         return result;
-    }
-
-    //--
-
-    private static final jnr.posix.POSIX POSIX = POSIXFactory.getPOSIX();
-
-    public static int geteuid() {
-        return POSIX.geteuid();
-    }
-
-    public static int getegid() {
-        return POSIX.getegid();
     }
 
     //--

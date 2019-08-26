@@ -328,7 +328,7 @@ public class EngineIT {
         String output;
         String container;
 
-        home = WORLD.getWorking();
+        home = WORLD.getHome();
         file = home.createTempFile();
         try (Engine engine = create()) {
             output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
