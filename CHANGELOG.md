@@ -16,6 +16,7 @@ client
 server
 * Docker Api fixes to Adjust to engine 19.03.1: 
   * proper check for warnings
+* fixed Docker run to no longer set the current user/group
 * fixed permission check in ssh and tunnel api calls
 * properly tagged base image (java:1.0.0)
 
