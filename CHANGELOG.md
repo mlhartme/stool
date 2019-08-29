@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 5.0.2 (pending)
+### 5.0.2 (2019-08-29)
 
 client
 * `setup`: 
