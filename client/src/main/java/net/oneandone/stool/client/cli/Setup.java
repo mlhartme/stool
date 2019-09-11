@@ -118,7 +118,7 @@ public class Setup {
             console.info.println();
             console.info.println("You've enabled a local Stool server to host stages - run it like this:");
             console.info.println("  docker network create stool");
-            console.info.println("  alias sserver=\"docker-compose -f " +  home.join("server.yml").getAbsolute() + "\"");
+            console.info.println("  alias sserver=\"docker-compose -f " +  home.join("server.yaml").getAbsolute() + "\"");
             console.info.println("  sserver up -d");
             console.info.println("  sserver logs");
             console.info.println("  sserver down");
@@ -248,7 +248,7 @@ public class Setup {
         }
         manager.save(gson);
         serverDir().mkdir();
-        home.join("server.yml").writeString(serverYaml());
+        home.join("server.yaml").writeString(serverYaml());
         versionFile().writeString(Main.versionString(world));
     }
 

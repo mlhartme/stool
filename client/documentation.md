@@ -267,7 +267,7 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 
 #### Stool Server Configuration
 
-The following environment variables can be used to configure Stool server in `$STOOL_HOME/server/server.yml`. 
+The following environment variables can be used to configure Stool server in `$STOOL_HOME/server/server.yaml`. 
 
 * **ADMIN** 
   Email of the person to receive validation failures and exception mails. Empty to disable these emails.
@@ -963,7 +963,7 @@ There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all 
 
         |- version                   (client version that created this directory)
         |- shell.inc
-        |- server.yml                (docker-comppose file to start local server)
+        |- server.yaml               (docker-comppose file to start local server)
         |- servers.json              (list of Stool servers to talk to)
         '- server                    (empty if there's no local server)
            |- version                (server version that created this directory)

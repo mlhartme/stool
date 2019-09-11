@@ -105,7 +105,7 @@ public class MainIT {
         Launcher server;
 
         try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
-            server = IT_ROOT.launcher("docker-compose", "-f", HOME.join("server.yml").getAbsolute(), "--no-ansi");
+            server = IT_ROOT.launcher("docker-compose", "-f", HOME.join("server.yaml").getAbsolute(), "--no-ansi");
             server.arg(cmd);
             log.write(server.toString() + "\n");
             server.exec(log);
