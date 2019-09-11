@@ -454,6 +454,7 @@ public class Engine implements AutoCloseable {
      * @param memory is the memory limit in bytes. Or null for no limit. At least 1024*1024*4. The actual value used by docker is something
      *               rounded of this parameter
      * @param stopSignal or null to use default (SIGTERM)
+     * @param hostname or null to not define the hostname
      * @param stopTimeout default timeout when stopping this container without explicit timeout value; null to use default (10 seconds)
      * @return container id
      */
@@ -472,7 +473,10 @@ public class Engine implements AutoCloseable {
         if (name != null) {
             node = node.withParameter("name", name);
         }
-        body = object("Image", image, "Hostname", hostname);
+        body = object("Image", image);
+        if (hostname != null) {
+            body.add("Hostname", new JsonPrimitive(hostname));
+        }
         if (!labels.isEmpty()) {
             body.add("Labels", obj(labels));
         }

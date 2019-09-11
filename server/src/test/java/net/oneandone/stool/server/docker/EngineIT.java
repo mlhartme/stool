@@ -56,7 +56,7 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /dev/fuse\n"), false, null);
-            container = engine.containerCreate(image, "somehost");
+            container = engine.containerCreate(image, null);
             engine.containerStart(container);
             Thread.sleep(1000);
             engine.containerRemove(container);
