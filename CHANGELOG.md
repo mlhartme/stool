@@ -3,8 +3,9 @@
 ### 5.0.3 (pending)
 
 client
-* relax stage name length restriction from 30 to 240 characters (because domains in san certificates can be up to 256 characters long).
-
+* support for longer stage names
+  * relax stage name length restriction from 30 to 240 characters (because domains in san certificates can be up to 256 characters long).
+  * set container hostname to md5(app + stage) + dockerhost to make sure the name does not exceed the 64 character limit of the kernel
 
 ### 5.0.2 (2019-08-29)
 

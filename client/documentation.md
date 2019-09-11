@@ -613,6 +613,13 @@ Startup is refused if your stage has expired. In this case, use `stool config ex
 
 Startup is also refused if the disk or memory quota exceeded. In this case, stop some other stages.
 
+The hostname of the container is set to <id>.<servername>, where id is a hash of stage name and application name. This hash
+serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names. 
+And the hash makes it impossible to derived stage or application name from the hostname -- applications are strongly discouraged to 
+check the hostname to configure themselves, use environment variables defined for that purpose instead. Future versions of Stool will 
+remove the servername from the container's hostname as well.
+
+
 [//]: # (include stageOptions.md)
 
 Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)

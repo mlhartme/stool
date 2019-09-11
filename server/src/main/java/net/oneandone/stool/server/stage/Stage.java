@@ -37,6 +37,7 @@ import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -51,8 +52,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -518,7 +522,7 @@ public class Stage {
                 labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
             }
             container = engine.containerCreate(toName(image.repositoryTag), image.repositoryTag,
-                    getName() + "." + server.configuration.dockerHost, server.networkMode,
+                    md5(getName()) + "." + server.configuration.dockerHost, server.networkMode,
                     false, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts, server.localhostIp));
             Server.LOGGER.debug("created container " + container);
@@ -530,6 +534,24 @@ public class Stage {
             result.add(image.app + ":" + image.tag);
         }
         return result;
+    }
+
+    private static String md5(String str) {
+        MessageDigest md;
+        byte[] bytes;
+        String result;
+
+        try {
+            md = MessageDigest.getInstance("MD5");
+            bytes = md.digest(str.getBytes("UTF-8")); //converting byte array to Hexadecimal
+            result = Strings.toHex(bytes);
+            if (result.length() != 32) {
+                throw new IllegalStateException(str + " " + result);
+            }
+            return result;
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+            throw new IllegalStateException();
+        }
     }
 
     private static String toName(String str) {
