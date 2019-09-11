@@ -1,5 +1,11 @@
 ## Changelog 
 
+### 5.0.3 (pending)
+
+client
+* relax stage name length restriction from 30 to 240 characters (because domains in san certificates can be up to 256 characters long).
+
+
 ### 5.0.2 (2019-08-29)
 
 client

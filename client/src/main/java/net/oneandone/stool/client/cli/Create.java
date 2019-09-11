@@ -106,8 +106,9 @@ public class Create extends ProjectCommand {
         if (name.isEmpty()) {
             throw new ArgumentException("empty stage name is not allowed");
         }
-        if (name.length() > 30) {
-            //ITCA does not accept too long commonNames
+        if (name.length() > 250) {
+            // this is just a rough test, because the application name and the host name itself will be added as well;
+            // cert dn is restricted to 64 bytes; subject alternative names can be used to push this limit to 256 characters
             throw new ArgumentException("Stage Name is too long. Please take a shorter one.");
         }
         if (!isLetter(name.charAt(0))) {
