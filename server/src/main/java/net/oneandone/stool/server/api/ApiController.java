@@ -284,8 +284,7 @@ public class ApiController {
         Map<String, String> apps;
 
         apps = map(request, "app.");
-        environment = new HashMap<>(server.configuration.environment);
-        environment.putAll(map(request, "env."));
+        environment = map(request, "env.");
         global = server.configuration.diskQuota;
         try (Engine engine = engine()) {
             if (global != 0) {

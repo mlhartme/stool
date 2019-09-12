@@ -478,10 +478,11 @@ public class Stage {
     }
 
     /** @return images actually started */
-    public List<String> start(Engine engine, Pool pool, int http, int https, Map<String, String> environment, Map<String, String> selection) throws IOException {
+    public List<String> start(Engine engine, Pool pool, int http, int https, Map<String, String> clientEnvironment, Map<String, String> selection) throws IOException {
         String container;
         Engine.Status status;
         Ports hostPorts;
+        Map<String, String> environment;
         Map<FileNode, String> mounts;
         Map<String, String> labels;
         List<String> result;
@@ -506,7 +507,9 @@ public class Stage {
                     engine.containerRemove(info.id);
                 }
             }
-            // TODO: ensure there was at most one container removed -- after all existing systems have been updated
+            environment = new HashMap<>(server.configuration.environment);
+            environment.putAll(configuration.environment);
+            environment.putAll(clientEnvironment);
             Server.LOGGER.debug("environment: " + environment);
             Server.LOGGER.info(image.app + ": starting container ... ");
             mounts = bindMounts(image);

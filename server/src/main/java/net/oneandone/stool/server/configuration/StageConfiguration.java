@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,11 +54,15 @@ public class StageConfiguration {
     @Option(key = "comment")
     public String comment;
 
+    @Option(key = "environment")
+    public Map<String, String> environment;
+
     public StageConfiguration() {
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
         this.expire = Expire.never();
         this.comment = "";
+        this.environment = new HashMap<>();
     }
 
     public void save(Gson gson, Node file) throws IOException {

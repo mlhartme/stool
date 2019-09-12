@@ -744,6 +744,8 @@ Note: This is a stage command, use `stool help stage-options` to see available [
 * **notify**
   List of email addresses or `@last-modified-by` or `@created-by` to send notifications about
   this stage. Type list. Default value: `@created-by`.
+* **environment**
+  List of environment variables names with values (separated by `:`) to set when starting an application.
 
 
 #### Examples
