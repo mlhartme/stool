@@ -94,7 +94,7 @@ elif [ -n "${BASH_VERSION}" ] ; then
           COMPREPLY=()
           cur="${COMP_WORDS[COMP_CWORD]}"
           prev="${COMP_WORDS[COMP_CWORD-1]}"
-          cmd="attach build config create detach help history list remove restart setup start status stop tunnel validate version"
+          cmd="attach build config create detach help history list remove restart setup ssh start status stop tunnel validate version"
           general_opts="-v -e"
           select_opts="-stage -all"
           fail_opts="before after never"
