@@ -24,20 +24,23 @@ import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Create extends ProjectCommand {
+    private final boolean optional;
     private final String name;
     private final String server;
     private final Map<String, String> config;
 
-    public Create(Globals globals, FileNode project, String nameAndServer, List<String> args) {
+    public Create(Globals globals, FileNode project, boolean optional, String nameAndServer, List<String> args) {
         super(globals, project);
 
         int idx;
 
+        this.optional = optional;
         idx = nameAndServer.indexOf('@');
         if (idx == -1) {
             throw new ArgumentException("expected <name>@<server>, got " + nameAndServer);
@@ -80,9 +83,18 @@ public class Create extends ProjectCommand {
             throw new ArgumentException("project already has a stage; detach it first");
         }
         client = serverManager.get(server).connect(world);
-        client.create(name, config);
         reference = new Reference(client, name);
-        console.info.println("stage created: " + reference);
+        try {
+            client.create(name, config);
+            console.info.println("stage created: " + reference);
+        } catch (FileAlreadyExistsException e) {
+            if (optional) {
+                console.info.println("stage already exists - nothing to do: " + reference);
+                // fall-through
+            } else {
+                throw new IOException("stage already exists: " + reference);
+            }
+        }
         try {
             if (project == null) {
                 Project.create(projectDirectory, reference);

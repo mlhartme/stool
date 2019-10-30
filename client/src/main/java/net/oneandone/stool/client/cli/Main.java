@@ -73,7 +73,7 @@ public class Main {
                 cli.add(Auth.class, "auth server?");
                 cli.add(Setup.class, "setup -batch -local opts*");
                 cli.base(ClientCommand.class, "");
-                    cli.add(Create.class, "create -project nameAndServer properties*");
+                    cli.add(Create.class, "create -project -optional nameAndServer properties*");
                     cli.add(Build.class, "build -project -nocache -keep=3 -restart -m= warsAndArgs*");
                     cli.add(Attach.class, "attach -project stage");
                     cli.add(Detach.class, "detach -project");

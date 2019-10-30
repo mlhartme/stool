@@ -3,6 +3,9 @@
 ### 5.0.3 (pending)
 
 client
+* create
+  * improved error message if stage already exists
+  * added `-optional` option to not report an exception if the stage already exists
 * setup now creates a `server.yaml` file, not `server.yml`
 * support for longer stage names
   * relax stage name length restriction from 30 to 240 characters (because domains in san certificates can be up to 256 characters long).

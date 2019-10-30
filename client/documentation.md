@@ -405,7 +405,7 @@ Create a new stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `create` *project-option*...  *name*`@`*server* [*key*`=`*value*...]
+`stool` *global-option*... `create` *project-option*... [`-optional`] *name*`@`*server* [*key*`=`*value*...]
 
 
 #### DESCRIPTION
@@ -415,6 +415,8 @@ Reports an error if the server already hosts a stage with this name.
 
 The name must contain only lower case ascii characters or digit. Otherwise it's rejected because it would cause problems with
 urls or docker tags that contain the name.
+
+Specify `-optional` if you don't want the command to report an error if the stage already exists.
 
 The new stage is configured with the specified *key*/*value* pairs. Specifying a *key*/*value* pair is equivalent to running 
 [stool config](#stool-config) with these arguments.

@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -122,6 +123,7 @@ public class Client {
 
     //-- create, build, start, stop, remove
 
+    /** @throws FileAlreadyExistsException if the stage already exists */
     public void create(String stage, Map<String, String> config) throws IOException {
         HttpNode node;
 
@@ -356,6 +358,8 @@ public class Client {
                     throw new IOException("unauthenticated: " + node.getUri());
                 case 404:
                     throw new FileNotFoundException(node, "not found");
+                case 409:
+                    throw new FileAlreadyExistsException(node.getPath(), code + "", src.getStatusLine().toString());
                 default:
                     for (int c : success) {
                         if (code == c) {
