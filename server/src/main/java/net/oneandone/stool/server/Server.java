@@ -336,8 +336,16 @@ public class Server {
 
     //-- Stage create
 
-    public Stage create(String name) throws MkdirException {
-        return new Stage(this, stages.join(name).mkdir(), new StageConfiguration());
+
+    public Stage create(String name) throws StageExistsException {
+        FileNode dir;
+
+        try {
+            dir = stages.join(name).mkdir();
+        } catch (MkdirException e) {
+            throw new StageExistsException();
+        }
+        return new Stage(this, dir, new StageConfiguration());
     }
 
     //-- Stage access

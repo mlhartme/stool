@@ -11,6 +11,7 @@ client
 server
 * added per-stage environment, clients configure it with `stool config environment=FOO:bar` - note the colon to separate key and value;
   explicit environment arguments passed to start overwrite per-stage environment values
+* "create" now reports a conflict (409) if the stage already exists
 
 
 ### 5.0.2 (2019-08-29)

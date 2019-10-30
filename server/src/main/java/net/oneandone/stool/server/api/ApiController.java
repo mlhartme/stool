@@ -21,6 +21,7 @@ import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
+import net.oneandone.stool.server.StageExistsException;
 import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
@@ -128,13 +129,18 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}")
-    public void create(@PathVariable("stage") String name, HttpServletRequest request) throws IOException {
+    public void create(@PathVariable("stage") String name, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> config;
         Stage stage;
         Property property;
 
+        try {
+            stage = server.create(name);
+        } catch (StageExistsException e) {
+            response.sendError(409 /* conflict */, "stage exists: " + name);
+            return;
+        }
         config = map(request, "");
-        stage = server.create(name);
         stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
