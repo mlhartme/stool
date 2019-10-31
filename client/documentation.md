@@ -201,7 +201,7 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 
 
 
-`stool` *global-option*... `create` *project-option*...  *name*`@`*server* [*key*`=`*value*...]
+`stool` *global-option*... `create` *project-option*... [`-optional`] *name*`@`*server* [*key*`=`*value*...]
 
 
 
