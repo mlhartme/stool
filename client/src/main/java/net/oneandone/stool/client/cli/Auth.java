@@ -28,11 +28,13 @@ import java.util.List;
 public class Auth {
     private final Globals globals;
     private final Console console;
+    private final boolean batch;
     private final String explicitServer;
 
-    public Auth(Globals globals, String server) {
+    public Auth(Globals globals, boolean batch, String server) {
         this.globals = globals;
         this.console = globals.getConsole();
+        this.batch = batch;
         this.explicitServer = server;
     }
 
@@ -62,8 +64,15 @@ public class Auth {
         for (Server server : dests) {
             console.info.println(server.name + " " + server.url);
         }
-        username = console.readline("username: ");
-        password = new String(System.console().readPassword("password:"));
+        if (batch) {
+            username = env("STOOL_USERNAME");
+            password = env("STOOL_PASSWORD");
+            console.info.println("username: " + username);
+            console.info.println("password: ********");
+        } else {
+            username = console.readline("username: ");
+            password = new String(System.console().readPassword("password:"));
+        }
         for (Server dest : dests) {
             try {
                 dest.auth(globals.getWorld(), username, password);
@@ -77,5 +86,15 @@ public class Auth {
         }
         manager.save(globals.getGson());
         console.info.println("Successfully updated token for " + dests.size() + " server(s)");
+    }
+
+    private static String env(String name) throws IOException {
+        String result;
+
+        result = System.getenv(name);
+        if (result == null) {
+            throw new IOException("environment variable not found: " + name);
+        }
+        return result;
     }
 }

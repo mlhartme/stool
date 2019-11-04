@@ -70,7 +70,7 @@ public class Main {
               cli.addDefault(Help.class, "help command?");
               cli.begin("globals.getWorld", "");
                        cli.begin("globals.getConsole", "");
-                cli.add(Auth.class, "auth server?");
+                cli.add(Auth.class, "auth -batch server?");
                 cli.add(Setup.class, "setup -batch -local opts*");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create -project -optional nameAndServer properties*");

@@ -194,7 +194,7 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 `stool` *global-option*... `version`
 
 
-`stool` *global-option*... `auth` [*server*]
+`stool` *global-option*... `auth` [`-batch`] [*server*]
 
 
 `stool` *global-option*... *project-command* [`-project` *project*] *command-options*... *command-arguments*...
@@ -372,12 +372,14 @@ Authenticate to server(s)
 
 #### SYNOPSIS
 
-`stool` *global-option*... `auth` [*server*]
+`stool` *global-option*... `auth` [`-batch`] [*server*]
 
 #### DESCRIPTION
 
 Asks for username/password to authenticate against ldap. If authentication succeeds, the respective *server* (if not specified: all servers
 that need authentication) is asked for an api token that will be stored in `~/.stool/servers.yml` and used for future access to this server.
+
+Use the `-batch` option to omit asking for username/password and instead pick them from the environment variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
 
 
 ## Project commands
