@@ -1,20 +1,20 @@
 ## Changelog 
 
-### 5.0.3 (pending)
+### 5.0.3 (2019-11-29)
 
 client
 * create
   * improved error message if stage already exists
   * added `-optional` option to not report an exception if the stage already exists
-* added `auth -batch` option to pick credentials from environment variables `STOOL_USERNAMER` and `STOOL_PASSWORD`
+* added `auth -batch` option to pick credentials from environment variables `STOOL_USERNAME` and `STOOL_PASSWORD`
 * setup now creates a `server.yaml` file, not `server.yml`
 * support for longer stage names
   * relax stage name length restriction from 30 to 240 characters (because domains in san certificates can be up to 256 characters long).
   * set container hostname to md5(app + stage) + dockerhost to make sure the name does not exceed the 64 character limit of the kernel
 
 server
-* added per-stage environment, clients configure it with `stool config environment=FOO:bar` - note the colon to separate key and value;
-  explicit environment arguments passed to start overwrite per-stage environment values
+* added per-stage environment; clients configure it with `stool config environment=FOO:bar` - note the colon to separate key and value;
+  explicit environment arguments passed to `start` overwrite per-stage environment values
 * "create" now reports a conflict (409) if the stage already exists
 
 
