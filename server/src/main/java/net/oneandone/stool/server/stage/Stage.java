@@ -423,9 +423,9 @@ public class Stage {
 
     /**
      * @param keep 0 to keep all  */
-    public BuildResult build(Engine engine, FileNode war, String comment, String originScm,
-                             String originUser, String createdBy, boolean noCache, int keep,
-                             Map<String, String> explicitArguments) throws Exception {
+    public BuildResult buildandEatWar(Engine engine, FileNode war, String comment, String originScm,
+                                      String originUser, String createdBy, boolean noCache, int keep,
+                                      Map<String, String> explicitArguments) throws Exception {
         int tag;
         String image;
         String app;
@@ -443,7 +443,7 @@ public class Stage {
         template = template(appProperties, explicitArguments);
         app = app(appProperties, explicitArguments);
         tag = wipeOldImages(engine, app, keep - 1);
-        context = createContext(app, war);  // this is where concurrent builds are blocked
+        context = createContextEatWar(app, war);  // this is where concurrent builds are blocked
         try {
             repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + tag;
             defaults = BuildArgument.scan(template.join("Dockerfile"));
@@ -457,7 +457,7 @@ public class Stage {
             for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
                 labels.put(IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
             }
-            Server.LOGGER.debug("building image ... ");
+            Server.LOGGER.debug("building context " + context.getAbsolute());
             output = new StringWriter();
             try {
                 image = engine.imageBuild(repositoryTag, buildArgs, labels, context, noCache, output);
@@ -1129,7 +1129,7 @@ public class Stage {
 
     //--
 
-    public FileNode createContext(String app, FileNode war) throws IOException {
+    public FileNode createContextEatWar(String app, FileNode war) throws IOException {
         FileNode result;
 
         result = directory.join("context").mkdirOpt().join(app);
@@ -1138,7 +1138,7 @@ public class Stage {
         } catch (MkdirException e) {
             throw new ArgumentException("another build for app " + app + " is in progress, try again later");
         }
-        war.copyFile(result.join("app.war"));
+        war.move(result.join("app.war"));
         return result;
     }
 

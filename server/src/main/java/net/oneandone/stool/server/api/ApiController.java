@@ -167,12 +167,14 @@ public class ApiController {
         war = server.world.getTemp().createTempFile();
         war.copyFileFrom(body);
         try (Engine engine = engine()) {
-            result = server.load(stage).build(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login, noCache, keep, arguments);
+            result = server.load(stage).buildandEatWar(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login, noCache, keep, arguments);
             return buildResult(result.app, result.tag, null, result.output).toString();
         } catch (BuildError e) {
             return buildResult(Image.app(e.repositoryTag), Image.version(e.repositoryTag), e.error, e.output).toString();
         } finally {
-            war.deleteFile();
+            if (war.exists()) {
+                war.deleteFile();
+            }
         }
     }
 
