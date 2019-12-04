@@ -85,7 +85,7 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             result = new JsonObject();
-            result.addProperty("version", Main.versionString(server.world));
+            result.addProperty("version", Main.versionString(engine.world));
             result.addProperty("memory-quota", server.configuration.memoryQuota == 0 ? "" : server.memoryReservedContainers(engine) + "/" + server.configuration.memoryQuota);
             result.addProperty("disk-quota", server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved(engine) + "/" + server.configuration.diskQuota);
             return result.toString();
@@ -164,15 +164,16 @@ public class ApiController {
 
         arguments = map(request, "arg.");
 
-        war = server.world.getTemp().createTempFile();
-        war.copyFileFrom(body);
+        war = null;
         try (Engine engine = engine()) {
+            war = engine.world.getTemp().createTempFile();
+            war.copyFileFrom(body);
             result = server.load(stage).buildandEatWar(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login, noCache, keep, arguments);
             return buildResult(result.app, result.tag, null, result.output).toString();
         } catch (BuildError e) {
             return buildResult(Image.app(e.repositoryTag), Image.version(e.repositoryTag), e.error, e.output).toString();
         } finally {
-            if (war.exists()) {
+            if (war != null && war.exists()) {
                 war.deleteFile();
             }
         }

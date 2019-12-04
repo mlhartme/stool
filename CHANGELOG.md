@@ -1,5 +1,11 @@
 ## Changelog 
 
+### 5.0.4 (pending)
+
+server
+* fixed corrupted war file in concurrent builds (Lena)
+
+
 ### 5.0.3 (2019-11-29)
 
 client

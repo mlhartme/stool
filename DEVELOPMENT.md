@@ -106,3 +106,8 @@ Point you browser to http://localhost:9000 to see the dashboard. You can now cre
  
 Maven releases go to Sonatype, you need the respective account. After running `mvn release:prepare` and `mvn release:perform`, go to
 the staging repository and promote the release.
+
+## Multi Threading
+
+The client part is single threaded, no need to synchronize.
+The server part is multithreaded. TODO engine.world vs server.world

@@ -128,12 +128,15 @@ public class Engine implements AutoCloseable {
         return new Engine(root);
     }
 
+    public final World world;
+
     private final HttpNode root;
 
     /** Thread safe - has no fields at all */
     private final JsonParser parser;
 
     private Engine(HttpNode root) {
+        this.world = root.getWorld();
         this.root = root;
         this.parser = new JsonParser();
     }
