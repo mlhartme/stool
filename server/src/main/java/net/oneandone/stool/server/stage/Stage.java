@@ -443,12 +443,12 @@ public class Stage {
         template = template(appProperties, explicitArguments);
         app = app(appProperties, explicitArguments);
         tag = wipeOldImages(engine, app, keep - 1);
-        context = createContext(app, war);  // this is where concurrent builds are checked
+        context = createContext(app, war);  // this is where concurrent builds are blocked
         try {
             repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + tag;
             defaults = BuildArgument.scan(template.join("Dockerfile"));
             buildArgs = buildArgs(defaults, appProperties, explicitArguments);
-            context = populateContext(context, app, war, template);
+            populateContext(context, template);
             labels = new HashMap<>();
             labels.put(IMAGE_LABEL_COMMENT, comment);
             labels.put(IMAGE_LABEL_ORIGIN_SCM, originScm);
@@ -702,30 +702,19 @@ public class Stage {
 
     }
 
-    private FileNode populateContext(FileNode context, String app, FileNode war, FileNode src) throws IOException {
+    private void populateContext(FileNode context, FileNode src) throws IOException {
         FileNode destparent;
         FileNode destfile;
 
-        try {
-            for (FileNode srcfile : src.find("**/*")) {
-                if (srcfile.isDirectory()) {
-                    continue;
-                }
-                destfile = context.join(srcfile.getRelative(src));
-                destparent = destfile.getParent();
-                destparent.mkdirsOpt();
-                srcfile.copy(destfile);
+        for (FileNode srcfile : src.find("**/*")) {
+            if (srcfile.isDirectory()) {
+                continue;
             }
-        } catch (IOException | RuntimeException | Error e) {
-            // generate all or nothing
-            try {
-                context.deleteTreeOpt();
-            } catch (IOException nested) {
-                e.addSuppressed(nested);
-            }
-            throw e;
+            destfile = context.join(srcfile.getRelative(src));
+            destparent = destfile.getParent();
+            destparent.mkdirsOpt();
+            srcfile.copy(destfile);
         }
-        return context;
     }
 
     private Properties properties(FileNode war) throws IOException {

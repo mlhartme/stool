@@ -96,7 +96,7 @@ public class Build extends ProjectCommand {
         }
         wars = explicitWars.isEmpty() ? project.wars() : explicitWars;
         if (wars.isEmpty()) {
-            throw new IOException("no wars to build");
+            throw new IOException("no war(s) to build");
         }
         reference = project.getAttachedOpt(globals.servers());
         if (reference == null) {
