@@ -164,8 +164,10 @@ public class ApiController {
 
         arguments = map(request, "arg.");
 
-        war = server.world.getTemp().createTempFile();
-        war.copyFileFrom(body);
+        synchronized (server.world) {
+            war = server.world.getTemp().createTempFile();
+            war.copyFileFrom(body);
+        }
         try (Engine engine = engine()) {
             result = server.load(stage).buildandEatWar(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login, noCache, keep, arguments);
             return buildResult(result.app, result.tag, null, result.output).toString();
