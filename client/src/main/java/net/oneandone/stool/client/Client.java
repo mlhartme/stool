@@ -146,10 +146,8 @@ public class Client {
         node = node.withParameter("no-cache", noCache);
         node = node.withParameter("keep", keep);
         node = node.withParameters("arg.", arguments);
-        synchronized (war.getWorld()) {
-            try (InputStream src = war.newInputStream()) {
-                obj = postJson(node, new Body(null, null, war.size(), src, false)).getAsJsonObject();
-            }
+        try (InputStream src = war.newInputStream()) {
+            obj = postJson(node, new Body(null, null, war.size(), src, false)).getAsJsonObject();
         }
         error = obj.get("error");
         return new BuildResult(obj.get("output").getAsString(), error == null ? null : error.getAsString(), obj.get("app").getAsString(), obj.get("tag").getAsString());
