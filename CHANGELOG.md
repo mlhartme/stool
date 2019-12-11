@@ -5,6 +5,9 @@
 server
 * fixed corrupted war file in concurrent builds (Lena)
 
+client
+* fixed documentation url (thanks to Robin T)
+
 
 ### 5.0.3 (2019-11-29)
 
