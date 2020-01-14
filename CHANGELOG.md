@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 5.0.4 (pending)
+### 5.0.4 (2020-01-14)
 
 server
 * fixed corrupted war file in concurrent builds (Lena)
