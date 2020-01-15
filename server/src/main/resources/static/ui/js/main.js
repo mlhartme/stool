@@ -152,7 +152,7 @@ dashboard = {
                 e.preventDefault();
                 var text = $('#feedback-text');
                 if (text.val() !== "") {
-                    $.post("/feedback", { message: text.val()})
+                    $.post("/ui/feedback", { message: text.val()})
                         .done(function () {
                             text.parent().parent().prepend("<div class=\"alert alert-success\">Thanks.</div>");
                             text.val("");
