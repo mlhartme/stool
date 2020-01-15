@@ -7,6 +7,8 @@ dashboard
 * authentication fix: webjars can be access without auth now
 
 server
+* performance tweaks
+  * reduce number of access log reads
 * fixed feedback button (thanks to Julian W)
 * fixed NPEs after access logs were removed
 

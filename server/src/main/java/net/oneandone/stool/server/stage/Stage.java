@@ -71,7 +71,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-/** A collection of apps, each of them with images. From a Docker perspective, a stage roughly represents a Repository. */
+/**
+ * A collection of apps, each of them with images. From a Docker perspective, a stage roughly represents a Repository.
+ * A short-lived object, created for one request, discarded afterwards - caches results for performance.
+ */
 public class Stage {
     private static final String IMAGE_PREFIX = "net.oneandone.stool-";
     private static final String CONTAINER_PREFIX = "net.oneandone.stool-container-";
@@ -113,16 +116,17 @@ public class Stage {
         this.configuration = configuration;
     }
 
-    public FileNode logs() {
-        return directory.join("logs");
+    public String getName() {
+        return name;
     }
 
     public FileNode getDirectory() {
         return directory;
     }
 
-    public String getName() {
-        return name;
+    /** for application logs */
+    public FileNode logs() {
+        return directory.join("logs");
     }
 
     //-- fields and properties
@@ -229,7 +233,7 @@ public class Stage {
             public Object get(Engine engine) throws IOException {
                 // TODO: getCreated: https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
                 AccessLogEntry entry;
-                entry = oldest(accessLog(-1, true));
+                entry = oldest(accessLogModifiedOnly());
                 return entry == null ? null : entry.dateTime;
             }
 
@@ -239,7 +243,7 @@ public class Stage {
             public Object get(Engine engine) throws IOException {
                 AccessLogEntry entry;
 
-                entry = youngest(accessLog(-1, true));
+                entry = youngest(accessLogModifiedOnly());
                 return entry == null ? null : server.userManager.checkedByLogin(entry.user);
             }
         });
@@ -248,7 +252,7 @@ public class Stage {
             public Object get(Engine engine) throws IOException {
                 AccessLogEntry entry;
 
-                entry = youngest(accessLog(-1, true));
+                entry = youngest(accessLogModifiedOnly());
                 return entry == null ? null : timespan(entry.dateTime);
             }
         });
@@ -824,7 +828,7 @@ public class Stage {
     public String createdBy() throws IOException {
         AccessLogEntry entry;
 
-        entry = oldest(accessLog(-1, true));
+        entry = oldest(accessLogModifiedOnly());
         return entry == null ? null : entry.user;
     }
 
@@ -962,13 +966,24 @@ public class Stage {
     public String lastModifiedBy() throws IOException {
         AccessLogEntry entry;
 
-        entry = youngest(accessLog(-1, true));
+        entry = youngest(accessLogModifiedOnly());
         return entry == null ? null : entry.user;
     }
 
+
+    private List<AccessLogEntry> cachedAccessLogModifiedOnly = null;
+
     /** @return last entry first; list may be empty because old log files are removed. */
-    public List<AccessLogEntry> accessLog(int max, boolean modificationsOnly) throws IOException {
-        return server.accessLog(getName(), max, modificationsOnly);
+    public List<AccessLogEntry> accessLogModifiedOnly() throws IOException {
+        if (cachedAccessLogModifiedOnly == null) {
+            cachedAccessLogModifiedOnly = server.accessLog(getName(), -1, true);
+        }
+        return cachedAccessLogModifiedOnly;
+    }
+
+    /** @return last entry first; list may be empty because old log files are removed. */
+    public List<AccessLogEntry> accessLogAll(int max) throws IOException {
+        return server.accessLog(getName(), max, false);
     }
 
     /* @return null if unknown (e.g. because log file was wiped) */
