@@ -215,7 +215,10 @@ public class Stage {
         fields.add(new Field("created-by") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return server.userManager.checkedByLogin(createdBy());
+                String login;
+
+                login = createdBy();
+                return login == null ? null : server.userManager.checkedByLogin(login);
             }
 
         });
@@ -223,20 +226,28 @@ public class Stage {
             @Override
             public Object get(Engine engine) throws IOException {
                 // TODO: getCreated: https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
-                return oldest(accessLog(-1, true)).dateTime;
+                AccessLogEntry entry;
+                entry = oldest(accessLog(-1, true));
+                return entry == null ? null : entry.dateTime;
             }
 
         });
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return server.userManager.checkedByLogin(youngest(accessLog(-1, true)).user);
+                AccessLogEntry entry;
+
+                entry = youngest(accessLog(-1, true));
+                return entry == null ? null : server.userManager.checkedByLogin(entry.user);
             }
         });
         fields.add(new Field("last-modified-at") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return timespan(youngest(accessLog(-1, true)).dateTime);
+                AccessLogEntry entry;
+
+                entry = youngest(accessLog(-1, true));
+                return entry == null ? null : timespan(entry.dateTime);
             }
         });
         fields.add(new Field("urls") {
@@ -290,7 +301,9 @@ public class Stage {
                 default:
                     login = user;
             }
-            done.add(login);
+            if (login == null) {
+                done.add(login);
+            }
         }
         return done;
     }
@@ -805,9 +818,12 @@ public class Stage {
 
     //--
 
-    /** @return login name */
+    /** @return login name or null if unkonwn */
     public String createdBy() throws IOException {
-        return oldest(accessLog(-1, true)).user;
+        AccessLogEntry entry;
+
+        entry = oldest(accessLog(-1, true));
+        return entry == null ? null : entry.user;
     }
 
     //--
@@ -940,11 +956,15 @@ public class Stage {
                 + '}').hashCode();
     }
 
+    /** @return null if unknown */
     public String lastModifiedBy() throws IOException {
-        return youngest(accessLog(-1, true)).user;
+        AccessLogEntry entry;
+
+        entry = youngest(accessLog(-1, true));
+        return entry == null ? null : entry.user;
     }
 
-    /** @return last entry first */
+    /** @return last entry first; list may be empty because old log files are removed. */
     public List<AccessLogEntry> accessLog(int max, boolean modificationsOnly) throws IOException {
         AccessLogEntry entry;
         List<AccessLogEntry> entries;
@@ -975,11 +995,15 @@ public class Stage {
         return entries;
     }
 
+    /* @return null if unknown (e.g. because log file was wiped) */
     private static AccessLogEntry youngest(List<AccessLogEntry> accessLog) {
-        return accessLog.get(0);
+        return accessLog.isEmpty() ? null : accessLog.get(0);
     }
+
+
+    /* @return null if unkown (e.g. because log file was wiped) */
     private static AccessLogEntry oldest(List<AccessLogEntry> accessLog) {
-        return accessLog.get(accessLog.size() - 1);
+        return accessLog.isEmpty() ? null : accessLog.get(accessLog.size() - 1);
     }
 
     //-- for dashboard

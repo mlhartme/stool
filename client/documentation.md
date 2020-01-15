@@ -955,8 +955,10 @@ Install steps
 Prerequisites:
 * Docker 18.03 or newer
 
+
 TODO
 
+Old logs are removed after 90 days or if they exceed 1 GB.
 
 ### Upgrading 
 
