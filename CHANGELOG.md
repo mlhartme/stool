@@ -2,6 +2,9 @@
 
 ### 5.0.5 (pending)
 
+dashboard
+* added `remove` action
+
 dependency updates
 * spring framework 5.1.5 -> 5.2.3, security 5.1.5 -> 5.2.1, boot 2.1.4 -> 2.2.2
 * gson 2.8.5 -> 2.8.6
