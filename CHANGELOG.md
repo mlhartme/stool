@@ -2,9 +2,16 @@
 
 ### 5.0.5 (pending)
 
-server
-* update spring dependencies (framework 5.1.5 -> 5.2.3, security 5.1.5 -> 5.2.1, boot 2.1.4 -> 2.2.2)
+dependency updates
+* spring framework 5.1.5 -> 5.2.3, security 5.1.5 -> 5.2.1, boot 2.1.4 -> 2.2.2
+* gson 2.8.5 -> 2.8.6
+* jquery 3.3.1-1 -> 3.4.1
+* bootstrap 4.3.1 -> 4.4.1
+* slf4j-api 1.7.26 -> 1.7.30
+* jnr-unixsocket 0.21 -> 0.25
+* junit 4.12 -> 4.13
 
+ 
 ### 5.0.4 (2020-01-14)
 
 server
