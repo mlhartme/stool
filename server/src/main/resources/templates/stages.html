@@ -1,7 +1,7 @@
 <th:block xmlns:th="http://www.thymeleaf.org" th:each="stage : ${stages}">
     <th:block th:with="status=${stage.currentMap(engine).isEmpty() ? 'down' : 'up'}, user=${userManager.checkedByLogin(stage.lastModifiedBy())}">
     <tr class="stage" th:data-name="${stage.name}" th:data-user="${user}" th:data-status="${status}"
-        th:data-content-hash="${stage.contentHash(engine, pool)}" th:data-updateAvailable="${stage.updateAvailable()}">
+        th:data-content-hash="${stage.contentHash(engine, pool)}">
 
         <td class="status">
             <div th:class="${'status badge badge-' + stage.displayState(engine)}">
@@ -18,7 +18,7 @@
         <td th:class="${'expire ' + (stage.configuration.expire.isExpired() ? 'expired' : '')}" th:text="${stage.configuration.expire}"></td>
         <td class="user" th:text="${user}"></td>
         <td class="action restart">
-            <button th:class="${'btn ' + (stage.updateAvailable() ? 'btn-primary' : 'btn-light') + ' btn-sm'}"
+            <button th:class="${'btn btn-light btn-sm'}"
                     type="button" data-action="restart" th:data-stage="${stage.name}">
                 <span style="white-space: nowrap"><i class="fas fa-sync"></i> Restart</span></button>
         <td class="action share">

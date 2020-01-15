@@ -182,8 +182,6 @@ public class Stage {
     }
 
     public List<Field> fields() {
-        // TODO: expensive - reads access logs multiple times
-
         List<Field> fields;
 
         fields = new ArrayList<>();
@@ -231,8 +229,10 @@ public class Stage {
         fields.add(new Field("created-at") {
             @Override
             public Object get(Engine engine) throws IOException {
-                // TODO: getCreated: https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
+                // I can't ask the filesystem, see
+                // https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
                 AccessLogEntry entry;
+
                 entry = oldest(accessLogModifiedOnly());
                 return entry == null ? null : entry.dateTime;
             }
@@ -328,9 +328,9 @@ public class Stage {
         }
     }
 
+    /** @return list of tags belonging to this stage */
     private List<String> imageTags(Engine engine) throws IOException {
-        ImageInfo info;    /** @return list of tags belonging to this stage */
-
+        ImageInfo info;
         List<String> result;
 
         result = new ArrayList<>();
@@ -754,10 +754,6 @@ public class Stage {
             }
         }
         return result;
-    }
-
-    public boolean updateAvailable() {
-        return false; // TODO
     }
 
     public String displayState(Engine engine) throws IOException {
