@@ -64,6 +64,7 @@ public class Server {
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
     public static Server create(World world) throws IOException {
+        String version;
         FileNode home;
         ServerConfiguration config;
         Pool pool;
@@ -75,8 +76,9 @@ public class Server {
         String networkMode;
         String localhostIp;
 
+        version = Main.versionString(world);
         home = world.file("/var/lib/stool");
-        home(Main.versionString(world), home);
+        home(version, home);
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
@@ -90,7 +92,7 @@ public class Server {
             LOGGER.info("network mode: " + networkMode);
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), home, serverHome, networkMode, localhostIp, secrets, config, pool);
+            server = new Server(gson(world), version, home, serverHome, networkMode, localhostIp, secrets, config, pool);
             server.validate(engine);
             server.checkVersion();
             return server;
@@ -252,11 +254,11 @@ public class Server {
 
     public final SshDirectory sshDirectory;
 
-    public Server(Gson gson, FileNode home, FileNode serverHome, String networkMode, String localhostIp,
+    public Server(Gson gson, String version, FileNode home, FileNode serverHome, String networkMode, String localhostIp,
                   FileNode secrets, ServerConfiguration configuration, Pool pool) throws IOException {
         this.gson = gson;
+        this.version = version;
         this.world = home.getWorld();
-        this.version = Main.versionString(world);
         this.home = home;
         this.logRoot = home.join("logs");
         this.serverHome = serverHome;
