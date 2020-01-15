@@ -24,6 +24,7 @@ import com.google.gson.JsonPrimitive;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
 import net.oneandone.stool.server.ArgumentException;
+import net.oneandone.stool.server.util.FileNodes;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -33,9 +34,6 @@ import net.oneandone.sushi.fs.http.io.AsciiInputStream;
 import net.oneandone.sushi.fs.http.model.Body;
 import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Strings;
-import org.kamranzafar.jtar.TarEntry;
-import org.kamranzafar.jtar.TarHeader;
-import org.kamranzafar.jtar.TarOutputStream;
 
 import javax.net.SocketFactory;
 import java.io.DataInputStream;
@@ -55,7 +53,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -154,7 +151,6 @@ public class Engine implements AutoCloseable {
 
     //-- images
 
-
     /** @return image ids mapped to ImageInfo */
     public Map<String, ImageInfo> imageList() throws IOException {
         return imageList(Collections.emptyMap());
@@ -186,16 +182,6 @@ public class Engine implements AutoCloseable {
             repositoryTags = repoTags.isJsonNull() ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
             l = object.get("Labels");
             result.put(id, new ImageInfo(id, repositoryTags, l.isJsonNull() ? new HashMap<>() : toStringMap(l.getAsJsonObject())));
-        }
-        return result;
-    }
-
-    private static List<String> stringList(JsonArray array) {
-        List<String> result;
-
-        result = new ArrayList<>(array.size());
-        for (JsonElement element : array) {
-            result.add(element.getAsString());
         }
         return result;
     }
@@ -239,28 +225,6 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    public static Map<String, String> toStringMap(JsonObject obj) {
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return result;
-    }
-
-    private static Map<Integer, Integer> ports(JsonArray array) {
-        JsonObject obj;
-        Map<Integer, Integer> ports;
-
-        ports = new HashMap<>();
-        for (JsonElement element : array) {
-            obj = element.getAsJsonObject();
-            ports.put(obj.get("PrivatePort").getAsInt(), obj.get("PublicPort").getAsInt());
-        }
-        return ports;
-    }
-
     /** @return output */
     public String imageBuildWithOutput(String repositoryTag, FileNode context) throws IOException {
         try (StringWriter dest = new StringWriter()) {
@@ -300,7 +264,7 @@ public class Engine implements AutoCloseable {
         error = null;
         errorDetail = null;
         id = null;
-        tar = tar(context);
+        tar = FileNodes.tar(context);
         try {
             try (InputStream raw = postStream(build, tar)) {
                 in = new AsciiInputStream(raw, 4096);
@@ -386,53 +350,6 @@ public class Engine implements AutoCloseable {
             log.write(str);
         }
         return value;
-    }
-
-    /** tar directory into byte array */
-    private FileNode tar(FileNode context) throws IOException {
-        FileNode result;
-        List<FileNode> all;
-        TarOutputStream tar;
-        byte[] buffer;
-        Iterator<FileNode> iter;
-        FileNode file;
-        int count;
-        long now;
-
-        result = context.getWorld().getTemp().createTempFile();
-        buffer = new byte[64 * 1024];
-        try (OutputStream dest = result.newOutputStream()) {
-            tar = new TarOutputStream(dest);
-            now = System.currentTimeMillis();
-            all = context.find("**/*");
-            iter = all.iterator();
-            while (iter.hasNext()) {
-                file = iter.next();
-                if (file.isDirectory()) {
-                    tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), 0, now, true, 0700)));
-                    iter.remove();
-                }
-            }
-            iter = all.iterator();
-            while (iter.hasNext()) {
-                file = iter.next();
-                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), file.size(), now, false, 0700)));
-                try (InputStream src = file.newInputStream()) {
-                    while (true) {
-                        count = src.read(buffer);
-                        if (count == -1) {
-                            break;
-                        }
-                        tar.write(buffer, 0, count);
-                    }
-                }
-            }
-            tar.close();
-        } catch (IOException | RuntimeException | Error e) {
-            result.deleteFile();
-            throw e;
-        }
-        return result;
     }
 
     public void imageRemove(String tagOrId, boolean force) throws IOException {
@@ -537,52 +454,6 @@ public class Engine implements AutoCloseable {
         response = post(node, body);
         checkWarnings(response);
         return response.get("Id").getAsString();
-    }
-
-    private static JsonArray env(Map<String, String> env) {
-        JsonArray result;
-
-        result = new JsonArray();
-        for (Map.Entry<String, String> entry : env.entrySet()) {
-            result.add(entry.getKey() + "=" + entry.getValue());
-        }
-        return result;
-    }
-
-    private static JsonObject exposedPorts(Set<Integer> ports) {
-        JsonObject obj;
-
-        obj = new JsonObject();
-        for (Integer port : ports) {
-            obj.add(Integer.toString(port) + "/tcp", new JsonObject());
-        }
-        return obj;
-    }
-
-    private static JsonArray hostMapping(String ipOptPort) {
-        int idx;
-        String ip;
-        int port;
-        JsonArray result;
-        JsonObject obj;
-
-        idx = ipOptPort.indexOf(':');
-        if (idx == -1) {
-            ip = null;
-            port = Integer.parseInt(ipOptPort);
-        } else {
-            ip = ipOptPort.substring(0, idx);
-            port = Integer.parseInt(ipOptPort.substring(idx +1));
-        }
-        obj = new JsonObject();
-        if (ip != null) {
-            obj.add("HostIp", new JsonPrimitive(ip));
-
-        }
-        obj.add("HostPort", new JsonPrimitive(Integer.toString(port)));
-        result = new JsonArray();
-        result.add(obj);
-        return result;
     }
 
     public void containerStart(String id) throws IOException {
@@ -780,6 +651,21 @@ public class Engine implements AutoCloseable {
         }
     }
 
+    //--
+
+    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
+    public static void validateReference(String reference) {
+        char c;
+
+        for (int i = 0, length = reference.length(); i < length; i++) {
+            if (Character.isUpperCase(reference.charAt(i))) {
+                throw new ArgumentException("invalid reference: " + reference);
+            }
+        }
+    }
+
+    //-- json utils
+
     private static JsonObject object(Object... keyvalues) {
         JsonObject body;
         Object arg;
@@ -829,16 +715,81 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    //--
+    private static List<String> stringList(JsonArray array) {
+        List<String> result;
 
-    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public static void validateReference(String reference) {
-        char c;
-
-        for (int i = 0, length = reference.length(); i < length; i++) {
-            if (Character.isUpperCase(reference.charAt(i))) {
-                throw new ArgumentException("invalid reference: " + reference);
-            }
+        result = new ArrayList<>(array.size());
+        for (JsonElement element : array) {
+            result.add(element.getAsString());
         }
+        return result;
+    }
+
+    public static Map<String, String> toStringMap(JsonObject obj) {
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAsString());
+        }
+        return result;
+    }
+
+    private static Map<Integer, Integer> ports(JsonArray array) {
+        JsonObject obj;
+        Map<Integer, Integer> ports;
+
+        ports = new HashMap<>();
+        for (JsonElement element : array) {
+            obj = element.getAsJsonObject();
+            ports.put(obj.get("PrivatePort").getAsInt(), obj.get("PublicPort").getAsInt());
+        }
+        return ports;
+    }
+
+    private static JsonArray env(Map<String, String> env) {
+        JsonArray result;
+
+        result = new JsonArray();
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            result.add(entry.getKey() + "=" + entry.getValue());
+        }
+        return result;
+    }
+
+    private static JsonObject exposedPorts(Set<Integer> ports) {
+        JsonObject obj;
+
+        obj = new JsonObject();
+        for (Integer port : ports) {
+            obj.add(Integer.toString(port) + "/tcp", new JsonObject());
+        }
+        return obj;
+    }
+
+    private static JsonArray hostMapping(String ipOptPort) {
+        int idx;
+        String ip;
+        int port;
+        JsonArray result;
+        JsonObject obj;
+
+        idx = ipOptPort.indexOf(':');
+        if (idx == -1) {
+            ip = null;
+            port = Integer.parseInt(ipOptPort);
+        } else {
+            ip = ipOptPort.substring(0, idx);
+            port = Integer.parseInt(ipOptPort.substring(idx +1));
+        }
+        obj = new JsonObject();
+        if (ip != null) {
+            obj.add("HostIp", new JsonPrimitive(ip));
+
+        }
+        obj.add("HostPort", new JsonPrimitive(Integer.toString(port)));
+        result = new JsonArray();
+        result.add(obj);
+        return result;
     }
 }
