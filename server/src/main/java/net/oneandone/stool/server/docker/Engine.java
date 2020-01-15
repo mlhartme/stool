@@ -186,45 +186,6 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    public Map<String, ContainerInfo> containerListRunning(String key, String value) throws IOException {
-        return containerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
-    }
-    public Map<String, ContainerInfo> containerListRunning(String key) throws IOException {
-        return containerList("{\"label\" : [\"" + key + "\"], \"status\" : [\"running\"] }", false);
-    }
-    public Map<String, ContainerInfo> containerList(String key, String value) throws IOException {
-        return containerList("{\"label\" : [\"" + key + "=" + value + "\"] }", true);
-    }
-    public Map<String, ContainerInfo> containerList(String key) throws IOException {
-        return containerList("{\"label\" : [\"" + key + "\"] }", true);
-    }
-
-    public Map<String, ContainerInfo> containerList(String filters, boolean all) throws IOException {
-        HttpNode node;
-        JsonArray array;
-        Map<String, ContainerInfo> result;
-        JsonObject object;
-        String id;
-        String imageId;
-
-        node = root.join("containers/json");
-        if (filters != null) {
-            node = node.withParameter("filters", filters);
-        }
-        if (all) {
-            node = node.withParameter("all", "true");
-        }
-        array = parser.parse(node.readString()).getAsJsonArray();
-        result = new HashMap<>(array.size());
-        for (JsonElement element : array) {
-            object = element.getAsJsonObject();
-            id = object.get("Id").getAsString();
-            imageId = object.get("ImageID").getAsString();
-            result.put(id, new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()), ports(element.getAsJsonObject().get("Ports").getAsJsonArray())));
-        }
-        return result;
-    }
-
     /** @return output */
     public String imageBuildWithOutput(String repositoryTag, FileNode context) throws IOException {
         try (StringWriter dest = new StringWriter()) {
@@ -319,37 +280,11 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    private void eatStream(JsonObject object, StringBuilder result, Writer log) throws IOException {
-        eat(object, "stream", "", "", true, result, log);
-    }
+    public JsonObject imageInspect(String id) throws IOException {
+        HttpNode node;
 
-    private JsonElement eatString(JsonObject object, String key, StringBuilder result, Writer log) throws IOException {
-        return eat(object, key, "[" + key + "] ", "\n", true, result, log);
-    }
-
-    private JsonElement eatObject(JsonObject object, String key, StringBuilder result, Writer log) throws IOException {
-        return eat(object, key, "[" + key + "] ", "\n", false, result, log);
-    }
-
-    private JsonElement eat(JsonObject object, String key, String prefix, String suffix, boolean isString, StringBuilder result, Writer log) throws IOException {
-        JsonElement value;
-        String str;
-
-        value = object.remove(key);
-        if (value == null) {
-            return null;
-        }
-        if (isString) {
-            str = value.getAsString();
-        } else {
-            str = value.getAsJsonObject().toString();
-        }
-        str = prefix + str + suffix;
-        result.append(str);
-        if (log != null) {
-            log.write(str);
-        }
-        return value;
+        node = root.join("images", id, "json");
+        return parser.parse(node.readString()).getAsJsonObject();
     }
 
     public void imageRemove(String tagOrId, boolean force) throws IOException {
@@ -362,8 +297,46 @@ public class Engine implements AutoCloseable {
         Method.delete(node);
     }
 
-
     //-- containers
+
+    public Map<String, ContainerInfo> containerListRunning(String key, String value) throws IOException {
+        return containerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
+    }
+    public Map<String, ContainerInfo> containerListRunning(String key) throws IOException {
+        return containerList("{\"label\" : [\"" + key + "\"], \"status\" : [\"running\"] }", false);
+    }
+    public Map<String, ContainerInfo> containerList(String key, String value) throws IOException {
+        return containerList("{\"label\" : [\"" + key + "=" + value + "\"] }", true);
+    }
+    public Map<String, ContainerInfo> containerList(String key) throws IOException {
+        return containerList("{\"label\" : [\"" + key + "\"] }", true);
+    }
+
+    public Map<String, ContainerInfo> containerList(String filters, boolean all) throws IOException {
+        HttpNode node;
+        JsonArray array;
+        Map<String, ContainerInfo> result;
+        JsonObject object;
+        String id;
+        String imageId;
+
+        node = root.join("containers/json");
+        if (filters != null) {
+            node = node.withParameter("filters", filters);
+        }
+        if (all) {
+            node = node.withParameter("all", "true");
+        }
+        array = parser.parse(node.readString()).getAsJsonArray();
+        result = new HashMap<>(array.size());
+        for (JsonElement element : array) {
+            object = element.getAsJsonObject();
+            id = object.get("Id").getAsString();
+            imageId = object.get("ImageID").getAsString();
+            result.put(id, new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()), ports(element.getAsJsonObject().get("Ports").getAsJsonArray())));
+        }
+        return result;
+    }
 
     public String containerCreate(String image, String hostname) throws IOException {
         return containerCreate(null, image, hostname, null, false, null, null, null,
@@ -605,13 +578,6 @@ public class Engine implements AutoCloseable {
         return parser.parse(node.readString()).getAsJsonObject();
     }
 
-    public JsonObject imageInspect(String id) throws IOException {
-        HttpNode node;
-
-        node = root.join("images", id, "json");
-        return parser.parse(node.readString()).getAsJsonObject();
-    }
-
     //--
 
     private void checkWarnings(JsonObject response) throws IOException {
@@ -652,6 +618,39 @@ public class Engine implements AutoCloseable {
     }
 
     //--
+
+    private void eatStream(JsonObject object, StringBuilder result, Writer log) throws IOException {
+        eat(object, "stream", "", "", true, result, log);
+    }
+
+    private JsonElement eatString(JsonObject object, String key, StringBuilder result, Writer log) throws IOException {
+        return eat(object, key, "[" + key + "] ", "\n", true, result, log);
+    }
+
+    private JsonElement eatObject(JsonObject object, String key, StringBuilder result, Writer log) throws IOException {
+        return eat(object, key, "[" + key + "] ", "\n", false, result, log);
+    }
+
+    private JsonElement eat(JsonObject object, String key, String prefix, String suffix, boolean isString, StringBuilder result, Writer log) throws IOException {
+        JsonElement value;
+        String str;
+
+        value = object.remove(key);
+        if (value == null) {
+            return null;
+        }
+        if (isString) {
+            str = value.getAsString();
+        } else {
+            str = value.getAsJsonObject().toString();
+        }
+        str = prefix + str + suffix;
+        result.append(str);
+        if (log != null) {
+            log.write(str);
+        }
+        return value;
+    }
 
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
     public static void validateReference(String reference) {
