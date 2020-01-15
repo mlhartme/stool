@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.ui;
 
-import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.users.User;
 import org.slf4j.Logger;
@@ -50,7 +49,7 @@ public class DashboardController {
 
         user = User.authenticatedOrAnonymous();
         modelAndView.setViewName("dashboard");
-        modelAndView.addObject("version", Main.versionString(server.world));
+        modelAndView.addObject("version", server.version);
         modelAndView.addObject("username", user.name);
         LOG.info("[" + user.login + "] GET dashboard");
         return modelAndView;

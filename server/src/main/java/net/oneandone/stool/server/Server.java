@@ -221,8 +221,10 @@ public class Server {
     /** gson is thread-save */
     public final Gson gson;
 
+    public final String version;
+
     /** CAUTION: not thread safe! Try to use engine.world instead */
-    public final World world;
+    private final World world;
 
     /** CAUTION: not thread safe! */
     private final FileNode home;
@@ -253,9 +255,10 @@ public class Server {
     public Server(Gson gson, FileNode home, FileNode serverHome, String networkMode, String localhostIp,
                   FileNode secrets, ServerConfiguration configuration, Pool pool) throws IOException {
         this.gson = gson;
+        this.world = home.getWorld();
+        this.version = Main.versionString(world);
         this.home = home;
         this.logRoot = home.join("logs");
-        this.world = home.getWorld();
         this.serverHome = serverHome;
         this.networkMode = networkMode;
         this.localhostIp = localhostIp;
