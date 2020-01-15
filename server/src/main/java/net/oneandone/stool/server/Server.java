@@ -192,11 +192,11 @@ public class Server {
             }
         } else {
             Server.LOGGER.info("initializing server home " + home);
-            initialize(home);
+            initializeHome(version, home);
         }
     }
 
-    private static void initialize(FileNode home) throws IOException {
+    private static void initializeHome(String version, FileNode home) throws IOException {
         World world;
         FileNode dest;
 
@@ -213,16 +213,23 @@ public class Server {
             home.join(name).mkdir();
         }
         home.join("templates").mkdirOpt();
-        home.join("version").writeString(Main.versionString(world));
+        home.join("version").writeString(version);
     }
 
     //--
 
-    /** thread-save */
+    /** gson is thread-save */
     public final Gson gson;
-    private final FileNode home;
-    private final FileNode logRoot;
+
+    /** CAUTION: not thread safe! Try to use engine.world instead */
     public final World world;
+
+    /** CAUTION: not thread safe! */
+    private final FileNode home;
+
+    /** CAUTION: not thread safe! */
+    private final FileNode logRoot;
+
     public final String networkMode;
     public final String localhostIp;
 

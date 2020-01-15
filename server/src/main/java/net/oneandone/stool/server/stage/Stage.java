@@ -101,7 +101,10 @@ public class Stage {
 
     public final Server server;
     private final String name;
+
+    /** CAUTION: not thread safe */
     private final FileNode directory;
+
     public final StageConfiguration configuration;
 
     public Stage(Server server, FileNode directory, StageConfiguration configuration) {
@@ -700,7 +703,7 @@ public class Stage {
             server.checkFaultPermissions(image.createdBy, image.faultProjects);
         }
         for (String project : image.faultProjects) {
-            innerFile = server.world.file("/etc/fault/workspace").join(project);
+            innerFile = directory.getWorld().file("/etc/fault/workspace").join(project);
             outerFile = server.secrets.join(project);
             if (innerFile.isDirectory()) {
                 result.put(outerFile, "/root/.fault/" + project);
