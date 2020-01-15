@@ -26,7 +26,6 @@ import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.ImageInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
@@ -72,7 +71,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-/** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
+/** A collection of apps, each of them with images. From a Docker perspective, a stage roughly represents a Repository. */
 public class Stage {
     private static final String IMAGE_PREFIX = "net.oneandone.stool-";
     private static final String CONTAINER_PREFIX = "net.oneandone.stool-container-";
@@ -969,33 +968,7 @@ public class Stage {
 
     /** @return last entry first; list may be empty because old log files are removed. */
     public List<AccessLogEntry> accessLog(int max, boolean modificationsOnly) throws IOException {
-        AccessLogEntry entry;
-        List<AccessLogEntry> entries;
-        LogReader<AccessLogEntry> reader;
-        String stage;
-        String previousInvocation;
-
-        entries = new ArrayList<>();
-        reader = server.accessLogReader();
-        stage = getName();
-        while (true) {
-            entry = reader.prev();
-            if (entry == null) {
-                break;
-            }
-            if (stage.equals(entry.stageName)) {
-                if (!modificationsOnly || (modificationsOnly && entry.request.startsWith("POST "))) {
-                    previousInvocation = entries.isEmpty() ? "" : entries.get(entries.size() - 1).clientInvocation;
-                    if (!entry.clientInvocation.equals(previousInvocation)) {
-                        entries.add(entry);
-                    }
-                    if (entries.size() == max) {
-                        break;
-                    }
-                }
-            }
-        }
-        return entries;
+        return server.accessLog(getName(), max, modificationsOnly);
     }
 
     /* @return null if unknown (e.g. because log file was wiped) */

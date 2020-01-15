@@ -273,12 +273,33 @@ public class Server {
         this.sshDirectory = SshDirectory.create(world.file("/home/stool/.ssh"));
     }
 
-    public LogReader<AccessLogEntry> accessLogReader() throws IOException {
-        return LogReader.accessLog(logRoot);
-    }
+    /** @return last entry first; list may be empty because old log files are removed. */
+    public List<AccessLogEntry> accessLog(String stage, int max, boolean modificationsOnly) throws IOException {
+        AccessLogEntry entry;
+        List<AccessLogEntry> entries;
+        LogReader<AccessLogEntry> reader;
+        String previousInvocation;
 
-    public LogReader<DetailsLogEntry> detailsLogReader() throws IOException {
-        return LogReader.detailsLog(logRoot);
+        entries = new ArrayList<>();
+        reader = LogReader.accessLog(logRoot);
+        while (true) {
+            entry = reader.prev();
+            if (entry == null) {
+                break;
+            }
+            if (stage.equals(entry.stageName)) {
+                if (!modificationsOnly || (modificationsOnly && entry.request.startsWith("POST "))) {
+                    previousInvocation = entries.isEmpty() ? "" : entries.get(entries.size() - 1).clientInvocation;
+                    if (!entry.clientInvocation.equals(previousInvocation)) {
+                        entries.add(entry);
+                    }
+                    if (entries.size() == max) {
+                        break;
+                    }
+                }
+            }
+        }
+        return entries;
     }
 
     public List<DetailsLogEntry> detailsLog(String clientInvocation) throws IOException {
@@ -287,7 +308,7 @@ public class Server {
         LogReader<DetailsLogEntry> reader;
 
         entries = new ArrayList<>();
-        reader = detailsLogReader();
+        reader = LogReader.detailsLog(logRoot);
         while (true) {
             entry = reader.prev();
             if (entry == null) {
