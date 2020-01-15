@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 5.0.5 (pending)
+
+server
+* update spring dependencies (framework 5.1.5 -> 5.2.3, security 5.1.5 -> 5.2.1, boot 2.1.4 -> 2.2.2)
+
 ### 5.0.4 (2020-01-14)
 
 server
