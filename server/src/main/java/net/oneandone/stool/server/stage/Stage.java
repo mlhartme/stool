@@ -756,10 +756,6 @@ public class Stage {
         return result;
     }
 
-    public String displayState(Engine engine) throws IOException {
-        return currentMap(engine).isEmpty() ? "danger" : "success";
-    }
-
     private FileNode template(Properties appProperies, Map<String, String> explicit) throws IOException {
         return server.templates().join(eat(appProperies, explicit, "_template", "war")).checkDirectory();
     }
