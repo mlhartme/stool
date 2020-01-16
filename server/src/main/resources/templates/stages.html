@@ -1,44 +1,46 @@
-<th:block xmlns:th="http://www.thymeleaf.org" th:each="stage : ${stages}">
-    <th:block th:with="runningContainerList=${stage.runningContainerList(engine)},
+<th:block xmlns:th="http://www.thymeleaf.org" th:with="allContainerList=${T(net.oneandone.stool.server.stage.Stage).allContainerList(engine)}">
+    <th:block th:each="stage : ${stages}">
+        <th:block th:with="runningContainerList=${stage.runningContainerList(allContainerList)},
                        currentMap=${stage.currentMap(engine, runningContainerList.values())},
                        user=${userManager.checkedByLogin(stage.lastModifiedBy())},
-                       urlMap=${stage.urlMap(engine, pool, null)}">
-    <tr class="stage" th:data-name="${stage.name}" th:data-user="${user}" th:data-status="${currentMap.isEmpty() ? 'down' : 'up'}"
-        th:data-content-hash="${stage.contentHash(urlMap, runningContainerList)}">
+                       urlMap=${stage.urlMap(engine, pool, allContainerList.values(), null)}">
+            <tr class="stage" th:data-name="${stage.name}" th:data-user="${user}" th:data-status="${currentMap.isEmpty() ? 'down' : 'up'}"
+                th:data-content-hash="${stage.contentHash(urlMap, runningContainerList)}">
 
-        <td class="status">
-            <div th:class="${'status badge badge-' + (currentMap.isEmpty() ? 'danger' : 'success')}">
-              <span data-container="body" data-toggle="popover" data-placement="bottom" data-trigger="hover" th:text="${currentMap.isEmpty() ? 'down' : 'up'}"></span></div>
-        </td>
-        <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom"
-                               th:data-content="${stage.configuration.comment.isEmpty() ? '(no comment)' : stage.configuration.comment}"
-                               data-trigger="hover" th:text="${stage.name}"></span></td>
-        <td class="links">
-            <th:block th:each="url : ${urlMap}">
-                <a th:href="${url.value}" target="_blank" th:text="${url.key}"></a><br/>
-            </th:block>
-        </td>
-        <td th:class="${'expire ' + (stage.configuration.expire.isExpired() ? 'expired' : '')}" th:text="${stage.configuration.expire}"></td>
-        <td class="user" th:text="${user}"></td>
-        <td class="action restart">
-            <button th:class="${'btn btn-light btn-sm'}"
-                    type="button" data-action="restart" th:data-stage="${stage.name}">
-                <span style="white-space: nowrap"><i class="fas fa-sync"></i> Restart</span></button>
-        <td class="action share">
-        </td>
-        <td class="action">
-            <div class="dropdown">
-                <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span style="white-space: nowrap">More</span></button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#dashboard" data-action="start" th:data-stage="${stage.name}">Start</a>
-                    <a class="dropdown-item" href="#dashboard" data-action="stop" th:data-stage="${stage.name}">Stop</a>
-                    <a class="dropdown-item" href="#dashboard" data-action="set-properties" data-arguments="expire=%2B7" th:data-stage="${stage.name}">Expire in 1 week</a>
-                    <a class="dropdown-item" th:href="${'mailto:?subject=Stage&body=' + stage.sharedText(urlMap)}" th:disabled="${urlMap == null}">
-                        <span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
-                    <a class="dropdown-item" data-toggle="modal" data-target="#logs" th:data-stage="${stage.name}">Log files ...</a>
-                    <a class="dropdown-item" href="#dashboard" data-action="remove" data-arguments="stop&batch"th:data-stage="${stage.name}">Remove</a>
-                </div>
-            </div>
-        </td>
-    </tr>
-</th:block>
+                <td class="status">
+                    <div th:class="${'status badge badge-' + (currentMap.isEmpty() ? 'danger' : 'success')}">
+                        <span data-container="body" data-toggle="popover" data-placement="bottom" data-trigger="hover" th:text="${currentMap.isEmpty() ? 'down' : 'up'}"></span></div>
+                </td>
+                <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom"
+                                       th:data-content="${stage.configuration.comment.isEmpty() ? '(no comment)' : stage.configuration.comment}"
+                                       data-trigger="hover" th:text="${stage.name}"></span></td>
+                <td class="links">
+                    <th:block th:each="url : ${urlMap}">
+                        <a th:href="${url.value}" target="_blank" th:text="${url.key}"></a><br/>
+                    </th:block>
+                </td>
+                <td th:class="${'expire ' + (stage.configuration.expire.isExpired() ? 'expired' : '')}" th:text="${stage.configuration.expire}"></td>
+                <td class="user" th:text="${user}"></td>
+                <td class="action restart">
+                    <button th:class="${'btn btn-light btn-sm'}"
+                            type="button" data-action="restart" th:data-stage="${stage.name}">
+                        <span style="white-space: nowrap"><i class="fas fa-sync"></i> Restart</span></button>
+                <td class="action share">
+                </td>
+                <td class="action">
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span style="white-space: nowrap">More</span></button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#dashboard" data-action="start" th:data-stage="${stage.name}">Start</a>
+                            <a class="dropdown-item" href="#dashboard" data-action="stop" th:data-stage="${stage.name}">Stop</a>
+                            <a class="dropdown-item" href="#dashboard" data-action="set-properties" data-arguments="expire=%2B7" th:data-stage="${stage.name}">Expire in 1 week</a>
+                            <a class="dropdown-item" th:href="${'mailto:?subject=Stage&body=' + stage.sharedText(urlMap)}" th:disabled="${urlMap == null}">
+                                <span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
+                            <a class="dropdown-item" data-toggle="modal" data-target="#logs" th:data-stage="${stage.name}">Log files ...</a>
+                            <a class="dropdown-item" href="#dashboard" data-action="remove" data-arguments="stop&batch"th:data-stage="${stage.name}">Remove</a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </th:block>
+    </th:block>

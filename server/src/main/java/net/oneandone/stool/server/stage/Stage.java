@@ -826,18 +826,22 @@ public class Stage {
 
     //--
 
+    public Map<String, String> urlMap(Engine engine, Pool pool, String oneApp) throws IOException {
+        return urlMap(engine, pool, allContainerList(engine).values(), oneApp);
+    }
+
     /**
      * @param oneApp null for all apps
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, Pool pool, String oneApp) throws IOException {
+    public Map<String, String> urlMap(Engine engine, Pool pool, Collection<ContainerInfo> allContainerList, String oneApp) throws IOException {
         Map<String, String> result;
         String app;
         Map<String, Image> images;
 
         result = new LinkedHashMap<>();
         images = new HashMap<>();
-        for (ContainerInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
+        for (ContainerInfo info : allContainerList) {
             if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
                 images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
             }
@@ -926,6 +930,23 @@ public class Stage {
         }
     }
 
+    // not just this stage
+    public static Map<String, ContainerInfo> allContainerList(Engine engine) throws IOException {
+        return engine.containerList(Stage.CONTAINER_LABEL_IMAGE);
+    }
+
+    public Map<String, ContainerInfo> runningContainerList(Map<String, ContainerInfo> allContainerList) {
+        Map<String, ContainerInfo> result;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, ContainerInfo> entry : allContainerList.entrySet()) {
+            if (entry.getValue().state == Engine.Status.RUNNING) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
+    }
+
     public Map<String, ContainerInfo> runningContainerList(Engine engine) throws IOException {
         return engine.containerListRunning(CONTAINER_LABEL_STAGE, name);
     }
@@ -944,17 +965,6 @@ public class Stage {
             result.put(image.app, new Current(image, info));
         }
         return result;
-    }
-
-    // TODO: separate static class; static method
-    public int contentHash(Map<String, String> urlMap, Map<String, ContainerInfo> runningContainerList) {
-        return ("StageInfo{"
-                + "name='" + name + '\''
-                + ", comment='" + configuration.comment + '\''
-                // TODO: current image, container?
-                + ", urls=" + urlMap
-                + ", running=" + runningContainerList
-                + '}').hashCode();
     }
 
     /** @return null if unknown */
@@ -990,31 +1000,6 @@ public class Stage {
     /* @return null if unkown (e.g. because log file was wiped) */
     private static AccessLogEntry oldest(List<AccessLogEntry> accessLog) {
         return accessLog.isEmpty() ? null : accessLog.get(accessLog.size() - 1);
-    }
-
-    //-- for dashboard
-
-    public String sharedText(Map<String, String> urlMap) throws IOException {
-        String content;
-        StringBuilder builder;
-
-        if (urlMap == null) {
-            return "";
-        }
-        builder = new StringBuilder("Hi, \n");
-        for (String url : urlMap.values()) {
-            builder.append(url).append("\n");
-        }
-
-        content = URLEncoder.encode(builder.toString(), "UTF-8");
-        content = content.replace("+", "%20").replaceAll("\\+", "%20")
-                .replaceAll("\\%21", "!")
-                .replaceAll("\\%27", "'")
-                .replaceAll("\\%28", "(")
-                .replaceAll("\\%29", ")")
-                .replaceAll("\\%7E", "~");
-
-        return content;
     }
 
     //--
@@ -1188,5 +1173,41 @@ public class Stage {
                 }
             }
         }
+    }
+
+
+    // -- TODO: separate static class; static method
+
+    public String sharedText(Map<String, String> urlMap) throws IOException {
+        String content;
+        StringBuilder builder;
+
+        if (urlMap == null) {
+            return "";
+        }
+        builder = new StringBuilder("Hi, \n");
+        for (String url : urlMap.values()) {
+            builder.append(url).append("\n");
+        }
+
+        content = URLEncoder.encode(builder.toString(), "UTF-8");
+        content = content.replace("+", "%20").replaceAll("\\+", "%20")
+                .replaceAll("\\%21", "!")
+                .replaceAll("\\%27", "'")
+                .replaceAll("\\%28", "(")
+                .replaceAll("\\%29", ")")
+                .replaceAll("\\%7E", "~");
+
+        return content;
+    }
+
+    public int contentHash(Map<String, String> urlMap, Map<String, ContainerInfo> runningContainerList) {
+        return ("StageInfo{"
+                + "name='" + name + '\''
+                + ", comment='" + configuration.comment + '\''
+                // TODO: current image, container?
+                + ", urls=" + urlMap
+                + ", running=" + runningContainerList
+                + '}').hashCode();
     }
 }
