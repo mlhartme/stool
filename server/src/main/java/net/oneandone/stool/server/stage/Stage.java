@@ -937,11 +937,13 @@ public class Stage {
 
     public Map<String, ContainerInfo> runningContainerMap(Map<String, ContainerInfo> allContainerMap) {
         Map<String, ContainerInfo> result;
+        ContainerInfo info;
 
         result = new HashMap<>();
         for (Map.Entry<String, ContainerInfo> entry : allContainerMap.entrySet()) {
-            if (entry.getValue().state == Engine.Status.RUNNING) {
-                result.put(entry.getKey(), entry.getValue());
+            info = entry.getValue();
+            if (info.state == Engine.Status.RUNNING && name.equals(info.labels.get(CONTAINER_LABEL_STAGE))) {
+                result.put(entry.getKey(), info);
             }
         }
         return result;
