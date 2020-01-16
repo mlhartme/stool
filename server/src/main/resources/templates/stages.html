@@ -1,7 +1,7 @@
 <th:block xmlns:th="http://www.thymeleaf.org" th:each="stage : ${stages}">
     <th:block th:with="status=${stage.currentMap(engine).isEmpty() ? 'down' : 'up'}, user=${userManager.checkedByLogin(stage.lastModifiedBy())}">
     <tr th:with="urlMap=${stage.urlMap(engine, pool, null)}" class="stage" th:data-name="${stage.name}" th:data-user="${user}" th:data-status="${status}"
-        th:data-content-hash="${stage.contentHash(engine, pool)}">
+        th:data-content-hash="${stage.contentHash(engine, urlMap)}">
 
         <td class="status">
             <div th:class="${'status badge badge-' + stage.displayState(engine)}">
@@ -30,7 +30,7 @@
                     <a class="dropdown-item" href="#dashboard" data-action="start" th:data-stage="${stage.name}">Start</a>
                     <a class="dropdown-item" href="#dashboard" data-action="stop" th:data-stage="${stage.name}">Stop</a>
                     <a class="dropdown-item" href="#dashboard" data-action="set-properties" data-arguments="expire=%2B7" th:data-stage="${stage.name}">Expire in 1 week</a>
-                    <a class="dropdown-item" th:href="${'mailto:?subject=Stage&body=' + stage.sharedText(engine, pool)}" th:disabled="${urlMap == null}">
+                    <a class="dropdown-item" th:href="${'mailto:?subject=Stage&body=' + stage.sharedText(urlMap)}" th:disabled="${urlMap == null}">
                         <span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
                     <a class="dropdown-item" data-toggle="modal" data-target="#logs" th:data-stage="${stage.name}">Log files ...</a>
                     <a class="dropdown-item" href="#dashboard" data-action="remove" data-arguments="stop&batch"th:data-stage="${stage.name}">Remove</a>

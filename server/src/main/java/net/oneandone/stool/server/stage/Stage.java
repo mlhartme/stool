@@ -948,12 +948,12 @@ public class Stage {
         return result;
     }
 
-    public int contentHash(Engine engine, Pool pool) throws IOException {
+    public int contentHash(Engine engine, Map<String, String> urlMap) throws IOException {
         return ("StageInfo{"
                 + "name='" + name + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current image, container?
-                + ", urls=" + urlMap(engine, pool, null)
+                + ", urls=" + urlMap
                 + ", running=" + dockerRunningContainerList(engine)
                 + '}').hashCode();
     }
@@ -995,17 +995,15 @@ public class Stage {
 
     //-- for dashboard
 
-    public String sharedText(Engine engine, Pool pool) throws IOException {
-        Map<String, String> urls;
+    public String sharedText(Map<String, String> urlMap) throws IOException {
         String content;
         StringBuilder builder;
 
-        urls = urlMap(engine, pool, null);
-        if (urls == null) {
+        if (urlMap == null) {
             return "";
         }
         builder = new StringBuilder("Hi, \n");
-        for (String url : urls.values()) {
+        for (String url : urlMap.values()) {
             builder.append(url).append("\n");
         }
 
