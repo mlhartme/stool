@@ -3,6 +3,7 @@
 ### 5.0.5 (pending)
 
 dashboard
+* performance improvements by reducing the number of docker calls
 * added `remove` action
 * authentication fix: webjars can be access without auth now
 

@@ -926,17 +926,19 @@ public class Stage {
         }
     }
 
-    public Map<String, ContainerInfo> dockerRunningContainerList(Engine engine) throws IOException {
+    public Map<String, ContainerInfo> runningContainerList(Engine engine) throws IOException {
         return engine.containerListRunning(CONTAINER_LABEL_STAGE, name);
     }
 
     public Map<String, Current> currentMap(Engine engine) throws IOException {
-        Collection<ContainerInfo> containerList;
+        return currentMap(engine, runningContainerList(engine).values());
+    }
+
+    public Map<String, Current> currentMap(Engine engine, Collection<ContainerInfo> containerList) throws IOException {
         Map<String, Current> result;
         Image image;
 
         result = new HashMap<>();
-        containerList = dockerRunningContainerList(engine).values();
         for (ContainerInfo info : containerList) {
             image = Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE));
             result.put(image.app, new Current(image, info));
@@ -944,13 +946,14 @@ public class Stage {
         return result;
     }
 
-    public int contentHash(Engine engine, Map<String, String> urlMap) throws IOException {
+    // TODO: separate static class; static method
+    public int contentHash(Map<String, String> urlMap, Map<String, ContainerInfo> runningContainerList) {
         return ("StageInfo{"
                 + "name='" + name + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current image, container?
                 + ", urls=" + urlMap
-                + ", running=" + dockerRunningContainerList(engine)
+                + ", running=" + runningContainerList
                 + '}').hashCode();
     }
 
@@ -1072,7 +1075,7 @@ public class Stage {
         String jmx;
         Collection<ContainerInfo> containerList;
 
-        containerList = dockerRunningContainerList(engine).values();
+        containerList = runningContainerList(engine).values();
         result = new HashMap<>();
         for (ContainerInfo info : containerList) {
             inspected = engine.containerInspect(info.id, false);
@@ -1116,7 +1119,7 @@ public class Stage {
     public void tailF(Engine engine, PrintWriter dest) throws IOException {
         Collection<String> containers;
 
-        containers = dockerRunningContainerList(engine).keySet();
+        containers = runningContainerList(engine).keySet();
         if (containers.size() != 1) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {

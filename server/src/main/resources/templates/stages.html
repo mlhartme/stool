@@ -1,9 +1,10 @@
 <th:block xmlns:th="http://www.thymeleaf.org" th:each="stage : ${stages}">
-    <th:block th:with="currentMap=${stage.currentMap(engine)},
+    <th:block th:with="runningContainerList=${stage.runningContainerList(engine)},
+                       currentMap=${stage.currentMap(engine, runningContainerList.values())},
                        user=${userManager.checkedByLogin(stage.lastModifiedBy())},
                        urlMap=${stage.urlMap(engine, pool, null)}">
     <tr class="stage" th:data-name="${stage.name}" th:data-user="${user}" th:data-status="${currentMap.isEmpty() ? 'down' : 'up'}"
-        th:data-content-hash="${stage.contentHash(engine, urlMap)}">
+        th:data-content-hash="${stage.contentHash(urlMap, runningContainerList)}">
 
         <td class="status">
             <div th:class="${'status badge badge-' + (currentMap.isEmpty() ? 'danger' : 'success')}">
