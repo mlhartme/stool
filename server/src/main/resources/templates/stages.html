@@ -1,11 +1,11 @@
-<th:block xmlns:th="http://www.thymeleaf.org" th:with="allContainerList=${T(net.oneandone.stool.server.stage.Stage).allContainerList(engine)}">
+<th:block xmlns:th="http://www.thymeleaf.org" th:with="allContainerMap=${T(net.oneandone.stool.server.stage.Stage).allContainerMap(engine)}">
     <th:block th:each="stage : ${stages}">
-        <th:block th:with="runningContainerList=${stage.runningContainerList(allContainerList)},
-                       currentMap=${stage.currentMap(engine, runningContainerList.values())},
+        <th:block th:with="runningContainerMap=${stage.runningContainerMap(allContainerMap)},
+                       currentMap=${stage.currentMap(engine, runningContainerMap.values())},
                        user=${userManager.checkedByLogin(stage.lastModifiedBy())},
-                       urlMap=${stage.urlMap(engine, pool, allContainerList.values(), null)}">
+                       urlMap=${stage.urlMap(engine, pool, allContainerMap.values(), null)}">
             <tr class="stage" th:data-name="${stage.name}" th:data-user="${user}" th:data-status="${currentMap.isEmpty() ? 'down' : 'up'}"
-                th:data-content-hash="${stage.contentHash(urlMap, runningContainerList)}">
+                th:data-content-hash="${stage.contentHash(urlMap, runningContainerMap)}">
 
                 <td class="status">
                     <div th:class="${'status badge badge-' + (currentMap.isEmpty() ? 'danger' : 'success')}">

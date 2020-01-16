@@ -827,7 +827,7 @@ public class Stage {
     //--
 
     public Map<String, String> urlMap(Engine engine, Pool pool, String oneApp) throws IOException {
-        return urlMap(engine, pool, allContainerList(engine).values(), oneApp);
+        return urlMap(engine, pool, allContainerMap(engine).values(), oneApp);
     }
 
     /**
@@ -931,15 +931,15 @@ public class Stage {
     }
 
     // not just this stage
-    public static Map<String, ContainerInfo> allContainerList(Engine engine) throws IOException {
+    public static Map<String, ContainerInfo> allContainerMap(Engine engine) throws IOException {
         return engine.containerList(Stage.CONTAINER_LABEL_IMAGE);
     }
 
-    public Map<String, ContainerInfo> runningContainerList(Map<String, ContainerInfo> allContainerList) {
+    public Map<String, ContainerInfo> runningContainerMap(Map<String, ContainerInfo> allContainerMap) {
         Map<String, ContainerInfo> result;
 
         result = new HashMap<>();
-        for (Map.Entry<String, ContainerInfo> entry : allContainerList.entrySet()) {
+        for (Map.Entry<String, ContainerInfo> entry : allContainerMap.entrySet()) {
             if (entry.getValue().state == Engine.Status.RUNNING) {
                 result.put(entry.getKey(), entry.getValue());
             }
@@ -947,12 +947,12 @@ public class Stage {
         return result;
     }
 
-    public Map<String, ContainerInfo> runningContainerList(Engine engine) throws IOException {
+    public Map<String, ContainerInfo> runningContainerMap(Engine engine) throws IOException {
         return engine.containerListRunning(CONTAINER_LABEL_STAGE, name);
     }
 
     public Map<String, Current> currentMap(Engine engine) throws IOException {
-        return currentMap(engine, runningContainerList(engine).values());
+        return currentMap(engine, runningContainerMap(engine).values());
     }
 
     public Map<String, Current> currentMap(Engine engine, Collection<ContainerInfo> containerList) throws IOException {
@@ -1060,7 +1060,7 @@ public class Stage {
         String jmx;
         Collection<ContainerInfo> containerList;
 
-        containerList = runningContainerList(engine).values();
+        containerList = runningContainerMap(engine).values();
         result = new HashMap<>();
         for (ContainerInfo info : containerList) {
             inspected = engine.containerInspect(info.id, false);
@@ -1104,7 +1104,7 @@ public class Stage {
     public void tailF(Engine engine, PrintWriter dest) throws IOException {
         Collection<String> containers;
 
-        containers = runningContainerList(engine).keySet();
+        containers = runningContainerMap(engine).keySet();
         if (containers.size() != 1) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
@@ -1201,13 +1201,13 @@ public class Stage {
         return content;
     }
 
-    public int contentHash(Map<String, String> urlMap, Map<String, ContainerInfo> runningContainerList) {
+    public int contentHash(Map<String, String> urlMap, Map<String, ContainerInfo> runningContainerMap) {
         return ("StageInfo{"
                 + "name='" + name + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current image, container?
                 + ", urls=" + urlMap
-                + ", running=" + runningContainerList
+                + ", running=" + runningContainerMap
                 + '}').hashCode();
     }
 }
