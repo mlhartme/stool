@@ -36,7 +36,7 @@ public class Image implements Comparable<Image> {
         String app;
 
         inspect = engine.imageInspect(repositoryTag);
-        created = LocalDateTime.parse(inspect.get("Created").getAsString(), Engine.CREATED_FMT);
+        created = imageCreated(inspect.get("Created").getAsString());
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
         app = app(repositoryTag);
         return new Image(repositoryTag, version(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)), app,
@@ -46,6 +46,10 @@ public class Image implements Comparable<Image> {
                 created, labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
                 args(labels),
                 fault(labels.get(Stage.IMAGE_LABEL_FAULT)));
+    }
+
+    public static LocalDateTime imageCreated(String date) {
+        return LocalDateTime.parse(date, Engine.CREATED_FMT);
     }
 
     private static Map<String, String> args(JsonObject labels) {

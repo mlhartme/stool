@@ -15,16 +15,19 @@
  */
 package net.oneandone.stool.server.docker;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 public class ImageInfo {
     public final String id;
+    public final LocalDateTime created;
     public final List<String> repositoryTags;
     public final Map<String, String> labels;
 
-    public ImageInfo(String id, List<String> repositoryTags, Map<String, String> labels) {
+    public ImageInfo(String id, List<String> repositoryTags, LocalDateTime created, Map<String, String> labels) {
         this.id = id;
+        this.created = created;
         this.repositoryTags = repositoryTags;
         this.labels = labels;
     }

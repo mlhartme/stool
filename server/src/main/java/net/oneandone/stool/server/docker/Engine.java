@@ -46,6 +46,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -181,9 +182,15 @@ public class Engine implements AutoCloseable {
             repoTags = object.get("RepoTags");
             repositoryTags = repoTags.isJsonNull() ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
             l = object.get("Labels");
-            result.put(id, new ImageInfo(id, repositoryTags, l.isJsonNull() ? new HashMap<>() : toStringMap(l.getAsJsonObject())));
+            result.put(id, new ImageInfo(id, repositoryTags, toLocalTime(object.get("Created").getAsLong()),
+                    l.isJsonNull() ? new HashMap<>() : toStringMap(l.getAsJsonObject())));
         }
         return result;
+    }
+
+    private static LocalDateTime toLocalTime(long epochSeconds) {
+        Instant instant = Instant.ofEpochSecond(epochSeconds);
+        return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     /** @return output */

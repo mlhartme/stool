@@ -953,16 +953,17 @@ public class Stage {
         return engine.containerListRunning(CONTAINER_LABEL_STAGE, name);
     }
 
+    /** only for running apps, does not include stopped apps */
     public Map<String, Current> currentMap(Engine engine) throws IOException {
         return currentMap(engine, runningContainerMap(engine).values());
     }
 
-    public Map<String, Current> currentMap(Engine engine, Collection<ContainerInfo> containerList) throws IOException {
+    public Map<String, Current> currentMap(Engine engine, Collection<ContainerInfo> runningContainerList) throws IOException {
         Map<String, Current> result;
         Image image;
 
         result = new HashMap<>();
-        for (ContainerInfo info : containerList) {
+        for (ContainerInfo info : runningContainerList) {
             image = Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE));
             result.put(image.app, new Current(image, info));
         }
