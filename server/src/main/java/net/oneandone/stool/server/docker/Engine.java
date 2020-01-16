@@ -319,6 +319,7 @@ public class Engine implements AutoCloseable {
         JsonObject object;
         String id;
         String imageId;
+        Status state; // TODO: sometimes it's called Status, somestimes state ...
 
         node = root.join("containers/json");
         if (filters != null) {
@@ -333,7 +334,10 @@ public class Engine implements AutoCloseable {
             object = element.getAsJsonObject();
             id = object.get("Id").getAsString();
             imageId = object.get("ImageID").getAsString();
-            result.put(id, new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()), ports(element.getAsJsonObject().get("Ports").getAsJsonArray())));
+            state = Status.valueOf(object.get("State").getAsString().toUpperCase());
+            result.put(id, new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()),
+                    ports(element.getAsJsonObject().get("Ports").getAsJsonArray()),
+                    state));
         }
         return result;
     }

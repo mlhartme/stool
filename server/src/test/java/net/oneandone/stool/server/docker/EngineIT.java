@@ -125,6 +125,7 @@ public class EngineIT {
             map = containerListForImage(engine, image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
+            assertEquals(Engine.Status.RUNNING, map.get(container).state);
             assertEquals(ports, convert(map.get(container).ports));
 
             Thread.sleep(2500);
