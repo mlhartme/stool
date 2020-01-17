@@ -38,7 +38,16 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public boolean doBefore(List<Reference> stagesNotUsed, int indent) {
+    public EnumerationFailed runAll(List<Reference> lst, int width) throws Exception {
+        EnumerationFailed result;
+
+        doBefore();
+        result = super.runAll(lst, width);
+        doAfter();
+        return result;
+    }
+
+    private void doBefore() {
         List<String> line;
 
         if (selected.isEmpty()) {
@@ -51,11 +60,9 @@ public class Ls extends InfoCommand {
         for (String infoName : selected) {
             line.add('(' + infoName + ')');
         }
-        return true;
     }
 
-    @Override
-    public void doAfter() {
+    private void doAfter() {
         List<Integer> widths;
         boolean first;
 

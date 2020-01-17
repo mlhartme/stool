@@ -19,41 +19,30 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public abstract class InfoCommand extends StageCommand {
-
     protected final List<String> selected = new ArrayList<>();
 
     public InfoCommand(Globals globals) {
         super(globals);
     }
 
-    /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
-    public boolean doBefore(List<Reference> names, int indent) throws IOException {
-        return names.size() != 1;
-    }
-
-    //--
-
-    /* Note that the stage is not locked when this method is called. */
-    public void doAfter() throws IOException {
+    public void select(String str) {
+        selected.add(str);
     }
 
     @Override
     public EnumerationFailed runAll(List<Reference> lst, int width) throws Exception {
         Client client;
 
-        doBefore(lst, width);
         lst = new ArrayList<>(lst);
         while (!lst.isEmpty()) {
             client = lst.get(0).client;
             doRun(client, eat(lst, client));
         }
-        doAfter();
         return new EnumerationFailed();
     }
 
@@ -74,9 +63,5 @@ public abstract class InfoCommand extends StageCommand {
             }
         }
         return result;
-    }
-
-    public void select(String str) {
-        selected.add(str);
     }
 }
