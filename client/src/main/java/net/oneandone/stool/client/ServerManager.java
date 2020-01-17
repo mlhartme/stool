@@ -88,34 +88,52 @@ public class ServerManager {
         return result;
     }
 
-    public List<Reference> list(String filter) throws IOException {
+    public String serverFilter(String filter) {
         int idx;
-        List<Reference> result;
-        Client client;
-        String clientFilter;
-        String serverFilter;
 
         if (filter == null) {
-            clientFilter = null;
-            serverFilter = "";
+            return "";
         } else {
             idx = filter.lastIndexOf('@');
-            if (idx == -1) {
-                clientFilter = filter;
-                serverFilter = "";
-            } else {
-                clientFilter = filter.substring(0, idx);
-                serverFilter = filter.substring(idx + 1);
-            }
+            return idx == -1 ? "" : filter.substring(idx + 1);
         }
+    }
+
+    public String clientFilter(String filter) {
+        int idx;
+
+        if (filter == null) {
+            return null;
+        } else {
+            idx = filter.lastIndexOf('@');
+            return idx == -1 ? filter : filter.substring(0, idx);
+        }
+    }
+
+    public List<Client> connectMatching(String serverFilter) throws IOException {
+        List<Client> result;
+
         result = new ArrayList<>();
         for (Server server : servers.values()) {
             if (server.enabled) {
                 if (serverFilter.isEmpty() || server.name.toLowerCase().equals(serverFilter.toLowerCase())) {
-                    client = server.connect(file.getWorld());
-                    result.addAll(Reference.list(client, client.list(clientFilter)));
+                    result.add(server.connect(file.getWorld()));
                 }
             }
+        }
+        return result;
+    }
+
+    public List<Reference> list(String filter) throws IOException {
+        List<Reference> result;
+        String clientFilter;
+        String serverFilter;
+
+        serverFilter = serverFilter(filter);
+        clientFilter = clientFilter(filter);
+        result = new ArrayList<>();
+        for (Client client : connectMatching(serverFilter)) {
+            result.addAll(Reference.list(client, client.list(clientFilter)));
         }
         return result;
     }
