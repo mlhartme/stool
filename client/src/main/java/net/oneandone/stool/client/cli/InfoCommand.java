@@ -20,7 +20,7 @@ import net.oneandone.stool.client.Globals;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class InfoCommand extends StageCommand {
+public abstract class InfoCommand extends IteratedStageCommand {
 
     protected final List<String> selected = new ArrayList<>();
 

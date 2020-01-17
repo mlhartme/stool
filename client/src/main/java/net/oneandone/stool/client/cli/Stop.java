@@ -21,7 +21,7 @@ import net.oneandone.stool.client.Reference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Stop extends StageCommand {
+public class Stop extends IteratedStageCommand {
     private final List<String> apps;
 
     public Stop(Globals globals) {

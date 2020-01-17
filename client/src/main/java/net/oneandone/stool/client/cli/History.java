@@ -18,7 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
-public class History extends StageCommand {
+public class History extends IteratedStageCommand {
     private final boolean details;
     private final int max;
 

@@ -23,7 +23,7 @@ import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 
-public class Tunnel extends StageCommand {
+public class Tunnel extends IteratedStageCommand {
     private final String app;
     private final String port;
     private final Integer local;

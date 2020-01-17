@@ -23,7 +23,7 @@ import net.oneandone.sushi.util.Strings;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Config extends StageCommand {
+public class Config extends IteratedStageCommand {
     private final Map<String, String> arguments;
 
     private boolean get;

@@ -21,7 +21,7 @@ import net.oneandone.stool.client.Reference;
 
 import java.io.IOException;
 
-public class Remove extends StageCommand {
+public class Remove extends IteratedStageCommand {
     private final boolean batch;
     private final boolean stop;
 

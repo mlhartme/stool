@@ -22,7 +22,7 @@ import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 
-public class Ssh extends StageCommand {
+public class Ssh extends IteratedStageCommand {
     private final String app;
 
     public Ssh(Globals globals, String app) {

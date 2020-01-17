@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class App extends StageCommand {
+public class App extends IteratedStageCommand {
     private final List<String> names;
 
     public App(Globals globals, List<String> names) {

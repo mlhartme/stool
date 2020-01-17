@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class Start extends StageCommand {
+public class Start extends IteratedStageCommand {
     private final int http;
     private final int https;
     private final Map<String, String> environment;

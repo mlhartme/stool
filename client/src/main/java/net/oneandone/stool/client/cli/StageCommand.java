@@ -20,8 +20,6 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.ServerManager;
-import net.oneandone.sushi.io.PrefixWriter;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -30,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class StageCommand extends ClientCommand {
-    private String stageClause;
-    private boolean all;
-    private Fail fail = Fail.NORMAL;
+    protected String stageClause;
+    protected boolean all;
+    protected Fail fail = Fail.NORMAL;
 
     public StageCommand(Globals globals) {
         super(globals);
@@ -58,8 +56,6 @@ public abstract class StageCommand extends ClientCommand {
         List<Reference> lst;
         EnumerationFailed failures;
         String failureMessage;
-        boolean withPrefix;
-        Worker worker;
 
         lst = selectedList(globals.servers());
         width = 0;
@@ -67,19 +63,7 @@ public abstract class StageCommand extends ClientCommand {
             width = Math.max(width, reference.toString().length());
         }
         width += 5;
-        withPrefix = doBefore(lst, width);
-        failures = new EnumerationFailed();
-        worker = new Worker(width, failures, withPrefix);
-        for (Reference reference : lst) {
-            worker.main(reference);
-        }
-        if (this instanceof Remove) {
-            // TODO - skip
-        } else {
-            for (Reference reference : lst) {
-                worker.finish(reference);
-            }
-        }
+        failures = runAll(lst, width, doBefore(lst, width));
         doAfter();
         failureMessage = failures.getMessage();
         if (failureMessage != null) {
@@ -94,6 +78,8 @@ public abstract class StageCommand extends ClientCommand {
             }
         }
     }
+
+    public abstract EnumerationFailed runAll(List<Reference> lst, int width, boolean withPrefix) throws Exception;
 
     private List<Reference> selectedList(ServerManager serverManager) throws IOException {
         int count;
@@ -131,18 +117,6 @@ public abstract class StageCommand extends ClientCommand {
 
     //--
 
-    public void doRun(Reference reference) throws Exception {
-        doMain(reference);
-        doFinish(reference);
-    }
-
-    /** main method to perform this command */
-    public abstract void doMain(Reference reference) throws Exception;
-
-    /** override this if your doMain method needs some finishing */
-    public void doFinish(Reference reference) throws Exception {
-    }
-
     /* Note that the stage is not locked when this method is called. */
     public void doAfter() throws IOException {
     }
@@ -168,69 +142,5 @@ public abstract class StageCommand extends ClientCommand {
             }
         }
         return result;
-    }
-
-
-    //--
-
-    /** executes a stage command with proper locking */
-    public class Worker {
-        private final int width;
-        private final EnumerationFailed failures;
-        private final boolean withPrefix;
-
-        public Worker(int width, EnumerationFailed failures, boolean withPrefix) {
-            this.width = width;
-            this.failures = failures;
-            this.withPrefix = withPrefix;
-        }
-
-        public void main(Reference reference) throws Exception {
-            run(reference, true);
-        }
-
-        public void finish(Reference reference) throws Exception {
-            run(reference, false);
-        }
-
-        private void run(Reference referece, boolean main) throws Exception {
-            if (withPrefix) {
-                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + referece + "} ", width));
-            }
-            try {
-                if (main) {
-                    runMain(referece);
-                } else {
-                    runFinish(referece);
-                }
-            } catch (ArgumentException e) {
-                if (fail == Fail.NORMAL) {
-                    throw new ArgumentException(referece + ": " + e.getMessage(), e);
-                }
-                failures.add(referece, e);
-            } catch (Error | RuntimeException e) {
-                console.error.println(referece + ": " + e.getMessage());
-                throw e;
-            } catch (Exception e) {
-                if (fail == Fail.NORMAL) {
-                    throw e;
-                }
-                failures.add(referece, e);
-            } finally {
-                if (console.info instanceof PrefixWriter) {
-                    ((PrefixWriter) console.info).setPrefix("");
-                }
-            }
-        }
-
-        private void runMain(Reference reference) throws Exception {
-            console.verbose.println("*** stage main");
-            doMain(reference);
-        }
-
-        private void runFinish(Reference reference) throws Exception {
-            console.verbose.println("*** stage finish");
-            doFinish(reference);
-        }
     }
 }

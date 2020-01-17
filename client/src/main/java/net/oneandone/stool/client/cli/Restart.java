@@ -21,7 +21,7 @@ import net.oneandone.stool.client.Reference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Restart extends StageCommand {
+public class Restart extends IteratedStageCommand {
     private final List<String> selection;
 
     public Restart(Globals globals, List<String> selection) {
