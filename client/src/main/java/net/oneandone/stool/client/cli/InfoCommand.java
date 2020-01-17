@@ -32,14 +32,16 @@ public abstract class InfoCommand extends StageCommand {
     }
 
     @Override
-    public EnumerationFailed runAll(List<Reference> lst, int width, boolean withPrefix) throws Exception {
+    public EnumerationFailed runAll(List<Reference> lst, int width) throws Exception {
         Client client;
 
+        doBefore(lst, width);
         lst = new ArrayList<>(lst);
         while (!lst.isEmpty()) {
             client = lst.get(0).client;
             doRun(client, eat(lst, client));
         }
+        doAfter();
         return new EnumerationFailed();
     }
 

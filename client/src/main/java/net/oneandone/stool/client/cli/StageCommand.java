@@ -63,8 +63,7 @@ public abstract class StageCommand extends ClientCommand {
             width = Math.max(width, reference.toString().length());
         }
         width += 5;
-        failures = runAll(lst, width, doBefore(lst, width));
-        doAfter();
+        failures = runAll(lst, width);
         failureMessage = failures.getMessage();
         if (failureMessage != null) {
             switch (fail) {
@@ -79,7 +78,7 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    public abstract EnumerationFailed runAll(List<Reference> lst, int width, boolean withPrefix) throws Exception;
+    public abstract EnumerationFailed runAll(List<Reference> lst, int width) throws Exception;
 
     private List<Reference> selectedList(ServerManager serverManager) throws IOException {
         int count;
