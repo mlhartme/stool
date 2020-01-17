@@ -109,17 +109,6 @@ public abstract class StageCommand extends ClientCommand {
         return Collections.emptyList();
     }
 
-    /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
-    public boolean doBefore(List<Reference> names, int indent) throws IOException {
-        return names.size() != 1;
-    }
-
-    //--
-
-    /* Note that the stage is not locked when this method is called. */
-    public void doAfter() throws IOException {
-    }
-
     public enum Fail {
         NORMAL, AFTER, NEVER
     }

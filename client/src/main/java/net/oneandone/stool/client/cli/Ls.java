@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Ls extends InfoCommand {
+    /** to delay output until I can determine column widths*/
     private final List<List<String>> lines;
 
     public Ls(Globals globals) {

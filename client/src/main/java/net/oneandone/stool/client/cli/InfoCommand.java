@@ -19,6 +19,7 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,17 @@ public abstract class InfoCommand extends StageCommand {
 
     public InfoCommand(Globals globals) {
         super(globals);
+    }
+
+    /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
+    public boolean doBefore(List<Reference> names, int indent) throws IOException {
+        return names.size() != 1;
+    }
+
+    //--
+
+    /* Note that the stage is not locked when this method is called. */
+    public void doAfter() throws IOException {
     }
 
     @Override

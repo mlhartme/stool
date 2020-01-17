@@ -28,12 +28,14 @@ public abstract class IteratedStageCommand extends StageCommand {
         super(globals);
     }
 
+    //--
+
     public EnumerationFailed runAll(List<Reference> lst, int width) throws Exception {
         boolean withPrefix;
         EnumerationFailed failures;
         Worker worker;
 
-        withPrefix = doBefore(lst, width);
+        withPrefix = lst.size() != 1;
         failures = new EnumerationFailed();
         worker = new Worker(width, failures, withPrefix);
         for (Reference reference : lst) {
@@ -46,7 +48,6 @@ public abstract class IteratedStageCommand extends StageCommand {
                 worker.finish(reference);
             }
         }
-        doAfter();
         return failures;
     }
 
