@@ -35,7 +35,7 @@ public abstract class InfoCommand extends StageCommand {
     }
 
     @Override
-    public EnumerationFailed runAll(List<Reference> lst, int width) throws Exception {
+    public EnumerationFailed runAll(List<Reference> lst) throws Exception {
         Client client;
 
         lst = new ArrayList<>(lst);

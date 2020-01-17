@@ -52,18 +52,12 @@ public abstract class StageCommand extends ClientCommand {
 
     @Override
     public void run() throws Exception {
-        int width;
         List<Reference> lst;
         EnumerationFailed failures;
         String failureMessage;
 
         lst = selectedList(globals.servers());
-        width = 0;
-        for (Reference reference : lst) {
-            width = Math.max(width, reference.toString().length());
-        }
-        width += 5;
-        failures = runAll(lst, width);
+        failures = runAll(lst);
         failureMessage = failures.getMessage();
         if (failureMessage != null) {
             switch (fail) {
@@ -78,7 +72,7 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    public abstract EnumerationFailed runAll(List<Reference> lst, int width) throws Exception;
+    public abstract EnumerationFailed runAll(List<Reference> lst) throws Exception;
 
     private List<Reference> selectedList(ServerManager serverManager) throws IOException {
         int count;

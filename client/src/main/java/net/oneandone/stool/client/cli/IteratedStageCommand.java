@@ -30,11 +30,17 @@ public abstract class IteratedStageCommand extends StageCommand {
 
     //--
 
-    public EnumerationFailed runAll(List<Reference> lst, int width) throws Exception {
+    public EnumerationFailed runAll(List<Reference> lst) throws Exception {
+        int width;
         boolean withPrefix;
         EnumerationFailed failures;
         Worker worker;
 
+        width = 0;
+        for (Reference reference : lst) {
+            width = Math.max(width, reference.toString().length());
+        }
+        width += 5;
         withPrefix = lst.size() != 1;
         failures = new EnumerationFailed();
         worker = new Worker(width, failures, withPrefix);
