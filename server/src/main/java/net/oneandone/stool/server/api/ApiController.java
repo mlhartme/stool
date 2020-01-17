@@ -111,7 +111,11 @@ public class ApiController {
 
 
     @GetMapping("/stages")
-    public String list(@RequestParam(value = "filter", required = false, defaultValue = "") String filter) throws IOException {
+    public String list(@RequestParam(value = "filter", required = false, defaultValue = "") String filter,
+                       @RequestParam(value = "fields", required = false, defaultValue = "") String fields) throws IOException {
+        return fields.isEmpty() ? legacyList(filter) : newList(filter, fields);
+    }
+    private String legacyList(String filter) throws IOException {
         JsonArray result;
         Map<String, IOException> problems;
 
@@ -120,6 +124,31 @@ public class ApiController {
         try (Engine engine = engine()) {
             for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
                 result.add(new JsonPrimitive(stage.getName()));
+            }
+            if (!problems.isEmpty()) {
+                throw new IOException("nested problems: " + problems);
+            }
+            return result.toString();
+        }
+    }
+    private String newList(String filter, String fieldsStr) throws IOException {
+        JsonObject result;
+        Map<String, IOException> problems;
+        List<String> fields;
+        JsonObject obj;
+
+        result = new JsonObject();
+        problems = new HashMap<>();
+        fields = Separator.COMMA.split(fieldsStr);
+        try (Engine engine = engine()) {
+            for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
+                obj = new JsonObject();
+                result.add(stage.getName(), obj);
+                for (Info info : stage.fields()) {
+                    if (fields.remove(info.name())) {
+                        obj.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
+                    }
+                }
             }
             if (!problems.isEmpty()) {
                 throw new IOException("nested problems: " + problems);
@@ -238,7 +267,8 @@ public class ApiController {
 
 
     @GetMapping("/stages/{stage}/status")
-    public String status(@PathVariable(value = "stage") String stage, @RequestParam(value = "select", required = false) String select) throws IOException {
+    public String status(@PathVariable(value = "stage") String stage, @RequestParam(value = "select", required = false) String select)
+            throws IOException {
         JsonObject result;
         List<String> selection;
 
