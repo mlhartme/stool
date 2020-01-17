@@ -38,11 +38,11 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public EnumerationFailed runAll(List<Reference> lst) throws Exception {
+    public EnumerationFailed runAll() throws Exception {
         EnumerationFailed result;
 
         doBefore();
-        result = super.runAll(lst);
+        result = super.runAll();
         doAfter();
         return result;
     }

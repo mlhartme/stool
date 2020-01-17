@@ -30,12 +30,15 @@ public abstract class IteratedStageCommand extends StageCommand {
 
     //--
 
-    public EnumerationFailed runAll(List<Reference> lst) throws Exception {
+    @Override
+    public EnumerationFailed runAll() throws Exception {
+        List<Reference> lst;
         int width;
         boolean withPrefix;
         EnumerationFailed failures;
         Worker worker;
 
+        lst = selectedList(globals.servers());
         width = 0;
         for (Reference reference : lst) {
             width = Math.max(width, reference.toString().length());
