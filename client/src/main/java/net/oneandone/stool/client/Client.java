@@ -121,6 +121,35 @@ public class Client {
         return result;
     }
 
+    /** @param filter null to return all stages */
+    public Map<String, Map<String, String>> list(String filter, String select) throws IOException {
+        HttpNode node;
+        JsonObject response;
+        Map<String, Map<String, String>> result;
+
+        node = node("stages");
+        if (filter != null) {
+            node = node.withParameter("filter", filter);
+        }
+        node = node.withParameter("select", select);
+        response = getJson(node).getAsJsonObject();
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
+            result.put(entry.getKey(), map(entry.getValue().getAsJsonObject()));
+        }
+        return result;
+    }
+
+    private static Map<String, String> map(JsonObject map) {
+        Map<String, String> result;
+
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, JsonElement> entry : map.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAsString());
+        }
+        return result;
+    }
+
     //-- create, build, start, stop, remove
 
     /** @throws FileAlreadyExistsException if the stage already exists */

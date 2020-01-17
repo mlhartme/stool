@@ -112,8 +112,8 @@ public class ApiController {
 
     @GetMapping("/stages")
     public String list(@RequestParam(value = "filter", required = false, defaultValue = "") String filter,
-                       @RequestParam(value = "fields", required = false, defaultValue = "") String fields) throws IOException {
-        return fields.isEmpty() ? legacyList(filter) : newList(filter, fields);
+                       @RequestParam(value = "select", required = false, defaultValue = "") String select) throws IOException {
+        return select.isEmpty() ? legacyList(filter) : newList(filter, select);
     }
     private String legacyList(String filter) throws IOException {
         JsonArray result;
@@ -131,23 +131,26 @@ public class ApiController {
             return result.toString();
         }
     }
-    private String newList(String filter, String fieldsStr) throws IOException {
+    private String newList(String filter, String selectStr) throws IOException {
         JsonObject result;
         Map<String, IOException> problems;
-        List<String> fields;
+        List<String> select;
         JsonObject obj;
 
         result = new JsonObject();
         problems = new HashMap<>();
-        fields = Separator.COMMA.split(fieldsStr);
         try (Engine engine = engine()) {
             for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
+                select = Separator.COMMA.split(selectStr);
                 obj = new JsonObject();
                 result.add(stage.getName(), obj);
                 for (Info info : stage.fields()) {
-                    if (fields.remove(info.name())) {
+                    if (select.remove(info.name())) {
                         obj.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
                     }
+                }
+                if (!select.isEmpty()) {
+                    throw new IOException("unknown fields selected: " + select);
                 }
             }
             if (!problems.isEmpty()) {
