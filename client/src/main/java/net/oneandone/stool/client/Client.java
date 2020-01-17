@@ -122,7 +122,7 @@ public class Client {
     }
 
     /** @param filter null to return all stages */
-    public Map<String, Map<String, String>> list(String filter, String select) throws IOException {
+    public Map<String, Map<String, String>> list(String filter, List<String> select) throws IOException {
         HttpNode node;
         JsonObject response;
         Map<String, Map<String, String>> result;
@@ -131,7 +131,7 @@ public class Client {
         if (filter != null) {
             node = node.withParameter("filter", filter);
         }
-        node = node.withParameter("select", select);
+        node = node.withParameter("select", select.isEmpty() ? "*" : Separator.COMMA.join(select));
         response = getJson(node).getAsJsonObject();
         result = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : response.entrySet()) {

@@ -15,11 +15,12 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
+import java.util.List;
 import java.util.Map;
 
 public class Status extends InfoCommand {
@@ -30,13 +31,21 @@ public class Status extends InfoCommand {
     private static final Separator TAB = Separator.on('\t');
 
     @Override
-    public void doMain(Reference reference) throws Exception {
-        Map<String, String> infos;
+    public void doRun(Client client, List<String> stages) throws Exception {
+        Map<String, Map<String, String>> response;
+
+        response = client.list(Separator.COMMA.join(stages), selected);
+        for (Map.Entry<String, Map<String, String>> stage : response.entrySet()) {
+            output(stage.getValue());
+        }
+    }
+
+
+    public void output(Map<String, String> infos) {
         int width;
         boolean first;
         String value;
 
-        infos = reference.client.status(reference.stage, selected);
         width = 0;
         for (String name : infos.keySet()) {
             width = Math.max(width, name.length());

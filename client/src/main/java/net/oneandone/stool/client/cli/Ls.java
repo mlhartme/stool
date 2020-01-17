@@ -19,6 +19,7 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.ServerManager;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -53,17 +54,6 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public void doMain(Reference reference) throws Exception {
-        List<String> line;
-
-        line = new ArrayList<>();
-        lines.add(line);
-        for (Map.Entry<String, String> entry : reference.client.status(reference.stage, selected).entrySet()) {
-            line.add(entry.getValue().replace("\t", " "));
-        }
-    }
-
-    @Override
     public void doAfter() {
         List<Integer> widths;
         boolean first;
@@ -85,6 +75,23 @@ public class Ls extends InfoCommand {
         message("");
     }
 
+
+    @Override
+    public void doRun(Client client, List<String> stages) throws Exception {
+        List<String> line;
+        Map<String, Map<String, String>> response;
+
+        response = client.list(Separator.COMMA.join(stages), selected);
+        for (Map.Entry<String, Map<String, String>> stage : response.entrySet()) {
+            line = new ArrayList<>();
+            lines.add(line);
+            for (Map.Entry<String, String> entry : stage.getValue().entrySet()) {
+                line.add(entry.getValue().replace("\t", " "));
+            }
+        }
+    }
+
+    // TODO
     private void quota(Client client) throws IOException {
         String quota;
 

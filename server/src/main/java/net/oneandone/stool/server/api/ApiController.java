@@ -115,6 +115,7 @@ public class ApiController {
                        @RequestParam(value = "select", required = false, defaultValue = "") String select) throws IOException {
         return select.isEmpty() ? legacyList(filter) : newList(filter, select);
     }
+
     private String legacyList(String filter) throws IOException {
         JsonArray result;
         Map<String, IOException> problems;
@@ -141,15 +142,15 @@ public class ApiController {
         problems = new HashMap<>();
         try (Engine engine = engine()) {
             for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
-                select = Separator.COMMA.split(selectStr);
+                select = "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr);
                 obj = new JsonObject();
                 result.add(stage.getName(), obj);
                 for (Info info : stage.fields()) {
-                    if (select.remove(info.name())) {
+                    if (select == null || select.remove(info.name())) {
                         obj.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
                     }
                 }
-                if (!select.isEmpty()) {
+                if (select != null && !select.isEmpty()) {
                     throw new IOException("unknown fields selected: " + select);
                 }
             }

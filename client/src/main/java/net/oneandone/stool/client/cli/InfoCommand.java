@@ -15,17 +15,51 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.Reference;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public abstract class InfoCommand extends IteratedStageCommand {
+public abstract class InfoCommand extends StageCommand {
 
     protected final List<String> selected = new ArrayList<>();
 
     public InfoCommand(Globals globals) {
         super(globals);
+    }
+
+    @Override
+    public EnumerationFailed runAll(List<Reference> lst, int width, boolean withPrefix) throws Exception {
+        Client client;
+
+        lst = new ArrayList<>(lst);
+        while (!lst.isEmpty()) {
+            client = lst.get(0).client;
+            doRun(client, eat(lst, client));
+        }
+        return new EnumerationFailed();
+    }
+
+    public abstract void doRun(Client client, List<String> stages) throws Exception;
+
+    private List<String> eat(List<Reference> lst, Client client) {
+        List<String> result;
+        Iterator<Reference> iter;
+        Reference ref;
+
+        result = new ArrayList<>();
+        iter = lst.iterator();
+        while (iter.hasNext()) {
+            ref = iter.next();
+            if (client == ref.client) {
+                result.add(ref.stage);
+                iter.remove();
+            }
+        }
+        return result;
     }
 
     public void select(String str) {
