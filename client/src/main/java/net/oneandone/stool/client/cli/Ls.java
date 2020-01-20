@@ -17,9 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.ServerManager;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -85,11 +83,11 @@ public class Ls extends InfoCommand {
 
 
     @Override
-    public void doRun(Client client, List<String> stages) throws Exception {
+    public void doRun(Client client, String clientFilter) throws Exception {
         List<String> line;
         Map<String, Map<String, String>> response;
 
-        response = client.list(Separator.COMMA.join(stages), selected);
+        response = client.list(clientFilter, selected);
         for (Map.Entry<String, Map<String, String>> stage : response.entrySet()) {
             line = new ArrayList<>();
             lines.add(line);
@@ -127,7 +125,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    protected List<Reference> defaultSelected(ServerManager serverManager) throws IOException {
-        return serverManager.list(null);
+    protected List<Client> defaultSelected(ServerManager serverManager) throws IOException {
+        return serverManager.connectMatching("");
     }
 }

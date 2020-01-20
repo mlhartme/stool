@@ -20,7 +20,6 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
-import java.util.List;
 import java.util.Map;
 
 public class Status extends InfoCommand {
@@ -31,10 +30,10 @@ public class Status extends InfoCommand {
     private static final Separator TAB = Separator.on('\t');
 
     @Override
-    public void doRun(Client client, List<String> stages) throws Exception {
+    public void doRun(Client client, String clientFilter) throws Exception {
         Map<String, Map<String, String>> response;
 
-        response = client.list(Separator.COMMA.join(stages), selected);
+        response = client.list(clientFilter, selected);
         for (Map.Entry<String, Map<String, String>> stage : response.entrySet()) {
             output(stage.getValue());
         }

@@ -17,10 +17,14 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class IteratedStageCommand extends StageCommand {
@@ -58,6 +62,35 @@ public abstract class IteratedStageCommand extends StageCommand {
             }
         }
         return failures;
+    }
+
+    private List<Reference> selectedList(ServerManager serverManager) throws IOException {
+        int count;
+
+        count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
+        switch (count) {
+            case 0:
+                return defaultSelected(serverManager);
+            case 1:
+                return serverManager.list(all ? null : stageClause);
+            default:
+                throw new ArgumentException("too many select options");
+        }
+    }
+
+    /** override this to change the default */
+    private List<Reference> defaultSelected(ServerManager serverManager) throws IOException {
+        Project project;
+        Reference reference;
+
+        project = Project.lookup(world.getWorking());
+        if (project != null) {
+            reference = project.getAttachedOpt(serverManager);
+            if (reference != null) {
+                return Collections.singletonList(reference);
+            }
+        }
+        return Collections.emptyList();
     }
 
     //--

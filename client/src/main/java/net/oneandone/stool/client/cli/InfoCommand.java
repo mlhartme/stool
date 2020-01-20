@@ -15,12 +15,16 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.ServerManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class InfoCommand extends StageCommand {
@@ -36,33 +40,40 @@ public abstract class InfoCommand extends StageCommand {
 
     @Override
     public EnumerationFailed runAll() throws Exception {
-        List<Reference> lst;
-        Client client;
-
-        lst = new ArrayList<>(selectedList(globals.servers()));
-        while (!lst.isEmpty()) {
-            client = lst.get(0).client;
-            doRun(client, eat(lst, client));
+        for (Client client : selectedList(globals.servers())) {
+            doRun(client, globals.servers().clientFilter(all ? "" : stageClause));
         }
         return new EnumerationFailed();
     }
 
-    public abstract void doRun(Client client, List<String> stages) throws Exception;
+    protected List<Client> selectedList(ServerManager serverManager) throws IOException {
+        int count;
 
-    private List<String> eat(List<Reference> lst, Client client) {
-        List<String> result;
-        Iterator<Reference> iter;
-        Reference ref;
+        count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
+        switch (count) {
+            case 0:
+                return defaultSelected(serverManager);
+            case 1:
+                return serverManager.connectMatching(serverManager.serverFilter(all ? null : stageClause));
+            default:
+                throw new ArgumentException("too many select options");
+        }
+    }
 
-        result = new ArrayList<>();
-        iter = lst.iterator();
-        while (iter.hasNext()) {
-            ref = iter.next();
-            if (client == ref.client) {
-                result.add(ref.stage);
-                iter.remove();
+    /** override this to change the default */
+    protected List<Client> defaultSelected(ServerManager serverManager) throws IOException {
+        Project project;
+        Reference reference;
+
+        project = Project.lookup(world.getWorking());
+        if (project != null) {
+            reference = project.getAttachedOpt(serverManager);
+            if (reference != null) {
+                return Collections.singletonList(reference.client);
             }
         }
-        return result;
+        return Collections.emptyList();
     }
+
+    public abstract void doRun(Client client, String clientFilter) throws Exception;
 }

@@ -15,14 +15,8 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.ServerManager;
 
-import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,39 +66,9 @@ public abstract class StageCommand extends ClientCommand {
 
     public abstract EnumerationFailed runAll() throws Exception;
 
-    protected List<Reference> selectedList(ServerManager serverManager) throws IOException {
-        int count;
-
-        count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
-        switch (count) {
-            case 0:
-                return defaultSelected(serverManager);
-            case 1:
-                return serverManager.list(all ? null : stageClause);
-            default:
-                throw new ArgumentException("too many select options");
-        }
-    }
-
-    /** override this to change the default */
-    protected List<Reference> defaultSelected(ServerManager serverManager) throws IOException {
-        Project project;
-        Reference reference;
-
-        project = Project.lookup(world.getWorking());
-        if (project != null) {
-            reference = project.getAttachedOpt(serverManager);
-            if (reference != null) {
-                return Collections.singletonList(reference);
-            }
-        }
-        return Collections.emptyList();
-    }
-
     public enum Fail {
         NORMAL, AFTER, NEVER
     }
-
 
     //--
 
