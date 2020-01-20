@@ -42,8 +42,8 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/ui/stages', {
-                dataType: "html",
+            $.ajax('/api/stages?select=name,apps', {
+                dataType: "json",
                 success: function (data) {
                     var allStages = $('#all-stages');
                     var done = [];
@@ -51,6 +51,9 @@ dashboard = {
                         var name;
                         var oldTr;
                         var actions;
+
+                        console.log("data: " + newTr);
+                        console.log(newTr);
 
                         name = $(newTr).attr("data-name");
                         done.push(name);
