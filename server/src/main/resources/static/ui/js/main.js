@@ -42,7 +42,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=apps', {
+            $.ajax('/api/stages?select=apps,expire', {
                 dataType: "json",
                 success: function (data) {
                     var allStages = $('#all-stages');

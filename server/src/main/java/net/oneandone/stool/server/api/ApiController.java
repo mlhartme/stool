@@ -150,6 +150,11 @@ public class ApiController {
                         obj.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
                     }
                 }
+                for (Property property : stage.properties()) {
+                    if (select != null && select.remove(property.name())) {
+                        obj.add(property.name(), new JsonPrimitive(property.get(engine)));
+                    }
+                }
                 if (select != null && !select.isEmpty()) {
                     throw new IOException("unknown fields selected: " + select);
                 }

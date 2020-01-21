@@ -3,12 +3,17 @@
 ### 5.0.5 (pending)
 
 dashboard
-* performance improvements by reducing the number of docker calls
+* performance improvements by using the new  `api/stages` call
 * added `remove` action
 * authentication fix: webjars can be access without auth now
 
+client
+* performance improvements by using the new `api/stages` call
+
 server
 * performance tweaks
+  * added a new `api/stages` call that returns both properties and fields for a list of stages
+    with a retuced number for docker calls
   * reduce number of access log reads
 * fixed feedback button (thanks to Julian W)
 * fixed NPEs after access logs were removed
