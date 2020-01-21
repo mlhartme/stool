@@ -47,12 +47,13 @@ dashboard = {
                 success: function (data) {
                     var allStages = $('#all-stages');
                     var done = [];
-                    $(data).each(function (i, newTr) {
+                    $(data).each(function (i, key, newTr) {
                         var name;
                         var oldTr;
                         var actions;
 
-                        console.log("data: " + newTr);
+                        console.log("data: " + i);
+                        console.log(key);
                         console.log(newTr);
 
                         name = $(newTr).attr("data-name");
