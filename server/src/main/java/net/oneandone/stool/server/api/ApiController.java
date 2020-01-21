@@ -156,7 +156,7 @@ public class ApiController {
                     }
                 }
                 if (select != null && !select.isEmpty()) {
-                    throw new IOException("unknown fields selected: " + select);
+                    throw new IOException("unknown fields or properties selected: " + select);
                 }
             }
             if (!problems.isEmpty()) {
