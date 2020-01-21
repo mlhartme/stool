@@ -54,6 +54,7 @@ dashboard = {
                         var htmlSt;
                         var htmlName;
                         var htmlRestart;
+                        var htmlMenu;
                         var newTr;
                         var actions;
 
@@ -74,6 +75,21 @@ dashboard = {
                                       "     <span style='white-space: nowrap'><i class='fas fa-sync'></i> Restart</span>\n" +
                                       "   </button>\n"
                                       " </td>"
+                        htmlMenu = "<td class='action'>\n" +
+                                   "  <div class='dropdown'>\n" +
+                                   "    <button type='button' class='btn btn-light btn-sm dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'><span style='white-space: nowrap'>More</span></button>\n" +
+                                   "    <div class='dropdown-menu'>\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='start' data-stage='" + name + "'>Start</a>\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='stop' data-stage='" + name + "'>Stop</a>\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='set-properties' data-arguments='expire=%2B7' data-stage='" + name + "'>Expire in 1 week</a>\n" +
+                                   "      <a class='dropdown-item' href='mailto:?subject=Stage&body=stage.sharedText(urlMap)}' th:disabled='${urlMap == null}' >\n" +
+                                   "        <span style='white-space: nowrap'><i class='fas fa-share'></i> Share</span></a>\n"
+                                   "      <a class='dropdown-item' data-toggle='modal' data-target='#logs' data-stage='" + name + "'>Log files ...</a>\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='remove' data-arguments='stop&batch' data-stage='" + name + "'>Remove</a>\n"
+                                   "    </div>\n" +
+                                   "  </div>\n" +
+                                   "</td>\n"
+
                         newTr = "<tr class='stage' data-name='" + name + "'>\n" +
                                    htmlSt +
                                    htmlName +
@@ -81,6 +97,7 @@ dashboard = {
                                    "<td>" + status.expire + "</td>\n" +
                                    "<td>" + status["last-modified-by"] + "</td>\n" +
                                    htmlRestart +
+                                   htmlMenu
                                    "</tr>";
                         if (oldTr.length === 0) {
                             // new stage
