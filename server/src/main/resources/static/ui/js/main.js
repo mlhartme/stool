@@ -42,7 +42,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=apps,expire,running', {
+            $.ajax('/api/stages?select=apps,comment,expire,last-modified-by,running', {
                 dataType: "json",
                 success: function (data) {
                     var allStages = $('#all-stages');
@@ -52,6 +52,8 @@ dashboard = {
                         var oldTr;
                         var up;
                         var htmlSt;
+                        var htmlName;
+                        var htmlRestart;
                         var newTr;
                         var actions;
 
@@ -62,12 +64,24 @@ dashboard = {
                                  "  <div class='status badge badge-" + (up ? "success" : "danger") + "'>\n" +
                                  "    <span>" + (up ? "up" : "down") + "</span>\n"
                                  "  </div>\n" +
-                                 "</td>"
+                                 "</td>";
+                        htmlName = "<td class='name'>\n" +
+                                   "  <span data-container='body' data-toggle='popover' data-placement='bottom' " +
+                                   "        data-content='" + (status.comment !== "" ? status.comment : "(no comment)") + "' " +
+                                   "        data-trigger='hover'>" + name + "</span></td>";
+                        htmlRestart = " <td class='action restart'>\n" +
+                                      "   <button class='btn btn-light btn-sm' type='button' data-action='restart' data-stage='" + name + "'>\n" +
+                                      "     <span style='white-space: nowrap'><i class='fas fa-sync'></i> Restart</span>\n" +
+                                      "   </button>\n"
+                                      " </td>"
                         newTr = "<tr class='stage' data-name='" + name + "'>\n" +
                                    htmlSt +
-                                   "<td>" + name + "</td>\n" +
+                                   htmlName +
                                    "<td>" + status.apps + "</td>\n" +
-                                   "<td>" + status.expire + "</td>\n</tr>"
+                                   "<td>" + status.expire + "</td>\n" +
+                                   "<td>" + status["last-modified-by"] + "</td>\n" +
+                                   htmlRestart +
+                                   "</tr>";
                         if (oldTr.length === 0) {
                             // new stage
                             $(newTr).find('[data-action]').off('click', dashboard.stages.action);
