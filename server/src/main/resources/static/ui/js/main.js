@@ -42,23 +42,20 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=name,apps', {
+            $.ajax('/api/stages?select=apps', {
                 dataType: "json",
                 success: function (data) {
                     var allStages = $('#all-stages');
                     var done = [];
-                    $(data).each(function (i, key, newTr) {
+                    $.each(data, function (name, status) {
                         var name;
                         var oldTr;
+                        var newTr;
                         var actions;
 
-                        console.log("data: " + i);
-                        console.log(key);
-                        console.log(newTr);
-
-                        name = $(newTr).attr("data-name");
                         done.push(name);
                         oldTr = allStages.find('[data-name="' + name + '"]');
+                        newTr = "<tr class='stage' data-name='" + name + "'><td></td><td>" + name + "</td><td>" + status.apps + "</td><td>" + status.expire + "</td></tr>"
                         if (oldTr.length === 0) {
                             // new stage
                             $(newTr).find('[data-action]').off('click', dashboard.stages.action);
