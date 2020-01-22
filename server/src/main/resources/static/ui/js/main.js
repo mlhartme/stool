@@ -17,6 +17,14 @@ $('#logs').on('show.bs.modal', function (event) {
     });
 })
 
+// https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0
+hashCode = function(s) {
+  var h = 0, l = s.length, i = 0;
+  if ( l > 0 )
+    while (i < l)
+      h = (h << 5) - h + s.charCodeAt(i++) | 0;
+  return h;
+};
 
 var dashboard = dashboard || {};
 
@@ -56,6 +64,7 @@ dashboard = {
                         var htmlRestart;
                         var htmlMenu;
                         var newTr;
+                        var newHash;
                         var actions;
 
                         done.push(name);
@@ -99,15 +108,23 @@ dashboard = {
                                    htmlRestart +
                                    htmlMenu
                                    "</tr>";
+                        newHash = String(hashCode(newTr));
                         if (oldTr.length === 0) {
                             // new stage
-                            allStages.append(newTr);
-                            $(allStages).find('[data-name="' + name + '"]').find('[data-action]').on('click', dashboard.stages.action);
-                        } else if ($(oldTr).attr("data-content-hash") !== $(newTr).attr("data-content-hash")) {
+                            console.log("append " + name)
+                            var appended = allStages.append(newTr);
+                            appended = appended.find('[data-name="' + name + '"]');
+                            appended.attr("data-content-hash", newHash);
+                            appended.find('[data-action]').on('click', dashboard.stages.action);
+                        } else if ($(oldTr).attr("data-content-hash") !== newHash) {
                             // updated stage
-                            oldTr.replaceWith(newTr);
-                            $(allStages).find('[data-name="' + name + '"]').find('[data-action]').on('click', dashboard.stages.action);
+                            console.log("replace " + name)
+                            oldTr.replaceWith(newTr); // replaceWith returns the removed elements
+                            replaced = allStages.find('[data-name="' + name + '"]');
+                            replaced.attr("data-content-hash", newHash);
+                            replaced.find('[data-action]').on('click', dashboard.stages.action);
                         } else {
+                            console.log("same " + name)
                             // no changes
                         }
                     });
