@@ -147,7 +147,7 @@ public class ApiController {
                 result.add(stage.getName(), obj);
                 for (Info info : stage.fields()) {
                     if (select == null || select.remove(info.name())) {
-                        obj.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
+                        obj.add(info.name(), info.getAsJson(engine));
                     }
                 }
                 for (Property property : stage.properties()) {

@@ -11,6 +11,7 @@ client
 * performance improvements by using the new `api/stages` call
 
 server
+* added urlmap field (todo)
 * performance tweaks
   * added a new `api/stages` call that returns both properties and fields for a list of stages
     with a retuced number for docker calls

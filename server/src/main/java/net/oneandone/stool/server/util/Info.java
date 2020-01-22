@@ -15,10 +15,15 @@
  */
 package net.oneandone.stool.server.util;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.docker.Engine;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /** Field or Property */
 public abstract class Info {
@@ -61,6 +66,38 @@ public abstract class Info {
             return builder.toString();
         } else {
             return value.toString();
+        }
+    }
+    public JsonElement getAsJson(Engine engine) throws IOException {
+        return valueJson(get(engine));
+
+    }
+
+    private static JsonElement valueJson(Object value) {
+        if (value == null) {
+            return new JsonPrimitive("");
+        } else if (value instanceof List) {
+            JsonArray result;
+            List<Object> lst;
+
+            result = new JsonArray();
+            lst = (List) value;
+            for (Object item : lst) {
+                result.add(valueJson(item));
+            }
+            return result;
+        } else if (value instanceof Map) {
+            JsonObject result;
+            Map<Object, Object> map;
+
+            result = new JsonObject();
+            map = (Map) value;
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                result.add((String) entry.getKey(), valueJson(entry.getValue()));
+            }
+            return result;
+        } else {
+            return new JsonPrimitive(value.toString());
         }
     }
 }

@@ -50,7 +50,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=apps,comment,expire,last-modified-by,running', {
+            $.ajax('/api/stages?select=apps,comment,expire,last-modified-by,running,urlmap', {
                 dataType: "json",
                 success: function (data) {
                     var allStages = $('#all-stages');
@@ -61,6 +61,7 @@ dashboard = {
                         var up;
                         var htmlSt;
                         var htmlName;
+                        var htmlUrls;
                         var htmlRestart;
                         var htmlMenu;
                         var newTr;
@@ -79,6 +80,11 @@ dashboard = {
                                    "  <span data-container='body' data-toggle='popover' data-placement='bottom' " +
                                    "        data-content='" + (status.comment !== "" ? status.comment : "(no comment)") + "' " +
                                    "        data-trigger='hover'>" + name + "</span></td>";
+                        htmlUrls = "";
+                        $.each(status.urlmap, function (app, url) {
+                            htmlUrls = htmlUrls + "<a href='" + url + "' target='_blank'>" + app + "</a><br/>\n"
+                        })
+                        htmlUrls = "<td class='links'>" + htmlUrls + "</td>\n"
                         htmlRestart = " <td class='action restart'>\n" +
                                       "   <button class='btn btn-light btn-sm' type='button' data-action='restart' data-stage='" + name + "'>\n" +
                                       "     <span style='white-space: nowrap'><i class='fas fa-sync'></i> Restart</span>\n" +
@@ -102,6 +108,7 @@ dashboard = {
                         newTr = "<tr class='stage' data-name='" + name + "'>\n" +
                                    htmlSt +
                                    htmlName +
+                                   htmlUrls +
                                    "<td>" + status.apps + "</td>\n" +
                                    "<td>" + status.expire + "</td>\n" +
                                    "<td>" + status["last-modified-by"] + "</td>\n" +
