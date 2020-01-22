@@ -11,11 +11,10 @@ client
 * performance improvements by using the new `api/stages` call
 
 server
-* added urlmap field (todo)
-* performance tweaks
-  * added a new `api/stages` call that returns both properties and fields for a list of stages
-    with a retuced number for docker calls
-  * reduce number of access log reads
+* api/stages: added a new `api/stages` call that returns both properties and fields for a list of stages
+  with a reduced number for docker calls
+  * not that this call returns infos as json, not rendered into strings
+* performance tweaks: reduce number of access log reads
 * fixed feedback button (thanks to Julian W)
 * fixed NPEs after access logs were removed
 

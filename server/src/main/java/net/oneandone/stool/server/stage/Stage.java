@@ -259,12 +259,6 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return namedUrls(engine, server.pool, null);
-            }
-        });
-        fields.add(new Field("urlmap") {
-            @Override
-            public Object get(Engine engine) throws IOException {
                 return urlMap(engine, server.pool, null);
             }
         });

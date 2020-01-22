@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import com.google.gson.JsonElement;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public abstract class InfoCommand extends StageCommand {
     protected final List<String> selected = new ArrayList<>();
@@ -73,6 +75,34 @@ public abstract class InfoCommand extends StageCommand {
             }
         }
         return Collections.emptyList();
+    }
+
+    public static String infoToString(JsonElement info) {
+        StringBuilder result;
+
+        if (info.isJsonPrimitive()) {
+            return info.toString();
+        } else if (info.isJsonArray()) {
+            result = new StringBuilder();
+            for (JsonElement e : info.getAsJsonArray()) {
+                if (result.length() > 0) {
+                    result.append(", ");
+                }
+                result.append(infoToString(e));
+            }
+            return result.toString();
+        } else if (info.isJsonObject()) {
+            result = new StringBuilder();
+            for (Map.Entry<String, JsonElement> m : info.getAsJsonObject().entrySet()) {
+                if (result.length() > 0) {
+                    result.append(", ");
+                }
+                result.append(m.getKey()).append(" ").append(infoToString(m.getValue()));
+            }
+            return result.toString();
+        } else {
+            throw new IllegalStateException(info.toString());
+        }
     }
 
     public abstract void doRun(Client client, String clientFilter) throws Exception;

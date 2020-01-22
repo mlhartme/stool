@@ -50,7 +50,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=apps,comment,expire,last-modified-by,running,urlmap', {
+            $.ajax('/api/stages?select=apps,comment,expire,last-modified-by,running,urls', {
                 dataType: "json",
                 success: function (data) {
                     var allStages = $('#all-stages');
@@ -81,7 +81,7 @@ dashboard = {
                                    "        data-content='" + (status.comment !== "" ? status.comment : "(no comment)") + "' " +
                                    "        data-trigger='hover'>" + name + "</span></td>";
                         htmlUrls = "";
-                        $.each(status.urlmap, function (app, url) {
+                        $.each(status.urls, function (app, url) {
                             htmlUrls = htmlUrls + "<a href='" + url + "' target='_blank'>" + app + "</a><br/>\n"
                         })
                         htmlUrls = "<td class='links'>" + htmlUrls + "</td>\n"

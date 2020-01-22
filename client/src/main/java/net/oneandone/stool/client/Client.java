@@ -122,10 +122,10 @@ public class Client {
     }
 
     /** @param filter null to return all stages */
-    public Map<String, Map<String, String>> list(String filter, List<String> select) throws IOException {
+    public Map<String, Map<String, JsonElement>> list(String filter, List<String> select) throws IOException {
         HttpNode node;
         JsonObject response;
-        Map<String, Map<String, String>> result;
+        Map<String, Map<String, JsonElement>> result;
 
         node = node("stages");
         if (filter != null) {
@@ -140,12 +140,12 @@ public class Client {
         return result;
     }
 
-    private static Map<String, String> map(JsonObject map) {
-        Map<String, String> result;
+    private static Map<String, JsonElement> map(JsonObject infos) {
+        Map<String, JsonElement> result;
 
         result = new LinkedHashMap<>();
-        for (Map.Entry<String, JsonElement> entry : map.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
+        for (Map.Entry<String, JsonElement> entry : infos.entrySet()) {
+            result.put(entry.getKey(), entry.getValue());
         }
         return result;
     }

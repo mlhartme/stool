@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import com.google.gson.JsonElement;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.sushi.util.Separator;
@@ -31,43 +32,28 @@ public class Status extends InfoCommand {
 
     @Override
     public void doRun(Client client, String clientFilter) throws Exception {
-        Map<String, Map<String, String>> response;
+        Map<String, Map<String, JsonElement>> response;
 
         response = client.list(clientFilter, selected);
-        for (Map.Entry<String, Map<String, String>> stage : response.entrySet()) {
+        for (Map.Entry<String, Map<String, JsonElement>> stage : response.entrySet()) {
             output(stage.getValue());
         }
     }
 
 
-    public void output(Map<String, String> infos) {
+    public void output(Map<String, JsonElement> infos) {
         int width;
-        boolean first;
-        String value;
 
         width = 0;
         for (String name : infos.keySet()) {
             width = Math.max(width, name.length());
         }
         width += 2;
-        for (Map.Entry<String, String> entry : infos.entrySet()) {
+        for (Map.Entry<String, JsonElement> entry : infos.entrySet()) {
             console.info.print(Strings.times(' ', width - entry.getKey().length()));
             console.info.print(entry.getKey());
             console.info.print(" : ");
-            first = true;
-            value = entry.getValue();
-            if (value.isEmpty()) {
-                console.info.println();
-            } else {
-                for (String str : TAB.split(value)) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        console.info.print(Strings.times(' ', width + 3));
-                    }
-                    console.info.println(str);
-                }
-            }
+            console.info.println(infoToString(entry.getValue()));
         }
     }
 }

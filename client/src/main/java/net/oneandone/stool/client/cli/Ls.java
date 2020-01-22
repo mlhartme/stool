@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import com.google.gson.JsonElement;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.ServerManager;
@@ -85,14 +86,14 @@ public class Ls extends InfoCommand {
     @Override
     public void doRun(Client client, String clientFilter) throws Exception {
         List<String> line;
-        Map<String, Map<String, String>> response;
+        Map<String, Map<String, JsonElement>> response;
 
         response = client.list(clientFilter, selected);
-        for (Map.Entry<String, Map<String, String>> stage : response.entrySet()) {
+        for (Map.Entry<String, Map<String, JsonElement>> stage : response.entrySet()) {
             line = new ArrayList<>();
             lines.add(line);
-            for (Map.Entry<String, String> entry : stage.getValue().entrySet()) {
-                line.add(entry.getValue().replace("\t", " "));
+            for (Map.Entry<String, JsonElement> entry : stage.getValue().entrySet()) {
+                line.add(infoToString(entry.getValue()));
             }
         }
     }
