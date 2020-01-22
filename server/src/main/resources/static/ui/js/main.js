@@ -105,9 +105,8 @@ dashboard = {
                             $(allStages).find('[data-name="' + name + '"]').find('[data-action]').on('click', dashboard.stages.action);
                         } else if ($(oldTr).attr("data-content-hash") !== $(newTr).attr("data-content-hash")) {
                             // updated stage
-                            $(newTr).find('[data-action]').off('click', dashboard.stages.action);
                             oldTr.replaceWith(newTr);
-                            $(newTr).find('[data-action]').on('click', dashboard.stages.action);
+                            $(allStages).find('[data-name="' + name + '"]').find('[data-action]').on('click', dashboard.stages.action);
                         } else {
                             // no changes
                         }
