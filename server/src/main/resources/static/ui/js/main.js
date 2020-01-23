@@ -70,7 +70,7 @@ dashboard = {
 
                         done.push(name);
                         oldTr = allStages.find('[data-name="' + name + '"]');
-                        up = status.running !== "";
+                        up = status.running.length > 0;
                         htmlSt = "<td class='status'>\n" +
                                  "  <div class='status badge badge-" + (up ? "success" : "danger") + "'>\n" +
                                  "    <span>" + (up ? "up" : "down") + "</span>\n"
@@ -118,20 +118,17 @@ dashboard = {
                         newHash = String(hashCode(newTr));
                         if (oldTr.length === 0) {
                             // new stage
-                            console.log("append " + name)
                             var appended = allStages.append(newTr);
                             appended = appended.find('[data-name="' + name + '"]');
                             appended.attr("data-content-hash", newHash);
                             appended.find('[data-action]').on('click', dashboard.stages.action);
                         } else if ($(oldTr).attr("data-content-hash") !== newHash) {
                             // updated stage
-                            console.log("replace " + name)
                             oldTr.replaceWith(newTr); // replaceWith returns the removed elements
                             replaced = allStages.find('[data-name="' + name + '"]');
                             replaced.attr("data-content-hash", newHash);
                             replaced.find('[data-action]').on('click', dashboard.stages.action);
                         } else {
-                            console.log("same " + name)
                             // no changes
                         }
                     });
