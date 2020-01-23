@@ -43,19 +43,19 @@ public abstract class InfoCommand extends StageCommand {
 
     @Override
     public EnumerationFailed runAll() throws Exception {
-        for (Client client : selectedList(globals.servers())) {
+        for (Client client : selectedClients(globals.servers())) {
             doRun(client, globals.servers().clientFilter(all ? "" : stageClause));
         }
         return new EnumerationFailed();
     }
 
-    protected List<Client> selectedList(ServerManager serverManager) throws IOException {
+    private List<Client> selectedClients(ServerManager serverManager) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
-                return defaultSelected(serverManager);
+                return defaultClients(serverManager);
             case 1:
                 return serverManager.connectMatching(serverManager.serverFilter(all ? null : stageClause));
             default:
@@ -64,7 +64,7 @@ public abstract class InfoCommand extends StageCommand {
     }
 
     /** override this to change the default */
-    protected List<Client> defaultSelected(ServerManager serverManager) throws IOException {
+    protected List<Client> defaultClients(ServerManager serverManager) throws IOException {
         Project project;
         Reference reference;
 

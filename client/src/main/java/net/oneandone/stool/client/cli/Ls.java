@@ -126,7 +126,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    protected List<Client> defaultSelected(ServerManager serverManager) throws IOException {
+    protected List<Client> defaultClients(ServerManager serverManager) throws IOException {
         return serverManager.connectMatching("");
     }
 }
