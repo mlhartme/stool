@@ -259,7 +259,7 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get(Context context) throws IOException {
-                return urlMap(context.engine, server.pool, null);
+                return context.urlMap(server.pool, Stage.this);
             }
         });
         return fields;

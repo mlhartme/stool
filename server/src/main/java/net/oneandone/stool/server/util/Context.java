@@ -26,13 +26,17 @@ import java.util.Map;
 
 /** Context for info computation */
 public class Context {
-    public final Engine engine;
+    private final Engine engine;
+    private final Map<String, Map<String, List<Image>>> stageImages;
+    private final Map<String, Map<String, Stage.Current>> currentMaps;
+    private final Map<String, Map<String, String>> urlMaps;
 
     public Context(Engine engine) {
         this.engine = engine;
+        this.stageImages = new HashMap<>();
+        this.currentMaps = new HashMap<>();
+        this.urlMaps = new HashMap<>();
     }
-
-    private Map<String, Map<String, List<Image>>> stageImages = new HashMap<>();
 
     public Map<String, List<Image>> images(Stage stage) throws IOException {
         Map<String, List<Image>> result;
@@ -45,15 +49,25 @@ public class Context {
         return result;
     }
 
-    private Map<String, Map<String, Stage.Current>> currentMap = new HashMap<>();
-
     public Map<String, Stage.Current> currentMap(Stage stage) throws IOException {
         Map<String, Stage.Current> result;
 
-        result = currentMap.get(stage.getName());
+        result = currentMaps.get(stage.getName());
         if (result == null) {
             result = stage.currentMap(engine);
-            currentMap.put(stage.getName(), result);
+            currentMaps.put(stage.getName(), result);
+        }
+        return result;
+    }
+
+    // TODO: always the same pool assumed
+    public Map<String, String> urlMap(Pool pool, Stage stage) throws IOException {
+        Map<String, String> result;
+
+        result = urlMaps.get(stage.getName());
+        if (result == null) {
+            result = stage.urlMap(engine, pool, null);
+            urlMaps.put(stage.getName(), result);
         }
         return result;
     }
