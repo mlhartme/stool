@@ -53,7 +53,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -901,7 +900,7 @@ public class Stage {
         return result;
     }
 
-    /** @return empty list of no ports are allocated */
+    /** @return empty list if no ports are allocated */
     public List<String> namedUrls(Engine engine, Pool pool, String oneApp) throws IOException {
         List<String> result;
 
@@ -1176,42 +1175,5 @@ public class Stage {
                 }
             }
         }
-    }
-
-
-    // -- TODO: separate static class; static method
-
-    public String sharedText(Map<String, String> urlMap) throws IOException {
-        String content;
-        StringBuilder builder;
-
-        if (urlMap == null) {
-            return "";
-        }
-        builder = new StringBuilder("Hi, \n");
-        for (String url : urlMap.values()) {
-            builder.append(url).append("\n");
-        }
-
-        content = URLEncoder.encode(builder.toString(), "UTF-8");
-        content = content.replace("+", "%20")
-                .replaceAll("\\+", "%20")
-                .replaceAll("\\%21", "!")
-                .replaceAll("\\%27", "'")
-                .replaceAll("\\%28", "(")
-                .replaceAll("\\%29", ")")
-                .replaceAll("\\%7E", "~");
-
-        return content;
-    }
-
-    public int contentHash(Map<String, String> urlMap, Map<String, ContainerInfo> runningContainerMap) {
-        return ("StageInfo{"
-                + "name='" + name + '\''
-                + ", comment='" + configuration.comment + '\''
-                // TODO: current image, container?
-                + ", urls=" + urlMap
-                + ", running=" + runningContainerMap
-                + '}').hashCode();
     }
 }
