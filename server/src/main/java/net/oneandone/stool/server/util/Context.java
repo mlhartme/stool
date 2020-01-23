@@ -16,11 +16,32 @@
 package net.oneandone.stool.server.util;
 
 import net.oneandone.stool.server.docker.Engine;
+import net.oneandone.stool.server.stage.Image;
+import net.oneandone.stool.server.stage.Stage;
 
-/** Context for info compuptation */
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/** Context for info computation */
 public class Context {
     public final Engine engine;
+
     public Context(Engine engine) {
         this.engine = engine;
+    }
+
+    private Map<String, Map<String, List<Image>>> stageImages = new HashMap<>();
+
+    public Map<String, List<Image>> images(Stage stage) throws IOException {
+        Map<String, List<Image>> result;
+
+        result = stageImages.get(stage.getName());
+        if (result == null) {
+            result = stage.images(engine);
+            stageImages.put(stage.getName(), result);
+        }
+        return result;
     }
 }

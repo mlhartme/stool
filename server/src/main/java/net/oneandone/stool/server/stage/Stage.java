@@ -196,7 +196,7 @@ public class Stage {
             public Object get(Context context) throws IOException {
                 List<String> result;
 
-                result = new ArrayList<>(images(context.engine).keySet());
+                result = new ArrayList<>(context.images(Stage.this).keySet());
                 Collections.sort(result);
                 return result;
             }
