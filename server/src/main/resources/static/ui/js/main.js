@@ -18,13 +18,23 @@ $('#logs').on('show.bs.modal', function (event) {
 })
 
 // https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0
-hashCode = function(s) {
-  var h = 0, l = s.length, i = 0;
-  if ( l > 0 )
-    while (i < l)
-      h = (h << 5) - h + s.charCodeAt(i++) | 0;
-  return h;
+function hashCode(s) {
+    var h = 0, l = s.length, i = 0;
+    while (i < l) {
+        h = (h << 5) - h + s.charCodeAt(i++) | 0;
+    }
+    return h;
 };
+
+function escapeHtml(unsafe) {
+    return unsafe;
+    /* TODO
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");*/
+}
 
 var dashboard = dashboard || {};
 
@@ -57,17 +67,20 @@ dashboard = {
                     var done = [];
                     $.each(data, function (name, status) {
                         var name;
+                        var eName;
                         var oldTr;
                         var up;
                         var htmlSt;
                         var htmlName;
                         var htmlUrls;
                         var htmlRestart;
+                        var mailBody;
                         var htmlMenu;
                         var newTr;
                         var newHash;
                         var actions;
 
+                        eName = escapeHtml(name)
                         done.push(name);
                         oldTr = allStages.find('[data-name="' + name + '"]');
                         up = status.running.length > 0;
@@ -78,38 +91,42 @@ dashboard = {
                                  "</td>";
                         htmlName = "<td class='name'>\n" +
                                    "  <span data-container='body' data-toggle='popover' data-placement='bottom' " +
-                                   "        data-content='" + (status.comment !== "" ? status.comment : "(no comment)") + "' " +
-                                   "        data-trigger='hover'>" + name + "</span></td>";
+                                   "        data-content='" + (status.comment !== "" ? escapeHtml(status.comment) : "(no comment)") + "' " +
+                                   "        data-trigger='hover'>" + eName + "</span></td>";
                         htmlUrls = "";
                         $.each(status.urls, function (app, url) {
-                            htmlUrls = htmlUrls + "<a href='" + url + "' target='_blank'>" + app + "</a><br/>\n"
+                            htmlUrls = htmlUrls + "<a href='" + url + "' target='_blank'>" + escapeHtml(app) + "</a><br/>\n"
                         })
                         htmlUrls = "<td class='links'>" + htmlUrls + "</td>\n"
                         htmlRestart = " <td class='action restart'>\n" +
-                                      "   <button class='btn btn-light btn-sm' type='button' data-action='restart' data-stage='" + name + "'>\n" +
+                                      "   <button class='btn btn-light btn-sm' type='button' data-action='restart' data-stage='" + eName + "'>\n" +
                                       "     <span style='white-space: nowrap'><i class='fas fa-sync'></i> Restart</span>\n" +
                                       "   </button>\n"
                                       " </td>"
+                        mailBody = "Hi,\n"
+                        $.each(status.urls, function (app, url) {
+                            mailBody = mailBody + app + " " + url + " \n"
+                        })
                         htmlMenu = "<td class='action'>\n" +
                                    "  <div class='dropdown'>\n" +
                                    "    <button type='button' class='btn btn-light btn-sm dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'><span style='white-space: nowrap'>More</span></button>\n" +
                                    "    <div class='dropdown-menu'>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='start' data-stage='" + name + "'>Start</a>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='stop' data-stage='" + name + "'>Stop</a>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='set-properties' data-arguments='expire=%2B7' data-stage='" + name + "'>Expire in 1 week</a>\n" +
-                                   "      <a class='dropdown-item' href='mailto:?subject=Stage&body=stage.sharedText(urlMap)}' th:disabled='${urlMap == null}' >\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='start' data-stage='" + eName + "'>Start</a>\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='stop' data-stage='" + eName + "'>Stop</a>\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='set-properties' data-arguments='expire=%2B7' data-stage='" + eName + "'>Expire in 1 week</a>\n" +
+                                   "      <a class='dropdown-item' href='mailto:?subject=Stage " + eName + "&body=" + mailBody + "' disabled='" + (up ? "false" : "true") + "'>\n" +
                                    "        <span style='white-space: nowrap'><i class='fas fa-share'></i> Share</span></a>\n"
-                                   "      <a class='dropdown-item' data-toggle='modal' data-target='#logs' data-stage='" + name + "'>Log files ...</a>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='remove' data-arguments='stop&batch' data-stage='" + name + "'>Remove</a>\n"
+                                   "      <a class='dropdown-item' data-toggle='modal' data-target='#logs' data-stage='" + eName + "'>Log files ...</a>\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='remove' data-arguments='stop&batch' data-stage='" + eName + "'>Remove</a>\n"
                                    "    </div>\n" +
                                    "  </div>\n" +
                                    "</td>\n"
 
-                        newTr = "<tr class='stage' data-name='" + name + "'>\n" +
+                        newTr = "<tr class='stage' data-name='" + eName + "'>\n" +
                                    htmlSt +
                                    htmlName +
                                    htmlUrls +
-                                   "<td>" + status.apps + "</td>\n" +
+                                   "<td>" + escapeHtml(status.apps) + "</td>\n" +
                                    "<td>" + status.expire + "</td>\n" +
                                    "<td>" + status["last-modified-by"] + "</td>\n" +
                                    htmlRestart +

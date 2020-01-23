@@ -1194,7 +1194,8 @@ public class Stage {
         }
 
         content = URLEncoder.encode(builder.toString(), "UTF-8");
-        content = content.replace("+", "%20").replaceAll("\\+", "%20")
+        content = content.replace("+", "%20")
+                .replaceAll("\\+", "%20")
                 .replaceAll("\\%21", "!")
                 .replaceAll("\\%27", "'")
                 .replaceAll("\\%28", "(")
