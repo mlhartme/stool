@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.util;
 
+import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
@@ -28,12 +29,14 @@ import java.util.Map;
 public class Context {
     private final Engine engine;
     private final Map<String, Map<String, List<Image>>> stageImages;
+    private final Map<String, Map<String, ContainerInfo>> runningContainerMaps;
     private final Map<String, Map<String, Stage.Current>> currentMaps;
     private final Map<String, Map<String, String>> urlMaps;
 
     public Context(Engine engine) {
         this.engine = engine;
         this.stageImages = new HashMap<>();
+        this.runningContainerMaps = new HashMap<>();
         this.currentMaps = new HashMap<>();
         this.urlMaps = new HashMap<>();
     }
@@ -49,12 +52,23 @@ public class Context {
         return result;
     }
 
+    public Map<String, ContainerInfo> runningContainerMap(Stage stage) throws IOException {
+        Map<String, ContainerInfo> result;
+
+        result = runningContainerMaps.get(stage.getName());
+        if (result == null) {
+            result = stage.runningContainerMap(engine);
+            runningContainerMaps.put(stage.getName(), result);
+        }
+        return result;
+    }
+
     public Map<String, Stage.Current> currentMap(Stage stage) throws IOException {
         Map<String, Stage.Current> result;
 
         result = currentMaps.get(stage.getName());
         if (result == null) {
-            result = stage.currentMap(engine);
+            result = stage.currentMap(engine, runningContainerMap(stage).values());
             currentMaps.put(stage.getName(), result);
         }
         return result;
