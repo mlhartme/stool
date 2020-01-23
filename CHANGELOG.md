@@ -6,6 +6,7 @@ dashboard
 * performance improvements by using the new  `api/stages` call
 * added `remove` action
 * authentication fix: webjars can be access without auth now
+* tweaked share email
 
 client
 * performance improvements by using the new `api/stages` call
