@@ -25,29 +25,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Context for info computation */
+/** Context for info computation. TODO: nameing tweaks */
 public class Context {
     private final Engine engine;
-    private Map<String, ContainerInfo> lazyAllContainerMap;
     private final Map<String, Map<String, List<Image>>> stageImages;
+    private Map<String, ContainerInfo> lazyAllContainerMap;
     private final Map<String, Map<String, ContainerInfo>> runningContainerMaps;
     private final Map<String, Map<String, Stage.Current>> currentMaps;
     private final Map<String, Map<String, String>> urlMaps;
 
     public Context(Engine engine) {
         this.engine = engine;
-        this.lazyAllContainerMap = null;
         this.stageImages = new HashMap<>();
+        this.lazyAllContainerMap = null;
         this.runningContainerMaps = new HashMap<>();
         this.currentMaps = new HashMap<>();
         this.urlMaps = new HashMap<>();
-    }
-
-    public Map<String, ContainerInfo> allContainerMap() throws IOException {
-        if (lazyAllContainerMap == null) {
-            lazyAllContainerMap = Stage.allContainerMap(engine);
-        }
-        return lazyAllContainerMap;
     }
 
     public Map<String, List<Image>> images(Stage stage) throws IOException {
@@ -61,12 +54,21 @@ public class Context {
         return result;
     }
 
+    //--
+
+    public Map<String, ContainerInfo> allContainerMap() throws IOException {
+        if (lazyAllContainerMap == null) {
+            lazyAllContainerMap = Stage.allContainerMap(engine);
+        }
+        return lazyAllContainerMap;
+    }
+
     public Map<String, ContainerInfo> runningContainerMap(Stage stage) throws IOException {
         Map<String, ContainerInfo> result;
 
         result = runningContainerMaps.get(stage.getName());
         if (result == null) {
-            result = stage.runningContainerMap(engine);
+            result = stage.runningContainerMap(allContainerMap());
             runningContainerMaps.put(stage.getName(), result);
         }
         return result;
