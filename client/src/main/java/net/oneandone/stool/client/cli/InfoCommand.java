@@ -46,21 +46,25 @@ public abstract class InfoCommand extends StageCommand {
         List<Client> clients;
         ServerManager serverManager;
         Reference reference;
+        String clientFilter;
 
         if (stageClause != null && all) {
             throw new ArgumentException("too many select options");
         }
         serverManager = globals.servers();
-        if (stageClause != null) {
-            clients = serverManager.connectMatching(serverManager.serverFilter(stageClause));
-        } else if (all) {
+        if (all) {
             clients = serverManager.connectMatching(serverManager.serverFilter(null));
-        } else {
+            clientFilter = globals.servers().clientFilter("");
+        } else if (stageClause != null) {
+            clients = serverManager.connectMatching(serverManager.serverFilter(stageClause));
+            clientFilter = globals.servers().clientFilter(stageClause);
+        } else  {
             reference = projectReference(serverManager);
             clients = reference == null ? Collections.emptyList() : Collections.singletonList(reference.client);
+            clientFilter = reference == null ? globals.servers().clientFilter("") : reference.stage;
         }
         for (Client client : clients) {
-            doRun(client, globals.servers().clientFilter(all ? "" : stageClause));
+            doRun(client, clientFilter);
         }
         return new EnumerationFailed();
     }
