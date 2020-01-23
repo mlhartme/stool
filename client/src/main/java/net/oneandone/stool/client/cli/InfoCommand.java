@@ -45,39 +45,31 @@ public abstract class InfoCommand extends StageCommand {
     public EnumerationFailed runAll() throws Exception {
         List<Client> clients;
         ServerManager serverManager;
-        int count;
+        Reference reference;
 
-        serverManager = globals.servers();
-        count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
-        switch (count) {
-            case 0:
-                clients = defaultClients(serverManager);
-                break;
-            case 1:
-                clients = serverManager.connectMatching(serverManager.serverFilter(all ? null : stageClause));
-                break;
-            default:
-                throw new ArgumentException("too many select options");
+        if (stageClause != null && all) {
+            throw new ArgumentException("too many select options");
         }
-
+        serverManager = globals.servers();
+        if (stageClause != null) {
+            clients = serverManager.connectMatching(serverManager.serverFilter(stageClause));
+        } else if (all) {
+            clients = serverManager.connectMatching(serverManager.serverFilter(null));
+        } else {
+            reference = projectReference(serverManager);
+            clients = reference == null ? Collections.emptyList() : Collections.singletonList(reference.client);
+        }
         for (Client client : clients) {
             doRun(client, globals.servers().clientFilter(all ? "" : stageClause));
         }
         return new EnumerationFailed();
     }
 
-    private List<Client> defaultClients(ServerManager serverManager) throws IOException {
+    private Reference projectReference(ServerManager serverManager) throws IOException {
         Project project;
-        Reference reference;
 
         project = Project.lookup(world.getWorking());
-        if (project != null) {
-            reference = project.getAttachedOpt(serverManager);
-            if (reference != null) {
-                return Collections.singletonList(reference.client);
-            }
-        }
-        return Collections.emptyList();
+        return project == null ? null : project.getAttachedOpt(serverManager);
     }
 
     public static String infoToString(JsonElement info) {
