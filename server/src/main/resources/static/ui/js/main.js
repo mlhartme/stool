@@ -113,7 +113,7 @@ dashboard = {
                                    "      <a class='dropdown-item' href='#dashboard' data-action='stop' data-stage='" + eName + "'>Stop</a>\n" +
                                    "      <a class='dropdown-item' href='#dashboard' data-action='set-properties' data-arguments='expire=%2B7' data-stage='" + eName + "'>Expire in 1 week</a>\n" +
                                    "      <a class='dropdown-item' href='mailto:?subject=" + encodeURIComponent("Stage " + name) + "&body=" + encodeURIComponent(mailBody) + "'>\n" +
-                                   "        <span style='white-space: nowrap'><i class='fas fa-share'></i> Share</span></a>\n"
+                                   "        <span style='white-space: nowrap'><i class='fas fa-share'></i> Share</span></a>\n" +
                                    "      <a class='dropdown-item' data-toggle='modal' data-target='#logs' data-stage='" + eName + "'>Log files ...</a>\n" +
                                    "      <a class='dropdown-item' href='#dashboard' data-action='remove' data-arguments='stop&batch' data-stage='" + eName + "'>Remove</a>\n"
                                    "    </div>\n" +
