@@ -16,6 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
@@ -79,9 +80,15 @@ public abstract class InfoCommand extends StageCommand {
 
     public static String infoToString(JsonElement info) {
         StringBuilder result;
+        JsonPrimitive p;
 
         if (info.isJsonPrimitive()) {
-            return info.toString();
+            p = info.getAsJsonPrimitive();
+            if (p.isString()) {
+                return p.getAsString();
+            } else {
+                return p.toString();
+            }
         } else if (info.isJsonArray()) {
             result = new StringBuilder();
             for (JsonElement e : info.getAsJsonArray()) {
