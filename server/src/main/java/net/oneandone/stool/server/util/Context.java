@@ -44,4 +44,17 @@ public class Context {
         }
         return result;
     }
+
+    private Map<String, Map<String, Stage.Current>> currentMap = new HashMap<>();
+
+    public Map<String, Stage.Current> currentMap(Stage stage) throws IOException {
+        Map<String, Stage.Current> result;
+
+        result = currentMap.get(stage.getName());
+        if (result == null) {
+            result = stage.currentMap(engine);
+            currentMap.put(stage.getName(), result);
+        }
+        return result;
+    }
 }

@@ -207,7 +207,7 @@ public class Stage {
                 Map<String, Current> map;
                 List<String> result;
 
-                map = currentMap(context.engine);
+                map = context.currentMap(Stage.this);
                 result = new ArrayList<>();
                 for (Map.Entry<String, Current> entry : map.entrySet()) {
                     result.add(entry.getKey() + ":" + entry.getValue().image.tag);
