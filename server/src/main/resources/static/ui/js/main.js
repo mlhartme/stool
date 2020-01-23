@@ -27,13 +27,11 @@ function hashCode(s) {
 };
 
 function escapeHtml(unsafe) {
-    return unsafe;
-    /* TODO
-         .replace(/&/g, "&amp;")
+    return unsafe.replace(/&/g, "&amp;")
          .replace(/</g, "&lt;")
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");*/
+         .replace(/'/g, "&#039;");
 }
 
 var dashboard = dashboard || {};
@@ -126,7 +124,7 @@ dashboard = {
                                    htmlSt +
                                    htmlName +
                                    htmlUrls +
-                                   "<td>" + escapeHtml(status.apps) + "</td>\n" +
+                                   "<td>" + escapeHtml(String(status.apps)) + "</td>\n" +
                                    "<td>" + status.expire + "</td>\n" +
                                    "<td>" + status["last-modified-by"] + "</td>\n" +
                                    htmlRestart +
