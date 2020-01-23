@@ -21,6 +21,7 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class Status extends InfoCommand {
@@ -33,27 +34,46 @@ public class Status extends InfoCommand {
     @Override
     public void doRun(Client client, String clientFilter) throws Exception {
         Map<String, Map<String, JsonElement>> response;
+        boolean withPrefix;
+        int prefixWidth;
+        String prefix;
+        String name;
 
         response = client.list(clientFilter, selected);
+        withPrefix = response.size() != 1;
+        prefixWidth = maxWidth(response.keySet());
         for (Map.Entry<String, Map<String, JsonElement>> stage : response.entrySet()) {
-            output(stage.getValue());
+            if (withPrefix) {
+                name = stage.getKey();
+                prefix = Strings.times(' ', prefixWidth - name.length());
+                prefix = prefix + "{" + name + "@" + client.getName() + "} ";
+            } else {
+                prefix = "";
+            }
+            output(prefix, stage.getValue());
         }
     }
 
-
-    public void output(Map<String, JsonElement> infos) {
+    public void output(String prefix, Map<String, JsonElement> infos) {
         int width;
 
-        width = 0;
-        for (String name : infos.keySet()) {
-            width = Math.max(width, name.length());
-        }
-        width += 2;
+        width = maxWidth(infos.keySet()) + 2;
         for (Map.Entry<String, JsonElement> entry : infos.entrySet()) {
+            console.info.print(prefix);
             console.info.print(Strings.times(' ', width - entry.getKey().length()));
             console.info.print(entry.getKey());
             console.info.print(" : ");
             console.info.println(infoToString(entry.getValue()));
         }
+    }
+
+    private static int maxWidth(Collection<String> names) {
+        int width;
+
+        width = 0;
+        for (String name : names) {
+            width = Math.max(width, name.length());
+        }
+        return width;
     }
 }
