@@ -43,24 +43,27 @@ public abstract class InfoCommand extends StageCommand {
 
     @Override
     public EnumerationFailed runAll() throws Exception {
-        for (Client client : selectedClients(globals.servers())) {
-            doRun(client, globals.servers().clientFilter(all ? "" : stageClause));
-        }
-        return new EnumerationFailed();
-    }
-
-    private List<Client> selectedClients(ServerManager serverManager) throws IOException {
+        List<Client> clients;
+        ServerManager serverManager;
         int count;
 
+        serverManager = globals.servers();
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
-                return defaultClients(serverManager);
+                clients = defaultClients(serverManager);
+                break;
             case 1:
-                return serverManager.connectMatching(serverManager.serverFilter(all ? null : stageClause));
+                clients = serverManager.connectMatching(serverManager.serverFilter(all ? null : stageClause));
+                break;
             default:
                 throw new ArgumentException("too many select options");
         }
+
+        for (Client client : clients) {
+            doRun(client, globals.servers().clientFilter(all ? "" : stageClause));
+        }
+        return new EnumerationFailed();
     }
 
     private List<Client> defaultClients(ServerManager serverManager) throws IOException {
