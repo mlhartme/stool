@@ -28,6 +28,7 @@ import java.util.Map;
 /** Context for info computation */
 public class Context {
     private final Engine engine;
+    private Map<String, ContainerInfo> lazyAllContainerMap;
     private final Map<String, Map<String, List<Image>>> stageImages;
     private final Map<String, Map<String, ContainerInfo>> runningContainerMaps;
     private final Map<String, Map<String, Stage.Current>> currentMaps;
@@ -35,10 +36,18 @@ public class Context {
 
     public Context(Engine engine) {
         this.engine = engine;
+        this.lazyAllContainerMap = null;
         this.stageImages = new HashMap<>();
         this.runningContainerMaps = new HashMap<>();
         this.currentMaps = new HashMap<>();
         this.urlMaps = new HashMap<>();
+    }
+
+    public Map<String, ContainerInfo> allContainerMap() throws IOException {
+        if (lazyAllContainerMap == null) {
+            lazyAllContainerMap = Stage.allContainerMap(engine);
+        }
+        return lazyAllContainerMap;
     }
 
     public Map<String, List<Image>> images(Stage stage) throws IOException {
@@ -80,7 +89,7 @@ public class Context {
 
         result = urlMaps.get(stage.getName());
         if (result == null) {
-            result = stage.urlMap(engine, pool, null);
+            result = stage.urlMap(engine, pool, allContainerMap().values(), null);
             urlMaps.put(stage.getName(), result);
         }
         return result;
