@@ -18,7 +18,6 @@ package net.oneandone.stool.client.cli;
 import com.google.gson.JsonElement;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -40,6 +39,9 @@ public class Ls extends InfoCommand {
     public EnumerationFailed runAll() throws Exception {
         EnumerationFailed result;
 
+        if (stageClause == null) { // list command has an implicit -all switch
+            all = true;
+        }
         doBefore();
         result = super.runAll();
         doAfter();
@@ -123,10 +125,5 @@ public class Ls extends InfoCommand {
             result.add(max);
         }
         return result;
-    }
-
-    @Override
-    protected List<Client> defaultClients(ServerManager serverManager) throws IOException {
-        return serverManager.connectMatching("");
     }
 }

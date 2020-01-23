@@ -63,8 +63,7 @@ public abstract class InfoCommand extends StageCommand {
         }
     }
 
-    /** override this to change the default */
-    protected List<Client> defaultClients(ServerManager serverManager) throws IOException {
+    private List<Client> defaultClients(ServerManager serverManager) throws IOException {
         Project project;
         Reference reference;
 
