@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.util.Separator;
 
@@ -29,10 +28,10 @@ public class PredicateParser {
         }
     }
 
-    private final Engine engine;
+    private final Context context;
 
-    public PredicateParser(Engine engine) {
-        this.engine = engine;
+    public PredicateParser(Context context) {
+        this.context = context;
     }
 
     public Predicate parse(String filter) {
@@ -147,13 +146,13 @@ public class PredicateParser {
                 Property p;
 
                 if (constField != null) {
-                    obj = field.get(engine);
+                    obj = field.get(context);
                 } else {
                     p = stage.propertyOpt(constProperty);
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }
-                    obj = p.get(engine);
+                    obj = p.get(context);
                 }
                 if (obj == null) {
                     str = "";

@@ -15,17 +15,12 @@
  */
 package net.oneandone.stool.server.util;
 
-import java.io.IOException;
+import net.oneandone.stool.server.docker.Engine;
 
-/** A computable value representing one aspect of the stage status. */
-public abstract class Field extends Info {
-    protected Field(String name) {
-        super(name);
+/** Context for info compuptation */
+public class Context {
+    public final Engine engine;
+    public Context(Engine engine) {
+        this.engine = engine;
     }
-
-    public String toString() {
-        return name();
-    }
-
-    public abstract Object get(Context context) throws IOException;
 }

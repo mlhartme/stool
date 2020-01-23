@@ -31,6 +31,7 @@ import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.AppInfo;
+import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.PredicateParser;
@@ -119,11 +120,13 @@ public class ApiController {
     private String legacyList(String filter) throws IOException {
         JsonArray result;
         Map<String, IOException> problems;
+        Context context;
 
         result = new JsonArray();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
+            context = new Context(engine);
+            for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
                 result.add(new JsonPrimitive(stage.getName()));
             }
             if (!problems.isEmpty()) {
@@ -134,6 +137,7 @@ public class ApiController {
     }
     private String newList(String filter, String selectStr) throws IOException {
         JsonObject result;
+        Context context;
         Map<String, IOException> problems;
         List<String> select;
         JsonObject obj;
@@ -141,18 +145,19 @@ public class ApiController {
         result = new JsonObject();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
+            context = new Context(engine);
+            for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
                 select = "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr);
                 obj = new JsonObject();
                 result.add(stage.getName(), obj);
                 for (Info info : stage.fields()) {
                     if (select == null || select.remove(info.name())) {
-                        obj.add(info.name(), info.getAsJson(engine));
+                        obj.add(info.name(), info.getAsJson(context));
                     }
                 }
                 for (Property property : stage.properties()) {
                     if (select != null && select.remove(property.name())) {
-                        obj.add(property.name(), new JsonPrimitive(property.get(engine)));
+                        obj.add(property.name(), new JsonPrimitive(property.get(context)));
                     }
                 }
                 if (select != null && !select.isEmpty()) {
@@ -233,11 +238,13 @@ public class ApiController {
     @GetMapping("/stages/{stage}/properties")
     public String properties(@PathVariable(value = "stage") String stage) throws IOException {
         JsonObject result;
+        Context context;
 
         result = new JsonObject();
         try (Engine engine = engine()) {
+            context = new Context(engine);
             for (Property property : server.load(stage).properties()) {
-                result.add(property.name(), new JsonPrimitive(property.get(engine)));
+                result.add(property.name(), new JsonPrimitive(property.get(context)));
             }
             return result.toString();
         }
@@ -250,21 +257,23 @@ public class ApiController {
         String value;
         Map<String, String> arguments;
         JsonObject result;
+        Context context;
 
         stage = server.load(stageName);
         arguments = map(request, "");
         result = new JsonObject();
         try (Engine engine = engine()) {
+            context = new Context(engine);
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
                 prop = stage.propertyOpt(entry.getKey());
                 if (prop == null) {
                     throw new ArgumentException("unknown property: " + entry.getKey());
                 }
                 value = entry.getValue();
-                value = value.replace("{}", prop.get(engine));
+                value = value.replace("{}", prop.get(context));
                 try {
                     prop.set(value);
-                    result.add(prop.name(), new JsonPrimitive(prop.getAsString(engine)));
+                    result.add(prop.name(), new JsonPrimitive(prop.getAsString(context)));
                 } catch (RuntimeException e) {
                     throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
                 }
@@ -279,6 +288,7 @@ public class ApiController {
     public String status(@PathVariable(value = "stage") String stage, @RequestParam(value = "select", required = false) String select)
             throws IOException {
         JsonObject result;
+        Context context;
         List<String> selection;
 
         if (select == null || select.isEmpty()) {
@@ -288,9 +298,10 @@ public class ApiController {
         }
         result = new JsonObject();
         try (Engine engine = engine()) {
+            context = new Context(engine);
             for (Info info : server.load(stage).fields()) {
                 if (selection == null || selection.remove(info.name())) {
-                    result.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
+                    result.add(info.name(), new JsonPrimitive(info.getAsString(context)));
                 }
             }
             if (selection != null && !selection.isEmpty()) {

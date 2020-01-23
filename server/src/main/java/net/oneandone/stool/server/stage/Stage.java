@@ -27,6 +27,7 @@ import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.ImageInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.AppInfo;
+import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Pool;
@@ -186,27 +187,27 @@ public class Stage {
         fields = new ArrayList<>();
         fields.add(new Field("name") {
             @Override
-            public Object get(Engine engine) {
+            public Object get(Context context) {
                 return name;
             }
         });
         fields.add(new Field("apps") {
             @Override
-            public Object get(Engine engine) throws IOException {
+            public Object get(Context context) throws IOException {
                 List<String> result;
 
-                result = new ArrayList<>(images(engine).keySet());
+                result = new ArrayList<>(images(context.engine).keySet());
                 Collections.sort(result);
                 return result;
             }
         });
         fields.add(new Field("running") {
             @Override
-            public Object get(Engine engine) throws IOException {
+            public Object get(Context context) throws IOException {
                 Map<String, Current> map;
                 List<String> result;
 
-                map = currentMap(engine);
+                map = currentMap(context.engine);
                 result = new ArrayList<>();
                 for (Map.Entry<String, Current> entry : map.entrySet()) {
                     result.add(entry.getKey() + ":" + entry.getValue().image.tag);
@@ -217,7 +218,7 @@ public class Stage {
         });
         fields.add(new Field("created-by") {
             @Override
-            public Object get(Engine engine) throws IOException {
+            public Object get(Context context) throws IOException {
                 String login;
 
                 login = createdBy();
@@ -227,7 +228,7 @@ public class Stage {
         });
         fields.add(new Field("created-at") {
             @Override
-            public Object get(Engine engine) throws IOException {
+            public Object get(Context context) throws IOException {
                 // I can't ask the filesystem, see
                 // https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
                 AccessLogEntry entry;
@@ -239,7 +240,7 @@ public class Stage {
         });
         fields.add(new Field("last-modified-by") {
             @Override
-            public Object get(Engine engine) throws IOException {
+            public Object get(Context context) throws IOException {
                 AccessLogEntry entry;
 
                 entry = youngest(accessLogModifiedOnly());
@@ -248,7 +249,7 @@ public class Stage {
         });
         fields.add(new Field("last-modified-at") {
             @Override
-            public Object get(Engine engine) throws IOException {
+            public Object get(Context context) throws IOException {
                 AccessLogEntry entry;
 
                 entry = youngest(accessLogModifiedOnly());
@@ -257,8 +258,8 @@ public class Stage {
         });
         fields.add(new Field("urls") {
             @Override
-            public Object get(Engine engine) throws IOException {
-                return urlMap(engine, server.pool, null);
+            public Object get(Context context) throws IOException {
+                return urlMap(context.engine, server.pool, null);
             }
         });
         return fields;

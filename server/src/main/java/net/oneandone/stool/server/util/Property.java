@@ -17,9 +17,8 @@ package net.oneandone.stool.server.util;
 
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
-import net.oneandone.stool.server.docker.Engine;
 
-/** A computable value representing one aspect of the stage status. */
+/** A stored value representing one aspect of the stage status. */
 public class Property extends Info {
     private final Accessor type;
     private final StageConfiguration configuration;
@@ -30,7 +29,7 @@ public class Property extends Info {
         this.configuration = configuration;
     }
 
-    public String get(Engine engine) {
+    public String get(Context context) {
         return type.get(configuration);
     }
 

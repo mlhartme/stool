@@ -19,7 +19,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.stool.server.docker.Engine;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,10 +36,10 @@ public abstract class Info {
         return name;
     }
 
-    public abstract Object get(Engine engine) throws IOException;
+    public abstract Object get(Context context) throws IOException;
 
-    public String getAsString(Engine engine) throws IOException {
-        return valueString(get(engine));
+    public String getAsString(Context context) throws IOException {
+        return valueString(get(context));
 
     }
 
@@ -68,8 +67,8 @@ public abstract class Info {
             return value.toString();
         }
     }
-    public JsonElement getAsJson(Engine engine) throws IOException {
-        return valueJson(get(engine));
+    public JsonElement getAsJson(Context context) throws IOException {
+        return valueJson(get(context));
 
     }
 
