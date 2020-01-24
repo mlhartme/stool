@@ -124,7 +124,6 @@ dashboard = {
                                    htmlSt +
                                    htmlName +
                                    htmlUrls +
-                                   "<td>" + escapeHtml(String(status.apps)) + "</td>\n" +
                                    "<td>" + status.expire + "</td>\n" +
                                    "<td>" + status["last-modified-by"] + "</td>\n" +
                                    htmlRestart +
@@ -198,7 +197,8 @@ dashboard = {
                     url = url + "?" + arguments;
                 }
                 $.post(url).fail(function (r) {
-                    box.find('.modal-body').html('<p>failed: ' + r + '</p>');
+                    box.find('.modal-body').html('<p>failed: ' + String(r) + '</p>');
+                    console.log(url + " failed: " + String(r))
                     dashboard.stages.reload();
                 }).done(function (r) {
                     // TODO: doesn't work if the browser is extremely slow (or busy)
