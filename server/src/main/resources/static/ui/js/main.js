@@ -54,13 +54,14 @@ dashboard = {
         init: function () {
             dashboard.stages.reload();
             $('[data-action]').on('click', dashboard.stages.action);
-            $('#loading').remove();
         },
 
         reload: function () {
             $.ajax('/api/stages?select=apps,comment,expire,last-modified-by,running,urls', {
                 dataType: "json",
                 success: function (data) {
+                    $('#loading').remove();
+
                     var allStages = $('#all-stages');
                     var done = [];
                     $.each(data, function (name, status) {

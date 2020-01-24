@@ -8,6 +8,7 @@ dashboard
 * added `remove` action
 * authentication fix: webjars can be access without auth now
 * tweaked share email
+* fixed loading stages spinner
 
 client
 * adjust to use new `awwait-startup`
