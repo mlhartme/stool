@@ -17,6 +17,7 @@ package net.oneandone.stool.server.util;
 
 import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
+import net.oneandone.stool.server.docker.ImageInfo;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 
@@ -25,9 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Context for info computation. TODO: nameing tweaks */
+/** Context for info computation. TODO: naming tweaks */
 public class Context {
     private final Engine engine;
+    private Map<String, ImageInfo> lazyAllImageMap;
     private final Map<String, Map<String, List<Image>>> stageImages;
     private Map<String, ContainerInfo> lazyAllContainerMap;
     private final Map<String, Map<String, ContainerInfo>> runningContainerMaps;
@@ -36,6 +38,7 @@ public class Context {
 
     public Context(Engine engine) {
         this.engine = engine;
+        this.lazyAllImageMap = null;
         this.stageImages = new HashMap<>();
         this.lazyAllContainerMap = null;
         this.runningContainerMaps = new HashMap<>();
@@ -43,12 +46,19 @@ public class Context {
         this.urlMaps = new HashMap<>();
     }
 
+    public Map<String, ImageInfo> allImages() throws IOException {
+        if (lazyAllImageMap == null) {
+            lazyAllImageMap = engine.imageList();
+        }
+        return lazyAllImageMap;
+    }
+
     public Map<String, List<Image>> images(Stage stage) throws IOException {
         Map<String, List<Image>> result;
 
         result = stageImages.get(stage.getName());
         if (result == null) {
-            result = stage.images(engine);
+            result = stage.images(engine, allImages());
             stageImages.put(stage.getName(), result);
         }
         return result;

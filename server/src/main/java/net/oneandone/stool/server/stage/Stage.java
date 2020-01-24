@@ -330,11 +330,16 @@ public class Stage {
 
     /** @return list of tags belonging to this stage */
     private List<String> imageTags(Engine engine) throws IOException {
+        return imageTags(engine.imageList());
+    }
+
+    /** @return list of tags belonging to this stage */
+    private List<String> imageTags(Map<String, ImageInfo> imageMap) {
         ImageInfo info;
         List<String> result;
 
         result = new ArrayList<>();
-        for (Map.Entry<String, ImageInfo> entry : engine.imageList().entrySet()) {
+        for (Map.Entry<String, ImageInfo> entry : imageMap.entrySet()) {
             info = entry.getValue();
             for (String repositoryTag : info.repositoryTags) {
                 if (repositoryTag.startsWith(server.configuration.registryNamespace + "/" + name + "/")) {
@@ -347,12 +352,17 @@ public class Stage {
 
     /** @return app mapped to sorted list */
     public Map<String, List<Image>> images(Engine engine) throws IOException {
+        return images(engine, engine.imageList());
+    }
+
+    /** @return app mapped to sorted list */
+    public Map<String, List<Image>> images(Engine engine, Map<String, ImageInfo> imageMap) throws IOException {
         Map<String, List<Image>> result;
         Image image;
         List<Image> list;
 
         result = new HashMap<>();
-        for (String repositoryTag : imageTags(engine)) {
+        for (String repositoryTag : imageTags(imageMap)) {
             image = Image.load(engine, repositoryTag);
             list = result.get(image.app);
             if (list == null) {
