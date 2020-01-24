@@ -539,7 +539,7 @@ public class Server {
             }
         }
         try {
-            engine.imageList();
+            LOGGER.info("docker info: " + engine.version());
         } catch (IOException e) {
             LOGGER.error("cannot access docker", e);
             throw e;
