@@ -715,7 +715,7 @@ public class Engine implements AutoCloseable {
         return builder.toString();
     }
 
-    private static JsonObject obj(Map<String, String> obj) {
+    public static JsonObject obj(Map<String, String> obj) {
         JsonObject result;
 
         result = new JsonObject();

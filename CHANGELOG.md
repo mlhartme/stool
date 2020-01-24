@@ -10,12 +10,14 @@ dashboard
 
 client
 * performance improvements by using the new `api/stages` call
+* adjust to use new `awwait-startup`
 
 server
 * api/stages: added a new `api/stages` call that returns both properties and fields for a list of stages
   with a reduced number for docker calls
   * note that this call returns infos as json, not rendered into strings; in particular:
     * the url field is returned as a map
+* `awaitStartup` now returns json    
 * performance tweaks: reduce number of access log reads
 * fixed feedback button (thanks to Julian W)
 * fixed NPEs after access logs were removed

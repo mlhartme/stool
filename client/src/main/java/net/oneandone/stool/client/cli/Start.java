@@ -93,13 +93,13 @@ public class Start extends IteratedStageCommand {
 
     @Override
     public void doFinish(Reference reference) throws Exception {
-        Map<String, List<String>> running;
+        Map<String, Map<String, String>> running;
 
         running = reference.client.awaitStartup(reference.stage);
         console.info.println("Applications available:");
         for (String app : running.keySet()) {
-            for (String url : running.get(app)) {
-                console.info.println("  " + url);
+            for (Map.Entry<String, String> entry : running.get(app).entrySet()) {
+                console.info.println("  " + entry.getKey() + " " + entry.getValue());
             }
         }
     }

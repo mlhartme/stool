@@ -140,16 +140,6 @@ public class Client {
         return result;
     }
 
-    private static Map<String, JsonElement> map(JsonObject infos) {
-        Map<String, JsonElement> result;
-
-        result = new LinkedHashMap<>();
-        for (Map.Entry<String, JsonElement> entry : infos.entrySet()) {
-            result.put(entry.getKey(), entry.getValue());
-        }
-        return result;
-    }
-
     //-- create, build, start, stop, remove
 
     /** @throws FileAlreadyExistsException if the stage already exists */
@@ -198,25 +188,14 @@ public class Client {
         return started;
     }
 
-    public Map<String, List<String>> awaitStartup(String stage) throws IOException {
+    public Map<String, Map<String, String>> awaitStartup(String stage) throws IOException {
         JsonObject response;
-        Map<String, List<String>> result;
+        Map<String, Map<String, String>> result;
 
-        response = getJson(node(stage, "await-startup")).getAsJsonObject();
-
+        response = getJson(node(stage, "await-startup").withParameter("legacy", "false")).getAsJsonObject();
         result = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
-            result.put(entry.getKey(), array(entry.getValue().getAsJsonArray()));
-        }
-        return result;
-    }
-
-    private static List<String> array(JsonArray json) {
-        List<String> result;
-
-        result = new ArrayList<>(json.size());
-        for (JsonElement element : json) {
-            result.add(element.getAsString());
+            result.put(entry.getKey(), stringMap(entry.getValue().getAsJsonObject()));
         }
         return result;
     }
@@ -427,5 +406,37 @@ public class Client {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    //-- json helper
+
+    private static List<String> array(JsonArray json) {
+        List<String> result;
+
+        result = new ArrayList<>(json.size());
+        for (JsonElement element : json) {
+            result.add(element.getAsString());
+        }
+        return result;
+    }
+
+    private static Map<String, String> stringMap(JsonObject json) {
+        Map<String, String> result;
+
+        result = new LinkedHashMap<>(json.size());
+        for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAsString());
+        }
+        return result;
+    }
+
+    private static Map<String, JsonElement> map(JsonObject infos) {
+        Map<String, JsonElement> result;
+
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, JsonElement> entry : infos.entrySet()) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
     }
 }
