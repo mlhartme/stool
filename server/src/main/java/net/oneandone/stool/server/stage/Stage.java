@@ -475,7 +475,7 @@ public class Stage {
         // TODO: result is currently unused - this is just to avoid error messages for _app
         app(appProperties, explicitArguments);
         tag = wipeOldImages(engine, APP_NAME, keep - 1);
-        context = createContextEatWar(APP_NAME, war);  // this is where concurrent builds are blocked
+        context = createContextEatWar(war);  // this is where concurrent builds are blocked
         try {
             repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + APP_NAME + ":" + tag;
             defaults = BuildArgument.scan(template.join("Dockerfile"));
@@ -504,13 +504,14 @@ public class Stage {
             Server.LOGGER.debug("successfully built image: " + image);
             Server.LOGGER.debug(str);
         } finally {
-            cleanupContext(APP_NAME, Integer.toString(tag), keep);
+            cleanupContext(Integer.toString(tag), keep);
         }
         return new BuildResult(str, APP_NAME, Integer.toString(tag));
     }
 
     /** @return images actually started */
-    public List<String> start(Engine engine, Pool pool, int http, int https, Map<String, String> clientEnvironment, Map<String, String> selection) throws IOException {
+    public List<String> start(Engine engine, Pool pool, int http, int https, Map<String, String> clientEnvironment,
+                              Map<String, String> selection) throws IOException {
         String container;
         Engine.Status status;
         Ports hostPorts;
@@ -710,7 +711,8 @@ public class Stage {
         result.put(hostLogRoot, "/var/log/stool");
         if (image.ports.https != -1) {
             if (image.p12 != null) {
-                result.put(server.certificate(server.configuration.vhosts ? image.app + "." + getName() + "." + server.configuration.dockerHost
+                result.put(server.certificate(server.configuration.vhosts
+                        ? image.app + "." + getName() + "." + server.configuration.dockerHost
                         : server.configuration.dockerHost), image.p12);
             }
         }
@@ -800,7 +802,8 @@ public class Stage {
         for (Map.Entry<Object, Object> entry : appProperties.entrySet()) {
             property = entry.getKey().toString();
             if (!result.containsKey(property)) {
-                throw new ArgumentException("unknown build argument in stool.properties: " + property + "\n" + available(defaults.values()));
+                throw new ArgumentException("unknown build argument in stool.properties: "
+                        + property + "\n" + available(defaults.values()));
             }
             result.put(property, entry.getValue().toString());
         }
@@ -847,7 +850,8 @@ public class Stage {
      * @param oneApp null for all apps
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, Pool pool, Collection<ContainerInfo> allContainerList, String oneApp) throws IOException {
+    public Map<String, String> urlMap(Engine engine, Pool pool, Collection<ContainerInfo> allContainerList, String oneApp)
+            throws IOException {
         Map<String, String> result;
         String app;
         Map<String, Image> images;
@@ -1138,28 +1142,28 @@ public class Stage {
 
     //--
 
-    public FileNode createContextEatWar(String app, FileNode war) throws IOException {
+    public FileNode createContextEatWar(FileNode war) throws IOException {
         FileNode result;
 
-        result = directory.join("context").mkdirOpt().join(app);
+        result = directory.join("context").mkdirOpt().join("_");
         try {
             result.mkdir();
         } catch (MkdirException e) {
-            throw new ArgumentException("another build for app " + app + " is in progress, try again later");
+            throw new ArgumentException("another build for stage " + name + " is in progress, try again later");
         }
         war.move(result.join("app.war"));
         return result;
     }
 
-    public void cleanupContext(String app, String tag, int keep) throws IOException {
+    public void cleanupContext(String tag, int keep) throws IOException {
         FileNode dir;
         List<FileNode> lst;
         FileNode dest;
 
         dir = directory.join("context");
-        dest = dir.join(app + ":" + tag);
+        dest = dir.join(tag);
         moveAway(dest);
-        dir.join(app).move(dest);
+        dir.join("_").move(dest);
         lst = dir.list();
         Collections.sort(lst, new Comparator<FileNode>() {
             @Override

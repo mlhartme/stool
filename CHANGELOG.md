@@ -4,6 +4,9 @@
 
 * one app per stage; the _app argument is now ignored, the app is always called `app`
 
+* server
+  * naming scheme for context directories changed from app:tag to tag (current build is now _)
+  
 
 ### 5.1.0 (pending)
 
