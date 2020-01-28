@@ -342,7 +342,7 @@ public class Stage {
         for (Map.Entry<String, ImageInfo> entry : imageMap.entrySet()) {
             info = entry.getValue();
             for (String repositoryTag : info.repositoryTags) {
-                if (repositoryTag.startsWith(server.configuration.registryNamespace + "/" + name + "/")) {
+                if (repositoryTag.startsWith(server.configuration.registryNamespace + "/" + name + ":")) {
                     result.add(repositoryTag);
                 }
             }
@@ -378,13 +378,13 @@ public class Stage {
     }
 
     /** next version */
-    public int wipeOldImages(Engine engine, String app, int keep) throws IOException {
+    public int wipeOldImages(Engine engine, int keep) throws IOException {
         List<Image> images;
         String remove;
         int count;
         int result;
 
-        images = images(engine).get(app);
+        images = images(engine).get(APP_NAME);
         if (images == null) {
             return 1;
         }
@@ -474,10 +474,10 @@ public class Stage {
 
         // TODO: result is currently unused - this is just to avoid error messages for _app
         app(appProperties, explicitArguments);
-        tag = wipeOldImages(engine, APP_NAME, keep - 1);
+        tag = wipeOldImages(engine, keep - 1);
         context = createContextEatWar(war);  // this is where concurrent builds are blocked
         try {
-            repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + APP_NAME + ":" + tag;
+            repositoryTag = this.server.configuration.registryNamespace + "/" + name + ":" + tag;
             defaults = BuildArgument.scan(template.join("Dockerfile"));
             buildArgs = buildArgs(defaults, appProperties, explicitArguments);
             populateContext(context, template);
@@ -630,7 +630,7 @@ public class Stage {
 
         allImages = images(engine);
         if (allImages.isEmpty()) {
-            throw new ArgumentException("no apps to start - did you build the stage?");
+            throw new ArgumentException("no image to start - did you build the stage?");
         }
         running = currentMap(engine).keySet();
         if (selectionOrig.isEmpty()) {
