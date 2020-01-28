@@ -90,7 +90,7 @@ public class AppInfo {
         result.add("disk-used:  " + sizeRw(engine, current.container));
         result.add("cpu:        " + cpu(current.container));
         result.add("mem:        " + mem(current.container));
-        result.add("heap:       " + heap(stage, app, current));
+        result.add("heap:       " + heap(stage, current));
         addEnv(current.container, result);
         result.add("origin-scm: " + current.image.originScm);
         ports = server.pool.stage(name).get(app);
@@ -119,7 +119,7 @@ public class AppInfo {
         }
     }
 
-    public String heap(Stage stage, String app, Stage.Current current) throws IOException {
+    public String heap(Stage stage, Stage.Current current) throws IOException {
         JMXServiceURL url;
         MBeanServerConnection connection;
         ObjectName name;
@@ -134,7 +134,7 @@ public class AppInfo {
             return "[no jmx port]";
         }
 
-        url = stage.jmxMap(engine).get(app);
+        url = stage.jmxUrl(engine);
         try {
             name = new ObjectName("java.lang:type=Memory");
         } catch (MalformedObjectNameException e) {

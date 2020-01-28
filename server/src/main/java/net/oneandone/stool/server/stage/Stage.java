@@ -53,7 +53,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -1019,26 +1018,21 @@ public class Stage {
     //--
 
     public void awaitStartup(Engine engine) throws IOException {
-        Map<String, JMXServiceURL> jmxMap;
-        String app;
         JMXServiceURL url;
         String state;
 
-        jmxMap = jmxMap(engine);
-        Server.LOGGER.info("await startup ... ");
-        for (Map.Entry<String, JMXServiceURL> entry : jmxMap.entrySet()) {
-            app = entry.getKey();
-            url = entry.getValue();
+        url = jmxUrl(engine);
+        if (url != null) {
             for (int count = 0; true; count++) {
                 try {
                     state = jmxEngineState(url);
                     break;
                 } catch (Exception e) {
                     if (count > 600) {
-                        throw new IOException(app + ": initial state timed out: " + e.getMessage(), e);
+                        throw new IOException(name + ": initial state timed out: " + e.getMessage(), e);
                     }
                     if (count % 100 == 99) {
-                        Server.LOGGER.info(app + ": waiting for tomcat startup ... ");
+                        Server.LOGGER.info(name + ": waiting for tomcat startup ... ");
                     }
                     try {
                         Thread.sleep(100);
@@ -1049,10 +1043,10 @@ public class Stage {
             }
             for (int count = 1; !"STARTED".equals(state); count++) {
                 if (count > 10 * 60 * 5) {
-                    throw new IOException(app + ": tomcat startup timed out, state" + state);
+                    throw new IOException(name + ": tomcat startup timed out, state" + state);
                 }
                 if (count % 100 == 99) {
-                    Server.LOGGER.info(app + ": waiting for tomcat startup ... " + state);
+                    Server.LOGGER.info(name + ": waiting for tomcat startup ... " + state);
                 }
                 try {
                     Thread.sleep(100);
@@ -1064,35 +1058,34 @@ public class Stage {
         }
     }
 
-    public Map<String, JMXServiceURL> jmxMap(Engine engine) throws IOException {
-        Map<String, JMXServiceURL> result;
+    public JMXServiceURL jmxUrl(Engine engine) throws IOException {
         JsonObject inspected;
         JsonObject networks;
         JsonObject network;
         String ip;
         String jmx;
         Collection<ContainerInfo> containerList;
+        ContainerInfo info;
 
         containerList = runningContainerMap(engine).values();
-        result = new HashMap<>();
-        for (ContainerInfo info : containerList) {
-            inspected = engine.containerInspect(info.id, false);
-            networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
-            if (networks.size() != 1) {
-                throw new IOException("unexpected Networks: " + networks);
-            }
-            network = networks.entrySet().iterator().next().getValue().getAsJsonObject();
-            ip = network.get("IPAddress").getAsString();
-            jmx = info.labels.get(IMAGE_LABEL_PORT_DECLARED_PREFIX + Ports.Port.JMXMP.toString().toLowerCase());
-            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            try {
-                result.put(APP_NAME, new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx));
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException(e);
-            }
-
+        switch (containerList.size()) {
+            case 0:
+                return null;
+            case 1:
+                info = containerList.iterator().next();
+                inspected = engine.containerInspect(info.id, false);
+                networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
+                if (networks.size() != 1) {
+                    throw new IOException("unexpected Networks: " + networks);
+                }
+                network = networks.entrySet().iterator().next().getValue().getAsJsonObject();
+                ip = network.get("IPAddress").getAsString();
+                jmx = info.labels.get(IMAGE_LABEL_PORT_DECLARED_PREFIX + Ports.Port.JMXMP.toString().toLowerCase());
+                // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+                return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx);
+            default:
+                throw new IllegalStateException(containerList.toString());
         }
-        return result;
     }
 
 
