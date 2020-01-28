@@ -4,7 +4,15 @@
 
 * one app per stage; the _app argument is now ignored, the app is always called `app`
 
+* client:
+  * `app` dumped app argument
+  * `ssh` dumped app argument
+  * `tunnel` dumped app argument
+  
 * server
+  * `appInfo` dumped app argument
+  * `ssh` dumped app argument
+  * `tunnel` dumped app argument
   * naming scheme for context directories changed from app:tag to tag (current build is now _)
   * build now creates a repository tag without app name
   * dumped container label `app`

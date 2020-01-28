@@ -324,9 +324,9 @@ public class ApiController {
     }
 
     @GetMapping("/stages/{stage}/appInfo")
-    public String appInfo(@PathVariable("stage") String stage, @RequestParam("app") String app) throws Exception {
+    public String appInfo(@PathVariable("stage") String stage) throws Exception {
         try (Engine engine = engine()) {
-            return array(new AppInfo(server, engine).run(stage, app)).toString();
+            return array(new AppInfo(server, engine).run(stage)).toString();
         }
     }
 
@@ -376,8 +376,8 @@ public class ApiController {
             stage.awaitStartup(engine);
 
             result = new JsonObject();
-            for (String app : stage.currentMap(engine).keySet()) {
-                result.add(app, Engine.obj(stage.urlMap(engine, server.pool, app)));
+            if (stage.currentOpt(engine) != null) {
+                result.add(Stage.APP_NAME, Engine.obj(stage.urlMap(engine, server.pool, Stage.APP_NAME)));
             }
             return result.toString();
         }
@@ -393,8 +393,8 @@ public class ApiController {
             stage.awaitStartup(engine);
 
             result = new JsonObject();
-            for (String app : stage.currentMap(engine).keySet()) {
-                result.add(app, array(stage.namedUrls(engine, server.pool, app)));
+            if (stage.currentOpt(engine) != null) {
+                result.add(Stage.APP_NAME, array(stage.namedUrls(engine, server.pool, Stage.APP_NAME)));
             }
             return result.toString();
         }
@@ -421,16 +421,16 @@ public class ApiController {
     }
 
     @GetMapping("/stages/{stage}/tunnel")
-    public String tunnel(@PathVariable(value = "stage") String stageName, @RequestParam("app") String app, @RequestParam("port") String port) throws IOException {
+    public String tunnel(@PathVariable(value = "stage") String stageName, @RequestParam("port") String port) throws IOException {
         Ports ports;
         int mappedPort;
         JsonObject result;
         String privateKey;
 
-        currentWithPermissions(stageName, app);
-        ports = server.pool.stage(stageName).get(app);
+        currentWithPermissions(stageName);
+        ports = server.pool.stage(stageName).get(Stage.APP_NAME);
         if (ports == null) {
-            throw new ArgumentException("app not found or not running: " + app);
+            throw new ArgumentException("stage is not running: " + stageName);
         }
         switch (port) {
             case "jmx":
@@ -450,25 +450,25 @@ public class ApiController {
     }
 
     @GetMapping("/stages/{stage}/ssh")
-    public String ssh(@PathVariable(value = "stage") String stageName, @RequestParam("app") String app) throws IOException {
+    public String ssh(@PathVariable(value = "stage") String stageName) throws IOException {
         Stage.Current current;
         String privateKey;
 
-        current = currentWithPermissions(stageName, app);
+        current = currentWithPermissions(stageName);
         privateKey = server.sshDirectory.addExec(current.container.id);
         return new JsonPrimitive(privateKey).toString();
     }
 
-    private Stage.Current currentWithPermissions(String stageName, String app) throws IOException {
+    private Stage.Current currentWithPermissions(String stageName) throws IOException {
         Stage stage;
         Stage.Current current;
 
         stage = server.load(stageName);
         try (Engine engine = engine()) {
-            current = stage.currentMap(engine).get(app);
+            current = stage.currentOpt(engine);
         }
         if (current == null || current.container == null) {
-            throw new ArgumentException("app not found or not running: " + app);
+            throw new ArgumentException("stage is not running: " + stageName);
         }
         server.checkFaultPermissions(User.authenticatedOrAnonymous().login, current.image.faultProjects);
         return current;

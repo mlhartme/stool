@@ -47,29 +47,25 @@ public class AppInfo {
         this.engine = engine;
     }
 
-    public List<String> run(String name, String app) throws Exception {
+    public List<String> run(String name) throws Exception {
         Stage stage;
-        Map<String, List<Image>> all;
-        Map<String, Stage.Current> currentMap;
-        String marker;
+        List<Image> all;
         Stage.Current current;
+        String marker;
         Ports ports;
         List<String> result;
         List<String> args;
 
         result = new ArrayList<>();
         stage = server.load(name);
-        all = stage.images(engine);
-        currentMap = stage.currentMap(engine);
-        for (Map.Entry<String, List<Image>> entry : all.entrySet()) {
-            if (!currentMap.containsKey(entry.getKey())) {
-                currentMap.put(entry.getKey(), new Stage.Current(entry.getValue().get(entry.getValue().size() - 1), null));
-            }
+        all = stage.images(engine).get(Stage.APP_NAME);
+        current = stage.currentOpt(engine);
+        if (current == null) { // TODO: hack ...
+            current = new Stage.Current(all.get(all.size() - 1), null);
         }
-        current = currentMap.get(app);
-        for (Image image : all.get(app)) {
+        for (Image image : all) {
             marker = image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";
-            result.add(app + ":" + image.tag + "  " + marker);
+            result.add(image.tag + "  " + marker);
             result.add("   comment:     " + image.comment);
             result.add("   origin-scm:  " + image.originScm);
             result.add("   origin-user: " + image.originUser);
@@ -93,7 +89,7 @@ public class AppInfo {
         result.add("heap:       " + heap(stage, current));
         addEnv(current.container, result);
         result.add("origin-scm: " + current.image.originScm);
-        ports = server.pool.stage(name).get(app);
+        ports = server.pool.stage(name).get(Stage.APP_NAME);
         if (ports != null) {
             if (ports.debug != -1) {
                 result.add("debug port: " + ports.debug);

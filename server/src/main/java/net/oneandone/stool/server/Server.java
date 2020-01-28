@@ -491,12 +491,14 @@ public class Server {
     public int diskQuotaReserved(Engine engine) throws IOException {
         int reserved;
         Stage stage;
+        Stage.Current current;
         ContainerInfo info;
 
         reserved = 0;
         for (FileNode directory : stages.list()) {
             stage = load(directory);
-            for (Stage.Current current : stage.currentMap(engine).values()) {
+            current = stage.currentOpt(engine);
+            if (current != null) {
                 info = current.container;
                 if (info != null) {
                     reserved += current.image.disk;

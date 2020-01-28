@@ -78,7 +78,7 @@ public class Main {
                     cli.add(Attach.class, "attach -project stage");
                     cli.add(Detach.class, "detach -project");
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
-                      cli.add(App.class, "app name*");
+                      cli.add(App.class, "app");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=false -max=-1");
                       cli.add(Ls.class, "list info* { select*(info) }");
@@ -87,8 +87,8 @@ public class Main {
                       cli.add(Start.class, "start -http=-1 -https=-1 envAppIndex*");
                       cli.add(Status.class, "status info* { select*(info) }");
                       cli.add(Stop.class, "stop app*");
-                      cli.add(Tunnel.class, "tunnel app port local?");
-                      cli.add(Ssh.class, "ssh app");
+                      cli.add(Tunnel.class, "tunnel port local?");
+                      cli.add(Ssh.class, "ssh");
                       cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);

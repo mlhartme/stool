@@ -213,21 +213,19 @@ public class Client {
     }
 
     /** remote port or permission denied */
-    public JsonObject tunnel(String stage, String app, String port) throws IOException {
+    public JsonObject tunnel(String stage, String port) throws IOException {
         HttpNode node;
 
         node = node(stage, "tunnel");
-        node = node.withParameter("app", app);
         node = node.withParameter("port", port);
         return getJson(node).getAsJsonObject();
     }
 
     /** remote port or permission denied */
-    public String ssh(String stage, String app) throws IOException {
+    public String ssh(String stage) throws IOException {
         HttpNode node;
 
         node = node(stage, "ssh");
-        node = node.withParameter("app", app);
         return getJson(node).getAsString();
     }
 
@@ -321,8 +319,8 @@ public class Client {
 
     //-- app info
 
-    public List<String> appInfo(String stage, String app) throws Exception {
-        return array(getJson(node(stage, "appInfo").withParameter("app", app)).getAsJsonArray());
+    public List<String> appInfo(String stage) throws Exception {
+        return array(getJson(node(stage, "appInfo")).getAsJsonArray());
     }
 
 

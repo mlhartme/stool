@@ -15,48 +15,18 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 public class App extends IteratedStageCommand {
-    private final List<String> names;
-
-    public App(Globals globals, List<String> names) {
+    public App(Globals globals) {
         super(globals);
-        this.names = names;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        for (String app : appSelection(apps(reference))) {
-            for (String line : reference.client.appInfo(reference.stage, app)) {
-                console.info.println(line);
-            }
+        for (String line : reference.client.appInfo(reference.stage)) {
+            console.info.println(line);
         }
-    }
-
-    private List<String> appSelection(Collection<String> available) {
-        List<String> result;
-
-        if (names.isEmpty()) {
-            result = new ArrayList<>(available);
-            Collections.sort(result);
-        } else {
-            result = new ArrayList<>();
-            for (String name : names) {
-                if (available.contains(name)) {
-                    result.add(name);
-                } else {
-                    throw new ArgumentException("unknown app: " + name);
-                }
-            }
-        }
-        return result;
     }
 }

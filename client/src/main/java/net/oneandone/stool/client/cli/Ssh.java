@@ -23,11 +23,8 @@ import net.oneandone.sushi.launcher.Launcher;
 import java.io.IOException;
 
 public class Ssh extends IteratedStageCommand {
-    private final String app;
-
-    public Ssh(Globals globals, String app) {
+    public Ssh(Globals globals) {
         super(globals);
-        this.app = app;
     }
 
     @Override
@@ -37,7 +34,7 @@ public class Ssh extends IteratedStageCommand {
         int result;
         FileNode privateKey;
 
-        str = reference.client.ssh(reference.stage, app);
+        str = reference.client.ssh(reference.stage);
         privateKey = world.getTemp().createTempFile();
         privateKey.setPermissions("rwx------");
         privateKey.writeString(str);
@@ -51,7 +48,7 @@ public class Ssh extends IteratedStageCommand {
             launcher.arg(privateKey.getAbsolute());
 
             launcher.env("SSH_AUTH_SOCK", ""); // make sure not to save keys: disable agent
-            console.info.println("starting ssh shell to " + app + "." + reference.stage);
+            console.info.println("starting ssh shell to " +  reference.stage);
             launcher.getBuilder().inheritIO();
             result = launcher.getBuilder().start().waitFor();
             console.verbose.println("result: " + result);

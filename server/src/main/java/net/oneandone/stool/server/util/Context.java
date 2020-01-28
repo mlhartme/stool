@@ -33,7 +33,7 @@ public class Context {
     private final Map<String, Map<String, List<Image>>> stageImages;
     private Map<String, ContainerInfo> lazyAllContainerMap;
     private final Map<String, ContainerInfo> runningContainerOpts;
-    private final Map<String, Map<String, Stage.Current>> currentMaps;
+    private final Map<String, Stage.Current> currentOpts;
     private final Map<String, Map<String, String>> urlMaps;
 
     public Context(Engine engine) {
@@ -42,7 +42,7 @@ public class Context {
         this.stageImages = new HashMap<>();
         this.lazyAllContainerMap = null;
         this.runningContainerOpts = new HashMap<>();
-        this.currentMaps = new HashMap<>();
+        this.currentOpts = new HashMap<>();
         this.urlMaps = new HashMap<>();
     }
 
@@ -84,13 +84,13 @@ public class Context {
         return result;
     }
 
-    public Map<String, Stage.Current> currentMap(Stage stage) throws IOException {
-        Map<String, Stage.Current> result;
+    public Stage.Current currentOpt(Stage stage) throws IOException {
+        Stage.Current result;
 
-        result = currentMaps.get(stage.getName());
+        result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.currentMap(engine, runningContainerOpt(stage));
-            currentMaps.put(stage.getName(), result);
+            result = stage.currentOpt(engine, runningContainerOpt(stage));
+            currentOpts.put(stage.getName(), result);
         }
         return result;
     }

@@ -24,13 +24,11 @@ import net.oneandone.sushi.launcher.Launcher;
 import java.io.IOException;
 
 public class Tunnel extends IteratedStageCommand {
-    private final String app;
     private final String port;
     private final Integer local;
 
-    public Tunnel(Globals globals, String app, String port, Integer local) {
+    public Tunnel(Globals globals, String port, Integer local) {
         super(globals);
-        this.app = app;
         this.port = port;
         this.local = local;
     }
@@ -46,7 +44,7 @@ public class Tunnel extends IteratedStageCommand {
         int result;
         FileNode privateKey;
 
-        tunnel = reference.client.tunnel(reference.stage, app, port);
+        tunnel = reference.client.tunnel(reference.stage, port);
         remotePort = tunnel.get("port").getAsInt();
         privateKey = world.getTemp().createTempFile();
         privateKey.setPermissions("rwx------");

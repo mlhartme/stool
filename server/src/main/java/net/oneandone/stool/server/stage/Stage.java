@@ -202,13 +202,13 @@ public class Stage {
         fields.add(new Field("running") {
             @Override
             public Object get(Context context) throws IOException {
-                Map<String, Current> map;
+                Current current;
                 List<String> result;
 
-                map = context.currentMap(Stage.this);
+                current = context.currentOpt(Stage.this);
                 result = new ArrayList<>();
-                for (Map.Entry<String, Current> entry : map.entrySet()) {
-                    result.add(entry.getKey() + ":" + entry.getValue().image.tag);
+                if (current != null) {
+                    result.add(APP_NAME + ":" + current.image.tag);
                 }
                 Collections.sort(result);
                 return result;
@@ -420,11 +420,11 @@ public class Stage {
     public void checkDiskQuota(Engine engine) throws IOException {
         int used;
         int quota;
-        Map<String, Current> map;
+        Current current;
         ContainerInfo info;
 
-        map = currentMap(engine);
-        for (Current current : map.values()) {
+        current = currentOpt(engine);
+        if (current != null) {
             info = current.container;
             if (info != null) {
                 used = AppInfo.sizeRw(engine, info);
@@ -614,7 +614,7 @@ public class Stage {
     private List<Image> resolve(Engine engine, Map<String, String> selectionOrig) throws IOException {
         Map<String, String> selection;
         Map<String, List<Image>> allImages;
-        Collection<String> running;
+        List<String> running;
         String app;
         String tag;
         List<Image> list;
@@ -625,7 +625,7 @@ public class Stage {
         if (allImages.isEmpty()) {
             throw new ArgumentException("no image to start - did you build the stage?");
         }
-        running = currentMap(engine).keySet();
+        running = currentOpt(engine) != null ? Collections.singletonList(APP_NAME) : Collections.emptyList();
         if (selectionOrig.isEmpty()) {
             selection = new HashMap<>();
             for (String a : allImages.keySet()) {
@@ -667,7 +667,7 @@ public class Stage {
 
     /** @return list of applications actually stopped */
     public List<String> stop(Engine engine, List<String> apps) throws IOException {
-        Map<String, Current> currentMap;
+        Current current;
         Map<String, String> containers; // maps app:tag to containerId
         List<String> unknown;
 
@@ -677,11 +677,11 @@ public class Stage {
         if (!unknown.isEmpty()) {
             throw new ArgumentException("unknown app(s): " + unknown);
         }
-        currentMap = currentMap(engine);
+        current = currentOpt(engine);
         containers = new LinkedHashMap<>();
-        for (Map.Entry<String, Current> current : currentMap.entrySet()) {
-            if (apps.isEmpty() || apps.contains(current.getKey())) {
-                containers.put(current.getKey() + ":" + current.getValue().image.tag, current.getValue().container.id);
+        if (current != null) {
+            if (apps.isEmpty() || apps.contains(APP_NAME)) {
+                containers.put(APP_NAME + ":" + current.image.tag, current.container.id);
             }
         }
         for (Map.Entry<String, String> entry : containers.entrySet()) {
@@ -977,21 +977,20 @@ public class Stage {
         }
     }
 
-    /** only for running apps, does not include stopped apps */
-    public Map<String, Current> currentMap(Engine engine) throws IOException {
-        return currentMap(engine, runningContainerOpt(engine));
+    /** @return null if not running */
+    public Current currentOpt(Engine engine) throws IOException {
+        return currentOpt(engine, runningContainerOpt(engine));
     }
 
-    public Map<String, Current> currentMap(Engine engine, ContainerInfo runningContainerOpt) throws IOException {
-        Map<String, Current> result;
+    public Current currentOpt(Engine engine, ContainerInfo runningContainerOpt) throws IOException {
         Image image;
 
-        result = new HashMap<>();
         if (runningContainerOpt != null) {
             image = Image.load(engine, runningContainerOpt.labels.get(CONTAINER_LABEL_IMAGE));
-            result.put(APP_NAME, new Current(image, runningContainerOpt));
+            return new Current(image, runningContainerOpt);
+        } else {
+            return null;
         }
-        return result;
     }
 
     /** @return null if unknown */
