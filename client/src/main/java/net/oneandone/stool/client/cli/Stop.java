@@ -18,18 +18,9 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Stop extends IteratedStageCommand {
-    private final List<String> apps;
-
     public Stop(Globals globals) {
-        this(globals, new ArrayList<>());
-    }
-    public Stop(Globals globals, List<String> apps) {
         super(globals);
-        this.apps = apps;
     }
 
     @Override
@@ -38,15 +29,9 @@ public class Stop extends IteratedStageCommand {
     }
 
     public void doNormal(Reference reference) throws Exception {
-        List<String> stopped;
+        String stopped;
 
-        stopped = reference.client.stop(reference.stage, apps);
+        stopped = reference.client.stop(reference.stage);
         console.info.println("stopped " + stopped);
-        stopped = Start.removeTag(stopped);
-        for (String app : apps) {
-            if (!stopped.contains(app)) {
-                console.info.println("note: " + app + " was already down");
-            }
-        }
     }
 }

@@ -103,7 +103,7 @@ public class Pool {
         if (previous != null) {
             return previous;
         } else {
-            return allocate(startPortForApp(stage.getName()), name, http, https);
+            return allocate(startPortForStage(stage.getName()), name, http, https);
         }
     }
 
@@ -178,7 +178,7 @@ public class Pool {
         return false;
     }
 
-    private int startPortForApp(String stage) {
+    private int startPortForStage(String stage) {
         int result;
 
         result = stage.hashCode();

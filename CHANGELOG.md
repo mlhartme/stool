@@ -5,11 +5,13 @@
 * one app per stage; the _app argument is now ignored, the app is always called `app`
 
 * client:
+  * `stop` dumped apps argument
   * `app` dumped app argument
   * `ssh` dumped app argument
   * `tunnel` dumped app argument
   
 * server
+  * `stop` dumped apps argument, returns an optional String now
   * `appInfo` dumped app argument
   * `ssh` dumped app argument
   * `tunnel` dumped app argument

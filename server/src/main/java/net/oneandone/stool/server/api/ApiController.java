@@ -386,12 +386,12 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/stop")
-    public ResponseEntity<?> stop(@PathVariable(value = "stage") String stage, @RequestParam(value = "apps", required = false, defaultValue = "") String apps) throws IOException {
-        List<String> result;
+    public String stop(@PathVariable(value = "stage") String stage) throws IOException {
+        String result;
 
         try (Engine engine = engine()) {
-            result = server.load(stage).stop(engine, Separator.COMMA.split(apps));
-            return new ResponseEntity<>(array(result).toString(), HttpStatus.OK);
+            result = server.load(stage).stop(engine);
+            return new JsonPrimitive(result).toString();
         }
     }
 

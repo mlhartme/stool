@@ -86,7 +86,7 @@ public class Main {
                       cli.add(Restart.class, "restart appIndex*");
                       cli.add(Start.class, "start -http=-1 -https=-1 envAppIndex*");
                       cli.add(Status.class, "status info* { select*(info) }");
-                      cli.add(Stop.class, "stop app*");
+                      cli.add(Stop.class, "stop");
                       cli.add(Tunnel.class, "tunnel port local?");
                       cli.add(Ssh.class, "ssh");
                       cli.add(Validate.class, "validate -email -repair");

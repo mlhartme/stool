@@ -18,7 +18,6 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Restart extends IteratedStageCommand {
@@ -32,7 +31,7 @@ public class Restart extends IteratedStageCommand {
     @Override
     public void doMain(Reference reference) throws Exception {
         if (up(reference)) {
-            new Stop(globals, new ArrayList<>(selection(selection).keySet())).doRun(reference);
+            new Stop(globals).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }

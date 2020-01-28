@@ -63,7 +63,7 @@ public class Validation {
         if (repair) {
             if (stage.runningContainerOpt(engine) != null) {
                 try {
-                    stage.stop(engine, new ArrayList<>());
+                    stage.stop(engine);
                     report.add("stage has been stopped");
                 } catch (Exception e) {
                     report.add("stage failed to stop: " + e.getMessage());

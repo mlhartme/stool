@@ -19,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
@@ -195,16 +196,16 @@ public class Client {
         return stringMap(response.getAsJsonObject());
     }
 
-    public List<String> stop(String stage, List<String> apps) throws IOException {
-        List<String> stopped;
+    public String stop(String stage) throws IOException {
+        JsonPrimitive stopped;
         HttpNode node;
 
-        node = node(stage, "stop").withParameter("apps", Separator.COMMA.join(apps));
-        stopped = array(postJson(node, "").getAsJsonArray());
-        if (stopped.isEmpty()) {
+        node = node(stage, "stop");
+        stopped = postJson(node, "").getAsJsonPrimitive();
+        if (stopped.isJsonNull()) {
             throw new IOException("stage is already stopped");
         }
-        return stopped;
+        return stopped.getAsString();
     }
 
     /** remote port or permission denied */

@@ -665,30 +665,18 @@ public class Stage {
         return null;
     }
 
-    /** @return list of applications actually stopped */
-    public List<String> stop(Engine engine, List<String> apps) throws IOException {
+    /** @return tag actually stopped, or null if already stopped */
+    public String stop(Engine engine) throws IOException {
         Current current;
-        Map<String, String> containers; // maps app:tag to containerId
-        List<String> unknown;
 
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
-        unknown = new ArrayList<>(apps);
-        unknown.removeAll(images(engine).keySet());
-        if (!unknown.isEmpty()) {
-            throw new ArgumentException("unknown app(s): " + unknown);
-        }
         current = currentOpt(engine);
-        containers = new LinkedHashMap<>();
-        if (current != null) {
-            if (apps.isEmpty() || apps.contains(APP_NAME)) {
-                containers.put(APP_NAME + ":" + current.image.tag, current.container.id);
-            }
+        if (current == null) {
+            return null;
         }
-        for (Map.Entry<String, String> entry : containers.entrySet()) {
-            Server.LOGGER.info(entry.getKey() + ": stopping container ...");
-            engine.containerStop(entry.getValue(), 300);
-        }
-        return new ArrayList<>(containers.keySet());
+        Server.LOGGER.info(current.image.tag + ": stopping container ...");
+        engine.containerStop(current.container.id, 300);
+        return current.image.tag;
     }
 
     private Map<FileNode, String> bindMounts(Image image) throws IOException {
