@@ -188,16 +188,11 @@ public class Client {
         return started;
     }
 
-    public Map<String, Map<String, String>> awaitStartup(String stage) throws IOException {
+    public Map<String, String> awaitStartup(String stage) throws IOException {
         JsonObject response;
-        Map<String, Map<String, String>> result;
 
         response = getJson(node(stage, "await-startup")).getAsJsonObject();
-        result = new LinkedHashMap<>();
-        for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
-            result.put(entry.getKey(), stringMap(entry.getValue().getAsJsonObject()));
-        }
-        return result;
+        return stringMap(response.getAsJsonObject());
     }
 
     public List<String> stop(String stage, List<String> apps) throws IOException {
