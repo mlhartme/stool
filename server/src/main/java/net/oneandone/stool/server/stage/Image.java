@@ -33,13 +33,11 @@ public class Image implements Comparable<Image> {
         JsonObject inspect;
         JsonObject labels;
         LocalDateTime created;
-        String app;
 
         inspect = engine.imageInspect(repositoryTag);
         created = imageCreated(inspect.get("Created").getAsString());
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        app = app(repositoryTag);
-        return new Image(repositoryTag, version(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)), app,
+        return new Image(repositoryTag, version(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
                 disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)), context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)), labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_ORIGIN_USER).getAsString(),
@@ -119,23 +117,6 @@ public class Image implements Comparable<Image> {
         return result;
     }
 
-    public static String app(String repositoryTag) {
-        String result;
-        int idx;
-
-        result = repositoryTag;
-        idx = result.indexOf(':');
-        if (idx == -1) {
-            throw new IllegalStateException(result);
-        }
-        result = result.substring(0, idx);
-        idx = result.lastIndexOf('/');
-        if (idx == -1) {
-            throw new IllegalStateException(result);
-        }
-        return result.substring(idx + 1);
-    }
-
     public static String version(String repositoryTag) {
         String result;
         int idx;
@@ -159,8 +140,6 @@ public class Image implements Comparable<Image> {
 
     public final String p12;
 
-    public final String app;
-
     /** in megabytes */
     public final int disk;
 
@@ -182,7 +161,7 @@ public class Image implements Comparable<Image> {
     public final List<String> faultProjects;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Image(String repositoryTag, String tag, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes, String comment,
+    public Image(String repositoryTag, String tag, Ports ports, String p12, int disk, int memory, String urlContext, List<String> urlSuffixes, String comment,
                  String originScm, String originUser, LocalDateTime createdAt, String createdBy, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
@@ -195,7 +174,6 @@ public class Image implements Comparable<Image> {
 
         this.ports = ports;
         this.p12 = p12;
-        this.app = app;
         this.disk = disk;
         this.memory = memory;
         this.urlContext = urlContext;

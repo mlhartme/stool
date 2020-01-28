@@ -364,10 +364,10 @@ public class Stage {
         result = new HashMap<>();
         for (String repositoryTag : imageTags(imageMap)) {
             image = Image.load(engine, repositoryTag);
-            list = result.get(image.app);
+            list = result.get(APP_NAME);
             if (list == null) {
                 list = new ArrayList<>();
-                result.put(image.app, list);
+                result.put(APP_NAME, list);
             }
             list.add(image);
         }
@@ -528,14 +528,14 @@ public class Stage {
         memoryQuota = server.configuration.memoryQuota;
         for (Image image : resolve(engine, selection)) {
             if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
-                throw new ArgumentException("Cannot reserve memory for app " + image.app + " :\n"
+                throw new ArgumentException("Cannot reserve memory for stage " + name + " :\n"
                         + "  unreserved: " + (memoryQuota - memoryReserved) + "\n"
                         + "  requested: " + image.memory + "\n"
                         + "Consider stopping stages.");
             }
             memoryReserved += image.memory;
             for (ContainerInfo info : engine.containerList(CONTAINER_LABEL_STAGE, name).values()) {
-                if (info.labels.get(CONTAINER_LABEL_APP).equals(image.app)) {
+                if (info.labels.get(CONTAINER_LABEL_APP).equals(APP_NAME)) {
                     Server.LOGGER.debug("wipe old image: " + info.id);
                     engine.containerRemove(info.id);
                 }
@@ -544,14 +544,14 @@ public class Stage {
             environment.putAll(configuration.environment);
             environment.putAll(clientEnvironment);
             Server.LOGGER.debug("environment: " + environment);
-            Server.LOGGER.info(image.app + ": starting container ... ");
+            Server.LOGGER.info(name + ": starting container ... ");
             mounts = bindMounts(image);
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
-            hostPorts = pool.allocate(this, image.app, http, https);
+            hostPorts = pool.allocate(this, APP_NAME, http, https);
             labels = hostPorts.toUsedLabels();
-            labels.put(CONTAINER_LABEL_APP, image.app);
+            labels.put(CONTAINER_LABEL_APP, APP_NAME);
             labels.put(CONTAINER_LABEL_IMAGE, image.repositoryTag);
             labels.put(CONTAINER_LABEL_STAGE, name);
             for (Map.Entry<String, String> entry : environment.entrySet()) {
@@ -567,7 +567,7 @@ public class Stage {
             if (status != Engine.Status.RUNNING) {
                 throw new IOException("unexpected status: " + status);
             }
-            result.add(image.app + ":" + image.tag);
+            result.add(APP_NAME + ":" + image.tag);
         }
         return result;
     }
@@ -705,14 +705,14 @@ public class Stage {
         FileNode innerFile;
         FileNode outerFile;
 
-        hostLogRoot = server.serverHome.join("stages", getName(), "logs", image.app);
-        logs().join(image.app).mkdirsOpt();
+        hostLogRoot = server.serverHome.join("stages", getName(), "logs", APP_NAME);
+        logs().join(APP_NAME).mkdirsOpt();
         result = new HashMap<>();
         result.put(hostLogRoot, "/var/log/stool");
         if (image.ports.https != -1) {
             if (image.p12 != null) {
                 result.put(server.certificate(server.configuration.vhosts
-                        ? image.app + "." + getName() + "." + server.configuration.dockerHost
+                        ? APP_NAME + "." + getName() + "." + server.configuration.dockerHost
                         : server.configuration.dockerHost), image.p12);
             }
         }
@@ -905,7 +905,7 @@ public class Stage {
 
         hostname = server.configuration.dockerHost;
         if (server.configuration.vhosts) {
-            hostname = image.app + "." + getName() + "." + hostname;
+            hostname = APP_NAME + "." + getName() + "." + hostname;
         }
         url = protocol + "://" + hostname + ":" + port + "/" + image.urlContext;
         if (!url.endsWith("/")) {
@@ -982,7 +982,7 @@ public class Stage {
         result = new HashMap<>();
         for (ContainerInfo info : runningContainerList) {
             image = Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE));
-            result.put(image.app, new Current(image, info));
+            result.put(APP_NAME, new Current(image, info));
         }
         return result;
     }
