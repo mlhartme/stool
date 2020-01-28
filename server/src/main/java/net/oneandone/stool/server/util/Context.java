@@ -32,7 +32,7 @@ public class Context {
     private Map<String, ImageInfo> lazyAllImageMap;
     private final Map<String, Map<String, List<Image>>> stageImages;
     private Map<String, ContainerInfo> lazyAllContainerMap;
-    private final Map<String, Map<String, ContainerInfo>> runningContainerMaps;
+    private final Map<String, ContainerInfo> runningContainerOpts;
     private final Map<String, Map<String, Stage.Current>> currentMaps;
     private final Map<String, Map<String, String>> urlMaps;
 
@@ -41,7 +41,7 @@ public class Context {
         this.lazyAllImageMap = null;
         this.stageImages = new HashMap<>();
         this.lazyAllContainerMap = null;
-        this.runningContainerMaps = new HashMap<>();
+        this.runningContainerOpts = new HashMap<>();
         this.currentMaps = new HashMap<>();
         this.urlMaps = new HashMap<>();
     }
@@ -73,13 +73,13 @@ public class Context {
         return lazyAllContainerMap;
     }
 
-    public Map<String, ContainerInfo> runningContainerMap(Stage stage) throws IOException {
-        Map<String, ContainerInfo> result;
+    public ContainerInfo runningContainerOpt(Stage stage) throws IOException {
+        ContainerInfo result;
 
-        result = runningContainerMaps.get(stage.getName());
+        result = runningContainerOpts.get(stage.getName());
         if (result == null) {
-            result = stage.runningContainerMap(allContainerMap());
-            runningContainerMaps.put(stage.getName(), result);
+            result = stage.runningContainerOpt(allContainerMap());
+            runningContainerOpts.put(stage.getName(), result);
         }
         return result;
     }
@@ -89,7 +89,7 @@ public class Context {
 
         result = currentMaps.get(stage.getName());
         if (result == null) {
-            result = stage.currentMap(engine, runningContainerMap(stage).values());
+            result = stage.currentMap(engine, runningContainerOpt(stage));
             currentMaps.put(stage.getName(), result);
         }
         return result;

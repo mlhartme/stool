@@ -945,37 +945,51 @@ public class Stage {
         return engine.containerList(Stage.CONTAINER_LABEL_IMAGE);
     }
 
-    public Map<String, ContainerInfo> runningContainerMap(Map<String, ContainerInfo> allContainerMap) {
-        Map<String, ContainerInfo> result;
+    public ContainerInfo runningContainerOpt(Map<String, ContainerInfo> allContainerMap) {
+        ContainerInfo result;
         ContainerInfo info;
 
-        result = new HashMap<>();
+        result = null;
         for (Map.Entry<String, ContainerInfo> entry : allContainerMap.entrySet()) {
             info = entry.getValue();
             if (info.state == Engine.Status.RUNNING && name.equals(info.labels.get(CONTAINER_LABEL_STAGE))) {
-                result.put(entry.getKey(), info);
+                if (result != null) {
+                    throw new IllegalStateException();
+                }
+                result = info;
             }
         }
         return result;
     }
 
-    public Map<String, ContainerInfo> runningContainerMap(Engine engine) throws IOException {
-        return engine.containerListRunning(CONTAINER_LABEL_STAGE, name);
+    /** @return null if not running */
+    public ContainerInfo runningContainerOpt(Engine engine) throws IOException {
+        Collection<ContainerInfo> result;
+
+        result = engine.containerListRunning(CONTAINER_LABEL_STAGE, name).values();
+        switch (result.size()) {
+            case 0:
+                return null;
+            case 1:
+                return result.iterator().next();
+            default:
+                throw new IllegalStateException(result.toString());
+        }
     }
 
     /** only for running apps, does not include stopped apps */
     public Map<String, Current> currentMap(Engine engine) throws IOException {
-        return currentMap(engine, runningContainerMap(engine).values());
+        return currentMap(engine, runningContainerOpt(engine));
     }
 
-    public Map<String, Current> currentMap(Engine engine, Collection<ContainerInfo> runningContainerList) throws IOException {
+    public Map<String, Current> currentMap(Engine engine, ContainerInfo runningContainerOpt) throws IOException {
         Map<String, Current> result;
         Image image;
 
         result = new HashMap<>();
-        for (ContainerInfo info : runningContainerList) {
-            image = Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE));
-            result.put(APP_NAME, new Current(image, info));
+        if (runningContainerOpt != null) {
+            image = Image.load(engine, runningContainerOpt.labels.get(CONTAINER_LABEL_IMAGE));
+            result.put(APP_NAME, new Current(image, runningContainerOpt));
         }
         return result;
     }
@@ -1064,27 +1078,22 @@ public class Stage {
         JsonObject network;
         String ip;
         String jmx;
-        Collection<ContainerInfo> containerList;
-        ContainerInfo info;
+        ContainerInfo running;
 
-        containerList = runningContainerMap(engine).values();
-        switch (containerList.size()) {
-            case 0:
-                return null;
-            case 1:
-                info = containerList.iterator().next();
-                inspected = engine.containerInspect(info.id, false);
-                networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
-                if (networks.size() != 1) {
-                    throw new IOException("unexpected Networks: " + networks);
-                }
-                network = networks.entrySet().iterator().next().getValue().getAsJsonObject();
-                ip = network.get("IPAddress").getAsString();
-                jmx = info.labels.get(IMAGE_LABEL_PORT_DECLARED_PREFIX + Ports.Port.JMXMP.toString().toLowerCase());
-                // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-                return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx);
-            default:
-                throw new IllegalStateException(containerList.toString());
+        running = runningContainerOpt(engine);
+        if (running == null) {
+            return null;
+        } else {
+            inspected = engine.containerInspect(running.id, false);
+            networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
+            if (networks.size() != 1) {
+                throw new IOException("unexpected Networks: " + networks);
+            }
+            network = networks.entrySet().iterator().next().getValue().getAsJsonObject();
+            ip = network.get("IPAddress").getAsString();
+            jmx = running.labels.get(IMAGE_LABEL_PORT_DECLARED_PREFIX + Ports.Port.JMXMP.toString().toLowerCase());
+            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+            return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx);
         }
     }
 
@@ -1107,13 +1116,13 @@ public class Stage {
     // CAUTION: blocks until ctrl-c.
     // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
     public void tailF(Engine engine, PrintWriter dest) throws IOException {
-        Collection<String> containers;
+        ContainerInfo running;
 
-        containers = runningContainerMap(engine).keySet();
-        if (containers.size() != 1) {
+        running = runningContainerOpt(engine);
+        if (running == null) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
-            engine.containerLogsFollow(containers.iterator().next(), new OutputStream() {
+            engine.containerLogsFollow(running.id, new OutputStream() {
                 @Override
                 public void write(int b) {
                     dest.write(b);

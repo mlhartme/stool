@@ -62,7 +62,7 @@ public class Validation {
             report.add(e.getMessage());
         }
         if (repair) {
-            if (!stage.runningContainerMap(engine).isEmpty()) {
+            if (stage.runningContainerOpt(engine) != null) {
                 try {
                     stage.stop(engine, new ArrayList<>());
                     report.add("stage has been stopped");
