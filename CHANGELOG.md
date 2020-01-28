@@ -7,7 +7,8 @@
 * server
   * naming scheme for context directories changed from app:tag to tag (current build is now _)
   * build now creates a repository tag without app name
-  
+  * dumped container label `app`
+
 
 ### 5.1.0 (pending)
 

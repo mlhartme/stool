@@ -94,7 +94,6 @@ public class Stage {
 
     public static final String CONTAINER_LABEL_STAGE = CONTAINER_PREFIX + "stage";
     public static final String CONTAINER_LABEL_IMAGE = CONTAINER_PREFIX + "image";
-    public static final String CONTAINER_LABEL_APP = CONTAINER_PREFIX + "app";
     public static final String CONTAINER_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
     public static final String CONTAINER_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "port.";
 
@@ -533,10 +532,8 @@ public class Stage {
             }
             memoryReserved += image.memory;
             for (ContainerInfo info : engine.containerList(CONTAINER_LABEL_STAGE, name).values()) {
-                if (info.labels.get(CONTAINER_LABEL_APP).equals(APP_NAME)) {
-                    Server.LOGGER.debug("wipe old image: " + info.id);
-                    engine.containerRemove(info.id);
-                }
+                Server.LOGGER.debug("wipe old image: " + info.id);
+                engine.containerRemove(info.id);
             }
             environment = new HashMap<>(server.configuration.environment);
             environment.putAll(configuration.environment);
@@ -549,7 +546,6 @@ public class Stage {
             }
             hostPorts = pool.allocate(this, http, https);
             labels = hostPorts.toUsedLabels();
-            labels.put(CONTAINER_LABEL_APP, APP_NAME);
             labels.put(CONTAINER_LABEL_IMAGE, image.repositoryTag);
             labels.put(CONTAINER_LABEL_STAGE, name);
             for (Map.Entry<String, String> entry : environment.entrySet()) {
@@ -858,7 +854,7 @@ public class Stage {
         images = new HashMap<>();
         for (ContainerInfo info : allContainerList) {
             if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
-                images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
+                images.put(APP_NAME, Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
             }
         }
         for (Map.Entry<String, Ports> entry : pool.stage(name).entrySet()) {
@@ -1073,7 +1069,6 @@ public class Stage {
         JsonObject inspected;
         JsonObject networks;
         JsonObject network;
-        String app;
         String ip;
         String jmx;
         Collection<ContainerInfo> containerList;
@@ -1089,10 +1084,9 @@ public class Stage {
             network = networks.entrySet().iterator().next().getValue().getAsJsonObject();
             ip = network.get("IPAddress").getAsString();
             jmx = info.labels.get(IMAGE_LABEL_PORT_DECLARED_PREFIX + Ports.Port.JMXMP.toString().toLowerCase());
-            app = info.labels.get(CONTAINER_LABEL_APP);
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
             try {
-                result.put(app, new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx));
+                result.put(APP_NAME, new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx));
             } catch (MalformedURLException e) {
                 throw new IllegalStateException(e);
             }
