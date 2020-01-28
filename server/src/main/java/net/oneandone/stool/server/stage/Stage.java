@@ -693,7 +693,7 @@ public class Stage {
         if (image.ports.https != -1) {
             if (image.p12 != null) {
                 result.put(server.certificate(server.configuration.vhosts
-                        ? APP_NAME + "." + getName() + "." + server.configuration.dockerHost
+                        ? getName() + "." + server.configuration.dockerHost
                         : server.configuration.dockerHost), image.p12);
             }
         }
@@ -886,7 +886,7 @@ public class Stage {
 
         hostname = server.configuration.dockerHost;
         if (server.configuration.vhosts) {
-            hostname = APP_NAME + "." + getName() + "." + hostname;
+            hostname = getName() + "." + hostname;
         }
         url = protocol + "://" + hostname + ":" + port + "/" + image.urlContext;
         if (!url.endsWith("/")) {

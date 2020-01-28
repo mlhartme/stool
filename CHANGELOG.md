@@ -2,8 +2,9 @@
 
 ### 5.2.0 (pending)
 
-* one app per stage; the _app argument is now ignored, the app is always called `app`
-
+* one app per stage; the _app argument is now ignored, the app is always called `app`;
+  app url no longer contains app name
+  
 * client:
   * `stop` dumped apps argument
   * `app` dumped app argument
