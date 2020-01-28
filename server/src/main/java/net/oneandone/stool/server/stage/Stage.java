@@ -450,6 +450,8 @@ public class Stage {
         }
     }
 
+    public static final String APP_NAME = "app";
+
     /**
      * @param keep 0 to keep all  */
     public BuildResult buildandEatWar(Engine engine, FileNode war, String comment, String originScm,
@@ -457,7 +459,6 @@ public class Stage {
                                       Map<String, String> explicitArguments) throws Exception {
         int tag;
         String image;
-        String app;
         String repositoryTag;
         FileNode context;
         Map<String, String> labels;
@@ -470,11 +471,13 @@ public class Stage {
 
         appProperties = properties(war);
         template = template(appProperties, explicitArguments);
-        app = app(appProperties, explicitArguments);
-        tag = wipeOldImages(engine, app, keep - 1);
-        context = createContextEatWar(app, war);  // this is where concurrent builds are blocked
+
+        // TODO: result is currently unused - this is just to avoid error messages for _app
+        app(appProperties, explicitArguments);
+        tag = wipeOldImages(engine, APP_NAME, keep - 1);
+        context = createContextEatWar(APP_NAME, war);  // this is where concurrent builds are blocked
         try {
-            repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + tag;
+            repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + APP_NAME + ":" + tag;
             defaults = BuildArgument.scan(template.join("Dockerfile"));
             buildArgs = buildArgs(defaults, appProperties, explicitArguments);
             populateContext(context, template);
@@ -501,9 +504,9 @@ public class Stage {
             Server.LOGGER.debug("successfully built image: " + image);
             Server.LOGGER.debug(str);
         } finally {
-            cleanupContext(app, Integer.toString(tag), keep);
+            cleanupContext(APP_NAME, Integer.toString(tag), keep);
         }
-        return new BuildResult(str, app, Integer.toString(tag));
+        return new BuildResult(str, APP_NAME, Integer.toString(tag));
     }
 
     /** @return images actually started */

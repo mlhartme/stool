@@ -2,6 +2,9 @@
 
 ### 5.2.0 (pending)
 
+* one app per stage; the _app argument is now ignored, the app is always called `app`
+
+
 ### 5.1.0 (pending)
 
 dashboard
