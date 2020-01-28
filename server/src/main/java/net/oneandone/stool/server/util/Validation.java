@@ -27,7 +27,6 @@ import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Validation {
@@ -89,12 +88,16 @@ public class Validation {
     }
 
     private void checkPorts(Stage stage) throws IOException {
-        Map<String, Ports> internal;
-        Map<String, Ports> external;
+        Ports internal;
+        Ports external;
 
-        internal = server.pool.stage(stage.getName());
-        external = server.configuration.loadPool(engine).stage(stage.getName());
-        if (!internal.equals(external)) {
+        internal = server.pool.stageOpt(stage.getName());
+        external = server.configuration.loadPool(engine)
+                .stageOpt(stage.getName());
+        if (internal == null && external == null) {
+            return;
+        }
+        if (internal == null || external == null || !internal.equals(external)) {
             throw new ArgumentException("ports mismatch:\n  internal: " + internal + "\n  external: " + external);
         }
     }

@@ -89,7 +89,7 @@ public class AppInfo {
         result.add("heap:       " + heap(stage, current));
         addEnv(current.container, result);
         result.add("origin-scm: " + current.image.originScm);
-        ports = server.pool.stage(name).get(Stage.APP_NAME);
+        ports = server.pool.stageOpt(name);
         if (ports != null) {
             if (ports.debug != -1) {
                 result.add("debug port: " + ports.debug);

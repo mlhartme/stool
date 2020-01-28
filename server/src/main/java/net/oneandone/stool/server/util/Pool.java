@@ -22,7 +22,6 @@ import net.oneandone.stool.server.stage.Stage;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,16 +63,14 @@ public class Pool {
         this.datas = new ArrayList<>();
     }
 
-    public synchronized Map<String, Ports> stage(String name) {
-        Map<String, Ports> result;
-
-        result = new HashMap<>();
+    /** @return null if not allocated yet */
+    public synchronized Ports stageOpt(String name) {
         for (Data data : datas) {
             if (name.equals(data.stage)) {
-                result.put(Stage.APP_NAME, data.ports);
+                return data.ports;
             }
         }
-        return result;
+        return null;
     }
 
     public synchronized int remove(String name) {

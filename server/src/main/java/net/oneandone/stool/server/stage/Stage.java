@@ -845,6 +845,7 @@ public class Stage {
     public Map<String, String> urlMap(Engine engine, Pool pool, Collection<ContainerInfo> allContainerList) throws IOException {
         Map<String, String> result;
         String app;
+        Ports ports;
         Map<String, Image> images;
 
         result = new LinkedHashMap<>();
@@ -854,14 +855,17 @@ public class Stage {
                 images.put(APP_NAME, Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
             }
         }
-        for (Map.Entry<String, Ports> entry : pool.stage(name).entrySet()) {
-            app = entry.getKey();
-            addUrlMap(images.get(app), app, entry.getValue(), result);
+        ports = pool.stageOpt(name);
+        if (ports != null) {
+            addUrlMap(images.get(APP_NAME), ports, result);
        }
         return result;
     }
 
-    private void addUrlMap(Image image, String app, Ports ports, Map<String, String> dest) {
+    private void addUrlMap(Image image, Ports ports, Map<String, String> dest) {
+        String app;
+
+        app = APP_NAME;
         if (image == null) {
             throw new IllegalStateException("no image for app " + app);
         }

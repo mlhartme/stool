@@ -403,7 +403,7 @@ public class ApiController {
         String privateKey;
 
         currentWithPermissions(stageName);
-        ports = server.pool.stage(stageName).get(Stage.APP_NAME);
+        ports = server.pool.stageOpt(stageName);
         if (ports == null) {
             throw new ArgumentException("stage is not running: " + stageName);
         }
