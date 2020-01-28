@@ -31,26 +31,22 @@ public class Pool {
         Map<String, String> labels;
         Pool result;
         String stage;
-        String app;
 
         result = new Pool(first, last);
         for (ContainerInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
             labels = info.labels;
             stage = labels.get(Stage.CONTAINER_LABEL_STAGE);
-            app = labels.get(Stage.CONTAINER_LABEL_APP);
-            result.datas.add(new Data(stage, app, Ports.fromUsedLabels(labels)));
+            result.datas.add(new Data(stage, Ports.fromUsedLabels(labels)));
         }
         return result;
     }
 
     public static class Data {
         public final String stage;
-        public final String app;
         public final Ports ports;
 
-        public Data(String stage, String app, Ports ports) {
+        public Data(String stage, Ports ports) {
             this.stage = stage;
-            this.app = app;
             this.ports = ports;
         }
     }
@@ -74,7 +70,7 @@ public class Pool {
         result = new HashMap<>();
         for (Data data : datas) {
             if (name.equals(data.stage)) {
-                result.put(data.app, data.ports);
+                result.put(Stage.APP_NAME, data.ports);
             }
         }
         return result;
@@ -95,49 +91,36 @@ public class Pool {
         return count;
     }
 
-    public synchronized Ports allocate(Stage stage, String app, int http, int https) throws IOException {
+    public synchronized Ports allocate(Stage stage, int http, int https) throws IOException {
         String name;
         Ports previous;
 
         name = stage.getName();
-        previous = lookup(name, app);
+        previous = lookup(name);
         if (previous != null) {
             if ((http != -1 && http != previous.http) || (https != -1 && https != previous.https)) {
                 previous = null;
-                remove(name, app);
+                remove(name);
             }
         }
         if (previous != null) {
             return previous;
         } else {
-            return allocate(startPortForApp(app, stage.getName()), app, name, http, https);
+            return allocate(startPortForApp(stage.getName()), name, http, https);
         }
     }
 
-    private Ports lookup(String name, String app) {
+    private Ports lookup(String name) {
         for (Data data : datas) {
-            if (name.equals(data.stage) && app.equals(data.app)) {
+            if (name.equals(data.stage)) {
                 return data.ports;
             }
         }
         return null;
     }
 
-    private boolean remove(String name, String app) {
-        Data data;
-
-        for (int i = 0; i < datas.size(); i++) {
-            data = datas.get(i);
-            if (name.equals(data.stage) && app.equals(data.app)) {
-                datas.remove(i);
-                return true;
-            }
-        }
-        return false;
-    }
-
     /** @return ports with all ports allocated */
-    private Ports allocate(int start, String app, String stage, int fixedHttp, int fixedHttps) throws IOException {
+    private Ports allocate(int start, String stage, int fixedHttp, int fixedHttps) throws IOException {
         Ports ports;
         List<Integer> ignores;
         int http;
@@ -168,7 +151,7 @@ public class Pool {
         debug = one(start, ignores);
 
         ports = new Ports(http, https, jmxmp, debug);
-        datas.add(new Data(stage, app, ports));
+        datas.add(new Data(stage, ports));
         return ports;
     }
 
@@ -198,10 +181,10 @@ public class Pool {
         return false;
     }
 
-    private int startPortForApp(String app, String stage) {
+    private int startPortForApp(String stage) {
         int result;
 
-        result = (app + stage).hashCode();
+        result = stage.hashCode();
         if (result < 0) {
             result = -result;
             if (result < 0) { // happens for Integer.MIN_VALUE

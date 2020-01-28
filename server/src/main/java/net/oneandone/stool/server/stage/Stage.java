@@ -547,7 +547,7 @@ public class Stage {
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
-            hostPorts = pool.allocate(this, APP_NAME, http, https);
+            hostPorts = pool.allocate(this, http, https);
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_APP, APP_NAME);
             labels.put(CONTAINER_LABEL_IMAGE, image.repositoryTag);
