@@ -440,11 +440,9 @@ public class Stage {
 
     public static class BuildResult {
         public final String output;
-        public final String app;
         public final String tag;
 
-        public BuildResult(String output, String app, String tag) {
-            this.app = app;
+        public BuildResult(String output, String tag) {
             this.tag = tag;
             this.output = output;
         }
@@ -506,7 +504,7 @@ public class Stage {
         } finally {
             cleanupContext(Integer.toString(tag), keep);
         }
-        return new BuildResult(str, APP_NAME, Integer.toString(tag));
+        return new BuildResult(str, Integer.toString(tag));
     }
 
     /** @return images actually started */

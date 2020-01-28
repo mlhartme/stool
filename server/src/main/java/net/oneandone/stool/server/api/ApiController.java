@@ -212,9 +212,9 @@ public class ApiController {
             war = engine.world.getTemp().createTempFile();
             war.copyFileFrom(body);
             result = server.load(stage).buildandEatWar(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login, noCache, keep, arguments);
-            return buildResult(result.app, result.tag, null, result.output).toString();
+            return buildResult(result.tag, null, result.output).toString();
         } catch (BuildError e) {
-            return buildResult(Stage.APP_NAME, Image.version(e.repositoryTag), e.error, e.output).toString();
+            return buildResult(Image.version(e.repositoryTag), e.error, e.output).toString();
         } finally {
             if (war != null && war.exists()) {
                 war.deleteFile();
@@ -222,11 +222,11 @@ public class ApiController {
         }
     }
 
-    private JsonObject buildResult(String app, String image, String error, String output) {
+    private JsonObject buildResult(String image, String error, String output) {
         JsonObject result;
 
         result = new JsonObject();
-        result.add("app", new JsonPrimitive(app));
+        result.add("app", new JsonPrimitive(Stage.APP_NAME));
         result.add("tag", new JsonPrimitive(image));
         if (error != null) {
             result.add("error", new JsonPrimitive(error));
