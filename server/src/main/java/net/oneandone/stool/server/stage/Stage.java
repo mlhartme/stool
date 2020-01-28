@@ -835,16 +835,14 @@ public class Stage {
 
     //--
 
-    public Map<String, String> urlMap(Engine engine, Pool pool, String oneApp) throws IOException {
-        return urlMap(engine, pool, allContainerMap(engine).values(), oneApp);
+    public Map<String, String> urlMap(Engine engine, Pool pool) throws IOException {
+        return urlMap(engine, pool, allContainerMap(engine).values());
     }
 
     /**
-     * @param oneApp null for all apps
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, Pool pool, Collection<ContainerInfo> allContainerList, String oneApp)
-            throws IOException {
+    public Map<String, String> urlMap(Engine engine, Pool pool, Collection<ContainerInfo> allContainerList) throws IOException {
         Map<String, String> result;
         String app;
         Map<String, Image> images;
@@ -858,10 +856,8 @@ public class Stage {
         }
         for (Map.Entry<String, Ports> entry : pool.stage(name).entrySet()) {
             app = entry.getKey();
-            if (oneApp == null || oneApp.equals(app)) {
-                addUrlMap(images.get(app), app, entry.getValue(), result);
-            }
-        }
+            addUrlMap(images.get(app), app, entry.getValue(), result);
+       }
         return result;
     }
 

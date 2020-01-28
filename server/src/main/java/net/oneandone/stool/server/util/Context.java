@@ -101,7 +101,7 @@ public class Context {
 
         result = urlMaps.get(stage.getName());
         if (result == null) {
-            result = stage.urlMap(engine, pool, allContainerMap().values(), null);
+            result = stage.urlMap(engine, pool, allContainerMap().values());
             urlMaps.put(stage.getName(), result);
         }
         return result;

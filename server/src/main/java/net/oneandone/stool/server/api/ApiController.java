@@ -371,7 +371,7 @@ public class ApiController {
             if (stage.currentOpt(engine) == null) {
                 throw new IllegalStateException();
             }
-            return Engine.obj(stage.urlMap(engine, server.pool, Stage.APP_NAME)).toString();
+            return Engine.obj(stage.urlMap(engine, server.pool)).toString();
         }
     }
 
