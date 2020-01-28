@@ -360,12 +360,7 @@ public class ApiController {
     }
 
     @GetMapping("/stages//{stage}/await-startup")
-    public String awaitStartup(@PathVariable(value = "stage") String stageName,
-                               @RequestParam(value = "legacy", required = false, defaultValue = "true") boolean legacy) throws IOException {
-        return legacy ? awaitStartupLegacy(stageName) : awaitStartup(stageName);
-    }
-
-    private String awaitStartup(String stageName) throws IOException {
+    public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
         Stage stage;
         JsonObject result;
 
@@ -377,23 +372,6 @@ public class ApiController {
             result = new JsonObject();
             if (stage.currentOpt(engine) != null) {
                 result.add(Stage.APP_NAME, Engine.obj(stage.urlMap(engine, server.pool, Stage.APP_NAME)));
-            }
-            return result.toString();
-        }
-    }
-
-    // TODO: dump in 5.1.x
-    private String awaitStartupLegacy(String stageName) throws IOException {
-        Stage stage;
-        JsonObject result;
-
-        try (Engine engine = engine()) {
-            stage = server.load(stageName);
-            stage.awaitStartup(engine);
-
-            result = new JsonObject();
-            if (stage.currentOpt(engine) != null) {
-                result.add(Stage.APP_NAME, array(stage.namedUrls(engine, server.pool, Stage.APP_NAME)));
             }
             return result.toString();
         }

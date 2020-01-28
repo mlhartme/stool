@@ -18,6 +18,11 @@
   * build now creates a repository tag without app name
   * dumped container label `app`
 
+--
+
+* server
+  * dumped awaitStartup legacy
+
 
 ### 5.1.0 (pending)
 

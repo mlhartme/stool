@@ -911,17 +911,6 @@ public class Stage {
         return result;
     }
 
-    /** @return empty list if no ports are allocated */
-    public List<String> namedUrls(Engine engine, Pool pool, String oneApp) throws IOException {
-        List<String> result;
-
-        result = new ArrayList<>();
-        for (Map.Entry<String, String> entry : urlMap(engine, pool, oneApp).entrySet()) {
-            result.add(entry.getKey() + " " + entry.getValue());
-        }
-        return result;
-    }
-
     public void remove(Engine engine) throws IOException {
         wipeDocker(engine);
         server.pool.remove(name);
