@@ -1,5 +1,7 @@
 ## Changelog 
 
+### 5.2.0 (pending)
+
 ### 5.1.0 (pending)
 
 dashboard
