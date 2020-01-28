@@ -226,7 +226,6 @@ public class ApiController {
         JsonObject result;
 
         result = new JsonObject();
-        result.add("app", new JsonPrimitive(Stage.APP_NAME));
         result.add("tag", new JsonPrimitive(image));
         if (error != null) {
             result.add("error", new JsonPrimitive(error));
