@@ -194,8 +194,10 @@ public class Stage {
             public Object get(Context context) throws IOException {
                 List<String> result;
 
-                result = new ArrayList<>(context.images(Stage.this).keySet());
-                Collections.sort(result);
+                result = new ArrayList<>();
+                if (context.images(Stage.this).isEmpty()) {
+                    result.add(APP_NAME);
+                }
                 return result;
             }
         });
@@ -348,30 +350,22 @@ public class Stage {
         return result;
     }
 
-    /** @return app mapped to sorted list */
-    public Map<String, List<Image>> images(Engine engine) throws IOException {
+    /** @return sorted list */
+    public List<Image> images(Engine engine) throws IOException {
         return images(engine, engine.imageList());
     }
 
-    /** @return app mapped to sorted list */
-    public Map<String, List<Image>> images(Engine engine, Map<String, ImageInfo> imageMap) throws IOException {
-        Map<String, List<Image>> result;
+    /** @return sorted list */
+    public List<Image> images(Engine engine, Map<String, ImageInfo> imageMap) throws IOException {
+        List<Image> result;
         Image image;
-        List<Image> list;
 
-        result = new HashMap<>();
+        result = new ArrayList<>();
         for (String repositoryTag : imageTags(imageMap)) {
             image = Image.load(engine, repositoryTag);
-            list = result.get(APP_NAME);
-            if (list == null) {
-                list = new ArrayList<>();
-                result.put(APP_NAME, list);
-            }
-            list.add(image);
+            result.add(image);
         }
-        for (List<Image> l : result.values()) {
-            Collections.sort(l);
-        }
+        Collections.sort(result);
         return result;
     }
 
@@ -382,7 +376,7 @@ public class Stage {
         int count;
         int result;
 
-        images = images(engine).get(APP_NAME);
+        images = images(engine);
         if (images == null) {
             return 1;
         }
@@ -623,7 +617,7 @@ public class Stage {
         List<Image> all;
         Image image;
 
-        all = images(engine).get(APP_NAME);
+        all = images(engine);
         if (all.isEmpty()) {
             throw new ArgumentException("no image to start - did you build the stage?");
         }

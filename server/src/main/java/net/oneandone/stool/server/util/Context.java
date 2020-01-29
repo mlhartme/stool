@@ -30,7 +30,7 @@ import java.util.Map;
 public class Context {
     private final Engine engine;
     private Map<String, ImageInfo> lazyAllImageMap;
-    private final Map<String, Map<String, List<Image>>> stageImages;
+    private final Map<String, List<Image>> stageImages;
     private Map<String, ContainerInfo> lazyAllContainerMap;
     private final Map<String, ContainerInfo> runningContainerOpts;
     private final Map<String, Stage.Current> currentOpts;
@@ -53,8 +53,8 @@ public class Context {
         return lazyAllImageMap;
     }
 
-    public Map<String, List<Image>> images(Stage stage) throws IOException {
-        Map<String, List<Image>> result;
+    public List<Image> images(Stage stage) throws IOException {
+        List<Image> result;
 
         result = stageImages.get(stage.getName());
         if (result == null) {

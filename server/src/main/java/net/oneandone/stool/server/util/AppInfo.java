@@ -58,7 +58,7 @@ public class AppInfo {
 
         result = new ArrayList<>();
         stage = server.load(name);
-        all = stage.images(engine).get(Stage.APP_NAME);
+        all = stage.images(engine);
         current = stage.currentOpt(engine);
         if (current == null) { // TODO: hack ...
             current = new Stage.Current(all.get(all.size() - 1), null);
