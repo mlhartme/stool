@@ -167,7 +167,7 @@ Example: to create a new stage for a project on your local workstation, run:
     mvn clean install                     # or whatever you need to build your project from sources
     stool create teststage@someserver     # create a new stage on the server
     stool build                           # takes the war from your workstation to build a so-called image on the server
-    stool start                           # start your app on the server
+    stool start                           # start your stage on the server
     
 
 #### Checkout and build changes

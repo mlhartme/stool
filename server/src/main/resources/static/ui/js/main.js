@@ -93,8 +93,8 @@ dashboard = {
                                    "        data-content='" + (status.comment !== "" ? escapeHtml(status.comment) : "(no comment)") + "' " +
                                    "        data-trigger='hover'>" + eName + "</span></td>";
                         htmlUrls = "";
-                        $.each(status.urls, function (app, url) {
-                            htmlUrls = htmlUrls + "<a href='" + url + "' target='_blank'>" + escapeHtml(app) + "</a><br/>\n"
+                        $.each(status.urls, function (name, url) {
+                            htmlUrls = htmlUrls + "<a href='" + url + "' target='_blank'>" + escapeHtml(name) + "</a><br/>\n"
                         })
                         htmlUrls = "<td class='links'>" + htmlUrls + "</td>\n"
                         htmlRestart = " <td class='action restart'>\n" +
@@ -103,8 +103,8 @@ dashboard = {
                                       "   </button>\n"
                                       " </td>"
                         mailBody = "Application links:\n"
-                        $.each(status.urls, function (app, url) {
-                            mailBody = mailBody + app + " " + url + " \n"
+                        $.each(status.urls, function (name, url) {
+                            mailBody = mailBody + name + " " + url + " \n"
                         })
                         htmlMenu = "<td class='action'>\n" +
                                    "  <div class='dropdown'>\n" +
