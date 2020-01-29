@@ -316,10 +316,10 @@ public class Client {
         return result;
     }
 
-    //-- app info
+    //-- images
 
-    public List<String> appInfo(String stage) throws Exception {
-        return array(getJson(node(stage, "appInfo")).getAsJsonArray());
+    public List<String> images(String stage) throws Exception {
+        return array(getJson(node(stage, "images")).getAsJsonArray());
     }
 
 

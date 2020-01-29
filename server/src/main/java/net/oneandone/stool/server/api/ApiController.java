@@ -32,7 +32,6 @@ import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
-import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Ports;
@@ -61,6 +60,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -324,13 +325,41 @@ public class ApiController {
         return array(output).toString();
     }
 
-    @GetMapping("/stages/{stage}/appInfo")
-    public String appInfo(@PathVariable("stage") String stage) throws Exception {
+    @GetMapping("/stages/{stage}/images")
+    public String images(@PathVariable("stage") String name) throws Exception {
+        Stage stage;
+        List<Image> all;
+        Stage.Current current;
+        String marker;
+        List<String> result;
+        List<String> args;
+
         try (Engine engine = engine()) {
-            return array(new AppInfo(server, engine).run(stage)).toString();
+            result = new ArrayList<>();
+            stage = server.load(name);
+            all = stage.images(engine);
+            current = stage.currentOpt(engine);
+            for (Image image : all) {
+                marker = current != null && image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";
+                result.add(image.tag + "  " + marker);
+                result.add("   comment:     " + image.comment);
+                result.add("   origin-scm:  " + image.originScm);
+                result.add("   origin-user: " + image.originUser);
+                result.add("   created-at:  " + image.createdAt);
+                result.add("   created-by:  " + image.createdBy);
+                result.add("   memory:      " + image.memory);
+                result.add("   disk:        " + image.disk);
+                result.add("   build args:");
+                args = new ArrayList<>(image.args.keySet());
+                Collections.sort(args);
+                for (String arg : args) {
+                    result.add("       " + arg + ": \t" + image.args.get(arg));
+                }
+                result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
+            }
+            return array(result).toString();
         }
     }
-
 
     @PostMapping("/stages/{stage}/start")
     public String start(@PathVariable(value = "stage") String stageName,

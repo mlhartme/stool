@@ -88,7 +88,7 @@ public class MainIT {
         stool("config", "-stage", stage, "comment");
         stool("config", "-stage", stage, "comment=42");
         stool("build", "-v", "-project=" + project.getAbsolute());
-        stool("app", "-stage", stage);
+        stool("images", "-stage", stage);
         stool("start", "-v", "-stage", stage);
         stool("validate", "-stage", stage);
         stool("status", "-stage", stage);

@@ -18,14 +18,14 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
-public class App extends IteratedStageCommand {
-    public App(Globals globals) {
+public class Images extends IteratedStageCommand {
+    public Images(Globals globals) {
         super(globals);
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        for (String line : reference.client.appInfo(reference.stage)) {
+        for (String line : reference.client.images(reference.stage)) {
             console.info.println(line);
         }
     }

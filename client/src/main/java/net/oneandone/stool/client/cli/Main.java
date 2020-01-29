@@ -78,9 +78,9 @@ public class Main {
                     cli.add(Attach.class, "attach -project stage");
                     cli.add(Detach.class, "detach -project");
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
-                      cli.add(App.class, "app");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=false -max=-1");
+                      cli.add(Images.class, "images");
                       cli.add(Ls.class, "list info* { select*(info) }");
                       cli.add(Remove.class, "remove -batch -stop");
                       cli.add(Restart.class, "restart image?");

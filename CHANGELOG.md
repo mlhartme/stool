@@ -10,12 +10,17 @@
     instead of the app name with an optional SSL.
   * `restart` replaced appIndex arguments by optional image argument 
   * `stop` dumped apps argument
-  * `app` dumped app argument
+  * `app` command
+    * dumped app argument
+    * moved all none-image fields to status command
+    * renamed to `images`
   * `ssh` dumped app argument
   * `tunnel` dumped app argument
   
 * server
-  * moved fields from `app` to `status`: `container`, `uptime`, `disk-used`, `jmx-port`, `debug-port`, `environment`, `origin-scm`, `heap`
+  * `app`
+    * moved fields from `app` to `status`: `container`, `uptime`, `disk-used`, `jmx-port`, `debug-port`, `environment`, `origin-scm`, `heap`
+    * renamed to `images`
   * `start` replaced apps argument by optional image arguments; returns a single image now
   * `stop` dumped apps argument, returns an optional String now
   * `appInfo` dumped app argument
