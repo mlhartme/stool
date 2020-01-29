@@ -272,6 +272,15 @@ public class Stage {
                 return current == null ? null : heap(context.engine, current);
             }
         });
+        fields.add(new Field("origin-scm") {
+            @Override
+            public Object get(Context context) throws IOException {
+                Current current;
+
+                current = context.currentOpt(Stage.this);
+                return current == null ? null : current.image.originScm;
+            }
+        });
         fields.add(new Field("created-by") {
             @Override
             public Object get(Context context) throws IOException {

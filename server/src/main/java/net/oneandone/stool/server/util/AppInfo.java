@@ -72,7 +72,6 @@ public class AppInfo {
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
         addEnv(current.container, result);
-        result.add("origin-scm: " + current.image.originScm);
         ports = server.pool.stageOpt(name);
         if (ports != null) {
             if (ports.debug != -1) {
