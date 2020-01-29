@@ -25,6 +25,7 @@ import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.ImageInfo;
+import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
@@ -242,6 +243,24 @@ public class Stage {
                 return current == null ? null : Stage.sizeRw(context.engine, current.container);
             }
         });
+        fields.add(new Field("cpu") {
+            @Override
+            public Object get(Context context) throws IOException {
+                Current current;
+
+                current = context.currentOpt(Stage.this);
+                return current == null ? null : cpu(context.engine, current.container);
+            }
+        });
+        fields.add(new Field("mem") {
+            @Override
+            public Object get(Context context) throws IOException {
+                Current current;
+
+                current = context.currentOpt(Stage.this);
+                return current == null ? null : mem(context.engine, current.container);
+            }
+        });
         fields.add(new Field("created-by") {
             @Override
             public Object get(Context context) throws IOException {
@@ -289,6 +308,30 @@ public class Stage {
             }
         });
         return fields;
+    }
+
+    private Integer cpu(Engine engine, ContainerInfo info) throws IOException {
+        Stats stats;
+
+        stats = engine.containerStats(info.id);
+        if (stats != null) {
+            return stats.cpu;
+        } else {
+            // not started
+            return 0;
+        }
+    }
+
+    private Long mem(Engine engine, ContainerInfo info) throws IOException {
+        Stats stats;
+
+        stats = engine.containerStats(info.id);
+        if (stats != null) {
+            return stats.memoryUsage * 100 / stats.memoryLimit;
+        } else {
+            // not started
+            return 0L;
+        }
     }
 
     /** @return size of the read-write layer, not size of the root file system */

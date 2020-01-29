@@ -18,7 +18,6 @@ package net.oneandone.stool.server.util;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
-import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.util.Separator;
@@ -80,8 +79,6 @@ public class AppInfo {
             }
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
-        result.add("cpu:        " + cpu(current.container));
-        result.add("mem:        " + mem(current.container));
         result.add("heap:       " + heap(stage, current));
         addEnv(current.container, result);
         result.add("origin-scm: " + current.image.originScm);
@@ -163,35 +160,4 @@ public class AppInfo {
         }
         return result;
     }
-
-    private Integer cpu(ContainerInfo info) throws IOException {
-        Stats stats;
-
-        if (info == null) {
-            return null;
-        }
-        stats = engine.containerStats(info.id);
-        if (stats != null) {
-            return stats.cpu;
-        } else {
-            // not started
-            return 0;
-        }
-    }
-
-    private Long mem(ContainerInfo info) throws IOException {
-        Stats stats;
-
-        if (info == null) {
-            return null;
-        }
-        stats = engine.containerStats(info.id);
-        if (stats != null) {
-            return stats.memoryUsage * 100 / stats.memoryLimit;
-        } else {
-            // not started
-            return 0L;
-        }
-    }
-
 }
