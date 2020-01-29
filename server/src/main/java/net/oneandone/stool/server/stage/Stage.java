@@ -227,6 +227,57 @@ public class Stage {
                 return result;
             }
         });
+        appFields(fields);
+        fields.add(new Field("created-by") {
+            @Override
+            public Object get(Context context) throws IOException {
+                String login;
+
+                login = createdBy();
+                return login == null ? null : server.userManager.checkedByLogin(login);
+            }
+
+        });
+        fields.add(new Field("created-at") {
+            @Override
+            public Object get(Context context) throws IOException {
+                // I can't ask the filesystem, see
+                // https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
+                AccessLogEntry entry;
+
+                entry = oldest(accessLogModifiedOnly());
+                return entry == null ? null : entry.dateTime;
+            }
+
+        });
+        fields.add(new Field("last-modified-by") {
+            @Override
+            public Object get(Context context) throws IOException {
+                AccessLogEntry entry;
+
+                entry = youngest(accessLogModifiedOnly());
+                return entry == null ? null : server.userManager.checkedByLogin(entry.user);
+            }
+        });
+        fields.add(new Field("last-modified-at") {
+            @Override
+            public Object get(Context context) throws IOException {
+                AccessLogEntry entry;
+
+                entry = youngest(accessLogModifiedOnly());
+                return entry == null ? null : timespan(entry.dateTime);
+            }
+        });
+        fields.add(new Field("urls") {
+            @Override
+            public Object get(Context context) throws IOException {
+                return context.urlMap(server.pool, Stage.this);
+            }
+        });
+        return fields;
+    }
+
+    private void appFields(List<Field> fields) {
         fields.add(new Field("uptime") {
             @Override
             public Object get(Context context) throws IOException {
@@ -281,53 +332,25 @@ public class Stage {
                 return current == null ? null : current.image.originScm;
             }
         });
-        fields.add(new Field("created-by") {
+        fields.add(new Field("debug-port") {
             @Override
-            public Object get(Context context) throws IOException {
-                String login;
+            public Object get(Context context) {
+                Ports ports;
 
-                login = createdBy();
-                return login == null ? null : server.userManager.checkedByLogin(login);
-            }
-
-        });
-        fields.add(new Field("created-at") {
-            @Override
-            public Object get(Context context) throws IOException {
-                // I can't ask the filesystem, see
-                // https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
-                AccessLogEntry entry;
-
-                entry = oldest(accessLogModifiedOnly());
-                return entry == null ? null : entry.dateTime;
-            }
-
-        });
-        fields.add(new Field("last-modified-by") {
-            @Override
-            public Object get(Context context) throws IOException {
-                AccessLogEntry entry;
-
-                entry = youngest(accessLogModifiedOnly());
-                return entry == null ? null : server.userManager.checkedByLogin(entry.user);
+                ports = server.pool.stageOpt(name);
+                return ports != null && ports.debug != -1 ? ports.debug : null;
             }
         });
-        fields.add(new Field("last-modified-at") {
+        fields.add(new Field("jmx-port") {
             @Override
-            public Object get(Context context) throws IOException {
-                AccessLogEntry entry;
+            public Object get(Context context) {
+                Ports ports;
 
-                entry = youngest(accessLogModifiedOnly());
-                return entry == null ? null : timespan(entry.dateTime);
+                ports = server.pool.stageOpt(name);
+                return ports != null && ports.jmxmp != -1 ? (ports.jmxmp + " # "
+                        + String.format(server.configuration.jmxUsage, ports.jmxmp)) : null;
             }
         });
-        fields.add(new Field("urls") {
-            @Override
-            public Object get(Context context) throws IOException {
-                return context.urlMap(server.pool, Stage.this);
-            }
-        });
-        return fields;
     }
 
     public String heap(Engine engine, Stage.Current current) throws IOException {

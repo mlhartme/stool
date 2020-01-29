@@ -42,7 +42,6 @@ public class AppInfo {
         List<Image> all;
         Stage.Current current;
         String marker;
-        Ports ports;
         List<String> result;
         List<String> args;
 
@@ -72,16 +71,6 @@ public class AppInfo {
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
         addEnv(current.container, result);
-        ports = server.pool.stageOpt(name);
-        if (ports != null) {
-            if (ports.debug != -1) {
-                result.add("debug port: " + ports.debug);
-            }
-            if (ports.jmxmp != -1) {
-                result.add("jmx port:   " + ports.jmxmp);
-                result.add("                 " + String.format(stage.server.configuration.jmxUsage, ports.jmxmp));
-            }
-        }
         return result;
     }
 
