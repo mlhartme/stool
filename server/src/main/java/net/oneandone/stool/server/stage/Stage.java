@@ -195,7 +195,7 @@ public class Stage {
                 List<String> result;
 
                 result = new ArrayList<>();
-                if (context.images(Stage.this).isEmpty()) {
+                if (!context.images(Stage.this).isEmpty()) {
                     result.add(APP_NAME);
                 }
                 return result;
@@ -210,7 +210,7 @@ public class Stage {
                 current = context.currentOpt(Stage.this);
                 result = new ArrayList<>();
                 if (current != null) {
-                    result.add(APP_NAME + ":" + current.image.tag);
+                    result.add(current.image.tag);
                 }
                 Collections.sort(result);
                 return result;
@@ -440,7 +440,7 @@ public class Stage {
         }
     }
 
-    public static final String APP_NAME = "app";
+    private static final String APP_NAME = "app";
 
     /**
      * @param keep 0 to keep all  */
@@ -662,8 +662,9 @@ public class Stage {
         FileNode innerFile;
         FileNode outerFile;
 
-        hostLogRoot = server.serverHome.join("stages", getName(), "logs", APP_NAME);
-        logs().join(APP_NAME).mkdirsOpt();
+        hostLogRoot = server.serverHome.join("stages", getName(), "logs");
+        // same as hostLogRoot, but the path as needed inside the server:
+        logs().mkdirsOpt();
         result = new HashMap<>();
         result.put(hostLogRoot, "/var/log/stool");
         if (image.ports.https != -1) {
