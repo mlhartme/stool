@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.util;
 
-import com.google.gson.JsonObject;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
@@ -81,7 +80,6 @@ public class AppInfo {
             }
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
-        result.add("disk-used:  " + sizeRw(engine, current.container));
         result.add("cpu:        " + cpu(current.container));
         result.add("mem:        " + mem(current.container));
         result.add("heap:       " + heap(stage, current));
@@ -148,17 +146,6 @@ public class AppInfo {
         used = (Long) result.get("used");
         max = (Long) result.get("max");
         return Float.toString(((float) (used * 1000 / max)) / 10);
-    }
-
-    /** @return size of the read-write layer, not size of the root file system */
-    public static int sizeRw(Engine engine, ContainerInfo info) throws IOException {
-        JsonObject obj;
-
-        if (info == null) {
-            return 0;
-        }
-        obj = engine.containerInspect(info.id, true);
-        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
     private Map<String, String> env(ContainerInfo info) {

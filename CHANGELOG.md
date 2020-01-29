@@ -15,7 +15,7 @@
   * `tunnel` dumped app argument
   
 * server
-  * moved fields from `app` to `status`: `container`, `uptime`
+  * moved fields from `app` to `status`: `container`, `uptime`, `disk-used`
   * `start` replaced apps argument by optional image arguments; returns a single image now
   * `stop` dumped apps argument, returns an optional String now
   * `appInfo` dumped app argument

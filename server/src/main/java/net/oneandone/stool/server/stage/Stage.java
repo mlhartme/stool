@@ -26,7 +26,6 @@ import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.ImageInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
@@ -234,6 +233,15 @@ public class Stage {
                 return current == null ? null : Stage.timespan(context.engine.containerStartedAt(current.container.id));
             }
         });
+        fields.add(new Field("disk-used") {
+            @Override
+            public Object get(Context context) throws IOException {
+                Current current;
+
+                current = context.currentOpt(Stage.this);
+                return current == null ? null : Stage.sizeRw(context.engine, current.container);
+            }
+        });
         fields.add(new Field("created-by") {
             @Override
             public Object get(Context context) throws IOException {
@@ -281,6 +289,17 @@ public class Stage {
             }
         });
         return fields;
+    }
+
+    /** @return size of the read-write layer, not size of the root file system */
+    public static int sizeRw(Engine engine, ContainerInfo info) throws IOException {
+        JsonObject obj;
+
+        if (info == null) {
+            return 0;
+        }
+        obj = engine.containerInspect(info.id, true);
+        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
     public static String timespan(LocalDateTime ldt) {
@@ -439,7 +458,7 @@ public class Stage {
         if (current != null) {
             info = current.container;
             if (info != null) {
-                used = AppInfo.sizeRw(engine, info);
+                used = Stage.sizeRw(engine, info);
                 quota = current.image.disk;
                 if (used > quota) {
                     throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");
