@@ -189,14 +189,14 @@ public class Stage {
                 return name;
             }
         });
-        fields.add(new Field("apps") {
+        fields.add(new Field("images") {
             @Override
             public Object get(Context context) throws IOException {
                 List<String> result;
 
                 result = new ArrayList<>();
-                if (!context.images(Stage.this).isEmpty()) {
-                    result.add(APP_NAME);
+                for (Image image : context.images(Stage.this)) {
+                    result.add(image.tag);
                 }
                 return result;
             }

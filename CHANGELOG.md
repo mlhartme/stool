@@ -46,7 +46,10 @@ client
 
 server
 * removed app name from path for application logs
-* status running now returns an optional image
+* status
+  * running now returns an optional image
+  * dumped `apps`
+  * added `images`
 * api/stages: added a new `api/stages` call that returns both properties and fields for a list of stages
   with a reduced number for docker calls
   * note that this call returns infos as json, not rendered into strings; in particular,
