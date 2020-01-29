@@ -369,7 +369,6 @@ public class ApiController {
     public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
         Stage stage;
 
-        System.out.println("await new " + stageName);
         try (Engine engine = engine()) {
             stage = server.load(stageName);
             stage.awaitStartup(engine);

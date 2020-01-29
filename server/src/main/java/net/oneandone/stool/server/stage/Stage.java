@@ -440,8 +440,6 @@ public class Stage {
         }
     }
 
-    private static final String APP_NAME = "app";
-
     /**
      * @param keep 0 to keep all  */
     public BuildResult buildandEatWar(Engine engine, FileNode war, String comment, String originScm,
@@ -827,17 +825,14 @@ public class Stage {
     }
 
     private void addUrlMap(Image image, Ports ports, Map<String, String> dest) {
-        String app;
-
-        app = APP_NAME;
         if (image == null) {
-            throw new IllegalStateException("no image for app " + app);
+            throw new IllegalStateException("no image for stage " + name);
         }
         if (ports.http != -1) {
-            addNamed(app, url(image, "http", ports.http), dest);
+            addNamed("http", url(image, "http", ports.http), dest);
         }
         if (ports.https != -1) {
-            addNamed(app + " SSL", url(image, "https", ports.https), dest);
+            addNamed("https", url(image, "https", ports.https), dest);
         }
     }
 
