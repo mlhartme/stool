@@ -16,7 +16,6 @@
 package net.oneandone.stool.server.util;
 
 import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
@@ -24,9 +23,7 @@ import net.oneandone.sushi.util.Separator;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AppInfo {
     private final Server server;
@@ -69,36 +66,6 @@ public class AppInfo {
                 result.add("       " + arg + ": \t" + image.args.get(arg));
             }
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
-        }
-        addEnv(current.container, result);
-        return result;
-    }
-
-    private void addEnv(ContainerInfo info, List<String> result) {
-        Map<String, String> env;
-        List<String> keys;
-
-        result.add("environment:");
-        env = env(info);
-        keys = new ArrayList<>(env.keySet());
-        Collections.sort(keys);
-        for (String key : keys) {
-            result.add("    " + key + ": \t" + env.get(key));
-        }
-    }
-
-    private Map<String, String> env(ContainerInfo info) {
-        Map<String, String> result;
-        String key;
-
-        result = new HashMap<>();
-        if (info != null) {
-            for (Map.Entry<String, String> entry : info.labels.entrySet()) {
-                key = entry.getKey();
-                if (key.startsWith(Stage.CONTAINER_LABEL_ENV_PREFIX)) {
-                    result.put(key.substring(Stage.CONTAINER_LABEL_ENV_PREFIX.length()), entry.getValue());
-                }
-            }
         }
         return result;
     }

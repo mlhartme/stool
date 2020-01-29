@@ -351,6 +351,31 @@ public class Stage {
                         + String.format(server.configuration.jmxUsage, ports.jmxmp)) : null;
             }
         });
+        fields.add(new Field("environment") {
+            @Override
+            public Object get(Context context) throws IOException {
+                Current current;
+
+                current = context.currentOpt(Stage.this);
+                return current == null ? null : env(current.container);
+            }
+        });
+    }
+
+    private Map<String, String> env(ContainerInfo info) {
+        Map<String, String> result;
+        String key;
+
+        result = new HashMap<>();
+        if (info != null) {
+            for (Map.Entry<String, String> entry : info.labels.entrySet()) {
+                key = entry.getKey();
+                if (key.startsWith(Stage.CONTAINER_LABEL_ENV_PREFIX)) {
+                    result.put(key.substring(Stage.CONTAINER_LABEL_ENV_PREFIX.length()), entry.getValue());
+                }
+            }
+        }
+        return result;
     }
 
     public String heap(Engine engine, Stage.Current current) throws IOException {
