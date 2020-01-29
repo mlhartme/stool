@@ -57,7 +57,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=apps,comment,expire,last-modified-by,running,urls', {
+            $.ajax('/api/stages?select=comment,expire,last-modified-by,running,urls', {
                 dataType: "json",
                 success: function (data) {
                     $('#loading').remove();

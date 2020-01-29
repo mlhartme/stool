@@ -28,7 +28,6 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 import java.util.Map;
 
 public abstract class ClientCommand {
@@ -80,13 +79,6 @@ public abstract class ClientCommand {
     }
 
     private static final Separator TAB = Separator.on('\t');
-
-    public List<String> apps(Reference reference) throws IOException {
-        String str;
-
-        str = status(reference, "apps");
-        return TAB.split(str);
-    }
 
     private String status(Reference reference, String field) throws IOException {
         Map<String, String> map;

@@ -71,7 +71,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * A collection of apps, each of them with images. From a Docker perspective, a stage roughly represents a Repository.
+ * A collection of images. From a Docker perspective, a stage roughly represents a Repository.
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {

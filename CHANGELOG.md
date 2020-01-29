@@ -6,7 +6,8 @@
   app url no longer contains app name
   
 * client:
-  * `start` replace appIndex arguments by optional image argument
+  * `start` replace appIndex arguments by optional image argument; urls are now named with http and https 
+    instead of the app name with an optional SSL.
   * `restart` replaced appIndex arguments by optional image argument 
   * `stop` dumped apps argument
   * `app` dumped app argument
