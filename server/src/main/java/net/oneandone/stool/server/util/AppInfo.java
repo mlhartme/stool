@@ -81,7 +81,6 @@ public class AppInfo {
             }
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
-        result.add("container:  " + (current.container == null ? "" : current.container.id));
         result.add("uptime:     " + uptime(current.container));
         result.add("disk-used:  " + sizeRw(engine, current.container));
         result.add("cpu:        " + cpu(current.container));

@@ -189,6 +189,15 @@ public class Stage {
                 return name;
             }
         });
+        fields.add(new Field("container") {
+            @Override
+            public Object get(Context context) throws IOException {
+                ContainerInfo info;
+
+                info = context.runningContainerOpt(Stage.this);
+                return info == null ? null : info.id;
+            }
+        });
         fields.add(new Field("images") {
             @Override
             public Object get(Context context) throws IOException {
