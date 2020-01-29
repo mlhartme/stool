@@ -225,6 +225,15 @@ public class Stage {
                 return result;
             }
         });
+        fields.add(new Field("uptime") {
+            @Override
+            public Object get(Context context) throws IOException {
+                Current current;
+
+                current = context.currentOpt(Stage.this);
+                return current == null ? null : Stage.timespan(context.engine.containerStartedAt(current.container.id));
+            }
+        });
         fields.add(new Field("created-by") {
             @Override
             public Object get(Context context) throws IOException {

@@ -81,7 +81,6 @@ public class AppInfo {
             }
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
-        result.add("uptime:     " + uptime(current.container));
         result.add("disk-used:  " + sizeRw(engine, current.container));
         result.add("cpu:        " + cpu(current.container));
         result.add("mem:        " + mem(current.container));
@@ -176,10 +175,6 @@ public class AppInfo {
             }
         }
         return result;
-    }
-
-    private String uptime(ContainerInfo info) throws IOException {
-        return info == null ? null : Stage.timespan(engine.containerStartedAt(info.id));
     }
 
     private Integer cpu(ContainerInfo info) throws IOException {

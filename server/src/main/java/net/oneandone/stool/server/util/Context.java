@@ -28,7 +28,7 @@ import java.util.Map;
 
 /** Context for info computation. TODO: naming tweaks */
 public class Context {
-    private final Engine engine;
+    public final Engine engine;
     private Map<String, ImageInfo> lazyAllImageMap;
     private final Map<String, List<Image>> stageImages;
     private Map<String, ContainerInfo> lazyAllContainerMap;
