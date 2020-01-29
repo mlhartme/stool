@@ -22,14 +22,6 @@ import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.util.Separator;
 
-import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.openmbean.CompositeData;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,7 +71,6 @@ public class AppInfo {
             }
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
-        result.add("heap:       " + heap(stage, current));
         addEnv(current.container, result);
         result.add("origin-scm: " + current.image.originScm);
         ports = server.pool.stageOpt(name);
@@ -106,43 +97,6 @@ public class AppInfo {
         for (String key : keys) {
             result.add("    " + key + ": \t" + env.get(key));
         }
-    }
-
-    public String heap(Stage stage, Stage.Current current) throws IOException {
-        JMXServiceURL url;
-        MBeanServerConnection connection;
-        ObjectName name;
-        CompositeData result;
-        long used;
-        long max;
-
-        if (current.container == null) {
-            return "";
-        }
-        if (current.image.ports.jmxmp == -1) {
-            return "[no jmx port]";
-        }
-
-        url = stage.jmxUrl(engine);
-        try {
-            name = new ObjectName("java.lang:type=Memory");
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException(e);
-        }
-        try (JMXConnector raw = JMXConnectorFactory.connect(url, null)) {
-            connection = raw.getMBeanServerConnection();
-            try {
-                result = (CompositeData) connection.getAttribute(name, "HeapMemoryUsage");
-            } catch (Exception e) {
-                return "[cannot get jmx attribute: " + e.getMessage() + "]";
-            }
-        } catch (IOException e) {
-            Server.LOGGER.debug("cannot connect to jmx server", e);
-            return "[cannot connect jmx server: " + e.getMessage() + "]";
-        }
-        used = (Long) result.get("used");
-        max = (Long) result.get("max");
-        return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
     private Map<String, String> env(ContainerInfo info) {

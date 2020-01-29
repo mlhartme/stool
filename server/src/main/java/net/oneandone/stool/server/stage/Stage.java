@@ -42,9 +42,11 @@ import net.oneandone.sushi.util.Strings;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
+import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -261,6 +263,15 @@ public class Stage {
                 return current == null ? null : mem(context.engine, current.container);
             }
         });
+        fields.add(new Field("heap") {
+            @Override
+            public Object get(Context context) throws IOException {
+                Current current;
+
+                current = context.currentOpt(Stage.this);
+                return current == null ? null : heap(context.engine, current);
+            }
+        });
         fields.add(new Field("created-by") {
             @Override
             public Object get(Context context) throws IOException {
@@ -308,6 +319,43 @@ public class Stage {
             }
         });
         return fields;
+    }
+
+    public String heap(Engine engine, Stage.Current current) throws IOException {
+        JMXServiceURL url;
+        MBeanServerConnection connection;
+        ObjectName objectName;
+        CompositeData result;
+        long used;
+        long max;
+
+        if (current.container == null) {
+            return "";
+        }
+        if (current.image.ports.jmxmp == -1) {
+            return "[no jmx port]";
+        }
+
+        url = jmxUrl(engine);
+        try {
+            objectName = new ObjectName("java.lang:type=Memory");
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException(e);
+        }
+        try (JMXConnector raw = JMXConnectorFactory.connect(url, null)) {
+            connection = raw.getMBeanServerConnection();
+            try {
+                result = (CompositeData) connection.getAttribute(objectName, "HeapMemoryUsage");
+            } catch (Exception e) {
+                return "[cannot get jmx attribute: " + e.getMessage() + "]";
+            }
+        } catch (IOException e) {
+            Server.LOGGER.debug("cannot connect to jmx server", e);
+            return "[cannot connect jmx server: " + e.getMessage() + "]";
+        }
+        used = (Long) result.get("used");
+        max = (Long) result.get("max");
+        return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
     private Integer cpu(Engine engine, ContainerInfo info) throws IOException {
