@@ -173,20 +173,23 @@ public class Client {
         return new BuildResult(obj.get("output").getAsString(), error == null ? null : error.getAsString(), obj.get("tag").getAsString());
     }
 
-    public List<String> start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, String> apps) throws IOException {
+    /** @return image actually started */
+    public String start(String stage, String imageOpt, int http, int https, Map<String, String> startEnvironment) throws IOException {
         HttpNode node;
-        List<String> started;
+        JsonPrimitive started;
 
         node = node(stage, "start");
         node = node.withParameter("http", http);
         node = node.withParameter("https", https);
+        if (imageOpt != null) {
+            node = node.withParameters("image", imageOpt);
+        }
         node = node.withParameters("env.", startEnvironment);
-        node = node.withParameters("app.", apps);
-        started = array(postJson(node, "").getAsJsonArray());
-        if (started.isEmpty()) {
+        started = postJson(node, "").getAsJsonPrimitive();
+        if (started.isJsonNull()) {
             throw new IOException("stage is already started");
         }
-        return started;
+        return started.getAsString();
     }
 
     public Map<String, String> awaitStartup(String stage) throws IOException {
@@ -196,6 +199,7 @@ public class Client {
         return stringMap(response.getAsJsonObject());
     }
 
+    /** @return image actually stopped */
     public String stop(String stage) throws IOException {
         JsonPrimitive stopped;
         HttpNode node;

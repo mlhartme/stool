@@ -506,63 +506,60 @@ public class Stage {
     }
 
     /** @return images actually started */
-    public List<String> start(Engine engine, Pool pool, int http, int https, Map<String, String> clientEnvironment,
-                              Map<String, String> selection) throws IOException {
+    public String start(Engine engine, Pool pool, String imageOpt, int http, int https, Map<String, String> clientEnvironment)
+            throws IOException {
         String container;
         Engine.Status status;
         Ports hostPorts;
         Map<String, String> environment;
         Map<FileNode, String> mounts;
         Map<String, String> labels;
-        List<String> result;
         int memoryQuota;
         int memoryReserved;
+        Image image;
 
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         memoryReserved = server.memoryReservedContainers(engine);
-        result = new ArrayList<>();
         memoryQuota = server.configuration.memoryQuota;
-        for (Image image : resolve(engine, selection)) {
-            if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
-                throw new ArgumentException("Cannot reserve memory for stage " + name + " :\n"
-                        + "  unreserved: " + (memoryQuota - memoryReserved) + "\n"
-                        + "  requested: " + image.memory + "\n"
-                        + "Consider stopping stages.");
-            }
-            memoryReserved += image.memory;
-            for (ContainerInfo info : engine.containerList(CONTAINER_LABEL_STAGE, name).values()) {
-                Server.LOGGER.debug("wipe old image: " + info.id);
-                engine.containerRemove(info.id);
-            }
-            environment = new HashMap<>(server.configuration.environment);
-            environment.putAll(configuration.environment);
-            environment.putAll(clientEnvironment);
-            Server.LOGGER.debug("environment: " + environment);
-            Server.LOGGER.info(name + ": starting container ... ");
-            mounts = bindMounts(image);
-            for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
-                Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
-            }
-            hostPorts = pool.allocate(this, http, https);
-            labels = hostPorts.toUsedLabels();
-            labels.put(CONTAINER_LABEL_IMAGE, image.repositoryTag);
-            labels.put(CONTAINER_LABEL_STAGE, name);
-            for (Map.Entry<String, String> entry : environment.entrySet()) {
-                labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
-            }
-            container = engine.containerCreate(toName(image.repositoryTag), image.repositoryTag,
-                    md5(getName()) + "." + server.configuration.dockerHost, server.networkMode,
-                    false, 1024L * 1024 * image.memory, null, null,
-                    labels, environment, mounts, image.ports.map(hostPorts, server.localhostIp));
-            Server.LOGGER.debug("created container " + container);
-            engine.containerStart(container);
-            status = engine.containerStatus(container);
-            if (status != Engine.Status.RUNNING) {
-                throw new IOException("unexpected status: " + status);
-            }
-            result.add(APP_NAME + ":" + image.tag);
+        image = resolve(engine, imageOpt);
+        if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
+            throw new ArgumentException("Cannot reserve memory for stage " + name + " :\n"
+                    + "  unreserved: " + (memoryQuota - memoryReserved) + "\n"
+                    + "  requested: " + image.memory + "\n"
+                    + "Consider stopping stages.");
         }
-        return result;
+        memoryReserved += image.memory;
+        for (ContainerInfo info : engine.containerList(CONTAINER_LABEL_STAGE, name).values()) {
+            Server.LOGGER.debug("wipe old image: " + info.id);
+            engine.containerRemove(info.id);
+        }
+        environment = new HashMap<>(server.configuration.environment);
+        environment.putAll(configuration.environment);
+        environment.putAll(clientEnvironment);
+        Server.LOGGER.debug("environment: " + environment);
+        Server.LOGGER.info(name + ": starting container ... ");
+        mounts = bindMounts(image);
+        for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
+            Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
+        }
+        hostPorts = pool.allocate(this, http, https);
+        labels = hostPorts.toUsedLabels();
+        labels.put(CONTAINER_LABEL_IMAGE, image.repositoryTag);
+        labels.put(CONTAINER_LABEL_STAGE, name);
+        for (Map.Entry<String, String> entry : environment.entrySet()) {
+            labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
+        }
+        container = engine.containerCreate(toName(image.repositoryTag), image.repositoryTag,
+                md5(getName()) + "." + server.configuration.dockerHost, server.networkMode,
+                false, 1024L * 1024 * image.memory, null, null,
+                labels, environment, mounts, image.ports.map(hostPorts, server.localhostIp));
+        Server.LOGGER.debug("created container " + container);
+        engine.containerStart(container);
+        status = engine.containerStatus(container);
+        if (status != Engine.Status.RUNNING) {
+            throw new IOException("unexpected status: " + status);
+        }
+        return image.tag;
     }
 
     private static String md5(String str) {
@@ -611,52 +608,26 @@ public class Stage {
         return result.toString();
     }
 
-    private List<Image> resolve(Engine engine, Map<String, String> selectionOrig) throws IOException {
-        Map<String, String> selection;
-        Map<String, List<Image>> allImages;
-        List<String> running;
-        String app;
-        String tag;
-        List<Image> list;
-        List<Image> result;
+    private Image resolve(Engine engine, String imageOpt) throws IOException {
+        List<Image> all;
         Image image;
 
-        allImages = images(engine);
-        if (allImages.isEmpty()) {
+        all = images(engine).get(APP_NAME);
+        if (all.isEmpty()) {
             throw new ArgumentException("no image to start - did you build the stage?");
         }
-        running = currentOpt(engine) != null ? Collections.singletonList(APP_NAME) : Collections.emptyList();
-        if (selectionOrig.isEmpty()) {
-            selection = new HashMap<>();
-            for (String a : allImages.keySet()) {
-                selection.put(a, "");
-            }
+        if (imageOpt == null) {
+            image = all.get(all.size() - 1);
         } else {
-            selection = selectionOrig;
-        }
-        result = new ArrayList<>();
-        for (Map.Entry<String, String> entry : selection.entrySet()) {
-            app = entry.getKey();
-            if (!running.contains(app)) {
-                tag = entry.getValue();
-                list = allImages.get(app);
-                if (list == null || list.isEmpty()) {
-                    throw new ArgumentException("app not found: " + app);
-                }
-                image = lookup(list, tag);
-                if (image == null) {
-                    throw new ArgumentException("image not found: " + app + ":" + tag);
-                }
-                result.add(image);
+            image = lookup(all, imageOpt);
+            if (image == null) {
+                throw new ArgumentException("image not found: " + imageOpt);
             }
         }
-        return result;
+        return image;
     }
 
     private static Image lookup(List<Image> images, String tag) {
-        if (tag.isEmpty()) {
-            return images.get(images.size() - 1);
-        }
         for (Image image : images) {
             if (image.tag.equals(tag)) {
                 return image;

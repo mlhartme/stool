@@ -15,11 +15,10 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class StageCommand extends ClientCommand {
     protected String stageClause;
@@ -72,19 +71,14 @@ public abstract class StageCommand extends ClientCommand {
 
     //--
 
-    protected static Map<String, String> selection(List<String> selection) {
-        int idx;
-        Map<String, String> result;
-
-        result = new LinkedHashMap<>();
-        for (String image : selection) {
-            idx = image.indexOf(':');
-            if (idx == -1) {
-                result.put(image, "");
-            } else {
-                result.put(image.substring(0, idx), image.substring(idx + 1));
-            }
+    protected static String imageOpt(List<String> args) {
+        switch (args.size()) {
+            case 0:
+                return null;
+            case 1:
+                return args.get(0);
+            default:
+                throw new ArgumentException("to many image arguments: " + args);
         }
-        return result;
     }
 }

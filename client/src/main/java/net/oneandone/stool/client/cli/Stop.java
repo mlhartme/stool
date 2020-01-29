@@ -32,6 +32,6 @@ public class Stop extends IteratedStageCommand {
         String stopped;
 
         stopped = reference.client.stop(reference.stage);
-        console.info.println("stopped " + stopped);
+        console.info.println("stopped image " + stopped);
     }
 }

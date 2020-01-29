@@ -334,14 +334,13 @@ public class ApiController {
     public String start(@PathVariable(value = "stage") String stageName,
                         @RequestParam(value = "http", required = false, defaultValue = "-1") int http,
                         @RequestParam(value = "https", required = false, defaultValue = "-1") int https,
+                        @RequestParam(value = "image", required = false, defaultValue = "") String image,
                         HttpServletRequest request) throws IOException {
         Stage stage;
         int global;
         int reserved;
         Map<String, String> environment;
-        Map<String, String> apps;
 
-        apps = map(request, "app.");
         environment = map(request, "env.");
         global = server.configuration.diskQuota;
         try (Engine engine = engine()) {
@@ -355,7 +354,7 @@ public class ApiController {
             stage = server.load(stageName);
             stage.checkExpired();
             stage.checkDiskQuota(engine);
-            return array(stage.start(engine, server.pool, http, https, environment, apps)).toString();
+            return new JsonPrimitive(stage.start(engine, server.pool, image.isEmpty() ? null : image, http, https, environment)).toString();
         }
     }
 

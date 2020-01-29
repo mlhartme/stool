@@ -116,7 +116,7 @@ public class Build extends ProjectCommand {
             }
             console.info.println("done: image " + result.tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
             if (restart) {
-                new Restart(globals, new ArrayList<>()).doRun(reference);
+                new Restart(globals, null).doRun(reference);
             }
         }
     }

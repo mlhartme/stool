@@ -18,7 +18,6 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,21 +27,21 @@ public class Start extends IteratedStageCommand {
     private final int http;
     private final int https;
     private final Map<String, String> environment;
-    private final Map<String, String> selection;
+    private final String image;
 
-    public Start(Globals globals, List<String> selection) {
-        this(globals, -1, -1, selection);
+    public Start(Globals globals, List<String> args) {
+        this(globals, -1, -1, args);
     }
 
-    public Start(Globals globals, int http, int https, List<String> selection) {
+    public Start(Globals globals, int http, int https, List<String> args) {
         super(globals);
         this.http = http;
         this.https = https;
         this.environment = new HashMap<>();
 
-        eatEnvironment(selection, environment);
+        eatEnvironment(args, environment);
 
-        this.selection = selection(selection);
+        this.image = imageOpt(args);
     }
 
     private static void eatEnvironment(List<String> selection, Map<String, String> dest) {
@@ -64,31 +63,10 @@ public class Start extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        List<String> started;
+        String starting;
 
-        started = reference.client.start(reference.stage, http, https, environment, selection);
-        console.info.println("starting " + started + " ...");
-        started = removeTag(started);
-        for (String app : selection.keySet()) {
-            if (!started.contains(app)) {
-                console.info.println("note: " + app + " was already up");
-            }
-        }
-    }
-
-    public static List<String> removeTag(List<String> appsWithTag) {
-        List<String> result;
-        int idx;
-
-        result = new ArrayList<>(appsWithTag.size());
-        for (String appWithTag : appsWithTag) {
-            idx = appWithTag.indexOf(':');
-            if (idx == -1) {
-                throw new IllegalStateException("missing tag: " + appWithTag);
-            }
-            result.add(appWithTag.substring(0, idx));
-        }
-        return result;
+        starting = reference.client.start(reference.stage, image, http, https, environment);
+        console.info.println("starting image " + starting + " ...");
     }
 
     @Override

@@ -6,12 +6,15 @@
   app url no longer contains app name
   
 * client:
+  * `start` replace appIndex arguments by optional image argument
+  * `restart` replaced appIndex arguments by optional image argument 
   * `stop` dumped apps argument
   * `app` dumped app argument
   * `ssh` dumped app argument
   * `tunnel` dumped app argument
   
 * server
+  * `start` replaced apps argument by optional image arguments; returns a single image now
   * `stop` dumped apps argument, returns an optional String now
   * `appInfo` dumped app argument
   * `ssh` dumped app argument
