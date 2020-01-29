@@ -177,8 +177,7 @@ public class Engine implements AutoCloseable {
         result = new HashMap<>(array.size());
         for (JsonElement element : array) {
             object = element.getAsJsonObject();
-            id = object.get("Id").getAsString();
-            id = Strings.removeLeft(id, "sha256:");
+            id = pruneImageId(object.get("Id").getAsString());
             repoTags = object.get("RepoTags");
             repositoryTags = repoTags.isJsonNull() ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
             l = object.get("Labels");
@@ -186,6 +185,10 @@ public class Engine implements AutoCloseable {
                     l.isJsonNull() ? new HashMap<>() : toStringMap(l.getAsJsonObject())));
         }
         return result;
+    }
+
+    private static String pruneImageId(String id) {
+        return Strings.removeLeft(id, "sha256:");
     }
 
     private static LocalDateTime toLocalTime(long epochSeconds) {
@@ -259,7 +262,7 @@ public class Engine implements AutoCloseable {
                         if (id != null) {
                             throw new IOException("duplicate id");
                         }
-                        id = Strings.removeLeft(aux.getAsJsonObject().get("ID").getAsString(), "sha256:");
+                        id = pruneImageId(aux.getAsJsonObject().get("ID").getAsString());
                     }
 
                     value = eatString(object, "error", output, log);
@@ -340,7 +343,7 @@ public class Engine implements AutoCloseable {
         for (JsonElement element : array) {
             object = element.getAsJsonObject();
             id = object.get("Id").getAsString();
-            imageId = object.get("ImageID").getAsString();
+            imageId = pruneImageId(object.get("ImageID").getAsString());
             state = Status.valueOf(object.get("State").getAsString().toUpperCase());
             result.put(id, new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()),
                     ports(element.getAsJsonObject().get("Ports").getAsJsonArray()),

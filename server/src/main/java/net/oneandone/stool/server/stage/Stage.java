@@ -505,9 +505,11 @@ public class Stage {
         return new BuildResult(str, Integer.toString(tag));
     }
 
-    /** @return images actually started */
+    /** @return image actually started, null if this image is actually running
+     *  @throws IOException if a different image is already running */
     public String start(Engine engine, Pool pool, String imageOpt, int http, int https, Map<String, String> clientEnvironment)
             throws IOException {
+        ContainerInfo running;
         String container;
         Engine.Status status;
         Ports hostPorts;
@@ -522,6 +524,15 @@ public class Stage {
         memoryReserved = server.memoryReservedContainers(engine);
         memoryQuota = server.configuration.memoryQuota;
         image = resolve(engine, imageOpt);
+        running = runningContainerOpt(engine);
+        if (running != null) {
+            if (image.id.equals(running.imageId)) {
+                return null;
+            } else {
+                throw new IOException("conflict: cannot start image " + image.tag
+                        + " because a different image id " + image.id + " " + running.imageId + " is already running");
+            }
+        }
         if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
             throw new ArgumentException("Cannot reserve memory for stage " + name + " :\n"
                     + "  unreserved: " + (memoryQuota - memoryReserved) + "\n"

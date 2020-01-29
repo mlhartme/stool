@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -33,11 +34,14 @@ public class Image implements Comparable<Image> {
         JsonObject inspect;
         JsonObject labels;
         LocalDateTime created;
+        String id;
 
         inspect = engine.imageInspect(repositoryTag);
+        id =  inspect.get("Id").getAsString();
+        id = Strings.removeLeft(id, "sha256:");
         created = imageCreated(inspect.get("Created").getAsString());
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        return new Image(repositoryTag, version(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
+        return new Image(id, repositoryTag, version(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
                 disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)), context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)), labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_ORIGIN_USER).getAsString(),
@@ -129,6 +133,7 @@ public class Image implements Comparable<Image> {
         return result.substring(idx + 1);
     }
 
+    public final String id;
     public final String repositoryTag;
     public final String tag;
     /** parsed version, null if version is not a number */
@@ -161,13 +166,14 @@ public class Image implements Comparable<Image> {
     public final List<String> faultProjects;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Image(String repositoryTag, String tag, Ports ports, String p12, int disk, int memory, String urlContext, List<String> urlSuffixes, String comment,
+    public Image(String id, String repositoryTag, String tag, Ports ports, String p12, int disk, int memory, String urlContext, List<String> urlSuffixes, String comment,
                  String originScm, String originUser, LocalDateTime createdAt, String createdBy, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
             }
         }
+        this.id = id;
         this.repositoryTag = repositoryTag;
         this.tag = tag;
         this.tagNumber = parseOpt(tag);

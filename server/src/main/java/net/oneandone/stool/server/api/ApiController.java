@@ -16,6 +16,8 @@
 package net.oneandone.stool.server.api;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.ArgumentException;
@@ -332,9 +334,9 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/start")
     public String start(@PathVariable(value = "stage") String stageName,
+                        @RequestParam(value = "image", required = false, defaultValue = "") String image,
                         @RequestParam(value = "http", required = false, defaultValue = "-1") int http,
                         @RequestParam(value = "https", required = false, defaultValue = "-1") int https,
-                        @RequestParam(value = "image", required = false, defaultValue = "") String image,
                         HttpServletRequest request) throws IOException {
         Stage stage;
         int global;
@@ -354,8 +356,13 @@ public class ApiController {
             stage = server.load(stageName);
             stage.checkExpired();
             stage.checkDiskQuota(engine);
-            return new JsonPrimitive(stage.start(engine, server.pool, image.isEmpty() ? null : image, http, https, environment)).toString();
+            return json(stage.start(engine, server.pool, image.isEmpty() ? null : image, http, https, environment)).toString();
         }
+    }
+
+
+    private static JsonElement json(String opt) {
+        return opt == null ? JsonNull.INSTANCE : new JsonPrimitive(opt);
     }
 
     @GetMapping("/stages//{stage}/await-startup")
@@ -386,11 +393,8 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/stop")
     public String stop(@PathVariable(value = "stage") String stage) throws IOException {
-        String result;
-
         try (Engine engine = engine()) {
-            result = server.load(stage).stop(engine);
-            return new JsonPrimitive(result).toString();
+            return json(server.load(stage).stop(engine)).toString();
         }
     }
 

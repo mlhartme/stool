@@ -19,7 +19,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
@@ -176,7 +175,7 @@ public class Client {
     /** @return image actually started */
     public String start(String stage, String imageOpt, int http, int https, Map<String, String> startEnvironment) throws IOException {
         HttpNode node;
-        JsonPrimitive started;
+        JsonElement started;
 
         node = node(stage, "start");
         node = node.withParameter("http", http);
@@ -185,7 +184,7 @@ public class Client {
             node = node.withParameters("image", imageOpt);
         }
         node = node.withParameters("env.", startEnvironment);
-        started = postJson(node, "").getAsJsonPrimitive();
+        started = postJson(node, "");
         if (started.isJsonNull()) {
             throw new IOException("stage is already started");
         }
@@ -201,11 +200,11 @@ public class Client {
 
     /** @return image actually stopped */
     public String stop(String stage) throws IOException {
-        JsonPrimitive stopped;
+        JsonElement stopped;
         HttpNode node;
 
         node = node(stage, "stop");
-        stopped = postJson(node, "").getAsJsonPrimitive();
+        stopped = postJson(node, "");
         if (stopped.isJsonNull()) {
             throw new IOException("stage is already stopped");
         }
