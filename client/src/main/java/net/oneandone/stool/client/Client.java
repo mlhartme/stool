@@ -86,6 +86,17 @@ public class Client {
         this.parser = new JsonParser();
     }
 
+    public boolean equals(Object object) {
+        if (object instanceof Client) {
+            return name.equals(((Client) object).name);
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return name.hashCode();
+    }
+
     public String getName() {
         return name;
     }
