@@ -22,6 +22,7 @@ import net.oneandone.sushi.launcher.Launcher;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class Project {
@@ -73,24 +74,46 @@ public class Project {
         this.project = backstage.getParent();
     }
 
-    public Reference getAttachedOpt(ServerManager serverManager) throws IOException {
+    public List<App> getAttached(ServerManager serverManager) throws IOException {
         Properties p;
+        List<App> result;
 
         if (!backstage.exists()) {
             return null;
         }
         p = backstage.readProperties();
-        if (p.size() != 1) {
-            throw new IllegalStateException("TODO");
+        result = new ArrayList<>(p.size());
+        for (Map.Entry<Object, Object> entry : p.entrySet()) {
+            result.add(new App(serverManager.reference((String) entry.getKey()), (String) entry.getValue()));
         }
-        return serverManager.reference(((String) p.keySet().iterator().next()).trim());
+        return result;
     }
 
-    public void setAttached(App app) throws IOException {
+    public boolean removeAttached(Reference reference) throws IOException {
         Properties p;
 
-        p = new Properties();
-        p.put(app.reference.toString(), app.path);
+        if (!backstage.exists()) {
+            return false;
+        }
+        p = backstage.readProperties();
+        if (p.remove(reference.toString()) == null) {
+            return false;
+        }
+        if (p.isEmpty()) {
+            backstage.deleteFile();
+        } else {
+            backstage.writeProperties(p);
+        }
+        return true;
+    }
+
+    public void addAttached(App app) throws IOException {
+        Properties p;
+
+        p = backstage.exists() ? backstage.readProperties() : new Properties();
+        if (p.put(app.reference.toString(), app.path) != null) {
+            throw new IOException("duplicate stage: " + app.reference);
+        }
         backstage.writeProperties(p);
     }
 

@@ -52,9 +52,8 @@ public class Remove extends IteratedStageCommand {
         reference.client.remove(reference.stage);
 
         project = Project.lookup(world.getWorking());
-        if (project != null && reference.equals(project.getAttachedOpt(globals.servers()))) {
-            console.info.println("detaching stage");
-            project.removeBackstage();
+        if (project != null && project.removeAttached(reference)) {
+            console.info.println("detaching stage: " + reference);
         }
     }
 }

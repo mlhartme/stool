@@ -59,17 +59,14 @@ public class Attach extends ProjectCommand {
             if (wars.isEmpty()) {
                 throw new ArgumentException("no wars found - did you build your project?");
             }
-            if (wars.size() != 1) {
-                throw new IllegalStateException("TODO: too many wars");
-            }
             for (FileNode war : wars) {
                 nameAndServer = Create.app(war) + "." + stage;
                 checkStage(nameAndServer);
-                backstage.setAttached(new App(checkStage(nameAndServer), war.getRelative(project)));
+                backstage.addAttached(new App(checkStage(nameAndServer), war.getRelative(project)));
             }
         } else {
             project.findOne(pathOpt);
-            backstage.setAttached(new App(checkStage(stage), pathOpt));
+            backstage.addAttached(new App(checkStage(stage), pathOpt));
         }
     }
 

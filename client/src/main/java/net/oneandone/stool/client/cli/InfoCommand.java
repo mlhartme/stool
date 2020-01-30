@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
@@ -26,7 +27,7 @@ import net.oneandone.stool.client.ServerManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,37 +44,53 @@ public abstract class InfoCommand extends StageCommand {
 
     @Override
     public EnumerationFailed runAll() throws Exception {
-        List<Client> clients;
+        Map<Client, String> clientFilters;
         ServerManager serverManager;
-        Reference reference;
-        String clientFilter;
+        List<Reference> references;
 
         if (stageClause != null && all) {
             throw new ArgumentException("too many select options");
         }
         serverManager = globals.servers();
+        clientFilters = new LinkedHashMap<>();
         if (all) {
-            clients = serverManager.connectMatching(serverManager.serverFilter(null));
-            clientFilter = globals.servers().clientFilter("");
+            for (Client client : serverManager.connectMatching(serverManager.serverFilter(null))) {
+                clientFilters.put(client, globals.servers().clientFilter(""));
+            }
         } else if (stageClause != null) {
-            clients = serverManager.connectMatching(serverManager.serverFilter(stageClause));
-            clientFilter = globals.servers().clientFilter(stageClause);
-        } else  {
-            reference = projectReference(serverManager);
-            clients = reference == null ? Collections.emptyList() : Collections.singletonList(reference.client);
-            clientFilter = reference == null ? globals.servers().clientFilter("") : reference.stage;
+            for (Client client : serverManager.connectMatching(serverManager.serverFilter(stageClause))) {
+                clientFilters.put(client, globals.servers().clientFilter(stageClause));
+            }
+        } else {
+            references = projectReferences(serverManager);
+            if (references.isEmpty()) {
+                for (Client client : serverManager.connectMatching(null)) {
+                    clientFilters.put(client, "");
+                }
+            } else {
+                for (Reference reference : references) {
+                    clientFilters.put(reference.client, reference.stage);
+                }
+            }
         }
-        for (Client client : clients) {
-            doRun(client, clientFilter);
+        for (Map.Entry<Client, String> entry : clientFilters.entrySet()) {
+            doRun(entry.getKey(), entry.getValue());
         }
         return new EnumerationFailed();
     }
 
-    private Reference projectReference(ServerManager serverManager) throws IOException {
+    private List<Reference> projectReferences(ServerManager serverManager) throws IOException {
         Project project;
+        List<Reference> result;
 
         project = Project.lookup(world.getWorking());
-        return project == null ? null : project.getAttachedOpt(serverManager);
+        result = new ArrayList<>();
+        if (project != null) {
+            for (App app : project.getAttached(serverManager)) {
+                result.add(app.reference);
+            }
+        }
+        return result;
     }
 
     public static String infoToString(JsonElement info) {

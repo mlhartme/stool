@@ -16,10 +16,10 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.BuildResult;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -85,7 +85,8 @@ public class Build extends ProjectCommand {
     @Override
     public void doRun(FileNode projectDirectory) throws Exception {
         Project project;
-        Reference reference;
+        List<App> apps;
+        FileNode war;
         List<FileNode> wars;
         BuildResult result;
         long started;
@@ -98,14 +99,15 @@ public class Build extends ProjectCommand {
         if (wars.isEmpty()) {
             throw new IOException("no war(s) to build");
         }
-        reference = project.getAttachedOpt(globals.servers());
-        if (reference == null) {
-            throw new IOException("no stage attached to " + projectDirectory);
+        apps = project.getAttached(globals.servers());
+        if (apps.isEmpty()) {
+            throw new IOException("no stages attached to " + projectDirectory);
         }
-        for (FileNode war : wars) {
+        for (App app : apps) {
+            war = projectDirectory.findOne(app.path);
             started = System.currentTimeMillis();
             console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
-            result = reference.client.build(reference.stage, war, comment, project.getOriginOrUnknown(), createdOn(), noCache, keep, arguments);
+            result = app.reference.client.build(app.reference.stage, war, comment, project.getOriginOrUnknown(), createdOn(), noCache, keep, arguments);
             if (result.error != null) {
                 console.info.println("build failed: " + result.error);
                 console.info.println("build output");
@@ -116,7 +118,7 @@ public class Build extends ProjectCommand {
             }
             console.info.println("done: image " + result.tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
             if (restart) {
-                new Restart(globals, null).doRun(reference);
+                new Restart(globals, null).doRun(app.reference);
             }
         }
     }

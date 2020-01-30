@@ -97,9 +97,6 @@ public class Create extends ProjectCommand {
             if (wars.isEmpty()) {
                 throw new ArgumentException("no wars found - did you build your project?");
             }
-            if (wars.size() != 1) {
-                throw new IllegalStateException("TODO: too many wars");
-            }
             for (FileNode war : wars) {
                 add(project, app(war) + "." + baseName, war.getRelative(world.getWorking()));
             }
@@ -125,7 +122,7 @@ public class Create extends ProjectCommand {
             }
         }
         try {
-            project.setAttached(new App(reference, path));
+            project.addAttached(new App(reference, path));
         } catch (IOException e) {
             throw new IOException("failed to attach stage: " + e.getMessage(), e);
         }
