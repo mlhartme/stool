@@ -21,10 +21,14 @@ import net.oneandone.stool.client.Project;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Detach extends ProjectCommand {
-    public Detach(Globals globals, FileNode project) {
+    private final List<String> stages;
+
+    public Detach(Globals globals, FileNode project, List<String> stages) {
         super(globals, project);
+        this.stages = stages;
     }
 
     @Override
@@ -35,6 +39,12 @@ public class Detach extends ProjectCommand {
         if (backstage == null) {
             throw new ArgumentException("project is not attached");
         }
-        backstage.removeBackstage();
+        if (stages.isEmpty()) {
+            backstage.removeBackstage();
+        } else {
+            for (String stage : stages) {
+                backstage.removeAttached(reference(stage));
+            }
+        }
     }
 }

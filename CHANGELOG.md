@@ -8,7 +8,8 @@
     * checks for wars and adds all matches to the project
     * name may explicitly specify the war with =
   * `build` dumped war argument  
-  * attach with optional path
+  * `attach` with optional path
+  * `detach` with list of stages
   
 --
 

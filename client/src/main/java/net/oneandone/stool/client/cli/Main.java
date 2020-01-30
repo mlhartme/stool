@@ -76,7 +76,7 @@ public class Main {
                     cli.add(Create.class, "create -project -optional nameAndServer properties*");
                     cli.add(Build.class, "build -project -nocache -keep=3 -restart -m= args*");
                     cli.add(Attach.class, "attach -project stage");
-                    cli.add(Detach.class, "detach -project");
+                    cli.add(Detach.class, "detach -project stage*");
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=false -max=-1");

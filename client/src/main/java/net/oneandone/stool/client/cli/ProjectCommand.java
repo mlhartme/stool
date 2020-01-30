@@ -16,7 +16,11 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.file.FileNode;
+
+import java.io.IOException;
+import java.util.List;
 
 public abstract class ProjectCommand extends ClientCommand {
     private final FileNode project;
@@ -32,4 +36,19 @@ public abstract class ProjectCommand extends ClientCommand {
     }
 
     public abstract void doRun(FileNode currentProject) throws Exception;
+
+    protected Reference reference(String nameAndServer) throws IOException {
+        List<Reference> found;
+
+        found = globals.servers().list(nameAndServer);
+        switch (found.size()) {
+            case 0:
+                throw new IOException("no such stage: " + nameAndServer);
+            case 1:
+                return found.get(0);
+            default:
+                throw new IOException("stage ambiguous: " + nameAndServer);
+        }
+
+    }
 }

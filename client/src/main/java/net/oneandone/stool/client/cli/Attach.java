@@ -19,10 +19,8 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
 import java.util.List;
 
 public class Attach extends ProjectCommand {
@@ -61,27 +59,11 @@ public class Attach extends ProjectCommand {
             }
             for (FileNode war : wars) {
                 nameAndServer = Create.app(war) + "." + stage;
-                checkStage(nameAndServer);
-                backstage.addAttached(new App(checkStage(nameAndServer), war.getRelative(project)));
+                backstage.addAttached(new App(reference(nameAndServer), war.getRelative(project)));
             }
         } else {
             project.findOne(pathOpt);
-            backstage.addAttached(new App(checkStage(stage), pathOpt));
+            backstage.addAttached(new App(reference(stage), pathOpt));
         }
-    }
-
-    private Reference checkStage(String nameAndServer) throws IOException {
-        List<Reference> found;
-
-        found = globals.servers().list(nameAndServer);
-        switch (found.size()) {
-            case 0:
-                throw new IOException("no such stage: " + nameAndServer);
-            case 1:
-                return found.get(0);
-            default:
-                throw new IOException("stage ambiguous: " + stage);
-        }
-
     }
 }
