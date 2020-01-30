@@ -16,11 +16,13 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.ServerManager;
+import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -28,6 +30,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class Create extends ProjectCommand {
     private final boolean optional;
@@ -76,36 +79,71 @@ public class Create extends ProjectCommand {
         Project project;
         Client client;
         Reference reference;
+        List<FileNode> wars;
 
         serverManager = globals.servers();
         project = Project.lookup(projectDirectory);
-        if (project != null && project.getAttachedOpt(serverManager) != null) {
+        if (project != null) {
             throw new ArgumentException("project already has a stage; detach it first");
         }
-        client = serverManager.get(server).connect(world);
-        reference = new Reference(client, name);
-        try {
-            client.create(name, config);
-            console.info.println("stage created: " + reference);
-        } catch (FileAlreadyExistsException e) {
-            if (optional) {
-                console.info.println("stage already exists - nothing to do: " + reference);
-                // fall-through
-            } else {
-                throw new IOException("stage already exists: " + reference);
-            }
+        project = Project.create(projectDirectory);
+        wars = project.wars();
+        if (wars.isEmpty()) {
+            throw new ArgumentException("no wars found - did you build your project?");
         }
-        try {
-            if (project == null) {
-                Project.create(projectDirectory, reference);
-            } else {
-                project.setAttached(reference);
+        if (wars.size() != 1) {
+            throw new IllegalStateException("TODO: too many wars");
+        }
+        for (FileNode war : wars) {
+            client = serverManager.get(server).connect(world);
+            reference = new Reference(client, appName(war));
+            try {
+                client.create(reference.stage, config);
+                console.info.println("stage created: " + reference);
+            } catch (FileAlreadyExistsException e) {
+                if (optional) {
+                    console.info.println("stage already exists - nothing to do: " + reference);
+                    // fall-through
+                } else {
+                    throw new IOException("stage already exists: " + reference);
+                }
             }
-        } catch (IOException e) {
-            throw new IOException("failed to attach stage: " + e.getMessage(), e);
+            try {
+                project.setAttached(new App("TODO", reference));
+            } catch (IOException e) {
+                throw new IOException("failed to attach stage: " + e.getMessage(), e);
+            }
         }
     }
 
+    private String appName(FileNode war) throws IOException {
+        Properties p;
+        String app;
+
+        p = properties(war);
+        app = p.getProperty("app", "app");
+        return app + "." + name;
+    }
+
+    private Properties properties(FileNode war) throws IOException {
+        Node<?> node;
+        Properties all;
+        Properties result;
+        String prefix;
+
+        prefix = ""; // TDDO
+        node = war.openZip().join("WEB-INF/classes/META-INF/stool.properties"); // TODO
+        result = new Properties();
+        if (node.exists()) {
+            all = node.readProperties();
+            for (String property : all.stringPropertyNames()) {
+                if (property.startsWith(prefix)) {
+                    result.setProperty(property.substring(prefix.length()), all.getProperty(property));
+                }
+            }
+        }
+        return result;
+    }
     //-- stage name
 
     /**

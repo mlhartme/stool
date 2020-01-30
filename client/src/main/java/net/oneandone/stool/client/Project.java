@@ -22,16 +22,16 @@ import net.oneandone.sushi.launcher.Launcher;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class Project {
-    public static Project create(FileNode project, Reference reference) throws IOException {
+    public static Project create(FileNode project) throws IOException {
         FileNode backstage;
         Project result;
 
         backstage = backstage(project);
         backstage.checkNotExists();
         result = new Project(backstage);
-        result.setAttached(reference);
         return result;
     }
 
@@ -74,11 +74,24 @@ public class Project {
     }
 
     public Reference getAttachedOpt(ServerManager serverManager) throws IOException {
-        return backstage.exists() ? serverManager.reference(backstage.readString().trim()) : null;
+        Properties p;
+
+        if (!backstage.exists()) {
+            return null;
+        }
+        p = backstage.readProperties();
+        if (p.size() != 1) {
+            throw new IllegalStateException("TODO");
+        }
+        return serverManager.reference(((String) p.values().iterator().next()).trim());
     }
 
-    public void setAttached(Reference reference) throws IOException {
-        backstage.writeString(reference.toString());
+    public void setAttached(App app) throws IOException {
+        Properties p;
+
+        p = new Properties();
+        p.put(app.path, app.reference.toString());
+        backstage.writeProperties(p);
     }
 
     public void removeBackstage() throws IOException {

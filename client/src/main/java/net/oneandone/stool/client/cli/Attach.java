@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
@@ -48,9 +49,8 @@ public class Attach extends ProjectCommand {
         }
         backstage = Project.lookup(project);
         if (backstage == null) {
-            Project.create(project, found.get(0));
-        } else {
-            backstage.setAttached(found.get(0));
+            backstage = Project.create(project);
         }
+        backstage.setAttached(new App("TODO", found.get(0)));
     }
 }

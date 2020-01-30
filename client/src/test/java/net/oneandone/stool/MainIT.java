@@ -76,10 +76,10 @@ public class MainIT {
 
         Thread.sleep(10000); // TODO
 
-        stage = "it@localhost";
+        stage = "app.it@localhost"; // TODO
 
         stool("list");
-        stool("create", "-e", "-project", project.getAbsolute(), stage);
+        stool("create", "-e", "-project", project.getAbsolute(), "it@localhost");
         stool("list");
         stool("status", "-stage", stage);
         stool("detach", "-project", project.getAbsolute());
