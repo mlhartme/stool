@@ -21,7 +21,6 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -34,8 +33,9 @@ import java.util.Properties;
 
 public class Create extends ProjectCommand {
     private final boolean optional;
-    private final String name;
+    private final String baseName;
     private final String server;
+    private final String pathOpt;
     private final Map<String, String> config;
 
     public Create(Globals globals, FileNode project, boolean optional, String nameAndServer, List<String> args) {
@@ -44,13 +44,19 @@ public class Create extends ProjectCommand {
         int idx;
 
         this.optional = optional;
+        idx = nameAndServer.indexOf("=");
+        if (idx == -1) {
+            this.pathOpt = null;
+        } else {
+            this.pathOpt = nameAndServer.substring(idx + 1);
+            nameAndServer = nameAndServer.substring(0, idx);
+        }
         idx = nameAndServer.indexOf('@');
         if (idx == -1) {
             throw new ArgumentException("expected <name>@<server>, got " + nameAndServer);
         }
-        this.name = nameAndServer.substring(0, idx);
-        checkName(name);
         this.server = nameAndServer.substring(idx + 1);
+        this.baseName = nameAndServer.substring(0, idx);
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);
@@ -75,54 +81,63 @@ public class Create extends ProjectCommand {
 
     @Override
     public void doRun(FileNode projectDirectory) throws IOException {
-        ServerManager serverManager;
         Project project;
-        Client client;
-        Reference reference;
         List<FileNode> wars;
 
-        serverManager = globals.servers();
         project = Project.lookup(projectDirectory);
         if (project != null) {
             throw new ArgumentException("project already has a stage; detach it first");
         }
         project = Project.create(projectDirectory);
-        wars = project.wars();
-        if (wars.isEmpty()) {
-            throw new ArgumentException("no wars found - did you build your project?");
-        }
-        if (wars.size() != 1) {
-            throw new IllegalStateException("TODO: too many wars");
-        }
-        for (FileNode war : wars) {
-            client = serverManager.get(server).connect(world);
-            reference = new Reference(client, appName(war));
-            try {
-                client.create(reference.stage, config);
-                console.info.println("stage created: " + reference);
-            } catch (FileAlreadyExistsException e) {
-                if (optional) {
-                    console.info.println("stage already exists - nothing to do: " + reference);
-                    // fall-through
-                } else {
-                    throw new IOException("stage already exists: " + reference);
-                }
+        if (pathOpt != null) {
+            projectDirectory.findOne(pathOpt);
+            add(project, baseName, pathOpt);
+        } else {
+            wars = project.wars();
+            if (wars.isEmpty()) {
+                throw new ArgumentException("no wars found - did you build your project?");
             }
-            try {
-                project.setAttached(new App("TODO", reference));
-            } catch (IOException e) {
-                throw new IOException("failed to attach stage: " + e.getMessage(), e);
+            if (wars.size() != 1) {
+                throw new IllegalStateException("TODO: too many wars");
+            }
+            for (FileNode war : wars) {
+                add(project, appName(war), war.getRelative(world.getWorking()));
             }
         }
     }
 
+    private void add(Project project, String name, String path) throws IOException {
+        Client client;
+        Reference reference;
+
+        checkName(name);
+        client = globals.servers().get(server).connect(world);
+        reference = new Reference(client, name);
+        try {
+            client.create(name, config);
+            console.info.println("stage created: " + reference);
+        } catch (FileAlreadyExistsException e) {
+            if (optional) {
+                console.info.println("stage already exists - nothing to do: " + reference);
+                // fall-through
+            } else {
+                throw new IOException("stage already exists: " + reference);
+            }
+        }
+        try {
+            project.setAttached(new App(path, reference));
+        } catch (IOException e) {
+            throw new IOException("failed to attach stage: " + e.getMessage(), e);
+        }
+
+    }
     private String appName(FileNode war) throws IOException {
         Properties p;
         String app;
 
         p = properties(war);
         app = p.getProperty("app", "app");
-        return app + "." + name;
+        return app + "." + baseName;
     }
 
     private Properties properties(FileNode war) throws IOException {

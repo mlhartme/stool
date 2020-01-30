@@ -2,6 +2,14 @@
 
 ### 5.2.0 (pending)
 
+* client
+  * backstage is a properties file now, it maps paths to stages
+  * create
+    * checks for wars and adds all matches to the project
+    * name may explicitly specify the war with =  
+
+--
+
 * one app per stage; the _app argument is now ignored, the app is always called `app`;
   app url no longer contains app name
   
