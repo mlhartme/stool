@@ -47,6 +47,7 @@ public abstract class InfoCommand extends StageCommand {
         Map<Client, String> clientFilters;
         ServerManager serverManager;
         List<Reference> references;
+        String clientFilter;
 
         if (stageClause != null && all) {
             throw new ArgumentException("too many select options");
@@ -69,7 +70,13 @@ public abstract class InfoCommand extends StageCommand {
                 }
             } else {
                 for (Reference reference : references) {
-                    clientFilters.put(reference.client, reference.stage);
+                    clientFilter = clientFilters.get(reference.client);
+                    if (clientFilter != null) {
+                        clientFilter = clientFilter + "," + reference.stage;
+                    } else {
+                        clientFilter = reference.stage;
+                    }
+                    clientFilters.put(reference.client, clientFilter);
                 }
             }
         }
