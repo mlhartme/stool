@@ -16,7 +16,8 @@ __projectDir() {
 __stageIndicator() {
   local project=$(__projectDir $1)
   if [ -f "${project}/.backstage" ] ; then
-      local id="$(cat "${project}/.backstage")"
+      local id="$(grep = .backstage | cut -d = -f 1 | tr '\n' ' ')"
+      id=${id%?}
       echo -n "{${id}} "
       return
   else
