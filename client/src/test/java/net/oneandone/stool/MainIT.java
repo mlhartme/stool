@@ -79,11 +79,11 @@ public class MainIT {
         stage = "it@localhost";
 
         stool("list");
-        stool("create", "-e", "-project", project.getAbsolute(), "it@localhost=target/*.war");
+        stool("create", "-e", "-project", project.getAbsolute(), stage + "=target/*.war");
         stool("list");
         stool("status", "-stage", stage);
         stool("detach", "-project", project.getAbsolute());
-        stool("attach", "-project", project.getAbsolute(), stage);
+        stool("attach", "-project", project.getAbsolute(), stage + "=target/*.war");
         stool("validate", "-stage", stage);
         stool("config", "-stage", stage, "comment");
         stool("config", "-stage", stage, "comment=42");

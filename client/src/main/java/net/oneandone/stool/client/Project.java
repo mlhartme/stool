@@ -83,14 +83,14 @@ public class Project {
         if (p.size() != 1) {
             throw new IllegalStateException("TODO");
         }
-        return serverManager.reference(((String) p.values().iterator().next()).trim());
+        return serverManager.reference(((String) p.keySet().iterator().next()).trim());
     }
 
     public void setAttached(App app) throws IOException {
         Properties p;
 
         p = new Properties();
-        p.put(app.path, app.reference.toString());
+        p.put(app.reference.toString(), app.path);
         backstage.writeProperties(p);
     }
 

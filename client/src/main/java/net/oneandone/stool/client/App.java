@@ -16,11 +16,11 @@
 package net.oneandone.stool.client;
 
 public class App {
-    public final String path;
     public final Reference reference;
+    public final String path;
 
-    public App(String path, Reference reference) {
-        this.path = path;
+    public App(Reference reference, String path) {
         this.reference = reference;
+        this.path = path;
     }
 }

@@ -101,7 +101,7 @@ public class Create extends ProjectCommand {
                 throw new IllegalStateException("TODO: too many wars");
             }
             for (FileNode war : wars) {
-                add(project, appName(war), war.getRelative(world.getWorking()));
+                add(project, app(war) + "." + baseName, war.getRelative(world.getWorking()));
             }
         }
     }
@@ -125,22 +125,18 @@ public class Create extends ProjectCommand {
             }
         }
         try {
-            project.setAttached(new App(path, reference));
+            project.setAttached(new App(reference, path));
         } catch (IOException e) {
             throw new IOException("failed to attach stage: " + e.getMessage(), e);
         }
 
     }
-    private String appName(FileNode war) throws IOException {
-        Properties p;
-        String app;
 
-        p = properties(war);
-        app = p.getProperty("app", "app");
-        return app + "." + baseName;
+    public static String app(FileNode war) throws IOException {
+        return properties(war).getProperty("app", "app");
     }
 
-    private Properties properties(FileNode war) throws IOException {
+    private static Properties properties(FileNode war) throws IOException {
         Node<?> node;
         Properties all;
         Properties result;
