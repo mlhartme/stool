@@ -139,7 +139,7 @@ public class Create extends ProjectCommand {
         Properties result;
         String prefix;
 
-        prefix = ""; // TDDO
+        prefix = ""; // TODO
         node = war.openZip().join("WEB-INF/classes/META-INF/stool.properties"); // TODO
         result = new Properties();
         if (node.exists()) {

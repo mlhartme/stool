@@ -52,7 +52,7 @@ public class Ls extends InfoCommand {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.addAll(Arrays.asList("name", "running", "last-modified-by" /* TODO , "origin", "directory" */));
+            selected.addAll(Arrays.asList("name", "running", "last-modified-by");
         }
         header("stages");
 
