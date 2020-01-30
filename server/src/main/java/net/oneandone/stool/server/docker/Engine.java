@@ -50,7 +50,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -547,25 +546,6 @@ public class Engine implements AutoCloseable {
         cpuDelta = current.get("cpu_usage").getAsJsonObject().get("total_usage").getAsLong() - previous.get("cpu_usage").getAsJsonObject().get("total_usage").getAsLong();
         systemDelta = current.get("system_cpu_usage").getAsLong() - previous.get("system_cpu_usage").getAsLong();
         return (int) (cpuDelta * 100 / systemDelta);
-    }
-
-    // https://github.com/moby/moby/pull/15010
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
-
-    public long containerStartedAt(String id) throws IOException {
-        JsonObject state;
-        String str;
-        LocalDateTime result;
-
-        state = containerState(id);
-        str = state.get("StartedAt").getAsString();
-        try {
-            result = LocalDateTime.parse(str, DATE_FORMAT);
-        } catch (DateTimeParseException e) {
-            throw new IOException("cannot parse date: " + str);
-        }
-        // CAUTION: container executes in GMT timezone
-        return result.atZone(ZoneId.of("GMT")).toInstant().toEpochMilli();
     }
 
     private JsonObject containerState(String id) throws IOException {

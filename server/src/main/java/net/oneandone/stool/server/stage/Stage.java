@@ -284,7 +284,7 @@ public class Stage {
                 Current current;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : Stage.timespan(context.engine.containerStartedAt(current.container.id));
+                return current == null ? null : Stage.timespan(context.containerStartedAt(current.container.id));
             }
         });
         fields.add(new Field("disk-used") {

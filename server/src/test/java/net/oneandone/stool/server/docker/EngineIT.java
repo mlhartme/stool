@@ -182,7 +182,6 @@ public class EngineIT {
             stats = engine.containerStats(container);
             assertEquals(0, stats.cpu);
             assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
-            assertNotEquals(0, engine.containerStartedAt(container));
             assertEquals(0, engine.containerWait(container));
             assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
             assertNull(engine.containerStats(container));
