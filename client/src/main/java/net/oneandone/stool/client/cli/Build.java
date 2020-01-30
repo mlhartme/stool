@@ -20,13 +20,11 @@ import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.BuildResult;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,35 +34,15 @@ public class Build extends ProjectCommand {
     private final int keep;
     private final boolean restart;
     private final String comment;
-    private final List<FileNode> explicitWars;
     private final Map<String, String> arguments;
 
-    public Build(Globals globals, FileNode project, boolean noCache, int keep, boolean restart, String comment, List<String> warsAndArgs) throws IOException {
+    public Build(Globals globals, FileNode project, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
         super(globals, project);
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
         this.comment = comment;
-        this.explicitWars = eatWars(globals.getWorld(), warsAndArgs);
-        this.arguments = argument(warsAndArgs);
-    }
-
-    private static List<FileNode> eatWars(World world, List<String> wars) throws IOException {
-        List<FileNode> result;
-        String path;
-        FileNode war;
-
-        result = new ArrayList<>();
-        while (!wars.isEmpty()) {
-            if (wars.get(0).contains("=")) {
-                break;
-            }
-            path = wars.remove(0);
-            war = world.file(path);
-            war.checkFile();
-            result.add(war);
-        }
-        return result;
+        this.arguments = argument(args);
     }
 
     private static Map<String, String> argument(List<String> args) {
@@ -87,17 +65,12 @@ public class Build extends ProjectCommand {
         Project project;
         List<App> apps;
         FileNode war;
-        List<FileNode> wars;
         BuildResult result;
         long started;
 
         project = Project.lookup(projectDirectory);
         if (project == null) {
             throw new ArgumentException("unknown stage");
-        }
-        wars = explicitWars.isEmpty() ? project.wars() : explicitWars;
-        if (wars.isEmpty()) {
-            throw new IOException("no war(s) to build");
         }
         apps = project.getAttached(globals.servers());
         if (apps.isEmpty()) {

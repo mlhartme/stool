@@ -74,7 +74,7 @@ public class Main {
                 cli.add(Setup.class, "setup -batch -local opts*");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create -project -optional nameAndServer properties*");
-                    cli.add(Build.class, "build -project -nocache -keep=3 -restart -m= warsAndArgs*");
+                    cli.add(Build.class, "build -project -nocache -keep=3 -restart -m= args*");
                     cli.add(Attach.class, "attach -project stage");
                     cli.add(Detach.class, "detach -project");
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");

@@ -4,9 +4,10 @@
 
 * client
   * backstage is a properties file now, it maps stage to paths
-  * create
+  * `create`
     * checks for wars and adds all matches to the project
-    * name may explicitly specify the war with =  
+    * name may explicitly specify the war with =
+  * `build` dumped war argument  
   * attach with optional path
   
 --
