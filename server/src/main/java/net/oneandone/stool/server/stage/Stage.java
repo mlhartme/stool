@@ -293,7 +293,7 @@ public class Stage {
                 Current current;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : Stage.sizeRw(context.engine, current.container);
+                return current == null ? null : Stage.sizeRw(context, current.container);
             }
         });
         fields.add(new Field("cpu") {
@@ -440,13 +440,13 @@ public class Stage {
     }
 
     /** @return size of the read-write layer, not size of the root file system */
-    public static int sizeRw(Engine engine, ContainerInfo info) throws IOException {
+    public static int sizeRw(Context context, ContainerInfo info) throws IOException {
         JsonObject obj;
 
         if (info == null) {
             return 0;
         }
-        obj = engine.containerInspect(info.id, true);
+        obj = context.containerInspect(info.id);
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
@@ -606,7 +606,7 @@ public class Stage {
         if (current != null) {
             info = current.container;
             if (info != null) {
-                used = Stage.sizeRw(engine, info);
+                used = Stage.sizeRw(new Context(engine), info);
                 quota = current.image.disk;
                 if (used > quota) {
                     throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");
@@ -1216,7 +1216,7 @@ public class Stage {
         if (running == null) {
             return null;
         } else {
-            inspected = context.engine.containerInspect(running.id, false);
+            inspected = context.containerInspect(running.id);
             networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
             if (networks.size() != 1) {
                 throw new IOException("unexpected Networks: " + networks);
