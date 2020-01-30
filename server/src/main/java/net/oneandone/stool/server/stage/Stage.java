@@ -300,18 +300,38 @@ public class Stage {
             @Override
             public Object get(Context context) throws IOException {
                 Current current;
+                Stats stats;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : cpu(context.engine, current.container);
+                if (current == null) {
+                    return null;
+                }
+                stats = context.containerStats(current.container.id);
+                if (stats != null) {
+                    return stats.cpu;
+                } else {
+                    // not started
+                    return 0;
+                }
             }
         });
         fields.add(new Field("mem") {
             @Override
             public Object get(Context context) throws IOException {
                 Current current;
+                Stats stats;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : mem(context.engine, current.container);
+                if (current == null) {
+                    return null;
+                }
+                stats = context.containerStats(current.container.id);
+                if (stats != null) {
+                    return stats.memoryUsage * 100 / stats.memoryLimit;
+                } else {
+                    // not started
+                    return 0L;
+                }
             }
         });
         fields.add(new Field("heap") {
@@ -413,30 +433,6 @@ public class Stage {
         used = (Long) result.get("used");
         max = (Long) result.get("max");
         return Float.toString(((float) (used * 1000 / max)) / 10);
-    }
-
-    private Integer cpu(Engine engine, ContainerInfo info) throws IOException {
-        Stats stats;
-
-        stats = engine.containerStats(info.id);
-        if (stats != null) {
-            return stats.cpu;
-        } else {
-            // not started
-            return 0;
-        }
-    }
-
-    private Long mem(Engine engine, ContainerInfo info) throws IOException {
-        Stats stats;
-
-        stats = engine.containerStats(info.id);
-        if (stats != null) {
-            return stats.memoryUsage * 100 / stats.memoryLimit;
-        } else {
-            // not started
-            return 0L;
-        }
     }
 
     /** @return size of the read-write layer, not size of the root file system */

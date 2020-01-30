@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.ImageInfo;
+import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 
@@ -44,6 +45,9 @@ public class Context {
     // CAUTION: key is the container id; with rw
     private final Map<String, JsonObject> containerInspects;
 
+    // CAUTION: key is the container id
+    private final Map<String, Stats> containerStats;
+
     public Context(Engine engine) {
         this.engine = engine;
         this.lazyAllImageMap = null;
@@ -53,6 +57,7 @@ public class Context {
         this.currentOpts = new HashMap<>();
         this.urlMaps = new HashMap<>();
         this.containerInspects = new HashMap<>();
+        this.containerStats = new HashMap<>();
     }
 
     public Map<String, ImageInfo> allImages() throws IOException {
@@ -123,6 +128,17 @@ public class Context {
         if (result == null) {
             result = engine.containerInspect(containerId, true);
             containerInspects.put(containerId, result);
+        }
+        return result;
+    }
+
+    public Stats containerStats(String containerId) throws IOException {
+        Stats result;
+
+        result = containerStats.get(containerId);
+        if (result == null) {
+            result = engine.containerStats(containerId);
+            containerStats.put(containerId, result);
         }
         return result;
     }
