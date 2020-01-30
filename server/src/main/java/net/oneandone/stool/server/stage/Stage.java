@@ -191,15 +191,6 @@ public class Stage {
                 return name;
             }
         });
-        fields.add(new Field("container") {
-            @Override
-            public Object get(Context context) throws IOException {
-                ContainerInfo info;
-
-                info = context.runningContainerOpt(Stage.this);
-                return info == null ? null : info.id;
-            }
-        });
         fields.add(new Field("images") {
             @Override
             public Object get(Context context) throws IOException {
@@ -278,6 +269,15 @@ public class Stage {
     }
 
     private void appFields(List<Field> fields) {
+        fields.add(new Field("container") {
+            @Override
+            public Object get(Context context) throws IOException {
+                ContainerInfo info;
+
+                info = context.runningContainerOpt(Stage.this);
+                return info == null ? null : info.id;
+            }
+        });
         fields.add(new Field("uptime") {
             @Override
             public Object get(Context context) throws IOException {
@@ -320,7 +320,7 @@ public class Stage {
                 Current current;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : heap(context.engine, current);
+                return current == null ? null : heap(context, current);
             }
         });
         fields.add(new Field("origin-scm") {
@@ -378,7 +378,7 @@ public class Stage {
         return result;
     }
 
-    public String heap(Engine engine, Stage.Current current) throws IOException {
+    public String heap(Context context, Stage.Current current) throws IOException {
         JMXServiceURL url;
         MBeanServerConnection connection;
         ObjectName objectName;
@@ -393,7 +393,7 @@ public class Stage {
             return "[no jmx port]";
         }
 
-        url = jmxUrl(engine);
+        url = jmxUrl(context);
         try {
             objectName = new ObjectName("java.lang:type=Memory");
         } catch (MalformedObjectNameException e) {
@@ -1163,11 +1163,11 @@ public class Stage {
 
     //--
 
-    public void awaitStartup(Engine engine) throws IOException {
+    public void awaitStartup(Context context) throws IOException {
         JMXServiceURL url;
         String state;
 
-        url = jmxUrl(engine);
+        url = jmxUrl(context);
         if (url != null) {
             for (int count = 0; true; count++) {
                 try {
@@ -1204,7 +1204,7 @@ public class Stage {
         }
     }
 
-    public JMXServiceURL jmxUrl(Engine engine) throws IOException {
+    public JMXServiceURL jmxUrl(Context context) throws IOException {
         JsonObject inspected;
         JsonObject networks;
         JsonObject network;
@@ -1212,11 +1212,11 @@ public class Stage {
         String jmx;
         ContainerInfo running;
 
-        running = runningContainerOpt(engine);
+        running = context.runningContainerOpt(this);
         if (running == null) {
             return null;
         } else {
-            inspected = engine.containerInspect(running.id, false);
+            inspected = context.engine.containerInspect(running.id, false);
             networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
             if (networks.size() != 1) {
                 throw new IOException("unexpected Networks: " + networks);
