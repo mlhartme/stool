@@ -10,6 +10,7 @@
   * `build` dumped war argument  
   * `attach` with optional path
   * `detach` with list of stages
+  * renamed `-project` option to `-working` and made it available for all stage commands, too
 
 * server
   * moved APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX into client-side configuration; the server no longer looks
@@ -21,7 +22,6 @@
   app url no longer contains app name
   
 * client:
-  * added `-project` option for all stage commands
   * `start` replace appIndex arguments by optional image argument; urls are now named with http and https 
     instead of the app name with an optional SSL.
   * `restart` replaced appIndex arguments by optional image argument 

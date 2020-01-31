@@ -60,13 +60,13 @@ public class MainIT {
 
     @Test
     public void turnaround() throws IOException, InterruptedException {
-        FileNode project;
+        FileNode working;
         String stage;
 
 
-        project = IT_ROOT.join("projects").mkdirsOpt().join("it");
-        System.out.println(project.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", project.getAbsolute()));
-        System.out.println(project.exec("mvn", "clean", "package"));
+        working = IT_ROOT.join("projects").mkdirsOpt().join("it");
+        System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
+        System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
         stool("setup", "-batch", "-local", "PORT_FIRST=" + port, "PORT_LAST=" + (port + 20));
@@ -78,27 +78,27 @@ public class MainIT {
 
         stage = "it@localhost";
 
-        stool(project, "list");
-        stool(project,"create", "-e", stage + "=target/*.war");
-        stool(project,"list");
-        stool(project,"status", "-stage", stage);
-        stool(project, "detach");
-        stool(project, "attach", stage + "=target/*.war");
-        stool(project, "validate", "-stage", stage);
-        stool(project, "config", "-stage", stage, "comment");
-        stool(project, "config", "-stage", stage, "comment=42");
-        stool(project, "build",  "-v");
-        stool(project, "images", "-stage", stage);
-        stool(project, "start", "-v", "-stage", stage);
-        stool(project, "validate", "-stage", stage);
-        stool(project, "status", "-stage", stage);
-        stool(project, "restart", "-v", "-stage", stage);
-        stool(project, "stop", "-v", "-stage", stage);
-        stool(project, "list", "-stage", stage);
-        stool(project, "validate", "-stage", stage);
-        stool(project, "history", "-stage", stage);
-        stool(project, "remove", "-stage", stage, "-batch");
-        project.deleteTree();
+        stool(working, "list");
+        stool(working,"create", "-e", stage + "=target/*.war");
+        stool(working,"list");
+        stool(working,"status", "-stage", stage);
+        stool(working, "detach");
+        stool(working, "attach", stage + "=target/*.war");
+        stool(working, "validate", "-stage", stage);
+        stool(working, "config", "-stage", stage, "comment");
+        stool(working, "config", "-stage", stage, "comment=42");
+        stool(working, "build",  "-v");
+        stool(working, "images", "-stage", stage);
+        stool(working, "start", "-v", "-stage", stage);
+        stool(working, "validate", "-stage", stage);
+        stool(working, "status", "-stage", stage);
+        stool(working, "restart", "-v", "-stage", stage);
+        stool(working, "stop", "-v", "-stage", stage);
+        stool(working, "list", "-stage", stage);
+        stool(working, "validate", "-stage", stage);
+        stool(working, "history", "-stage", stage);
+        stool(working, "remove", "-stage", stage, "-batch");
+        working.deleteTree();
     }
 
     public void server(String ... cmd) throws IOException {
@@ -113,13 +113,13 @@ public class MainIT {
     }
     private static int id = 0;
 
-    private void stool(FileNode project, String... args) throws IOException {
+    private void stool(FileNode working, String... args) throws IOException {
         String[] nested;
 
         nested = new String[2 + args.length];
         nested[0] = args[0];
-        nested[1] = "-project";
-        nested[2] = project.getAbsolute();
+        nested[1] = "-working";
+        nested[2] = working.getAbsolute();
         System.arraycopy(args, 1, nested, 3, args.length - 1);
         stool(nested);
     }

@@ -72,7 +72,7 @@ public class Main {
                        cli.begin("globals.getConsole", "");
                 cli.add(Auth.class, "auth -batch server?");
                 cli.add(Setup.class, "setup -batch -local opts*");
-                cli.base(ClientCommand.class, "-project { setProject(project) }");
+                cli.base(ClientCommand.class, "-working { setWorking(working) }");
                     cli.add(Create.class, "create -optional nameAndServer properties*");
                     cli.add(Build.class, "build -nocache -keep=3 -restart -m= args*");
                     cli.add(Attach.class, "attach stage");

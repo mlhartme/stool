@@ -34,13 +34,13 @@ public abstract class ClientCommand {
     protected final Globals globals;
     protected final World world;
     protected final Console console;
-    protected FileNode projectDirectory;
+    protected FileNode working;
 
     public ClientCommand(Globals globals) {
         this.globals = globals;
         this.world = globals.getWorld();
         this.console = globals.getConsole();
-        this.projectDirectory = globals.getWorld().getWorking();
+        this.working = globals.getWorld().getWorking();
 
         if (!globals.getHome().exists()) {
             throw new ArgumentException("Stool home directory not found: " + globals.getHome().getAbsolute()
@@ -48,8 +48,8 @@ public abstract class ClientCommand {
         }
     }
 
-    public void setProject(FileNode project) {
-        this.projectDirectory = project;
+    public void setWorking(FileNode working) {
+        this.working = working;
     }
 
     public abstract void run() throws Exception;

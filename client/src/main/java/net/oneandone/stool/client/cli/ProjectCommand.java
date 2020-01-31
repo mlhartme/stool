@@ -29,7 +29,7 @@ public abstract class ProjectCommand extends ClientCommand {
 
     @Override
     public void run() throws Exception {
-        doRun(projectDirectory);
+        doRun(working);
     }
 
     public abstract void doRun(FileNode currentProject) throws Exception;
