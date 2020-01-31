@@ -912,8 +912,8 @@ public class Stage {
         return server.templates().join(eat(appProperies, explicit, "_template", "war")).checkDirectory();
     }
 
-    private String app(Properties appProperties, Map<String, String> explitit) {
-        return eat(appProperties, explitit, "_app", "app");
+    private String app(Properties appProperties, Map<String, String> explit) {
+        return eat(appProperties, explit, "_app", "app");
     }
 
     private String eat(Properties appProperties, Map<String, String> explicit, String key, String dflt) {
