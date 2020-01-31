@@ -56,7 +56,7 @@ public class Remove extends IteratedStageCommand {
             console.info.println("detaching stage: " + reference);
         }
         if (project.size() == 0) {
-            project.removeBackstage();
+            project.delete();
         }
     }
 }

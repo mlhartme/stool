@@ -32,18 +32,21 @@ public class Detach extends ProjectCommand {
     }
 
     @Override
-    public void doRun(FileNode project) throws IOException {
-        Project backstage;
+    public void doRun(FileNode directory) throws IOException {
+        Project project;
 
-        backstage = Project.lookup(project);
-        if (backstage == null) {
+        project = Project.lookup(directory);
+        if (project == null) {
             throw new ArgumentException("project is not attached");
         }
         if (stages.isEmpty()) {
-            backstage.removeBackstage();
+            project.delete();
         } else {
             for (String stage : stages) {
-                backstage.remove(reference(stage));
+                project.remove(reference(stage));
+            }
+            if (project.size() == 0) {
+                project.delete();
             }
         }
     }

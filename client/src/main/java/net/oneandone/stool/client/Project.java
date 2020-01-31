@@ -32,6 +32,7 @@ public class Project {
 
         backstage = backstage(project);
         backstage.checkNotExists();
+        backstage.writeProperties(new Properties());
         result = new Project(backstage);
         return result;
     }
@@ -65,22 +66,22 @@ public class Project {
 
     //--
 
+    private final FileNode project;
     private final FileNode backstage;
 
-    private final FileNode project;
-
     private Project(FileNode backstage) {
-        this.backstage = backstage;
         this.project = backstage.getParent();
+        this.backstage = backstage;
+    }
+
+    public int size() throws IOException {
+        return backstage.readProperties().size();
     }
 
     public List<App> list(ServerManager serverManager) throws IOException {
         Properties p;
         List<App> result;
 
-        if (!backstage.exists()) {
-            return null;
-        }
         p = backstage.readProperties();
         result = new ArrayList<>(p.size());
         for (Map.Entry<Object, Object> entry : p.entrySet()) {
@@ -89,14 +90,10 @@ public class Project {
         return result;
     }
 
-    public int size() throws IOException {
-        return backstage.readProperties().size();
-    }
-
     public void add(App app) throws IOException {
         Properties p;
 
-        p = backstage.exists() ? backstage.readProperties() : new Properties();
+        p = backstage.readProperties();
         if (p.put(app.reference.toString(), app.path) != null) {
             throw new IOException("duplicate stage: " + app.reference);
         }
@@ -106,23 +103,16 @@ public class Project {
     public boolean remove(Reference reference) throws IOException {
         Properties p;
 
-        if (!backstage.exists()) {
-            return false;
-        }
         p = backstage.readProperties();
         if (p.remove(reference.toString()) == null) {
             return false;
         }
-        if (p.isEmpty()) {
-            backstage.deleteFile();
-        } else {
-            backstage.writeProperties(p);
-        }
+        backstage.writeProperties(p);
         return true;
     }
 
 
-    public void removeBackstage() throws IOException {
+    public void delete() throws IOException {
         backstage.deleteFile();
     }
 
