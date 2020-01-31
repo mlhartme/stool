@@ -96,7 +96,7 @@ public class Create extends ProjectCommand {
                 throw new ArgumentException("no wars found - did you build your project?");
             }
             for (FileNode war : wars) {
-                add(project, App.app(war) + "." + baseName, war.getRelative(world.getWorking()));
+                add(project, App.app(war) + "." + baseName, war.getRelative(directory));
             }
         }
     }

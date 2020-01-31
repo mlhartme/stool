@@ -84,7 +84,7 @@ public abstract class IteratedStageCommand extends StageCommand {
         Project project;
         List<Reference> result;
 
-        project = Project.lookup(world.getWorking());
+        project = Project.lookup(projectDirectory);
         result = new ArrayList<>();
         if (project != null) {
             for (App app : project.list(serverManager)) {

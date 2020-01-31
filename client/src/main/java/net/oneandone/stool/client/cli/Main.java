@@ -77,7 +77,7 @@ public class Main {
                     cli.add(Build.class, "build -project -nocache -keep=3 -restart -m= args*");
                     cli.add(Attach.class, "attach -project stage");
                     cli.add(Detach.class, "detach -project stage*");
-                    cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
+                    cli.base(StageCommand.class, "-project -stage -all -fail { setProject(project) setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=false -max=-1");
                       cli.add(Images.class, "images");

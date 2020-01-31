@@ -21,6 +21,7 @@
   app url no longer contains app name
   
 * client:
+  * added `-project` option for all stage commands
   * `start` replace appIndex arguments by optional image argument; urls are now named with http and https 
     instead of the app name with an optional SSL.
   * `restart` replaced appIndex arguments by optional image argument 

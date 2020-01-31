@@ -17,16 +17,23 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.List;
 
 public abstract class StageCommand extends ClientCommand {
+    protected FileNode projectDirectory;
     protected String stageClause;
     protected boolean all;
     protected Fail fail = Fail.NORMAL;
 
     public StageCommand(Globals globals) {
         super(globals);
+        this.projectDirectory = globals.getWorld().getWorking();
+    }
+
+    public void setProject(FileNode project) {
+        this.projectDirectory = project;
     }
 
     public void setStage(String clause) {

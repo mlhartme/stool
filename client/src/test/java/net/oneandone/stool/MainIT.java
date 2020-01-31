@@ -84,20 +84,20 @@ public class MainIT {
         stool("status", "-stage", stage);
         stool("detach", "-project", project.getAbsolute());
         stool("attach", "-project", project.getAbsolute(), stage + "=target/*.war");
-        stool("validate", "-stage", stage);
-        stool("config", "-stage", stage, "comment");
-        stool("config", "-stage", stage, "comment=42");
-        stool("build", "-v", "-project=" + project.getAbsolute());
-        stool("images", "-stage", stage);
-        stool("start", "-v", "-stage", stage);
-        stool("validate", "-stage", stage);
-        stool("status", "-stage", stage);
-        stool("restart", "-v", "-stage", stage);
-        stool("stop", "-v",  "-stage", stage);
-        stool("list", "-stage", stage);
-        stool("validate", "-stage", stage);
-        stool("history", "-stage", stage);
-        stool("remove", "-stage", stage, "-batch");
+        stool("validate", "-project", project.getAbsolute(), "-stage", stage);
+        stool("config", "-project", project.getAbsolute(), "-stage", stage, "comment");
+        stool("config", "-project", project.getAbsolute(), "-stage", stage, "comment=42");
+        stool("build", "-project", project.getAbsolute(), "-v");
+        stool("images", "-project", project.getAbsolute(), "-stage", stage);
+        stool("start", "-v", "-project", project.getAbsolute(), "-stage", stage);
+        stool("validate", "-project", project.getAbsolute(), "-stage", stage);
+        stool("status", "-project", project.getAbsolute(), "-stage", stage);
+        stool("restart", "-v", "-project", project.getAbsolute(), "-stage", stage);
+        stool("stop", "-v", "-project", project.getAbsolute(), "-stage", stage);
+        stool("list", "-project", project.getAbsolute(), "-stage", stage);
+        stool("validate", "-project", project.getAbsolute(), "-stage", stage);
+        stool("history", "-project", project.getAbsolute(), "-stage", stage);
+        stool("remove", "-project", project.getAbsolute(), "-stage", stage, "-batch");
         project.deleteTree();
     }
 
