@@ -74,7 +74,7 @@ public class Project {
         this.project = backstage.getParent();
     }
 
-    public List<App> getAttached(ServerManager serverManager) throws IOException {
+    public List<App> list(ServerManager serverManager) throws IOException {
         Properties p;
         List<App> result;
 
@@ -89,7 +89,21 @@ public class Project {
         return result;
     }
 
-    public boolean removeAttached(Reference reference) throws IOException {
+    public int size() throws IOException {
+        return backstage.readProperties().size();
+    }
+
+    public void add(App app) throws IOException {
+        Properties p;
+
+        p = backstage.exists() ? backstage.readProperties() : new Properties();
+        if (p.put(app.reference.toString(), app.path) != null) {
+            throw new IOException("duplicate stage: " + app.reference);
+        }
+        backstage.writeProperties(p);
+    }
+
+    public boolean remove(Reference reference) throws IOException {
         Properties p;
 
         if (!backstage.exists()) {
@@ -107,15 +121,6 @@ public class Project {
         return true;
     }
 
-    public void addAttached(App app) throws IOException {
-        Properties p;
-
-        p = backstage.exists() ? backstage.readProperties() : new Properties();
-        if (p.put(app.reference.toString(), app.path) != null) {
-            throw new IOException("duplicate stage: " + app.reference);
-        }
-        backstage.writeProperties(p);
-    }
 
     public void removeBackstage() throws IOException {
         backstage.deleteFile();

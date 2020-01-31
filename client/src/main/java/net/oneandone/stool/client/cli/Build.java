@@ -72,7 +72,7 @@ public class Build extends ProjectCommand {
         if (project == null) {
             throw new ArgumentException("unknown stage");
         }
-        apps = project.getAttached(globals.servers());
+        apps = project.list(globals.servers());
         if (apps.isEmpty()) {
             throw new IOException("no stages attached to " + projectDirectory);
         }

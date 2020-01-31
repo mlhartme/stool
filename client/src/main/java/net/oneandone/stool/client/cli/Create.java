@@ -120,7 +120,7 @@ public class Create extends ProjectCommand {
             }
         }
         try {
-            project.addAttached(new App(reference, path));
+            project.add(new App(reference, path));
         } catch (IOException e) {
             throw new IOException("failed to attach stage: " + e.getMessage(), e);
         }

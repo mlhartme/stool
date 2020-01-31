@@ -93,7 +93,7 @@ public abstract class InfoCommand extends StageCommand {
         project = Project.lookup(world.getWorking());
         result = new ArrayList<>();
         if (project != null) {
-            for (App app : project.getAttached(serverManager)) {
+            for (App app : project.list(serverManager)) {
                 result.add(app.reference);
             }
         }

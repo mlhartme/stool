@@ -43,7 +43,7 @@ public class Detach extends ProjectCommand {
             backstage.removeBackstage();
         } else {
             for (String stage : stages) {
-                backstage.removeAttached(reference(stage));
+                backstage.remove(reference(stage));
             }
         }
     }

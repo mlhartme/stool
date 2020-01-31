@@ -43,27 +43,27 @@ public class Attach extends ProjectCommand {
     }
 
     @Override
-    public void doRun(FileNode project) throws Exception {
-        Project backstage;
+    public void doRun(FileNode projectDirectory) throws Exception {
+        Project project;
         List<FileNode> wars;
         String nameAndServer;
 
-        backstage = Project.lookup(project);
-        if (backstage == null) {
-            backstage = Project.create(project);
+        project = Project.lookup(projectDirectory);
+        if (project == null) {
+            project = Project.create(projectDirectory);
         }
         if (pathOpt == null) {
-            wars = backstage.wars();
+            wars = project.wars();
             if (wars.isEmpty()) {
                 throw new ArgumentException("no wars found - did you build your project?");
             }
             for (FileNode war : wars) {
                 nameAndServer = App.app(war) + "." + stage;
-                backstage.addAttached(new App(reference(nameAndServer), war.getRelative(project)));
+                project.add(new App(reference(nameAndServer), war.getRelative(projectDirectory)));
             }
         } else {
-            project.findOne(pathOpt);
-            backstage.addAttached(new App(reference(stage), pathOpt));
+            projectDirectory.findOne(pathOpt);
+            project.add(new App(reference(stage), pathOpt));
         }
     }
 }
