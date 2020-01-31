@@ -43,14 +43,14 @@ public class Attach extends ProjectCommand {
     }
 
     @Override
-    public void doRun(FileNode projectDirectory) throws Exception {
+    public void doRun(FileNode directory) throws Exception {
         Project project;
         List<FileNode> wars;
         String nameAndServer;
 
-        project = Project.lookup(projectDirectory);
+        project = Project.lookup(directory);
         if (project == null) {
-            project = Project.create(projectDirectory);
+            project = Project.create(directory);
         }
         if (pathOpt == null) {
             wars = project.wars();
@@ -59,10 +59,10 @@ public class Attach extends ProjectCommand {
             }
             for (FileNode war : wars) {
                 nameAndServer = App.app(war) + "." + stage;
-                project.add(new App(reference(nameAndServer), war.getRelative(projectDirectory)));
+                project.add(new App(reference(nameAndServer), war.getRelative(directory)));
             }
         } else {
-            projectDirectory.findOne(pathOpt);
+            directory.findOne(pathOpt);
             project.add(new App(reference(stage), pathOpt));
         }
     }

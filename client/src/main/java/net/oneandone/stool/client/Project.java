@@ -66,11 +66,11 @@ public class Project {
 
     //--
 
-    private final FileNode project;
+    private final FileNode directory;
     private final FileNode backstage;
 
     private Project(FileNode backstage) {
-        this.project = backstage.getParent();
+        this.directory = backstage.getParent();
         this.backstage = backstage;
     }
 
@@ -121,7 +121,7 @@ public class Project {
     public String getOriginOrUnknown() throws IOException {
         FileNode dir;
 
-        dir = project;
+        dir = directory;
         do {
             if (dir.join(".svn").isDirectory()) {
                 return "svn:" + svnCheckoutUrl(dir);
@@ -180,21 +180,21 @@ public class Project {
 
     @Override
     public String toString() {
-        return project.getAbsolute();
+        return directory.getAbsolute();
     }
 
     //--
 
-    protected void addWars(FileNode directory, List<FileNode> result) throws IOException {
+    protected static void addWars(FileNode current, List<FileNode> result) throws IOException {
         List<FileNode> files;
         List<FileNode> wars;
 
-        files = directory.list();
+        files = current.list();
         if (!hasPom(files)) {
             return;
         }
 
-        wars = directory.find("target/*.war");
+        wars = current.find("target/*.war");
         switch (wars.size()) {
             case 0:
                 // do nothing
@@ -203,7 +203,7 @@ public class Project {
                 result.add(wars.get(0));
                 break;
             default:
-                throw new IOException(directory + ": wars ambiguous: " + wars);
+                throw new IOException(current + ": wars ambiguous: " + wars);
         }
         for (FileNode file : files) {
             if (file.isDirectory()) {
@@ -229,7 +229,7 @@ public class Project {
     public List<FileNode> wars() throws IOException {
         if (lazyWars == null) {
             lazyWars = new ArrayList<>();
-            addWars(project, lazyWars);
+            addWars(directory, lazyWars);
         }
         return lazyWars;
     }

@@ -78,17 +78,17 @@ public class Create extends ProjectCommand {
     }
 
     @Override
-    public void doRun(FileNode projectDirectory) throws IOException {
+    public void doRun(FileNode directory) throws IOException {
         Project project;
         List<FileNode> wars;
 
-        project = Project.lookup(projectDirectory);
+        project = Project.lookup(directory);
         if (project != null) {
             throw new ArgumentException("project already has a stage; detach it first");
         }
-        project = Project.create(projectDirectory);
+        project = Project.create(directory);
         if (pathOpt != null) {
-            projectDirectory.findOne(pathOpt);
+            directory.findOne(pathOpt);
             add(project, baseName, pathOpt);
         } else {
             wars = project.wars();

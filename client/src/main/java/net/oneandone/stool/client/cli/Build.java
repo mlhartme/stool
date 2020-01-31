@@ -61,23 +61,23 @@ public class Build extends ProjectCommand {
     }
 
     @Override
-    public void doRun(FileNode projectDirectory) throws Exception {
+    public void doRun(FileNode directory) throws Exception {
         Project project;
         List<App> apps;
         FileNode war;
         BuildResult result;
         long started;
 
-        project = Project.lookup(projectDirectory);
+        project = Project.lookup(directory);
         if (project == null) {
-            throw new ArgumentException("unknown stage");
+            throw new ArgumentException("unknown project");
         }
         apps = project.list(globals.servers());
         if (apps.isEmpty()) {
-            throw new IOException("no stages attached to " + projectDirectory);
+            throw new IOException("no apps to build in project " + directory);
         }
         for (App app : apps) {
-            war = projectDirectory.findOne(app.path);
+            war = directory.findOne(app.path);
             started = System.currentTimeMillis();
             console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
             result = app.reference.client.build(app.reference.stage, war,
