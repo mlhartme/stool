@@ -23,16 +23,13 @@ import java.io.IOException;
 import java.util.List;
 
 public abstract class ProjectCommand extends ClientCommand {
-    private final FileNode project;
-
-    public ProjectCommand(Globals globals, FileNode explicitProject) {
+    public ProjectCommand(Globals globals) {
         super(globals);
-        this.project = explicitProject == null ? world.getWorking() : explicitProject;
     }
 
     @Override
     public void run() throws Exception {
-        doRun(project);
+        doRun(projectDirectory);
     }
 
     public abstract void doRun(FileNode currentProject) throws Exception;

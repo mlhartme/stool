@@ -34,16 +34,22 @@ public abstract class ClientCommand {
     protected final Globals globals;
     protected final World world;
     protected final Console console;
+    protected FileNode projectDirectory;
 
     public ClientCommand(Globals globals) {
         this.globals = globals;
         this.world = globals.getWorld();
         this.console = globals.getConsole();
+        this.projectDirectory = globals.getWorld().getWorking();
 
         if (!globals.getHome().exists()) {
             throw new ArgumentException("Stool home directory not found: " + globals.getHome().getAbsolute()
                     + "\nRun 'stool setup' to create it.");
         }
+    }
+
+    public void setProject(FileNode project) {
+        this.projectDirectory = project;
     }
 
     public abstract void run() throws Exception;

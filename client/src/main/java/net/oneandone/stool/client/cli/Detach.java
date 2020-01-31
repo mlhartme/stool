@@ -26,8 +26,8 @@ import java.util.List;
 public class Detach extends ProjectCommand {
     private final List<String> stages;
 
-    public Detach(Globals globals, FileNode project, List<String> stages) {
-        super(globals, project);
+    public Detach(Globals globals, List<String> stages) {
+        super(globals);
         this.stages = stages;
     }
 

@@ -36,8 +36,8 @@ public class Build extends ProjectCommand {
     private final String comment;
     private final Map<String, String> arguments;
 
-    public Build(Globals globals, FileNode project, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
-        super(globals, project);
+    public Build(Globals globals, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
+        super(globals);
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;

@@ -36,8 +36,8 @@ public class Create extends ProjectCommand {
     private final String pathOpt;
     private final Map<String, String> config;
 
-    public Create(Globals globals, FileNode project, boolean optional, String nameAndServer, List<String> args) {
-        super(globals, project);
+    public Create(Globals globals, boolean optional, String nameAndServer, List<String> args) {
+        super(globals);
 
         int idx;
 

@@ -27,8 +27,8 @@ public class Attach extends ProjectCommand {
     private final String stage;
     private final String pathOpt;
 
-    public Attach(Globals globals, FileNode project, String stage) {
-        super(globals, project);
+    public Attach(Globals globals, String stage) {
+        super(globals);
 
         int idx;
 

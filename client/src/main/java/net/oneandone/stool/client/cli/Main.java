@@ -72,12 +72,12 @@ public class Main {
                        cli.begin("globals.getConsole", "");
                 cli.add(Auth.class, "auth -batch server?");
                 cli.add(Setup.class, "setup -batch -local opts*");
-                cli.base(ClientCommand.class, "");
-                    cli.add(Create.class, "create -project -optional nameAndServer properties*");
-                    cli.add(Build.class, "build -project -nocache -keep=3 -restart -m= args*");
-                    cli.add(Attach.class, "attach -project stage");
-                    cli.add(Detach.class, "detach -project stage*");
-                    cli.base(StageCommand.class, "-project -stage -all -fail { setProject(project) setStage(stage) setAll(all) setFail(fail) }");
+                cli.base(ClientCommand.class, "-project { setProject(project) }");
+                    cli.add(Create.class, "create -optional nameAndServer properties*");
+                    cli.add(Build.class, "build -nocache -keep=3 -restart -m= args*");
+                    cli.add(Attach.class, "attach stage");
+                    cli.add(Detach.class, "detach stage*");
+                    cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=false -max=-1");
                       cli.add(Images.class, "images");
