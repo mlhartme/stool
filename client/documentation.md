@@ -2,15 +2,15 @@
 
 ## Introduction
 
-Stool is a tool to manage stages: create, build, start, stop, remove. A stage is a set of Web applications (aka apps).
+Stool is a tool to manage stages: create, build, start, stop, remove. A stage is a set of docker images containing Web applications.
 
 ### Quick Tour
 
 For setup instructions, please read the respective section below. The following assumes that Stool is properly set up.
 
-Here's an example, what you can do with Stool. 
+Here's an example what you can do with Stool. 
 
-Enter a project directory with a readily built Web application of yours - or get a sample application with
+Enter a source directory with a readily built Web application of yours - or get a sample application with
 
     git clone ssh://git@github.com/mlhartme/hellowar.git hellowar
     cd hellowar
@@ -20,7 +20,7 @@ Create a new stage with
 
     stool create hello@localhost
 
-and build and image with
+and build an image with
 
     stool build
     
@@ -34,7 +34,7 @@ You can run
 
     stool status
 
-to see if your application is running and to see the application urls.
+to see if your stage is running and to see the stage urls.
 
 To remove the stage, stop the application with
 
@@ -71,7 +71,7 @@ prints help about `create`.
 
 * Stool is written with a capital S
 * `type writer font` marks things to type or technical terms from Stool.
-* italics mark *text* to be replaced by the user
+* *italics* mark text to be replaced by the user
 * bold face highlights term in definition lists
 * synopsis syntax: `[]` for optional, `|` for alternatives, `...` for repeatable, `type writer` for literals, *italics* for replaceables)
 * $PROJECT denotes the project directory currently used 
@@ -79,58 +79,51 @@ prints help about `create`.
 
 ## Concepts
 
-### Project
-
-A project is a directory (tree) holding source code you can build. The current working directory implies a current project. Various Stool
-commands - in particular: `build` - use the current project (e.g. to locate war files).
-
-In most cases, the current project has a stage attached. 
-
-You can specify the current project with the `-project` command line option; if not specified the current directory and its parent 
-directories are searched for a `.backstage` directory. If successful, that's the project; otherwise, the current directory is the project 
-(without stage attached).
-
-Projects can optionally have a `.backstage` file. If this file exists, it defines the attached stage; otherwise, the 
-project has no attached stage. The backstage file is created when you create a stage, it's created or modified by the `attach` command,
-and it's removed by `detach`. 
-
 ### Stage
 
-A stage is a set of apps, where each app is Web Application, something you can point your browser to. Typically, that's a Tomcat servlet 
-container (http://tomcat.apache.org) with a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). Apps are stored as images, 
-and you can have different images for different versions of the app. Technically, any image is a Docker image, and starting an app creates 
-the respective Docker container.
+A stage is a set of Docker images, where each image holds a Web Application, something you can point your browser to. Typically, that's a 
+Tomcat servlet container (http://tomcat.apache.org) with a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). Different 
+images can hold different versions of your Web Application. Starting starting a stage creates the respective Docker container.
 
-A stage is hosted on a server. Every stage name unique on that machine. A stage is referenced by *name*`@`*server*. The attached stage is 
-shown in your shell prompt, and it's part of the application url(s). Stage name and server are defined when you create a stage, you cannot 
-change it later.
-
-
-### App
-
-A set of docker images with the same name but different tags. If you use Stool to build stages, the tag is simply a number, that's incremented
-with every build.
+A stage is hosted on a server. Every stage has a unique name on that server. A stage is referenced by *name*`@`*server*. The stages attached 
+to a project are shown in your shell prompt. The stage name is part of the application url(s). Stage name and server are defined when you 
+create a stage, you cannot change it later.
 
 ### Image
 
-A Docker image with various label. TODO
+A Docker image with various label. 
 
 * **origin**
   Specifies where the image came from, e.g. a Subversion URL or a git url, Maven like
       git:ssh://git@github.com/mlhartme/hellowar.git
       svn:https://github.com/mlhartme/hellowar/trunk
 
+If you use Stool to build stages, the Docker tag of an image is simply a number, that's incremented with every build.
 
-### Attached stage and stage indicator
+### Project
 
-The attached stage associated with the current project. Unless otherwise specified, stage commands operate on the attached stage.
+A project is a directory (tree) holding source code you can build. In addition, the project has a list of applications, whhere each application
+map a stage to a war file. Various Stool commands are project command that operate on project. E.g., `build` builds images for all applications
+in the current project.
 
-The stage indicator `{somestage@server}` is displayed in front of your shell prompt. It shows the name of the attached stage and the server
-hosting it.
+Technically, a project is a directory containing a `.backstage` file. This file lists the contained applications. The backstage file is 
+created by `create` or `attach`, it is removed by `detach` or `remove`. 
 
-If you create a new stage, Stool attaches the current project to the newly created stage. If you `cd` into a different project, the
+The current project used by a project command is specified either explicitly by the `-project` *directory* command line option. If not 
+specified, the current project is located by searching the current directory and its parent directories for a `.backstage` directory. 
+If successful, that's the current project; otherwise, there's no current project.
+
+
+### Attached stages and stage indicator
+
+The attached stages of the current project are the stages referenced in the projects applications. Unless otherwise specified, stage 
+commands operate on the attached stages.
+
+The stage indicator `{somestage@server}` is displayed in front of your shell prompt. It shows the attached stages (stage name and server).
+
+If you create a new stage, Stool creates a new project and attaches to the newly created stage(s). If you `cd` into a different project, the
 stage indicator changes accordingly. You can explicitly change the attached stage with `stool attach` and `stool detach`. The stage indicator 
-is invisible if the current project has no stage attached.
+is invisible if you have no current project.
 
 
 ### Properties
@@ -272,8 +265,6 @@ The following environment variables can be used to configure Stool server in `$S
 * **ADMIN** 
   Email of the person to receive validation failures and exception mails. Empty to disable these emails.
   Type string, default empty. Example: `Max Mustermann <max@mustermann.org>`.
-* **APP_PROPERTIES_FILE** and **APP_PROPERTIES_PREFIX** 
-  Where in a war file to locate the properties file that defines build arguments.
 * **AUTO_REMOVE**
   Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1. 
 * **DISK_QUOTA**
