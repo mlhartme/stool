@@ -65,7 +65,7 @@ public abstract class InfoCommand extends StageCommand {
         } else {
             references = projectReferences(serverManager);
             if (references.isEmpty()) {
-                for (Client client : serverManager.connectMatching(null)) {
+                for (Client client : serverManager.connectMatching("")) {
                     clientFilters.put(client, "");
                 }
             } else {

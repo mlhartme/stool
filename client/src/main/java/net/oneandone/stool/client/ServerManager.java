@@ -88,6 +88,10 @@ public class ServerManager {
         return result;
     }
 
+    /**
+     * @param filter may be null
+     * @return may be null
+     */
     public String serverFilter(String filter) {
         int idx;
 
@@ -99,6 +103,10 @@ public class ServerManager {
         }
     }
 
+    /**
+     * @param filter may be null
+     * @return never null
+     */
     public String clientFilter(String filter) {
         int idx;
 
@@ -110,6 +118,7 @@ public class ServerManager {
         }
     }
 
+    /** @param serverFilter never null */
     public List<Client> connectMatching(String serverFilter) throws IOException {
         List<Client> result;
 
