@@ -80,8 +80,8 @@ public class Build extends ProjectCommand {
             war = projectDirectory.findOne(app.path);
             started = System.currentTimeMillis();
             console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
-            result = app.reference.client.build(app.reference.stage, war, App.PROPERTIES_FILE, app.PROPERTIES_PREFIX,
-                    comment, project.getOriginOrUnknown(), createdOn(), noCache, keep, arguments);
+            result = app.reference.client.build(app.reference.stage, war,
+                    comment, project.getOriginOrUnknown(), createdOn(), noCache, keep, app.arguments(war, arguments));
             if (result.error != null) {
                 console.info.println("build failed: " + result.error);
                 console.info.println("build output");

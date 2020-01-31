@@ -35,7 +35,6 @@ import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.MkdirException;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
@@ -69,7 +68,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -623,34 +621,27 @@ public class Stage {
 
     /**
      * @param keep 0 to keep all  */
-    @SuppressWarnings("checkstyle:ParameterNumber")
-    public BuildResult buildandEatWar(Engine engine, FileNode war, String propertiesFile, String propertiesPrefix,
-                                      String comment, String originScm,
+    public BuildResult buildandEatWar(Engine engine, FileNode war, String comment, String originScm,
                                       String originUser, String createdBy, boolean noCache, int keep,
-                                      Map<String, String> explicitArguments) throws Exception {
+                                      Map<String, String> arguments) throws Exception {
         int tag;
         String image;
         String repositoryTag;
         FileNode context;
         Map<String, String> labels;
-        Properties appProperties;
         FileNode template;
         Map<String, BuildArgument> defaults;
         Map<String, String> buildArgs;
         StringWriter output;
         String str;
 
-        appProperties = properties(war, propertiesFile, propertiesPrefix);
-        template = template(appProperties, explicitArguments);
-
-        // TODO: result is currently unused - this is just to avoid error messages for _app
-        app(appProperties, explicitArguments);
+        template = template(arguments);
         tag = wipeOldImages(engine, keep - 1);
         context = createContextEatWar(war);  // this is where concurrent builds are blocked
         try {
             repositoryTag = this.server.configuration.registryNamespace + "/" + name + ":" + tag;
             defaults = BuildArgument.scan(template.join("Dockerfile"));
-            buildArgs = buildArgs(defaults, appProperties, explicitArguments);
+            buildArgs = buildArgs(defaults, arguments);
             populateContext(context, template);
             labels = new HashMap<>();
             labels.put(IMAGE_LABEL_COMMENT, comment);
@@ -890,45 +881,18 @@ public class Stage {
         }
     }
 
-    private Properties properties(FileNode war, String propertiesFile, String propertiesPrefix) throws IOException {
-        Node<?> node;
-        Properties all;
-        Properties result;
-
-        node = war.openZip().join(propertiesFile);
-        result = new Properties();
-        if (node.exists()) {
-            all = node.readProperties();
-            for (String property : all.stringPropertyNames()) {
-                if (property.startsWith(propertiesPrefix)) {
-                    result.setProperty(property.substring(propertiesPrefix.length()), all.getProperty(property));
-                }
-            }
-        }
-        return result;
+    private FileNode template(Map<String, String> arguments) throws IOException {
+        return server.templates().join(eat(arguments, "_template", "war")).checkDirectory();
     }
 
-    private FileNode template(Properties appProperies, Map<String, String> explicit) throws IOException {
-        return server.templates().join(eat(appProperies, explicit, "_template", "war")).checkDirectory();
-    }
-
-    private String app(Properties appProperties, Map<String, String> explit) {
-        return eat(appProperties, explit, "_app", "app");
-    }
-
-    private String eat(Properties appProperties, Map<String, String> explicit, String key, String dflt) {
-        Object appValue;
+    private String eat(Map<String, String> arguments, String key, String dflt) {
         String explicitValue;
 
-        explicitValue = explicit.remove(key);
-        appValue = appProperties.remove(key);
-        if (explicitValue != null) {
-            return explicitValue;
-        }
-        return appValue == null ? dflt : appValue.toString();
+        explicitValue = arguments.remove(key);
+        return explicitValue != null ? explicitValue : dflt;
     }
 
-    private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Properties appProperties, Map<String, String> explicit) {
+    private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Map<String, String> arguments) {
         Map<String, String> result;
         String property;
 
@@ -936,15 +900,7 @@ public class Stage {
         for (BuildArgument arg : defaults.values()) {
             result.put(arg.name, arg.dflt);
         }
-        for (Map.Entry<Object, Object> entry : appProperties.entrySet()) {
-            property = entry.getKey().toString();
-            if (!result.containsKey(property)) {
-                throw new ArgumentException("unknown build argument in stool.properties: "
-                        + property + "\n" + available(defaults.values()));
-            }
-            result.put(property, entry.getValue().toString());
-        }
-        for (Map.Entry<String, String> entry : explicit.entrySet()) {
+        for (Map.Entry<String, String> entry : arguments.entrySet()) {
             property = entry.getKey();
             if (!result.containsKey(property)) {
                 throw new ArgumentException("unknown explicit build argument: " + property + "\n" + available(defaults.values()));

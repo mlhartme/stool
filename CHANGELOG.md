@@ -12,8 +12,8 @@
   * `detach` with list of stages
 
 * server
-  * moved APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX into client-side configuration
-  * `build` now has propertiesFile and propertiesPrefix arguments
+  * moved APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX into client-side configuration; the server no longer looks
+    into the war file
 
 --
 

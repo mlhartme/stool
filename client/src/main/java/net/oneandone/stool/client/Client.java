@@ -162,9 +162,7 @@ public class Client {
         postEmpty(node, "");
     }
 
-    @SuppressWarnings("checkstyle:ParameterNumber")
-    public BuildResult build(String stage, FileNode war, String propertiesFile, String propertiesPrefix,
-                             String comment, String originScm, String originUser, boolean noCache, int keep,
+    public BuildResult build(String stage, FileNode war, String comment, String originScm, String originUser, boolean noCache, int keep,
                              Map<String, String> arguments) throws Exception {
         HttpNode node;
         JsonObject obj;
@@ -172,8 +170,6 @@ public class Client {
 
         node = node(stage, "build");
         node = node.withParameter("war", war.getAbsolute());
-        node = node.withParameter("propertiesFile", propertiesFile);
-        node = node.withParameter("propertiesPrefix", propertiesPrefix);
         node = node.withParameter("comment", comment);
         node = node.withParameter("origin-scm", originScm);
         node = node.withParameter("origin-user", originUser);

@@ -19,12 +19,16 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class App {
     // TODO: per app configurable ...
     public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/stool.properties";
     public static final String PROPERTIES_PREFIX = "";
+
+    private static final String APP_ARGUMENT = "_app";
 
     public final Reference reference;
     public final String path;
@@ -35,24 +39,36 @@ public class App {
     }
 
     public static String app(FileNode war) throws IOException {
-        return properties(war).getProperty("app", "app");
+        String result;
+
+        result = properties(war).get(APP_ARGUMENT);
+        return result == null ? "app": result;
     }
 
-    public static Properties properties(FileNode war) throws IOException {
+    public static Map<String, String> properties(FileNode war) throws IOException {
         Node<?> node;
         Properties all;
-        Properties result;
+        Map<String, String> result;
 
         node = war.openZip().join(PROPERTIES_FILE);
-        result = new Properties();
+        result = new HashMap<>();
         if (node.exists()) {
             all = node.readProperties();
             for (String property : all.stringPropertyNames()) {
                 if (property.startsWith(PROPERTIES_PREFIX)) {
-                    result.setProperty(property.substring(PROPERTIES_PREFIX.length()), all.getProperty(property));
+                    result.put(property.substring(PROPERTIES_PREFIX.length()), all.getProperty(property));
                 }
             }
         }
+        return result;
+    }
+
+    public Map<String, String> arguments(FileNode war, Map<String, String> explicit) throws IOException {
+        Map<String, String> result;
+
+        result = properties(war);
+        result.putAll(explicit);
+        result.remove(APP_ARGUMENT);
         return result;
     }
 }
