@@ -15,12 +15,44 @@
  */
 package net.oneandone.stool.client;
 
+import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.file.FileNode;
+
+import java.io.IOException;
+import java.util.Properties;
+
 public class App {
+    // TODO: per app configurable ...
+    public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/stool.properties";
+    public static final String PROPERTIES_PREFIX = "";
+
     public final Reference reference;
     public final String path;
 
     public App(Reference reference, String path) {
         this.reference = reference;
         this.path = path;
+    }
+
+    public static String app(FileNode war) throws IOException {
+        return properties(war).getProperty("app", "app");
+    }
+
+    public static Properties properties(FileNode war) throws IOException {
+        Node<?> node;
+        Properties all;
+        Properties result;
+
+        node = war.openZip().join(PROPERTIES_FILE);
+        result = new Properties();
+        if (node.exists()) {
+            all = node.readProperties();
+            for (String property : all.stringPropertyNames()) {
+                if (property.startsWith(PROPERTIES_PREFIX)) {
+                    result.setProperty(property.substring(PROPERTIES_PREFIX.length()), all.getProperty(property));
+                }
+            }
+        }
+        return result;
     }
 }

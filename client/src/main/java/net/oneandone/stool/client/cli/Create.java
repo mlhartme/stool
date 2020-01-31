@@ -21,7 +21,6 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -29,7 +28,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public class Create extends ProjectCommand {
     private final boolean optional;
@@ -98,7 +96,7 @@ public class Create extends ProjectCommand {
                 throw new ArgumentException("no wars found - did you build your project?");
             }
             for (FileNode war : wars) {
-                add(project, app(war) + "." + baseName, war.getRelative(world.getWorking()));
+                add(project, App.app(war) + "." + baseName, war.getRelative(world.getWorking()));
             }
         }
     }
@@ -129,29 +127,6 @@ public class Create extends ProjectCommand {
 
     }
 
-    public static String app(FileNode war) throws IOException {
-        return properties(war).getProperty("app", "app");
-    }
-
-    private static Properties properties(FileNode war) throws IOException {
-        Node<?> node;
-        Properties all;
-        Properties result;
-        String prefix;
-
-        prefix = ""; // TODO
-        node = war.openZip().join("WEB-INF/classes/META-INF/stool.properties"); // TODO
-        result = new Properties();
-        if (node.exists()) {
-            all = node.readProperties();
-            for (String property : all.stringPropertyNames()) {
-                if (property.startsWith(prefix)) {
-                    result.setProperty(property.substring(prefix.length()), all.getProperty(property));
-                }
-            }
-        }
-        return result;
-    }
     //-- stage name
 
     /**

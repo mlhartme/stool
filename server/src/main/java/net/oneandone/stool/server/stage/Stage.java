@@ -623,7 +623,9 @@ public class Stage {
 
     /**
      * @param keep 0 to keep all  */
-    public BuildResult buildandEatWar(Engine engine, FileNode war, String comment, String originScm,
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    public BuildResult buildandEatWar(Engine engine, FileNode war, String propertiesFile, String propertiesPrefix,
+                                      String comment, String originScm,
                                       String originUser, String createdBy, boolean noCache, int keep,
                                       Map<String, String> explicitArguments) throws Exception {
         int tag;
@@ -638,7 +640,7 @@ public class Stage {
         StringWriter output;
         String str;
 
-        appProperties = properties(war);
+        appProperties = properties(war, propertiesFile, propertiesPrefix);
         template = template(appProperties, explicitArguments);
 
         // TODO: result is currently unused - this is just to avoid error messages for _app
@@ -888,20 +890,18 @@ public class Stage {
         }
     }
 
-    private Properties properties(FileNode war) throws IOException {
+    private Properties properties(FileNode war, String propertiesFile, String propertiesPrefix) throws IOException {
         Node<?> node;
         Properties all;
         Properties result;
-        String prefix;
 
-        prefix = server.configuration.appPropertiesPrefix;
-        node = war.openZip().join(server.configuration.appPropertiesFile);
+        node = war.openZip().join(propertiesFile);
         result = new Properties();
         if (node.exists()) {
             all = node.readProperties();
             for (String property : all.stringPropertyNames()) {
-                if (property.startsWith(prefix)) {
-                    result.setProperty(property.substring(prefix.length()), all.getProperty(property));
+                if (property.startsWith(propertiesPrefix)) {
+                    result.setProperty(property.substring(propertiesPrefix.length()), all.getProperty(property));
                 }
             }
         }

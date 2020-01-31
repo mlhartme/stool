@@ -58,7 +58,7 @@ public class Attach extends ProjectCommand {
                 throw new ArgumentException("no wars found - did you build your project?");
             }
             for (FileNode war : wars) {
-                nameAndServer = Create.app(war) + "." + stage;
+                nameAndServer = App.app(war) + "." + stage;
                 backstage.addAttached(new App(reference(nameAndServer), war.getRelative(project)));
             }
         } else {

@@ -94,10 +94,6 @@ public class ServerConfiguration {
 
     public int diskQuota;
 
-    public String appPropertiesFile;
-
-    public String appPropertiesPrefix;
-
     public String jmxUsage;
 
     public boolean engineLog;
@@ -126,8 +122,6 @@ public class ServerConfiguration {
         mailPassword = "";
         memoryQuota = 0;
         diskQuota = 0;
-        appPropertiesFile = "WEB-INF/classes/META-INF/stool.properties";
-        appPropertiesPrefix = "";
         jmxUsage = "jconsole localhost:%i";
         engineLog = false;
         defaultExpire = 0;

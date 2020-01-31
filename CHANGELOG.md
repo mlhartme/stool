@@ -10,7 +10,11 @@
   * `build` dumped war argument  
   * `attach` with optional path
   * `detach` with list of stages
-  
+
+* server
+  * moved APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX into client-side configuration
+  * `build` now has propertiesFile and propertiesPrefix arguments
+
 --
 
 * one app per stage; the _app argument is now ignored, the app is always called `app`;

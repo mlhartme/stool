@@ -198,8 +198,11 @@ public class ApiController {
         stage.saveConfig();
     }
 
+    @SuppressWarnings("checkstyle:ParameterNumber")
     @PostMapping("/stages/{stage}/build")
     public String build(@PathVariable("stage") String stage,
+                        @RequestParam("propertiesFile") String propertiesFile,
+                        @RequestParam("propertiesPrefix") String propertiesPrefix,
                         @RequestParam("comment") String comment,
                         @RequestParam("origin-scm") String originScm,
                         @RequestParam("origin-user") String originUser, @RequestParam("no-cache") boolean noCache,
@@ -214,7 +217,8 @@ public class ApiController {
         try (Engine engine = engine()) {
             war = engine.world.getTemp().createTempFile();
             war.copyFileFrom(body);
-            result = server.load(stage).buildandEatWar(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login, noCache, keep, arguments);
+            result = server.load(stage).buildandEatWar(engine, war, propertiesFile, propertiesPrefix,
+                    comment, originScm, originUser, User.authenticatedOrAnonymous().login, noCache, keep, arguments);
             return buildResult(result.tag, null, result.output).toString();
         } catch (BuildError e) {
             return buildResult(Image.version(e.repositoryTag), e.error, e.output).toString();
