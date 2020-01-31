@@ -78,26 +78,26 @@ public class MainIT {
 
         stage = "it@localhost";
 
-        stool("list");
-        stool("create", "-e", "-project", project.getAbsolute(), stage + "=target/*.war");
-        stool("list");
-        stool("status", "-stage", stage);
-        stool("detach", "-project", project.getAbsolute());
-        stool("attach", "-project", project.getAbsolute(), stage + "=target/*.war");
-        stool("validate", "-project", project.getAbsolute(), "-stage", stage);
-        stool("config", "-project", project.getAbsolute(), "-stage", stage, "comment");
-        stool("config", "-project", project.getAbsolute(), "-stage", stage, "comment=42");
-        stool("build", "-project", project.getAbsolute(), "-v");
-        stool("images", "-project", project.getAbsolute(), "-stage", stage);
-        stool("start", "-v", "-project", project.getAbsolute(), "-stage", stage);
-        stool("validate", "-project", project.getAbsolute(), "-stage", stage);
-        stool("status", "-project", project.getAbsolute(), "-stage", stage);
-        stool("restart", "-v", "-project", project.getAbsolute(), "-stage", stage);
-        stool("stop", "-v", "-project", project.getAbsolute(), "-stage", stage);
-        stool("list", "-project", project.getAbsolute(), "-stage", stage);
-        stool("validate", "-project", project.getAbsolute(), "-stage", stage);
-        stool("history", "-project", project.getAbsolute(), "-stage", stage);
-        stool("remove", "-project", project.getAbsolute(), "-stage", stage, "-batch");
+        stool(project, "list");
+        stool(project,"create", "-e", stage + "=target/*.war");
+        stool(project,"list");
+        stool(project,"status", "-stage", stage);
+        stool(project, "detach");
+        stool(project, "attach", stage + "=target/*.war");
+        stool(project, "validate", "-stage", stage);
+        stool(project, "config", "-stage", stage, "comment");
+        stool(project, "config", "-stage", stage, "comment=42");
+        stool(project, "build",  "-v");
+        stool(project, "images", "-stage", stage);
+        stool(project, "start", "-v", "-stage", stage);
+        stool(project, "validate", "-stage", stage);
+        stool(project, "status", "-stage", stage);
+        stool(project, "restart", "-v", "-stage", stage);
+        stool(project, "stop", "-v", "-stage", stage);
+        stool(project, "list", "-stage", stage);
+        stool(project, "validate", "-stage", stage);
+        stool(project, "history", "-stage", stage);
+        stool(project, "remove", "-stage", stage, "-batch");
         project.deleteTree();
     }
 
@@ -113,6 +113,16 @@ public class MainIT {
     }
     private static int id = 0;
 
+    private void stool(FileNode project, String... args) throws IOException {
+        String[] nested;
+
+        nested = new String[2 + args.length];
+        nested[0] = args[0];
+        nested[1] = "-project";
+        nested[2] = project.getAbsolute();
+        System.arraycopy(args, 1, nested, 3, args.length - 1);
+        stool(nested);
+    }
     private void stool(String... args) throws IOException {
         int result;
         String command;
