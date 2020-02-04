@@ -20,6 +20,12 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>io.kubernetes</groupId>
+      <artifactId>client-java</artifactId>
+      <version>7.0.0</version>
+    </dependency>
+
     <!-- spring core -->
     <dependency>
       <groupId>org.springframework</groupId>
