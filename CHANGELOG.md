@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 5.1.0 (pending)
+### 5.1.0 (2020-02-04)
 
 dashboard
 * performance improvements by using the new  `api/stages` call
