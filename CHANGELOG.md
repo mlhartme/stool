@@ -1,5 +1,12 @@
 ## Changelog 
 
+### 5.1.1 (pending)
+
+client 
+* added -network argument to make the server network configurable
+* fixed integration tests to automatically create and remove a network (thanks to Stephan M)
+
+
 ### 5.1.0 (2020-02-04)
 
 dashboard
