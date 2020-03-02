@@ -20,6 +20,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ public class MainIT {
     private static final FileNode IT_ROOT;
     private static final FileNode HOME;
 
+    private static final String NETWORK = "stool-it";
     static {
         try {
             WORLD = Main.world();
@@ -56,6 +58,11 @@ public class MainIT {
         server("down");
     }
 
+    @AfterClass
+    public static void afterAll() throws IOException {
+        IT_ROOT.exec("docker", "network", "rm", NETWORK);
+    }
+
     private final int port = 1300;
 
     @Test
@@ -69,8 +76,9 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        stool("setup", "-batch", "-local", "PORT_FIRST=" + port, "PORT_LAST=" + (port + 20));
+        stool("setup", "-batch", "-local", "-network", NETWORK, "PORT_FIRST=" + port, "PORT_LAST=" + (port + 20));
 
+        IT_ROOT.exec("docker", "network", "create", NETWORK);
         server("rm");
         server("up", "-d");
 

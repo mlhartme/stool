@@ -106,6 +106,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
     }
 
+    /** don't try cas for /api/** */
     private AuthenticationEntryPoint entryPoints() {
         LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> map;
 
@@ -198,7 +199,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
     }
 
-    //-- cas
+    //-- cas authentication
 
     @Bean
     public CasAuthenticationProvider casAuthenticationProvider() {

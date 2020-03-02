@@ -3,7 +3,7 @@
 ### 5.2.0 (pending)
 
 * client
-  * backstage is a properties file now, it maps stage to paths
+  * backstage is a properties file now, it maps stages to paths
   * `create`
     * checks for wars and adds all matches to the project
     * name may explicitly specify the war with =
@@ -52,6 +52,12 @@
 
 * server
   * dumped awaitStartup legacy
+
+### 5.1.1 (pending)
+
+client 
+* added -network argument to make the server network configurable
+* fixed integration tests to automatically create and remove a network (thanks to Stephan M)
 
 
 ### 5.1.0 (2020-02-04)

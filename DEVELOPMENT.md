@@ -8,18 +8,32 @@ To build Stool, you need:
 * Maven 3+
 * Git
 * Docker (with api 1.38+) and docker-compose. 
-* TODO: probably depends on cisotools
+* TODO: depends on fault and cisotools
 
 ## Docker setup 
 
 Docker on macOS should be fine out of the box (it sets up a Linux VM, and all docker containers run as the development user).
 
-### Linux
+With Linux, you either setup Docker to run as your user or as a root user.
 
-Docker on Linux needs some permission tweaking to a) execute containers the development user and b) adjust docker socket permissions that
+### Linux - Containers run as root
+
+This is the normal setup: install Docker for you Linux distribution and make sure that the development user has permissions to access
+the docker socket (usually be adding him/her to the Docker group).
+
+In addition, you need to make sure that root has access to the Fault workspace:
+
+* add `allow_others` to `/etc/fuse.conf`
+* append `-Dfault.mount_opts=allow_root` to `FAULT_OPTS`
+
+TODO: that's all to make it work?
+
+
+### Linux - Containers run as development user
+
+Running Containers as a none-root user is more secure and saves some trouble when Stool Server needs access to the Fault Workspace.
+To configure this you have to a) execute containers as the development user, and b) adjust docker socket permissions that
 are accessible from containers (which is needed for Stool server).
-
-The common way to give a user access to the docker socket is to add him to the docker group. Stool needs a different setup (TODO more on that):
 
 * edit `/lib/systemd/system/docker.socket` and change `group` entry to the primary group of your development user
   (note that this can't be done in `/etc/docker/daemon.json` because systemd sets up the socket)
