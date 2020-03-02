@@ -43,9 +43,10 @@ public class Setup {
     private final String version;
     private final boolean batch;
     private final boolean local;
+    private final String network;
     private final Map<String, String> opts;
 
-    public Setup(Globals globals, boolean batch, boolean local, List<String> opts) {
+    public Setup(Globals globals, boolean batch, boolean local, String network, List<String> opts) {
         int idx;
 
         this.world = globals.getWorld();
@@ -55,6 +56,7 @@ public class Setup {
         this.version = Main.versionString(world);
         this.batch = batch;
         this.local = local;
+        this.network = network;
         this.opts = new HashMap<>();
         for (String opt : opts) {
             idx = opt.indexOf('=');
@@ -310,7 +312,7 @@ public class Setup {
         builder.append("networks:\n");
         builder.append("  default:\n");
         builder.append("    external:\n");
-        builder.append("      name: stool");
+        builder.append("      name: ").append(network).append("\n");
         return builder.toString();
     }
 
