@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.configuration;
 
-import net.oneandone.stool.server.docker.Engine;
+import net.oneandone.stool.server.kubernetes.Engine;
 import net.oneandone.stool.server.util.Mailer;
 import net.oneandone.stool.server.util.Pool;
 
