@@ -20,6 +20,7 @@ import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Container;
+import io.kubernetes.client.openapi.models.V1DeleteOptions;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
@@ -27,13 +28,18 @@ import io.kubernetes.client.openapi.models.V1PodSpec;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.util.Config;
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class Engine {
-    public static void main(String[] args) throws IOException {
-        System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/src/test/resources/logback-test.xml");
+    public static void main(String[] args) throws IOException, InterruptedException {
+        FileNode f;
+
+        f = World.createMinimal().guessProjectHome(Engine.class).join("src/test/resources/logback-test.xml");
+        System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, f.getAbsolute());
 
         ApiClient client = Config.defaultClient();
         Configuration.setDefaultApiClient(client);
@@ -41,15 +47,17 @@ public class Engine {
         V1Pod pod;
 
         api = new CoreV1Api();
-
         pod = pod("pod", "contargo.server.lan/cisoops-public/hellowar:1.0.0");
         System.out.println("before: " + pod);
         try {
             pod = api.createNamespacedPod("stool", pod, null, null, null);
+            System.out.println("after: " + pod);
+            Thread.sleep(2000);
+            api.deleteNamespacedPod("pod", "stool", null, null, null, null, null,
+                    new V1DeleteOptions());
         } catch (ApiException e) {
             throw new IOException("apiException: " + e.getMessage() + " " + e.getResponseBody(), e);
         }
-        System.out.println("after: " + pod);
     }
 
     private static V1Pod pod(String name, String image) {
