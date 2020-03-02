@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 package net.oneandone.stool.server.kubernetes;
+
 import ch.qos.logback.classic.util.ContextInitializer;
+import com.google.gson.JsonSyntaxException;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1DeleteOptions;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
-import io.kubernetes.client.openapi.models.V1PodList;
-import io.kubernetes.client.openapi.models.V1PodSpec;
-import io.kubernetes.client.openapi.models.V1Service;
-import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.util.Config;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -47,6 +44,7 @@ public class Engine {
         CoreV1Api api;
         V1Pod pod;
 
+        // client.setDebugging(true);
         api = new CoreV1Api();
         pod = pod("pod", "contargo.server.lan/cisoops-public/hellowar:1.0.0");
         System.out.println("before: " + pod);
@@ -54,12 +52,26 @@ public class Engine {
             pod = api.createNamespacedPod("stool", pod, null, null, null);
             System.out.println("after: " + pod);
             Thread.sleep(2000);
-            api.deleteNamespacedPod("pod", "stool", null,
-                    null, null, null, null,
-                    new V1DeleteOptions());
+            try {
+                api.deleteNamespacedPod("pod", "stool", null,
+                        null, null, null, null,
+                        new V1DeleteOptions());
+            } catch (JsonSyntaxException e) {
+                if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
+                    // TODO The Java Client is generated, and this code generation does not support union return types,
+                    //      see https://github.com/kubernetes-client/java/issues/86
+                    // TODO: check if pod was actually deletes
+                    // fall-through
+                } else {
+                    throw e;
+                }
+            }
         } catch (ApiException e) {
             throw new IOException("apiException: " + e.getMessage() + " " + e.getResponseBody(), e);
         }
+
+        // TODO: https://github.com/kubernetes-client/java/issues/865
+        client.getHttpClient().connectionPool().evictAll();
     }
 
     private static V1Pod pod(String name, String image) {
