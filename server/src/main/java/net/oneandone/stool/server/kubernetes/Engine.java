@@ -23,6 +23,7 @@ import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1DeleteOptions;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1PodBuilder;
 import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.openapi.models.V1PodSpec;
 import io.kubernetes.client.openapi.models.V1Service;
@@ -53,7 +54,8 @@ public class Engine {
             pod = api.createNamespacedPod("stool", pod, null, null, null);
             System.out.println("after: " + pod);
             Thread.sleep(2000);
-            api.deleteNamespacedPod("pod", "stool", null, null, null, null, null,
+            api.deleteNamespacedPod("pod", "stool", null,
+                    null, null, null, null,
                     new V1DeleteOptions());
         } catch (ApiException e) {
             throw new IOException("apiException: " + e.getMessage() + " " + e.getResponseBody(), e);
@@ -61,19 +63,10 @@ public class Engine {
     }
 
     private static V1Pod pod(String name, String image) {
-        V1PodSpec spec;
-        V1Container container;
-        V1Pod pod;
-
-        container = new V1Container();
-        container.setName(name + "-container");
-        container.setImage(image);
-        spec = new V1PodSpec();
-        spec.addContainersItem(container);
-        pod = new V1Pod();
-        pod.setMetadata(md(name));
-        pod.setSpec(spec);
-        return pod;
+        return new V1PodBuilder()
+                .withNewMetadata().withName(name).endMetadata()
+                .withNewSpec()
+                    .addNewContainer().withName(name + "-container").withImage(image).endContainer().endSpec().build();
     }
 
     private static V1ObjectMeta md(String name) {
