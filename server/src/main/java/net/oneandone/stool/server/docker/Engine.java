@@ -75,36 +75,14 @@ import java.util.Set;
 public class Engine implements AutoCloseable {
     public static void main(String[] args) throws IOException, InterruptedException {
         FileNode f;
-        V1Pod pod;
 
         // TODO
         f = World.createMinimal().guessProjectHome(Engine.class).join("src/test/resources/logback-test.xml");
         System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, f.getAbsolute());
 
         try (Engine engine = Engine.create()) {
-            pod = pod("pod", "contargo.server.lan/cisoops-public/hellowar:1.0.0");
-            System.out.println("before: " + pod);
-            try {
-                pod = engine.core.createNamespacedPod("stool", pod, null, null, null);
-                System.out.println("after: " + pod);
-                Thread.sleep(2000);
-                try {
-                    engine.core.deleteNamespacedPod("pod", "stool", null,
-                            null, null, null, null,
-                            new V1DeleteOptions());
-                } catch (JsonSyntaxException e) {
-                    if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
-                        // TODO The Java Client is generated, and this code generation does not support union return types,
-                        //      see https://github.com/kubernetes-client/java/issues/86
-                        // TODO: check if pod was actually deletes
-                        // fall-through
-                    } else {
-                        throw e;
-                    }
-                }
-            } catch (ApiException e) {
-                throw new IOException("apiException: " + e.getMessage() + " " + e.getResponseBody(), e);
-            }
+            engine.podCreate("pod", "contargo.server.lan/cisoops-public/hellowar:1.0.0");
+            engine.podDelete("pod");
         }
     }
 
@@ -191,6 +169,7 @@ public class Engine implements AutoCloseable {
 
     private final ApiClient client;
     private final CoreV1Api core;
+    private final String namespace;
     private final HttpNode root;
 
     /** Thread safe - has no fields at all */
@@ -202,11 +181,11 @@ public class Engine implements AutoCloseable {
         this.parser = new JsonParser();
 
         client = Config.defaultClient();
-        Configuration.setDefaultApiClient(client); // TOSO: threading ...
+        Configuration.setDefaultApiClient(client); // TODO: threading ...
 
         // client.setDebugging(true);
         core = new CoreV1Api();
-
+        namespace = "stool";
     }
 
     public void close() {
@@ -378,6 +357,39 @@ public class Engine implements AutoCloseable {
             node = node.withParameter("force", "true");
         }
         Method.delete(node);
+    }
+
+    //-- pods
+
+    public void podCreate(String name, String image) throws IOException {
+        try {
+            core.createNamespacedPod(namespace, pod(name, image), null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    public void podDelete(String name) throws IOException {
+        try {
+            core.deleteNamespacedPod("pod", namespace, null,
+                    null, null, null, null,
+                    new V1DeleteOptions());
+        } catch (JsonSyntaxException e) {
+            if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
+                // TODO The Java Client is generated, and this code generation does not support union return types,
+                //      see https://github.com/kubernetes-client/java/issues/86
+                // TODO: check if pod was actually deletes
+                // fall-through
+            } else {
+                throw e;
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    private static IOException wrap(ApiException e) {
+        return new IOException(e.getResponseBody(), e);
     }
 
     //-- containers
