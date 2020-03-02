@@ -80,7 +80,7 @@ public class Stage {
     private static final String CONTAINER_PREFIX = "net.oneandone.stool-container-";
 
     public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = IMAGE_PREFIX + "port.";
-    public static final String IMAGE_LABEL_P12 = IMAGE_PREFIX + "certificate.p12";
+    public static final String IMAGE_LABEL_P12 = IMAGE_PREFIX + "certificate.p12";  // where to mount the generated p12 certificate into the container
     public static final String IMAGE_LABEL_DISK = IMAGE_PREFIX + "disk";
     public static final String IMAGE_LABEL_MEMORY = IMAGE_PREFIX + "memory";
     public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.context";
