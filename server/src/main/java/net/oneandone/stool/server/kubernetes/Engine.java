@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.kubernetes;
 
-import ch.qos.logback.classic.util.ContextInitializer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -31,6 +30,7 @@ import io.kubernetes.client.openapi.models.V1DeleteOptions;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
+import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.util.Config;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
@@ -73,19 +73,6 @@ import java.util.Set;
  * Not thread-safe because the io buffer is shared.
  */
 public class Engine implements AutoCloseable {
-    public static void main(String[] args) throws IOException, InterruptedException {
-        FileNode f;
-
-        // TODO
-        f = World.createMinimal().guessProjectHome(Engine.class).join("src/test/resources/logback-test.xml");
-        System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, f.getAbsolute());
-
-        try (Engine engine = Engine.create()) {
-            engine.podCreate("pod", "contargo.server.lan/cisoops-public/hellowar:1.0.0");
-            engine.podDelete("pod");
-        }
-    }
-
     private static V1Pod pod(String name, String image) {
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).endMetadata()
@@ -360,6 +347,23 @@ public class Engine implements AutoCloseable {
     }
 
     //-- pods
+
+    public List<String> podList() throws IOException {
+        V1PodList list;
+        List<String> result;
+
+        try {
+            list = core.listNamespacedPod(namespace, null, null, null, null, null,
+                    null, null, null, null);
+            result = new ArrayList<>();
+            for (V1Pod pod : list.getItems()) {
+                result.add(pod.getMetadata().getName());
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        return result;
+    }
 
     public void podCreate(String name, String image) throws IOException {
         try {

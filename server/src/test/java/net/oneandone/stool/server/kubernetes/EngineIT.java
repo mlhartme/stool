@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -49,20 +48,24 @@ public class EngineIT {
         return Engine.create("target/wire.log");
 
     }
-    @Test
-    public void deviceFuse() throws IOException, InterruptedException {
-        String image;
-        String container;
 
-        try (Engine engine = create()) {
-            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /dev/fuse\n"), false, null);
-            container = engine.containerCreate(image, null);
-            engine.containerStart(container);
-            Thread.sleep(1000);
-            engine.containerRemove(container);
-            engine.imageRemove(image, false);
+    //-- pods
+
+    @Test
+    public void pods() throws IOException, InterruptedException {
+        final String name = "pod";
+
+        try (Engine engine = Engine.create()) {
+            assertEquals(0, engine.podList().size());
+            engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0");
+            assertEquals(Arrays.asList(name), engine.podList());
+            engine.podDelete("pod");
+            Thread.sleep(5000); // TODO
+            assertEquals(0, engine.podList().size());
         }
     }
+
+    //--
 
     @Test(expected = ArgumentException.class)
     public void rejectBuildWithUppercaseTag() throws IOException {
