@@ -26,6 +26,7 @@ import io.kubernetes.client.util.Config;
 
 import java.io.IOException;
 
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class Engine {
     public static void main(String[] args) throws IOException, ApiException{
         ApiClient client = Config.defaultClient();
@@ -43,6 +44,5 @@ public class Engine {
         for (V1Service item : services.getItems()) {
             System.out.println("service: " + item.getMetadata().getName());
         }
-        api.createNamespaced
     }
 }
