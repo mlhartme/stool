@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 package net.oneandone.stool.server.kubernetes;
+import ch.qos.logback.classic.util.ContextInitializer;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.models.V1Container;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
+import io.kubernetes.client.openapi.models.V1PodSpec;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.util.Config;
@@ -28,21 +32,47 @@ import java.io.IOException;
 
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class Engine {
-    public static void main(String[] args) throws IOException, ApiException{
+    public static void main(String[] args) throws IOException {
+        System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/src/test/resources/logback-test.xml");
+
         ApiClient client = Config.defaultClient();
         Configuration.setDefaultApiClient(client);
         CoreV1Api api;
-        V1PodList pods;
-        V1ServiceList services;
+        V1Pod pod;
 
         api = new CoreV1Api();
-        pods = api.listNamespacedPod("default", null, null, null, null, null, null, null, null, null);
-        for (V1Pod item : pods.getItems()) {
-            System.out.println("pod: " + item.getMetadata().getName());
+
+        pod = pod("pod", "contargo.server.lan/cisoops-public/hellowar:1.0.0");
+        System.out.println("before: " + pod);
+        try {
+            pod = api.createNamespacedPod("stool", pod, null, null, null);
+        } catch (ApiException e) {
+            throw new IOException("apiException: " + e.getMessage() + " " + e.getResponseBody(), e);
         }
-        services = api.listNamespacedService("default", null, null, null, null, null, null, null, null, null);
-        for (V1Service item : services.getItems()) {
-            System.out.println("service: " + item.getMetadata().getName());
-        }
+        System.out.println("after: " + pod);
+    }
+
+    private static V1Pod pod(String name, String image) {
+        V1PodSpec spec;
+        V1Container container;
+        V1Pod pod;
+
+        container = new V1Container();
+        container.setName(name + "-container");
+        container.setImage(image);
+        spec = new V1PodSpec();
+        spec.addContainersItem(container);
+        pod = new V1Pod();
+        pod.setMetadata(md(name));
+        pod.setSpec(spec);
+        return pod;
+    }
+
+    private static V1ObjectMeta md(String name) {
+        V1ObjectMeta md;
+
+        md = new V1ObjectMeta();
+        md.setName(name);
+        return md;
     }
 }
