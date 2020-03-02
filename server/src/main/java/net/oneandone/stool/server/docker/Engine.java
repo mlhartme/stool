@@ -75,43 +75,37 @@ import java.util.Set;
 public class Engine implements AutoCloseable {
     public static void main(String[] args) throws IOException, InterruptedException {
         FileNode f;
+        V1Pod pod;
 
+        // TODO
         f = World.createMinimal().guessProjectHome(Engine.class).join("src/test/resources/logback-test.xml");
         System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, f.getAbsolute());
 
-        ApiClient client = Config.defaultClient();
-        Configuration.setDefaultApiClient(client);
-        CoreV1Api api;
-        V1Pod pod;
-
-        // client.setDebugging(true);
-        api = new CoreV1Api();
-        pod = pod("pod", "contargo.server.lan/cisoops-public/hellowar:1.0.0");
-        System.out.println("before: " + pod);
-        try {
-            pod = api.createNamespacedPod("stool", pod, null, null, null);
-            System.out.println("after: " + pod);
-            Thread.sleep(2000);
+        try (Engine engine = Engine.create()) {
+            pod = pod("pod", "contargo.server.lan/cisoops-public/hellowar:1.0.0");
+            System.out.println("before: " + pod);
             try {
-                api.deleteNamespacedPod("pod", "stool", null,
-                        null, null, null, null,
-                        new V1DeleteOptions());
-            } catch (JsonSyntaxException e) {
-                if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
-                    // TODO The Java Client is generated, and this code generation does not support union return types,
-                    //      see https://github.com/kubernetes-client/java/issues/86
-                    // TODO: check if pod was actually deletes
-                    // fall-through
-                } else {
-                    throw e;
+                pod = engine.core.createNamespacedPod("stool", pod, null, null, null);
+                System.out.println("after: " + pod);
+                Thread.sleep(2000);
+                try {
+                    engine.core.deleteNamespacedPod("pod", "stool", null,
+                            null, null, null, null,
+                            new V1DeleteOptions());
+                } catch (JsonSyntaxException e) {
+                    if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
+                        // TODO The Java Client is generated, and this code generation does not support union return types,
+                        //      see https://github.com/kubernetes-client/java/issues/86
+                        // TODO: check if pod was actually deletes
+                        // fall-through
+                    } else {
+                        throw e;
+                    }
                 }
+            } catch (ApiException e) {
+                throw new IOException("apiException: " + e.getMessage() + " " + e.getResponseBody(), e);
             }
-        } catch (ApiException e) {
-            throw new IOException("apiException: " + e.getMessage() + " " + e.getResponseBody(), e);
         }
-
-        // TODO: https://github.com/kubernetes-client/java/issues/865
-        client.getHttpClient().connectionPool().evictAll();
     }
 
     private static V1Pod pod(String name, String image) {
@@ -195,18 +189,30 @@ public class Engine implements AutoCloseable {
 
     public final World world;
 
+    private final ApiClient client;
+    private final CoreV1Api core;
     private final HttpNode root;
 
     /** Thread safe - has no fields at all */
     private final JsonParser parser;
 
-    private Engine(HttpNode root) {
+    private Engine(HttpNode root) throws IOException {
         this.world = root.getWorld();
         this.root = root;
         this.parser = new JsonParser();
+
+        client = Config.defaultClient();
+        Configuration.setDefaultApiClient(client); // TOSO: threading ...
+
+        // client.setDebugging(true);
+        core = new CoreV1Api();
+
     }
 
     public void close() {
+        // TODO: https://github.com/kubernetes-client/java/issues/865
+        client.getHttpClient().connectionPool().evictAll();
+
         root.getWorld().close();
     }
 
