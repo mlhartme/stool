@@ -344,9 +344,7 @@ public class Engine implements AutoCloseable {
             id = object.get("Id").getAsString();
             imageId = pruneImageId(object.get("ImageID").getAsString());
             state = Status.valueOf(object.get("State").getAsString().toUpperCase());
-            result.put(id, new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()),
-                    ports(element.getAsJsonObject().get("Ports").getAsJsonArray()),
-                    state));
+            result.put(id, new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()), state));
         }
         return result;
     }
@@ -726,18 +724,6 @@ public class Engine implements AutoCloseable {
             result.put(entry.getKey(), entry.getValue().getAsString());
         }
         return result;
-    }
-
-    private static Map<Integer, Integer> ports(JsonArray array) {
-        JsonObject obj;
-        Map<Integer, Integer> ports;
-
-        ports = new HashMap<>();
-        for (JsonElement element : array) {
-            obj = element.getAsJsonObject();
-            ports.put(obj.get("PrivatePort").getAsInt(), obj.get("PublicPort").getAsInt());
-        }
-        return ports;
     }
 
     private static JsonArray env(Map<String, String> env) {

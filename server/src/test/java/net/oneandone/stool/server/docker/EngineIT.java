@@ -116,7 +116,6 @@ public class EngineIT {
             map = containerListForImage(engine, image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
-            assertTrue(map.get(container).ports.isEmpty()); // no ports allocated until the container is actually started
 
             engine.containerStart(container);
 
@@ -126,7 +125,6 @@ public class EngineIT {
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
             assertEquals(Engine.Status.RUNNING, map.get(container).state);
-            assertEquals(ports, convert(map.get(container).ports));
 
             Thread.sleep(2500);
 
@@ -135,7 +133,6 @@ public class EngineIT {
             map = containerListForImage(engine, image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
-            assertTrue(map.get(container).ports.isEmpty()); // ports free again
 
             assertEquals(Arrays.asList(container), new ArrayList<>(containerListForImage(engine, image).keySet()));
             engine.containerRemove(container);
@@ -147,16 +144,6 @@ public class EngineIT {
 
     private Map<String, ContainerInfo> containerListForImage(Engine engine, String image) throws IOException {
         return engine.containerList("{\"ancestor\" : [\"" + image + "\"] }", true);
-    }
-
-    private static Map<Integer, String> convert(Map<Integer, Integer> map) {
-        Map<Integer, String> result;
-
-        result = new HashMap<>();
-        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
-            result.put(entry.getKey(), Integer.toString(entry.getValue()));
-        }
-        return result;
     }
 
     @Test

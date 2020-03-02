@@ -21,14 +21,12 @@ public class ContainerInfo {
     public final String id;
     public final String imageId;
     public final Map<String, String> labels;
-    public final Map<Integer, Integer> ports;
     public final Engine.Status state;
 
-    public ContainerInfo(String id, String imageId, Map<String, String> labels, Map<Integer, Integer> ports, Engine.Status state) {
+    public ContainerInfo(String id, String imageId, Map<String, String> labels, Engine.Status state) {
         this.id = id;
         this.imageId = imageId;
         this.labels = labels;
-        this.ports = ports;
         this.state = state;
     }
 }
