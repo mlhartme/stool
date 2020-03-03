@@ -26,7 +26,6 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1DeleteOptions;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
@@ -64,6 +63,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -348,21 +348,41 @@ public class Engine implements AutoCloseable {
 
     //-- pods
 
-    public List<String> podList() throws IOException {
+    public Map<String, PodInfo> podList() throws IOException {
         V1PodList list;
-        List<String> result;
+        Map<String, PodInfo> result;
+        String name;
 
         try {
             list = core.listNamespacedPod(namespace, null, null, null, null, null,
                     null, null, null, null);
-            result = new ArrayList<>();
+            result = new LinkedHashMap<>();
             for (V1Pod pod : list.getItems()) {
-                result.add(pod.getMetadata().getName());
+                name = pod.getMetadata().getName();
+                result.put(name, new PodInfo(name, pod.getStatus().getPhase()));
             }
         } catch (ApiException e) {
             throw wrap(e);
         }
         return result;
+    }
+
+    // TODO
+    public PodInfo podProbe(String name) throws IOException {
+        V1PodList list;
+
+        try {
+            list = core.listNamespacedPod(namespace, null, null, null, null, null,
+                    null, null, null, null);
+            for (V1Pod pod : list.getItems()) {
+                if (name.equals(pod.getMetadata().getName())) {
+                    return new PodInfo(name, pod.getStatus().getPhase());
+                }
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        return null;
     }
 
     public void podCreate(String name, String image) throws IOException {
@@ -371,13 +391,13 @@ public class Engine implements AutoCloseable {
         } catch (ApiException e) {
             throw wrap(e);
         }
+        podAwait(name, "Running");
     }
 
     public void podDelete(String name) throws IOException {
         try {
             core.deleteNamespacedPod("pod", namespace, null,
-                    null, null, null, null,
-                    new V1DeleteOptions());
+                    null, null, null, null,  null);
         } catch (JsonSyntaxException e) {
             if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
                 // TODO The Java Client is generated, and this code generation does not support union return types,
@@ -389,6 +409,40 @@ public class Engine implements AutoCloseable {
             }
         } catch (ApiException e) {
             throw wrap(e);
+        }
+        podAwait(name, null);
+    }
+
+    private void podAwait(String name, String expectedPhase) throws IOException {
+        PodInfo info;
+        int count;
+        String phase;
+
+        count = 0;
+        while (true) {
+            info = podProbe(name);
+            phase = info == null ? null : info.phase;
+            if (same(expectedPhase, phase)) {
+                return;
+            }
+            count++;
+            if (count > 500) {
+                throw new IOException("waiting for phase '" + expectedPhase
+                        + "' timed out, phase is now " + phase);
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new IOException("waiting for phase '" + expectedPhase + "' interrupted", e);
+            }
+        }
+    }
+
+    private static boolean same(String left, String right) {
+        if (left == null) {
+            return right == null;
+        } else {
+            return left.equals(right);
         }
     }
 

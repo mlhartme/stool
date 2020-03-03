@@ -52,15 +52,14 @@ public class EngineIT {
     //-- pods
 
     @Test
-    public void pods() throws IOException, InterruptedException {
+    public void pods() throws IOException {
         final String name = "pod";
 
         try (Engine engine = Engine.create()) {
             assertEquals(0, engine.podList().size());
             engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0");
-            assertEquals(Arrays.asList(name), engine.podList());
+            assertEquals(Arrays.asList(name), new ArrayList<>(engine.podList().keySet()));
             engine.podDelete("pod");
-            Thread.sleep(5000); // TODO
             assertEquals(0, engine.podList().size());
         }
     }
