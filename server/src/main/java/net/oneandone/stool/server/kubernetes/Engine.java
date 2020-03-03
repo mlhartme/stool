@@ -30,6 +30,10 @@ import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
 import io.kubernetes.client.openapi.models.V1PodList;
+import io.kubernetes.client.openapi.models.V1Service;
+import io.kubernetes.client.openapi.models.V1ServiceBuilder;
+import io.kubernetes.client.openapi.models.V1ServiceList;
+import io.kubernetes.client.openapi.models.V1ServicePort;
 import io.kubernetes.client.util.Config;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
@@ -344,6 +348,50 @@ public class Engine implements AutoCloseable {
             node = node.withParameter("force", "true");
         }
         Method.delete(node);
+    }
+
+    //-- services
+
+    public void serviceCreate(String name, int nodePort, int containerPort) throws IOException {
+        V1ServicePort port;
+
+        port = new V1ServicePort();
+        port.setNodePort(nodePort);
+        port.setPort(containerPort);
+        try {
+            core.createNamespacedService(namespace, new V1ServiceBuilder()
+                    .withNewMetadata().withName(name).endMetadata()
+                    .withNewSpec().withType("NodePort").withPorts(port).endSpec()
+                    .build(), null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    public List<String> serviceList() throws IOException {
+        V1ServiceList list;
+        List<String> result;
+
+        try {
+            list = core.listNamespacedService(namespace, null, null, null, null, null,
+                    null, null, null, null);
+            result = new ArrayList<>();
+            for (V1Service service: list.getItems()) {
+                result.add(service.getMetadata().getName());
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        return result;
+    }
+
+    public void serviceDelete(String name) throws IOException {
+        try {
+            core.deleteNamespacedService(name, namespace, null, null, null, null,
+                    null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
     }
 
     //-- pods

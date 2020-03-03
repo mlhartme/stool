@@ -59,8 +59,21 @@ public class EngineIT {
             assertEquals(0, engine.podList().size());
             engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0");
             assertEquals(Arrays.asList(name), new ArrayList<>(engine.podList().keySet()));
-            engine.podDelete("pod");
+            engine.podDelete(name);
             assertEquals(0, engine.podList().size());
+        }
+    }
+
+    @Test
+    public void services() throws IOException {
+        final String name = "service";
+
+        try (Engine engine = Engine.create()) {
+            assertEquals(0, engine.serviceList().size());
+            engine.serviceCreate(name, 30001, 8080);
+            assertEquals(Arrays.asList(name), new ArrayList<>(engine.serviceList()));
+            engine.serviceDelete(name);
+            assertEquals(0, engine.serviceList().size());
         }
     }
 
