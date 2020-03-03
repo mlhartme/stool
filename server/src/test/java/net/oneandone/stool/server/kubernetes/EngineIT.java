@@ -65,6 +65,24 @@ public class EngineIT {
     }
 
     @Test
+    public void hello() throws IOException {
+        final String name = "hello";
+
+        try (Engine engine = Engine.create()) {
+            assertEquals(0, engine.podList().size());
+            engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0");
+            engine.serviceCreate(name, 30002, 8080);
+            try {
+                Thread.sleep(30000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            engine.serviceDelete(name);
+            engine.podDelete(name);
+            assertEquals(0, engine.podList().size());
+        }
+    }
+    @Test
     public void services() throws IOException {
         final String name = "service";
 

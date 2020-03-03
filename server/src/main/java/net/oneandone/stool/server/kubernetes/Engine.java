@@ -444,7 +444,7 @@ public class Engine implements AutoCloseable {
 
     public void podDelete(String name) throws IOException {
         try {
-            core.deleteNamespacedPod("pod", namespace, null,
+            core.deleteNamespacedPod(name, namespace, null,
                     null, null, null, null,  null);
         } catch (JsonSyntaxException e) {
             if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
