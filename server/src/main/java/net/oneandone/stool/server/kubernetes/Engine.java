@@ -356,7 +356,7 @@ public class Engine implements AutoCloseable {
     //-- namespace
 
     public void namespaceReset() throws IOException {
-        if (namespaceList().contains(namespace)) {
+        if (namespaceList().containsKey(namespace)) {
             namespaceDelete();
         }
         namespaceCreate();
@@ -369,6 +369,7 @@ public class Engine implements AutoCloseable {
         } catch (ApiException e) {
             throw wrap(e);
         }
+
         try {
             Thread.sleep(5000); // TODO
         } catch (InterruptedException e) {
@@ -377,8 +378,6 @@ public class Engine implements AutoCloseable {
     }
 
     public void namespaceDelete() throws IOException {
-        int count;
-
         try {
             try {
                 core.deleteNamespace(namespace, null, null, null, null, "Foreground", null);
@@ -391,40 +390,50 @@ public class Engine implements AutoCloseable {
                     throw e;
                 }
             }
-            count = 0;
-            while (true) {
-                if (!namespaceList().contains(namespace)) {
-                    return;
-                }
-                count++;
-                if (count > 500) {
-                    throw new IOException("waiting for namespace delete timed out");
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new IOException("waiting for namespace delete interrupted");
-                }
-            }
+            namespaceAwait(null);
         } catch (ApiException e) {
             throw wrap(e);
         }
     }
 
-    public List<String> namespaceList() throws IOException {
+    /** @return name- to phase mapping */
+    public Map<String, String> namespaceList() throws IOException {
         V1NamespaceList lst;
-        List<String> result;
+        Map<String, String> result;
 
         try {
             lst = core.listNamespace(null, null, null, null, null, null, null, null, null);
-            result = new ArrayList();
+            result = new HashMap();
             for (V1Namespace ns : lst.getItems()) {
-                result.add(ns.getMetadata().getName());
+                result.put(ns.getMetadata().getName(), ns.getStatus().getPhase());
             }
         } catch (ApiException e) {
             throw wrap(e);
         }
         return result;
+    }
+
+    private void namespaceAwait(String expectedPhase) throws IOException {
+        int count;
+        String phase;
+
+        count = 0;
+        while (true) {
+            phase = namespaceList().get(namespace);
+            if (same(expectedPhase, phase)) {
+                return;
+            }
+            count++;
+            if (count > 500) {
+                throw new IOException("waiting for namespace phase '" + expectedPhase + "' timed out, phase now is " + phase);
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new IOException("waiting for namespace phase '" + expectedPhase + "' interrupted");
+            }
+        }
+
     }
 
     //-- services
