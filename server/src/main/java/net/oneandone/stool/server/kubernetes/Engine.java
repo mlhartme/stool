@@ -26,6 +26,9 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.models.V1Namespace;
+import io.kubernetes.client.openapi.models.V1NamespaceBuilder;
+import io.kubernetes.client.openapi.models.V1NamespaceList;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
@@ -348,6 +351,71 @@ public class Engine implements AutoCloseable {
             node = node.withParameter("force", "true");
         }
         Method.delete(node);
+    }
+
+    //-- namespace
+
+    public void namespaceReset() throws IOException {
+        try {
+            if (namespaceList().contains(namespace)) {
+                namespaceDelete();
+            }
+            core.createNamespace(new V1NamespaceBuilder().withNewMetadata().withName(namespace).endMetadata().build(),
+                    null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    public void namespaceDelete() throws IOException {
+        int count;
+
+        try {
+            try {
+                core.deleteNamespace(namespace, null, null, null, null, "Foreground", null);
+            } catch (JsonSyntaxException e) {
+                if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
+                    // TODO The Java Client is generated, and this code generation does not support union return types,
+                    //      see https://github.com/kubernetes-client/java/issues/86
+                    // fall-through
+                } else {
+                    throw e;
+                }
+            }
+            count = 0;
+            while (true) {
+                if (!namespaceList().contains(namespace)) {
+                    return;
+                }
+                count++;
+                if (count > 500) {
+                    throw new IOException("waiting for namespace delete timed out");
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new IOException("waiting for namespace delete interrupted");
+                }
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    public List<String> namespaceList() throws IOException {
+        V1NamespaceList lst;
+        List<String> result;
+
+        try {
+            lst = core.listNamespace(null, null, null, null, null, null, null, null, null);
+            result = new ArrayList();
+            for (V1Namespace ns : lst.getItems()) {
+                result.add(ns.getMetadata().getName());
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        return result;
     }
 
     //-- services

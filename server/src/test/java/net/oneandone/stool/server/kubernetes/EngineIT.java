@@ -59,6 +59,7 @@ public class EngineIT {
         PodInfo info;
 
         try (Engine engine = Engine.create()) {
+            engine.namespaceReset();
             assertEquals(0, engine.podList().size());
             engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0", "foo", "bar");
             lst = engine.podList().values();
@@ -73,23 +74,23 @@ public class EngineIT {
 
     @Test
     public void hello() throws IOException {
+        final int port = 30003;
         final String name = "xyz";
         Map<String, String> labels;
 
         labels = Strings.toMap("foo", "bar");
         try (Engine engine = Engine.create()) {
+            engine.namespaceReset();
             assertEquals(0, engine.podList().size());
             engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0", labels);
-            engine.serviceCreate(name, 30002, 8080, labels);
-            /* TODO: yields 404 error ...
+            engine.serviceCreate(name, port, 8080, labels);
             try {
                 System.out.println("waiting ...");
                 Thread.sleep(20000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println(engine.world.validNode("http://localhost:" + 30002).readString());
-             */
+            System.out.println(engine.world.validNode("http://localhost:" + port + "/?cmd=info").readString());
             engine.serviceDelete(name);
             engine.podDelete(name);
             assertEquals(0, engine.podList().size());
@@ -100,6 +101,7 @@ public class EngineIT {
         final String name = "service";
 
         try (Engine engine = Engine.create()) {
+            engine.namespaceReset();
             assertEquals(0, engine.serviceList().size());
             engine.serviceCreate(name, 30001, 8080);
             assertEquals(Arrays.asList(name), new ArrayList<>(engine.serviceList()));
