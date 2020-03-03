@@ -370,8 +370,9 @@ public class Engine implements AutoCloseable {
             throw wrap(e);
         }
 
-        try {
-            Thread.sleep(5000); // TODO
+        namespaceAwait("Active");
+        try { // TODO: avoids "No API token found for service account" in follow-up calls
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             throw new IllegalStateException(e);
         }
