@@ -15,12 +15,16 @@
  */
 package net.oneandone.stool.server.kubernetes;
 
+import java.util.Map;
+
 public class PodInfo {
     public final String name;
     public final String phase;
+    public final Map<String, String> labels;
 
-    public PodInfo(String name, String phase) {
+    public PodInfo(String name, String phase, Map<String, String> labels) {
         this.name = name;
         this.phase = phase;
+        this.labels = labels;
     }
 }

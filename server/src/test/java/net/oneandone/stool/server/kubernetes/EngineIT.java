@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -54,11 +55,17 @@ public class EngineIT {
     @Test
     public void pods() throws IOException {
         final String name = "pod";
+        Collection<PodInfo> lst;
+        PodInfo info;
 
         try (Engine engine = Engine.create()) {
             assertEquals(0, engine.podList().size());
-            engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0");
-            assertEquals(Arrays.asList(name), new ArrayList<>(engine.podList().keySet()));
+            engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0", "foo", "bar");
+            lst = engine.podList().values();
+            assertEquals(1, lst.size());
+            info = lst.iterator().next();
+            assertEquals(name, info.name);
+            assertEquals(Strings.toMap("foo", "bar"), info.labels);
             engine.podDelete(name);
             assertEquals(0, engine.podList().size());
         }
@@ -66,17 +73,21 @@ public class EngineIT {
 
     @Test
     public void hello() throws IOException {
-        final String name = "hello";
+        final String name = "xyz";
+        Map<String, String> labels;
 
+        labels = Strings.toMap("foo", "bar");
         try (Engine engine = Engine.create()) {
             assertEquals(0, engine.podList().size());
-            engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0");
-            engine.serviceCreate(name, 30002, 8080);
+            engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0", labels);
+            engine.serviceCreate(name, 30002, 8080, labels);
             try {
-                Thread.sleep(30000);
+                System.out.println("waiting ...");
+                Thread.sleep(20000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            System.out.println(engine.world.validNode("http://localhost:" + 30002).readString());
             engine.serviceDelete(name);
             engine.podDelete(name);
             assertEquals(0, engine.podList().size());

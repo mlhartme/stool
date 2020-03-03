@@ -77,9 +77,9 @@ import java.util.Set;
  * Not thread-safe because the io buffer is shared.
  */
 public class Engine implements AutoCloseable {
-    private static V1Pod pod(String name, String image) {
+    private static V1Pod pod(String name, String image, Map<String, String> labels) {
         return new V1PodBuilder()
-                .withNewMetadata().withName(name).endMetadata()
+                .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .addNewContainer().withName(name + "-container").withImage(image).endContainer().endSpec().build();
     }
@@ -352,7 +352,11 @@ public class Engine implements AutoCloseable {
 
     //-- services
 
-    public void serviceCreate(String name, int nodePort, int containerPort) throws IOException {
+    public void serviceCreate(String name, int nodePort, int containerPort, String... selector) throws IOException {
+        serviceCreate(name, nodePort, containerPort, Strings.toMap(selector));
+    }
+
+    public void serviceCreate(String name, int nodePort, int containerPort, Map<String, String> selector) throws IOException {
         V1ServicePort port;
 
         port = new V1ServicePort();
@@ -361,7 +365,7 @@ public class Engine implements AutoCloseable {
         try {
             core.createNamespacedService(namespace, new V1ServiceBuilder()
                     .withNewMetadata().withName(name).endMetadata()
-                    .withNewSpec().withType("NodePort").withPorts(port).endSpec()
+                    .withNewSpec().withType("NodePort").withPorts(port).withSelector(selector).endSpec()
                     .build(), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
@@ -407,7 +411,7 @@ public class Engine implements AutoCloseable {
             result = new LinkedHashMap<>();
             for (V1Pod pod : list.getItems()) {
                 name = pod.getMetadata().getName();
-                result.put(name, new PodInfo(name, pod.getStatus().getPhase()));
+                result.put(name, new PodInfo(name, pod.getStatus().getPhase(), pod.getMetadata().getLabels()));
             }
         } catch (ApiException e) {
             throw wrap(e);
@@ -424,7 +428,7 @@ public class Engine implements AutoCloseable {
                     null, null, null, null);
             for (V1Pod pod : list.getItems()) {
                 if (name.equals(pod.getMetadata().getName())) {
-                    return new PodInfo(name, pod.getStatus().getPhase());
+                    return new PodInfo(name, pod.getStatus().getPhase(), pod.getMetadata().getLabels());
                 }
             }
         } catch (ApiException e) {
@@ -433,9 +437,13 @@ public class Engine implements AutoCloseable {
         return null;
     }
 
-    public void podCreate(String name, String image) throws IOException {
+    public void podCreate(String name, String image, String... labels) throws IOException {
+        podCreate(name, image, Strings.toMap(labels));
+    }
+
+    public void podCreate(String name, String image, Map<String, String> labels) throws IOException {
         try {
-            core.createNamespacedPod(namespace, pod(name, image), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, labels), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
