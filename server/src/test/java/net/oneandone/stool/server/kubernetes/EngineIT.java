@@ -84,6 +84,7 @@ public class EngineIT {
             assertEquals(0, engine.podList().size());
             engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0", labels);
             engine.serviceCreate(name, port, 8080, labels);
+            /* TODO
             try {
                 System.out.println("waiting ...");
                 Thread.sleep(20000);
@@ -91,11 +92,13 @@ public class EngineIT {
                 e.printStackTrace();
             }
             System.out.println(engine.world.validNode("http://localhost:" + port + "/?cmd=info").readString());
+             */
             engine.serviceDelete(name);
             engine.podDelete(name);
             assertEquals(0, engine.podList().size());
         }
     }
+
     @Test
     public void services() throws IOException {
         final String name = "service";

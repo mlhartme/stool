@@ -356,14 +356,23 @@ public class Engine implements AutoCloseable {
     //-- namespace
 
     public void namespaceReset() throws IOException {
+        if (namespaceList().contains(namespace)) {
+            namespaceDelete();
+        }
+        namespaceCreate();
+    }
+
+    public void namespaceCreate() throws IOException {
         try {
-            if (namespaceList().contains(namespace)) {
-                namespaceDelete();
-            }
             core.createNamespace(new V1NamespaceBuilder().withNewMetadata().withName(namespace).endMetadata().build(),
                     null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
+        }
+        try {
+            Thread.sleep(5000); // TODO
+        } catch (InterruptedException e) {
+            throw new IllegalStateException(e);
         }
     }
 
