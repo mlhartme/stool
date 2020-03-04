@@ -29,7 +29,6 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Namespace;
 import io.kubernetes.client.openapi.models.V1NamespaceBuilder;
 import io.kubernetes.client.openapi.models.V1NamespaceList;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
 import io.kubernetes.client.openapi.models.V1PodList;
@@ -59,7 +58,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -80,20 +78,6 @@ import java.util.Set;
  * Not thread-safe because the io buffer is shared.
  */
 public class Engine implements AutoCloseable {
-    private static V1Pod pod(String name, String image, Map<String, String> labels) {
-        return new V1PodBuilder()
-                .withNewMetadata().withName(name).withLabels(labels).endMetadata()
-                .withNewSpec()
-                .addNewContainer().withName(name + "-container").withImage(image).endContainer().endSpec().build();
-    }
-
-    private static V1ObjectMeta md(String name) {
-        V1ObjectMeta md;
-
-        md = new V1ObjectMeta();
-        md.setName(name);
-        return md;
-    }
     //--
 
     public static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
@@ -240,14 +224,6 @@ public class Engine implements AutoCloseable {
     private static LocalDateTime toLocalTime(long epochSeconds) {
         Instant instant = Instant.ofEpochSecond(epochSeconds);
         return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-    }
-
-    /** @return output */
-    public String imageBuildWithOutput(String repositoryTag, FileNode context) throws IOException {
-        try (StringWriter dest = new StringWriter()) {
-            imageBuild(repositoryTag, Collections.emptyMap(), Collections.emptyMap(), context, false, dest);
-            return dest.toString();
-        }
     }
 
     /**
@@ -579,6 +555,16 @@ public class Engine implements AutoCloseable {
                 throw new IOException("waiting for phase '" + expectedPhase + "' interrupted", e);
             }
         }
+    }
+
+    private static V1Pod pod(String name, String image, Map<String, String> labels) {
+        return new V1PodBuilder()
+                .withNewMetadata().withName(name).withLabels(labels).endMetadata()
+                .withNewSpec()
+                .addNewContainer()
+                  .withName(name + "-container")
+                  .withImage(image)
+                .endContainer().endSpec().build();
     }
 
     private static boolean same(String left, String right) {

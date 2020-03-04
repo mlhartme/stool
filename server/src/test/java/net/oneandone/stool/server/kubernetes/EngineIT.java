@@ -15,10 +15,7 @@
  */
 package net.oneandone.stool.server.kubernetes;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.ArgumentException;
-import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
@@ -26,20 +23,15 @@ import net.oneandone.sushi.util.Strings;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class EngineIT {
@@ -50,7 +42,7 @@ public class EngineIT {
 
     }
 
-    //-- pods
+    //-- pods + services
 
     @Test
     public void pods() throws IOException {
@@ -73,33 +65,6 @@ public class EngineIT {
     }
 
     @Test
-    public void hello() throws IOException {
-        final int port = 30003;
-        final String name = "xyz";
-        Map<String, String> labels;
-
-        labels = Strings.toMap("foo", "bar");
-        try (Engine engine = Engine.create()) {
-            engine.namespaceReset();
-            assertEquals(0, engine.podList().size());
-            engine.podCreate(name, "contargo.server.lan/cisoops-public/hellowar:1.0.0", labels);
-            engine.serviceCreate(name, port, 8080, labels);
-            /* TODO
-            try {
-                System.out.println("waiting ...");
-                Thread.sleep(20000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println(engine.world.validNode("http://localhost:" + port + "/?cmd=info").readString());
-             */
-            engine.serviceDelete(name);
-            engine.podDelete(name);
-            assertEquals(0, engine.podList().size());
-        }
-    }
-
-    @Test
     public void services() throws IOException {
         final String name = "service";
 
@@ -115,53 +80,24 @@ public class EngineIT {
 
     @Test
     public void turnaround() throws IOException {
+        String imageTag;
         String image;
         String message;
-        String output;
-        String container;
-        Stats stats;
+        String pod;
 
         message = UUID.randomUUID().toString();
-
+        pod = "pod";
         try (Engine engine = create()) {
-            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            engine.namespaceReset();
+
+            imageTag = "someapp:1.0.0";
+            image = engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             assertNotNull(image);
 
-            container = engine.containerCreate(null, image, "foo", null, false,
-                    null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-            assertNotNull(container);
-            assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
-            assertNull(engine.containerStats(container));
-            engine.containerStart(container);
-            stats = engine.containerStats(container);
-            assertEquals(0, stats.cpu);
-            assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
-            assertEquals(0, engine.containerWait(container));
-            assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
-            assertNull(engine.containerStats(container));
-            output = engine.containerLogs(container);
-            assertTrue(output + " vs" + message, output.contains(message));
-            try {
-                engine.containerStop(container, 300);
-                fail();
-            } catch (StatusException e) {
-                assertEquals(304, e.getStatusLine().code);
-            }
-            assertNull(engine.containerStats(container));
-            assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
-            engine.containerRemove(container);
-            try {
-                engine.containerStatus(container);
-                fail();
-            } catch (FileNotFoundException e) {
-                // ok
-            }
-            try {
-                assertNull(engine.containerStats(container));
-                fail();
-            } catch (FileNotFoundException e) {
-                // ok
-            }
+            engine.podCreate(pod, imageTag);;
+            assertEquals("Running", engine.podProbe(pod).phase);
+            engine.podDelete(pod);
+            assertNull(engine.podProbe(pod));
             engine.imageRemove(image, false);
         }
     }
