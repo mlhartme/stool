@@ -1049,17 +1049,18 @@ public class Stage {
 
     /** @return null if not running */
     public ContainerInfo runningContainerOpt(Engine engine) throws IOException {
-        Collection<ContainerInfo> result;
+        ContainerInfo result;
 
-        result = engine.containerListRunning(CONTAINER_LABEL_STAGE, name).values();
-        switch (result.size()) {
-            case 0:
-                return null;
-            case 1:
-                return result.iterator().next();
-            default:
-                throw new IllegalStateException(result.toString());
+        result = null;
+        for (ContainerInfo info : engine.containerList(CONTAINER_LABEL_STAGE, name).values()) {
+            if (info.state == Engine.Status.RUNNING) {
+                if (result != null) {
+                    throw new IllegalStateException(result.toString());
+                }
+                result = info;
+            }
         }
+        return result;
     }
 
     /** @return null if not running */

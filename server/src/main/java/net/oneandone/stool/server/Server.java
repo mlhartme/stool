@@ -444,9 +444,11 @@ public class Server {
         Image image;
 
         reserved = 0;
-        for (ContainerInfo info : engine.containerListRunning(Stage.CONTAINER_LABEL_IMAGE).values()) {
-            image = Image.load(engine, info.labels.get(Stage.CONTAINER_LABEL_IMAGE));
-            reserved += image.memory;
+        for (ContainerInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
+            if (info.state == Engine.Status.RUNNING) {
+                image = Image.load(engine, info.labels.get(Stage.CONTAINER_LABEL_IMAGE));
+                reserved += image.memory;
+            }
         }
         return reserved;
     }

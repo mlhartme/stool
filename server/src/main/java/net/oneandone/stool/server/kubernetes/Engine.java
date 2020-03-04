@@ -581,20 +581,14 @@ public class Engine implements AutoCloseable {
 
     //-- containers
 
-    public Map<String, ContainerInfo> containerListRunning(String key, String value) throws IOException {
-        return containerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
-    }
-    public Map<String, ContainerInfo> containerListRunning(String key) throws IOException {
-        return containerList("{\"label\" : [\"" + key + "\"], \"status\" : [\"running\"] }", false);
-    }
     public Map<String, ContainerInfo> containerList(String key, String value) throws IOException {
-        return containerList("{\"label\" : [\"" + key + "=" + value + "\"] }", true);
+        return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"] }");
     }
     public Map<String, ContainerInfo> containerList(String key) throws IOException {
-        return containerList("{\"label\" : [\"" + key + "\"] }", true);
+        return doContainerList("{\"label\" : [\"" + key + "\"] }");
     }
 
-    public Map<String, ContainerInfo> containerList(String filters, boolean all) throws IOException {
+    private Map<String, ContainerInfo> doContainerList(String filters) throws IOException {
         HttpNode node;
         JsonArray array;
         Map<String, ContainerInfo> result;
@@ -607,9 +601,7 @@ public class Engine implements AutoCloseable {
         if (filters != null) {
             node = node.withParameter("filters", filters);
         }
-        if (all) {
-            node = node.withParameter("all", "true");
-        }
+        node = node.withParameter("all", "true");
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new HashMap<>(array.size());
         for (JsonElement element : array) {
