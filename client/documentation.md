@@ -377,7 +377,7 @@ Authenticate to server(s)
 #### DESCRIPTION
 
 Asks for username/password to authenticate against ldap. If authentication succeeds, the respective *server* (if not specified: all servers
-that need authentication) is asked for an api token that will be stored in `~/.stool/servers.yml` and used for future access to this server.
+that need authentication) is asked for an api token that will be stored in `~/.stool/servers.json` and used for future access to this server.
 
 Use the `-batch` option to omit asking for username/password and instead pick them from the environment variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
 
