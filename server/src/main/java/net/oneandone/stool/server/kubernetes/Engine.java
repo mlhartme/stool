@@ -58,6 +58,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -224,6 +225,13 @@ public class Engine implements AutoCloseable {
     private static LocalDateTime toLocalTime(long epochSeconds) {
         Instant instant = Instant.ofEpochSecond(epochSeconds);
         return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    public String imageBuildWithOutput(String repositoryTag, FileNode context) throws IOException {
+        try (StringWriter dest = new StringWriter()) {
+            imageBuild(repositoryTag, Collections.emptyMap(), Collections.emptyMap(), context, false, dest);
+            return dest.toString();
+        }
     }
 
     /**
@@ -586,6 +594,10 @@ public class Engine implements AutoCloseable {
     }
     public Map<String, ContainerInfo> containerList(String key) throws IOException {
         return doContainerList("{\"label\" : [\"" + key + "\"] }");
+    }
+
+    public Map<String, ContainerInfo> containerListForImage(String image) throws IOException {
+        return doContainerList("{\"ancestor\" : [\"" + image + "\"] }");
     }
 
     private Map<String, ContainerInfo> doContainerList(String filters) throws IOException {
