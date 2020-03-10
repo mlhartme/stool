@@ -474,7 +474,7 @@ public class Engine implements AutoCloseable {
             result = new LinkedHashMap<>();
             for (V1Pod pod : list.getItems()) {
                 name = pod.getMetadata().getName();
-                result.put(name, new PodInfo(name, pod.getStatus().getPhase(), pod.getMetadata().getLabels()));
+                result.put(name, PodInfo.create(pod));
             }
         } catch (ApiException e) {
             throw wrap(e);
@@ -491,7 +491,7 @@ public class Engine implements AutoCloseable {
                     null, null, null, null);
             for (V1Pod pod : list.getItems()) {
                 if (name.equals(pod.getMetadata().getName())) {
-                    return new PodInfo(name, pod.getStatus().getPhase(), pod.getMetadata().getLabels());
+                    return PodInfo.create(pod);
                 }
             }
         } catch (ApiException e) {
