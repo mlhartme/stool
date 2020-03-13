@@ -572,6 +572,7 @@ public class Engine implements AutoCloseable {
                 .addNewContainer()
                   .withName(name + "-container")
                   .withImage(image)
+                  .withImagePullPolicy("Never") // TODO
                 .endContainer().endSpec().build();
     }
 
