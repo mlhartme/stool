@@ -18,7 +18,6 @@ package net.oneandone.stool.server.kubernetes;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.ArgumentException;
-import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
@@ -135,6 +134,30 @@ public class EngineIT {
         }
     }
 
+
+    @Test
+    public void podRestart() throws IOException {
+        String image;
+        String message;
+
+        message = UUID.randomUUID().toString();
+        try (Engine engine = create()) {
+            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            engine.podCreate("restart-pod", "restart:tag");
+        }
+        try (Engine engine = create()) {
+            engine.podDelete("restart-pod");
+            engine.imageRemove(image, false);
+        }
+        try (Engine engine = create()) {
+            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            engine.podCreate("restart-pod", "restart:tag");
+        }
+        try (Engine engine = create()) {
+            engine.podDelete("restart-pod");
+            engine.imageRemove(image, false);
+        }
+    }
     @Test
     public void services() throws IOException {
         final String name = "service";
@@ -204,40 +227,6 @@ public class EngineIT {
     }
 
     //-- TODO: integrate with above
-
-    @Test
-    public void restart() throws IOException {
-        String image;
-        String message;
-        String container;
-
-        message = UUID.randomUUID().toString();
-
-        try (Engine engine = create()) {
-            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
-            container = engine.containerCreate(null, image, "foo", null, false,
-                    null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-            engine.containerStart(container);
-        }
-        try (Engine engine = create()) {
-            engine.containerStop(container, 60);
-
-            engine.containerRemove(container);
-            engine.imageRemove(image, false);
-        }
-        try (Engine engine = create()) {
-            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
-            container = engine.containerCreate(null, image, "foo", null, false,
-                    null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-            engine.containerStart(container);
-        }
-        try (Engine engine = create()) {
-            engine.containerStop(container, 60);
-
-            engine.containerRemove(container);
-            engine.imageRemove(image, false);
-        }
-    }
 
     /**
      * I've seen this check fail with strange errors on Manjaro Linux (e.g. "cannot start a stopped process: unknown");
