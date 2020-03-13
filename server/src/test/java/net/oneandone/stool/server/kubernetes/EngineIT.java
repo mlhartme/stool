@@ -174,7 +174,7 @@ public class EngineIT {
 
     @Test
     public void turnaround() throws IOException {
-        String imageTag;
+        String imageName;
         String image;
         String message;
         String pod;
@@ -184,11 +184,11 @@ public class EngineIT {
         try (Engine engine = create()) {
             engine.namespaceReset();
 
-            imageTag = "someapp:1.0.0";
-            image = engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            imageName = "turnaround";
+            image = engine.imageBuild(imageName, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             assertNotNull(image);
 
-            engine.podCreate(pod, imageTag);;
+            engine.podCreate(pod, imageName);
             assertEquals("Running", engine.podProbe(pod).phase);
             engine.podDelete(pod);
             assertNull(engine.podProbe(pod));
