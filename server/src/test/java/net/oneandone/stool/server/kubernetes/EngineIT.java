@@ -50,6 +50,91 @@ public class EngineIT {
 
     }
 
+    //-- images
+
+    @Test(expected = ArgumentException.class)
+    public void rejectBuildWithUppercaseTag() throws IOException {
+        try (Engine engine = create()) {
+            engine.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
+        }
+    }
+
+    @Test
+    public void runFailure() throws IOException {
+        String image = "stooltest";
+
+        try (Engine engine = create()) {
+            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n"));
+            fail();
+        } catch (BuildError e) {
+            // ok
+            assertNotNull("", e.error);
+            assertEquals(127, e.details.get("code").getAsInt());
+            assertNotNull("", e.output);
+        }
+    }
+
+    @Test
+    public void invalidDockerfile() throws IOException {
+        try (Engine engine = create()) {
+            engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nls -la /dev/fuse\n"), false, null);
+            fail();
+        } catch (StatusException e) {
+            assertEquals(400, e.getStatusLine().code);
+        }
+    }
+
+    @Test
+    public void copy() throws IOException {
+        String image = "stooltest";
+
+        try (Engine engine = create()) {
+            engine.imageBuildWithOutput(image, WORLD.guessProjectHome(getClass()).join("src/test/docker"));
+            engine.imageRemove(image, false);
+        }
+    }
+
+    @Test
+    public void copyFailure() throws IOException {
+        String image = "stooltest";
+
+        try (Engine engine = create()) {
+            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
+            fail();
+        } catch (BuildError e) {
+            // ok
+            assertTrue(e.error.contains("COPY failed"));
+            assertNotNull("", e.output);
+        }
+    }
+
+    @Test
+    public void imageLabels() throws IOException {
+        Map<String, String> labels = Strings.toMap("a", "b", "1", "234");
+        StringWriter output;
+        String image;
+        ImageInfo info;
+
+        try (Engine engine = create()) {
+            output = new StringWriter();
+            image = engine.imageBuild("labeltest", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
+                    false, output);
+            info = engine.imageList().get(image);
+            assertEquals(labels, info.labels);
+        }
+    }
+
+    private FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {
+        FileNode dir;
+
+        dir = WORLD.getTemp().createTempDirectory();
+        dir.join("Dockerfile").writeString(dockerfile);
+        for (FileNode extra : extras) {
+            extra.copyFile(dir.join(extra.getName()));
+        }
+        return dir;
+    }
+
     //-- pods + services
 
     @Test
@@ -196,37 +281,26 @@ public class EngineIT {
         }
     }
 
-    //-- images
-
-    @Test(expected = ArgumentException.class)
-    public void rejectBuildWithUppercaseTag() throws IOException {
-        try (Engine engine = create()) {
-            engine.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
-        }
-    }
+    //-- TODO: integrate with above
 
     @Test
-    public void invalidDockerfile() throws IOException {
+    public void cmdNotFound() throws IOException {
+        String image = "stooltest";
+        String container;
+
         try (Engine engine = create()) {
-            engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nls -la /dev/fuse\n"), false, null);
-            fail();
-        } catch (StatusException e) {
-            assertEquals(400, e.getStatusLine().code);
+            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
+            container = engine.containerCreate(image, "foo");
+            assertNotNull(container);
+            assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
+            try {
+                engine.containerStart(container);
+                fail();
+            } catch (StatusException e) {
+                assertEquals(400, e.getStatusLine().code);
+            }
         }
     }
-
-    private FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {
-        FileNode dir;
-
-        dir = WORLD.getTemp().createTempDirectory();
-        dir.join("Dockerfile").writeString(dockerfile);
-        for (FileNode extra : extras) {
-            extra.copyFile(dir.join(extra.getName()));
-        }
-        return dir;
-    }
-
-    //-- TODO: integrate with above
 
     /**
      * I've seen this check fail with strange errors on Manjaro Linux (e.g. "cannot start a stopped process: unknown");
@@ -250,32 +324,6 @@ public class EngineIT {
             assertTrue(stats.memoryUsage <= stats.memoryLimit);
             engine.containerStop(container, 60);
 
-            engine.containerRemove(container);
-            engine.imageRemove(image, false);
-        }
-    }
-
-    @Test
-    public void stop() throws IOException {
-        String image = "stooltest";
-        String output;
-        String container;
-        long duration;
-
-        try (Engine engine = create()) {
-            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD [\"/bin/sleep\", \"30\"]\n"));
-            assertNotNull(output);
-
-            container = engine.containerCreate(null, image, "foo", null, false, null, /*"SIGQUIT"*/ null, 3,
-                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-            engine.containerStart(container);
-            assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
-            duration = System.currentTimeMillis();
-            engine.containerStop(container, 6);
-            duration = System.currentTimeMillis() - duration;
-            assertTrue("about 6 seconds expected, took " + duration, duration >= 6000 && duration < 8000);
-            assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
-            assertNotNull(engine.containerLogs(container));
             engine.containerRemove(container);
             engine.imageRemove(image, false);
         }
@@ -329,79 +377,4 @@ public class EngineIT {
             engine.imageRemove(image, false);
         }
     }
-
-    @Test
-    public void runFailure() throws IOException {
-        String image = "stooltest";
-
-        try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n"));
-            fail();
-        } catch (BuildError e) {
-            // ok
-            assertNotNull("", e.error);
-            assertEquals(127, e.details.get("code").getAsInt());
-            assertNotNull("", e.output);
-        }
-    }
-
-    @Test
-    public void cmdNotFound() throws IOException {
-        String image = "stooltest";
-        String container;
-
-        try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
-            container = engine.containerCreate(image, "foo");
-            assertNotNull(container);
-            assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
-            try {
-                engine.containerStart(container);
-                fail();
-            } catch (StatusException e) {
-                assertEquals(400, e.getStatusLine().code);
-            }
-        }
-    }
-
-    @Test
-    public void copy() throws IOException {
-        String image = "stooltest";
-
-        try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, WORLD.guessProjectHome(getClass()).join("src/test/docker"));
-            engine.imageRemove(image, false);
-        }
-    }
-
-    @Test
-    public void copyFailure() throws IOException {
-        String image = "stooltest";
-
-        try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
-            fail();
-        } catch (BuildError e) {
-            // ok
-            assertTrue(e.error.contains("COPY failed"));
-            assertNotNull("", e.output);
-        }
-    }
-
-    @Test
-    public void labels() throws IOException {
-        Map<String, String> labels = Strings.toMap("a", "b", "1", "234");
-        StringWriter output;
-        String image;
-        ImageInfo info;
-
-        try (Engine engine = create()) {
-            output = new StringWriter();
-            image = engine.imageBuild("labeltest", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
-                    false, output);
-            info = engine.imageList().get(image);
-            assertEquals(labels, info.labels);
-        }
-    }
-
 }

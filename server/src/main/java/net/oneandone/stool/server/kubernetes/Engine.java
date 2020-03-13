@@ -186,7 +186,6 @@ public class Engine implements AutoCloseable {
     /** @return image ids mapped to ImageInfo */
     public Map<String, ImageInfo> imageList() throws IOException {
         return imageList(Collections.emptyMap());
-
     }
 
     public Map<String, ImageInfo> imageList(Map<String, String> labels) throws IOException {
