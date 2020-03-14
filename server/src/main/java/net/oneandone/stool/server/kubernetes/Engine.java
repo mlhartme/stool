@@ -26,6 +26,7 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1Namespace;
 import io.kubernetes.client.openapi.models.V1NamespaceBuilder;
 import io.kubernetes.client.openapi.models.V1NamespaceList;
@@ -512,8 +513,12 @@ public class Engine implements AutoCloseable {
     }
 
     public void podCreate(String name, String image, Map<String, String> labels) throws IOException {
+        podCreate(name, image, labels, Strings.toMap());
+    }
+
+    public void podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
         try {
-            core.createNamespacedPod(namespace, pod(name, image, labels), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, labels, env), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -564,13 +569,24 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    private static V1Pod pod(String name, String image, Map<String, String> labels) {
+    private static V1Pod pod(String name, String image, Map<String, String> labels, Map<String, String> env) {
+        List<V1EnvVar> lst;
+        V1EnvVar var;
+
+        lst = new ArrayList<>();
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            var = new V1EnvVar();
+            var.setName(entry.getKey());
+            var.setValue(entry.getValue());
+            lst.add(var);
+        }
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .addNewContainer()
                   .withName(name + "-container")
                   .withImage(image)
+                  .withEnv(lst)
                   .withImagePullPolicy("Never") // TODO
                 .endContainer().endSpec().build();
     }

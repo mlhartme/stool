@@ -264,6 +264,28 @@ public class EngineIT {
             engine.imageRemove(image, false);
         }
     }
+
+    @Test
+    public void podEnv() throws IOException, InterruptedException {
+        String image = "stooltest";
+        String pod = "podenv";
+        String output;
+        String container;
+
+        try (Engine engine = create()) {
+            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx; sleep 60\n"));
+            assertNotNull(output);
+            engine.podCreate(pod, image, Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after"));
+            container = engine.podProbe(pod).containerId;
+            assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
+            Thread.sleep(1000);
+            assertEquals("bar after\n", engine.containerLogs(container));
+            engine.podDelete(pod);
+            engine.imageRemove(image, false);
+        }
+    }
+
+
     @Test
     public void services() throws IOException {
         final String name = "service";
@@ -326,27 +348,6 @@ public class EngineIT {
             assertTrue(stats.memoryUsage <= stats.memoryLimit);
             engine.containerStop(container, 60);
 
-            engine.containerRemove(container);
-            engine.imageRemove(image, false);
-        }
-    }
-
-    @Test
-    public void env() throws IOException, InterruptedException {
-        String image = "stooltest";
-        String output;
-        String container;
-
-        try (Engine engine = create()) {
-            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx\n"));
-            assertNotNull(output);
-            container = engine.containerCreate(null, image, "foo", null, false, null, /*"SIGQUIT"*/ null, 3,
-                    Collections.emptyMap(), Strings.toMap("foo", "bar", "xxx", "after"), Collections.emptyMap(), Collections.emptyMap());
-            engine.containerStart(container);
-            assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
-            Thread.sleep(1000);
-            assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
-            assertEquals("bar after\n", engine.containerLogs(container));
             engine.containerRemove(container);
             engine.imageRemove(image, false);
         }
