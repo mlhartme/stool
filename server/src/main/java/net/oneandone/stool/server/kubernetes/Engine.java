@@ -526,12 +526,18 @@ public class Engine implements AutoCloseable {
 
     public void podCreate(String name, String image, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
                           Map<String, String> mounts) throws IOException {
+        String phase;
+
         try {
             core.createNamespacedPod(namespace, pod(name, image, healing, memory, labels, env, mounts), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
-        podAwait(name, "Running");
+
+        phase = podAwait(name, "Running", "Failed");
+        if (!phase.equals("Running")) {
+            throw new IOException("create-pod failed: " + phase);
+        }
     }
 
     public void podDelete(String name) throws IOException {
@@ -553,7 +559,7 @@ public class Engine implements AutoCloseable {
         podAwait(name, null);
     }
 
-    private void podAwait(String name, String expectedPhase) throws IOException {
+    private String podAwait(String name, String... expectedPhases) throws IOException {
         PodInfo info;
         int count;
         String phase;
@@ -562,20 +568,41 @@ public class Engine implements AutoCloseable {
         while (true) {
             info = podProbe(name);
             phase = info == null ? null : info.phase;
-            if (same(expectedPhase, phase)) {
-                return;
+            if (expectedPhases == null) {
+                if (same(null, phase)) {
+                    return null;
+                }
+            } else {
+                for (String e : expectedPhases) {
+                    if (same(e, phase)) {
+                        return phase;
+                    }
+                }
             }
             count++;
             if (count > 500) {
-                throw new IOException("waiting for phase '" + expectedPhase
+                throw new IOException("waiting for phase '" + toString(expectedPhases)
                         + "' timed out, phase is now " + phase);
             }
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                throw new IOException("waiting for phase '" + expectedPhase + "' interrupted", e);
+                throw new IOException("waiting for phase '" + toString(expectedPhases) + "' interrupted", e);
             }
         }
+    }
+
+    private static String toString(String[] args) {
+        StringBuilder result;
+
+        result = new StringBuilder();
+        for (String arg : args) {
+            if (result.length() == 0) {
+                result.append(", ");
+            }
+            result.append(arg);
+        }
+        return result.toString();
     }
 
     private static V1Pod pod(String name, String image, boolean healing, Integer memory,

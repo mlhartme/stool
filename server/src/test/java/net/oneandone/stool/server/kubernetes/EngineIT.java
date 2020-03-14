@@ -135,6 +135,7 @@ public class EngineIT {
                 engine.podCreate(pod, image);
                 fail();
             } catch (IOException e) {
+                assertEquals("create-pod failed: Failed", e.getMessage());
                // ok
             }
         }
