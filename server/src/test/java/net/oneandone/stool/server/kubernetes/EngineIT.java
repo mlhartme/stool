@@ -285,6 +285,30 @@ public class EngineIT {
         }
     }
 
+    @Test
+    public void podMount() throws IOException, InterruptedException {
+        FileNode home;
+        FileNode file;
+        String image = "stooltest";
+        String pod = "bindmount";
+        String output;
+
+        home = WORLD.getHome();
+        file = home.createTempFile();
+        try (Engine engine = create()) {
+            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "; sleep 60\n"));
+            assertNotNull(output);
+
+            engine.podCreate(pod, image, Collections.emptyMap(), Collections.emptyMap(),
+                    Collections.singletonMap(home.getAbsolute(), home.getAbsolute()));
+            Thread.sleep(1000);
+            output = engine.containerLogs(engine.podProbe(pod).containerId);
+            assertTrue(output.contains(file.getAbsolute()));
+            engine.podDelete(pod);
+
+            engine.imageRemove(image, false);
+        }
+    }
 
     @Test
     public void services() throws IOException {
@@ -349,34 +373,6 @@ public class EngineIT {
             engine.containerStop(container, 60);
 
             engine.containerRemove(container);
-            engine.imageRemove(image, false);
-        }
-    }
-
-    @Test
-    public void bindMount() throws IOException {
-        FileNode home;
-        FileNode file;
-        String image = "stooltest";
-        String output;
-        String container;
-
-        home = WORLD.getHome();
-        file = home.createTempFile();
-        try (Engine engine = create()) {
-            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
-            assertNotNull(output);
-
-            container = engine.containerCreate(null, image, "foo", null, false, null, null, null,
-                    Collections.emptyMap(), Collections.emptyMap(), Collections.singletonMap(home, home.getAbsolute()), Collections.emptyMap());
-            assertNotNull(container);
-            assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
-            engine.containerStart(container);
-            assertEquals(0, engine.containerWait(container));
-            output = engine.containerLogs(container);
-            assertTrue(output.contains(file.getAbsolute()));
-            engine.containerRemove(container);
-
             engine.imageRemove(image, false);
         }
     }

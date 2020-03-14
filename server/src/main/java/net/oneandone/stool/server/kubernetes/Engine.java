@@ -27,6 +27,7 @@ import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1EnvVar;
+import io.kubernetes.client.openapi.models.V1HostPathVolumeSource;
 import io.kubernetes.client.openapi.models.V1Namespace;
 import io.kubernetes.client.openapi.models.V1NamespaceBuilder;
 import io.kubernetes.client.openapi.models.V1NamespaceList;
@@ -37,6 +38,8 @@ import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceBuilder;
 import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.openapi.models.V1ServicePort;
+import io.kubernetes.client.openapi.models.V1Volume;
+import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
@@ -517,8 +520,13 @@ public class Engine implements AutoCloseable {
     }
 
     public void podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
+        podCreate(name, image, labels, env, Strings.toMap());
+    }
+
+    public void podCreate(String name, String image, Map<String, String> labels, Map<String, String> env,
+                          Map<String, String> mounts) throws IOException {
         try {
-            core.createNamespacedPod(namespace, pod(name, image, labels, env), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, labels, env, mounts), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -569,9 +577,16 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    private static V1Pod pod(String name, String image, Map<String, String> labels, Map<String, String> env) {
+    private static V1Pod pod(String name, String image, Map<String, String> labels, Map<String, String> env,
+                             Map<String, String> volumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
+        List<V1Volume> vl;
+        V1Volume v;
+        String vname;
+        V1HostPathVolumeSource hp;
+        List<V1VolumeMount> ml;
+        V1VolumeMount m;
 
         lst = new ArrayList<>();
         for (Map.Entry<String, String> entry : env.entrySet()) {
@@ -580,10 +595,28 @@ public class Engine implements AutoCloseable {
             var.setValue(entry.getValue());
             lst.add(var);
         }
+        vl = new ArrayList<>();
+        ml = new ArrayList<>();
+        vname = "volumne";
+        for (Map.Entry<String, String> entry : volumes.entrySet()) {
+            hp = new V1HostPathVolumeSource();
+            hp.setPath(entry.getKey());
+            v = new V1Volume();
+            v.setName(vname);
+            v.setHostPath(hp);
+            vl.add(v);
+            m = new V1VolumeMount();
+            m.setName(vname);
+            m.setMountPath(entry.getValue());
+            ml.add(m);
+            vname = vname + "x";
+        }
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
+                .addAllToVolumes(vl)
                 .addNewContainer()
+                  .addAllToVolumeMounts(ml)
                   .withName(name + "-container")
                   .withImage(image)
                   .withEnv(lst)
