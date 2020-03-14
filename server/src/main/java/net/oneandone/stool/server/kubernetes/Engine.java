@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
+import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
@@ -520,13 +521,13 @@ public class Engine implements AutoCloseable {
     }
 
     public void podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
-        podCreate(name, image, labels, env, Strings.toMap());
+        podCreate(name, image, null, labels, env, Strings.toMap());
     }
 
-    public void podCreate(String name, String image, Map<String, String> labels, Map<String, String> env,
+    public void podCreate(String name, String image, Integer memory, Map<String, String> labels, Map<String, String> env,
                           Map<String, String> mounts) throws IOException {
         try {
-            core.createNamespacedPod(namespace, pod(name, image, labels, env, mounts), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, memory, labels, env, mounts), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -577,8 +578,8 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    private static V1Pod pod(String name, String image, Map<String, String> labels, Map<String, String> env,
-                             Map<String, String> volumes) {
+    private static V1Pod pod(String name, String image, Integer memory,
+                             Map<String, String> labels, Map<String, String> env, Map<String, String> volumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -587,6 +588,7 @@ public class Engine implements AutoCloseable {
         V1HostPathVolumeSource hp;
         List<V1VolumeMount> ml;
         V1VolumeMount m;
+        Map<String, Quantity> limits;
 
         lst = new ArrayList<>();
         for (Map.Entry<String, String> entry : env.entrySet()) {
@@ -611,12 +613,17 @@ public class Engine implements AutoCloseable {
             ml.add(m);
             vname = vname + "x";
         }
+        limits = new HashMap<>();
+        if (memory != null) {
+            limits.put("memory", new Quantity(memory.toString()));
+        }
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .addAllToVolumes(vl)
                 .addNewContainer()
                   .addAllToVolumeMounts(ml)
+                  .withNewResources().withLimits(limits).endResources()
                   .withName(name + "-container")
                   .withImage(image)
                   .withEnv(lst)

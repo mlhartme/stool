@@ -299,13 +299,35 @@ public class EngineIT {
             output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "; sleep 60\n"));
             assertNotNull(output);
 
-            engine.podCreate(pod, image, Collections.emptyMap(), Collections.emptyMap(),
+            engine.podCreate(pod, image, null, Collections.emptyMap(), Collections.emptyMap(),
                     Collections.singletonMap(home.getAbsolute(), home.getAbsolute()));
             Thread.sleep(1000);
             output = engine.containerLogs(engine.podProbe(pod).containerId);
             assertTrue(output.contains(file.getAbsolute()));
             engine.podDelete(pod);
 
+            engine.imageRemove(image, false);
+        }
+    }
+
+    @Test
+    public void podLimit() throws IOException {
+        final int limit = 1024*1024*5;
+        Stats stats;
+        String image = "podlimit";
+        String pod = "pod";
+        String message;
+        String container;
+
+        message = UUID.randomUUID().toString();
+        try (Engine engine = create()) {
+            engine.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 60\n"), false, null);
+            engine.podCreate(pod, image, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+            container = engine.podProbe(pod).containerId;
+            stats = engine.containerStats(container);
+            assertEquals(limit, stats.memoryLimit);
+            assertTrue(stats.memoryUsage <= stats.memoryLimit);
+            engine.podDelete(pod);
             engine.imageRemove(image, false);
         }
     }
@@ -344,35 +366,6 @@ public class EngineIT {
             assertEquals("Running", engine.podProbe(pod).phase);
             engine.podDelete(pod);
             assertNull(engine.podProbe(pod));
-            engine.imageRemove(image, false);
-        }
-    }
-
-    //-- TODO: integrate with above
-
-    /**
-     * I've seen this check fail with strange errors on Manjaro Linux (e.g. "cannot start a stopped process: unknown");
-     * dmsg shows the memory killer, I suspect it's caused by https://github.com/opencontainers/runc/issues/1980 */
-    @Test
-    public void limit() throws IOException {
-        final long limit = 1024*1024*5;
-        Stats stats;
-        String image;
-        String message;
-        String container;
-
-        message = UUID.randomUUID().toString();
-        try (Engine engine = create()) {
-            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
-            container = engine.containerCreate(null, image, "foo", null, false,
-                    limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-            engine.containerStart(container);
-            stats = engine.containerStats(container);
-            assertEquals(limit, stats.memoryLimit);
-            assertTrue(stats.memoryUsage <= stats.memoryLimit);
-            engine.containerStop(container, 60);
-
-            engine.containerRemove(container);
             engine.imageRemove(image, false);
         }
     }
