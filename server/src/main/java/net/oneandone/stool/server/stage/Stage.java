@@ -728,7 +728,7 @@ public class Stage {
         }
         container = engine.containerCreate(toName(image.repositoryTag), image.repositoryTag,
                 md5(getName()) + "." + server.configuration.dockerHost, server.networkMode,
-                false, 1024L * 1024 * image.memory, null, null,
+                1024L * 1024 * image.memory, null, null,
                 labels, environment, mounts, image.ports.map(hostPorts, server.localhostIp));
         Server.LOGGER.debug("created container " + container);
         engine.containerStart(container);

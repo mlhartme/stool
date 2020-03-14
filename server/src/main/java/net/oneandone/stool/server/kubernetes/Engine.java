@@ -521,13 +521,13 @@ public class Engine implements AutoCloseable {
     }
 
     public void podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
-        podCreate(name, image, null, labels, env, Strings.toMap());
+        podCreate(name, image, false, null, labels, env, Strings.toMap());
     }
 
-    public void podCreate(String name, String image, Integer memory, Map<String, String> labels, Map<String, String> env,
+    public void podCreate(String name, String image, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
                           Map<String, String> mounts) throws IOException {
         try {
-            core.createNamespacedPod(namespace, pod(name, image, memory, labels, env, mounts), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, healing, memory, labels, env, mounts), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -578,7 +578,7 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    private static V1Pod pod(String name, String image, Integer memory,
+    private static V1Pod pod(String name, String image, boolean healing, Integer memory,
                              Map<String, String> labels, Map<String, String> env, Map<String, String> volumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
@@ -620,6 +620,7 @@ public class Engine implements AutoCloseable {
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
+                .withRestartPolicy(healing ? "Always" : "Never")
                 .addAllToVolumes(vl)
                 .addNewContainer()
                   .addAllToVolumeMounts(ml)
@@ -682,11 +683,6 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    public String containerCreate(String image, String hostname) throws IOException {
-        return containerCreate(null, image, hostname, null, false, null, null, null,
-                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-    }
-
     /**
      * @param memory is the memory limit in bytes. Or null for no limit. At least 1024*1024*4. The actual value used by docker is something
      *               rounded of this parameter
@@ -696,7 +692,7 @@ public class Engine implements AutoCloseable {
      * @return container id
      */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public String containerCreate(String name, String image, String hostname, String networkMode, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
+    public String containerCreate(String name, String image, String hostname, String networkMode, Long memory, String stopSignal, Integer stopTimeout,
                                   Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, String> ports) throws IOException {
         JsonObject body;
         JsonObject response;
@@ -733,9 +729,6 @@ public class Engine implements AutoCloseable {
             hostConfig.add("Memory", new JsonPrimitive(memory));
             // unlimited; important, because debian stretch kernel does not support this
             hostConfig.add("MemorySwap", new JsonPrimitive(-1));
-        }
-        if (priviledged) {
-            hostConfig.add("Privileged", new JsonPrimitive(true));
         }
         if (networkMode != null) {
             hostConfig.add("NetworkMode", new JsonPrimitive(networkMode));

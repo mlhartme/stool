@@ -128,20 +128,15 @@ public class EngineIT {
     public void cmdNotFound() throws IOException {
         String image = "stooltest";
         String pod = "cmdnotfound";
-        PodInfo info;
 
         try (Engine engine = create()) {
             engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
-            engine.podCreate(pod, image);
-            info = engine.podProbe(pod);
-            assertEquals("Running", info.phase);
             try {
-                engine.containerStatus(info.containerId);
+                engine.podCreate(pod, image);
                 fail();
             } catch (IOException e) {
-                assertTrue(e.getMessage().contains("nosuchcmd"));
+               // ok
             }
-            engine.podDelete(pod);
         }
     }
 
@@ -202,7 +197,7 @@ public class EngineIT {
             image = ids.get(0);
             assertTrue(engine.containerListForImage(image).isEmpty());
             assertTrue(engine.containerList("stooltest").isEmpty());
-            engine.podCreate(pod, "some:tag", "containerLabel", "bla");
+            engine.podCreate(pod, "some:tag", true, null, Strings.toMap("containerLabel", "bla"), Collections.emptyMap(), Collections.emptyMap());
             container = engine.podProbe(pod).containerId;
             assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
 
@@ -299,7 +294,7 @@ public class EngineIT {
             output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "; sleep 60\n"));
             assertNotNull(output);
 
-            engine.podCreate(pod, image, null, Collections.emptyMap(), Collections.emptyMap(),
+            engine.podCreate(pod, image, false,null, Collections.emptyMap(), Collections.emptyMap(),
                     Collections.singletonMap(home.getAbsolute(), home.getAbsolute()));
             Thread.sleep(1000);
             output = engine.containerLogs(engine.podProbe(pod).containerId);
@@ -322,7 +317,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
         try (Engine engine = create()) {
             engine.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 60\n"), false, null);
-            engine.podCreate(pod, image, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+            engine.podCreate(pod, image, false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             container = engine.podProbe(pod).containerId;
             stats = engine.containerStats(container);
             assertEquals(limit, stats.memoryLimit);
