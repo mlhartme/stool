@@ -124,6 +124,27 @@ public class EngineIT {
         }
     }
 
+    @Test
+    public void cmdNotFound() throws IOException {
+        String image = "stooltest";
+        String pod = "cmdnotfound";
+        PodInfo info;
+
+        try (Engine engine = create()) {
+            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
+            engine.podCreate(pod, image);
+            info = engine.podProbe(pod);
+            assertEquals("Running", info.phase);
+            try {
+                engine.containerStatus(info.containerId);
+                fail();
+            } catch (IOException e) {
+                assertTrue(e.getMessage().contains("nosuchcmd"));
+            }
+            engine.podDelete(pod);
+        }
+    }
+
     private FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {
         FileNode dir;
 
@@ -282,25 +303,6 @@ public class EngineIT {
     }
 
     //-- TODO: integrate with above
-
-    @Test
-    public void cmdNotFound() throws IOException {
-        String image = "stooltest";
-        String container;
-
-        try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
-            container = engine.containerCreate(image, "foo");
-            assertNotNull(container);
-            assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
-            try {
-                engine.containerStart(container);
-                fail();
-            } catch (StatusException e) {
-                assertEquals(400, e.getStatusLine().code);
-            }
-        }
-    }
 
     /**
      * I've seen this check fail with strange errors on Manjaro Linux (e.g. "cannot start a stopped process: unknown");
