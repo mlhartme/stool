@@ -189,7 +189,7 @@ public class EngineIT {
             assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
 
             engine.podDelete(name);
-            assertEquals(Collections.emptyList(), engine.containerListForImage(image));
+            assertEquals(Collections.emptyMap(), engine.containerListForImage(image));
             assertEquals(0, engine.podList().size());
             engine.imageRemove(image, true);
         }
@@ -280,22 +280,20 @@ public class EngineIT {
     }
 
     @Test
-    public void podEnv() throws IOException, InterruptedException {
+    public void podEnv() throws IOException {
         String image = "stooltest";
         String pod = "podenv";
         String output;
         String container;
 
         try (Engine engine = create()) {
-            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx; sleep 60\n"));
+            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx\n"));
             assertNotNull(output);
-            engine.podCreate(pod, image, Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after"));
+            assertFalse(engine.podCreate(pod, image, Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after")));
             container = engine.podProbe(pod).containerId;
-            assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
-            Thread.sleep(1000);
             assertEquals("bar after\n", engine.containerLogs(container));
             engine.podDelete(pod);
-            engine.imageRemove(image, false);
+            engine.imageRemove(image, true);
         }
     }
 
