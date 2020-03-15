@@ -534,8 +534,8 @@ public class Engine implements AutoCloseable {
             throw wrap(e);
         }
 
-        phase = podAwait(name, "Running", "Failed");
-        if (!phase.equals("Running")) {
+        phase = podAwait(name, "Running", "Failed", "Succeeded");
+        if (phase.equals("Failed")) {
             throw new IOException("create-pod failed: " + phase);
         }
     }
@@ -597,7 +597,7 @@ public class Engine implements AutoCloseable {
 
         result = new StringBuilder();
         for (String arg : args) {
-            if (result.length() == 0) {
+            if (result.length() > 0) {
                 result.append(", ");
             }
             result.append(arg);
@@ -645,10 +645,11 @@ public class Engine implements AutoCloseable {
         if (memory != null) {
             limits.put("memory", new Quantity(memory.toString()));
         }
-        builder = new V1PodBuilder()
+        return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy(healing ? "Always" : "Never")
+                .withHostname(hostname)
                 .addAllToVolumes(vl)
                 .addNewContainer()
                   .addAllToVolumeMounts(ml)
@@ -657,11 +658,7 @@ public class Engine implements AutoCloseable {
                   .withImage(image)
                   .withEnv(lst)
                   .withImagePullPolicy("Never") // TODO
-                .endContainer().endSpec();
-        if (hostname != null) {
-            builder.editSpec().withHostname(hostname);
-        }
-        return builder.build();
+                .endContainer().endSpec().build();
     }
 
     private static boolean same(String left, String right) {

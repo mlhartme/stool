@@ -297,22 +297,31 @@ public class EngineIT {
     }
 
     @Test
+    public void podImplicittHostname() throws IOException, InterruptedException {
+        doHostnameTest("podimplicit", null, "podimplicit");
+    }
+
+    @Test
     public void podExplicitHostname() throws IOException, InterruptedException {
-        String image = "stooltest";
-        String pod = "podenv";
+        doHostnameTest("podexplicit", "ex", "ex");
+    }
+
+    private void doHostnameTest(String pod, String hostname, String expected) throws IOException, InterruptedException {
+        String image = "hostname";
         String output;
         String container;
 
         try (Engine engine = create()) {
-            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD hostname\n"));
+            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nRUN echo pod\nCMD hostname\n"));
             assertNotNull(output);
-            engine.podCreate(pod, image, "foo", false, null, Strings.toMap(), Strings.toMap(), Strings.toMap());
+            engine.podCreate(pod, image, hostname, false, null, Strings.toMap(), Strings.toMap(), Strings.toMap());
             container = engine.podProbe(pod).containerId;
-            assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
-            Thread.sleep(1000);
-            assertEquals("foox\n", engine.containerLogs(container));
+            Thread.sleep(500);
+            assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
+            assertEquals(expected + "\n", engine.containerLogs(container));
             engine.podDelete(pod);
-            engine.imageRemove(image, false);
+            // TODO: causes conflict ...
+            //   engine.imageRemove(image, false);
         }
     }
 
