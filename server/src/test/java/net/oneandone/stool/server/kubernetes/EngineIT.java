@@ -22,6 +22,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -47,12 +48,17 @@ public class EngineIT {
     private static final World WORLD = World.createMinimal();
 
     private Engine create() throws IOException {
+        return Engine.create("target/wire.log");
+    }
+
+    @BeforeClass
+    public static void beforeClass() throws IOException {
         Engine engine;
 
-        engine = Engine.create("target/wire.log");
+        engine = Engine.create("target/wipe-ns.log");
         engine.namespaceReset();
-        return engine;
     }
+
 
     //-- images
 
@@ -140,6 +146,7 @@ public class EngineIT {
                 fail();
             } catch (IOException e) {
                 assertEquals("create-pod failed: Failed", e.getMessage());
+                engine.podDelete(pod);
                // ok
             }
         }
@@ -168,7 +175,7 @@ public class EngineIT {
         String container;
 
         try (Engine engine = create()) {
-            assertEquals(0, engine.podList().size());
+            assertEquals(Collections.emptyList(), engine.podList());
             image = engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD echo ho\n"), false, null);
             assertFalse(engine.podCreate(name, imageTag, "foo", "bar"));
@@ -182,7 +189,7 @@ public class EngineIT {
             assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
 
             engine.podDelete(name);
-            assertEquals(Collections.emptyMap(), engine.containerListForImage(image));
+            assertEquals(Collections.emptyList(), engine.containerListForImage(image));
             assertEquals(0, engine.podList().size());
             engine.imageRemove(image, true);
         }
