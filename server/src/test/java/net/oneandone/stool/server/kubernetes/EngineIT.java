@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -158,37 +159,32 @@ public class EngineIT {
     //-- pods
 
     @Test
-    public void podTerminating() throws IOException, InterruptedException {
+    public void podTerminating() throws IOException {
         final String imageTag = "foobla";
         final String name = "pod";
+        String image;
         Collection<PodInfo> lst;
         PodInfo info;
         String container;
 
         try (Engine engine = create()) {
             assertEquals(0, engine.podList().size());
-            assertNotNull(engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(),
-                    dockerfile("FROM debian:stretch-slim\nCMD echo ho;sleep 4\n"), false, null));
-            engine.podCreate(name, imageTag, "foo", "bar");
-            lst = engine.podList().values();
-            assertEquals(1, lst.size());
-            info = lst.iterator().next();
-            assertEquals(name, info.name);
-            assertEquals("Running", info.phase);
-            assertEquals(Strings.toMap("foo", "bar"), info.labels);
-
-            Thread.sleep(6000);
-
+            image = engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(),
+                    dockerfile("FROM debian:stretch-slim\nCMD echo ho\n"), false, null);
+            assertFalse(engine.podCreate(name, imageTag, "foo", "bar"));
             lst = engine.podList().values();
             assertEquals(1, lst.size());
             info = lst.iterator().next();
             assertEquals(name, info.name);
             assertEquals("Succeeded", info.phase);
+            assertEquals(Strings.toMap("foo", "bar"), info.labels);
             container = info.containerId;
             assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
 
             engine.podDelete(name);
+            assertEquals(Collections.emptyMap(), engine.containerListForImage(image));
             assertEquals(0, engine.podList().size());
+            engine.imageRemove(image, true);
         }
     }
 

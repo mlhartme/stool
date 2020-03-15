@@ -512,19 +512,19 @@ public class Engine implements AutoCloseable {
         return null;
     }
 
-    public void podCreate(String name, String image, String... labels) throws IOException {
-        podCreate(name, image, Strings.toMap(labels));
+    public boolean podCreate(String name, String image, String... labels) throws IOException {
+        return podCreate(name, image, Strings.toMap(labels));
     }
 
-    public void podCreate(String name, String image, Map<String, String> labels) throws IOException {
-        podCreate(name, image, labels, Strings.toMap());
+    public boolean  podCreate(String name, String image, Map<String, String> labels) throws IOException {
+        return podCreate(name, image, labels, Strings.toMap());
     }
 
-    public void podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
-        podCreate(name, image, null, false, null, labels, env, Strings.toMap());
+    public boolean podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
+        return podCreate(name, image, null, false, null, labels, env, Strings.toMap());
     }
 
-    public void podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
+    public boolean podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
                           Map<String, String> mounts) throws IOException {
         String phase;
 
@@ -538,6 +538,7 @@ public class Engine implements AutoCloseable {
         if (phase.equals("Failed")) {
             throw new IOException("create-pod failed: " + phase);
         }
+        return "Running".equals(phase);
     }
 
     public void podDelete(String name) throws IOException {
