@@ -46,8 +46,11 @@ public class EngineIT {
     private static final World WORLD = World.createMinimal();
 
     private Engine create() throws IOException {
-        return Engine.create("target/wire.log");
+        Engine engine;
 
+        engine = Engine.create("target/wire.log");
+        engine.namespaceReset();
+        return engine;
     }
 
     //-- images
@@ -152,33 +155,45 @@ public class EngineIT {
         return dir;
     }
 
-    //-- pods + services
+    //-- pods
 
     @Test
-    public void pods() throws IOException {
+    public void podTerminating() throws IOException, InterruptedException {
         final String imageTag = "foobla";
         final String name = "pod";
         Collection<PodInfo> lst;
         PodInfo info;
+        String container;
 
-        try (Engine engine = Engine.create()) {
-            engine.namespaceReset();
+        try (Engine engine = create()) {
             assertEquals(0, engine.podList().size());
             assertNotNull(engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(),
-                    dockerfile("FROM debian:stretch-slim\nCMD echo ho;sleep 5\n"), false, null));
+                    dockerfile("FROM debian:stretch-slim\nCMD echo ho;sleep 4\n"), false, null));
             engine.podCreate(name, imageTag, "foo", "bar");
             lst = engine.podList().values();
             assertEquals(1, lst.size());
             info = lst.iterator().next();
             assertEquals(name, info.name);
+            assertEquals("Running", info.phase);
             assertEquals(Strings.toMap("foo", "bar"), info.labels);
+
+            Thread.sleep(6000);
+
+            lst = engine.podList().values();
+            assertEquals(1, lst.size());
+            info = lst.iterator().next();
+            assertEquals(name, info.name);
+            assertEquals("Succeeded", info.phase);
+            container = info.containerId;
+            assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
+
             engine.podDelete(name);
             assertEquals(0, engine.podList().size());
         }
     }
 
     @Test
-    public void healing() throws IOException, InterruptedException {
+    public void podHealing() throws IOException, InterruptedException {
         Map<String, String> labels;
         List<String> ids;
         String image;
@@ -198,7 +213,7 @@ public class EngineIT {
             image = ids.get(0);
             assertTrue(engine.containerListForImage(image).isEmpty());
             assertTrue(engine.containerList("stooltest").isEmpty());
-            engine.podCreate(pod, "some:tag", true, null, Strings.toMap("containerLabel", "bla"), Collections.emptyMap(), Collections.emptyMap());
+            engine.podCreate(pod, "some:tag", null,true, null, Strings.toMap("containerLabel", "bla"), Collections.emptyMap(), Collections.emptyMap());
             container = engine.podProbe(pod).containerId;
             assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
 
@@ -247,15 +262,15 @@ public class EngineIT {
             image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             engine.podCreate("restart-pod", "restart:tag");
         }
-        try (Engine engine = create()) {
+        try (Engine engine = Engine.create()) {
             engine.podDelete("restart-pod");
             engine.imageRemove(image, false);
         }
-        try (Engine engine = create()) {
+        try (Engine engine = Engine.create()) {
             image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             engine.podCreate("restart-pod", "restart:tag");
         }
-        try (Engine engine = create()) {
+        try (Engine engine = Engine.create()) {
             engine.podDelete("restart-pod");
             engine.imageRemove(image, false);
         }
@@ -282,6 +297,26 @@ public class EngineIT {
     }
 
     @Test
+    public void podExplicitHostname() throws IOException, InterruptedException {
+        String image = "stooltest";
+        String pod = "podenv";
+        String output;
+        String container;
+
+        try (Engine engine = create()) {
+            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD hostname\n"));
+            assertNotNull(output);
+            engine.podCreate(pod, image, "foo", false, null, Strings.toMap(), Strings.toMap(), Strings.toMap());
+            container = engine.podProbe(pod).containerId;
+            assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
+            Thread.sleep(1000);
+            assertEquals("foox\n", engine.containerLogs(container));
+            engine.podDelete(pod);
+            engine.imageRemove(image, false);
+        }
+    }
+
+    @Test
     public void podMount() throws IOException, InterruptedException {
         FileNode home;
         FileNode file;
@@ -295,7 +330,7 @@ public class EngineIT {
             output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "; sleep 60\n"));
             assertNotNull(output);
 
-            engine.podCreate(pod, image, false,null, Collections.emptyMap(), Collections.emptyMap(),
+            engine.podCreate(pod, image, null,false, null, Collections.emptyMap(), Collections.emptyMap(),
                     Collections.singletonMap(home.getAbsolute(), home.getAbsolute()));
             Thread.sleep(1000);
             output = engine.containerLogs(engine.podProbe(pod).containerId);
@@ -318,7 +353,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
         try (Engine engine = create()) {
             engine.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 60\n"), false, null);
-            engine.podCreate(pod, image, false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+            engine.podCreate(pod, image, null,false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             container = engine.podProbe(pod).containerId;
             stats = engine.containerStats(container);
             assertEquals(limit, stats.memoryLimit);
@@ -328,12 +363,13 @@ public class EngineIT {
         }
     }
 
+    //-- services
+
     @Test
     public void services() throws IOException {
         final String name = "service";
 
-        try (Engine engine = Engine.create()) {
-            engine.namespaceReset();
+        try (Engine engine = create()) {
             assertEquals(0, engine.serviceList().size());
             engine.serviceCreate(name, 30001, 8080);
             assertEquals(Arrays.asList(name), new ArrayList<>(engine.serviceList()));
@@ -352,8 +388,6 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
         pod = "pod";
         try (Engine engine = create()) {
-            engine.namespaceReset();
-
             imageName = "turnaround";
             image = engine.imageBuild(imageName, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             assertNotNull(image);

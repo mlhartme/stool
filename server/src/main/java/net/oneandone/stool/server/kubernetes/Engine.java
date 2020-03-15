@@ -521,15 +521,15 @@ public class Engine implements AutoCloseable {
     }
 
     public void podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
-        podCreate(name, image, false, null, labels, env, Strings.toMap());
+        podCreate(name, image, null, false, null, labels, env, Strings.toMap());
     }
 
-    public void podCreate(String name, String image, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
+    public void podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
                           Map<String, String> mounts) throws IOException {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, image, healing, memory, labels, env, mounts), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, hostname, healing, memory, labels, env, mounts), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -605,7 +605,7 @@ public class Engine implements AutoCloseable {
         return result.toString();
     }
 
-    private static V1Pod pod(String name, String image, boolean healing, Integer memory,
+    private static V1Pod pod(String name, String image, String hostname, boolean healing, Integer memory,
                              Map<String, String> labels, Map<String, String> env, Map<String, String> volumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
@@ -616,6 +616,7 @@ public class Engine implements AutoCloseable {
         List<V1VolumeMount> ml;
         V1VolumeMount m;
         Map<String, Quantity> limits;
+        V1PodBuilder builder;
 
         lst = new ArrayList<>();
         for (Map.Entry<String, String> entry : env.entrySet()) {
@@ -644,7 +645,7 @@ public class Engine implements AutoCloseable {
         if (memory != null) {
             limits.put("memory", new Quantity(memory.toString()));
         }
-        return new V1PodBuilder()
+        builder = new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy(healing ? "Always" : "Never")
@@ -656,7 +657,11 @@ public class Engine implements AutoCloseable {
                   .withImage(image)
                   .withEnv(lst)
                   .withImagePullPolicy("Never") // TODO
-                .endContainer().endSpec().build();
+                .endContainer().endSpec();
+        if (hostname != null) {
+            builder.editSpec().withHostname(hostname);
+        }
+        return builder.build();
     }
 
     private static boolean same(String left, String right) {
