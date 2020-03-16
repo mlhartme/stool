@@ -262,7 +262,7 @@ public class EngineIT {
 
         message = UUID.randomUUID().toString();
         try (Engine engine = create()) {
-            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; exec sleep 5\n"), false, null);
+            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
             engine.podCreate("restart-pod", "restart:tag");
         }
         try (Engine engine = Engine.create()) {
@@ -270,7 +270,7 @@ public class EngineIT {
             engine.imageRemove(image, false);
         }
         try (Engine engine = Engine.create()) {
-            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; exec sleep 5\n"), false, null);
+            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
             engine.podCreate("restart-pod", "restart:tag");
         }
         try (Engine engine = Engine.create()) {
@@ -361,7 +361,7 @@ public class EngineIT {
 
         message = UUID.randomUUID().toString();
         try (Engine engine = create()) {
-            engine.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; exec sleep 5\n"), false, null);
+            engine.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
             engine.podCreate(pod, image, null,false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             container = engine.podProbe(pod).containerId;
             stats = engine.containerStats(container);
