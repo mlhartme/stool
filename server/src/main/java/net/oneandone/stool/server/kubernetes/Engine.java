@@ -521,11 +521,11 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
-        return podCreate(name, image, null, false, null, labels, env, Strings.toMap());
+        return podCreate(name, image, null, false, null, labels, env, Collections.emptyMap());
     }
 
     public boolean podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
-                          Map<String, String> mounts) throws IOException {
+                          Map<FileNode, String> mounts) throws IOException {
         String phase;
 
         try {
@@ -607,7 +607,7 @@ public class Engine implements AutoCloseable {
     }
 
     private static V1Pod pod(String name, String image, String hostname, boolean healing, Integer memory,
-                             Map<String, String> labels, Map<String, String> env, Map<String, String> volumes) {
+                             Map<String, String> labels, Map<String, String> env, Map<FileNode, String> volumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -617,7 +617,6 @@ public class Engine implements AutoCloseable {
         List<V1VolumeMount> ml;
         V1VolumeMount m;
         Map<String, Quantity> limits;
-        V1PodBuilder builder;
 
         lst = new ArrayList<>();
         for (Map.Entry<String, String> entry : env.entrySet()) {
@@ -629,9 +628,9 @@ public class Engine implements AutoCloseable {
         vl = new ArrayList<>();
         ml = new ArrayList<>();
         vname = "volumne";
-        for (Map.Entry<String, String> entry : volumes.entrySet()) {
+        for (Map.Entry<FileNode, String> entry : volumes.entrySet()) {
             hp = new V1HostPathVolumeSource();
-            hp.setPath(entry.getKey());
+            hp.setPath(entry.getKey().getAbsolute());
             v = new V1Volume();
             v.setName(vname);
             v.setHostPath(hp);

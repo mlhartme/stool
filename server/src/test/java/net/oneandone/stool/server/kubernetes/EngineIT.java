@@ -315,7 +315,7 @@ public class EngineIT {
         try (Engine engine = create()) {
             output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nRUN echo pod\nCMD hostname\n"));
             assertNotNull(output);
-            engine.podCreate(pod, image, hostname, false, null, Strings.toMap(), Strings.toMap(), Strings.toMap());
+            engine.podCreate(pod, image, hostname, false, null, Strings.toMap(), Strings.toMap(), Collections.emptyMap());
             container = engine.podProbe(pod).containerId;
             Thread.sleep(500);
             assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
@@ -341,7 +341,7 @@ public class EngineIT {
             assertNotNull(output);
 
             assertFalse(engine.podCreate(pod, image, null,false, null, Collections.emptyMap(), Collections.emptyMap(),
-                    Collections.singletonMap(home.getAbsolute(), home.getAbsolute())));
+                    Collections.singletonMap(home, home.getAbsolute())));
             output = engine.containerLogs(engine.podProbe(pod).containerId);
             assertTrue(output.contains(file.getAbsolute()));
             engine.podDelete(pod);

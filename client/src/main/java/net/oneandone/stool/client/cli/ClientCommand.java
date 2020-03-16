@@ -48,8 +48,10 @@ public abstract class ClientCommand {
         }
     }
 
-    public void setWorking(FileNode working) {
-        this.working = working;
+    public void setWorkingOpt(FileNode workingOpt) { // TODO: why does inline call this method?
+        if (workingOpt != null) {
+            this.working = workingOpt;
+        }
     }
 
     public abstract void run() throws Exception;
