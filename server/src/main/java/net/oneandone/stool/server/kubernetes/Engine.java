@@ -722,7 +722,7 @@ public class Engine implements AutoCloseable {
      * @return container id
      */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public String containerCreate(String name, String image, String hostname, String networkMode, Long memory, String stopSignal, Integer stopTimeout,
+    public String containerCreate(String name, String image, String hostname, String networkMode, Long memory,
                                   Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, String> ports) throws IOException {
         JsonObject body;
         JsonObject response;
@@ -742,12 +742,6 @@ public class Engine implements AutoCloseable {
         }
         if (!labels.isEmpty()) {
             body.add("Labels", obj(labels));
-        }
-        if (stopSignal != null) {
-            body.add("StopSignal", new JsonPrimitive(stopSignal));
-        }
-        if (stopTimeout != null) {
-            body.add("StopTimeout", new JsonPrimitive(stopTimeout));
         }
         hostConfig = new JsonObject();
 
