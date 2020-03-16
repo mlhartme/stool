@@ -210,7 +210,7 @@ public class EngineIT {
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         try (Engine engine = create()) {
             assertTrue(engine.imageList(labels).isEmpty());
-            engine.imageBuild("some:tag", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 3600\n"), false, null);
+            engine.imageBuild("some:tag", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 5\n"), false, null);
             ids = new ArrayList<>(engine.imageList(labels).keySet());
             assertEquals(1, ids.size());
             image = ids.get(0);
