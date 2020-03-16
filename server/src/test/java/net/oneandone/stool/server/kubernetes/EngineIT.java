@@ -262,7 +262,7 @@ public class EngineIT {
 
         message = UUID.randomUUID().toString();
         try (Engine engine = create()) {
-            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; exec sleep 5\n"), false, null);
             engine.podCreate("restart-pod", "restart:tag");
         }
         try (Engine engine = Engine.create()) {
@@ -270,7 +270,7 @@ public class EngineIT {
             engine.imageRemove(image, false);
         }
         try (Engine engine = Engine.create()) {
-            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; exec sleep 5\n"), false, null);
             engine.podCreate("restart-pod", "restart:tag");
         }
         try (Engine engine = Engine.create()) {
@@ -327,7 +327,7 @@ public class EngineIT {
     }
 
     @Test
-    public void podMount() throws IOException, InterruptedException {
+    public void podMount() throws IOException {
         FileNode home;
         FileNode file;
         String image = "stooltest";
@@ -337,17 +337,16 @@ public class EngineIT {
         home = WORLD.getHome();
         file = home.createTempFile();
         try (Engine engine = create()) {
-            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "; sleep 60\n"));
+            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
             assertNotNull(output);
 
-            engine.podCreate(pod, image, null,false, null, Collections.emptyMap(), Collections.emptyMap(),
-                    Collections.singletonMap(home.getAbsolute(), home.getAbsolute()));
-            Thread.sleep(1000);
+            assertFalse(engine.podCreate(pod, image, null,false, null, Collections.emptyMap(), Collections.emptyMap(),
+                    Collections.singletonMap(home.getAbsolute(), home.getAbsolute())));
             output = engine.containerLogs(engine.podProbe(pod).containerId);
             assertTrue(output.contains(file.getAbsolute()));
             engine.podDelete(pod);
 
-            engine.imageRemove(image, false);
+            engine.imageRemove(image, true);
         }
     }
 
