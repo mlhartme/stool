@@ -377,11 +377,14 @@ public class EngineIT {
     @Test
     public void services() throws IOException {
         final String name = "service";
+        ServiceInfo info;
 
         try (Engine engine = create()) {
             assertEquals(0, engine.serviceList().size());
             engine.serviceCreate(name, 30001, 8080);
-            assertEquals(Arrays.asList(name), new ArrayList<>(engine.serviceList()));
+            info = engine.serviceList().get(name);
+            assertEquals(30001, info.nodePort);
+            assertEquals(8080, info.containerPort);
             engine.serviceDelete(name);
             assertEquals(0, engine.serviceList().size());
         }

@@ -447,16 +447,23 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    public List<String> serviceList() throws IOException {
+    public Map<String, ServiceInfo> serviceList() throws IOException {
         V1ServiceList list;
-        List<String> result;
+        Map<String, ServiceInfo> result;
+        String name;
+        List<V1ServicePort> ports;
 
         try {
             list = core.listNamespacedService(namespace, null, null, null, null, null,
                     null, null, null, null);
-            result = new ArrayList<>();
+            result = new HashMap<>();
             for (V1Service service: list.getItems()) {
-                result.add(service.getMetadata().getName());
+                name = service.getMetadata().getName();
+                ports = service.getSpec().getPorts();
+                if (ports.size() != 1) {
+                    throw new IllegalStateException(ports.toString());
+                }
+                result.put(name, new ServiceInfo(name, ports.get(0).getNodePort(), ports.get(0).getPort()));
             }
         } catch (ApiException e) {
             throw wrap(e);
