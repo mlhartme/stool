@@ -361,7 +361,7 @@ public class EngineIT {
 
         message = UUID.randomUUID().toString();
         try (Engine engine = create()) {
-            engine.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 60\n"), false, null);
+            engine.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; exec sleep 5\n"), false, null);
             engine.podCreate(pod, image, null,false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             container = engine.podProbe(pod).containerId;
             stats = engine.containerStats(container);
@@ -384,28 +384,6 @@ public class EngineIT {
             assertEquals(Arrays.asList(name), new ArrayList<>(engine.serviceList()));
             engine.serviceDelete(name);
             assertEquals(0, engine.serviceList().size());
-        }
-    }
-
-    @Test
-    public void turnaround() throws IOException {
-        String imageName;
-        String image;
-        String message;
-        String pod;
-
-        message = UUID.randomUUID().toString();
-        pod = "pod";
-        try (Engine engine = create()) {
-            imageName = "turnaround";
-            image = engine.imageBuild(imageName, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
-            assertNotNull(image);
-
-            engine.podCreate(pod, imageName);
-            assertEquals("Running", engine.podProbe(pod).phase);
-            engine.podDelete(pod);
-            assertNull(engine.podProbe(pod));
-            engine.imageRemove(image, false);
         }
     }
 }
