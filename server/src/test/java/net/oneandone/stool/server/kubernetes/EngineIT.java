@@ -175,7 +175,7 @@ public class EngineIT {
         String container;
 
         try (Engine engine = create()) {
-            assertEquals(Collections.emptyList(), engine.podList());
+            assertEquals(Collections.emptyMap(), engine.podList());
             image = engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD echo ho\n"), false, null);
             assertFalse(engine.podCreate(name, imageTag, "foo", "bar"));
