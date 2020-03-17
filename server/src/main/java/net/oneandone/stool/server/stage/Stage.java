@@ -727,7 +727,10 @@ public class Stage {
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
-        engine.serviceCreate(name.replace('.', '-'), hostPorts.http, /* TODO */8080, CONTAINER_LABEL_STAGE, name);
+
+        System.out.println("imagePorts: " + image.ports);
+        engine.serviceCreate(name.replace('.', '-') + "http", hostPorts.http, image.ports.http, CONTAINER_LABEL_STAGE, name);
+        engine.serviceCreate(name.replace('.', '-') + "jmxmp", hostPorts.jmxmp, image.ports.jmxmp, CONTAINER_LABEL_STAGE, name);
         if (!engine.podCreate(name.replace('.', '-'), image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts)) {
@@ -1177,9 +1180,6 @@ public class Stage {
     }
 
     public JMXServiceURL jmxUrl(Context context) throws IOException {
-        JsonObject inspected;
-        JsonObject networks;
-        JsonObject network;
         String ip;
         String jmx;
         ContainerInfo running;
@@ -1188,13 +1188,7 @@ public class Stage {
         if (running == null) {
             return null;
         } else {
-            inspected = context.containerInspect(running.id);
-            networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
-            if (networks.size() != 1) {
-                throw new IOException("unexpected Networks: " + networks);
-            }
-            network = networks.entrySet().iterator().next().getValue().getAsJsonObject();
-            ip = network.get("IPAddress").getAsString();
+            ip = "localhost"; // TODO
             jmx = running.labels.get(IMAGE_LABEL_PORT_DECLARED_PREFIX + Ports.Port.JMXMP.toString().toLowerCase());
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
             return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx);
