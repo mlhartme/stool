@@ -55,15 +55,6 @@ public class Ports {
                 Port.DEBUG.get(labels, prefix));
     }
 
-    private static void addOpt(Map<Integer, String> dest, String restrictHostIp, int left, int right) {
-        if (right == -1) {
-            throw new IllegalStateException();
-        }
-        if (left != -1) {
-            dest.put(left, (restrictHostIp == null ? "": restrictHostIp + ":") +  right);
-        }
-    }
-
     //--
 
     public final int http;
