@@ -693,14 +693,23 @@ public class Engine implements AutoCloseable {
         return doContainerList("{\"ancestor\" : [\"" + image + "\"] }");
     }
 
+    public ContainerInfo containerInfo(String id) throws IOException {
+        Map<String, ContainerInfo> map;
+
+        map = doContainerList("{\"id\" : [\"" + id + "\"] }");
+        switch (map.size()) {
+            case 1:
+                return map.values().iterator().next();
+            default:
+                throw new IllegalStateException(map.toString());
+        }
+    }
+
     private Map<String, ContainerInfo> doContainerList(String filters) throws IOException {
         HttpNode node;
         JsonArray array;
         Map<String, ContainerInfo> result;
-        JsonObject object;
-        String id;
-        String imageId;
-        Status state; // TODO: sometimes it's called Status, somestimes state ...
+        ContainerInfo info;
 
         node = root.join("containers/json");
         if (filters != null) {
@@ -710,13 +719,21 @@ public class Engine implements AutoCloseable {
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new HashMap<>(array.size());
         for (JsonElement element : array) {
-            object = element.getAsJsonObject();
-            id = object.get("Id").getAsString();
-            imageId = pruneImageId(object.get("ImageID").getAsString());
-            state = Status.valueOf(object.get("State").getAsString().toUpperCase());
-            result.put(id, new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()), state));
+            info = containerInfo(element.getAsJsonObject());
+            result.put(info.id, info);
         }
         return result;
+    }
+
+    private static ContainerInfo containerInfo(JsonObject object) {
+        String id;
+        String imageId;
+        Status state; // TODO: sometimes it's called Status, sometimes state ...
+
+        id = object.get("Id").getAsString();
+        imageId = pruneImageId(object.get("ImageID").getAsString());
+        state = Status.valueOf(object.get("State").getAsString().toUpperCase());
+        return new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()), state);
     }
 
     /**

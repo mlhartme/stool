@@ -25,6 +25,7 @@ import net.oneandone.stool.server.kubernetes.BuildError;
 import net.oneandone.stool.server.kubernetes.ContainerInfo;
 import net.oneandone.stool.server.kubernetes.Engine;
 import net.oneandone.stool.server.kubernetes.ImageInfo;
+import net.oneandone.stool.server.kubernetes.PodInfo;
 import net.oneandone.stool.server.kubernetes.Stats;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.Context;
@@ -1030,7 +1031,20 @@ public class Stage {
 
     // not just this stage
     public static Map<String, ContainerInfo> allContainerMap(Engine engine) throws IOException {
-        return engine.containerList(Stage.CONTAINER_LABEL_IMAGE);
+        Map<String, ContainerInfo> result;
+        String container;
+        ContainerInfo info;
+
+        result = new HashMap<>();
+        for (PodInfo pod : engine.podList().values()) {
+            container = pod.containerId;
+            if (container != null) {
+                info = engine.containerInfo(container);
+                info.labels.putAll(pod.labels); // TODO
+                result.put(container, info);
+            }
+        }
+        return result;
     }
 
     public ContainerInfo runningContainerOpt(Map<String, ContainerInfo> allContainerMap) {
@@ -1055,12 +1069,14 @@ public class Stage {
         ContainerInfo result;
 
         result = null;
-        for (ContainerInfo info : engine.containerList(CONTAINER_LABEL_STAGE, name).values()) {
-            if (info.state == Engine.Status.RUNNING) {
-                if (result != null) {
-                    throw new IllegalStateException(result.toString());
+        for (ContainerInfo info : allContainerMap(engine).values()) { // TODO: expensive
+            if (name.equals(info.labels.get(CONTAINER_LABEL_STAGE))) {
+                if (info.state == Engine.Status.RUNNING) {
+                    if (result != null) {
+                        throw new IllegalStateException(result.toString());
+                    }
+                    result = info;
                 }
-                result = info;
             }
         }
         return result;
