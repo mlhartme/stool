@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.server.stage;
 
+import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.server.kubernetes.Engine;
@@ -30,13 +32,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Image implements Comparable<Image> {
-    public static Image load(Engine engine, String repositoryTag /* TODO: it's the id now ... */) throws IOException {
+    public static Image load(Engine engine, String idOrRepoTag) throws IOException {
         JsonObject inspect;
+        String repositoryTag;
         JsonObject labels;
         LocalDateTime created;
         String id;
 
-        inspect = engine.imageInspect(repositoryTag);
+        inspect = engine.imageInspect(idOrRepoTag);
+        repositoryTag = repoTag(idOrRepoTag, inspect.get("RepoTags").getAsJsonArray());
         id =  inspect.get("Id").getAsString();
         id = Strings.removeLeft(id, "sha256:");
         created = imageCreated(inspect.get("Created").getAsString());
@@ -48,6 +52,30 @@ public class Image implements Comparable<Image> {
                 created, labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
                 args(labels),
                 fault(labels.get(Stage.IMAGE_LABEL_FAULT)));
+    }
+
+    private static String repoTag(String arg, JsonArray array) {
+        List<String> strings;
+
+        strings = new ArrayList<>();
+        for (JsonElement e : array) {
+            strings.add(e.getAsString());
+        }
+        if (strings.contains(arg)) {
+            return arg;
+        }
+
+        // TODO
+        Lists.reverse(strings);
+        for (String s : strings) {
+            try {
+                version(s);
+                return s;
+            } catch (IllegalArgumentException e) {
+                // fall-through
+            }
+        }
+        throw new IllegalStateException(strings.toString());
     }
 
     public static LocalDateTime imageCreated(String date) {
@@ -128,7 +156,7 @@ public class Image implements Comparable<Image> {
         result = repositoryTag;
         idx = result.lastIndexOf(':');
         if (idx == -1) {
-            throw new IllegalStateException(result);
+            throw new IllegalArgumentException(result);
         }
         return result.substring(idx + 1);
     }
