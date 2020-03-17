@@ -682,9 +682,6 @@ public class Engine implements AutoCloseable {
 
     //-- containers
 
-    public Map<String, ContainerInfo> containerList(String key, String value) throws IOException {
-        return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"] }");
-    }
     public Map<String, ContainerInfo> containerList(String key) throws IOException {
         return doContainerList("{\"label\" : [\"" + key + "\"] }");
     }

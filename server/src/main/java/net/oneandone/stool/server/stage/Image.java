@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Image implements Comparable<Image> {
-    public static Image load(Engine engine, String repositoryTag) throws IOException {
+    public static Image load(Engine engine, String repositoryTag /* TODO: it's the id now ... */) throws IOException {
         JsonObject inspect;
         JsonObject labels;
         LocalDateTime created;

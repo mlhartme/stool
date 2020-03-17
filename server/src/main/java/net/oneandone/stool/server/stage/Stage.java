@@ -93,7 +93,6 @@ public class Stage {
     public static final String IMAGE_LABEL_ARG_PREFIX = IMAGE_PREFIX + "arg.";
 
     public static final String CONTAINER_LABEL_STAGE = CONTAINER_PREFIX + "stage";
-    public static final String CONTAINER_LABEL_IMAGE = CONTAINER_PREFIX + "image";
     public static final String CONTAINER_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
     public static final String CONTAINER_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "port.";
 
@@ -550,8 +549,17 @@ public class Stage {
         return result;
     }
 
-    public Map<String, ContainerInfo> containersForImage(Engine engine, String image) throws IOException {
-        return engine.containerList(CONTAINER_LABEL_IMAGE, image);
+    private Map<String, ContainerInfo> containersForImage(Engine engine, String image) throws IOException {
+        Map<String, ContainerInfo> result;
+
+        result = new HashMap<>();
+        for (ContainerInfo info : allContainerMap(engine).values()) {
+            // TODO: repositoryTag ...
+            if (image.equals(info.imageId)) {
+                result.put(info.id, info);
+            }
+        }
+        return result;
     }
 
     /** next version */
@@ -681,6 +689,7 @@ public class Stage {
      *  @throws IOException if a different image is already running */
     public String start(Engine engine, Pool pool, String imageOpt, int http, int https, Map<String, String> clientEnvironment)
             throws IOException {
+        String podName;
         ContainerInfo running;
         String container;
         Engine.Status status;
@@ -692,6 +701,7 @@ public class Stage {
         int memoryReserved;
         Image image;
 
+        podName = name.replace('.', '-');
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         memoryReserved = server.memoryReservedContainers(engine);
         memoryQuota = server.configuration.memoryQuota;
@@ -712,9 +722,11 @@ public class Stage {
                     + "Consider stopping stages.");
         }
         memoryReserved += image.memory; // TODO
-        for (ContainerInfo info : engine.containerList(CONTAINER_LABEL_STAGE, name).values()) {
-            Server.LOGGER.debug("wipe old image: " + info.id);
-            engine.containerRemove(info.id);
+        if (engine.podProbe(podName) != null) {
+            Server.LOGGER.debug("wipe old pod and services");
+            engine.podDelete(podName);
+            engine.serviceDelete(podName + "http");
+            engine.serviceDelete(podName + "jmxmp");
         }
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(configuration.environment);
@@ -727,21 +739,19 @@ public class Stage {
         }
         hostPorts = pool.allocate(this, http, https);
         labels = hostPorts.toUsedLabels();
-        // TODO labels.put(CONTAINER_LABEL_IMAGE, image.repositoryTag);
         labels.put(CONTAINER_LABEL_STAGE, name);
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
 
-        System.out.println("imagePorts: " + image.ports);
-        engine.serviceCreate(name.replace('.', '-') + "http", hostPorts.http, image.ports.http, CONTAINER_LABEL_STAGE, name);
-        engine.serviceCreate(name.replace('.', '-') + "jmxmp", hostPorts.jmxmp, image.ports.jmxmp, CONTAINER_LABEL_STAGE, name);
-        if (!engine.podCreate(name.replace('.', '-'), image.repositoryTag,
+        engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http, CONTAINER_LABEL_STAGE, name);
+        engine.serviceCreate(podName + "jmxmp", hostPorts.jmxmp, image.ports.jmxmp, CONTAINER_LABEL_STAGE, name);
+        if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts)) {
             throw new IOException("pod already terminated: " + name);
         }
-        container = engine.podProbe(name.replace('.', '-')).containerId;
+        container = engine.podProbe(podName).containerId;
 
         Server.LOGGER.debug("created container " + container);
         status = engine.containerStatus(container);
@@ -963,7 +973,7 @@ public class Stage {
         image = null;
         for (ContainerInfo info : allContainerList) {
             if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
-                image = Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE));
+                image = Image.load(engine, info.imageId);
             }
         }
         ports = pool.stageOpt(name);
@@ -1099,7 +1109,7 @@ public class Stage {
         Image image;
 
         if (runningContainerOpt != null) {
-            image = Image.load(engine, runningContainerOpt.labels.get(CONTAINER_LABEL_IMAGE));
+            image = Image.load(engine, runningContainerOpt.imageId);
             return new Current(image, runningContainerOpt);
         } else {
             return null;
