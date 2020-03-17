@@ -255,7 +255,7 @@ public class Setup {
     }
 
     private String port() {
-        return opts.getOrDefault("PORT_FIRST", "9000");
+        return opts.getOrDefault("PORT_FIRST", "31000");
     }
 
     public String version() throws IOException {
@@ -304,8 +304,9 @@ public class Setup {
         }
         builder.append("    volumes:\n");
         builder.append("      - /var/run/docker.sock:/var/run/docker.sock:rw\n");
+        builder.append("      - " + world.getHome().join(".kube").getAbsolute() + ":/root/.kube:rw\n"); // TODO
         builder.append("      - " + serverHome + ":/var/lib/stool:rw\n");
-        builder.append("      - " + world.getHome().join(".fault").getAbsolute() + ":" + "/etc/fault/workspace:ro\n");
+        builder.append("      - " + world.getHome().join(".fault").getAbsolute() + ":/etc/fault/workspace:ro\n");
         if (cisotools != null) {
             builder.append("      - " + cisotools.join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates:ro\n");
         }

@@ -13,6 +13,7 @@
   * renamed `-project` option to `-working` and made it available for all stage commands, too
 
 * server
+  * changed default port range from 9000...9999 to 31000..31999 
   * moved APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX into client-side configuration; the server no longer looks
     into the war file
 

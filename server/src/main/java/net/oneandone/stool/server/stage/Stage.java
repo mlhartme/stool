@@ -726,16 +726,13 @@ public class Stage {
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
-        engine.serviceCreate(name.replace('.', '-'), 30123, 8080, CONTAINER_LABEL_STAGE, name);
+        engine.serviceCreate(name.replace('.', '-'), hostPorts.http, /* TODO */8080, CONTAINER_LABEL_STAGE, name);
         if (!engine.podCreate(name.replace('.', '-'), image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts)) {
             throw new IOException("pod already terminated: " + name);
         }
         container = engine.podProbe(name.replace('.', '-')).containerId;
-
-        // TODO:
-        //, image.ports.map(hostPorts, server.localhostIp)
 
         Server.LOGGER.debug("created container " + container);
         status = engine.containerStatus(container);

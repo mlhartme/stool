@@ -112,7 +112,7 @@ and make sure to enable `localhost` as a server. Follow the instruction of the `
 
     sserver up
     
-Point you browser to http://localhost:9000 to see the dashboard. You can now create stages on your server as described in the 
+Point you browser to http://localhost:31000 to see the dashboard. You can now create stages on your server as described in the 
 [Documentation](https://github.com/mlhartme/stool/blob/master/client/documentation.md)
 
 

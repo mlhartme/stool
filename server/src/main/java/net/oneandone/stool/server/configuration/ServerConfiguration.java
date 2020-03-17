@@ -107,8 +107,8 @@ public class ServerConfiguration {
         vhosts = false;
         loglevel = "INFO";
         registryNamespace = "main";
-        portFirst = 9000;
-        portLast = 9999;
+        portFirst = 31000;
+        portLast = 31999;
         dockerHost = "localhost";
         admin = "";
         autoRemove = -1;

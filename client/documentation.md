@@ -305,7 +305,7 @@ The following environment variables can be used to configure Stool server in `$S
   First port available for stages. Note that the first 4 values are reserved for the dashboard and will not be used for stages.
   Stool allocates stage ports from the range $PORT_FIRST ... $POST_LAST. To choose a port for a given Stage, Stool computes a hash of stage
   and app name in this range. If this port if already allocated, the next higher port is checked (with roll-over to portFirst if necessary).
-  Type number, default 9000.
+  Type number, default 31000.
 * **PORT_LAST**
   Last port available for stages. Type number, default 9999.
 * **REGISTRY_NAMESPACE**

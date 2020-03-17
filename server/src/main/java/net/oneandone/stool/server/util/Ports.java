@@ -55,18 +55,6 @@ public class Ports {
                 Port.DEBUG.get(labels, prefix));
     }
 
-
-    public Map<Integer, String> map(Ports hostPorts, String localhostIp) {
-        Map<Integer, String> result;
-
-        result = new HashMap<>();
-        addOpt(result, null, http, hostPorts.http);
-        addOpt(result, null, https, hostPorts.https);
-        addOpt(result, localhostIp, jmxmp, hostPorts.jmxmp);
-        addOpt(result, localhostIp, debug, hostPorts.debug);
-        return result;
-    }
-
     private static void addOpt(Map<Integer, String> dest, String restrictHostIp, int left, int right) {
         if (right == -1) {
             throw new IllegalStateException();

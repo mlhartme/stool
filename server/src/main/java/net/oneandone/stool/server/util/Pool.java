@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.server.kubernetes.ContainerInfo;
 import net.oneandone.stool.server.kubernetes.Engine;
+import net.oneandone.stool.server.kubernetes.PodInfo;
 import net.oneandone.stool.server.stage.Stage;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class Pool {
         String stage;
 
         result = new Pool(first, last);
-        for (ContainerInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
+        for (PodInfo info : engine.podList().values()) {
             labels = info.labels;
             stage = labels.get(Stage.CONTAINER_LABEL_STAGE);
             result.datas.add(new Data(stage, Ports.fromUsedLabels(labels)));
