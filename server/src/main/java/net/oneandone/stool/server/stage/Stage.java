@@ -413,6 +413,7 @@ public class Stage {
         }
 
         url = jmxUrl(context);
+        System.out.println("jmxurl: " + url);
         try {
             objectName = new ObjectName("java.lang:type=Memory");
         } catch (MalformedObjectNameException e) {
@@ -549,6 +550,10 @@ public class Stage {
         return result;
     }
 
+    public Map<String, ContainerInfo> containersForImage(Engine engine, String image) throws IOException {
+        return engine.containerList(CONTAINER_LABEL_IMAGE, image);
+    }
+
     /** next version */
     public int wipeOldImages(Engine engine, int keep) throws IOException {
         List<Image> images;
@@ -564,7 +569,7 @@ public class Stage {
         count = images.size() - keep;
         while (count > 0 && !images.isEmpty()) {
             remove = images.remove(0).repositoryTag;
-            if (engine.containerList(CONTAINER_LABEL_IMAGE, remove).isEmpty()) {
+            if (containersForImage(engine, remove).isEmpty()) {
                 Server.LOGGER.debug("remove image: " + remove);
                 engine.imageRemove(remove, false);
                 count--;
@@ -577,7 +582,7 @@ public class Stage {
 
     public void wipeContainer(Engine engine) throws IOException {
         for (String repositoryTag : imageTags(engine)) {
-            for (String container : engine.containerList(CONTAINER_LABEL_IMAGE, repositoryTag).keySet()) {
+            for (String container : containersForImage(engine, repositoryTag).keySet()) {
                 Server.LOGGER.debug("remove container: " + container);
                 engine.containerRemove(container);
             }
