@@ -41,11 +41,11 @@ public class Image implements Comparable<Image> {
 
         inspect = engine.imageInspect(idOrRepoTag);
         repositoryTag = repoTag(idOrRepoTag, inspect.get("RepoTags").getAsJsonArray());
-        id =  inspect.get("Id").getAsString();
+        id = inspect.get("Id").getAsString();
         id = Strings.removeLeft(id, "sha256:");
         created = imageCreated(inspect.get("Created").getAsString());
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        return new Image(id, repositoryTag, version(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
+        return new Image(id, repositoryTag, tag(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
                 disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)), context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)), labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_ORIGIN_USER).getAsString(),
@@ -149,7 +149,7 @@ public class Image implements Comparable<Image> {
         return result;
     }
 
-    public static String version(String repositoryTag) {
+    public static String tag(String repositoryTag) {
         String result;
         int idx;
 
