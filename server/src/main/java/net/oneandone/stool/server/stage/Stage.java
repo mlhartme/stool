@@ -92,6 +92,7 @@ public class Stage {
     public static final String IMAGE_LABEL_CREATED_BY = IMAGE_PREFIX + "created-by";
     public static final String IMAGE_LABEL_ARG_PREFIX = IMAGE_PREFIX + "arg.";
 
+    public static final String POD_LABEL_REPOSITORY_TAG = CONTAINER_PREFIX + "repo-tag";
     public static final String CONTAINER_LABEL_STAGE = CONTAINER_PREFIX + "stage";
     public static final String CONTAINER_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
     public static final String CONTAINER_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "port.";
@@ -547,25 +548,23 @@ public class Stage {
         return result;
     }
 
-    private Map<String, ContainerInfo> containersForImage(Engine engine, String image) throws IOException {
+    private boolean hasContainer(Engine engine, Image image) throws IOException {
         ContainerInfo container;
-        Map<String, ContainerInfo> result;
 
-        result = new HashMap<>();
         for (PodInfo pod : allPodMap(engine).values()) {
             container = container(engine, pod);
             // TODO: repositoryTag ...
-            if (image.equals(container.imageId)) {
-                result.put(container.id, container);
+            if (image.id.equals(container.imageId)) {
+                return true;
             }
         }
-        return result;
+        return false;
     }
 
     /** next version */
     public int wipeOldImages(Engine engine, int keep) throws IOException {
         List<Image> images;
-        String remove;
+        Image remove;
         int count;
         int result;
 
@@ -576,25 +575,16 @@ public class Stage {
         result = Image.nextTag(images);
         count = images.size() - keep;
         while (count > 0 && !images.isEmpty()) {
-            remove = images.remove(0).repositoryTag;
-            if (containersForImage(engine, remove).isEmpty()) {
+            remove = images.remove(0);
+            if (hasContainer(engine, remove)) { // TODO: I could delete the tag ...
                 Server.LOGGER.debug("remove image: " + remove);
-                engine.imageRemove(remove, false);
+                engine.imageRemove(remove.repositoryTag, false);
                 count--;
             } else {
                 Server.LOGGER.debug("cannot remove image, because it's still in use: " + remove);
             }
         }
         return result;
-    }
-
-    public void wipeContainer(Engine engine) throws IOException {
-        for (String repositoryTag : imageTags(engine)) {
-            for (String container : containersForImage(engine, repositoryTag).keySet()) {
-                Server.LOGGER.debug("remove container: " + container);
-                engine.containerRemove(container);
-            }
-        }
     }
 
     public void checkExpired() {
@@ -752,6 +742,7 @@ public class Stage {
         hostPorts = pool.allocate(this, http, https);
         labels = hostPorts.toUsedLabels();
         labels.put(CONTAINER_LABEL_STAGE, name);
+        labels.put(POD_LABEL_REPOSITORY_TAG, Engine.encodeLabel(image.repositoryTag));
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
@@ -985,7 +976,7 @@ public class Stage {
         image = null;
         for (PodInfo pod : allPodList) {
             if (name.equals(pod.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
-                image = Image.loadTODO(engine, container(engine, pod).imageId);
+                image = Image.load(engine, pod, container(engine, pod).imageId);
             }
         }
         ports = pool.stageOpt(name);
@@ -1042,9 +1033,8 @@ public class Stage {
     }
 
     public void remove(Engine engine) throws IOException {
-        wipeContainer(engine);
-        wipeImages(engine);
         wipeResources(engine);
+        wipeImages(engine);
         server.pool.remove(name);
         getDirectory().deleteTree();
     }
@@ -1123,7 +1113,7 @@ public class Stage {
 
         if (runningPodOpt != null) {
             container = container(engine, runningPodOpt);
-            image = Image.loadTODO(engine, container.imageId);
+            image = Image.load(engine, runningPodOpt, container.imageId);
             return new Current(image, runningPodOpt, container);
         } else {
             return null;

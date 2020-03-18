@@ -18,6 +18,7 @@ package net.oneandone.stool.server.stage;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.server.kubernetes.Engine;
+import net.oneandone.stool.server.kubernetes.PodInfo;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -30,8 +31,16 @@ import java.util.List;
 import java.util.Map;
 
 public class Image implements Comparable<Image> {
-    public static Image loadTODO(Engine engine, String idOrRepoTag) throws IOException {
-        return loadAll(engine, idOrRepoTag).values().iterator().next();
+    public static Image load(Engine engine, PodInfo pod, String idOrRepoTag) throws IOException {
+        Map<String, Image> all;
+        Image result;
+
+        all = loadAll(engine, idOrRepoTag);
+        result = all.get(pod.repositoryTag());
+        if (result == null) {
+            throw new IllegalStateException("missing image for " + pod.repositoryTag() + ": " + all);
+        }
+        return result;
     }
 
     public static Map<String, Image> loadAll(Engine engine, String idOrRepoTag) throws IOException {
@@ -51,8 +60,10 @@ public class Image implements Comparable<Image> {
         for (JsonElement element : inspect.get("RepoTags").getAsJsonArray()) {
             repositoryTag = stoolRepoTagOpt(element.getAsString());
             if (repositoryTag != null) {
-                result.put(repositoryTag, new Image(id, repositoryTag, tag(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
-                        disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)), context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
+                result.put(repositoryTag, new Image(id, repositoryTag, tag(repositoryTag),
+                        Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
+                        disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)),
+                        context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
                         suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)), labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
                         labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_ORIGIN_USER).getAsString(),
                         created, labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),

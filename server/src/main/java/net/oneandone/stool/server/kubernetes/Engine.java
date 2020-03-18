@@ -64,6 +64,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -72,6 +73,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -84,6 +86,26 @@ import java.util.Set;
  * Not thread-safe because the io buffer is shared.
  */
 public class Engine implements AutoCloseable {
+    private static final String UTF_8 = "utf8";
+
+    public static String encodeLabel(String value) {
+        try {
+            return "a-" + Base64.getEncoder().encodeToString(value.getBytes(UTF_8)) + "-z";
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static String decodeLabel(String value) {
+        value = Strings.removeLeft(value, "a-");
+        value = Strings.removeRight(value, "-z");
+        try {
+            return new String(Base64.getDecoder().decode(value), UTF_8);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     //--
 
     public static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");

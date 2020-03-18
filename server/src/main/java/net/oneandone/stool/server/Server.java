@@ -441,15 +441,13 @@ public class Server {
 
     /** used for running containers */
     public int memoryReservedContainers(Engine engine) throws IOException {
-        ContainerInfo container;
         int reserved;
         Image image;
 
         reserved = 0;
         for (PodInfo pod : Stage.allPodMap(engine).values()) { // TODO: expensive
             if (pod.isRunning()) {
-                container = Stage.container(engine, pod);
-                image = Image.loadTODO(engine, container.imageId);
+                image = Image.load(engine, pod, Stage.container(engine, pod).imageId);
                 reserved += image.memory;
             }
         }
