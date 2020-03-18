@@ -1080,19 +1080,15 @@ public class Stage {
     public ContainerInfo runningContainerOpt(Engine engine, Map<String, PodInfo> allPodMap) throws IOException {
         ContainerInfo result;
         PodInfo pod;
-        ContainerInfo container;
 
         result = null;
         for (Map.Entry<String, PodInfo> entry : allPodMap.entrySet()) {
             pod = entry.getValue();
-            if (name.equals(pod.labels.get(CONTAINER_LABEL_STAGE))) {
-                container = container(engine, pod);
-                if (container.state == Engine.Status.RUNNING) {
-                    if (result != null) {
-                        throw new IllegalStateException();
-                    }
-                    result = container;
+            if (name.equals(pod.labels.get(CONTAINER_LABEL_STAGE)) && pod.isRunning()) {
+                if (result != null) {
+                    throw new IllegalStateException();
                 }
+                result = container(engine, pod);
             }
         }
         return result;
@@ -1100,19 +1096,15 @@ public class Stage {
 
     /** @return null if not running */
     public ContainerInfo runningContainerOpt(Engine engine) throws IOException {
-        ContainerInfo container;
         ContainerInfo result;
 
         result = null;
         for (PodInfo pod : allPodMap(engine).values()) { // TODO: expensive
-            if (name.equals(pod.labels.get(CONTAINER_LABEL_STAGE))) {
-                container = container(engine, pod);
-                if (container.state == Engine.Status.RUNNING) {
-                    if (result != null) {
-                        throw new IllegalStateException(result.toString());
-                    }
-                    result = container;
+            if (name.equals(pod.labels.get(CONTAINER_LABEL_STAGE)) && pod.isRunning()) {
+                if (result != null) {
+                    throw new IllegalStateException(result.toString());
                 }
+                result = container(engine, pod);
             }
         }
         return result;

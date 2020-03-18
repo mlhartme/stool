@@ -447,8 +447,8 @@ public class Server {
 
         reserved = 0;
         for (PodInfo pod : Stage.allPodMap(engine).values()) { // TODO: expensive
-            container = Stage.container(engine, pod);
-            if (container.state == Engine.Status.RUNNING) {
+            if (pod.isRunning()) {
+                container = Stage.container(engine, pod);
                 image = Image.load(engine, container.imageId);
                 reserved += image.memory;
             }

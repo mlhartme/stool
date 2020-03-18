@@ -54,4 +54,8 @@ public class PodInfo {
         this.containerId = containerId;
         this.labels = labels;
     }
+
+    public boolean isRunning() {
+        return "Running".equals(phase);
+    }
 }
