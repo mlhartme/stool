@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import net.oneandone.stool.server.kubernetes.ContainerInfo;
 import net.oneandone.stool.server.kubernetes.Engine;
 import net.oneandone.stool.server.kubernetes.ImageInfo;
+import net.oneandone.stool.server.kubernetes.PodInfo;
 import net.oneandone.stool.server.kubernetes.Stats;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
@@ -37,7 +38,7 @@ public class Context {
     public final Engine engine;
     private Map<String, ImageInfo> lazyAllImageMap;
     private final Map<String, List<Image>> stageImages;
-    private Map<String, ContainerInfo> lazyAllContainerMap;
+    private Map<String, PodInfo> lazyAllPodMap;
     private final Map<String, ContainerInfo> runningContainerOpts;
     private final Map<String, Stage.Current> currentOpts;
     private final Map<String, Map<String, String>> urlMaps;
@@ -52,7 +53,7 @@ public class Context {
         this.engine = engine;
         this.lazyAllImageMap = null;
         this.stageImages = new HashMap<>();
-        this.lazyAllContainerMap = null;
+        this.lazyAllPodMap = null;
         this.runningContainerOpts = new HashMap<>();
         this.currentOpts = new HashMap<>();
         this.urlMaps = new HashMap<>();
@@ -80,11 +81,11 @@ public class Context {
 
     //--
 
-    public Map<String, ContainerInfo> allContainerMap() throws IOException {
-        if (lazyAllContainerMap == null) {
-            lazyAllContainerMap = Stage.allContainerMap(engine);
+    public Map<String, PodInfo> allPodMap() throws IOException {
+        if (lazyAllPodMap == null) {
+            lazyAllPodMap = Stage.allPodMap(engine);
         }
-        return lazyAllContainerMap;
+        return lazyAllPodMap;
     }
 
     public ContainerInfo runningContainerOpt(Stage stage) throws IOException {
@@ -92,7 +93,7 @@ public class Context {
 
         result = runningContainerOpts.get(stage.getName());
         if (result == null) {
-            result = stage.runningContainerOpt(allContainerMap());
+            result = stage.runningContainerOpt(engine, allPodMap());
             runningContainerOpts.put(stage.getName(), result);
         }
         return result;
@@ -115,7 +116,7 @@ public class Context {
 
         result = urlMaps.get(stage.getName());
         if (result == null) {
-            result = stage.urlMap(engine, pool, allContainerMap().values());
+            result = stage.urlMap(engine, pool, allPodMap().values());
             urlMaps.put(stage.getName(), result);
         }
         return result;

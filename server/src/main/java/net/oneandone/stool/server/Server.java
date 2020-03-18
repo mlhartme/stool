@@ -29,6 +29,7 @@ import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.server.kubernetes.ContainerInfo;
 import net.oneandone.stool.server.kubernetes.Engine;
+import net.oneandone.stool.server.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
@@ -440,13 +441,15 @@ public class Server {
 
     /** used for running containers */
     public int memoryReservedContainers(Engine engine) throws IOException {
+        ContainerInfo container;
         int reserved;
         Image image;
 
         reserved = 0;
-        for (ContainerInfo info : Stage.allContainerMap(engine).values()) { // TODO: expensive
-            if (info.state == Engine.Status.RUNNING) {
-                image = Image.load(engine, info.imageId);
+        for (PodInfo pod : Stage.allPodMap(engine).values()) { // TODO: expensive
+            container = Stage.container(engine, pod);
+            if (container.state == Engine.Status.RUNNING) {
+                image = Image.load(engine, container.imageId);
                 reserved += image.memory;
             }
         }

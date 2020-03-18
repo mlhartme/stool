@@ -545,13 +545,15 @@ public class Stage {
     }
 
     private Map<String, ContainerInfo> containersForImage(Engine engine, String image) throws IOException {
+        ContainerInfo container;
         Map<String, ContainerInfo> result;
 
         result = new HashMap<>();
-        for (ContainerInfo info : allContainerMap(engine).values()) {
+        for (PodInfo pod : allPodMap(engine).values()) {
+            container = container(engine, pod);
             // TODO: repositoryTag ...
-            if (image.equals(info.imageId)) {
-                result.put(info.id, info);
+            if (image.equals(container.imageId)) {
+                result.put(container.id, container);
             }
         }
         return result;
@@ -965,22 +967,22 @@ public class Stage {
     //--
 
     public Map<String, String> urlMap(Engine engine, Pool pool) throws IOException {
-        return urlMap(engine, pool, allContainerMap(engine).values());
+        return urlMap(engine, pool, allPodMap(engine).values());
     }
 
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, Pool pool, Collection<ContainerInfo> allContainerList) throws IOException {
+    public Map<String, String> urlMap(Engine engine, Pool pool, Collection<PodInfo> allPodList) throws IOException {
         Map<String, String> result;
         Ports ports;
         Image image;
 
         result = new LinkedHashMap<>();
         image = null;
-        for (ContainerInfo info : allContainerList) {
-            if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
-                image = Image.load(engine, info.imageId);
+        for (PodInfo pod : allPodList) {
+            if (name.equals(pod.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
+                image = Image.load(engine, container(engine, pod).imageId);
             }
         }
         ports = pool.stageOpt(name);
@@ -1057,35 +1059,40 @@ public class Stage {
     }
 
     // not just this stage
-    public static Map<String, ContainerInfo> allContainerMap(Engine engine) throws IOException {
-        Map<String, ContainerInfo> result;
+    public static Map<String, PodInfo> allPodMap(Engine engine) throws IOException {
+        return engine.podList(); // TODO: filter none-stool pods
+    }
+
+    // not just this stage
+    public static ContainerInfo container(Engine engine, PodInfo pod) throws IOException {
         String container;
         ContainerInfo info;
 
-        result = new HashMap<>();
-        for (PodInfo pod : engine.podList().values()) {
-            container = pod.containerId;
-            if (container != null) {
-                info = engine.containerInfo(container);
-                info.labels.putAll(pod.labels); // TODO
-                result.put(container, info);
-            }
+        container = pod.containerId;
+        if (container == null) {
+            throw new IllegalStateException("TODO");
         }
-        return result;
+        info = engine.containerInfo(container);
+        info.labels.putAll(pod.labels); // TODO
+        return info;
     }
 
-    public ContainerInfo runningContainerOpt(Map<String, ContainerInfo> allContainerMap) {
+    public ContainerInfo runningContainerOpt(Engine engine, Map<String, PodInfo> allPodMap) throws IOException {
         ContainerInfo result;
-        ContainerInfo info;
+        PodInfo pod;
+        ContainerInfo container;
 
         result = null;
-        for (Map.Entry<String, ContainerInfo> entry : allContainerMap.entrySet()) {
-            info = entry.getValue();
-            if (info.state == Engine.Status.RUNNING && name.equals(info.labels.get(CONTAINER_LABEL_STAGE))) {
-                if (result != null) {
-                    throw new IllegalStateException();
+        for (Map.Entry<String, PodInfo> entry : allPodMap.entrySet()) {
+            pod = entry.getValue();
+            if (name.equals(pod.labels.get(CONTAINER_LABEL_STAGE))) {
+                container = container(engine, pod);
+                if (container.state == Engine.Status.RUNNING) {
+                    if (result != null) {
+                        throw new IllegalStateException();
+                    }
+                    result = container;
                 }
-                result = info;
             }
         }
         return result;
@@ -1093,16 +1100,18 @@ public class Stage {
 
     /** @return null if not running */
     public ContainerInfo runningContainerOpt(Engine engine) throws IOException {
+        ContainerInfo container;
         ContainerInfo result;
 
         result = null;
-        for (ContainerInfo info : allContainerMap(engine).values()) { // TODO: expensive
-            if (name.equals(info.labels.get(CONTAINER_LABEL_STAGE))) {
-                if (info.state == Engine.Status.RUNNING) {
+        for (PodInfo pod : allPodMap(engine).values()) { // TODO: expensive
+            if (name.equals(pod.labels.get(CONTAINER_LABEL_STAGE))) {
+                container = container(engine, pod);
+                if (container.state == Engine.Status.RUNNING) {
                     if (result != null) {
                         throw new IllegalStateException(result.toString());
                     }
-                    result = info;
+                    result = container;
                 }
             }
         }
