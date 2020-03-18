@@ -401,7 +401,7 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             stage = server.load(stageName);
-            stage.awaitStartup(new Context(engine));
+            // TODO: stage.awaitStartup(new Context(engine));
 
             if (stage.currentOpt(engine) == null) {
                 throw new IllegalStateException();
