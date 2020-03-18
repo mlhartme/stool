@@ -496,11 +496,6 @@ public class Stage {
 
     //-- docker
 
-    public void wipeDocker(Engine engine) throws IOException {
-        wipeContainer(engine);
-        wipeImages(engine);
-    }
-
     public void wipeImages(Engine engine) throws IOException {
         for (String repositoryTag : imageTags(engine)) {
             Server.LOGGER.debug("remove image: " + repositoryTag);
@@ -685,6 +680,23 @@ public class Stage {
         return new BuildResult(str, Integer.toString(tag));
     }
 
+    private String podName() {
+        return name.replace('.', '-');
+    }
+
+    private void wipeResources(Engine engine) throws IOException {
+        String podName;
+
+        podName = podName();
+        if (engine.podProbe(podName) != null) {
+            Server.LOGGER.debug("wipe old pod and services");
+            engine.podDelete(podName);
+            engine.serviceDelete(podName + "http");
+            engine.serviceDelete(podName + "jmxmp");
+        }
+
+    }
+
     /** @return image actually started, null if this image is actually running
      *  @throws IOException if a different image is already running */
     public String start(Engine engine, Pool pool, String imageOpt, int http, int https, Map<String, String> clientEnvironment)
@@ -701,7 +713,7 @@ public class Stage {
         int memoryReserved;
         Image image;
 
-        podName = name.replace('.', '-');
+        podName = podName();
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         memoryReserved = server.memoryReservedContainers(engine);
         memoryQuota = server.configuration.memoryQuota;
@@ -722,12 +734,7 @@ public class Stage {
                     + "Consider stopping stages.");
         }
         memoryReserved += image.memory; // TODO
-        if (engine.podProbe(podName) != null) {
-            Server.LOGGER.debug("wipe old pod and services");
-            engine.podDelete(podName);
-            engine.serviceDelete(podName + "http");
-            engine.serviceDelete(podName + "jmxmp");
-        }
+        wipeResources(engine);
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(configuration.environment);
         environment.putAll(clientEnvironment);
@@ -1030,7 +1037,9 @@ public class Stage {
     }
 
     public void remove(Engine engine) throws IOException {
-        wipeDocker(engine);
+        wipeContainer(engine);
+        wipeImages(engine);
+        wipeResources(engine);
         server.pool.remove(name);
         getDirectory().deleteTree();
     }
