@@ -508,7 +508,7 @@ public class Stage {
         return imageTags(engine.imageList());
     }
 
-    /** @return list of tags belonging to this stage */
+    /** @return list of repositoryTags belonging to this stage */
     private List<String> imageTags(Map<String, ImageInfo> imageMap) {
         ImageInfo info;
         List<String> result;
