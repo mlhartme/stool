@@ -15,18 +15,14 @@
  */
 package net.oneandone.stool.server.kubernetes;
 
-import java.util.Map;
-
 public class ContainerInfo {
     public final String id;
     public final String imageId;
-    public final Map<String, String> labels;
     public final Engine.Status state;
 
-    public ContainerInfo(String id, String imageId, Map<String, String> labels, Engine.Status state) {
+    public ContainerInfo(String id, String imageId, Engine.Status state) {
         this.id = id;
         this.imageId = imageId;
-        this.labels = labels;
         this.state = state;
     }
 }

@@ -730,15 +730,13 @@ public class Engine implements AutoCloseable {
         id = object.get("Id").getAsString();
         imageId = pruneImageId(object.get("ImageID").getAsString());
         state = Status.valueOf(object.get("State").getAsString().toUpperCase());
-        return new ContainerInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()), state);
+        return new ContainerInfo(id, imageId, state);
     }
 
     /**
      * @param memory is the memory limit in bytes. Or null for no limit. At least 1024*1024*4. The actual value used by docker is something
      *               rounded of this parameter
-     * @param stopSignal or null to use default (SIGTERM)
      * @param hostname or null to not define the hostname
-     * @param stopTimeout default timeout when stopping this container without explicit timeout value; null to use default (10 seconds)
      * @return container id
      */
     @SuppressWarnings("checkstyle:ParameterNumber")

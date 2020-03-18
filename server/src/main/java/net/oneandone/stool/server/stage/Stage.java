@@ -375,12 +375,12 @@ public class Stage {
                 Current current;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : env(current.container);
+                return current == null ? null : env(current.pod);
             }
         });
     }
 
-    private Map<String, String> env(ContainerInfo info) {
+    private Map<String, String> env(PodInfo info) {
         Map<String, String> result;
         String key;
 
@@ -1050,10 +1050,12 @@ public class Stage {
 
     public static class Current {
         public final Image image;
+        public final PodInfo pod;
         public final ContainerInfo container;
 
-        public Current(Image image, ContainerInfo container) {
+        public Current(Image image, PodInfo pod, ContainerInfo container) {
             this.image = image;
+            this.pod = pod;
             this.container = container;
         }
     }
@@ -1066,18 +1068,15 @@ public class Stage {
     // not just this stage
     public static ContainerInfo container(Engine engine, PodInfo pod) throws IOException {
         String container;
-        ContainerInfo info;
 
         container = pod.containerId;
         if (container == null) {
             throw new IllegalStateException("TODO");
         }
-        info = engine.containerInfo(container);
-        info.labels.putAll(pod.labels); // TODO
-        return info;
+        return engine.containerInfo(container);
     }
 
-    public PodInfo runningPodOpt(Map<String, PodInfo> allPodMap) throws IOException {
+    public PodInfo runningPodOpt(Map<String, PodInfo> allPodMap) {
         PodInfo result;
         PodInfo pod;
 
@@ -1122,7 +1121,7 @@ public class Stage {
         if (runningPodOpt != null) {
             container = container(engine, runningPodOpt);
             image = Image.load(engine, container.imageId);
-            return new Current(image, container);
+            return new Current(image, runningPodOpt, container);
         } else {
             return null;
         }
@@ -1208,7 +1207,6 @@ public class Stage {
 
     public JMXServiceURL jmxUrl(Context context) throws IOException {
         String ip;
-        String jmx;
         PodInfo running;
 
         running = context.runningPodOpt(this);
@@ -1216,9 +1214,8 @@ public class Stage {
             return null;
         } else {
             ip = "localhost"; // TODO
-            jmx = running.labels.get(IMAGE_LABEL_PORT_DECLARED_PREFIX + Ports.Port.JMXMP.toString().toLowerCase());
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx);
+            return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + server.pool.stageOpt(name).jmxmp);
         }
     }
 
