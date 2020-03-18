@@ -218,7 +218,7 @@ public class ApiController {
                     noCache, keep, arguments);
             return buildResult(result.tag, null, result.output).toString();
         } catch (BuildError e) {
-            return buildResult(Image.version(e.repositoryTag), e.error, e.output).toString();
+            return buildResult(Image.tag(e.repositoryTag), e.error, e.output).toString();
         } finally {
             if (war != null && war.exists()) {
                 war.deleteFile();

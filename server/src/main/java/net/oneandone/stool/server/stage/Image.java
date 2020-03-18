@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.server.stage;
 
-import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.server.kubernetes.Engine;
@@ -32,50 +30,47 @@ import java.util.List;
 import java.util.Map;
 
 public class Image implements Comparable<Image> {
-    public static Image load(Engine engine, String idOrRepoTag) throws IOException {
+    public static Image loadTODO(Engine engine, String idOrRepoTag) throws IOException {
+        return loadAll(engine, idOrRepoTag).values().iterator().next();
+    }
+
+    public static Map<String, Image> loadAll(Engine engine, String idOrRepoTag) throws IOException {
         JsonObject inspect;
         String repositoryTag;
         JsonObject labels;
         LocalDateTime created;
         String id;
+        Map<String, Image> result;
 
         inspect = engine.imageInspect(idOrRepoTag);
-        repositoryTag = repoTag(idOrRepoTag, inspect.get("RepoTags").getAsJsonArray());
         id = inspect.get("Id").getAsString();
         id = Strings.removeLeft(id, "sha256:");
         created = imageCreated(inspect.get("Created").getAsString());
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        return new Image(id, repositoryTag, tag(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
-                disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)), context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
-                suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)), labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
-                labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_ORIGIN_USER).getAsString(),
-                created, labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
-                args(labels),
-                fault(labels.get(Stage.IMAGE_LABEL_FAULT)));
-    }
-
-    private static String repoTag(String arg, JsonArray array) {
-        List<String> strings;
-
-        strings = new ArrayList<>();
-        for (JsonElement e : array) {
-            strings.add(e.getAsString());
-        }
-        if (strings.contains(arg)) {
-            return arg;
-        }
-
-        // TODO
-        Lists.reverse(strings);
-        for (String s : strings) {
-            try {
-                version(s);
-                return s;
-            } catch (IllegalArgumentException e) {
-                // fall-through
+        result = new HashMap<>();
+        for (JsonElement element : inspect.get("RepoTags").getAsJsonArray()) {
+            repositoryTag = stoolRepoTagOpt(element.getAsString());
+            if (repositoryTag != null) {
+                result.put(repositoryTag, new Image(id, repositoryTag, tag(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
+                        disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)), context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
+                        suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)), labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
+                        labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_ORIGIN_USER).getAsString(),
+                        created, labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
+                        args(labels),
+                        fault(labels.get(Stage.IMAGE_LABEL_FAULT))));
             }
         }
-        throw new IllegalStateException(strings.toString());
+        return result;
+    }
+
+    // TODO: hack
+    private static String stoolRepoTagOpt(String repoTag) {
+        try {
+            tag(repoTag);
+            return repoTag;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public static LocalDateTime imageCreated(String date) {

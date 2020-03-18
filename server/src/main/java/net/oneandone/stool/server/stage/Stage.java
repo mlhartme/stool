@@ -537,7 +537,10 @@ public class Stage {
 
         result = new ArrayList<>();
         for (String repositoryTag : imageTags(imageMap)) {
-            image = Image.load(engine, repositoryTag);
+            image = Image.loadAll(engine, repositoryTag).get(repositoryTag);
+            if (image == null) {
+                throw new IllegalStateException("TODO");
+            }
             result.add(image);
         }
         Collections.sort(result);
@@ -982,7 +985,7 @@ public class Stage {
         image = null;
         for (PodInfo pod : allPodList) {
             if (name.equals(pod.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
-                image = Image.load(engine, container(engine, pod).imageId);
+                image = Image.loadTODO(engine, container(engine, pod).imageId);
             }
         }
         ports = pool.stageOpt(name);
@@ -1120,7 +1123,7 @@ public class Stage {
 
         if (runningPodOpt != null) {
             container = container(engine, runningPodOpt);
-            image = Image.load(engine, container.imageId);
+            image = Image.loadTODO(engine, container.imageId);
             return new Current(image, runningPodOpt, container);
         } else {
             return null;

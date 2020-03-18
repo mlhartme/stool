@@ -449,7 +449,7 @@ public class Server {
         for (PodInfo pod : Stage.allPodMap(engine).values()) { // TODO: expensive
             if (pod.isRunning()) {
                 container = Stage.container(engine, pod);
-                image = Image.load(engine, container.imageId);
+                image = Image.loadTODO(engine, container.imageId);
                 reserved += image.memory;
             }
         }
