@@ -61,7 +61,7 @@ public class Validation {
             report.add(e.getMessage());
         }
         if (repair) {
-            if (stage.runningContainerOpt(engine) != null) {
+            if (stage.runningPodOpt(engine) != null) {
                 try {
                     stage.stop(engine);
                     report.add("stage has been stopped");

@@ -270,10 +270,10 @@ public class Stage {
         fields.add(new Field("container") {
             @Override
             public Object get(Context context) throws IOException {
-                ContainerInfo info;
+                PodInfo info;
 
-                info = context.runningContainerOpt(Stage.this);
-                return info == null ? null : info.id;
+                info = context.runningPodOpt(Stage.this);
+                return info == null ? null : container(context.engine, info).id;
             }
         });
         fields.add(new Field("uptime") {
@@ -704,7 +704,7 @@ public class Stage {
     public String start(Engine engine, Pool pool, String imageOpt, int http, int https, Map<String, String> clientEnvironment)
             throws IOException {
         String podName;
-        ContainerInfo running;
+        PodInfo running;
         String container;
         Engine.Status status;
         Ports hostPorts;
@@ -720,13 +720,13 @@ public class Stage {
         memoryReserved = server.memoryReservedContainers(engine);
         memoryQuota = server.configuration.memoryQuota;
         image = resolve(engine, imageOpt);
-        running = runningContainerOpt(engine);
+        running = runningPodOpt(engine);
         if (running != null) {
-            if (image.id.equals(running.imageId)) {
+            if (image.id.equals(container(engine, running).imageId)) {
                 return null;
             } else {
                 throw new IOException("conflict: cannot start image " + image.tag
-                        + " because a different image id " + image.id + " " + running.imageId + " is already running");
+                        + " because a different image id " + image.id + " " + container(engine, running).imageId + " is already running");
             }
         }
         if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
@@ -1077,8 +1077,8 @@ public class Stage {
         return info;
     }
 
-    public ContainerInfo runningContainerOpt(Engine engine, Map<String, PodInfo> allPodMap) throws IOException {
-        ContainerInfo result;
+    public PodInfo runningPodOpt(Map<String, PodInfo> allPodMap) throws IOException {
+        PodInfo result;
         PodInfo pod;
 
         result = null;
@@ -1088,15 +1088,15 @@ public class Stage {
                 if (result != null) {
                     throw new IllegalStateException();
                 }
-                result = container(engine, pod);
+                result = pod;
             }
         }
         return result;
     }
 
     /** @return null if not running */
-    public ContainerInfo runningContainerOpt(Engine engine) throws IOException {
-        ContainerInfo result;
+    public PodInfo runningPodOpt(Engine engine) throws IOException {
+        PodInfo result;
 
         result = null;
         for (PodInfo pod : allPodMap(engine).values()) { // TODO: expensive
@@ -1104,7 +1104,7 @@ public class Stage {
                 if (result != null) {
                     throw new IllegalStateException(result.toString());
                 }
-                result = container(engine, pod);
+                result = pod;
             }
         }
         return result;
@@ -1112,15 +1112,17 @@ public class Stage {
 
     /** @return null if not running */
     public Current currentOpt(Engine engine) throws IOException {
-        return currentOpt(engine, runningContainerOpt(engine));
+        return currentOpt(engine, runningPodOpt(engine));
     }
 
-    public Current currentOpt(Engine engine, ContainerInfo runningContainerOpt) throws IOException {
+    public Current currentOpt(Engine engine, PodInfo runningPodOpt) throws IOException {
         Image image;
+        ContainerInfo container;
 
-        if (runningContainerOpt != null) {
-            image = Image.load(engine, runningContainerOpt.imageId);
-            return new Current(image, runningContainerOpt);
+        if (runningPodOpt != null) {
+            container = container(engine, runningPodOpt);
+            image = Image.load(engine, container.imageId);
+            return new Current(image, container);
         } else {
             return null;
         }
@@ -1207,9 +1209,9 @@ public class Stage {
     public JMXServiceURL jmxUrl(Context context) throws IOException {
         String ip;
         String jmx;
-        ContainerInfo running;
+        PodInfo running;
 
-        running = context.runningContainerOpt(this);
+        running = context.runningPodOpt(this);
         if (running == null) {
             return null;
         } else {
@@ -1219,7 +1221,6 @@ public class Stage {
             return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx);
         }
     }
-
 
     private String jmxEngineState(JMXServiceURL url) throws IOException {
         ObjectName object;
@@ -1239,13 +1240,13 @@ public class Stage {
     // CAUTION: blocks until ctrl-c.
     // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
     public void tailF(Engine engine, PrintWriter dest) throws IOException {
-        ContainerInfo running;
+        PodInfo running;
 
-        running = runningContainerOpt(engine);
+        running = runningPodOpt(engine);
         if (running == null) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
-            engine.containerLogsFollow(running.id, new OutputStream() {
+            engine.containerLogsFollow(container(engine, running).id, new OutputStream() {
                 @Override
                 public void write(int b) {
                     dest.write(b);
