@@ -46,6 +46,7 @@ import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.util.FileNodes;
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -545,7 +546,7 @@ public class Engine implements AutoCloseable {
         return podCreate(name, image, Strings.toMap(labels));
     }
 
-    public boolean  podCreate(String name, String image, Map<String, String> labels) throws IOException {
+    public boolean podCreate(String name, String image, Map<String, String> labels) throws IOException {
         return podCreate(name, image, labels, Strings.toMap());
     }
 
@@ -571,6 +572,10 @@ public class Engine implements AutoCloseable {
     }
 
     public void podDelete(String name) throws IOException {
+        PodInfo info;
+        int count;
+
+        info = podProbe(name);
         try {
             core.deleteNamespacedPod(name, namespace, null,
                     null, null, null, null,  null);
@@ -587,6 +592,15 @@ public class Engine implements AutoCloseable {
             throw wrap(e);
         }
         podAwait(name, null);
+        if (info != null && info.containerId != null) {
+            // TODO: otherwise wiped by kubernetes gc, which is async
+            try {
+                containerRemove(info.containerId);
+            } catch (FileNotFoundException e) {
+                // fall-through, already deleted
+            }
+            // TODO: what if there's more than one container for this pod?
+        }
     }
 
     private String podAwait(String name, String... expectedPhases) throws IOException {
@@ -656,7 +670,7 @@ public class Engine implements AutoCloseable {
         }
         vl = new ArrayList<>();
         ml = new ArrayList<>();
-        vname = "volumne";
+        vname = "volume";
         for (Map.Entry<FileNode, String> entry : volumes.entrySet()) {
             hp = new V1HostPathVolumeSource();
             hp.setPath(entry.getKey().getAbsolute());
@@ -713,6 +727,16 @@ public class Engine implements AutoCloseable {
     }
 
     public ContainerInfo containerInfo(String id) throws IOException {
+        ContainerInfo result;
+
+        result = containerInfoOpt(id);
+        if (result == null) {
+            throw new IOException("container not found: " + id);
+        }
+        return result;
+    }
+
+    public ContainerInfo containerInfoOpt(String id) throws IOException {
         Map<String, ContainerInfo> map;
 
         map = doContainerList("{\"id\" : [\"" + id + "\"] }");
@@ -720,7 +744,7 @@ public class Engine implements AutoCloseable {
             case 1:
                 return map.values().iterator().next();
             default:
-                throw new IllegalStateException(map.toString());
+                return null;
         }
     }
 

@@ -169,6 +169,7 @@ public class EngineIT {
     public void podTerminating() throws IOException {
         final String imageTag = "foobla";
         final String name = "pod";
+        PodInfo pod;
         String image;
         Collection<PodInfo> lst;
         PodInfo info;
@@ -179,6 +180,9 @@ public class EngineIT {
             image = engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD echo ho\n"), false, null);
             assertFalse(engine.podCreate(name, imageTag, "foo", "bar"));
+            pod = engine.podProbe(name);
+            assertNull(engine.containerInfoOpt(pod.containerId)); // TODO: list does not return the id!
+            assertEquals(Engine.Status.EXITED, engine.containerStatus(pod.containerId)); // ... although it still exists
             lst = engine.podList().values();
             assertEquals(1, lst.size());
             info = lst.iterator().next();
@@ -187,11 +191,10 @@ public class EngineIT {
             assertEquals(Strings.toMap("foo", "bar"), info.labels);
             container = info.containerId;
             assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
-
             engine.podDelete(name);
             assertEquals(Collections.emptyMap(), engine.containerListForImage(image));
             assertEquals(0, engine.podList().size());
-            engine.imageRemove(image, true);
+            engine.imageRemove(imageTag, false);
         }
     }
 
@@ -293,7 +296,7 @@ public class EngineIT {
             container = engine.podProbe(pod).containerId;
             assertEquals("bar after\n", engine.containerLogs(container));
             engine.podDelete(pod);
-            engine.imageRemove(image, true);
+            engine.imageRemove(image, false);
         }
     }
 
@@ -321,8 +324,7 @@ public class EngineIT {
             assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
             assertEquals(expected + "\n", engine.containerLogs(container));
             engine.podDelete(pod);
-            // TODO: causes conflict ...
-            //   engine.imageRemove(image, false);
+            engine.imageRemove(image, false);
         }
     }
 
