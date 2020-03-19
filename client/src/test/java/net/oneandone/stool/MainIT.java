@@ -63,7 +63,7 @@ public class MainIT {
         IT_ROOT.exec("docker", "network", "rm", NETWORK);
     }
 
-    private final int port = 1300;
+    private final int port = 31000;
 
     @Test
     public void turnaround() throws IOException, InterruptedException {

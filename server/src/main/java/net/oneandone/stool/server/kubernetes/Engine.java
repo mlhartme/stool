@@ -91,7 +91,7 @@ public class Engine implements AutoCloseable {
 
     public static String encodeLabel(String value) {
         try {
-            return "a-" + Base64.getEncoder().encodeToString(value.getBytes(UTF_8)) + "-z";
+            return "a-" + Base64.getEncoder().encodeToString(value.getBytes(UTF_8)).replace('=', '-') + "-z";
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
@@ -100,6 +100,7 @@ public class Engine implements AutoCloseable {
     public static String decodeLabel(String value) {
         value = Strings.removeLeft(value, "a-");
         value = Strings.removeRight(value, "-z");
+        value = value.replace('-', '=');
         try {
             return new String(Base64.getDecoder().decode(value), UTF_8);
         } catch (UnsupportedEncodingException e) {
