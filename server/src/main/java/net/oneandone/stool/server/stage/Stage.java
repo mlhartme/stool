@@ -93,9 +93,9 @@ public class Stage {
     public static final String IMAGE_LABEL_ARG_PREFIX = IMAGE_PREFIX + "arg.";
 
     public static final String POD_LABEL_REPOSITORY_TAG = CONTAINER_PREFIX + "repo-tag";
-    public static final String CONTAINER_LABEL_STAGE = CONTAINER_PREFIX + "stage";
-    public static final String CONTAINER_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
-    public static final String CONTAINER_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "port.";
+    public static final String POD_LABEL_STAGE = CONTAINER_PREFIX + "stage";
+    public static final String POD_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
+    public static final String POD_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "port.";
 
 
     //--
@@ -389,8 +389,8 @@ public class Stage {
         if (info != null) {
             for (Map.Entry<String, String> entry : info.labels.entrySet()) {
                 key = entry.getKey();
-                if (key.startsWith(Stage.CONTAINER_LABEL_ENV_PREFIX)) {
-                    result.put(key.substring(Stage.CONTAINER_LABEL_ENV_PREFIX.length()), entry.getValue());
+                if (key.startsWith(Stage.POD_LABEL_ENV_PREFIX)) {
+                    result.put(key.substring(Stage.POD_LABEL_ENV_PREFIX.length()), entry.getValue());
                 }
             }
         }
@@ -741,14 +741,14 @@ public class Stage {
         }
         hostPorts = pool.allocate(this, http, https);
         labels = hostPorts.toUsedLabels();
-        labels.put(CONTAINER_LABEL_STAGE, name);
+        labels.put(POD_LABEL_STAGE, name);
         labels.put(POD_LABEL_REPOSITORY_TAG, Engine.encodeLabel(image.repositoryTag));
         for (Map.Entry<String, String> entry : environment.entrySet()) {
-            labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
+            labels.put(POD_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
 
-        engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http, CONTAINER_LABEL_STAGE, name);
-        engine.serviceCreate(podName + "jmxmp", hostPorts.jmxmp, image.ports.jmxmp, CONTAINER_LABEL_STAGE, name);
+        engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http, POD_LABEL_STAGE, name);
+        engine.serviceCreate(podName + "jmxmp", hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts)) {
@@ -975,7 +975,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         image = null;
         for (PodInfo pod : allPodList) {
-            if (name.equals(pod.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
+            if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
                 image = Image.load(engine, pod, container(engine, pod).imageId);
             }
         }
@@ -1076,7 +1076,7 @@ public class Stage {
         result = null;
         for (Map.Entry<String, PodInfo> entry : allPodMap.entrySet()) {
             pod = entry.getValue();
-            if (name.equals(pod.labels.get(CONTAINER_LABEL_STAGE)) && pod.isRunning()) {
+            if (name.equals(pod.labels.get(POD_LABEL_STAGE)) && pod.isRunning()) {
                 if (result != null) {
                     throw new IllegalStateException();
                 }
@@ -1092,7 +1092,7 @@ public class Stage {
 
         result = null;
         for (PodInfo pod : allPodMap(engine).values()) { // TODO: expensive
-            if (name.equals(pod.labels.get(CONTAINER_LABEL_STAGE)) && pod.isRunning()) {
+            if (name.equals(pod.labels.get(POD_LABEL_STAGE)) && pod.isRunning()) {
                 if (result != null) {
                     throw new IllegalStateException(result.toString());
                 }

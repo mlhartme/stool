@@ -34,7 +34,7 @@ public class Pool {
         result = new Pool(first, last);
         for (PodInfo info : engine.podList().values()) {
             labels = info.labels;
-            stage = labels.get(Stage.CONTAINER_LABEL_STAGE);
+            stage = labels.get(Stage.POD_LABEL_STAGE);
             result.datas.add(new Data(stage, Ports.fromUsedLabels(labels)));
         }
         return result;

@@ -40,7 +40,7 @@ public class Ports {
     }
 
     public static Ports fromUsedLabels(Map<String, String> labels) {
-        return fromLabels(labels, Stage.CONTAINER_LABEL_PORT_USED_PREFIX);
+        return fromLabels(labels, Stage.POD_LABEL_PORT_USED_PREFIX);
     }
 
     public static Ports fromDeclaredLabels(Map<String, String> labels) {
@@ -92,7 +92,7 @@ public class Ports {
     }
 
     public Map<String, String> toUsedLabels() {
-        return toLabels(Stage.CONTAINER_LABEL_PORT_USED_PREFIX);
+        return toLabels(Stage.POD_LABEL_PORT_USED_PREFIX);
     }
 
     private Map<String, String> toLabels(String prefix) {
