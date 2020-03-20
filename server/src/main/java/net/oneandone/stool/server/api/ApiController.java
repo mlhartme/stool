@@ -214,7 +214,7 @@ public class ApiController {
         try (Engine engine = engine()) {
             war = engine.world.getTemp().createTempFile();
             war.copyFileFrom(body);
-            result = server.load(stage).buildandEatWar(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login,
+            result = server.load(stage).buildAndEatWar(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login,
                     noCache, keep, arguments);
             return buildResult(result.tag, null, result.output).toString();
         } catch (BuildError e) {

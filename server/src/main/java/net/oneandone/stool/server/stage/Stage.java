@@ -555,7 +555,7 @@ public class Stage {
         return pod != null && pod.repositoryTag().equals(image.repositoryTag);
     }
 
-    /** next version */
+    /** @return next version */
     public int wipeOldImages(Engine engine, int keep) throws IOException {
         List<Image> images;
         Image remove;
@@ -570,7 +570,7 @@ public class Stage {
         count = images.size() - keep;
         while (count > 0 && !images.isEmpty()) {
             remove = images.remove(0);
-            if (hasContainer(engine, remove)) { // TODO: I could delete the tag ...
+            if (!hasContainer(engine, remove)) {
                 Server.LOGGER.debug("remove image: " + remove);
                 engine.imageRemove(remove.repositoryTag, false);
                 count--;
@@ -619,7 +619,7 @@ public class Stage {
 
     /**
      * @param keep 0 to keep all  */
-    public BuildResult buildandEatWar(Engine engine, FileNode war, String comment, String originScm,
+    public BuildResult buildAndEatWar(Engine engine, FileNode war, String comment, String originScm,
                                       String originUser, String createdBy, boolean noCache, int keep,
                                       Map<String, String> arguments) throws Exception {
         int tag;
