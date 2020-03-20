@@ -1047,9 +1047,21 @@ public class Stage {
         }
     }
 
+    // TODO: filter query
     // not just this stage
+    // @return all stage pods
     public static Map<String, PodInfo> allPodMap(Engine engine) throws IOException {
-        return engine.podList(); // TODO: filter none-stool pods
+        Map<String, PodInfo> result;
+        Map<String, PodInfo> clone;
+
+        result = engine.podList(); // TODO: filter none-stool pods
+        clone = new HashMap<>(result);
+        for (Map.Entry<String, PodInfo> entry : clone.entrySet()) {
+            if (!entry.getValue().labels.containsKey(POD_LABEL_STAGE)) {
+                result.remove(entry.getKey());
+            }
+        }
+        return result;
     }
 
     // not just this stage

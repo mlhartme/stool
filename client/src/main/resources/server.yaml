@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: stool
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stool-server
+  namespace: stool
+spec:
+  ports:
+  - nodePort: 31000
+    port: 31000
+  selector:
+    app: stool-server
+  type: NodePort
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stool-server
+  namespace: stool
+  labels:
+    app: stool-server
+spec:
+  restartPolicy: Never
+  containers:
+  - name: stool-server
+    image: contargo.server.lan/cisoops-public/stool-server:latest
+    imagePullPolicy: Never
+    env:
+${env}    volumeMounts:
+${mounts}  volumes:
+${volumes}

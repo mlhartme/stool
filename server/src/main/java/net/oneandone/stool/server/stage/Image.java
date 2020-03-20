@@ -46,6 +46,7 @@ public class Image implements Comparable<Image> {
     public static Map<String, Image> loadAll(Engine engine, String idOrRepoTag) throws IOException {
         JsonObject inspect;
         String repositoryTag;
+        JsonElement labelsRaw;
         JsonObject labels;
         LocalDateTime created;
         String id;
@@ -55,8 +56,13 @@ public class Image implements Comparable<Image> {
         id = inspect.get("Id").getAsString();
         id = Strings.removeLeft(id, "sha256:");
         created = imageCreated(inspect.get("Created").getAsString());
-        labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
+        labelsRaw = inspect.get("Config").getAsJsonObject().get("Labels");
         result = new HashMap<>();
+        if (labelsRaw.isJsonNull()) {
+            // TODO: probably for stool image, which has no labels
+            return result;
+        }
+        labels = labelsRaw.getAsJsonObject();
         for (JsonElement element : inspect.get("RepoTags").getAsJsonArray()) {
             repositoryTag = stoolRepoTagOpt(element.getAsString());
             if (repositoryTag != null) {

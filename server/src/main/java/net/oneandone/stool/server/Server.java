@@ -74,7 +74,6 @@ public class Server {
         FileNode secrets;
         JsonObject inspected;
         Map<String, String> binds;
-        String networkMode;
         String localhostIp;
 
         version = Main.versionString(world);
@@ -89,11 +88,9 @@ public class Server {
             pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
-            networkMode = networkMode(inspected);
-            LOGGER.info("network mode: " + networkMode);
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), version, home, serverHome, networkMode, localhostIp, secrets, config, pool);
+            server = new Server(gson(world), version, home, serverHome, localhostIp, secrets, config, pool);
             server.validate(engine);
             server.checkVersion();
             return server;
@@ -111,26 +108,20 @@ public class Server {
     }
 
     private static JsonObject inspectSelf(Engine engine) throws IOException {
+        PodInfo pod;
         String container;
 
-        // container id is the default hostname for a Docker contaier
-        container = InetAddress.getLocalHost().getCanonicalHostName();
+        pod = engine.podProbe("stool-server");
+        if (pod == null) {
+            throw new IOException("server pod not found");
+        }
+        container = pod.containerId;
         LOGGER.info("server container id: " + container);
         try {
             return engine.containerInspect(container, false);
         } catch (IOException e) {
-            throw new IOException("cannot inspect server container' " + container + ": " + e.getMessage(), e);
+            throw new IOException("cannot inspect server container '" + container + ":' " + e.getMessage(), e);
         }
-    }
-
-    private static String networkMode(JsonObject inspected) throws IOException {
-        JsonObject networks;
-
-        networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
-        if (networks.size() != 1) {
-            throw new IOException("unexpected Networks: " + networks);
-        }
-        return networks.keySet().iterator().next();
     }
 
     /** @return container- to host path mapping with absolute paths without tailing / */
@@ -138,7 +129,8 @@ public class Server {
         List<String> modes = Strings.toList("ro", "rw");
         JsonArray binds;
         String str;
-        int idx;
+        int first;
+        int last;
         Map<String, String> result;
 
         binds = inspected.get("HostConfig").getAsJsonObject().get("Binds").getAsJsonArray();
@@ -146,19 +138,18 @@ public class Server {
         for (JsonElement element : binds) {
             str = element.getAsString();
             LOGGER.info("bind: " + str);
-            idx = str.lastIndexOf(':');
-            if (idx == -1) {
+            first = str.indexOf(':');
+            if (first == -1) {
                 throw new IOException("unexpected bind: " + str);
             }
-            if (!modes.contains(str.substring(idx + 1).toLowerCase())) {
-                throw new IOException("unexpected mode in bind: " + str);
+            last = str.lastIndexOf(':');
+            if (last != first) {
+                if (!modes.contains(str.substring(last + 1))) {
+                    throw new IOException("unexpected mode: " + str.substring(last + 1));
+                }
+                str = str.substring(0, last);
             }
-            str = str.substring(0, idx);
-            idx = str.indexOf(':');
-            if (idx == -1) {
-                throw new IOException("unexpected bind: " + str);
-            }
-            result.put(canonical(str.substring(idx + 1)), canonical(str.substring(0, idx)));
+            result.put(canonical(str.substring(first + 1)), canonical(str.substring(0, first)));
         }
         return result;
     }
@@ -235,7 +226,6 @@ public class Server {
     /** CAUTION: not thread safe! */
     private final FileNode logRoot;
 
-    public final String networkMode;
     public final String localhostIp;
 
     /** path so /var/lib/stool ON THE DOCKER HOST */
@@ -255,7 +245,7 @@ public class Server {
 
     public final SshDirectory sshDirectory;
 
-    public Server(Gson gson, String version, FileNode home, FileNode serverHome, String networkMode, String localhostIp,
+    public Server(Gson gson, String version, FileNode home, FileNode serverHome, String localhostIp,
                   FileNode secrets, ServerConfiguration configuration, Pool pool) throws IOException {
         this.gson = gson;
         this.version = version;
@@ -263,7 +253,6 @@ public class Server {
         this.home = home;
         this.logRoot = home.join("logs");
         this.serverHome = serverHome;
-        this.networkMode = networkMode;
         this.localhostIp = localhostIp;
         this.secrets = secrets;
         this.configuration = configuration;

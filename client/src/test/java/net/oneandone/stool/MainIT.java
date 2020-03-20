@@ -37,7 +37,6 @@ public class MainIT {
     private static final FileNode IT_ROOT;
     private static final FileNode HOME;
 
-    private static final String NETWORK = "stool-it";
     static {
         try {
             WORLD = Main.world();
@@ -54,13 +53,8 @@ public class MainIT {
 
     @After
     public void after() throws IOException {
-        server("logs", "--tail=all");
-        server("down");
-    }
-
-    @AfterClass
-    public static void afterAll() throws IOException {
-        IT_ROOT.exec("docker", "network", "rm", NETWORK);
+        kubectl("logs", "--namespace=stool", "pod/stool-server");
+        // TODO kubectl("delete", "-f", HOME.join("server.yaml").getAbsolute());
     }
 
     private final int port = 31000;
@@ -76,13 +70,12 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        stool("setup", "-batch", "-local", "-network", NETWORK, "PORT_FIRST=" + port, "PORT_LAST=" + (port + 20));
+        stool("setup", "-batch", "-local", "PORT_FIRST=" + port, "PORT_LAST=" + (port + 20));
 
-        IT_ROOT.exec("docker", "network", "create", NETWORK);
-        server("rm");
-        server("up", "-d");
+        kubectl("delete", "--ignore-not-found", "-f", HOME.join("server.yaml").getAbsolute());
+        kubectl("apply", "-f", HOME.join("server.yaml").getAbsolute());
 
-        Thread.sleep(10000); // TODO
+        Thread.sleep(30000); // TODO
 
         stage = "it@localhost";
 
@@ -109,11 +102,11 @@ public class MainIT {
         working.deleteTree();
     }
 
-    public void server(String ... cmd) throws IOException {
+    public void kubectl(String ... cmd) throws IOException {
         Launcher server;
 
         try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
-            server = IT_ROOT.launcher("docker-compose", "-f", HOME.join("server.yaml").getAbsolute(), "--no-ansi");
+            server = IT_ROOT.launcher("kubectl");
             server.arg(cmd);
             log.write(server.toString() + "\n");
             server.exec(log);

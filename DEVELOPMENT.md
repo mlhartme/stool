@@ -7,7 +7,7 @@ To build Stool, you need:
 * Java 8+
 * Maven 3+
 * Git
-* Docker (with api 1.38+) and docker-compose. 
+* Docker (with api 1.38+) and Kubernetes. 
 * TODO: depends on fault and cisotools
 
 ## Docker setup 

@@ -2,6 +2,8 @@
 
 ### 5.2.0 (pending)
 
+* start service with kubectl, not docker-compose
+
 * client
   * backstage is a properties file now, it maps stages to paths
   * `create`

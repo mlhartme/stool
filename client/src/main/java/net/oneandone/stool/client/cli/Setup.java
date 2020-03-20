@@ -25,11 +25,14 @@ import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Substitution;
+import net.oneandone.sushi.util.SubstitutionException;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,10 +46,9 @@ public class Setup {
     private final String version;
     private final boolean batch;
     private final boolean local;
-    private final String network;
     private final Map<String, String> opts;
 
-    public Setup(Globals globals, boolean batch, boolean local, String network, List<String> opts) {
+    public Setup(Globals globals, boolean batch, boolean local, List<String> opts) {
         int idx;
 
         this.world = globals.getWorld();
@@ -56,7 +58,6 @@ public class Setup {
         this.version = Main.versionString(world);
         this.batch = batch;
         this.local = local;
-        this.network = network;
         this.opts = new HashMap<>();
         for (String opt : opts) {
             idx = opt.indexOf('=');
@@ -118,12 +119,9 @@ public class Setup {
 
         if (environment.lookup("localhost") != null) {
             console.info.println();
-            console.info.println("You've enabled a local Stool server to host stages - run it like this:");
-            console.info.println("  docker network create stool");
-            console.info.println("  alias sserver=\"docker-compose -f " +  home.join("server.yaml").getAbsolute() + "\"");
-            console.info.println("  sserver up -d");
-            console.info.println("  sserver logs");
-            console.info.println("  sserver down");
+            console.info.println("You've enabled a local Stool server to host stages - start/stop it like this:");
+            console.info.println("  kubectl apply -f " + home.join("server.yaml").getAbsolute());
+            console.info.println("  kubectl delete -f " + home.join("server.yaml").getAbsolute());
         }
         if (environment.needAuthentication()) {
             console.info.println("At least one of the servers you're using needs authentication. Please run");
@@ -233,9 +231,9 @@ public class Setup {
 
     //--
 
-    public void addIfNew(String name, String value) {
-        if (!opts.containsKey(name)) {
-            opts.put(name, value);
+    public static void addIfNew(Map<String, String> env, String name, String value) {
+        if (!env.containsKey(name)) {
+            env.put(name, value);
         }
     }
 
@@ -263,58 +261,93 @@ public class Setup {
     }
 
     public String serverYaml() throws IOException {
-        StringBuilder builder;
-        String serverHome;
+        String result;
         FileNode cisotools;
-        String port;
-        String portNext;
-        String portNextNext;
+        int port;
+        Map<String, String> map;
+
+        result = world.resource("server.yaml").readString();
+        cisotools = cisotools();
+        port = Integer.parseInt(port());
+        map = new HashMap<>();
+        map.put("env", env(cisotools, port));
+        map.put("mounts", mounts(cisotools));
+        map.put("volumes", volumes(cisotools));
+        try {
+            return Substitution.ant().apply(result, map);
+        } catch (SubstitutionException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public String env(FileNode cisotools, int port) throws IOException {
+        Map<String, String> env;
+        StringBuilder builder;
+        String debugPort;
+
+        env = new LinkedHashMap<>();
+        debugPort = Integer.toString(port + 1);
+        addIfNew(env, "DOCKER_HOST", LOCALHOST);
+        addIfNew(env, "OPTS", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + debugPort);
+        for (Map.Entry<String, String> entry : opts.entrySet()) {
+            addIfNew(env, entry.getKey(), entry.getValue());
+        }
+        addIfNew(env, "ENGINE_LOG", "false"); // for engine wire logs
+        addIfNew(env, "VHOSTS", Boolean.toString(hasDnsStar()));
+        if (cisotools != null) {
+            addIfNew(env, "LDAP_UNIT", "cisostages");
+            addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
+            addIfNew(env, "ADMIN", "michael.hartmeier@ionos.com");
+            addIfNew(env, "REGISTRY_NAMESPACE", "contargo.server.lan/mhm");
+        }
+        addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose
+        builder = new StringBuilder();
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            builder.append("      - name: " + entry.getKey() + "\n");
+            builder.append("        value: \"" + entry.getValue() + "\"\n");
+        }
+        return builder.toString();
+    }
+
+    public String mounts(FileNode cisotools) {
+        StringBuilder builder;
 
         builder = new StringBuilder();
-        serverHome = serverDir().getAbsolute();
-        cisotools = cisotools();
-        port = port();
-        portNext = Integer.toString(Integer.parseInt(port) + 1);
-        portNextNext = Integer.toString(Integer.parseInt(port) + 2);
-        addIfNew("VHOSTS", Boolean.toString(hasDnsStar()));
-        addIfNew("LOGLEVEL", "INFO"); // for documentation purpose
-        addIfNew("ENGINE_LOG", "false"); // for engine wire logs
+        addMount(builder, "docker-socket", "/var/run/docker.sock", false);
+        addMount(builder, "kube-config", "/root/.kube", false);
+        addMount(builder, "stool-server", "/var/lib/stool", false);
         if (cisotools != null) {
-            addIfNew("REGISTRY_NAMESPACE", "contargo.server.lan/mhm");
-            addIfNew("LDAP_UNIT", "cisostages");
-            addIfNew("ADMIN", "michael.hartmeier@ionos.com");
-            addIfNew("JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
+            addMount(builder, "fault-workspace", "/etc/fault/workspace", true);
+            addMount(builder, "stool-templates", "/var/lib/stool/templates", true);
         }
-        builder.append("version: '3'\n");  // I started with '3.7', but Ubuntu 16.4 packages just have 3.2 ...
-        builder.append("services:\n");
-        builder.append("  stool-server:\n");
-        builder.append("    image: contargo.server.lan/cisoops-public/stool-server\n");
-        builder.append("    ports:\n");
-
-        builder.append("      - " + hostip(LOCALHOST) + ":" + port + ":" + port + "\n");
-        // bind to 127.0.0.1 to forbid access from other machines
-        builder.append("      - 127.0.0.1:" + portNext + ":" + portNext + "\n");
-        builder.append("      - 127.0.0.1:" + portNextNext + ":" + 9875 + "\n");
-        builder.append("    environment:\n");
-        builder.append("      - DOCKER_HOST=" + LOCALHOST + "\n");
-        builder.append("      - OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + portNext + "\n");
-
-        for (Map.Entry<String, String> entry : opts.entrySet()) {
-            builder.append("      - " + entry.getKey() + "=" + entry.getValue() + "\n");
-        }
-        builder.append("    volumes:\n");
-        builder.append("      - /var/run/docker.sock:/var/run/docker.sock:rw\n");
-        builder.append("      - " + world.getHome().join(".kube").getAbsolute() + ":/root/.kube:rw\n"); // TODO
-        builder.append("      - " + serverHome + ":/var/lib/stool:rw\n");
-        builder.append("      - " + world.getHome().join(".fault").getAbsolute() + ":/etc/fault/workspace:ro\n");
-        if (cisotools != null) {
-            builder.append("      - " + cisotools.join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates:ro\n");
-        }
-        builder.append("networks:\n");
-        builder.append("  default:\n");
-        builder.append("    external:\n");
-        builder.append("      name: ").append(network).append("\n");
         return builder.toString();
+    }
+
+    public String volumes(FileNode cisotools) {
+        StringBuilder builder;
+
+        builder = new StringBuilder();
+        addVolume(builder, "docker-socket", "/var/run/docker.sock", "File");
+        addVolume(builder, "kube-config", world.getHome().join(".kube").getAbsolute(), "Directory");
+        addVolume(builder, "stool-server", home.join("server").getAbsolute(), "Directory");
+        if (cisotools != null) {
+            addVolume(builder, "fault-workspace", world.getHome().join(".fault").getAbsolute(), "Directory");
+            addVolume(builder, "stool-templates", cisotools.join("stool/templates-5").getAbsolute(), "Directory");
+        }
+        return builder.toString();
+    }
+
+    private static void addMount(StringBuilder dest, String name, String path, boolean readOnly) {
+         dest.append("      - name: " + name + "\n");
+         dest.append("        mountPath: \"" + path + "\"\n");
+         dest.append("        readOnly: " + readOnly + "\n");
+    }
+
+    private static void addVolume(StringBuilder dest, String name, String path, String type) {
+        dest.append("    - name: " + name + "\n");
+        dest.append("      hostPath:\n");
+        dest.append("        path: \"" + path + "\"\n");
+        dest.append("        type: " + type + "\n");
     }
 
     private FileNode cisotoolsEnvironment() throws FileNotFoundException, ExistsException {
