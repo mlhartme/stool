@@ -549,16 +549,10 @@ public class Stage {
     }
 
     private boolean hasContainer(Engine engine, Image image) throws IOException {
-        ContainerInfo container;
+        PodInfo pod;
 
-        for (PodInfo pod : allPodMap(engine).values()) {
-            container = container(engine, pod);
-            // TODO: repositoryTag ...
-            if (image.id.equals(container.imageId)) {
-                return true;
-            }
-        }
-        return false;
+        pod = engine.podProbe(podName());
+        return pod != null && pod.repositoryTag().equals(image.repositoryTag);
     }
 
     /** next version */
