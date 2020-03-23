@@ -288,7 +288,7 @@ public class EngineIT {
     }
 
     @Test
-    public void podImplicittHostname() throws IOException, InterruptedException {
+    public void podImplicitHostname() throws IOException, InterruptedException {
         doHostnameTest("podimplicit", null, "podimplicit");
     }
 

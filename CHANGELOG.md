@@ -5,6 +5,7 @@
 * start service with kubectl, not docker-compose
 
 * client
+  * setup: renmoved namespace argument
   * backstage is a properties file now, it maps stages to paths
   * `create`
     * checks for wars and adds all matches to the project
@@ -15,6 +16,7 @@
   * renamed `-project` option to `-working` and made it available for all stage commands, too
 
 * server
+  * updated java-8 base image from 1.0.0 to 1.0.2
   * changed default port range from 9000...9999 to 31000..31999 
   * moved APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX into client-side configuration; the server no longer looks
     into the war file
