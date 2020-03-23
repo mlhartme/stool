@@ -129,7 +129,7 @@ public class Context {
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
-    public JsonObject containerInspect(String containerId) throws IOException {
+    private JsonObject containerInspect(String containerId) throws IOException {
         JsonObject result;
 
         result = containerInspects.get(containerId);

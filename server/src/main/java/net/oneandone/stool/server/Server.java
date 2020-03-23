@@ -72,7 +72,6 @@ public class Server {
         Server server;
         FileNode serverHome;
         FileNode secrets;
-        JsonObject inspected;
         Map<String, String> binds;
         String localhostIp;
 
@@ -83,8 +82,7 @@ public class Server {
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
         try (Engine engine = Engine.create(config.engineLogFile())) {
-            inspected = inspectSelf(engine);
-            binds = binds(inspected);
+            binds = binds(inspectSelf(engine));
             pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));

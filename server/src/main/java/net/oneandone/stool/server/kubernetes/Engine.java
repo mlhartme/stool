@@ -17,7 +17,6 @@ package net.oneandone.stool.server.kubernetes;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
@@ -925,25 +924,6 @@ public class Engine implements AutoCloseable {
     }
 
     //--
-
-    private void checkWarnings(JsonObject response) throws IOException {
-        JsonElement warnings;
-
-        warnings = response.get("Warnings");
-        if (JsonNull.INSTANCE.equals(warnings)) {
-            return;
-        }
-        if (warnings.isJsonArray()) {
-            if (warnings.getAsJsonArray().size() == 0) {
-                return;
-            }
-        }
-        throw new IOException("response warnings: " + response.toString());
-    }
-
-    private JsonObject post(HttpNode dest, JsonObject obj) throws IOException {
-        return parser.parse(post(dest, obj.toString() + '\n')).getAsJsonObject();
-    }
 
     private InputStream postStream(HttpNode dest, FileNode body) throws IOException {
         try (InputStream src = body.newInputStream()) {
