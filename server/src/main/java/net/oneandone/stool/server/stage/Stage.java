@@ -747,7 +747,7 @@ public class Stage {
                 false, 1024 * 1024 * image.memory, labels, environment, mounts)) {
             throw new IOException("pod already terminated: " + name);
         }
-        Server.LOGGER.debug("created container " + engine.podProbe(podName).containerId);
+        Server.LOGGER.debug("created pod " + podName);
         status = engine.podContainerStatus(podName);
         if (status != Engine.Status.RUNNING) {
             throw new IOException("unexpected status: " + status);
