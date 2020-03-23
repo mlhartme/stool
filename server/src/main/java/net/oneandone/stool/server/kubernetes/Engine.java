@@ -869,13 +869,6 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    public Status containerStatus(String id) throws IOException {
-        JsonObject state;
-
-        state = containerState(id);
-        return Status.valueOf(state.get("Status").getAsString().toUpperCase());
-    }
-
     /** @return null if container is not started */
     public Stats containerStats(String id) throws IOException {
         HttpNode node;

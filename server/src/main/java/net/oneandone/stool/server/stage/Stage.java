@@ -692,7 +692,6 @@ public class Stage {
             throws IOException {
         String podName;
         PodInfo running;
-        String container;
         Engine.Status status;
         Ports hostPorts;
         Map<String, String> environment;
@@ -748,10 +747,8 @@ public class Stage {
                 false, 1024 * 1024 * image.memory, labels, environment, mounts)) {
             throw new IOException("pod already terminated: " + name);
         }
-        container = engine.podProbe(podName).containerId;
-
-        Server.LOGGER.debug("created container " + container);
-        status = engine.containerStatus(container);
+        Server.LOGGER.debug("created container " + engine.podProbe(podName).containerId);
+        status = engine.podContainerStatus(podName);
         if (status != Engine.Status.RUNNING) {
             throw new IOException("unexpected status: " + status);
         }
