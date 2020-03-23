@@ -60,8 +60,6 @@ import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Strings;
 
 import javax.net.SocketFactory;
-import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -830,43 +828,16 @@ public class Engine implements AutoCloseable {
         Method.delete(root.join("containers", id));
     }
 
-    public String containerLogs(String id) throws IOException {
-        final StringBuilder str;
-        OutputStream dest;
-
-        str = new StringBuilder();
-        dest = new OutputStream() {
-            @Override
-            public void write(int b) {
-                str.append((char) b);
-            }
-        };
-        doContainerLogs(id, "stdout=1&stderr=1", dest);
-        return str.toString();
-    }
-
-    public void containerLogsFollow(String id, OutputStream dest) throws IOException {
-        doContainerLogs(id, "stdout=1&stderr=1&follow=1", dest);
-    }
-
-    private void doContainerLogs(String id, String options, OutputStream dest) throws IOException {
-        HttpNode node;
-        DataInputStream data;
-        int len;
-
-        node = root.join("containers", id, "logs");
-        data = new DataInputStream(node.getRoot().node(node.getPath(), options).newInputStream());
-        while (true) {
-            try {
-                data.readInt(); // type is ignored
-            } catch (EOFException e) {
-                return;
-            }
-            len = data.readInt();
-            for (int i = 0; i < len; i++) {
-                dest.write(data.readByte());
-            }
+    public String podLogs(String pod) throws IOException {
+        try {
+            return core.readNamespacedPodLog(pod, namespace, null, false, null, null, null, null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
         }
+    }
+
+    public void podLogsFollow(String pod, OutputStream dest) throws IOException {
+        throw new IllegalStateException("TODO");
     }
 
 

@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.server.kubernetes;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -39,7 +37,6 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNotEquals;
@@ -172,7 +169,6 @@ public class EngineIT {
         String image;
         Collection<PodInfo> lst;
         PodInfo info;
-        String container;
 
         try (Engine engine = create()) {
             assertEquals(Collections.emptyMap(), engine.podList());
@@ -258,7 +254,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
         try (Engine engine = create()) {
             image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
-            engine.podCreate("restart-pod", "restart:tag");
+            assertTrue(engine.podCreate("restart-pod", "restart:tag"));
         }
         try (Engine engine = Engine.create()) {
             engine.podDelete("restart-pod");
@@ -266,7 +262,7 @@ public class EngineIT {
         }
         try (Engine engine = Engine.create()) {
             image = engine.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
-            engine.podCreate("restart-pod", "restart:tag");
+            assertTrue(engine.podCreate("restart-pod", "restart:tag"));
         }
         try (Engine engine = Engine.create()) {
             engine.podDelete("restart-pod");
@@ -279,14 +275,13 @@ public class EngineIT {
         String image = "stooltest";
         String pod = "podenv";
         String output;
-        String container;
 
         try (Engine engine = create()) {
             output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx\n"));
             assertNotNull(output);
             assertFalse(engine.podCreate(pod, image, Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after")));
-            container = engine.podProbe(pod).containerId;
-            assertEquals("bar after\n", engine.containerLogs(container));
+            output = engine.podLogs(pod);
+            assertEquals("bar after\n", output);
             engine.podDelete(pod);
             engine.imageRemove(image, false);
         }
@@ -305,15 +300,13 @@ public class EngineIT {
     private void doHostnameTest(String pod, String hostname, String expected) throws IOException, InterruptedException {
         String image = "hostname";
         String output;
-        String container;
 
         try (Engine engine = create()) {
             output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nRUN echo pod\nCMD hostname\n"));
             assertNotNull(output);
             assertFalse(engine.podCreate(pod, image, hostname, false, null, Strings.toMap(), Strings.toMap(), Collections.emptyMap()));
             assertEquals(Engine.Status.EXITED, engine.podContainerStatus(pod));
-            container = engine.podProbe(pod).containerId;
-            assertEquals(expected + "\n", engine.containerLogs(container));
+            assertEquals(expected + "\n", engine.podLogs(pod));
             engine.podDelete(pod);
             engine.imageRemove(image, false);
         }
@@ -335,7 +328,7 @@ public class EngineIT {
 
             assertFalse(engine.podCreate(pod, image, null,false, null, Collections.emptyMap(), Collections.emptyMap(),
                     Collections.singletonMap(home, home.getAbsolute())));
-            output = engine.containerLogs(engine.podProbe(pod).containerId);
+            output = engine.podLogs(pod);
             assertTrue(output.contains(file.getAbsolute()));
             engine.podDelete(pod);
 

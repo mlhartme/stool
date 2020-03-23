@@ -1235,7 +1235,7 @@ public class Stage {
         if (running == null) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
-            engine.containerLogsFollow(container(engine, running).id, new OutputStream() {
+            engine.podLogsFollow(container(engine, running).id, new OutputStream() {
                 @Override
                 public void write(int b) {
                     dest.write(b);
