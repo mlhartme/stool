@@ -28,6 +28,7 @@ import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1ContainerState;
+import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1HostPathVolumeSource;
@@ -609,7 +610,7 @@ public class Engine implements AutoCloseable {
         V1ContainerStatus status;
         V1ContainerState state;
 
-        status = readContainerStatus(name);
+        status = getPodContainerStatus(name);
         state = status.getState();
         if (state.getTerminated() != null) {
             return Status.EXITED;
@@ -620,7 +621,7 @@ public class Engine implements AutoCloseable {
         throw new IOException("unknown state: " + state);
     }
 
-    private V1ContainerStatus readContainerStatus(String name) throws IOException {
+    private V1ContainerStatus getPodContainerStatus(String name) throws IOException {
         V1Pod pod;
         List<V1ContainerStatus> lst;
 
@@ -867,6 +868,19 @@ public class Engine implements AutoCloseable {
                 dest.write(data.readByte());
             }
         }
+    }
+
+
+    public Long podStartedAt(String pod) throws IOException {
+        V1ContainerStatus status;
+        V1ContainerStateRunning running;
+
+        status = getPodContainerStatus(pod);
+        running = status.getState().getRunning();
+        if (running == null) {
+            return null;
+        }
+        return running.getStartedAt().toDate().getTime();
     }
 
     /** @return null if container is not started */

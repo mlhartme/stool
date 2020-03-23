@@ -281,9 +281,17 @@ public class Stage {
             @Override
             public Object get(Context context) throws IOException {
                 Current current;
+                Long started;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : Stage.timespan(context.containerStartedAt(current.container.id));
+                if (current == null) {
+                    return null;
+                }
+                started = context.engine.podStartedAt(current.pod.name);
+                if (started == null) {
+                    return null;
+                }
+                return Stage.timespan(started);
             }
         });
         fields.add(new Field("disk-used") {

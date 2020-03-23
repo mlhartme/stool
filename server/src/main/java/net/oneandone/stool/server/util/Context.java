@@ -24,10 +24,6 @@ import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,25 +137,5 @@ public class Context {
             containerStats.put(containerId, result);
         }
         return result;
-    }
-
-    // TODO: move to Engine whould harm performance ...
-    // https://github.com/moby/moby/pull/15010
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
-
-    public long containerStartedAt(String containerId) throws IOException {
-        JsonObject state;
-        String str;
-        LocalDateTime result;
-
-        state = containerInspect(containerId).get("State").getAsJsonObject();
-        str = state.get("StartedAt").getAsString();
-        try {
-            result = LocalDateTime.parse(str, DATE_FORMAT);
-        } catch (DateTimeParseException e) {
-            throw new IOException("cannot parse date: " + str);
-        }
-        // CAUTION: container executes in GMT timezone
-        return result.atZone(ZoneId.of("GMT")).toInstant().toEpochMilli();
     }
 }
