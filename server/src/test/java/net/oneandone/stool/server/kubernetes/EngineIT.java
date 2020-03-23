@@ -169,7 +169,6 @@ public class EngineIT {
     public void podTerminating() throws IOException {
         final String imageTag = "foobla";
         final String name = "pod";
-        PodInfo pod;
         String image;
         Collection<PodInfo> lst;
         PodInfo info;
@@ -180,17 +179,14 @@ public class EngineIT {
             image = engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD echo ho\n"), false, null);
             assertFalse(engine.podCreate(name, imageTag, "foo", "bar"));
-            pod = engine.podProbe(name);
-            assertNull(engine.containerInfoOpt(pod.containerId)); // TODO: list does not return the id!
-            assertEquals(Engine.Status.EXITED, engine.containerStatus(pod.containerId)); // ... although it still exists
+            assertEquals(Engine.Status.EXITED, engine.podContainerStatus(name));
             lst = engine.podList().values();
             assertEquals(1, lst.size());
             info = lst.iterator().next();
             assertEquals(name, info.name);
             assertEquals("Succeeded", info.phase);
             assertEquals(Strings.toMap("foo", "bar"), info.labels);
-            container = info.containerId;
-            assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
+            assertEquals(Engine.Status.EXITED, engine.podContainerStatus(name));
             engine.podDelete(name);
             assertEquals(Collections.emptyMap(), engine.containerListForImage(image));
             assertEquals(0, engine.podList().size());
@@ -220,9 +216,9 @@ public class EngineIT {
             assertTrue(engine.containerListForImage(image).isEmpty());
             assertTrue(engine.containerList("stooltest").isEmpty());
             engine.podCreate(pod, "some:tag", null,true, null, Strings.toMap("containerLabel", "bla"), Collections.emptyMap(), Collections.emptyMap());
-            container = engine.podProbe(pod).containerId;
-            assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
+            assertEquals(Engine.Status.RUNNING, engine.podContainerStatus(pod));
 
+            container = engine.podProbe(pod).containerId;
             stats = engine.containerStats(container);
             assertEquals(0, stats.cpu);
 
@@ -245,7 +241,7 @@ public class EngineIT {
             map = engine.containerListForImage(image);
             containerHealed = map.keySet().iterator().next();
             assertNotEquals(container, containerHealed);
-            assertEquals(Engine.Status.RUNNING, engine.containerStatus(containerHealed));
+            assertEquals(Engine.Status.RUNNING, engine.podContainerStatus(pod));
 
             assertEquals(Arrays.asList(containerHealed), new ArrayList<>(engine.containerListForImage(image).keySet()));
 
@@ -318,10 +314,9 @@ public class EngineIT {
         try (Engine engine = create()) {
             output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nRUN echo pod\nCMD hostname\n"));
             assertNotNull(output);
-            engine.podCreate(pod, image, hostname, false, null, Strings.toMap(), Strings.toMap(), Collections.emptyMap());
+            assertFalse(engine.podCreate(pod, image, hostname, false, null, Strings.toMap(), Strings.toMap(), Collections.emptyMap()));
+            assertEquals(Engine.Status.EXITED, engine.podContainerStatus(pod));
             container = engine.podProbe(pod).containerId;
-            Thread.sleep(500);
-            assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
             assertEquals(expected + "\n", engine.containerLogs(container));
             engine.podDelete(pod);
             engine.imageRemove(image, false);

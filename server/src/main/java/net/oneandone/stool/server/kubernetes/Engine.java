@@ -27,6 +27,8 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.models.V1ContainerState;
+import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1HostPathVolumeSource;
 import io.kubernetes.client.openapi.models.V1Namespace;
@@ -574,7 +576,6 @@ public class Engine implements AutoCloseable {
 
     public void podDelete(String name) throws IOException {
         PodInfo info;
-        int count;
 
         info = podProbe(name);
         try {
@@ -602,6 +603,37 @@ public class Engine implements AutoCloseable {
             }
             // TODO: what if there's more than one container for this pod?
         }
+    }
+
+    public Status podContainerStatus(String name) throws IOException {
+        V1ContainerStatus status;
+        V1ContainerState state;
+
+        status = readContainerStatus(name);
+        state = status.getState();
+        if (state.getTerminated() != null) {
+            return Status.EXITED;
+        }
+        if (state.getRunning() != null) {
+            return Status.RUNNING;
+        }
+        throw new IOException("unknown state: " + state);
+    }
+
+    private V1ContainerStatus readContainerStatus(String name) throws IOException {
+        V1Pod pod;
+        List<V1ContainerStatus> lst;
+
+        try {
+            pod = core.readNamespacedPod(name, namespace, null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        lst = pod.getStatus().getContainerStatuses();
+        if (lst.size() != 1) {
+            throw new IllegalStateException(lst.toString());
+        }
+        return lst.get(0);
     }
 
     private String podAwait(String name, String... expectedPhases) throws IOException {
@@ -781,85 +813,6 @@ public class Engine implements AutoCloseable {
     }
 
     /**
-     * @param memory is the memory limit in bytes. Or null for no limit. At least 1024*1024*4. The actual value used by docker is something
-     *               rounded of this parameter
-     * @param hostname or null to not define the hostname
-     * @return container id
-     */
-    @SuppressWarnings("checkstyle:ParameterNumber")
-    public String containerCreate(String name, String image, String hostname, String networkMode, Long memory,
-                                  Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, String> ports) throws IOException {
-        JsonObject body;
-        JsonObject response;
-        JsonObject hostConfig;
-        JsonArray mounts;
-        JsonObject portBindings;
-        JsonArray drops;
-        HttpNode node;
-
-        node = root.join("containers/create");
-        if (name != null) {
-            node = node.withParameter("name", name);
-        }
-        body = object("Image", image);
-        if (hostname != null) {
-            body.add("Hostname", new JsonPrimitive(hostname));
-        }
-        if (!labels.isEmpty()) {
-            body.add("Labels", obj(labels));
-        }
-        hostConfig = new JsonObject();
-
-        body.add("HostConfig", hostConfig);
-        if (!env.isEmpty()) {
-            body.add("Env", env(env));
-        }
-        if (memory != null) {
-            hostConfig.add("Memory", new JsonPrimitive(memory));
-            // unlimited; important, because debian stretch kernel does not support this
-            hostConfig.add("MemorySwap", new JsonPrimitive(-1));
-        }
-        if (networkMode != null) {
-            hostConfig.add("NetworkMode", new JsonPrimitive(networkMode));
-        }
-        mounts = new JsonArray();
-        hostConfig.add("Mounts", mounts);
-        for (Map.Entry<FileNode, String> entry : bindMounts.entrySet()) {
-            mounts.add(object("type", "bind", "source", entry.getKey().getAbsolute(), "target", entry.getValue()));
-        }
-        drops = new JsonArray(); // added security - not sure if I really need this
-        drops.add(new JsonPrimitive("setuid"));
-        drops.add(new JsonPrimitive("setgid"));
-        drops.add(new JsonPrimitive("chown"));
-        drops.add(new JsonPrimitive("dac_override"));
-        drops.add(new JsonPrimitive("fowner"));
-        drops.add(new JsonPrimitive("fsetid"));
-        drops.add(new JsonPrimitive("kill"));
-        drops.add(new JsonPrimitive("setpcap"));
-        drops.add(new JsonPrimitive("net_bind_service"));
-        drops.add(new JsonPrimitive("net_raw"));
-        drops.add(new JsonPrimitive("sys_chroot"));
-        drops.add(new JsonPrimitive("mknod"));
-        drops.add(new JsonPrimitive("setfcap"));
-        hostConfig.add("CapDrop", drops);
-
-        portBindings = new JsonObject();
-        for (Map.Entry<Integer, String> entry: ports.entrySet()) {
-            portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hostMapping(entry.getValue()));
-        }
-        hostConfig.add("PortBindings", portBindings);
-        body.add("ExposedPorts", exposedPorts(ports.keySet()));
-
-        response = post(node, body);
-        checkWarnings(response);
-        return response.get("Id").getAsString();
-    }
-
-    public void containerStart(String id) throws IOException {
-        post(root.join("containers", id, "start"), "");
-    }
-
-    /**
      * Sends stop signal as specified containerCreate to pid 1. If process does not terminate after timeout, SIGKILL is used
      * @param timeout null to use timeout specified by containerCreate
      * */
@@ -914,13 +867,6 @@ public class Engine implements AutoCloseable {
                 dest.write(data.readByte());
             }
         }
-    }
-
-    public int containerWait(String id) throws IOException {
-        JsonObject response;
-
-        response = post(root.join("containers", id, "wait"), object());
-        return response.get("StatusCode").getAsInt();
     }
 
     public Status containerStatus(String id) throws IOException {
