@@ -203,7 +203,6 @@ public class EngineIT {
         String container;
         String containerHealed;
         Map<String, ContainerInfo> map;
-        JsonObject obj;
         Stats stats;
 
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
@@ -222,9 +221,6 @@ public class EngineIT {
             stats = engine.containerStats(container);
             assertEquals(0, stats.cpu);
 
-            obj = engine.containerInspect(container, false).get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-            assertEquals(obj.get("stooltest"), new JsonPrimitive(labels.get("stooltest")));
-            assertNull(obj.get("containerLabel"));
             map = engine.containerListForImage(image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));

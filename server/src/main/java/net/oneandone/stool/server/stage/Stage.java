@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.stage;
 
-import com.google.gson.JsonObject;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.configuration.Accessor;
@@ -300,7 +299,7 @@ public class Stage {
                 Current current;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : Stage.sizeRw(context, current.container);
+                return current == null ? null : context.sizeRw(current.container);
             }
         });
         fields.add(new Field("cpu") {
@@ -441,17 +440,6 @@ public class Stage {
         used = (Long) result.get("used");
         max = (Long) result.get("max");
         return Float.toString(((float) (used * 1000 / max)) / 10);
-    }
-
-    /** @return size of the read-write layer, not size of the root file system */
-    public static int sizeRw(Context context, ContainerInfo info) throws IOException {
-        JsonObject obj;
-
-        if (info == null) {
-            return 0;
-        }
-        obj = context.containerInspect(info.id);
-        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
     public static String timespan(LocalDateTime ldt) {
@@ -606,7 +594,7 @@ public class Stage {
         if (current != null) {
             info = current.container;
             if (info != null) {
-                used = Stage.sizeRw(new Context(engine), info);
+                used = new Context(engine).sizeRw(info);
                 quota = current.image.disk;
                 if (used > quota) {
                     throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");

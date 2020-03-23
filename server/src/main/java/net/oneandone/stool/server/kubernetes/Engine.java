@@ -914,20 +914,6 @@ public class Engine implements AutoCloseable {
         return (int) (cpuDelta * 100 / systemDelta);
     }
 
-    private JsonObject containerState(String id) throws IOException {
-        JsonObject response;
-        JsonObject state;
-        String error;
-
-        response = containerInspect(id, false);
-        state = response.get("State").getAsJsonObject();
-        error = state.get("Error").getAsString();
-        if (!error.isEmpty()) {
-            throw new IOException("error state: " + error);
-        }
-        return state;
-    }
-
     public JsonObject containerInspect(String id, boolean size) throws IOException {
         HttpNode node;
 

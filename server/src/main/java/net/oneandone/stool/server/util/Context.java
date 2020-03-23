@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
+import net.oneandone.stool.server.kubernetes.ContainerInfo;
 import net.oneandone.stool.server.kubernetes.Engine;
 import net.oneandone.stool.server.kubernetes.ImageInfo;
 import net.oneandone.stool.server.kubernetes.PodInfo;
@@ -115,6 +116,17 @@ public class Context {
             urlMaps.put(stage.getName(), result);
         }
         return result;
+    }
+
+    /** @return size of the read-write layer, not size of the root file system */
+    public int sizeRw(ContainerInfo info) throws IOException {
+        JsonObject obj;
+
+        if (info == null) {
+            return 0;
+        }
+        obj = containerInspect(info.id);
+        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
     public JsonObject containerInspect(String containerId) throws IOException {
