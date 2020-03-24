@@ -42,7 +42,6 @@ public class Restart extends IteratedStageCommand {
         if (imageOpt != null) {
             args.add(imageOpt);
         }
-        Thread.sleep(10000); // TODO
         new Start(globals, args).doRun(reference);
     }
 }

@@ -25,6 +25,7 @@ import net.oneandone.stool.server.kubernetes.ContainerInfo;
 import net.oneandone.stool.server.kubernetes.Engine;
 import net.oneandone.stool.server.kubernetes.ImageInfo;
 import net.oneandone.stool.server.kubernetes.PodInfo;
+import net.oneandone.stool.server.kubernetes.ServiceInfo;
 import net.oneandone.stool.server.kubernetes.Stats;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.Context;
@@ -419,8 +420,7 @@ public class Stage {
             return "[no jmx port]";
         }
 
-        url = jmxUrl(context);
-        System.out.println("jmxurl: " + url);
+        url = clusterJmxUrl(context);
         try {
             objectName = new ObjectName("java.lang:type=Memory");
         } catch (MalformedObjectNameException e) {
@@ -677,7 +677,7 @@ public class Stage {
             Server.LOGGER.debug("wipe old pod and services");
             engine.podDelete(podName);
             engine.serviceDelete(podName + "http");
-            engine.serviceDelete(podName + "jmxmp");
+            engine.serviceDelete(jmxServiceName());
         }
 
     }
@@ -737,7 +737,7 @@ public class Stage {
         }
 
         engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http, POD_LABEL_STAGE, name);
-        engine.serviceCreate(podName + "jmxmp", hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
+        engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts)) {
@@ -749,6 +749,10 @@ public class Stage {
             throw new IOException("unexpected status: " + status);
         }
         return image.tag;
+    }
+
+    public String jmxServiceName() {
+        return podName() + "jmxmp";
     }
 
     private static String md5(String str) {
@@ -1160,7 +1164,7 @@ public class Stage {
         JMXServiceURL url;
         String state;
 
-        url = jmxUrl(context);
+        url = clusterJmxUrl(context);
         if (url != null) {
             for (int count = 0; true; count++) {
                 try {
@@ -1197,17 +1201,19 @@ public class Stage {
         }
     }
 
-    public JMXServiceURL jmxUrl(Context context) throws IOException {
+    public JMXServiceURL clusterJmxUrl(Context context) throws IOException {
         String ip;
         PodInfo running;
+        ServiceInfo service;
 
         running = context.runningPodOpt(this);
         if (running == null) {
             return null;
         } else {
-            ip = "localhost"; // TODO
+            service = context.engine.serviceGet(jmxServiceName());
+            ip = service.clusterIp;
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + server.pool.stageOpt(name).jmxmp);
+            return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + service.containerPort);
         }
     }
 

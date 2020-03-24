@@ -86,8 +86,6 @@ public abstract class ClientCommand {
         return !status(reference, "running").isEmpty();
     }
 
-    private static final Separator TAB = Separator.on('\t');
-
     private String status(Reference reference, String field) throws IOException {
         Map<String, String> map;
 

@@ -451,6 +451,17 @@ public class Engine implements AutoCloseable {
 
     //-- services
 
+    public ServiceInfo serviceGet(String name) throws IOException {
+        V1Service service;
+
+        try {
+            service = core.readNamespacedService(name, namespace, null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        return ServiceInfo.create(service);
+    }
+
     public void serviceCreate(String name, int nodePort, int containerPort, String... selector) throws IOException {
         serviceCreate(name, nodePort, containerPort, Strings.toMap(selector));
     }
@@ -474,20 +485,15 @@ public class Engine implements AutoCloseable {
     public Map<String, ServiceInfo> serviceList() throws IOException {
         V1ServiceList list;
         Map<String, ServiceInfo> result;
-        String name;
-        List<V1ServicePort> ports;
+        ServiceInfo info;
 
         try {
             list = core.listNamespacedService(namespace, null, null, null, null, null,
                     null, null, null, null);
             result = new HashMap<>();
             for (V1Service service: list.getItems()) {
-                name = service.getMetadata().getName();
-                ports = service.getSpec().getPorts();
-                if (ports.size() != 1) {
-                    throw new IllegalStateException(ports.toString());
-                }
-                result.put(name, new ServiceInfo(name, ports.get(0).getNodePort(), ports.get(0).getPort()));
+                info = ServiceInfo.create(service);
+                result.put(info.name, info);
             }
         } catch (ApiException e) {
             throw wrap(e);

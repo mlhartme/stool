@@ -15,13 +15,32 @@
  */
 package net.oneandone.stool.server.kubernetes;
 
+import io.kubernetes.client.openapi.models.V1Service;
+import io.kubernetes.client.openapi.models.V1ServicePort;
+
+import java.util.List;
+
 public class ServiceInfo {
+    public static ServiceInfo create(V1Service service) {
+        String name;
+        List<V1ServicePort> ports;
+
+        name = service.getMetadata().getName();
+        ports = service.getSpec().getPorts();
+        if (ports.size() != 1) {
+            throw new IllegalStateException(ports.toString());
+        }
+        return new ServiceInfo(name, service.getSpec().getClusterIP(), ports.get(0).getNodePort(), ports.get(0).getPort());
+    }
+
     public final String name;
+    public final String clusterIp;
     public final int nodePort;
     public final int containerPort;
 
-    public ServiceInfo(String name, int nodePort, int containerPort) {
+    public ServiceInfo(String name, String clusterIp, int nodePort, int containerPort) {
         this.name = name;
+        this.clusterIp = clusterIp;
         this.nodePort = nodePort;
         this.containerPort = containerPort;
     }
