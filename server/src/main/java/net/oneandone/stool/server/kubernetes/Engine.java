@@ -451,6 +451,14 @@ public class Engine implements AutoCloseable {
 
     //-- services
 
+    public ServiceInfo serviceGetOpt(String name) throws IOException {
+        try {
+            return serviceGet(name);
+        } catch (java.io.FileNotFoundException e) {
+            return null;
+        }
+    }
+
     public ServiceInfo serviceGet(String name) throws IOException {
         V1Service service;
 
@@ -458,21 +466,6 @@ public class Engine implements AutoCloseable {
             service = core.readNamespacedService(name, namespace, null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
-        }
-        return ServiceInfo.create(service);
-    }
-
-    public ServiceInfo serviceGetOpt(String name) throws IOException {
-        V1Service service;
-
-        try {
-            service = core.readNamespacedService(name, namespace, null, null, null);
-        } catch (ApiException e) {
-            if (e.getCode() == 404) {
-                return null;
-            } else {
-                throw wrap(e);
-            }
         }
         return ServiceInfo.create(service);
     }
@@ -770,6 +763,13 @@ public class Engine implements AutoCloseable {
     }
 
     private static IOException wrap(ApiException e) {
+        IOException result;
+
+        if (e.getCode() == 404) {
+            result = new java.io.FileNotFoundException(e.getResponseBody());
+            result.initCause(e);
+            return result;
+        }
         return new IOException(e.getResponseBody(), e);
     }
 
