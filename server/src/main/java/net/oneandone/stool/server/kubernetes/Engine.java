@@ -462,6 +462,21 @@ public class Engine implements AutoCloseable {
         return ServiceInfo.create(service);
     }
 
+    public ServiceInfo serviceGetOpt(String name) throws IOException {
+        V1Service service;
+
+        try {
+            service = core.readNamespacedService(name, namespace, null, null, null);
+        } catch (ApiException e) {
+            if (e.getCode() == 404) {
+                return null;
+            } else {
+                throw wrap(e);
+            }
+        }
+        return ServiceInfo.create(service);
+    }
+
     public void serviceCreate(String name, int nodePort, int containerPort, String... selector) throws IOException {
         serviceCreate(name, nodePort, containerPort, Strings.toMap(selector));
     }

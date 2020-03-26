@@ -671,12 +671,16 @@ public class Stage {
 
     private void wipeResources(Engine engine) throws IOException {
         String podName;
+        String httpService;
 
         podName = podName();
-        if (engine.podProbe(podName) != null) {
+        httpService = podName + "http";
+        if (engine.serviceGetOpt(httpService) != null) {
             Server.LOGGER.debug("wipe old pod and services");
-            engine.podDelete(podName);
-            engine.serviceDelete(podName + "http");
+            if (engine.podProbe(podName) != null) {
+                engine.podDelete(podName);
+            }
+            engine.serviceDelete(httpService);
             engine.serviceDelete(jmxServiceName());
         }
 
@@ -782,34 +786,6 @@ public class Stage {
         }
     }
 
-    private static String toName(String str) {
-        StringBuilder result;
-        char c;
-
-        result = new StringBuilder();
-        for (int i = 0; i < str.length(); i++) {
-            c = str.charAt(i);
-            switch (c) {
-                case '-':
-                case '_':
-                    result.append(c);
-                    break;
-                case '.':
-                case ':':
-                case '/':
-                    result.append('_');
-                    break;
-                default:
-                    if ((c >= 'a' && c <='z') || (c >= 'A' && c <='Z') || (c >= '0' && c <='9')) {
-                        result.append(c);
-                    } else {
-                        result.append(Integer.toString(c));
-                    }
-            }
-        }
-        return result.toString();
-    }
-
     private Image resolve(Engine engine, String imageOpt) throws IOException {
         List<Image> all;
         Image image;
@@ -847,8 +823,8 @@ public class Stage {
         if (current == null) {
             return null;
         }
-        Server.LOGGER.info(current.image.tag + ": stopping container ...");
-        engine.containerStop(current.container.id, 300);
+        Server.LOGGER.info(current.image.tag + ": deleting pod ...");
+        engine.podDelete(podName()); // TODO: timeout 5 minutes
         return current.image.tag;
     }
 
