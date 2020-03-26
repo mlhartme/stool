@@ -467,6 +467,11 @@ public class Engine implements AutoCloseable {
     }
 
     public void serviceCreate(String name, int nodePort, int containerPort, Map<String, String> selector) throws IOException {
+        serviceCreate(name, nodePort, containerPort, selector, Strings.toMap());
+    }
+
+    public void serviceCreate(String name, int nodePort, int containerPort, Map<String, String> selector, Map<String, String> labels)
+            throws IOException {
         V1ServicePort port;
 
         port = new V1ServicePort();
@@ -474,7 +479,7 @@ public class Engine implements AutoCloseable {
         port.setPort(containerPort);
         try {
             core.createNamespacedService(namespace, new V1ServiceBuilder()
-                    .withNewMetadata().withName(name).endMetadata()
+                    .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                     .withNewSpec().withType("NodePort").withPorts(port).withSelector(selector).endSpec()
                     .build(), null, null, null);
         } catch (ApiException e) {
