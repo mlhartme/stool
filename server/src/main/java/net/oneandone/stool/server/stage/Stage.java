@@ -729,14 +729,15 @@ public class Stage {
             Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
         }
         hostPorts = pool.allocate(this, http, https);
-        labels = hostPorts.toUsedLabels();
+        labels = new HashMap<>();
         labels.put(POD_LABEL_STAGE, name);
         labels.put(POD_LABEL_REPOSITORY_TAG, Engine.encodeLabel(image.repositoryTag));
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             labels.put(POD_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
 
-        engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http, POD_LABEL_STAGE, name);
+        engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http,
+                Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
@@ -749,6 +750,14 @@ public class Stage {
             throw new IOException("unexpected status: " + status);
         }
         return image.tag;
+    }
+
+    private Map<String, String> httpServiceLabels(Ports hostPorts) {
+        Map<String, String> result;
+
+        result = hostPorts.toUsedLabels();
+        result.put(POD_LABEL_STAGE, name);
+        return result;
     }
 
     public String jmxServiceName() {

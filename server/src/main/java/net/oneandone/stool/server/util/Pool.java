@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.util;
 
 import net.oneandone.stool.server.kubernetes.Engine;
-import net.oneandone.stool.server.kubernetes.PodInfo;
+import net.oneandone.stool.server.kubernetes.ServiceInfo;
 import net.oneandone.stool.server.stage.Stage;
 
 import java.io.IOException;
@@ -32,10 +32,15 @@ public class Pool {
         String stage;
 
         result = new Pool(first, last);
-        for (PodInfo info : engine.podList().values()) {
+        for (ServiceInfo info : engine.serviceList().values()) {
             labels = info.labels;
-            stage = labels.get(Stage.POD_LABEL_STAGE);
-            result.datas.add(new Data(stage, Ports.fromUsedLabels(labels)));
+            if (labels != null) {
+                stage = labels.get(Stage.POD_LABEL_STAGE);
+                if (stage != null) {
+                    System.out.println("loaded stage " + stage);
+                    result.datas.add(new Data(stage, Ports.fromUsedLabels(labels)));
+                }
+            }
         }
         return result;
     }

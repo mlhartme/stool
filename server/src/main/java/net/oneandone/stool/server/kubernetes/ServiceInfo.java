@@ -19,6 +19,7 @@ import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServicePort;
 
 import java.util.List;
+import java.util.Map;
 
 public class ServiceInfo {
     public static ServiceInfo create(V1Service service) {
@@ -30,18 +31,21 @@ public class ServiceInfo {
         if (ports.size() != 1) {
             throw new IllegalStateException(ports.toString());
         }
-        return new ServiceInfo(name, service.getSpec().getClusterIP(), ports.get(0).getNodePort(), ports.get(0).getPort());
+        return new ServiceInfo(name, service.getSpec().getClusterIP(), ports.get(0).getNodePort(), ports.get(0).getPort(),
+                service.getMetadata().getLabels());
     }
 
     public final String name;
     public final String clusterIp;
     public final int nodePort;
     public final int containerPort;
+    public final Map<String, String> labels;
 
-    public ServiceInfo(String name, String clusterIp, int nodePort, int containerPort) {
+    public ServiceInfo(String name, String clusterIp, int nodePort, int containerPort, Map<String, String> labels) {
         this.name = name;
         this.clusterIp = clusterIp;
         this.nodePort = nodePort;
         this.containerPort = containerPort;
+        this.labels = labels;
     }
 }
