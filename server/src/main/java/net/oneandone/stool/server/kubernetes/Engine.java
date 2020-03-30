@@ -37,6 +37,9 @@ import io.kubernetes.client.openapi.models.V1NamespaceList;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
 import io.kubernetes.client.openapi.models.V1PodList;
+import io.kubernetes.client.openapi.models.V1Secret;
+import io.kubernetes.client.openapi.models.V1SecretBuilder;
+import io.kubernetes.client.openapi.models.V1SecretList;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceBuilder;
 import io.kubernetes.client.openapi.models.V1ServiceList;
@@ -571,15 +574,15 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
-        return podCreate(name, image, null, false, null, labels, env, Collections.emptyMap());
+        return podCreate(name, image, null, false, null, labels, env, Collections.emptyMap(), Collections.emptyMap());
     }
 
     public boolean podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
-                          Map<FileNode, String> mounts) throws IOException {
+                          Map<FileNode, String> hostVolumes, Map<String, Map<String, String>> secretVolumes) throws IOException {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, image, hostname, healing, memory, labels, env, mounts), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, hostname, healing, memory, labels, env, hostVolumes, secretVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -700,11 +703,13 @@ public class Engine implements AutoCloseable {
     }
 
     private static V1Pod pod(String name, String image, String hostname, boolean healing, Integer memory,
-                             Map<String, String> labels, Map<String, String> env, Map<FileNode, String> volumes) {
+                             Map<String, String> labels, Map<String, String> env, Map<FileNode, String> hostVolumes,
+                             Map<String, Map<String, String>> secretVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
         V1Volume v;
+        int volumeCount;
         String vname;
         V1HostPathVolumeSource hp;
         List<V1VolumeMount> ml;
@@ -720,10 +725,11 @@ public class Engine implements AutoCloseable {
         }
         vl = new ArrayList<>();
         ml = new ArrayList<>();
-        vname = "volume";
-        for (Map.Entry<FileNode, String> entry : volumes.entrySet()) {
+        volumeCount = 0;
+        for (Map.Entry<FileNode, String> entry : hostVolumes.entrySet()) {
             hp = new V1HostPathVolumeSource();
             hp.setPath(entry.getKey().getAbsolute());
+            vname = "volume" + ++volumeCount;
             v = new V1Volume();
             v.setName(vname);
             v.setHostPath(hp);
@@ -732,7 +738,6 @@ public class Engine implements AutoCloseable {
             m.setName(vname);
             m.setMountPath(entry.getValue());
             ml.add(m);
-            vname = vname + "x";
         }
         limits = new HashMap<>();
         if (memory != null) {
@@ -753,6 +758,96 @@ public class Engine implements AutoCloseable {
                   .withImagePullPolicy("Never") // TODO
                 .endContainer().endSpec().build();
     }
+
+    //-- secrets
+
+    public void secretCreate(String name, Map<String, String> data) throws IOException {
+        V1Secret secret;
+
+        secret = new V1SecretBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withStringData(data).build();
+        try {
+            core.createNamespacedSecret(namespace, secret, null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    public void secretDelete(String name) throws IOException {
+        try {
+            core.deleteNamespacedSecret(name, namespace, null, null, null, null, "Foreground", null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        awaitSecretDeleted(name);
+    }
+
+    /** @return name- to phase mapping */
+    public Map<String, String> secretList() throws IOException {
+        V1SecretList lst;
+        Map<String, String> result;
+
+        try {
+            lst = core.listNamespacedSecret(namespace, null, null, null, null, null, null, null, null, null);
+            result = new HashMap();
+            for (V1Secret ns : lst.getItems()) {
+                result.put(ns.getMetadata().getName(), ns.getMetadata().getName());
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        return result;
+    }
+
+    private void awaitSecretDeleted(String name) throws IOException {
+        int count;
+
+        count = 0;
+        while (true) {
+            try {
+                try {
+                    core.readNamespacedSecret(name, namespace, null, null, null);
+                } catch (ApiException e) {
+                    throw wrap(e);
+                }
+            } catch (java.io.FileNotFoundException e) {
+                return;
+            }
+            count++;
+            if (count > 500) {
+                throw new IOException("waiting for delete timed out");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new IOException("waiting for delete timed interrupted");
+            }
+        }
+
+    }
+
+    public static String pathToKey(String path) {
+        return path.replace('/', '_');
+    }
+
+
+    /* TODO
+    public void secretVolumeCreate(String name, Collection<String> paths) throws IOException {
+        V1Volume volume;
+        V1SecretVolumeSource src;
+        List<V1KeyToPath> items;
+
+        items = new ArrayList<>();
+        for (String path : paths) {
+            items.add(new V1KeyToPathBuilder().withKey(pathToKey(path)).withPath(path).build());
+        }
+        src = new V1SecretVolumeSourceBuilder().withSecretName(name).withItems(items).build();
+        volume = new V1VolumeBuilder().withSecret(src).build();
+        try {
+            core.createNamespacedVolumeSecret(namespace, secret, null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }*/
 
     private static boolean same(String left, String right) {
         if (left == null) {

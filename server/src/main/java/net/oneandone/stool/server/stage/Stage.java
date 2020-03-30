@@ -745,7 +745,7 @@ public class Stage {
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
-                false, 1024 * 1024 * image.memory, labels, environment, mounts)) {
+                false, 1024 * 1024 * image.memory, labels, environment, mounts, Collections.emptyMap())) {
             throw new IOException("pod already terminated: " + name);
         }
         Server.LOGGER.debug("created pod " + podName);
