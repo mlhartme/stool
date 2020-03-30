@@ -378,4 +378,28 @@ public class EngineIT {
             assertEquals(0, engine.serviceList().size());
         }
     }
+
+    //-- secrets
+
+    @Test
+    public void secrets() throws IOException {
+        final String name = "sec";
+        Map<String, String> data;
+        Map<String[], Map<String, String>> sm;
+
+        try (Engine engine = create()) {
+            data = Strings.toMap("name", "blablub");
+            engine.secretCreate(name, data);;
+            assertTrue(engine.secretList().containsKey(name));
+
+            engine.imageBuild("secuser", Collections.emptyMap(), Collections.emptyMap(),
+                    dockerfile("FROM debian:stretch-slim\nCMD cat /etc/secrets/sub/renamed.txt\n"), false, null);
+
+            sm = new HashMap<>();
+            sm.put(new String[] { name, "/etc/secrets" }, Strings.toMap("name", "sub/renamed.txt"));
+            assertFalse(engine.podCreate(name, "secuser", "somehost", false, null,
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), sm));
+            assertEquals("blablub", engine.podLogs(name));
+        }
+    }
 }

@@ -31,6 +31,8 @@ import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1HostPathVolumeSource;
+import io.kubernetes.client.openapi.models.V1KeyToPath;
+import io.kubernetes.client.openapi.models.V1KeyToPathBuilder;
 import io.kubernetes.client.openapi.models.V1Namespace;
 import io.kubernetes.client.openapi.models.V1NamespaceBuilder;
 import io.kubernetes.client.openapi.models.V1NamespaceList;
@@ -40,11 +42,14 @@ import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.openapi.models.V1Secret;
 import io.kubernetes.client.openapi.models.V1SecretBuilder;
 import io.kubernetes.client.openapi.models.V1SecretList;
+import io.kubernetes.client.openapi.models.V1SecretVolumeSource;
+import io.kubernetes.client.openapi.models.V1SecretVolumeSourceBuilder;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceBuilder;
 import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.openapi.models.V1ServicePort;
 import io.kubernetes.client.openapi.models.V1Volume;
+import io.kubernetes.client.openapi.models.V1VolumeBuilder;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
 import jnr.unixsocket.UnixSocketAddress;
@@ -578,7 +583,7 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
-                          Map<FileNode, String> hostVolumes, Map<String, Map<String, String>> secretVolumes) throws IOException {
+                          Map<FileNode, String> hostVolumes, Map<String[], Map<String, String>> secretVolumes) throws IOException {
         String phase;
 
         try {
@@ -702,9 +707,10 @@ public class Engine implements AutoCloseable {
         return result.toString();
     }
 
+    /** @param secretVolumes  ([secret name, dest path], (key, path)*)* */
     private static V1Pod pod(String name, String image, String hostname, boolean healing, Integer memory,
                              Map<String, String> labels, Map<String, String> env, Map<FileNode, String> hostVolumes,
-                             Map<String, Map<String, String>> secretVolumes) {
+                             Map<String[], Map<String, String>> secretVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -739,6 +745,14 @@ public class Engine implements AutoCloseable {
             m.setMountPath(entry.getValue());
             ml.add(m);
         }
+        for (Map.Entry<String[], Map<String, String>> entry : secretVolumes.entrySet()) {
+            vname = "volume" + ++volumeCount;
+            vl.add(secretVolume(vname, entry.getKey()[0], entry.getValue()));
+            m = new V1VolumeMount();
+            m.setName(vname);
+            m.setMountPath(entry.getKey()[1]);
+            ml.add(m);
+        }
         limits = new HashMap<>();
         if (memory != null) {
             limits.put("memory", new Quantity(memory.toString()));
@@ -758,6 +772,23 @@ public class Engine implements AutoCloseable {
                   .withImagePullPolicy("Never") // TODO
                 .endContainer().endSpec().build();
     }
+
+    private static V1Volume secretVolume(String volumeName, String secretName, Map<String, String> keyToPaths) {
+        V1SecretVolumeSource src;
+        List<V1KeyToPath> items;
+
+        if (keyToPaths != null) {
+            items = new ArrayList<>();
+            for (Map.Entry<String, String> entry : keyToPaths.entrySet()) {
+                items.add(new V1KeyToPathBuilder().withKey(entry.getKey()).withPath(entry.getValue()).build());
+            }
+        } else {
+            items = null;
+        }
+        src = new V1SecretVolumeSourceBuilder().withSecretName(secretName).withItems(items).build();
+        return new V1VolumeBuilder().withName(volumeName).withSecret(src).build();
+    }
+
 
     //-- secrets
 
@@ -824,30 +855,6 @@ public class Engine implements AutoCloseable {
         }
 
     }
-
-    public static String pathToKey(String path) {
-        return path.replace('/', '_');
-    }
-
-
-    /* TODO
-    public void secretVolumeCreate(String name, Collection<String> paths) throws IOException {
-        V1Volume volume;
-        V1SecretVolumeSource src;
-        List<V1KeyToPath> items;
-
-        items = new ArrayList<>();
-        for (String path : paths) {
-            items.add(new V1KeyToPathBuilder().withKey(pathToKey(path)).withPath(path).build());
-        }
-        src = new V1SecretVolumeSourceBuilder().withSecretName(name).withItems(items).build();
-        volume = new V1VolumeBuilder().withSecret(src).build();
-        try {
-            core.createNamespacedVolumeSecret(namespace, secret, null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }*/
 
     private static boolean same(String left, String right) {
         if (left == null) {
