@@ -5,7 +5,7 @@
 * start service with kubectl, not docker-compose
 
 * client
-  * setup: renmoved namespace argument
+  * setup: removed namespace argument
   * backstage is a properties file now, it maps stages to paths
   * `create`
     * checks for wars and adds all matches to the project

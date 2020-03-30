@@ -864,7 +864,6 @@ public class Stage {
             throw new ArgumentException("missing secret directories: " + missing);
         }
         return result;
-
     }
 
     private void populateContext(FileNode context, FileNode src) throws IOException {
