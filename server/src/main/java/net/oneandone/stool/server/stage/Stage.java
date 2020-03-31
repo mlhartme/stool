@@ -672,15 +672,20 @@ public class Stage {
     private void wipeResources(Engine engine) throws IOException {
         String podName;
         String httpService;
+        String httpsService;
 
         podName = podName();
         httpService = podName + "http";
+        httpsService = podName + "https";
         if (engine.serviceGetOpt(httpService) != null) {
             Server.LOGGER.debug("wipe kubernetes resources");
             if (engine.podProbe(podName) != null) {
                 engine.podDelete(podName);
             }
             engine.serviceDelete(httpService);
+            if (engine.serviceGetOpt(httpsService) != null) {
+                engine.serviceDelete(httpsService);
+            }
             engine.serviceDelete(jmxServiceName());
             engine.secretDelete(podName);
         }
@@ -744,6 +749,10 @@ public class Stage {
         secrets = secretMount(image, engine);
         engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http,
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
+        if (hostPorts.https != -1) {
+            engine.serviceCreate(podName + "https", hostPorts.https, image.ports.https,
+                    Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
+        }
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,

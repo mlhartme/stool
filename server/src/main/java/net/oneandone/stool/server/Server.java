@@ -500,6 +500,7 @@ public class Server {
 
     //--
 
+    /** @return path to generates certificate */
     public FileNode certificate(String certname) throws IOException {
         FileNode script;
         FileNode file;
