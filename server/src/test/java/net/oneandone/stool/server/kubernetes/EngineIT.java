@@ -379,7 +379,7 @@ public class EngineIT {
         }
     }
 
-    //-- secrets
+    //-- misc
 
     @Test
     public void secrets() throws IOException {
@@ -400,6 +400,20 @@ public class EngineIT {
             assertFalse(engine.podCreate(name, "secuser", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), sm));
             assertEquals("blablub", engine.podLogs(name));
+        }
+    }
+
+    @Test
+    public void configMap() throws IOException {
+        final String name = "cm";
+        Map<String, String> data;
+        Map<String[], Map<String, String>> sm;
+
+        try (Engine engine = create()) {
+            data = Strings.toMap("abc", "123", "foo", "bar");
+            engine.configMapCreate(name, data);;
+            assertTrue(engine.configMapList().containsKey(name));
+            engine.configMapDelete(name);;
         }
     }
 }

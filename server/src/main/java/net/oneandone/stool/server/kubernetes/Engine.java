@@ -26,6 +26,9 @@ import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.models.V1ConfigMap;
+import io.kubernetes.client.openapi.models.V1ConfigMapBuilder;
+import io.kubernetes.client.openapi.models.V1ConfigMapList;
 import io.kubernetes.client.openapi.models.V1ContainerState;
 import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
@@ -88,7 +91,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/
@@ -856,6 +858,73 @@ public class Engine implements AutoCloseable {
 
     }
 
+    //-- config maps
+
+    /** @return name- to phase mapping */
+    public Map<String, String> configMapList() throws IOException {
+        V1ConfigMapList lst;
+        Map<String, String> result;
+
+        try {
+            lst = core.listNamespacedConfigMap(namespace, null, null, null, null, null, null, null, null, null);
+            result = new HashMap();
+            for (V1ConfigMap m : lst.getItems()) {
+                result.put(m.getMetadata().getName(), m.getMetadata().getName()); // TODO: more info
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        return result;
+    }
+
+    public void configMapCreate(String name, Map<String, String> data) throws IOException {
+        V1ConfigMap map;
+
+        map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withData(data).build();
+        try {
+            core.createNamespacedConfigMap(namespace, map, null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    public void configMapDelete(String name) throws IOException {
+        try {
+            core.deleteNamespacedConfigMap(name, namespace, null, null, null, null, "Foreground", null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        awaitConfigMapDeleted(name);
+    }
+
+    private void awaitConfigMapDeleted(String name) throws IOException {
+        int count;
+
+        count = 0;
+        while (true) {
+            try {
+                try {
+                    core.readNamespacedConfigMap(name, namespace, null, null, null);
+                } catch (ApiException e) {
+                    throw wrap(e);
+                }
+            } catch (java.io.FileNotFoundException e) {
+                return;
+            }
+            count++;
+            if (count > 500) {
+                throw new IOException("waiting for delete timed out");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new IOException("waiting for delete timed interrupted");
+            }
+        }
+    }
+
+    //--
+
     private static boolean same(String left, String right) {
         if (left == null) {
             return right == null;
@@ -1156,52 +1225,6 @@ public class Engine implements AutoCloseable {
         for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
             result.put(entry.getKey(), entry.getValue().getAsString());
         }
-        return result;
-    }
-
-    private static JsonArray env(Map<String, String> env) {
-        JsonArray result;
-
-        result = new JsonArray();
-        for (Map.Entry<String, String> entry : env.entrySet()) {
-            result.add(entry.getKey() + "=" + entry.getValue());
-        }
-        return result;
-    }
-
-    private static JsonObject exposedPorts(Set<Integer> ports) {
-        JsonObject obj;
-
-        obj = new JsonObject();
-        for (Integer port : ports) {
-            obj.add(Integer.toString(port) + "/tcp", new JsonObject());
-        }
-        return obj;
-    }
-
-    private static JsonArray hostMapping(String ipOptPort) {
-        int idx;
-        String ip;
-        int port;
-        JsonArray result;
-        JsonObject obj;
-
-        idx = ipOptPort.indexOf(':');
-        if (idx == -1) {
-            ip = null;
-            port = Integer.parseInt(ipOptPort);
-        } else {
-            ip = ipOptPort.substring(0, idx);
-            port = Integer.parseInt(ipOptPort.substring(idx +1));
-        }
-        obj = new JsonObject();
-        if (ip != null) {
-            obj.add("HostIp", new JsonPrimitive(ip));
-
-        }
-        obj.add("HostPort", new JsonPrimitive(Integer.toString(port)));
-        result = new JsonArray();
-        result.add(obj);
         return result;
     }
 }
