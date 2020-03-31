@@ -733,7 +733,6 @@ public class Stage {
         for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
             Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
         }
-        secrets = secretMount(image, engine);
         hostPorts = pool.allocate(this, http, https);
         labels = new HashMap<>();
         labels.put(POD_LABEL_STAGE, name);
@@ -742,6 +741,7 @@ public class Stage {
             labels.put(POD_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
 
+        secrets = secretMount(image, engine);
         engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http,
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
