@@ -22,6 +22,7 @@ import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.kubernetes.BuildArgument;
 import net.oneandone.stool.server.kubernetes.BuildError;
 import net.oneandone.stool.server.kubernetes.ContainerInfo;
+import net.oneandone.stool.server.kubernetes.DataType;
 import net.oneandone.stool.server.kubernetes.Engine;
 import net.oneandone.stool.server.kubernetes.ImageInfo;
 import net.oneandone.stool.server.kubernetes.PodInfo;
@@ -701,7 +702,7 @@ public class Stage {
         Ports hostPorts;
         Map<String, String> environment;
         Map<FileNode, String> mounts;
-        Map<Object[], Map<String, String>> data;
+        Map<DataType, Map<String, String>> data;
         Map<String, String> labels;
         int memoryQuota;
         int memoryReserved;
@@ -858,8 +859,8 @@ public class Stage {
         return result;
     }
 
-    private Map<Object[], Map<String, String>> secretMount(Image image, Engine engine) throws IOException {
-        Map<Object[], Map<String, String>> result;
+    private Map<DataType, Map<String, String>> secretMount(Image image, Engine engine) throws IOException {
+        Map<DataType, Map<String, String>> result;
         List<String> missing;
         FileNode innerRoot;
         FileNode innerFile;
@@ -891,7 +892,7 @@ public class Stage {
             throw new ArgumentException("missing secret directories: " + missing);
         }
         engine.secretCreate(podName(), data);
-        result.put(new Object[] { true, podName(), "/root/.fault" }, keyToPathMap);
+        result.put(DataType.secrets(podName(), "/root/.fault"), keyToPathMap);
         return result;
     }
 

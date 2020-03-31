@@ -384,7 +384,7 @@ public class EngineIT {
     @Test
     public void secrets() throws IOException {
         final String name = "sec";
-        Map<Object[], Map<String, String>> sm;
+        Map<DataType, Map<String, String>> sm;
 
         try (Engine engine = create()) {
             engine.secretCreate(name, Strings.toMap("name", "blablub"));
@@ -394,7 +394,7 @@ public class EngineIT {
                     dockerfile("FROM debian:stretch-slim\nCMD cat /etc/secrets/sub/renamed.txt\n"), false, null);
 
             sm = new HashMap<>();
-            sm.put(new Object[] { true, name, "/etc/secrets" }, Strings.toMap("name", "sub/renamed.txt"));
+            sm.put(DataType.secrets(name, "/etc/secrets"), Strings.toMap("name", "sub/renamed.txt"));
             assertFalse(engine.podCreate(name, "secuser", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), sm));
             assertEquals("blablub", engine.podLogs(name));
@@ -406,7 +406,7 @@ public class EngineIT {
     @Test
     public void configMap() throws IOException {
         final String name = "cm";
-        Map<Object[], Map<String, String>> cm;
+        Map<DataType, Map<String, String>> cm;
 
         try (Engine engine = create()) {
             engine.configMapCreate(name, Strings.toMap("abc", "123", "foo", "bar"));;
@@ -416,7 +416,7 @@ public class EngineIT {
                     dockerfile("FROM debian:stretch-slim\nCMD cat /etc/config/sub/renamed.txt\n"), false, null);
 
             cm = new HashMap<>();
-            cm.put(new Object[] { false, name, "/etc/config" }, Strings.toMap("abc", "sub/renamed.txt"));
+            cm.put(DataType.configMap(name, "/etc/config"), Strings.toMap("abc", "sub/renamed.txt"));
             assertFalse(engine.podCreate(name, "config", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), cm));
             assertEquals("123", engine.podLogs(name));

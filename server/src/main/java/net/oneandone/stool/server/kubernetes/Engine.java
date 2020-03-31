@@ -587,7 +587,7 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
-                          Map<FileNode, String> hostVolumes, Map<Object[], Map<String, String>> dataVolumes) throws IOException {
+                          Map<FileNode, String> hostVolumes, Map<DataType, Map<String, String>> dataVolumes) throws IOException {
         String phase;
 
         try {
@@ -714,7 +714,7 @@ public class Engine implements AutoCloseable {
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     private static V1Pod pod(String name, String image, String hostname, boolean healing, Integer memory,
                              Map<String, String> labels, Map<String, String> env, Map<FileNode, String> hostVolumes,
-                             Map<Object[], Map<String, String>> dataVolumes) {
+                             Map<DataType, Map<String, String>> dataVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -749,12 +749,12 @@ public class Engine implements AutoCloseable {
             m.setMountPath(entry.getValue());
             ml.add(m);
         }
-        for (Map.Entry<Object[], Map<String, String>> entry : dataVolumes.entrySet()) {
+        for (Map.Entry<DataType, Map<String, String>> entry : dataVolumes.entrySet()) {
             vname = "volume" + ++volumeCount;
-            vl.add(dataVolume(vname, (Boolean) entry.getKey()[0], (String) entry.getKey()[1], entry.getValue()));
+            vl.add(dataVolume(vname, entry.getKey().secret, entry.getKey().name, entry.getValue()));
             m = new V1VolumeMount();
             m.setName(vname);
-            m.setMountPath((String) entry.getKey()[2]);
+            m.setMountPath(entry.getKey().path);
             ml.add(m);
         }
         limits = new HashMap<>();
