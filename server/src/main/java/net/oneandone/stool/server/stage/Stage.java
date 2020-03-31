@@ -701,7 +701,7 @@ public class Stage {
         Ports hostPorts;
         Map<String, String> environment;
         Map<FileNode, String> mounts;
-        Map<String[], Map<String, String>> secrets;
+        Map<Object[], Map<String, String>> data;
         Map<String, String> labels;
         int memoryQuota;
         int memoryReserved;
@@ -746,7 +746,7 @@ public class Stage {
             labels.put(POD_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
 
-        secrets = secretMount(image, engine);
+        data = secretMount(image, engine);
         engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http,
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
         if (hostPorts.https != -1) {
@@ -756,7 +756,7 @@ public class Stage {
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
-                false, 1024 * 1024 * image.memory, labels, environment, mounts, secrets)) {
+                false, 1024 * 1024 * image.memory, labels, environment, mounts, data)) {
             throw new IOException("pod already terminated: " + name);
         }
         Server.LOGGER.debug("created pod " + podName);
@@ -858,8 +858,8 @@ public class Stage {
         return result;
     }
 
-    private Map<String[], Map<String, String>> secretMount(Image image, Engine engine) throws IOException {
-        Map<String[], Map<String, String>> result;
+    private Map<Object[], Map<String, String>> secretMount(Image image, Engine engine) throws IOException {
+        Map<Object[], Map<String, String>> result;
         List<String> missing;
         FileNode innerRoot;
         FileNode innerFile;
@@ -891,7 +891,7 @@ public class Stage {
             throw new ArgumentException("missing secret directories: " + missing);
         }
         engine.secretCreate(podName(), data);
-        result.put(new String[] { podName(), "/root/.fault" }, keyToPathMap);
+        result.put(new Object[] { true, podName(), "/root/.fault" }, keyToPathMap);
         return result;
     }
 

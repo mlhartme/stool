@@ -384,35 +384,44 @@ public class EngineIT {
     @Test
     public void secrets() throws IOException {
         final String name = "sec";
-        Map<String, String> data;
-        Map<String[], Map<String, String>> sm;
+        Map<Object[], Map<String, String>> sm;
 
         try (Engine engine = create()) {
-            data = Strings.toMap("name", "blablub");
-            engine.secretCreate(name, data);;
+            engine.secretCreate(name, Strings.toMap("name", "blablub"));
             assertTrue(engine.secretList().containsKey(name));
 
             engine.imageBuild("secuser", Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD cat /etc/secrets/sub/renamed.txt\n"), false, null);
 
             sm = new HashMap<>();
-            sm.put(new String[] { name, "/etc/secrets" }, Strings.toMap("name", "sub/renamed.txt"));
+            sm.put(new Object[] { true, name, "/etc/secrets" }, Strings.toMap("name", "sub/renamed.txt"));
             assertFalse(engine.podCreate(name, "secuser", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), sm));
             assertEquals("blablub", engine.podLogs(name));
+            engine.podDelete(name);
+            engine.secretDelete(name);
         }
     }
 
     @Test
     public void configMap() throws IOException {
         final String name = "cm";
-        Map<String, String> data;
-        Map<String[], Map<String, String>> sm;
+        Map<Object[], Map<String, String>> cm;
 
         try (Engine engine = create()) {
-            data = Strings.toMap("abc", "123", "foo", "bar");
-            engine.configMapCreate(name, data);;
+            engine.configMapCreate(name, Strings.toMap("abc", "123", "foo", "bar"));;
             assertTrue(engine.configMapList().containsKey(name));
+
+            engine.imageBuild("config", Collections.emptyMap(), Collections.emptyMap(),
+                    dockerfile("FROM debian:stretch-slim\nCMD cat /etc/config/sub/renamed.txt\n"), false, null);
+
+            cm = new HashMap<>();
+            cm.put(new Object[] { false, name, "/etc/config" }, Strings.toMap("abc", "sub/renamed.txt"));
+            assertFalse(engine.podCreate(name, "config", "somehost", false, null,
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), cm));
+            assertEquals("123", engine.podLogs(name));
+
+            engine.podDelete(name);
             engine.configMapDelete(name);;
         }
     }

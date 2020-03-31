@@ -29,6 +29,8 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ConfigMapBuilder;
 import io.kubernetes.client.openapi.models.V1ConfigMapList;
+import io.kubernetes.client.openapi.models.V1ConfigMapVolumeSource;
+import io.kubernetes.client.openapi.models.V1ConfigMapVolumeSourceBuilder;
 import io.kubernetes.client.openapi.models.V1ContainerState;
 import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
@@ -585,11 +587,11 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
-                          Map<FileNode, String> hostVolumes, Map<String[], Map<String, String>> secretVolumes) throws IOException {
+                          Map<FileNode, String> hostVolumes, Map<Object[], Map<String, String>> dataVolumes) throws IOException {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, image, hostname, healing, memory, labels, env, hostVolumes, secretVolumes), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, hostname, healing, memory, labels, env, hostVolumes, dataVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -709,10 +711,10 @@ public class Engine implements AutoCloseable {
         return result.toString();
     }
 
-    /** @param secretVolumes  ([secret name, dest path], (key, path)*)* */
+    /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     private static V1Pod pod(String name, String image, String hostname, boolean healing, Integer memory,
                              Map<String, String> labels, Map<String, String> env, Map<FileNode, String> hostVolumes,
-                             Map<String[], Map<String, String>> secretVolumes) {
+                             Map<Object[], Map<String, String>> dataVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -747,12 +749,12 @@ public class Engine implements AutoCloseable {
             m.setMountPath(entry.getValue());
             ml.add(m);
         }
-        for (Map.Entry<String[], Map<String, String>> entry : secretVolumes.entrySet()) {
+        for (Map.Entry<Object[], Map<String, String>> entry : dataVolumes.entrySet()) {
             vname = "volume" + ++volumeCount;
-            vl.add(secretVolume(vname, entry.getKey()[0], entry.getValue()));
+            vl.add(dataVolume(vname, (Boolean) entry.getKey()[0], (String) entry.getKey()[1], entry.getValue()));
             m = new V1VolumeMount();
             m.setName(vname);
-            m.setMountPath(entry.getKey()[1]);
+            m.setMountPath((String) entry.getKey()[2]);
             ml.add(m);
         }
         limits = new HashMap<>();
@@ -775,8 +777,9 @@ public class Engine implements AutoCloseable {
                 .endContainer().endSpec().build();
     }
 
-    private static V1Volume secretVolume(String volumeName, String secretName, Map<String, String> keyToPaths) {
-        V1SecretVolumeSource src;
+    private static V1Volume dataVolume(String volumeName, boolean secret, String dataName, Map<String, String> keyToPaths) {
+        V1SecretVolumeSource ss;
+        V1ConfigMapVolumeSource cs;
         List<V1KeyToPath> items;
 
         if (keyToPaths != null) {
@@ -787,8 +790,13 @@ public class Engine implements AutoCloseable {
         } else {
             items = null;
         }
-        src = new V1SecretVolumeSourceBuilder().withSecretName(secretName).withItems(items).build();
-        return new V1VolumeBuilder().withName(volumeName).withSecret(src).build();
+        if (secret) {
+            ss = new V1SecretVolumeSourceBuilder().withSecretName(dataName).withItems(items).build();
+            return new V1VolumeBuilder().withName(volumeName).withSecret(ss).build();
+        } else {
+            cs = new V1ConfigMapVolumeSourceBuilder().withName(dataName).withItems(items).build();
+            return new V1VolumeBuilder().withName(volumeName).withConfigMap(cs).build();
+        }
     }
 
 
