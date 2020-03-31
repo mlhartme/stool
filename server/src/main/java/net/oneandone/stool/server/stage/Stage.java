@@ -676,14 +676,14 @@ public class Stage {
         podName = podName();
         httpService = podName + "http";
         if (engine.serviceGetOpt(httpService) != null) {
-            Server.LOGGER.debug("wipe old pod and services");
+            Server.LOGGER.debug("wipe kubernetes resources");
             if (engine.podProbe(podName) != null) {
                 engine.podDelete(podName);
             }
             engine.serviceDelete(httpService);
             engine.serviceDelete(jmxServiceName());
+            engine.secretDelete(podName);
         }
-
     }
 
     /** @return image actually started, null if this image is actually running
@@ -696,6 +696,7 @@ public class Stage {
         Ports hostPorts;
         Map<String, String> environment;
         Map<FileNode, String> mounts;
+        Map<String[], Map<String, String>> secrets;
         Map<String, String> labels;
         int memoryQuota;
         int memoryReserved;
@@ -732,6 +733,7 @@ public class Stage {
         for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
             Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
         }
+        secrets = secretMount(image, engine);
         hostPorts = pool.allocate(this, http, https);
         labels = new HashMap<>();
         labels.put(POD_LABEL_STAGE, name);
@@ -745,7 +747,7 @@ public class Stage {
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
-                false, 1024 * 1024 * image.memory, labels, environment, mounts, Collections.emptyMap())) {
+                false, 1024 * 1024 * image.memory, labels, environment, mounts, secrets)) {
             throw new IOException("pod already terminated: " + name);
         }
         Server.LOGGER.debug("created pod " + podName);
@@ -831,9 +833,6 @@ public class Stage {
     private Map<FileNode, String> bindMounts(Image image) throws IOException {
         FileNode hostLogRoot;
         Map<FileNode, String> result;
-        List<String> missing;
-        FileNode innerFile;
-        FileNode outerFile;
 
         hostLogRoot = server.serverHome.join("stages", getName(), "logs");
         // same as hostLogRoot, but the path as needed inside the server:
@@ -847,15 +846,34 @@ public class Stage {
                         : server.configuration.dockerHost), image.p12);
             }
         }
+        return result;
+    }
+
+    private Map<String[], Map<String, String>> secretMount(Image image, Engine engine) throws IOException {
+        Map<String[], Map<String, String>> result;
+        List<String> missing;
+        FileNode innerRoot;
+        FileNode innerFile;
+        FileNode outerFile;
+        Map<String, String> data;
+        Map<String, String> keyToPathMap;
+
+        // same as hostLogRoot, but the path as needed inside the server:
+        logs().mkdirsOpt();
+        result = new HashMap<>();
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.createdBy, image.faultProjects);
         }
+        innerRoot = directory.getWorld().file("/etc/fault/workspace");
+        keyToPathMap = new HashMap<>();
+        data = new HashMap<>();
         for (String project : image.faultProjects) {
-            innerFile = directory.getWorld().file("/etc/fault/workspace").join(project);
+            innerFile = innerRoot.join(project);
             outerFile = server.secrets.join(project);
             if (innerFile.isDirectory()) {
-                result.put(outerFile, "/root/.fault/" + project);
+                addData(innerRoot, innerFile, data);
+                addKeyToPathMap(innerRoot, innerFile, keyToPathMap);
             } else {
                 missing.add(outerFile.getAbsolute());
             }
@@ -863,7 +881,36 @@ public class Stage {
         if (!missing.isEmpty()) {
             throw new ArgumentException("missing secret directories: " + missing);
         }
+        engine.secretCreate(podName(), data);
+        result.put(new String[] { podName(), "/root/.fault" }, keyToPathMap);
         return result;
+    }
+
+    private static Map<String, String> addData(FileNode root, FileNode project, Map<String, String> result) throws IOException {
+        for (FileNode file : project.find("**/*")) {
+            if (file.isDirectory()) {
+                continue;
+            }
+            result.put(pathToKey(file.getRelative(root)), file.readString());
+        }
+        return result;
+    }
+
+    private static Map<String, String> addKeyToPathMap(FileNode root, FileNode project, Map<String, String> result) throws IOException {
+        String path;
+
+        for (FileNode file : project.find("**/*")) {
+            if (file.isDirectory()) {
+                continue;
+            }
+            path = file.getRelative(root);
+            result.put(pathToKey(path), path);
+        }
+        return result;
+    }
+
+    private static String pathToKey(String path) {
+        return path.replace("/", "_").replace(':', '-');
     }
 
     private void populateContext(FileNode context, FileNode src) throws IOException {
