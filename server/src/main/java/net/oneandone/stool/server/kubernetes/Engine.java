@@ -29,15 +29,11 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ConfigMapBuilder;
 import io.kubernetes.client.openapi.models.V1ConfigMapList;
-import io.kubernetes.client.openapi.models.V1ConfigMapVolumeSource;
-import io.kubernetes.client.openapi.models.V1ConfigMapVolumeSourceBuilder;
 import io.kubernetes.client.openapi.models.V1ContainerState;
 import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1HostPathVolumeSource;
-import io.kubernetes.client.openapi.models.V1KeyToPath;
-import io.kubernetes.client.openapi.models.V1KeyToPathBuilder;
 import io.kubernetes.client.openapi.models.V1Namespace;
 import io.kubernetes.client.openapi.models.V1NamespaceBuilder;
 import io.kubernetes.client.openapi.models.V1NamespaceList;
@@ -47,14 +43,11 @@ import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.openapi.models.V1Secret;
 import io.kubernetes.client.openapi.models.V1SecretBuilder;
 import io.kubernetes.client.openapi.models.V1SecretList;
-import io.kubernetes.client.openapi.models.V1SecretVolumeSource;
-import io.kubernetes.client.openapi.models.V1SecretVolumeSourceBuilder;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceBuilder;
 import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.openapi.models.V1ServicePort;
 import io.kubernetes.client.openapi.models.V1Volume;
-import io.kubernetes.client.openapi.models.V1VolumeBuilder;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
 import jnr.unixsocket.UnixSocketAddress;
@@ -751,11 +744,8 @@ public class Engine implements AutoCloseable {
         }
         for (Map.Entry<DataType, Map<String, String>> entry : dataVolumes.entrySet()) {
             vname = "volume" + ++volumeCount;
-            vl.add(dataVolume(vname, entry.getKey().secret, entry.getKey().name, entry.getValue()));
-            m = new V1VolumeMount();
-            m.setName(vname);
-            m.setMountPath(entry.getKey().path);
-            ml.add(m);
+            vl.add(entry.getKey().volume(vname, entry.getValue()));
+            ml.add(entry.getKey().mount(vname));
         }
         limits = new HashMap<>();
         if (memory != null) {
@@ -776,29 +766,6 @@ public class Engine implements AutoCloseable {
                   .withImagePullPolicy("Never") // TODO
                 .endContainer().endSpec().build();
     }
-
-    private static V1Volume dataVolume(String volumeName, boolean secret, String dataName, Map<String, String> keyToPaths) {
-        V1SecretVolumeSource ss;
-        V1ConfigMapVolumeSource cs;
-        List<V1KeyToPath> items;
-
-        if (keyToPaths != null) {
-            items = new ArrayList<>();
-            for (Map.Entry<String, String> entry : keyToPaths.entrySet()) {
-                items.add(new V1KeyToPathBuilder().withKey(entry.getKey()).withPath(entry.getValue()).build());
-            }
-        } else {
-            items = null;
-        }
-        if (secret) {
-            ss = new V1SecretVolumeSourceBuilder().withSecretName(dataName).withItems(items).build();
-            return new V1VolumeBuilder().withName(volumeName).withSecret(ss).build();
-        } else {
-            cs = new V1ConfigMapVolumeSourceBuilder().withName(dataName).withItems(items).build();
-            return new V1VolumeBuilder().withName(volumeName).withConfigMap(cs).build();
-        }
-    }
-
 
     //-- secrets
 

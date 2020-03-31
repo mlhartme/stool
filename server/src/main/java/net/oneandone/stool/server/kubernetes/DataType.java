@@ -15,6 +15,21 @@
  */
 package net.oneandone.stool.server.kubernetes;
 
+import io.kubernetes.client.openapi.models.V1ConfigMapVolumeSource;
+import io.kubernetes.client.openapi.models.V1ConfigMapVolumeSourceBuilder;
+import io.kubernetes.client.openapi.models.V1KeyToPath;
+import io.kubernetes.client.openapi.models.V1KeyToPathBuilder;
+import io.kubernetes.client.openapi.models.V1SecretVolumeSource;
+import io.kubernetes.client.openapi.models.V1SecretVolumeSourceBuilder;
+import io.kubernetes.client.openapi.models.V1Volume;
+import io.kubernetes.client.openapi.models.V1VolumeBuilder;
+import io.kubernetes.client.openapi.models.V1VolumeMount;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/** ConfigMap or Secrets */
 public class DataType {
     public static DataType configMap(String name, String path) {
         return new DataType(false, name, path);
@@ -31,5 +46,36 @@ public class DataType {
         this.secret = secret;
         this.name = name;
         this.path = path;
+    }
+
+    public V1Volume volume(String volumeName, Map<String, String> keyToPaths) {
+        V1SecretVolumeSource ss;
+        V1ConfigMapVolumeSource cs;
+        List<V1KeyToPath> items;
+
+        if (keyToPaths != null) {
+            items = new ArrayList<>();
+            for (Map.Entry<String, String> entry : keyToPaths.entrySet()) {
+                items.add(new V1KeyToPathBuilder().withKey(entry.getKey()).withPath(entry.getValue()).build());
+            }
+        } else {
+            items = null;
+        }
+        if (secret) {
+            ss = new V1SecretVolumeSourceBuilder().withSecretName(name).withItems(items).build();
+            return new V1VolumeBuilder().withName(volumeName).withSecret(ss).build();
+        } else {
+            cs = new V1ConfigMapVolumeSourceBuilder().withName(name).withItems(items).build();
+            return new V1VolumeBuilder().withName(volumeName).withConfigMap(cs).build();
+        }
+    }
+
+    public V1VolumeMount mount(String volumeName) {
+        V1VolumeMount result;
+
+        result = new V1VolumeMount();
+        result.setName(volumeName);
+        result.setMountPath(path);
+        return result;
     }
 }
