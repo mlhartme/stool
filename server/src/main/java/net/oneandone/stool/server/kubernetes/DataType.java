@@ -24,8 +24,11 @@ import io.kubernetes.client.openapi.models.V1SecretVolumeSourceBuilder;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeBuilder;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
+import net.oneandone.sushi.fs.file.FileNode;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,14 +44,47 @@ public class DataType {
     public final boolean secret;
     public final String name;
     public final String path;
+    public final Map<String, String> keyToPaths;
+    public final Map<String, String> data;
 
     private DataType(boolean secret, String name, String path) {
         this.secret = secret;
         this.name = name;
         this.path = path;
+        this.keyToPaths = new HashMap<>();
+        this.data = new HashMap<>();
     }
 
-    public V1Volume volume(String volumeName, Map<String, String> keyToPaths) {
+    //--
+
+    public void addData(FileNode root, FileNode project) throws IOException {
+        for (FileNode file : project.find("**/*")) {
+            if (file.isDirectory()) {
+                continue;
+            }
+            data.put(pathToKey(file.getRelative(root)), file.readString());
+        }
+    }
+
+    public void addKeyToPathMap(FileNode root, FileNode project) throws IOException {
+        String relative;
+
+        for (FileNode file : project.find("**/*")) {
+            if (file.isDirectory()) {
+                continue;
+            }
+            relative = file.getRelative(root);
+            keyToPaths.put(pathToKey(relative), relative);
+        }
+    }
+
+    private static String pathToKey(String path) {
+        return path.replace("/", "_").replace(':', '-');
+    }
+
+    //--
+
+    public V1Volume volume(String volumeName) {
         V1SecretVolumeSource ss;
         V1ConfigMapVolumeSource cs;
         List<V1KeyToPath> items;

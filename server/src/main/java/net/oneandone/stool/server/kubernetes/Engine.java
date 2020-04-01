@@ -576,11 +576,11 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
-        return podCreate(name, image, null, false, null, labels, env, Collections.emptyMap(), Collections.emptyMap());
+        return podCreate(name, image, null, false, null, labels, env, Collections.emptyMap(), Collections.emptyList());
     }
 
     public boolean podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
-                          Map<FileNode, String> hostVolumes, Map<DataType, Map<String, String>> dataVolumes) throws IOException {
+                          Map<FileNode, String> hostVolumes, List<DataType> dataVolumes) throws IOException {
         String phase;
 
         try {
@@ -707,7 +707,7 @@ public class Engine implements AutoCloseable {
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     private static V1Pod pod(String name, String image, String hostname, boolean healing, Integer memory,
                              Map<String, String> labels, Map<String, String> env, Map<FileNode, String> hostVolumes,
-                             Map<DataType, Map<String, String>> dataVolumes) {
+                             List<DataType> dataVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -742,10 +742,10 @@ public class Engine implements AutoCloseable {
             m.setMountPath(entry.getValue());
             ml.add(m);
         }
-        for (Map.Entry<DataType, Map<String, String>> entry : dataVolumes.entrySet()) {
+        for (DataType data : dataVolumes) {
             vname = "volume" + ++volumeCount;
-            vl.add(entry.getKey().volume(vname, entry.getValue()));
-            ml.add(entry.getKey().mount(vname));
+            vl.add(data.volume(vname));
+            ml.add(data.mount(vname));
         }
         limits = new HashMap<>();
         if (memory != null) {

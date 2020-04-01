@@ -702,7 +702,7 @@ public class Stage {
         Ports hostPorts;
         Map<String, String> environment;
         Map<FileNode, String> mounts;
-        Map<DataType, Map<String, String>> data;
+        DataType secrets;
         Map<String, String> labels;
         int memoryQuota;
         int memoryReserved;
@@ -747,7 +747,8 @@ public class Stage {
             labels.put(POD_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
 
-        data = secretMount(image, engine);
+        secrets = secretMount(image);
+        engine.secretCreate(podName(), secrets.data);
         engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http,
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
         if (hostPorts.https != -1) {
@@ -757,7 +758,7 @@ public class Stage {
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
-                false, 1024 * 1024 * image.memory, labels, environment, mounts, data)) {
+                false, 1024 * 1024 * image.memory, labels, environment, mounts, Collections.singletonList(secrets))) {
             throw new IOException("pod already terminated: " + name);
         }
         Server.LOGGER.debug("created pod " + podName);
@@ -859,31 +860,27 @@ public class Stage {
         return result;
     }
 
-    private Map<DataType, Map<String, String>> secretMount(Image image, Engine engine) throws IOException {
-        Map<DataType, Map<String, String>> result;
+    private DataType secretMount(Image image) throws IOException {
+        DataType result;
         List<String> missing;
         FileNode innerRoot;
         FileNode innerFile;
         FileNode outerFile;
-        Map<String, String> data;
-        Map<String, String> keyToPathMap;
 
         // same as hostLogRoot, but the path as needed inside the server:
         logs().mkdirsOpt();
-        result = new HashMap<>();
+        result = DataType.secrets(podName(), "/root/.fault");
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.createdBy, image.faultProjects);
         }
         innerRoot = directory.getWorld().file("/etc/fault/workspace");
-        keyToPathMap = new HashMap<>();
-        data = new HashMap<>();
         for (String project : image.faultProjects) {
             innerFile = innerRoot.join(project);
             outerFile = server.secrets.join(project);
             if (innerFile.isDirectory()) {
-                addData(innerRoot, innerFile, data);
-                addKeyToPathMap(innerRoot, innerFile, keyToPathMap);
+                result.addData(innerRoot, innerFile);
+                result.addKeyToPathMap(innerRoot, innerFile);
             } else {
                 missing.add(outerFile.getAbsolute());
             }
@@ -891,36 +888,7 @@ public class Stage {
         if (!missing.isEmpty()) {
             throw new ArgumentException("missing secret directories: " + missing);
         }
-        engine.secretCreate(podName(), data);
-        result.put(DataType.secrets(podName(), "/root/.fault"), keyToPathMap);
         return result;
-    }
-
-    private static Map<String, String> addData(FileNode root, FileNode project, Map<String, String> result) throws IOException {
-        for (FileNode file : project.find("**/*")) {
-            if (file.isDirectory()) {
-                continue;
-            }
-            result.put(pathToKey(file.getRelative(root)), file.readString());
-        }
-        return result;
-    }
-
-    private static Map<String, String> addKeyToPathMap(FileNode root, FileNode project, Map<String, String> result) throws IOException {
-        String path;
-
-        for (FileNode file : project.find("**/*")) {
-            if (file.isDirectory()) {
-                continue;
-            }
-            path = file.getRelative(root);
-            result.put(pathToKey(path), path);
-        }
-        return result;
-    }
-
-    private static String pathToKey(String path) {
-        return path.replace("/", "_").replace(':', '-');
     }
 
     private void populateContext(FileNode context, FileNode src) throws IOException {
