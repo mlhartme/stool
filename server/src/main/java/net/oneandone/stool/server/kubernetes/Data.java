@@ -34,31 +34,35 @@ import java.util.Map;
 
 /** Specifies ConfigMap or Secrets (with volumes and mounts). */
 public class Data {
-    public static Data configMap(String name, String path) {
-        return new Data(false, name, path);
+    public static Data configMap(String name, String mountPath) {
+        return new Data(false, name, mountPath);
     }
-    public static Data secrets(String name, String path) {
-        return new Data(true, name, path);
+    public static Data secrets(String name, String mountPath) {
+        return new Data(true, name, mountPath);
     }
 
     public final boolean secret;
     public final String name;
-    public final String path;
+    public final String mountPath;
+
+    /** key to path */
     private final Map<String, String> keyToPaths;
+
+    /** key to data */
     private final Map<String, String> data;
 
-    private Data(boolean secret, String name, String path) {
+    private Data(boolean secret, String name, String mountPath) {
         this.secret = secret;
         this.name = name;
-        this.path = path;
+        this.mountPath = mountPath;
         this.keyToPaths = new HashMap<>();
         this.data = new HashMap<>();
     }
 
     //--
 
-    public void addDirectory(FileNode root, FileNode project) throws IOException {
-        for (FileNode file : project.find("**/*")) {
+    public void addDirectory(FileNode root, FileNode from) throws IOException {
+        for (FileNode file : from.find("**/*")) {
             if (file.isDirectory()) {
                 continue;
             }
@@ -66,11 +70,11 @@ public class Data {
         }
     }
 
-    public void add(String relative, String value) {
+    public void add(String path, String value) {
         String key;
 
-        key = pathToKey(relative);
-        keyToPaths.put(key, relative);
+        key = pathToKey(path);
+        keyToPaths.put(key, path);
         data.put(key, value);
     }
 
@@ -115,7 +119,7 @@ public class Data {
 
         result = new V1VolumeMount();
         result.setName(volumeName);
-        result.setMountPath(path);
+        result.setMountPath(mountPath);
         return result;
     }
 }
