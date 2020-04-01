@@ -879,8 +879,7 @@ public class Stage {
             innerFile = innerRoot.join(project);
             outerFile = server.secrets.join(project);
             if (innerFile.isDirectory()) {
-                result.addData(innerRoot, innerFile);
-                result.addKeyToPathMap(innerRoot, innerFile);
+                result.addDirectory(innerRoot, innerFile);
             } else {
                 missing.add(outerFile.getAbsolute());
             }

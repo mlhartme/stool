@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** ConfigMap or Secrets */
+/** Specifies ConfigMap or Secrets (with volumes and mounts). */
 public class Data {
     public static Data configMap(String name, String path) {
         return new Data(false, name, path);
@@ -57,24 +57,18 @@ public class Data {
 
     //--
 
-    public void addData(FileNode root, FileNode project) throws IOException {
-        for (FileNode file : project.find("**/*")) {
-            if (file.isDirectory()) {
-                continue;
-            }
-            data.put(pathToKey(file.getRelative(root)), file.readString());
-        }
-    }
-
-    public void addKeyToPathMap(FileNode root, FileNode project) throws IOException {
+    public void addDirectory(FileNode root, FileNode project) throws IOException {
         String relative;
+        String key;
 
         for (FileNode file : project.find("**/*")) {
             if (file.isDirectory()) {
                 continue;
             }
             relative = file.getRelative(root);
-            keyToPaths.put(pathToKey(relative), relative);
+            key = pathToKey(relative);
+            keyToPaths.put(key, relative);
+            data.put(key, file.readString());
         }
     }
 
