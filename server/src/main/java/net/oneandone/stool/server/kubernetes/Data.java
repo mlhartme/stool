@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Map;
 
 /** ConfigMap or Secrets */
-public class DataType {
-    public static DataType configMap(String name, String path) {
-        return new DataType(false, name, path);
+public class Data {
+    public static Data configMap(String name, String path) {
+        return new Data(false, name, path);
     }
-    public static DataType secrets(String name, String path) {
-        return new DataType(true, name, path);
+    public static Data secrets(String name, String path) {
+        return new Data(true, name, path);
     }
 
     public final boolean secret;
@@ -47,7 +47,7 @@ public class DataType {
     public final Map<String, String> keyToPaths;
     public final Map<String, String> data;
 
-    private DataType(boolean secret, String name, String path) {
+    private Data(boolean secret, String name, String path) {
         this.secret = secret;
         this.name = name;
         this.path = path;

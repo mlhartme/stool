@@ -22,7 +22,7 @@ import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.kubernetes.BuildArgument;
 import net.oneandone.stool.server.kubernetes.BuildError;
 import net.oneandone.stool.server.kubernetes.ContainerInfo;
-import net.oneandone.stool.server.kubernetes.DataType;
+import net.oneandone.stool.server.kubernetes.Data;
 import net.oneandone.stool.server.kubernetes.Engine;
 import net.oneandone.stool.server.kubernetes.ImageInfo;
 import net.oneandone.stool.server.kubernetes.PodInfo;
@@ -702,7 +702,7 @@ public class Stage {
         Ports hostPorts;
         Map<String, String> environment;
         Map<FileNode, String> mounts;
-        DataType secrets;
+        Data secrets;
         Map<String, String> labels;
         int memoryQuota;
         int memoryReserved;
@@ -860,8 +860,8 @@ public class Stage {
         return result;
     }
 
-    private DataType secretMount(Image image) throws IOException {
-        DataType result;
+    private Data secretMount(Image image) throws IOException {
+        Data result;
         List<String> missing;
         FileNode innerRoot;
         FileNode innerFile;
@@ -869,7 +869,7 @@ public class Stage {
 
         // same as hostLogRoot, but the path as needed inside the server:
         logs().mkdirsOpt();
-        result = DataType.secrets(podName(), "/root/.fault");
+        result = Data.secrets(podName(), "/root/.fault");
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.createdBy, image.faultProjects);

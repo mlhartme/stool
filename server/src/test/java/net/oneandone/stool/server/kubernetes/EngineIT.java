@@ -384,7 +384,7 @@ public class EngineIT {
     @Test
     public void secrets() throws IOException {
         final String name = "sec";
-        DataType data;
+        Data data;
 
         try (Engine engine = create()) {
             engine.secretCreate(name, Strings.toMap("name", "blablub"));
@@ -393,7 +393,7 @@ public class EngineIT {
             engine.imageBuild("secuser", Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD cat /etc/secrets/sub/renamed.txt\n"), false, null);
 
-            data = DataType.secrets(name, "/etc/secrets");
+            data = Data.secrets(name, "/etc/secrets");
             data.keyToPaths.putAll(Strings.toMap("name", "sub/renamed.txt"));
             assertFalse(engine.podCreate(name, "secuser", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
@@ -406,7 +406,7 @@ public class EngineIT {
     @Test
     public void configMap() throws IOException {
         final String name = "cm";
-        DataType data;
+        Data data;
 
         try (Engine engine = create()) {
             engine.configMapCreate(name, Strings.toMap("abc", "1234", "foo", "bar"));;
@@ -415,7 +415,7 @@ public class EngineIT {
             engine.imageBuild("config", Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD cat /etc/config/sub/renamed.txt\n"), false, null);
 
-            data = DataType.configMap(name, "/etc/config");
+            data = Data.configMap(name, "/etc/config");
             data.keyToPaths.putAll(Strings.toMap("abc", "sub/renamed.txt"));
             assertFalse(engine.podCreate(name, "config", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
