@@ -409,18 +409,19 @@ public class EngineIT {
         Data data;
 
         try (Engine engine = create()) {
-            data = Data.configMap(name, "/etc/config");
-            data.add("sub/renamed.txt", "123");
+            data = Data.configMap(name, "/etc", true);
+            data.add("test.yaml", "123");
+            data.add("sub/file", "foo");
             data.define(engine);
 
             assertTrue(engine.configMapList().containsKey(name));
 
             engine.imageBuild("config", Collections.emptyMap(), Collections.emptyMap(),
-                    dockerfile("FROM debian:stretch-slim\nCMD cat /etc/config/sub/renamed.txt\n"), false, null);
+                    dockerfile("FROM debian:stretch-slim\nCMD cat /etc/test.yaml /etc/sub/file\n"), false, null);
 
             assertFalse(engine.podCreate(name, "config", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
-            assertEquals("123", engine.podLogs(name));
+            assertEquals("123foo", engine.podLogs(name));
 
             engine.podDelete(name);
             engine.configMapDelete(name);;

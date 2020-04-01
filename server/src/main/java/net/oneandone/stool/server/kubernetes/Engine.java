@@ -745,7 +745,7 @@ public class Engine implements AutoCloseable {
         for (Data data : dataVolumes) {
             vname = "volume" + ++volumeCount;
             vl.add(data.volume(vname));
-            ml.add(data.mount(vname));
+            data.mounts(vname, ml);
         }
         limits = new HashMap<>();
         if (memory != null) {

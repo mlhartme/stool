@@ -34,16 +34,17 @@ import java.util.Map;
 
 /** Specifies ConfigMap or Secrets (with volumes and mounts). */
 public class Data {
-    public static Data configMap(String name, String mountPath) {
-        return new Data(false, name, mountPath);
+    public static Data configMap(String name, String mountPath, boolean subPaths) {
+        return new Data(false, name, mountPath, subPaths);
     }
     public static Data secrets(String name, String mountPath) {
-        return new Data(true, name, mountPath);
+        return new Data(true, name, mountPath, false);
     }
 
     public final boolean secret;
     public final String name;
     public final String mountPath;
+    public final boolean subPaths;
 
     /** key to path */
     private final Map<String, String> keyToPaths;
@@ -51,12 +52,13 @@ public class Data {
     /** key to data */
     private final Map<String, String> data;
 
-    private Data(boolean secret, String name, String mountPath) {
+    private Data(boolean secret, String name, String mountPath, boolean subPaths) {
         this.secret = secret;
         this.name = name;
         this.mountPath = mountPath;
         this.keyToPaths = new HashMap<>();
         this.data = new HashMap<>();
+        this.subPaths = subPaths;
     }
 
     //--
@@ -114,12 +116,22 @@ public class Data {
         }
     }
 
-    public V1VolumeMount mount(String volumeName) {
+    public void mounts(String volumeName, List<V1VolumeMount> dest) {
         V1VolumeMount result;
 
-        result = new V1VolumeMount();
-        result.setName(volumeName);
-        result.setMountPath(mountPath);
-        return result;
+        if (subPaths) {
+            for (String path : keyToPaths.values()) {
+                result = new V1VolumeMount();
+                result.setName(volumeName);
+                result.setMountPath(mountPath + "/" + path);
+                result.setSubPath(path);
+                dest.add(result);
+            }
+        } else {
+            result = new V1VolumeMount();
+            result.setName(volumeName);
+            result.setMountPath(mountPath);
+            dest.add(result);
+        }
     }
 }
