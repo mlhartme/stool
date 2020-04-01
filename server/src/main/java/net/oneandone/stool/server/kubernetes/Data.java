@@ -44,8 +44,8 @@ public class Data {
     public final boolean secret;
     public final String name;
     public final String path;
-    public final Map<String, String> keyToPaths;
-    public final Map<String, String> data;
+    private final Map<String, String> keyToPaths;
+    private final Map<String, String> data;
 
     private Data(boolean secret, String name, String path) {
         this.secret = secret;
@@ -58,18 +58,20 @@ public class Data {
     //--
 
     public void addDirectory(FileNode root, FileNode project) throws IOException {
-        String relative;
-        String key;
-
         for (FileNode file : project.find("**/*")) {
             if (file.isDirectory()) {
                 continue;
             }
-            relative = file.getRelative(root);
-            key = pathToKey(relative);
-            keyToPaths.put(key, relative);
-            data.put(key, file.readString());
+            add(file.getRelative(root), file.readString());
         }
+    }
+
+    public void add(String relative, String value) {
+        String key;
+
+        key = pathToKey(relative);
+        keyToPaths.put(key, relative);
+        data.put(key, value);
     }
 
     private static String pathToKey(String path) {
@@ -77,6 +79,14 @@ public class Data {
     }
 
     //--
+
+    public void define(Engine engine) throws IOException {
+        if (secret) {
+            engine.secretCreate(name, data);
+        } else {
+            engine.configMapCreate(name, data);
+        }
+    }
 
     public V1Volume volume(String volumeName) {
         V1SecretVolumeSource ss;

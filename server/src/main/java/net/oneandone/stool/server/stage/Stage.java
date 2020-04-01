@@ -748,7 +748,7 @@ public class Stage {
         }
 
         secrets = secretMount(image);
-        engine.secretCreate(podName(), secrets.data);
+        secrets.define(engine);
         engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http,
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
         if (hostPorts.https != -1) {

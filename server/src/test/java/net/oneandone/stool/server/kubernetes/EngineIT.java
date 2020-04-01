@@ -387,14 +387,14 @@ public class EngineIT {
         Data data;
 
         try (Engine engine = create()) {
-            engine.secretCreate(name, Strings.toMap("name", "blablub"));
-            assertTrue(engine.secretList().containsKey(name));
+            data = Data.secrets(name, "/etc/secrets");
+            data.add("sub/renamed.txt", "blablub");
+            data.define(engine);
 
+            assertTrue(engine.secretList().containsKey(name));
             engine.imageBuild("secuser", Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD cat /etc/secrets/sub/renamed.txt\n"), false, null);
 
-            data = Data.secrets(name, "/etc/secrets");
-            data.keyToPaths.putAll(Strings.toMap("name", "sub/renamed.txt"));
             assertFalse(engine.podCreate(name, "secuser", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("blablub", engine.podLogs(name));
@@ -409,17 +409,18 @@ public class EngineIT {
         Data data;
 
         try (Engine engine = create()) {
-            engine.configMapCreate(name, Strings.toMap("abc", "1234", "foo", "bar"));;
+            data = Data.configMap(name, "/etc/config");
+            data.add("sub/renamed.txt", "123");
+            data.define(engine);
+
             assertTrue(engine.configMapList().containsKey(name));
 
             engine.imageBuild("config", Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD cat /etc/config/sub/renamed.txt\n"), false, null);
 
-            data = Data.configMap(name, "/etc/config");
-            data.keyToPaths.putAll(Strings.toMap("abc", "sub/renamed.txt"));
             assertFalse(engine.podCreate(name, "config", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
-            assertEquals("1234", engine.podLogs(name));
+            assertEquals("123", engine.podLogs(name));
 
             engine.podDelete(name);
             engine.configMapDelete(name);;
