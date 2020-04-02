@@ -514,7 +514,7 @@ public class Server {
         tmp = world.getTemp().createTempDirectory();  // fresh tmp directory to use the script for different stages concurrently
         LOGGER.debug(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
         tmp.deleteTree();
-        return serverHome.join(file.getRelative(home));
+        return file;
     }
 
     //--

@@ -51,6 +51,7 @@ import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -688,7 +689,16 @@ public class Stage {
                 engine.serviceDelete(httpsService);
             }
             engine.serviceDelete(jmxServiceName());
-            engine.secretDelete(podName);
+            try {
+                engine.secretDelete(podName);
+            } catch (FileNotFoundException e) {
+                // ok
+            }
+            try {
+                engine.configMapDelete(podName);
+            } catch (FileNotFoundException e) {
+                // ok
+            }
         }
     }
 
@@ -702,7 +712,9 @@ public class Stage {
         Ports hostPorts;
         Map<String, String> environment;
         Map<FileNode, String> mounts;
-        Data secrets;
+        List<Data> dataList;
+        Data cert;
+        Data fault;
         Map<String, String> labels;
         int memoryQuota;
         int memoryReserved;
@@ -735,10 +747,7 @@ public class Stage {
         environment.putAll(clientEnvironment);
         Server.LOGGER.debug("environment: " + environment);
         Server.LOGGER.info(name + ": starting container ... ");
-        mounts = bindMounts(image);
-        for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
-            Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
-        }
+        mounts = logMount();
         hostPorts = pool.allocate(this, http, https);
         labels = new HashMap<>();
         labels.put(POD_LABEL_STAGE, name);
@@ -747,8 +756,17 @@ public class Stage {
             labels.put(POD_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
 
-        secrets = secretMount(image);
-        secrets.define(engine);
+        dataList = new ArrayList<>();
+        cert = certMountOpt(image);
+        if (cert != null) {
+            dataList.add(cert);
+            cert.define(engine);
+        }
+        fault = faultDataOpt(image);
+        if (fault != null) {
+            dataList.add(fault);
+            fault.define(engine);
+        }
         engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http,
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
         if (hostPorts.https != -1) {
@@ -758,7 +776,7 @@ public class Stage {
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
-                false, 1024 * 1024 * image.memory, labels, environment, mounts, Collections.singletonList(secrets))) {
+                false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {
             throw new IOException("pod already terminated: " + name);
         }
         Server.LOGGER.debug("created pod " + podName);
@@ -841,7 +859,7 @@ public class Stage {
         return current.image.tag;
     }
 
-    private Map<FileNode, String> bindMounts(Image image) throws IOException {
+    private Map<FileNode, String> logMount() throws IOException {
         FileNode hostLogRoot;
         Map<FileNode, String> result;
 
@@ -850,22 +868,38 @@ public class Stage {
         logs().mkdirsOpt();
         result = new HashMap<>();
         result.put(hostLogRoot, "/var/log/stool");
-        if (image.ports.https != -1) {
-            if (image.p12 != null) {
-                result.put(server.certificate(server.configuration.vhosts
-                        ? getName() + "." + server.configuration.dockerHost
-                        : server.configuration.dockerHost), image.p12);
-            }
-        }
         return result;
     }
 
-    private Data secretMount(Image image) throws IOException {
+    private Data certMountOpt(Image image) throws IOException {
+        FileNode file;
+        Data result;
+        int idx;
+
+        if (image.ports.https == -1 || image.p12 == null) {
+            return null;
+        }
+        file = server.certificate(server.configuration.vhosts
+                ? getName() + "." + server.configuration.dockerHost : server.configuration.dockerHost);
+        idx = image.p12.lastIndexOf('/');
+        if (idx == -1) {
+            throw new IllegalArgumentException(image.p12);
+        }
+        result = Data.configMap(podName(), image.p12.substring(0, idx), true);
+        result.add(image.p12.substring(idx + 1), file.readString());
+        return result;
+    }
+
+    private Data faultDataOpt(Image image) throws IOException {
         Data result;
         List<String> missing;
         FileNode innerRoot;
         FileNode innerFile;
         FileNode outerFile;
+
+        if (image.faultProjects.isEmpty()) {
+            return null;
+        }
 
         // same as hostLogRoot, but the path as needed inside the server:
         logs().mkdirsOpt();
