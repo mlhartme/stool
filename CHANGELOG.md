@@ -2,7 +2,7 @@
 
 ### 5.2.0 (pending)
 
-* start service with kubectl, not docker-compose
+* start server with kubectl, not docker-compose
 
 * client
   * setup: removed namespace argument
@@ -16,6 +16,11 @@
   * renamed `-project` option to `-working` and made it available for all stage commands, too
 
 * server
+  * stage container replaced by
+    * pod
+    * http+https service
+    * fault secrets
+    * certificate configMap
   * updated java-8 base image from 1.0.0 to 1.0.2
   * changed default port range from 9000...9999 to 31000..31999 
   * moved APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX into client-side configuration; the server no longer looks
