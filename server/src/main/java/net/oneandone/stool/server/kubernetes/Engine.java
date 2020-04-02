@@ -769,10 +769,10 @@ public class Engine implements AutoCloseable {
 
     //-- secrets
 
-    public void secretCreate(String name, Map<String, String> data) throws IOException {
+    public void secretCreate(String name, Map<String, byte[]> data) throws IOException {
         V1Secret secret;
 
-        secret = new V1SecretBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withStringData(data).build();
+        secret = new V1SecretBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withData(data).build();
         try {
             core.createNamespacedSecret(namespace, secret, null, null, null);
         } catch (ApiException e) {
@@ -852,10 +852,10 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    public void configMapCreate(String name, Map<String, String> data) throws IOException {
+    public void configMapCreate(String name, Map<String, byte[]> data) throws IOException {
         V1ConfigMap map;
 
-        map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withData(data).build();
+        map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withBinaryData(data).build();
         try {
             core.createNamespacedConfigMap(namespace, map, null, null, null);
         } catch (ApiException e) {

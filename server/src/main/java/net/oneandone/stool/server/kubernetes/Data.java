@@ -27,6 +27,7 @@ import io.kubernetes.client.openapi.models.V1VolumeMount;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,7 @@ public class Data {
     private final Map<String, String> keyToPaths;
 
     /** key to data */
-    private final Map<String, String> data;
+    private final Map<String, byte[]> data;
 
     private Data(boolean secret, String name, String mountPath, boolean subPaths) {
         this.secret = secret;
@@ -68,11 +69,19 @@ public class Data {
             if (file.isDirectory()) {
                 continue;
             }
-            add(file.getRelative(root), file.readString());
+            add(file.getRelative(root), file.readBytes());
         }
     }
 
-    public void add(String path, String value) {
+    public void addUtf8(String path, String value) {
+        try {
+            add(path, value.getBytes("utf8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public void add(String path, byte[] value) {
         String key;
 
         key = pathToKey(path);

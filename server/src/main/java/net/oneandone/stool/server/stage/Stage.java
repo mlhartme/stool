@@ -886,7 +886,7 @@ public class Stage {
             throw new IllegalArgumentException(image.p12);
         }
         result = Data.configMap(podName(), image.p12.substring(0, idx), true);
-        result.add(image.p12.substring(idx + 1), file.readString());
+        result.add(image.p12.substring(idx + 1), file.readBytes());
         return result;
     }
 

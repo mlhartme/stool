@@ -388,7 +388,7 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             data = Data.secrets(name, "/etc/secrets");
-            data.add("sub/renamed.txt", "blablub");
+            data.addUtf8("sub/renamed.txt", "blablub");
             data.define(engine);
 
             assertTrue(engine.secretList().containsKey(name));
@@ -410,8 +410,8 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             data = Data.configMap(name, "/etc", true);
-            data.add("test.yaml", "123");
-            data.add("sub/file", "foo");
+            data.addUtf8("test.yaml", "123");
+            data.addUtf8("sub/file", "foo");
             data.define(engine);
 
             assertTrue(engine.configMapList().containsKey(name));
