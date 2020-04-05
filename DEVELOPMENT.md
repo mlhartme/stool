@@ -23,7 +23,7 @@ the docker socket (usually be adding him/her to the Docker group).
 
 In addition, you need to make sure that root has access to the Fault workspace:
 
-* add `allow_others` to `/etc/fuse.conf`
+* add `user_allow_other` to `/etc/fuse.conf`
 * append `-Dfault.mount_opts=allow_root` to `FAULT_OPTS`
 
 TODO: that's all to make it work?
