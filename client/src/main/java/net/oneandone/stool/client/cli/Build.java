@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,24 +166,30 @@ public class Build extends ProjectCommand {
 
         int count;
         int result;
+        List<String> sorted;
+        String remove;
 
         images = repositoryTags(name, engine.imageList());
-        return nextTag(images.keySet());
-
-        /* TODO
         result = nextTag(images.keySet());
-        count = images.size() - keep;
-        while (count > 0 && !images.isEmpty()) {
-            remove = images.remove(0);
+        sorted = new ArrayList<>(images.keySet());
+        Collections.sort(sorted);
+
+        count = sorted.size() - keep;
+        while (count > 0 && !sorted.isEmpty()) {
+            remove = sorted.remove(0);
             if (!hasContainer(engine, remove)) {
-                Server.LOGGER.debug("remove image: " + remove);
-                engine.imageRemove(remove.repositoryTag, false);
+                console.info.println("remove image: " + remove);
+                engine.imageRemove(remove, false);
                 count--;
             } else {
-                Server.LOGGER.debug("cannot remove image, because it's still in use: " + remove);
+                console.verbose.println("cannot remove image, because it's still in use: " + remove);
             }
         }
-        return result; */
+        return result;
+    }
+
+    private boolean hasContainer(Engine engine, String repoTag) {
+        return false; // TODO
     }
 
     public static String tag(String repositoryTag) {

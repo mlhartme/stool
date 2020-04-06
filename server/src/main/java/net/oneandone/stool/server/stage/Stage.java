@@ -540,13 +540,6 @@ public class Stage {
         return result;
     }
 
-    private boolean hasContainer(Engine engine, Image image) throws IOException {
-        PodInfo pod;
-
-        pod = engine.podProbe(podName());
-        return pod != null && pod.repositoryTag().equals(image.repositoryTag);
-    }
-
     public void checkExpired() {
         if (configuration.expire.isExpired()) {
             throw new ArgumentException("Stage expired " + configuration.expire + ". To start it, you have to adjust the 'expire' date.");
