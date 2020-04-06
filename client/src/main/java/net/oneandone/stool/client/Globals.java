@@ -18,6 +18,8 @@ package net.oneandone.stool.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.oneandone.inline.Console;
+import net.oneandone.sushi.fs.DirectoryNotFoundException;
+import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -63,6 +65,10 @@ public class Globals {
 
     public FileNode getHome() {
         return home;
+    }
+
+    public FileNode templates() throws ExistsException, DirectoryNotFoundException {
+        return world.file(System.getenv("CISOTOOLS_HOME")).join("stool/templates-5").checkDirectory(); // TODO
     }
 
     public void setWirelog(String wirelog) {

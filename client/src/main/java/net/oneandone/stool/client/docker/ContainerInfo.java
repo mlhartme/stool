@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.client;
+package net.oneandone.stool.client.docker;
 
-public class BuildResult {
-    public final String output;
-    public final String error;
-    public final String tag;
+public class ContainerInfo {
+    public final String id;
+    public final String imageId;
+    public final Engine.Status state;
 
-    public BuildResult(String output, String error, String tag) {
-        this.output = output;
-        this.error = error;
-        this.tag = tag;
+    public ContainerInfo(String id, String imageId, Engine.Status state) {
+        this.id = id;
+        this.imageId = imageId;
+        this.state = state;
     }
 }

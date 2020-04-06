@@ -19,8 +19,6 @@ import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
-import net.oneandone.stool.server.kubernetes.BuildArgument;
-import net.oneandone.stool.server.kubernetes.BuildError;
 import net.oneandone.stool.server.kubernetes.ContainerInfo;
 import net.oneandone.stool.server.kubernetes.Data;
 import net.oneandone.stool.server.kubernetes.Engine;
@@ -35,8 +33,6 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
-import net.oneandone.sushi.fs.GetLastModifiedException;
-import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
@@ -55,7 +51,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -64,7 +59,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -553,32 +547,6 @@ public class Stage {
         return pod != null && pod.repositoryTag().equals(image.repositoryTag);
     }
 
-    /** @return next version */
-    public int wipeOldImages(Engine engine, int keep) throws IOException {
-        List<Image> images;
-        Image remove;
-        int count;
-        int result;
-
-        images = images(engine);
-        if (images == null) {
-            return 1;
-        }
-        result = Image.nextTag(images);
-        count = images.size() - keep;
-        while (count > 0 && !images.isEmpty()) {
-            remove = images.remove(0);
-            if (!hasContainer(engine, remove)) {
-                Server.LOGGER.debug("remove image: " + remove);
-                engine.imageRemove(remove.repositoryTag, false);
-                count--;
-            } else {
-                Server.LOGGER.debug("cannot remove image, because it's still in use: " + remove);
-            }
-        }
-        return result;
-    }
-
     public void checkExpired() {
         if (configuration.expire.isExpired()) {
             throw new ArgumentException("Stage expired " + configuration.expire + ". To start it, you have to adjust the 'expire' date.");
@@ -603,68 +571,6 @@ public class Stage {
                 }
             }
         }
-    }
-
-    public static class BuildResult {
-        public final String output;
-        public final String tag;
-
-        public BuildResult(String output, String tag) {
-            this.tag = tag;
-            this.output = output;
-        }
-    }
-
-    /**
-     * @param keep 0 to keep all  */
-    public BuildResult buildAndEatWar(Engine engine, FileNode war, String comment, String originScm,
-                                      String originUser, String createdBy, boolean noCache, int keep,
-                                      Map<String, String> arguments) throws Exception {
-        int tag;
-        String image;
-        String repositoryTag;
-        FileNode context;
-        Map<String, String> labels;
-        FileNode template;
-        Map<String, BuildArgument> defaults;
-        Map<String, String> buildArgs;
-        StringWriter output;
-        String str;
-
-        template = template(arguments);
-        tag = wipeOldImages(engine, keep - 1);
-        context = createContextEatWar(war);  // this is where concurrent builds are blocked
-        try {
-            repositoryTag = this.server.configuration.registryNamespace + "/" + name + ":" + tag;
-            defaults = BuildArgument.scan(template.join("Dockerfile"));
-            buildArgs = buildArgs(defaults, arguments);
-            populateContext(context, template);
-            labels = new HashMap<>();
-            labels.put(IMAGE_LABEL_COMMENT, comment);
-            labels.put(IMAGE_LABEL_ORIGIN_SCM, originScm);
-            labels.put(IMAGE_LABEL_ORIGIN_USER, originUser);
-            labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
-            for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
-                labels.put(IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
-            }
-            Server.LOGGER.debug("building context " + context.getAbsolute());
-            output = new StringWriter();
-            try {
-                image = engine.imageBuild(repositoryTag, buildArgs, labels, context, noCache, output);
-            } catch (BuildError e) {
-                Server.LOGGER.debug("image build output");
-                Server.LOGGER.debug(e.output);
-                throw e;
-            } finally {
-                output.close();
-            }
-            str = output.toString();
-            Server.LOGGER.debug("successfully built image: " + image);
-            Server.LOGGER.debug(str);
-        } finally {
-            cleanupContext(Integer.toString(tag), keep);
-        }
-        return new BuildResult(str, Integer.toString(tag));
     }
 
     private String podName() {
@@ -922,63 +828,6 @@ public class Stage {
             throw new ArgumentException("missing secret directories: " + missing);
         }
         return result;
-    }
-
-    private void populateContext(FileNode context, FileNode src) throws IOException {
-        FileNode destparent;
-        FileNode destfile;
-
-        for (FileNode srcfile : src.find("**/*")) {
-            if (srcfile.isDirectory()) {
-                continue;
-            }
-            destfile = context.join(srcfile.getRelative(src));
-            destparent = destfile.getParent();
-            destparent.mkdirsOpt();
-            srcfile.copy(destfile);
-        }
-    }
-
-    private FileNode template(Map<String, String> arguments) throws IOException {
-        return server.templates().join(eat(arguments, "_template", "war")).checkDirectory();
-    }
-
-    private String eat(Map<String, String> arguments, String key, String dflt) {
-        String explicitValue;
-
-        explicitValue = arguments.remove(key);
-        return explicitValue != null ? explicitValue : dflt;
-    }
-
-    private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Map<String, String> arguments) {
-        Map<String, String> result;
-        String property;
-
-        result = new HashMap<>();
-        for (BuildArgument arg : defaults.values()) {
-            result.put(arg.name, arg.dflt);
-        }
-        for (Map.Entry<String, String> entry : arguments.entrySet()) {
-            property = entry.getKey();
-            if (!result.containsKey(property)) {
-                throw new ArgumentException("unknown explicit build argument: " + property + "\n" + available(defaults.values()));
-            }
-            result.put(property, entry.getValue());
-        }
-        return result;
-    }
-
-    private static String available(Collection<BuildArgument> args) {
-        StringBuilder result;
-
-        result = new StringBuilder();
-        result.append("(available build arguments:");
-        for (BuildArgument arg : args) {
-            result.append(' ');
-            result.append(arg.name);
-        }
-        result.append(")\n");
-        return result.toString();
     }
 
     //--
@@ -1295,58 +1144,4 @@ public class Stage {
         }
     }
 
-    //--
-
-    public FileNode createContextEatWar(FileNode war) throws IOException {
-        FileNode result;
-
-        result = directory.join("context").mkdirOpt().join("_");
-        try {
-            result.mkdir();
-        } catch (MkdirException e) {
-            throw new ArgumentException("another build for stage " + name + " is in progress, try again later");
-        }
-        war.move(result.join("app.war"));
-        return result;
-    }
-
-    public void cleanupContext(String tag, int keep) throws IOException {
-        FileNode dir;
-        List<FileNode> lst;
-        FileNode dest;
-
-        dir = directory.join("context");
-        dest = dir.join(tag);
-        moveAway(dest);
-        dir.join("_").move(dest);
-        lst = dir.list();
-        Collections.sort(lst, new Comparator<FileNode>() {
-            @Override
-            public int compare(FileNode left, FileNode right) {
-                try {
-                    return (int) (left.getLastModified() - right.getLastModified());
-                } catch (GetLastModifiedException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        });
-        while (lst.size() > keep) {
-            lst.remove(0).deleteTree();
-        }
-    }
-
-    private void moveAway(FileNode file) throws IOException {
-        int no;
-        FileNode away;
-
-        if (file.exists()) {
-            for (no = 1; true; no++) {
-                away = file.getParent().join(file.getName() + "_" + no);
-                if (!away.exists()) {
-                    file.move(away);
-                    return;
-                }
-            }
-        }
-    }
 }

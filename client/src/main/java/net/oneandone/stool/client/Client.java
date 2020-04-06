@@ -151,7 +151,7 @@ public class Client {
         return result;
     }
 
-    //-- create, build, start, stop, remove
+    //-- create, start, stop, remove
 
     /** @throws FileAlreadyExistsException if the stage already exists */
     public void create(String stage, Map<String, String> config) throws IOException {
@@ -160,27 +160,6 @@ public class Client {
         node = node("stages/" + stage);
         node = node.withParameters(config);
         postEmpty(node, "");
-    }
-
-    public BuildResult build(String stage, FileNode war, String comment, String originScm, String originUser, boolean noCache, int keep,
-                             Map<String, String> arguments) throws Exception {
-        HttpNode node;
-        JsonObject obj;
-        JsonElement error;
-
-        node = node(stage, "build");
-        node = node.withParameter("war", war.getAbsolute());
-        node = node.withParameter("comment", comment);
-        node = node.withParameter("origin-scm", originScm);
-        node = node.withParameter("origin-user", originUser);
-        node = node.withParameter("no-cache", noCache);
-        node = node.withParameter("keep", keep);
-        node = node.withParameters("arg.", arguments);
-        try (InputStream src = war.newInputStream()) {
-            obj = postJson(node, new Body(null, null, war.size(), src, false)).getAsJsonObject();
-        }
-        error = obj.get("error");
-        return new BuildResult(obj.get("output").getAsString(), error == null ? null : error.getAsString(), obj.get("tag").getAsString());
     }
 
     /** @return image actually started */

@@ -25,7 +25,6 @@ import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.StageExistsException;
 import net.oneandone.stool.server.configuration.Expire;
-import net.oneandone.stool.server.kubernetes.BuildError;
 import net.oneandone.stool.server.kubernetes.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
@@ -58,7 +57,6 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -196,46 +194,6 @@ public class ApiController {
             property.set(entry.getValue());
         }
         stage.saveConfig();
-    }
-
-    @PostMapping("/stages/{stage}/build")
-    public String build(@PathVariable("stage") String stage,
-                        @RequestParam("comment") String comment,
-                        @RequestParam("origin-scm") String originScm,
-                        @RequestParam("origin-user") String originUser, @RequestParam("no-cache") boolean noCache,
-                        @RequestParam("keep") int keep, InputStream body, HttpServletRequest request) throws Exception {
-        Stage.BuildResult result;
-        Map<String, String> arguments;
-        FileNode war;
-
-        arguments = map(request, "arg.");
-
-        war = null;
-        try (Engine engine = engine()) {
-            war = engine.world.getTemp().createTempFile();
-            war.copyFileFrom(body);
-            result = server.load(stage).buildAndEatWar(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login,
-                    noCache, keep, arguments);
-            return buildResult(result.tag, null, result.output).toString();
-        } catch (BuildError e) {
-            return buildResult(Image.tag(e.repositoryTag), e.error, e.output).toString();
-        } finally {
-            if (war != null && war.exists()) {
-                war.deleteFile();
-            }
-        }
-    }
-
-    private JsonObject buildResult(String image, String error, String output) {
-        JsonObject result;
-
-        result = new JsonObject();
-        result.add("tag", new JsonPrimitive(image));
-        if (error != null) {
-            result.add("error", new JsonPrimitive(error));
-        }
-        result.add("output", new JsonPrimitive(output));
-        return result;
     }
 
     @GetMapping("/stages/{stage}/properties")

@@ -35,6 +35,17 @@
       <version>3.0.1</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.jnr</groupId>
+      <artifactId>jnr-unixsocket</artifactId>
+      <version>0.25</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kamranzafar</groupId>
+      <artifactId>jtar</artifactId>
+      <version>2.3</version>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>junit</groupId>
@@ -71,7 +82,7 @@
               <main>net.oneandone.stool.client.cli.Main</main>
               <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
               <remove>META-INF/maven/**/*,
-                  META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
+                  module-info.class, META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
                   META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
                   readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
               </remove>
