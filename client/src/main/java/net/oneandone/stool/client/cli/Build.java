@@ -121,7 +121,7 @@ public class Build extends ProjectCommand {
         started = System.currentTimeMillis();
         console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
         template = template(arguments);
-        tag = wipeOldImages(engine);
+        tag = wipeOldImages(engine, stage);
         context = createContext(stage, war);  // this is where concurrent builds are blocked
         try {
             repositoryTag = REGISTRY_NAMESPACE + "/" + stage + ":" + tag;
@@ -157,12 +157,81 @@ public class Build extends ProjectCommand {
         }
     }
 
-    private static int count = 0; // TODO
+
     /** @return next version */
-    public int wipeOldImages(Engine engine) throws IOException {
-        console.info.println("TODO: wipe old images");
-        return ++count;
+    public int wipeOldImages(Engine engine, String name) throws IOException {
+        Map<String, ImageInfo> images;
+
+        int count;
+        int result;
+
+        images = repositoryTags(name, engine.imageList());
+        return nextTag(images.keySet());
+
+        /* TODO
+        result = nextTag(images.keySet());
+        count = images.size() - keep;
+        while (count > 0 && !images.isEmpty()) {
+            remove = images.remove(0);
+            if (!hasContainer(engine, remove)) {
+                Server.LOGGER.debug("remove image: " + remove);
+                engine.imageRemove(remove.repositoryTag, false);
+                count--;
+            } else {
+                Server.LOGGER.debug("cannot remove image, because it's still in use: " + remove);
+            }
+        }
+        return result; */
     }
+
+    public static String tag(String repositoryTag) {
+        String result;
+        int idx;
+
+        result = repositoryTag;
+        idx = result.lastIndexOf(':');
+        if (idx == -1) {
+            throw new IllegalArgumentException(result);
+        }
+        return result.substring(idx + 1);
+    }
+
+    public static int nextTag(Collection<String> repositoryTags) {
+        String tag;
+        int number;
+        int max;
+
+        max = 0;
+        for (String repoTag : repositoryTags) {
+            tag = tag(repoTag);
+            try {
+                number = Integer.parseInt(tag);
+                if (number > max) {
+                    max = number;
+                }
+            } catch (NumberFormatException e) {
+                // fall through
+            }
+        }
+        return max + 1;
+    }
+
+    public Map<String, ImageInfo> repositoryTags(String name, Map<String, ImageInfo> imageMap) {
+        Map<String, ImageInfo> result;
+        ImageInfo info;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, ImageInfo> entry : imageMap.entrySet()) {
+            info = entry.getValue();
+            for (String repositoryTag : info.repositoryTags) {
+                if (repositoryTag.startsWith(REGISTRY_NAMESPACE + "/" + name + ":")) {
+                    result.put(repositoryTag, info);
+                }
+            }
+        }
+        return result;
+    }
+
 
     private void populateContext(FileNode context, FileNode src) throws IOException {
         FileNode destparent;
