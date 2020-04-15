@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.kubernetes;
+package net.oneandone.stool.docker;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -356,6 +356,47 @@ public class Docker implements AutoCloseable {
         return result;
     }
 
+    /** @return null if container is not started */
+    public Stats containerStats(String id) throws IOException {
+        HttpNode node;
+        JsonObject stats;
+        JsonObject memory;
+
+        node = root.join("containers", id, "stats");
+        node = node.getRoot().node(node.getPath(), "stream=false");
+        stats = parser.parse(node.readString()).getAsJsonObject();
+        if (stats.get("cpu_stats").getAsJsonObject().get("system_cpu_usage") == null) {
+            // empty default document - this is returned if that container id is invalid
+            return null;
+        }
+        memory = stats.get("memory_stats").getAsJsonObject();
+        return new Stats(cpu(stats), memory.get("usage").getAsLong(), memory.get("limit").getAsLong());
+    }
+
+    private static int cpu(JsonObject stats) {
+        JsonObject current;
+        JsonObject previous;
+        long cpuDelta;
+        long systemDelta;
+
+        current = stats.get("cpu_stats").getAsJsonObject();
+        previous = stats.get("precpu_stats").getAsJsonObject();
+
+        cpuDelta = current.get("cpu_usage").getAsJsonObject().get("total_usage").getAsLong() - previous.get("cpu_usage").getAsJsonObject().get("total_usage").getAsLong();
+        systemDelta = current.get("system_cpu_usage").getAsLong() - previous.get("system_cpu_usage").getAsLong();
+        return (int) (cpuDelta * 100 / systemDelta);
+    }
+
+    public JsonObject containerInspect(String id, boolean size) throws IOException {
+        HttpNode node;
+
+        node = root.join("containers", id, "json");
+        if (size) {
+            node = node.withParameter("size", "true");
+        }
+        return parser.parse(node.readString()).getAsJsonObject();
+    }
+
     private static ContainerInfo containerInfo(JsonObject object) {
         String id;
         String imageId;
@@ -365,6 +406,20 @@ public class Docker implements AutoCloseable {
         imageId = pruneImageId(object.get("ImageID").getAsString());
         state = Status.valueOf(object.get("State").getAsString().toUpperCase());
         return new ContainerInfo(id, imageId, state);
+    }
+
+    public void containerStop(String id, Integer timeout) throws IOException {
+        HttpNode stop;
+
+        stop = root.join("containers", id, "stop");
+        if (timeout != null) {
+            stop = stop.getRoot().node(stop.getPath(), "t=" + timeout);
+        }
+        post(stop, "");
+    }
+
+    public void containerRemove(String id) throws IOException {
+        Method.delete(root.join("containers", id));
     }
 
     //--

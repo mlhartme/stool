@@ -37,6 +37,7 @@ import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Validation;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -87,7 +88,7 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             result = new JsonObject();
-            result.addProperty("version", Main.versionString(engine.world));
+            result.addProperty("version", Main.versionString(World.createMinimal() /* TODO */));
             result.addProperty("memory-quota", server.configuration.memoryQuota == 0 ? "" : server.memoryReservedContainers(engine) + "/" + server.configuration.memoryQuota);
             result.addProperty("disk-quota", server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved(engine) + "/" + server.configuration.diskQuota);
             return result.toString();

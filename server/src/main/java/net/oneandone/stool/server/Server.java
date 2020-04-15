@@ -27,7 +27,7 @@ import net.oneandone.stool.server.configuration.ServerConfiguration;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
-import net.oneandone.stool.kubernetes.ContainerInfo;
+import net.oneandone.stool.docker.ContainerInfo;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;

@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.kubernetes;
+package net.oneandone.stool.docker;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.docker.BuildError;
+import net.oneandone.stool.docker.Docker;
+import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;

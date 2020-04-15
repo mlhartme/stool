@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.kubernetes;
+package net.oneandone.stool.docker;
 
-public class ContainerInfo {
-    public final String id;
-    public final String imageId;
-    public final Docker.Status state;
+import com.google.gson.JsonObject;
 
-    public ContainerInfo(String id, String imageId, Docker.Status state) {
-        this.id = id;
-        this.imageId = imageId;
-        this.state = state;
+import java.io.IOException;
+
+public class BuildError extends IOException {
+    public final String repositoryTag;
+    public final String error;
+    public final JsonObject details;
+    public final String output;
+
+    public BuildError(String repositoryTag, String error, JsonObject details, String output) {
+        super("docker build failed: " + error);
+        this.repositoryTag = repositoryTag;
+        this.error = error;
+        this.details = details;
+        this.output = output;
     }
 }

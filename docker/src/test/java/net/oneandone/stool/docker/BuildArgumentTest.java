@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.kubernetes;
+package net.oneandone.stool.docker;
 
+import net.oneandone.stool.docker.BuildArgument;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
