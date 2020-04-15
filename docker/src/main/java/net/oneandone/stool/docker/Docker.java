@@ -294,16 +294,6 @@ public class Docker implements AutoCloseable {
         Method.delete(node);
     }
 
-    //--
-
-    private static boolean same(String left, String right) {
-        if (left == null) {
-            return right == null;
-        } else {
-            return left.equals(right);
-        }
-    }
-
     //-- containers
 
     public Map<String, ContainerInfo> containerList(String key) throws IOException {
@@ -489,28 +479,6 @@ public class Docker implements AutoCloseable {
     }
 
     //-- json utils
-
-    private static JsonObject object(Object... keyvalues) {
-        JsonObject body;
-        Object arg;
-
-        if (keyvalues.length % 2 != 0) {
-            throw new IllegalArgumentException();
-        }
-        body = new JsonObject();
-        for (int i = 0; i < keyvalues.length; i += 2) {
-            arg = keyvalues[i + 1];
-            if (arg instanceof String) {
-                arg = new JsonPrimitive((String) arg);
-            } else if (arg instanceof Number) {
-                arg = new JsonPrimitive((Number) arg);
-            } else if (arg instanceof Boolean) {
-                arg = new JsonPrimitive((Boolean) arg);
-            }
-            body.add((String) keyvalues[i], (JsonElement) arg);
-        }
-        return body;
-    }
 
     private static String labelsToJsonArray(Map<String, String> map) {
         StringBuilder builder;

@@ -105,13 +105,6 @@ public class Engine implements AutoCloseable {
 
     public static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
 
-    public enum Status {
-        CREATED,
-        RUNNING,
-        EXITED,
-        REMOVING /* not used in my code, by docker engine documentation says it can be returned */
-    }
-
     public static Engine create() throws IOException {
         return create(null);
     }
@@ -451,17 +444,17 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    public Status podContainerStatus(String name) throws IOException {
+    public Docker.Status podContainerStatus(String name) throws IOException {
         V1ContainerStatus status;
         V1ContainerState state;
 
         status = getPodContainerStatus(name);
         state = status.getState();
         if (state.getTerminated() != null) {
-            return Status.EXITED;
+            return Docker.Status.EXITED;
         }
         if (state.getRunning() != null) {
-            return Status.RUNNING;
+            return Docker.Status.RUNNING;
         }
         throw new IOException("unknown state: " + state);
     }
