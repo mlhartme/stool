@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.kubernetes.Engine;
+import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Validation;
 import org.springframework.beans.factory.annotation.Autowired;

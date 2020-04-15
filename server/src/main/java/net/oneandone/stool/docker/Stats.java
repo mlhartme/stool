@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.kubernetes;
+package net.oneandone.stool.docker;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+public class Stats {
+    /* cpu percentage */
+    public final int cpu;
+    public final long memoryUsage;
+    public final long memoryLimit;
 
-public class ImageInfo {
-    public final String id;
-    public final LocalDateTime created;
-    public final List<String> repositoryTags;
-    public final Map<String, String> labels;
-
-    public ImageInfo(String id, List<String> repositoryTags, LocalDateTime created, Map<String, String> labels) {
-        this.id = id;
-        this.created = created;
-        this.repositoryTags = repositoryTags;
-        this.labels = labels;
+    public Stats(int cpu, long memoryUsage, long memoryLimit) {
+        this.cpu = cpu;
+        this.memoryUsage = memoryUsage;
+        this.memoryLimit = memoryLimit;
     }
 }

@@ -25,7 +25,7 @@ import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.StageExistsException;
 import net.oneandone.stool.server.configuration.Expire;
-import net.oneandone.stool.server.kubernetes.Engine;
+import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.stage.Image;

@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.kubernetes;
+package net.oneandone.stool.docker;
 
-public class Stats {
-    /* cpu percentage */
-    public final int cpu;
-    public final long memoryUsage;
-    public final long memoryLimit;
+public class ContainerInfo {
+    public final String id;
+    public final String imageId;
+    public final Engine.Status state;
 
-    public Stats(int cpu, long memoryUsage, long memoryLimit) {
-        this.cpu = cpu;
-        this.memoryUsage = memoryUsage;
-        this.memoryLimit = memoryLimit;
+    public ContainerInfo(String id, String imageId, Engine.Status state) {
+        this.id = id;
+        this.imageId = imageId;
+        this.state = state;
     }
 }

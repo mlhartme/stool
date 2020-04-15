@@ -17,8 +17,8 @@ package net.oneandone.stool.server.stage;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.oneandone.stool.server.kubernetes.Engine;
-import net.oneandone.stool.server.kubernetes.PodInfo;
+import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.docker.PodInfo;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;

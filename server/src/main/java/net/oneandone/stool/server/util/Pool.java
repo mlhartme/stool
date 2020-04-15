@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.server.kubernetes.Engine;
-import net.oneandone.stool.server.kubernetes.ServiceInfo;
+import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.docker.ServiceInfo;
 import net.oneandone.stool.server.stage.Stage;
 
 import java.io.IOException;
