@@ -59,6 +59,10 @@ public class ServerManager {
         servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
     }
 
+    public String registryNamespace() {
+        return "contargo.server.lan/mhm"; // TODO
+    }
+
     public Reference reference(String str) throws IOException {
         int idx;
         String server;

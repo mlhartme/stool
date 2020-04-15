@@ -104,11 +104,10 @@ public class Build extends ProjectCommand {
 
     //--
 
-    private static final String REGISTRY_NAMESPACE = "contargo.server.lan/mhm"; // TODO
-
     public void build(Engine engine, String stage, FileNode war, String originScm, String originUser, Map<String, String> arguments)
             throws Exception {
         long started;
+        String registryNamespace;
         int tag;
         String image;
         String repositoryTag;
@@ -122,11 +121,12 @@ public class Build extends ProjectCommand {
 
         started = System.currentTimeMillis();
         console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
+        registryNamespace = globals.servers().registryNamespace();
         template = template(arguments);
-        tag = wipeOldImages(engine, stage);
+        tag = wipeOldImages(engine, registryNamespace, stage);
         context = createContext(stage, war);  // this is where concurrent builds are blocked
         try {
-            repositoryTag = REGISTRY_NAMESPACE + "/" + stage + ":" + tag;
+            repositoryTag = registryNamespace + "/" + stage + ":" + tag;
             defaults = BuildArgument.scan(template.join("Dockerfile"));
             buildArgs = buildArgs(defaults, arguments);
             populateContext(context, template);
@@ -161,7 +161,7 @@ public class Build extends ProjectCommand {
 
 
     /** @return next version */
-    public int wipeOldImages(Engine engine, String name) throws IOException {
+    public int wipeOldImages(Engine engine, String registryNamespace, String name) throws IOException {
         Map<String, ImageInfo> images;
 
         int count;
@@ -169,7 +169,7 @@ public class Build extends ProjectCommand {
         List<String> sorted;
         String remove;
 
-        images = repositoryTags(name, engine.imageList());
+        images = repositoryTags(registryNamespace, name, engine.imageList());
         result = nextTag(images.keySet());
         sorted = new ArrayList<>(images.keySet());
         Collections.sort(sorted);
@@ -224,7 +224,7 @@ public class Build extends ProjectCommand {
         return max + 1;
     }
 
-    public Map<String, ImageInfo> repositoryTags(String name, Map<String, ImageInfo> imageMap) {
+    public Map<String, ImageInfo> repositoryTags(String registryNamespace, String name, Map<String, ImageInfo> imageMap) {
         Map<String, ImageInfo> result;
         ImageInfo info;
 
@@ -232,7 +232,7 @@ public class Build extends ProjectCommand {
         for (Map.Entry<String, ImageInfo> entry : imageMap.entrySet()) {
             info = entry.getValue();
             for (String repositoryTag : info.repositoryTags) {
-                if (repositoryTag.startsWith(REGISTRY_NAMESPACE + "/" + name + ":")) {
+                if (repositoryTag.startsWith(registryNamespace + "/" + name + ":")) {
                     result.put(repositoryTag, info);
                 }
             }
