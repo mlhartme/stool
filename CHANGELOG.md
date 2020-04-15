@@ -3,6 +3,7 @@
 ### 5.2.0 (pending)
 
 * start server with kubectl, not docker-compose
+* move stool build to the client
 
 * client
   * setup: removed namespace argument
