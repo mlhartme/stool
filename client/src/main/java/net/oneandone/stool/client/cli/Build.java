@@ -19,12 +19,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
-import net.oneandone.stool.client.docker.BuildArgument;
-import net.oneandone.stool.client.docker.BuildError;
-import net.oneandone.stool.client.docker.Engine;
+import net.oneandone.stool.docker.BuildArgument;
+import net.oneandone.stool.docker.BuildError;
+import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.docker.ImageInfo;
+import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
