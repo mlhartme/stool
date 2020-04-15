@@ -17,6 +17,7 @@ package net.oneandone.stool.server.stage;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.util.Ports;
@@ -67,14 +68,14 @@ public class Image implements Comparable<Image> {
             repositoryTag = stoolRepoTagOpt(element.getAsString());
             if (repositoryTag != null) {
                 result.put(repositoryTag, new Image(id, repositoryTag, tag(repositoryTag),
-                        Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)),
-                        disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)),
-                        context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
-                        suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)), labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
-                        labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_ORIGIN_USER).getAsString(),
-                        created, labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
+                        Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(ImageInfo.IMAGE_LABEL_P12)),
+                        disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
+                        context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
+                        suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT).getAsString(),
+                        labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER).getAsString(),
+                        created, labels.get(ImageInfo.IMAGE_LABEL_CREATED_BY).getAsString(),
                         args(labels),
-                        fault(labels.get(Stage.IMAGE_LABEL_FAULT))));
+                        fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT))));
             }
         }
         return result;
@@ -101,8 +102,8 @@ public class Image implements Comparable<Image> {
         result = new HashMap<>();
         for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
             key = entry.getKey();
-            if (key.startsWith(Stage.IMAGE_LABEL_ARG_PREFIX)) {
-                result.put(key.substring(Stage.IMAGE_LABEL_ARG_PREFIX.length()), entry.getValue().getAsString());
+            if (key.startsWith(ImageInfo.IMAGE_LABEL_ARG_PREFIX)) {
+                result.put(key.substring(ImageInfo.IMAGE_LABEL_ARG_PREFIX.length()), entry.getValue().getAsString());
             }
         }
         return result;

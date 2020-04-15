@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.util;
 
+import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.server.stage.Stage;
 
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public class Ports {
     }
 
     public static Ports fromDeclaredLabels(Map<String, String> labels) {
-        return fromLabels(labels, Stage.IMAGE_LABEL_PORT_DECLARED_PREFIX);
+        return fromLabels(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX);
     }
 
     private static Ports fromLabels(Map<String, String> labels, String prefix) {

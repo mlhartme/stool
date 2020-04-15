@@ -73,21 +73,7 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String IMAGE_PREFIX = "net.oneandone.stool-";
     private static final String CONTAINER_PREFIX = "net.oneandone.stool-container-";
-
-    public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = IMAGE_PREFIX + "port.";
-    public static final String IMAGE_LABEL_P12 = IMAGE_PREFIX + "certificate.p12";  // where to mount the generated p12 certificate into the container
-    public static final String IMAGE_LABEL_DISK = IMAGE_PREFIX + "disk";
-    public static final String IMAGE_LABEL_MEMORY = IMAGE_PREFIX + "memory";
-    public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.context";
-    public static final String IMAGE_LABEL_URL_SUFFIXES = IMAGE_PREFIX + "url.suffixes";
-    public static final String IMAGE_LABEL_FAULT = IMAGE_PREFIX + "fault";
-    public static final String IMAGE_LABEL_COMMENT = IMAGE_PREFIX + "comment";
-    public static final String IMAGE_LABEL_ORIGIN_SCM = IMAGE_PREFIX + "origin-scm";
-    public static final String IMAGE_LABEL_ORIGIN_USER = IMAGE_PREFIX + "origin-user";
-    public static final String IMAGE_LABEL_CREATED_BY = IMAGE_PREFIX + "created-by";
-    public static final String IMAGE_LABEL_ARG_PREFIX = IMAGE_PREFIX + "arg.";
 
     public static final String POD_LABEL_REPOSITORY_TAG = CONTAINER_PREFIX + "repo-tag";
     public static final String POD_LABEL_STAGE = CONTAINER_PREFIX + "stage";
