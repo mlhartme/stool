@@ -61,6 +61,7 @@
   </issueManagement>
 
   <modules>
+    <module>docker</module>
     <module>server</module>
     <module>client</module>
   </modules>

@@ -8,7 +8,7 @@
   </parent>
 
   <name>Stool Client</name>
-  <artifactId>client</artifactId>
+  <artifactId>docker</artifactId>
   <packaging>jar</packaging>
   <description>Stool client to control the server from the command line and build images (on the server, without local docker).</description>
 
@@ -19,20 +19,9 @@
       <version>${sushi.version}</version>
     </dependency>
     <dependency>
-      <groupId>net.oneandone</groupId>
-      <artifactId>inline</artifactId>
-      <version>1.2.0</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>${gson.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.lanterna</groupId>
-      <artifactId>lanterna</artifactId>
-      <version>3.0.1</version>
     </dependency>
 
     <dependency>
@@ -46,6 +35,13 @@
       <version>2.3</version>
     </dependency>
 
+    <!-- TODO -->
+    <dependency>
+      <groupId>net.oneandone</groupId>
+      <artifactId>inline</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>junit</groupId>
@@ -54,103 +50,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-      </resource>
-      <resource>
-        <directory>src/main/filtered-resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-    <plugins>
-      <plugin>
-        <groupId>net.oneandone.maven.plugins</groupId>
-        <artifactId>application</artifactId>
-        <version>1.6.3</version>
-        <executions>
-          <execution>
-            <id>stool-client</id>
-            <configuration>
-              <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
-              <path>$PATH</path>
-              <options>-Djava.awt.headless=true</options>
-              <name>stool</name>
-              <main>net.oneandone.stool.client.cli.Main</main>
-              <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
-              <remove>META-INF/maven/**/*,
-                  module-info.class, META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
-                  META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
-                  readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
-              </remove>
-              <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
-              <attach>true</attach>
-              <extensions>
-                <extension>if [ -z $JAVA_MODULES ] ; then</extension>
-                <!-- auto-detect; see https://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html -->
-                <!-- * filter out JAVA_TOOL_OPTIONS in case they are set -->
-                <!-- * takes less than 1/10 of a second: -->
-                <extension>  export JAVA_VERSION=$(java -version 2&gt;&amp;1 | grep -v JAVA_TOOL_OPTIONS | head -n 1 | cut -f 3 -d ' ' | cut -f 2 -d '"')</extension>
-                <extension>  # echo java ${JAVA_VERSION}</extension>
-                <extension>  case "$JAVA_VERSION" in</extension>
-                <extension>    "1."*) export JAVA_MODULES=false ;;</extension>
-                <extension>    *) export JAVA_MODULES=true ;;</extension>
-                <extension>  esac</extension>
-                <extension>fi</extension>
-                <extension>if [ "$JAVA_MODULES" != "false" ] ; then</extension>
-                <extension>  OPTIONS="--illegal-access=deny $OPTIONS"</extension>
-                <extension>fi</extension>
-              </extensions>
-
-              <!-- upload ... -->
-              <symlink>${env.CISOTOOLS_HOME}/bin/stool</symlink>
-              <target>${env.CISOTOOLS_HOME}/stool</target>
-            </configuration>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>net.oneandone.maven.plugins</groupId>
-        <artifactId>active-markdown</artifactId>
-        <version>1.0.1</version>
-        <configuration>
-          <man>true</man>
-          <mandir>${project.build.directory}/classes/templates/man/man1</mandir>
-        </configuration>
-        <executions>
-          <execution>
-            <goals><goal>run</goal></goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  <profiles>
-    <profile><!-- if your remote repository needs a special trustStore, StoolIT needs this as well -->
-      <activation>
-        <property>
-          <name>javax.net.ssl.trustStore</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <configuration>
-              <systemPropertyVariables>
-                <javax.net.ssl.trustStore>${javax.net.ssl.trustStore}</javax.net.ssl.trustStore>
-              </systemPropertyVariables>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
