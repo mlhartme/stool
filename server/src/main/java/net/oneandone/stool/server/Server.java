@@ -116,7 +116,7 @@ public class Server {
         container = pod.containerId;
         LOGGER.info("server container id: " + container);
         try {
-            return engine.containerInspect(container, false);
+            return engine.docker.containerInspect(container, false);
         } catch (IOException e) {
             throw new IOException("cannot inspect server container '" + container + ":' " + e.getMessage(), e);
         }

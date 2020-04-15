@@ -90,7 +90,7 @@ public class EngineIT {
             assertEquals(Strings.toMap("foo", "bar"), info.labels);
             assertEquals(Docker.Status.EXITED, engine.podContainerStatus(name));
             engine.podDelete(name);
-            assertEquals(Collections.emptyMap(), engine.containerListForImage(image));
+            assertEquals(Collections.emptyMap(), engine.docker.containerListForImage(image));
             assertEquals(0, engine.podList().size());
             engine.imageRemove(imageTag, false);
         }
@@ -106,47 +106,49 @@ public class EngineIT {
         String containerHealed;
         Map<String, ContainerInfo> map;
         Stats stats;
+        Docker docker;
 
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         try (Engine engine = create()) {
+            docker = engine.docker;
             assertTrue(engine.imageList(labels).isEmpty());
             engine.imageBuild("some:tag", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 5\n"), false, null);
             ids = new ArrayList<>(engine.imageList(labels).keySet());
             assertEquals(1, ids.size());
             image = ids.get(0);
-            assertTrue(engine.containerListForImage(image).isEmpty());
-            assertTrue(engine.containerList("stooltest").isEmpty());
+            assertTrue(docker.containerListForImage(image).isEmpty());
+            assertTrue(docker.containerList("stooltest").isEmpty());
             engine.podCreate(pod, "some:tag", null,true, null, Strings.toMap("containerLabel", "bla"),
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyList());
             assertEquals(Docker.Status.RUNNING, engine.podContainerStatus(pod));
 
             container = engine.podProbe(pod).containerId;
-            stats = engine.containerStats(container);
+            stats = docker.containerStats(container);
             assertEquals(0, stats.cpu);
 
-            map = engine.containerListForImage(image);
+            map = docker.containerListForImage(image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
 
-            assertEquals(Arrays.asList(container), new ArrayList<>(engine.containerList("stooltest").keySet()));
-            map = engine.containerListForImage(image);
+            assertEquals(Arrays.asList(container), new ArrayList<>(docker.containerList("stooltest").keySet()));
+            map = docker.containerListForImage(image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
             assertEquals(Docker.Status.RUNNING, map.get(container).state);
 
-            engine.containerStop(container, 5);
+            docker.containerStop(container, 5);
             Thread.sleep(2500);
 
-            map = engine.containerListForImage(image);
+            map = docker.containerListForImage(image);
             containerHealed = map.keySet().iterator().next();
             assertNotEquals(container, containerHealed);
             assertEquals(Docker.Status.RUNNING, engine.podContainerStatus(pod));
 
-            assertEquals(Arrays.asList(containerHealed), new ArrayList<>(engine.containerListForImage(image).keySet()));
+            assertEquals(Arrays.asList(containerHealed), new ArrayList<>(docker.containerListForImage(image).keySet()));
 
             engine.podDelete(pod);
 
-            assertTrue(engine.containerListForImage(image).isEmpty());
+            assertTrue(docker.containerListForImage(image).isEmpty());
             engine.imageRemove(image, false);
             assertEquals(new HashMap<>(), engine.imageList(labels));
         }
@@ -252,14 +254,16 @@ public class EngineIT {
         String pod = "pod";
         String message;
         String container;
+        Docker docker;
 
         message = UUID.randomUUID().toString();
         try (Engine engine = create()) {
+            docker = engine.docker;
             engine.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
             engine.podCreate(pod, image, null,false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
                     Collections.emptyList());
             container = engine.podProbe(pod).containerId;
-            stats = engine.containerStats(container);
+            stats = docker.containerStats(container);
             assertEquals(limit, stats.memoryLimit);
             assertTrue(stats.memoryUsage <= stats.memoryLimit);
             engine.podDelete(pod);

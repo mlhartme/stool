@@ -134,7 +134,7 @@ public class Context {
 
         result = containerInspects.get(containerId);
         if (result == null) {
-            result = engine.containerInspect(containerId, true);
+            result = engine.docker.containerInspect(containerId, true);
             containerInspects.put(containerId, result);
         }
         return result;
@@ -145,7 +145,7 @@ public class Context {
 
         result = containerStats.get(containerId);
         if (result == null) {
-            result = engine.containerStats(containerId);
+            result = engine.docker.containerStats(containerId);
             containerStats.put(containerId, result);
         }
         return result;

@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -49,10 +48,8 @@ import io.kubernetes.client.openapi.models.V1ServicePort;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
-import net.oneandone.stool.docker.ContainerInfo;
 import net.oneandone.stool.docker.Docker;
 import net.oneandone.stool.docker.ImageInfo;
-import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -120,7 +117,7 @@ public class Engine implements AutoCloseable {
     private final ApiClient client;
     private final CoreV1Api core;
     private final String namespace;
-    private final Docker docker;
+    public final Docker docker;
 
     private Engine(Docker docker) throws IOException {
         this.docker = docker;
@@ -436,7 +433,7 @@ public class Engine implements AutoCloseable {
         if (info != null && info.containerId != null) {
             // TODO: otherwise wiped by kubernetes gc, which is async
             try {
-                containerRemove(info.containerId);
+                docker.containerRemove(info.containerId);
             } catch (FileNotFoundException e) {
                 // fall-through, already deleted
             }
@@ -506,6 +503,31 @@ public class Engine implements AutoCloseable {
                 throw new IOException("waiting for phase '" + toString(expectedPhases) + "' interrupted", e);
             }
         }
+    }
+
+    public String podLogs(String pod) throws IOException {
+        try {
+            return core.readNamespacedPodLog(pod, namespace, null, false, null, null, null, null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    public void podLogsFollow(String pod, OutputStream dest) throws IOException {
+        throw new IllegalStateException("TODO");
+    }
+
+
+    public Long podStartedAt(String pod) throws IOException {
+        V1ContainerStatus status;
+        V1ContainerStateRunning running;
+
+        status = getPodContainerStatus(pod);
+        running = status.getState().getRunning();
+        if (running == null) {
+            return null;
+        }
+        return running.getStartedAt().toDate().getTime();
     }
 
     private static String toString(String[] args) {
@@ -736,66 +758,6 @@ public class Engine implements AutoCloseable {
         return new IOException(e.getResponseBody(), e);
     }
 
-    //-- containers
-
-    public Map<String, net.oneandone.stool.docker.ContainerInfo> containerList(String key) throws IOException {
-        return docker.containerList(key);
-    }
-
-    public Map<String, net.oneandone.stool.docker.ContainerInfo> containerListForImage(String image) throws IOException {
-        return docker.containerListForImage(image);
-    }
-
-    public net.oneandone.stool.docker.ContainerInfo containerInfo(String id) throws IOException {
-        return docker.containerInfo(id);
-    }
-
-    public ContainerInfo containerInfoOpt(String id) throws IOException {
-        return docker.containerInfoOpt(id);
-    }
-
-    public void containerStop(String id, Integer timeout) throws IOException {
-        docker.containerStop(id, timeout);
-    }
-
-    public void containerRemove(String id) throws IOException {
-        docker.containerRemove(id);
-    }
-
-    public String podLogs(String pod) throws IOException {
-        try {
-            return core.readNamespacedPodLog(pod, namespace, null, false, null, null, null, null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }
-
-    public void podLogsFollow(String pod, OutputStream dest) throws IOException {
-        throw new IllegalStateException("TODO");
-    }
-
-
-    public Long podStartedAt(String pod) throws IOException {
-        V1ContainerStatus status;
-        V1ContainerStateRunning running;
-
-        status = getPodContainerStatus(pod);
-        running = status.getState().getRunning();
-        if (running == null) {
-            return null;
-        }
-        return running.getStartedAt().toDate().getTime();
-    }
-
-    /** @return null if container is not started */
-    public Stats containerStats(String id) throws IOException {
-        return docker.containerStats(id);
-    }
-
-    public JsonObject containerInspect(String id, boolean size) throws IOException {
-        return docker.containerInspect(id, size);
-    }
-
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
     public static void validateReference(String reference) {
         char c;
@@ -809,61 +771,12 @@ public class Engine implements AutoCloseable {
 
     //-- json utils
 
-    private static JsonObject object(Object... keyvalues) {
-        JsonObject body;
-        Object arg;
-
-        if (keyvalues.length % 2 != 0) {
-            throw new IllegalArgumentException();
-        }
-        body = new JsonObject();
-        for (int i = 0; i < keyvalues.length; i += 2) {
-            arg = keyvalues[i + 1];
-            if (arg instanceof String) {
-                arg = new JsonPrimitive((String) arg);
-            } else if (arg instanceof Number) {
-                arg = new JsonPrimitive((Number) arg);
-            } else if (arg instanceof Boolean) {
-                arg = new JsonPrimitive((Boolean) arg);
-            }
-            body.add((String) keyvalues[i], (JsonElement) arg);
-        }
-        return body;
-    }
-
-    private static String labelsToJsonArray(Map<String, String> map) {
-        StringBuilder builder;
-
-        builder = new StringBuilder();
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            if (builder.length() > 0) {
-                builder.append(", ");
-            }
-            builder.append('"');
-            builder.append(entry.getKey());
-            builder.append('=');
-            builder.append(entry.getValue());
-            builder.append('"');
-        }
-        return builder.toString();
-    }
-
     public static JsonObject obj(Map<String, String> obj) {
         JsonObject result;
 
         result = new JsonObject();
         for (Map.Entry<String, String> entry : obj.entrySet()) {
             result.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
-        }
-        return result;
-    }
-
-    private static List<String> stringList(JsonArray array) {
-        List<String> result;
-
-        result = new ArrayList<>(array.size());
-        for (JsonElement element : array) {
-            result.add(element.getAsString());
         }
         return result;
     }

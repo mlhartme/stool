@@ -940,7 +940,7 @@ public class Stage {
         if (container == null) {
             throw new IllegalStateException("TODO");
         }
-        return engine.containerInfo(container);
+        return engine.docker.containerInfo(container);
     }
 
     public PodInfo runningPodOpt(Map<String, PodInfo> allPodMap) {
