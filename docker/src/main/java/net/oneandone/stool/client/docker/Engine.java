@@ -38,16 +38,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -58,36 +55,11 @@ import java.util.Map;
  * Not thread-safe because the io buffer is shared.
  */
 public class Engine implements AutoCloseable {
-    private static final String UTF_8 = "utf8";
-
-    public static String encodeLabel(String value) {
-        try {
-            return "a-" + Base64.getEncoder().encodeToString(value.getBytes(UTF_8)).replace('=', '-') + "-z";
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public static String decodeLabel(String value) {
-        value = Strings.removeLeft(value, "a-");
-        value = Strings.removeRight(value, "-z");
-        value = value.replace('-', '=');
-        try {
-            return new String(Base64.getDecoder().decode(value), UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    //--
-
-    public static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
-
     public enum Status {
         CREATED,
         RUNNING,
         EXITED,
-        REMOVING /* not used in my code, by docker engine documentation says it can be returned */
+        REMOVING /* not used in my code, but docker engine documentation says it can be returned */
     }
 
     public static Engine create() throws IOException {
