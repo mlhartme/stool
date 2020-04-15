@@ -21,7 +21,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
 import net.oneandone.stool.docker.BuildArgument;
 import net.oneandone.stool.docker.BuildError;
-import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.docker.Docker;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.docker.ImageInfo;
@@ -83,7 +83,7 @@ public class Build extends ProjectCommand {
         if (apps.isEmpty()) {
             throw new IOException("no apps to build in project " + directory);
         }
-        try (Engine engine = Engine.create()) {
+        try (Docker engine = Docker.create()) {
             for (App app : apps) {
                 war = directory.findOne(app.path);
                 build(engine, app.reference.stage, war, project.getOriginOrUnknown(), createdOn(), app.arguments(war, explicitArguments));
@@ -104,7 +104,7 @@ public class Build extends ProjectCommand {
 
     //--
 
-    public void build(Engine engine, String stage, FileNode war, String originScm, String originUser, Map<String, String> arguments)
+    public void build(Docker engine, String stage, FileNode war, String originScm, String originUser, Map<String, String> arguments)
             throws Exception {
         long started;
         String registryNamespace;
@@ -161,7 +161,7 @@ public class Build extends ProjectCommand {
 
 
     /** @return next version */
-    public int wipeOldImages(Engine engine, String registryNamespace, String name) throws IOException {
+    public int wipeOldImages(Docker engine, String registryNamespace, String name) throws IOException {
         Map<String, ImageInfo> images;
 
         int count;
@@ -188,7 +188,7 @@ public class Build extends ProjectCommand {
         return result;
     }
 
-    private boolean hasContainer(Engine engine, String repoTag) {
+    private boolean hasContainer(Docker engine, String repoTag) {
         return false; // TODO
     }
 

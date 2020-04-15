@@ -18,9 +18,9 @@ package net.oneandone.stool.docker;
 public class ContainerInfo {
     public final String id;
     public final String imageId;
-    public final Engine.Status state;
+    public final Docker.Status state;
 
-    public ContainerInfo(String id, String imageId, Engine.Status state) {
+    public ContainerInfo(String id, String imageId, Docker.Status state) {
         this.id = id;
         this.imageId = imageId;
         this.state = state;

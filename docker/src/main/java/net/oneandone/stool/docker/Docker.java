@@ -54,7 +54,7 @@ import java.util.Map;
  * Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/
  * Not thread-safe because the io buffer is shared.
  */
-public class Engine implements AutoCloseable {
+public class Docker implements AutoCloseable {
     public enum Status {
         CREATED,
         RUNNING,
@@ -62,15 +62,15 @@ public class Engine implements AutoCloseable {
         REMOVING /* not used in my code, but docker engine documentation says it can be returned */
     }
 
-    public static Engine create() throws IOException {
+    public static Docker create() throws IOException {
         return create(null);
     }
 
-    public static Engine create(String wirelog) throws IOException {
+    public static Docker create(String wirelog) throws IOException {
         return create("/var/run/docker.sock", wirelog);
     }
 
-    public static Engine create(String socketPath, String wirelog) throws IOException {
+    public static Docker create(String socketPath, String wirelog) throws IOException {
         World world;
         HttpFilesystem fs;
         HttpNode root;
@@ -113,7 +113,7 @@ public class Engine implements AutoCloseable {
         );
         root = (HttpNode) world.validNode("http://localhost/v1.38");
         root.getRoot().addExtraHeader("Content-Type", "application/json");
-        return new Engine(root);
+        return new Docker(root);
     }
 
     public final World world;
@@ -122,7 +122,7 @@ public class Engine implements AutoCloseable {
     /** Thread safe - has no fields at all */
     private final JsonParser parser;
 
-    private Engine(HttpNode root) {
+    private Docker(HttpNode root) {
         this.world = root.getWorld();
         this.root = root;
         this.parser = new JsonParser();
