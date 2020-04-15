@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.docker;
+package net.oneandone.stool.kubernetes;
 
-import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +35,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNotEquals;
 
 public class EngineIT {
@@ -54,99 +50,6 @@ public class EngineIT {
 
         engine = Engine.create("target/wipe-ns.log");
         engine.namespaceReset();
-    }
-
-
-    //-- images
-
-    @Test(expected = ArgumentException.class)
-    public void rejectBuildWithUppercaseTag() throws IOException {
-        try (Engine engine = create()) {
-            engine.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
-        }
-    }
-
-    @Test
-    public void runFailure() throws IOException {
-        String image = "stooltest";
-
-        try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n"));
-            fail();
-        } catch (BuildError e) {
-            // ok
-            assertNotNull("", e.error);
-            assertEquals(127, e.details.get("code").getAsInt());
-            assertNotNull("", e.output);
-        }
-    }
-
-    @Test
-    public void invalidDockerfile() throws IOException {
-        try (Engine engine = create()) {
-            engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nls -la /dev/fuse\n"), false, null);
-            fail();
-        } catch (StatusException e) {
-            assertEquals(400, e.getStatusLine().code);
-        }
-    }
-
-    @Test
-    public void copy() throws IOException {
-        String image = "stooltest";
-
-        try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, WORLD.guessProjectHome(getClass()).join("src/test/docker"));
-            engine.imageRemove(image, false);
-        }
-    }
-
-    @Test
-    public void copyFailure() throws IOException {
-        String image = "stooltest";
-
-        try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
-            fail();
-        } catch (BuildError e) {
-            // ok
-            assertTrue(e.error.contains("COPY failed"));
-            assertNotNull("", e.output);
-        }
-    }
-
-    @Test
-    public void imageLabels() throws IOException {
-        Map<String, String> labels = Strings.toMap("a", "b", "1", "234");
-        StringWriter output;
-        String image;
-        ImageInfo info;
-
-        try (Engine engine = create()) {
-            output = new StringWriter();
-            image = engine.imageBuild("labeltest", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
-                    false, output);
-            info = engine.imageList().get(image);
-            assertEquals(labels, info.labels);
-        }
-    }
-
-    @Test
-    public void cmdNotFound() throws IOException {
-        String image = "stooltest";
-        String pod = "cmdnotfound";
-
-        try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
-            try {
-                engine.podCreate(pod, image);
-                fail();
-            } catch (IOException e) {
-                assertEquals("create-pod failed: Failed", e.getMessage());
-                engine.podDelete(pod);
-               // ok
-            }
-        }
     }
 
     private FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {

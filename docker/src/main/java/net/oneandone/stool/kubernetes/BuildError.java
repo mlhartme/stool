@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.docker;
+package net.oneandone.stool.kubernetes;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import com.google.gson.JsonObject;
 
-public class ImageInfo {
-    public final String id;
-    public final LocalDateTime created;
-    public final List<String> repositoryTags;
-    public final Map<String, String> labels;
+import java.io.IOException;
 
-    public ImageInfo(String id, List<String> repositoryTags, LocalDateTime created, Map<String, String> labels) {
-        this.id = id;
-        this.created = created;
-        this.repositoryTags = repositoryTags;
-        this.labels = labels;
+public class BuildError extends IOException {
+    public final String repositoryTag;
+    public final String error;
+    public final JsonObject details;
+    public final String output;
+
+    public BuildError(String repositoryTag, String error, JsonObject details, String output) {
+        super("docker build failed: " + error);
+        this.repositoryTag = repositoryTag;
+        this.error = error;
+        this.details = details;
+        this.output = output;
     }
 }

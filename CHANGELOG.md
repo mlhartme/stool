@@ -4,6 +4,7 @@
 
 * start server with kubectl, not docker-compose
 * move stool build to the client
+* move docker code into separate docker package that's used in clients and server tests
 
 * client
   * setup: removed namespace argument

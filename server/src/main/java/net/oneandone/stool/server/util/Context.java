@@ -16,11 +16,11 @@
 package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
-import net.oneandone.stool.docker.ContainerInfo;
-import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.docker.ImageInfo;
-import net.oneandone.stool.docker.PodInfo;
-import net.oneandone.stool.docker.Stats;
+import net.oneandone.stool.kubernetes.ContainerInfo;
+import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.kubernetes.ImageInfo;
+import net.oneandone.stool.kubernetes.PodInfo;
+import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 
