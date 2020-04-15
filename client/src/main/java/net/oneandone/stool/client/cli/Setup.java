@@ -195,7 +195,7 @@ public class Setup {
         ServerManager add;
         FileNode additional;
 
-        result =  new ServerManager(home.join("servers.json"));
+        result = new ServerManager(home.join("servers.json"));
         result.load();
 
         additional = cisotoolsEnvironment();
