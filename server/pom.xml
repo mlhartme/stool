@@ -5,7 +5,7 @@
   <parent>
     <groupId>net.oneandone.stool</groupId>
     <artifactId>stool</artifactId>
-    <version>5.2.0-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Stool Server</name>
@@ -23,7 +23,7 @@
     <dependency><!-- TODO for testing only -->
       <groupId>net.oneandone.stool</groupId>
       <artifactId>docker</artifactId>
-      <version>5.2.0-SNAPSHOT</version>
+      <version>6.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.kubernetes</groupId>

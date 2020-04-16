@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 5.2.0 (pending)
+### 6.0.0 (pending)
 
 * start server with kubectl, not docker-compose
 * move stool build to the client
