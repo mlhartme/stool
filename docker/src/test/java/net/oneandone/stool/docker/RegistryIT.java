@@ -16,33 +16,56 @@
 package net.oneandone.stool.docker;
 
 import com.google.gson.JsonObject;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpNode;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 public class RegistryIT {
     @Test
-    public void catalog() throws IOException {
+    public void turnaround() throws IOException {
         HttpNode root;
+        String container;
         Registry registry;
         JsonObject manifest;
         String digest;
+        Map<Integer, String> ports;
 
         try (Daemon docker = Daemon.create(null)) {
-            /* TODO
-            root = (HttpNode) docker.world.validNode("http://localhost:5000");
-            registry = new Registry(root);
-            assertEquals(Arrays.asList("ba", "foo"), registry.catalog());
-            assertEquals(Arrays.asList("latest"), registry.tags("foo"));
-            manifest = registry.manifest("foo", "latest");
-            digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
-            System.out.println("digest: " + digest);
-            //registry.delete("foo", digest); // TODO: yields 405 error
-            System.out.println("ok");
-*/
+            ports = new HashMap<>();
+            ports.put(5000, "5000");
+            container = docker.containerCreate("registry", "registry:2", null,null, false, null, null, null,
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), ports);
+            docker.containerStart(container);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                root = (HttpNode) World.create().validNode("http://localhost:5000");
+                registry = new Registry(root);
+                assertEquals(Arrays.asList("ba", "foo"), registry.catalog());
+                assertEquals(Arrays.asList("latest"), registry.tags("foo"));
+                manifest = registry.manifest("foo", "latest");
+                digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
+                System.out.println("digest: " + digest);
+
+                //registry.delete("foo", digest); // TODO: yields 405 error
+
+                System.out.println("ok");
+            } finally {
+                System.out.println("wipe container " + container);
+                docker.containerStop(container, 5);
+                docker.containerRemove(container);
+            }
         }
 
     }
