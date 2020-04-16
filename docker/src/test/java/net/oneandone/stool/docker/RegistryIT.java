@@ -44,6 +44,7 @@ public class RegistryIT {
             container = docker.containerCreate("registry", "registry:2", null,null, false, null, null, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), ports);
             docker.containerStart(container);
+            docker.imageTag("registry:2", "localhost:5000/my-registry", "1");
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {

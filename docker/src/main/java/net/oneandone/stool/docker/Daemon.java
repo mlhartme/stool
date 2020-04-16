@@ -292,6 +292,10 @@ public class Daemon implements AutoCloseable {
         return parser.parse(node.readString()).getAsJsonObject();
     }
 
+    public String imageTag(String id, String repository, String tag) throws IOException {
+        return post(root.join("images", id, "tag").withParameter("repo", repository).withParameter("tag", tag), "");
+    }
+
     public void imageRemove(String tagOrId, boolean force) throws IOException {
         HttpNode node;
 
