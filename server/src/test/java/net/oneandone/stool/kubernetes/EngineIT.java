@@ -16,7 +16,7 @@
 package net.oneandone.stool.kubernetes;
 
 import net.oneandone.stool.docker.ContainerInfo;
-import net.oneandone.stool.docker.Docker;
+import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -81,14 +81,14 @@ public class EngineIT {
             image = engine.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD echo ho\n"), false, null);
             assertFalse(engine.podCreate(name, imageTag, "foo", "bar"));
-            assertEquals(Docker.Status.EXITED, engine.podContainerStatus(name));
+            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name));
             lst = engine.podList().values();
             assertEquals(1, lst.size());
             info = lst.iterator().next();
             assertEquals(name, info.name);
             assertEquals("Succeeded", info.phase);
             assertEquals(Strings.toMap("foo", "bar"), info.labels);
-            assertEquals(Docker.Status.EXITED, engine.podContainerStatus(name));
+            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name));
             engine.podDelete(name);
             assertEquals(Collections.emptyMap(), engine.docker.containerListForImage(image));
             assertEquals(0, engine.podList().size());
@@ -106,7 +106,7 @@ public class EngineIT {
         String containerHealed;
         Map<String, ContainerInfo> map;
         Stats stats;
-        Docker docker;
+        Daemon docker;
 
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         try (Engine engine = create()) {
@@ -120,7 +120,7 @@ public class EngineIT {
             assertTrue(docker.containerList("stooltest").isEmpty());
             engine.podCreate(pod, "some:tag", null,true, null, Strings.toMap("containerLabel", "bla"),
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyList());
-            assertEquals(Docker.Status.RUNNING, engine.podContainerStatus(pod));
+            assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
 
             container = engine.podProbe(pod).containerId;
             stats = docker.containerStats(container);
@@ -134,7 +134,7 @@ public class EngineIT {
             map = docker.containerListForImage(image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
-            assertEquals(Docker.Status.RUNNING, map.get(container).state);
+            assertEquals(Daemon.Status.RUNNING, map.get(container).state);
 
             docker.containerStop(container, 5);
             Thread.sleep(2500);
@@ -142,7 +142,7 @@ public class EngineIT {
             map = docker.containerListForImage(image);
             containerHealed = map.keySet().iterator().next();
             assertNotEquals(container, containerHealed);
-            assertEquals(Docker.Status.RUNNING, engine.podContainerStatus(pod));
+            assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
 
             assertEquals(Arrays.asList(containerHealed), new ArrayList<>(docker.containerListForImage(image).keySet()));
 
@@ -215,7 +215,7 @@ public class EngineIT {
             assertNotNull(output);
             assertFalse(engine.podCreate(pod, image, hostname, false, null, Strings.toMap(), Strings.toMap(),
                     Collections.emptyMap(), Collections.emptyList()));
-            assertEquals(Docker.Status.EXITED, engine.podContainerStatus(pod));
+            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod));
             assertEquals(expected + "\n", engine.podLogs(pod));
             engine.podDelete(pod);
             engine.imageRemove(image, false);
@@ -254,7 +254,7 @@ public class EngineIT {
         String pod = "pod";
         String message;
         String container;
-        Docker docker;
+        Daemon docker;
 
         message = UUID.randomUUID().toString();
         try (Engine engine = create()) {

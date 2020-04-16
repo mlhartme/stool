@@ -16,12 +16,10 @@
 package net.oneandone.stool.docker;
 
 import com.google.gson.JsonObject;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpNode;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +31,7 @@ public class RegistryIT {
         JsonObject manifest;
         String digest;
 
-        try (Docker docker = Docker.create(null)) {
+        try (Daemon docker = Daemon.create(null)) {
             /* TODO
             root = (HttpNode) docker.world.validNode("http://localhost:5000");
             registry = new Registry(root);

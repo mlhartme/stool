@@ -48,7 +48,7 @@ import io.kubernetes.client.openapi.models.V1ServicePort;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
-import net.oneandone.stool.docker.Docker;
+import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
@@ -111,15 +111,15 @@ public class Engine implements AutoCloseable {
     }
 
     public static Engine create(String socketPath, String wirelog) throws IOException {
-        return new Engine(Docker.create(socketPath, wirelog));
+        return new Engine(Daemon.create(socketPath, wirelog));
     }
 
     private final ApiClient client;
     private final CoreV1Api core;
     private final String namespace;
-    public final Docker docker;
+    public final Daemon docker;
 
-    private Engine(Docker docker) throws IOException {
+    private Engine(Daemon docker) throws IOException {
         this.docker = docker;
 
         client = Config.defaultClient();
@@ -441,17 +441,17 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    public Docker.Status podContainerStatus(String name) throws IOException {
+    public Daemon.Status podContainerStatus(String name) throws IOException {
         V1ContainerStatus status;
         V1ContainerState state;
 
         status = getPodContainerStatus(name);
         state = status.getState();
         if (state.getTerminated() != null) {
-            return Docker.Status.EXITED;
+            return Daemon.Status.EXITED;
         }
         if (state.getRunning() != null) {
-            return Docker.Status.RUNNING;
+            return Daemon.Status.RUNNING;
         }
         throw new IOException("unknown state: " + state);
     }

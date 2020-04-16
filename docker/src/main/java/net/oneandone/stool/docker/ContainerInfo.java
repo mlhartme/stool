@@ -21,18 +21,18 @@ public class ContainerInfo {
     public static ContainerInfo create(JsonObject object) {
         String id;
         String imageId;
-        Docker.Status state; // TODO: sometimes it's called Status, sometimes state ...
+        Daemon.Status state; // TODO: sometimes it's called Status, sometimes state ...
 
         id = object.get("Id").getAsString();
-        imageId = Docker.pruneImageId(object.get("ImageID").getAsString());
-        state = Docker.Status.valueOf(object.get("State").getAsString().toUpperCase());
+        imageId = Daemon.pruneImageId(object.get("ImageID").getAsString());
+        state = Daemon.Status.valueOf(object.get("State").getAsString().toUpperCase());
         return new ContainerInfo(id, imageId, state);
     }
     public final String id;
     public final String imageId;
-    public final Docker.Status state;
+    public final Daemon.Status state;
 
-    public ContainerInfo(String id, String imageId, Docker.Status state) {
+    public ContainerInfo(String id, String imageId, Daemon.Status state) {
         this.id = id;
         this.imageId = imageId;
         this.state = state;

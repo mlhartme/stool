@@ -16,9 +16,6 @@
 package net.oneandone.stool.docker;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.docker.BuildError;
-import net.oneandone.stool.docker.Docker;
-import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
@@ -35,18 +32,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class DockerIT {
+public class DaemonIT {
     private static final World WORLD = World.createMinimal();
 
-    private Docker create() throws IOException {
-        return Docker.create("target/wire.log");
+    private Daemon create() throws IOException {
+        return Daemon.create("target/wire.log");
     }
 
     //-- images
 
     @Test(expected = ArgumentException.class)
     public void rejectBuildWithUppercaseTag() throws IOException {
-        try (Docker docker = create()) {
+        try (Daemon docker = create()) {
             docker.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
         }
     }
@@ -55,7 +52,7 @@ public class DockerIT {
     public void runFailure() throws IOException {
         String image = "stooltest";
 
-        try (Docker docker = create()) {
+        try (Daemon docker = create()) {
             docker.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n"));
             fail();
         } catch (BuildError e) {
@@ -68,7 +65,7 @@ public class DockerIT {
 
     @Test
     public void invalidDockerfile() throws IOException {
-        try (Docker docker = create()) {
+        try (Daemon docker = create()) {
             docker.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nls -la /dev/fuse\n"), false, null);
             fail();
         } catch (StatusException e) {
@@ -80,7 +77,7 @@ public class DockerIT {
     public void copy() throws IOException {
         String image = "stooltest";
 
-        try (Docker docker = create()) {
+        try (Daemon docker = create()) {
             docker.imageBuildWithOutput(image, WORLD.guessProjectHome(getClass()).join("src/test/docker"));
             docker.imageRemove(image, false);
         }
@@ -90,7 +87,7 @@ public class DockerIT {
     public void copyFailure() throws IOException {
         String image = "stooltest";
 
-        try (Docker docker = create()) {
+        try (Daemon docker = create()) {
             docker.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
             fail();
         } catch (BuildError e) {
@@ -107,7 +104,7 @@ public class DockerIT {
         String image;
         ImageInfo info;
 
-        try (Docker docker = create()) {
+        try (Daemon docker = create()) {
             output = new StringWriter();
             image = docker.imageBuild("labeltest", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
                     false, output);

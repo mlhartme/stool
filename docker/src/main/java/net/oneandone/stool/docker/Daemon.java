@@ -58,10 +58,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/
+ * Connect to local docker daemon via unix socket. https://docs.docker.com/engine/api/v1.37/
  * Not thread-safe because the io buffer is shared.
  */
-public class Docker implements AutoCloseable {
+public class Daemon implements AutoCloseable {
     public enum Status {
         CREATED,
         RUNNING,
@@ -69,15 +69,15 @@ public class Docker implements AutoCloseable {
         REMOVING /* not used in my code, but docker engine documentation says it can be returned */
     }
 
-    public static Docker create() throws IOException {
+    public static Daemon create() throws IOException {
         return create(null);
     }
 
-    public static Docker create(String wirelog) throws IOException {
+    public static Daemon create(String wirelog) throws IOException {
         return create("/var/run/docker.sock", wirelog);
     }
 
-    public static Docker create(String socketPath, String wirelog) throws IOException {
+    public static Daemon create(String socketPath, String wirelog) throws IOException {
         World world;
         HttpFilesystem fs;
         HttpNode root;
@@ -120,7 +120,7 @@ public class Docker implements AutoCloseable {
         );
         root = (HttpNode) world.validNode("http://localhost/v1.38");
         root.getRoot().addExtraHeader("Content-Type", "application/json");
-        return new Docker(root);
+        return new Daemon(root);
     }
 
     public final World world;
@@ -129,7 +129,7 @@ public class Docker implements AutoCloseable {
     /** Thread safe - has no fields at all */
     private final JsonParser parser;
 
-    private Docker(HttpNode root) {
+    private Daemon(HttpNode root) {
         this.world = root.getWorld();
         this.root = root;
         this.parser = new JsonParser();

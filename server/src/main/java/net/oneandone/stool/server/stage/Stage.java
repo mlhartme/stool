@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
-import net.oneandone.stool.docker.Docker;
+import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
@@ -594,7 +594,7 @@ public class Stage {
             throws IOException {
         String podName;
         PodInfo running;
-        Docker.Status status;
+        Daemon.Status status;
         Ports hostPorts;
         Map<String, String> environment;
         Map<FileNode, String> mounts;
@@ -667,7 +667,7 @@ public class Stage {
         }
         Server.LOGGER.debug("created pod " + podName);
         status = engine.podContainerStatus(podName);
-        if (status != Docker.Status.RUNNING) {
+        if (status != Daemon.Status.RUNNING) {
             throw new IOException("unexpected status: " + status);
         }
         return image.tag;
