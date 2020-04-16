@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.docker;
 
+import com.google.gson.JsonObject;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpNode;
 import org.junit.Test;
@@ -30,10 +31,18 @@ public class RegistryIT {
         World world;
         HttpNode root;
         Registry registry;
+        JsonObject manifest;
+        String digest;
 
         world = World.create();
         root = (HttpNode) world.validNode("http://localhost:5000");
         registry = new Registry(root);
         assertEquals(Arrays.asList("ba", "foo"), registry.catalog());
+        assertEquals(Arrays.asList("latest"), registry.tags("foo"));
+        manifest = registry.manifest("foo", "latest");
+        digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
+        System.out.println("digest: " + digest);
+        registry.delete("foo", digest); // TODO: yields 405 error
+        System.out.println("ok");
     }
 }
