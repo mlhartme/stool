@@ -7,10 +7,10 @@
     <version>6.0.0-SNAPSHOT</version>
   </parent>
 
-  <name>Stool Client</name>
+  <name>Stool Docker</name>
   <artifactId>docker</artifactId>
   <packaging>jar</packaging>
-  <description>Stool client to control the server from the command line and build images (on the server, without local docker).</description>
+  <description>Stool Docker Access Layer.</description>
 
   <dependencies>
     <dependency>

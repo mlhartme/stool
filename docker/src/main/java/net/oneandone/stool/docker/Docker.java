@@ -17,6 +17,7 @@ package net.oneandone.stool.docker;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
@@ -34,9 +35,12 @@ import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Strings;
 
 import javax.net.SocketFactory;
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.InetAddress;
@@ -44,11 +48,14 @@ import java.net.Socket;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/
@@ -175,7 +182,7 @@ public class Docker implements AutoCloseable {
         return result;
     }
 
-    private static String pruneImageId(String id) {
+    public static String pruneImageId(String id) {
         return Strings.removeLeft(id, "sha256:");
     }
 
@@ -184,6 +191,7 @@ public class Docker implements AutoCloseable {
         return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
+    /** @return output */
     public String imageBuildWithOutput(String repositoryTag, FileNode context) throws IOException {
         try (StringWriter dest = new StringWriter()) {
             imageBuild(repositoryTag, Collections.emptyMap(), Collections.emptyMap(), context, false, dest);
@@ -297,11 +305,11 @@ public class Docker implements AutoCloseable {
     //-- containers
 
     public Map<String, ContainerInfo> containerList(String key) throws IOException {
-        return doContainerList("{\"label\" : [\"" + key + "\"] }");
+        return containerList("{\"label\" : [\"" + key + "\"] }", true);
     }
 
     public Map<String, ContainerInfo> containerListForImage(String image) throws IOException {
-        return doContainerList("{\"ancestor\" : [\"" + image + "\"] }");
+        return containerList("{\"ancestor\" : [\"" + image + "\"] }", true);
     }
 
     public ContainerInfo containerInfo(String id) throws IOException {
@@ -317,7 +325,7 @@ public class Docker implements AutoCloseable {
     public ContainerInfo containerInfoOpt(String id) throws IOException {
         Map<String, ContainerInfo> map;
 
-        map = doContainerList("{\"id\" : [\"" + id + "\"] }");
+        map = containerList("{\"id\" : [\"" + id + "\"] }", true);
         switch (map.size()) {
             case 1:
                 return map.values().iterator().next();
@@ -326,7 +334,17 @@ public class Docker implements AutoCloseable {
         }
     }
 
-    private Map<String, ContainerInfo> doContainerList(String filters) throws IOException {
+    public Map<String, ContainerInfo> containerListRunning(String key, String value) throws IOException {
+        return containerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
+    }
+    public Map<String, ContainerInfo> containerListRunning(String key) throws IOException {
+        return containerList("{\"label\" : [\"" + key + "\"], \"status\" : [\"running\"] }", false);
+    }
+    public Map<String, ContainerInfo> containerList(String key, String value) throws IOException {
+        return containerList("{\"label\" : [\"" + key + "=" + value + "\"] }", true);
+    }
+
+    public Map<String, ContainerInfo> containerList(String filters, boolean all) throws IOException {
         HttpNode node;
         JsonArray array;
         Map<String, ContainerInfo> result;
@@ -336,14 +354,182 @@ public class Docker implements AutoCloseable {
         if (filters != null) {
             node = node.withParameter("filters", filters);
         }
-        node = node.withParameter("all", "true");
+        if (all) {
+            node = node.withParameter("all", "true");
+        }
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new HashMap<>(array.size());
         for (JsonElement element : array) {
-            info = containerInfo(element.getAsJsonObject());
+            info = ContainerInfo.create(element.getAsJsonObject());
             result.put(info.id, info);
         }
         return result;
+    }
+
+    public String containerCreate(String image, String hostname) throws IOException {
+        return containerCreate(null, image, hostname, null, false, null, null, null,
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+    }
+
+    /**
+     * @param memory is the memory limit in bytes. Or null for no limit. At least 1024*1024*4. The actual value used by docker is something
+     *               rounded of this parameter
+     * @param stopSignal or null to use default (SIGTERM)
+     * @param hostname or null to not define the hostname
+     * @param stopTimeout default timeout when stopping this container without explicit timeout value; null to use default (10 seconds)
+     * @return container id
+     */
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    public String containerCreate(String name, String image, String hostname, String networkMode, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
+                                  Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, String> ports) throws IOException {
+        JsonObject body;
+        JsonObject response;
+        JsonObject hostConfig;
+        JsonArray mounts;
+        JsonObject portBindings;
+        JsonArray drops;
+        HttpNode node;
+
+        node = root.join("containers/create");
+        if (name != null) {
+            node = node.withParameter("name", name);
+        }
+        body = object("Image", image);
+        if (hostname != null) {
+            body.add("Hostname", new JsonPrimitive(hostname));
+        }
+        if (!labels.isEmpty()) {
+            body.add("Labels", obj(labels));
+        }
+        if (stopSignal != null) {
+            body.add("StopSignal", new JsonPrimitive(stopSignal));
+        }
+        if (stopTimeout != null) {
+            body.add("StopTimeout", new JsonPrimitive(stopTimeout));
+        }
+        hostConfig = new JsonObject();
+
+        body.add("HostConfig", hostConfig);
+        if (!env.isEmpty()) {
+            body.add("Env", env(env));
+        }
+        if (memory != null) {
+            hostConfig.add("Memory", new JsonPrimitive(memory));
+            // unlimited; important, because debian stretch kernel does not support this
+            hostConfig.add("MemorySwap", new JsonPrimitive(-1));
+        }
+        if (priviledged) {
+            hostConfig.add("Privileged", new JsonPrimitive(true));
+        }
+        if (networkMode != null) {
+            hostConfig.add("NetworkMode", new JsonPrimitive(networkMode));
+        }
+        mounts = new JsonArray();
+        hostConfig.add("Mounts", mounts);
+        for (Map.Entry<FileNode, String> entry : bindMounts.entrySet()) {
+            mounts.add(object("type", "bind", "source", entry.getKey().getAbsolute(), "target", entry.getValue()));
+        }
+        drops = new JsonArray(); // added security - not sure if I really need this
+        drops.add(new JsonPrimitive("setuid"));
+        drops.add(new JsonPrimitive("setgid"));
+        drops.add(new JsonPrimitive("chown"));
+        drops.add(new JsonPrimitive("dac_override"));
+        drops.add(new JsonPrimitive("fowner"));
+        drops.add(new JsonPrimitive("fsetid"));
+        drops.add(new JsonPrimitive("kill"));
+        drops.add(new JsonPrimitive("setpcap"));
+        drops.add(new JsonPrimitive("net_bind_service"));
+        drops.add(new JsonPrimitive("net_raw"));
+        drops.add(new JsonPrimitive("sys_chroot"));
+        drops.add(new JsonPrimitive("mknod"));
+        drops.add(new JsonPrimitive("setfcap"));
+        hostConfig.add("CapDrop", drops);
+
+        portBindings = new JsonObject();
+        for (Map.Entry<Integer, String> entry: ports.entrySet()) {
+            portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hostMapping(entry.getValue()));
+        }
+        hostConfig.add("PortBindings", portBindings);
+        body.add("ExposedPorts", exposedPorts(ports.keySet()));
+
+        response = post(node, body);
+        checkWarnings(response);
+        return response.get("Id").getAsString();
+    }
+
+    public void containerStart(String id) throws IOException {
+        post(root.join("containers", id, "start"), "");
+    }
+
+    /**
+     * Sends stop signal as specified containerCreate to pid 1. If process does not terminate after timeout, SIGKILL is used
+     * @param timeout null to use timeout specified by containerCreate
+     * */
+    public void containerStop(String id, Integer timeout) throws IOException {
+        HttpNode stop;
+
+        stop = root.join("containers", id, "stop");
+        if (timeout != null) {
+            stop = stop.getRoot().node(stop.getPath(), "t=" + timeout);
+        }
+        post(stop, "");
+    }
+
+    public void containerRemove(String id) throws IOException {
+        Method.delete(root.join("containers", id));
+    }
+
+    public String containerLogs(String id) throws IOException {
+        final StringBuilder str;
+        OutputStream dest;
+
+        str = new StringBuilder();
+        dest = new OutputStream() {
+            @Override
+            public void write(int b) {
+                str.append((char) b);
+            }
+        };
+        doContainerLogs(id, "stdout=1&stderr=1", dest);
+        return str.toString();
+    }
+
+    public void containerLogsFollow(String id, OutputStream dest) throws IOException {
+        doContainerLogs(id, "stdout=1&stderr=1&follow=1", dest);
+    }
+
+    private void doContainerLogs(String id, String options, OutputStream dest) throws IOException {
+        HttpNode node;
+        DataInputStream data;
+        int len;
+
+        node = root.join("containers", id, "logs");
+        data = new DataInputStream(node.getRoot().node(node.getPath(), options).newInputStream());
+        while (true) {
+            try {
+                data.readInt(); // type is ignored
+            } catch (EOFException e) {
+                return;
+            }
+            len = data.readInt();
+            for (int i = 0; i < len; i++) {
+                dest.write(data.readByte());
+            }
+        }
+    }
+
+    public int containerWait(String id) throws IOException {
+        JsonObject response;
+
+        response = post(root.join("containers", id, "wait"), object());
+        return response.get("StatusCode").getAsInt();
+    }
+
+    public Status containerStatus(String id) throws IOException {
+        JsonObject state;
+
+        state = containerState(id);
+        return Status.valueOf(state.get("Status").getAsString().toUpperCase());
     }
 
     /** @return null if container is not started */
@@ -377,6 +563,39 @@ public class Docker implements AutoCloseable {
         return (int) (cpuDelta * 100 / systemDelta);
     }
 
+    // https://github.com/moby/moby/pull/15010
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
+
+    public long containerStartedAt(String id) throws IOException {
+        JsonObject state;
+        String str;
+        LocalDateTime result;
+
+        state = containerState(id);
+        str = state.get("StartedAt").getAsString();
+        try {
+            result = LocalDateTime.parse(str, DATE_FORMAT);
+        } catch (DateTimeParseException e) {
+            throw new IOException("cannot parse date: " + str);
+        }
+        // CAUTION: container executes in GMT timezone
+        return result.atZone(ZoneId.of("GMT")).toInstant().toEpochMilli();
+    }
+
+    private JsonObject containerState(String id) throws IOException {
+        JsonObject response;
+        JsonObject state;
+        String error;
+
+        response = containerInspect(id, false);
+        state = response.get("State").getAsJsonObject();
+        error = state.get("Error").getAsString();
+        if (!error.isEmpty()) {
+            throw new IOException("error state: " + error);
+        }
+        return state;
+    }
+
     public JsonObject containerInspect(String id, boolean size) throws IOException {
         HttpNode node;
 
@@ -387,32 +606,26 @@ public class Docker implements AutoCloseable {
         return parser.parse(node.readString()).getAsJsonObject();
     }
 
-    private static ContainerInfo containerInfo(JsonObject object) {
-        String id;
-        String imageId;
-        Status state; // TODO: sometimes it's called Status, sometimes state ...
-
-        id = object.get("Id").getAsString();
-        imageId = pruneImageId(object.get("ImageID").getAsString());
-        state = Status.valueOf(object.get("State").getAsString().toUpperCase());
-        return new ContainerInfo(id, imageId, state);
-    }
-
-    public void containerStop(String id, Integer timeout) throws IOException {
-        HttpNode stop;
-
-        stop = root.join("containers", id, "stop");
-        if (timeout != null) {
-            stop = stop.getRoot().node(stop.getPath(), "t=" + timeout);
-        }
-        post(stop, "");
-    }
-
-    public void containerRemove(String id) throws IOException {
-        Method.delete(root.join("containers", id));
-    }
-
     //--
+
+    private void checkWarnings(JsonObject response) throws IOException {
+        JsonElement warnings;
+
+        warnings = response.get("Warnings");
+        if (JsonNull.INSTANCE.equals(warnings)) {
+            return;
+        }
+        if (warnings.isJsonArray()) {
+            if (warnings.getAsJsonArray().size() == 0) {
+                return;
+            }
+        }
+        throw new IOException("response warnings: " + response.toString());
+    }
+
+    private JsonObject post(HttpNode dest, JsonObject obj) throws IOException {
+        return parser.parse(post(dest, obj.toString() + '\n')).getAsJsonObject();
+    }
 
     private InputStream postStream(HttpNode dest, FileNode body) throws IOException {
         try (InputStream src = body.newInputStream()) {
@@ -480,6 +693,28 @@ public class Docker implements AutoCloseable {
 
     //-- json utils
 
+    private static JsonObject object(Object... keyvalues) {
+        JsonObject body;
+        Object arg;
+
+        if (keyvalues.length % 2 != 0) {
+            throw new IllegalArgumentException();
+        }
+        body = new JsonObject();
+        for (int i = 0; i < keyvalues.length; i += 2) {
+            arg = keyvalues[i + 1];
+            if (arg instanceof String) {
+                arg = new JsonPrimitive((String) arg);
+            } else if (arg instanceof Number) {
+                arg = new JsonPrimitive((Number) arg);
+            } else if (arg instanceof Boolean) {
+                arg = new JsonPrimitive((Boolean) arg);
+            }
+            body.add((String) keyvalues[i], (JsonElement) arg);
+        }
+        return body;
+    }
+
     private static String labelsToJsonArray(Map<String, String> map) {
         StringBuilder builder;
 
@@ -524,6 +759,52 @@ public class Docker implements AutoCloseable {
         for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
             result.put(entry.getKey(), entry.getValue().getAsString());
         }
+        return result;
+    }
+
+    private static JsonArray env(Map<String, String> env) {
+        JsonArray result;
+
+        result = new JsonArray();
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            result.add(entry.getKey() + "=" + entry.getValue());
+        }
+        return result;
+    }
+
+    private static JsonObject exposedPorts(Set<Integer> ports) {
+        JsonObject obj;
+
+        obj = new JsonObject();
+        for (Integer port : ports) {
+            obj.add(Integer.toString(port) + "/tcp", new JsonObject());
+        }
+        return obj;
+    }
+
+    private static JsonArray hostMapping(String ipOptPort) {
+        int idx;
+        String ip;
+        int port;
+        JsonArray result;
+        JsonObject obj;
+
+        idx = ipOptPort.indexOf(':');
+        if (idx == -1) {
+            ip = null;
+            port = Integer.parseInt(ipOptPort);
+        } else {
+            ip = ipOptPort.substring(0, idx);
+            port = Integer.parseInt(ipOptPort.substring(idx +1));
+        }
+        obj = new JsonObject();
+        if (ip != null) {
+            obj.add("HostIp", new JsonPrimitive(ip));
+
+        }
+        obj.add("HostPort", new JsonPrimitive(Integer.toString(port)));
+        result = new JsonArray();
+        result.add(obj);
         return result;
     }
 }
