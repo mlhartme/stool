@@ -19,7 +19,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
+import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.fs.http.model.Method;
 
@@ -32,6 +34,13 @@ import java.util.List;
  * and https://docs.docker.com/registry/deploying/
  */
 public class Registry {
+    public static Registry create(HttpNode root, String wirelog) {
+        if (wirelog != null) {
+            HttpFilesystem.wireLog(wirelog);
+        }
+        return new Registry(root);
+    }
+
     private final HttpNode root;
 
     /** Thread safe - has no fields at all */
@@ -66,7 +75,16 @@ public class Registry {
     }
 
     public void delete(String repository, String digest) throws IOException {
-        Method.delete(root.join("v2/" + repository + "/manifests/" + digest));
+        try {
+            Method.delete(root.join("v2/" + repository + "/manifests/" + digest));
+        } catch (StatusException e) {
+            if (e.getStatusLine().code == 202) {
+                // TODO
+                return;
+            } else {
+                throw e;
+            }
+        }
     }
 
     private static List<String> toList(JsonArray array) {
