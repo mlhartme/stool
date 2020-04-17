@@ -70,6 +70,9 @@ public class RegistryIT {
                     digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
                     System.out.println("digest: " + digest);
                     System.out.println("manifest: " + manifest);
+
+                    assertEquals(Strings.toMap("label1", "value1", "xyz", "123"), registry.labels("registrytest", digest));
+
                     registry.delete("registrytest", digest); // TODO: yields 405 error
                     // TODO: assertEquals(Arrays.asList(), registry.catalog());
 

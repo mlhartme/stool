@@ -27,7 +27,9 @@ import net.oneandone.sushi.fs.http.model.Method;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * See https://docs.docker.com/registry/spec/api/
@@ -73,6 +75,12 @@ public class Registry {
         hl = HeaderList.of("Accept", "application/vnd.docker.distribution.manifest.v2+json");
         return JsonParser.parseString(root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl).readString()).getAsJsonObject();
     }
+    public Map<String, String> labels(String repository, String digest) throws IOException {
+        return toMap(info(repository, digest).get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
+    }
+    public JsonObject info(String repository, String digest) throws IOException {
+        return JsonParser.parseString(root.join("v2/" + repository + "/blobs/" + digest).readString()).getAsJsonObject();
+    }
 
     public void delete(String repository, String digest) throws IOException {
         try {
@@ -97,4 +105,13 @@ public class Registry {
         return result;
     }
 
+    private static Map<String, String> toMap(JsonObject object) {
+        Map<String, String> result;
+
+        result = new LinkedHashMap<>(object.size());
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAsString());
+        }
+        return result;
+    }
 }
