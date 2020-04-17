@@ -113,7 +113,7 @@ public class DaemonIT {
         }
     }
 
-    private FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {
+    public static FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {
         FileNode dir;
 
         dir = WORLD.getTemp().createTempDirectory();

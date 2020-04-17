@@ -18,9 +18,12 @@ package net.oneandone.stool.docker;
 import com.google.gson.JsonObject;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpNode;
+import net.oneandone.sushi.util.Strings;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,37 +34,49 @@ import static org.junit.Assert.assertEquals;
 public class RegistryIT {
     @Test
     public void turnaround() throws IOException {
+        final int registryPort = 5000;
+        final String registryPrefix = "localhost:" + registryPort;
+        String imageName;
         HttpNode root;
         String container;
         Registry registry;
         JsonObject manifest;
         String digest;
         Map<Integer, String> ports;
+        Writer log;
 
-        try (Daemon docker = Daemon.create(null)) {
+        try (Daemon docker = Daemon.create("target/registry-wire.log")) {
             ports = new HashMap<>();
-            ports.put(5000, "5000");
+            ports.put(registryPort, "" + registryPort);
+            log = new StringWriter();
+
             container = docker.containerCreate("registry", "registry:2", null,null, false, null, null, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), ports);
             docker.containerStart(container);
-            docker.imageTag("registry:2", "localhost:5000/my-registry", "1");
             try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            try {
-                root = (HttpNode) World.create().validNode("http://localhost:5000");
-                registry = new Registry(root);
-                assertEquals(Arrays.asList("ba", "foo"), registry.catalog());
-                assertEquals(Arrays.asList("latest"), registry.tags("foo"));
-                manifest = registry.manifest("foo", "latest");
-                digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
-                System.out.println("digest: " + digest);
+                imageName = registryPrefix + "/registrytest:1";
+                docker.imageBuild(imageName, Collections.emptyMap(),
+                        Strings.toMap("label1", "value1", "xyz", "123"),
+                        DaemonIT.dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
+                        false, log);
+                try {
+                    root = (HttpNode) World.create().validNode("http://" + registryPrefix);
+                    registry = new Registry(root);
+                    assertEquals(Arrays.asList(), registry.catalog());
+                    docker.imagePush(imageName);
+                    assertEquals(Arrays.asList("registrytest"), registry.catalog());
+                    assertEquals(Arrays.asList("1"), registry.tags("registrytest"));
+                    manifest = registry.manifest("registrytest", "1");
+                    digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
+                    System.out.println("digest: " + digest);
+                    System.out.println("manifest: " + manifest);
+                    registry.delete("registrytest", "dd" + digest); // TODO: yields 405 error
+                    assertEquals(Arrays.asList(), registry.catalog());
 
-                //registry.delete("foo", digest); // TODO: yields 405 error
-
-                System.out.println("ok");
+                    System.out.println("ok");
+                } finally {
+                    docker.imageRemove(imageName, false);
+                }
             } finally {
                 System.out.println("wipe container " + container);
                 docker.containerStop(container, 5);

@@ -31,6 +31,7 @@ import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.io.AsciiInputStream;
 import net.oneandone.sushi.fs.http.model.Body;
+import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Strings;
 
@@ -51,6 +52,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -294,6 +296,18 @@ public class Daemon implements AutoCloseable {
 
     public String imageTag(String id, String repository, String tag) throws IOException {
         return post(root.join("images", id, "tag").withParameter("repo", repository).withParameter("tag", tag), "");
+    }
+
+    public String imagePush(String id) throws IOException {
+        JsonObject auth;
+        String header;
+
+        auth = new JsonObject();
+        auth.add("username", new JsonPrimitive("mhm"));
+        auth.add("password", new JsonPrimitive(""));
+        auth.add("serveraddress", new JsonPrimitive("walter.united.domain:5000"));
+        header = Base64.getEncoder().encodeToString(auth.toString().getBytes());
+        return post(root.join("images", id, "push").withHeaders(HeaderList.of("X-Registry-Auth", header)), "");
     }
 
     public void imageRemove(String tagOrId, boolean force) throws IOException {
