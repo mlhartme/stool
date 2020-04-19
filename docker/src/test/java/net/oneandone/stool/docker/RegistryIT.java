@@ -64,7 +64,7 @@ public class RegistryIT {
                         false, log);
                 try {
                     root = (HttpNode) World.create().validNode("http://" + registryPrefix);
-                    registry = new Registry(root);
+                    registry = new Registry(root, null);
                     assertEquals(Arrays.asList(), registry.catalog());
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
@@ -106,8 +106,11 @@ public class RegistryIT {
             registry.catalog();
             fail();
         } catch (AuthException e) {
-            token = registry.login(e.realm, e.service, e.scope);
+            // ok
+            token = registry.login(e.realm, e.service, "registry:*:*");
             System.out.println("token: " + token);
+            registry = new Registry(root, token);
+            System.out.println("catalog: " + registry.catalog());
         }
     }
 }

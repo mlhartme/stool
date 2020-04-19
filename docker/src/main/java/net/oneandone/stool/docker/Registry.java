@@ -41,13 +41,16 @@ public class Registry {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new Registry(root);
+        return new Registry(root, null);
     }
 
     private final HttpNode root;
 
-    public Registry(HttpNode root) {
+    public Registry(HttpNode root, String token) {
         this.root = root;
+        if (token != null) {
+            this.root.getRoot().addExtraHeader("Authorization", "Bearer " + token);
+        }
     }
 
     public String login(String realm, String service, String scope) throws IOException {
@@ -76,17 +79,11 @@ public class Registry {
                 se = (StatusException) e.getCause();
                 if (se.getStatusLine().code == 401) {
                     auth = se.getHeaderList().getFirstValue("Www-Authenticate");
-                    start = auth.indexOf("realm=\"");
-                    if (start == -1) {
-                        throw new IOException("unexpected header: " + start);
+                    if (auth != null) {
+                        throw new AuthException(get(auth, "realm"), get(auth, "service"), get(auth, "scope"));
+                    } else {
+                        // fall-through
                     }
-                    start += prefix.length();
-                    end = auth.indexOf("\"", start);
-                    if (end == -1) {
-                        throw new IOException("unexpected header: " + auth);
-                    }
-                    url = auth.substring(start, end);
-                    throw new AuthException(get(auth, "realm"), get(auth, "service"), get(auth, "scope"));
                 }
             }
             throw e;

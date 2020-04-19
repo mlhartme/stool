@@ -21,6 +21,7 @@ public class AuthException extends IOException {
     public final String realm;
     public final String service;
     public final String scope;
+
     public AuthException(String realm, String service, String scope) {
         super("auth failed");
         this.realm = realm;
