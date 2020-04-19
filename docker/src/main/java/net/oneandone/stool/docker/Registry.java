@@ -19,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
@@ -49,12 +50,68 @@ public class Registry {
         this.root = root;
     }
 
+    public String login(String realm, String service, String scope) throws IOException {
+        HttpNode login;
+
+        login = (HttpNode) root.getWorld().validNode(realm);
+        login = login.withParameter("service", service);
+        login = login.withParameter("scope", scope);
+        return JsonParser.parseString(login.readString()).getAsJsonObject().get("token").getAsString();
+    }
+
     /** @return list of repositories */
     public List<String> catalog() throws IOException {
+        final String prefix = "realm=\"";
         JsonObject result;
+        StatusException se;
+        String auth;
+        int start;
+        int end;
+        String url;
 
-        result = JsonParser.parseString(root.join("v2/_catalog").readString()).getAsJsonObject();
+        try {
+            result = JsonParser.parseString(root.join("v2/_catalog").readString()).getAsJsonObject();
+        } catch (NewInputStreamException e) {
+            if (e.getCause() instanceof StatusException) {
+                se = (StatusException) e.getCause();
+                if (se.getStatusLine().code == 401) {
+                    auth = se.getHeaderList().getFirstValue("Www-Authenticate");
+                    start = auth.indexOf("realm=\"");
+                    if (start == -1) {
+                        throw new IOException("unexpected header: " + start);
+                    }
+                    start += prefix.length();
+                    end = auth.indexOf("\"", start);
+                    if (end == -1) {
+                        throw new IOException("unexpected header: " + auth);
+                    }
+                    url = auth.substring(start, end);
+                    throw new AuthException(get(auth, "realm"), get(auth, "service"), get(auth, "scope"));
+                }
+            }
+            throw e;
+        }
         return toList(result.get("repositories").getAsJsonArray());
+    }
+
+    private static String get(String header, String arg) throws IOException {
+        int idx;
+        int len;
+        int end;
+
+        idx = header.indexOf(arg);
+        if (idx == -1) {
+           throw new IOException("argument '" + arg + "' not found in header: " + header);
+        }
+        len = arg.length();
+        if (header.indexOf("=\"", idx + len) != idx + len) {
+            throw new IOException("argument '" + arg + "' not properly quoted: " + header);
+        }
+        end = header.indexOf('"', idx + len + 2);
+        if (end == -1) {
+            throw new IOException("argument '" + arg + "' not terminated: " + header);
+        }
+        return header.substring(idx + len + 2, end);
     }
 
     /** @return list of tags */

@@ -16,8 +16,10 @@
 package net.oneandone.stool.docker;
 
 import com.google.gson.JsonObject;
+import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpNode;
+import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
 import org.junit.Test;
 
@@ -30,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class RegistryIT {
     @Test
@@ -95,9 +98,16 @@ public class RegistryIT {
         final String contargo = "contargo.server.lan";
         HttpNode root;
         Registry registry;
+        String token;
 
         root = (HttpNode) World.create().validNode("https://" + contargo);
-        registry = Registry.create(root, "target/contarg.log");
-        assertEquals(Arrays.asList(), registry.catalog());
+        registry = Registry.create(root, "target/contargo.log");
+        try {
+            registry.catalog();
+            fail();
+        } catch (AuthException e) {
+            token = registry.login(e.realm, e.service, e.scope);
+            System.out.println("token: " + token);
+        }
     }
 }
