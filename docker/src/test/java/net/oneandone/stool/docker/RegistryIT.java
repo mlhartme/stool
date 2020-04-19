@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 
 public class RegistryIT {
     @Test
-    public void turnaround() throws IOException {
+    public void localhost() throws IOException {
         final int registryPort = 5000;
         final String registryPrefix = "localhost:" + registryPort;
         String imageName;
@@ -73,9 +73,11 @@ public class RegistryIT {
 
                     assertEquals(Strings.toMap("label1", "value1", "xyz", "123"), registry.labels("registrytest", digest));
 
-                    registry.delete("registrytest", digest); // TODO: yields 405 error
-                    // TODO: assertEquals(Arrays.asList(), registry.catalog());
-
+                    registry.delete("registrytest", digest);
+           /* TODO
+                    assertEquals(Arrays.asList("registrytest"), registry.catalog());
+                    assertEquals(Arrays.asList("registrytest"), registry.tags("registrytest"));
+*/
                     System.out.println("ok");
                 } finally {
                     docker.imageRemove(imageName, false);
@@ -87,5 +89,15 @@ public class RegistryIT {
             }
         }
 
+    }
+    @Test
+    public void contargo() throws IOException {
+        final String contargo = "contargo.server.lan";
+        HttpNode root;
+        Registry registry;
+
+        root = (HttpNode) World.create().validNode("https://" + contargo);
+        registry = Registry.create(root, "target/contarg.log");
+        assertEquals(Arrays.asList(), registry.catalog());
     }
 }

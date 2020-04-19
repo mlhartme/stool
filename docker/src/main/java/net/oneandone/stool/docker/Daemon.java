@@ -303,9 +303,12 @@ public class Daemon implements AutoCloseable {
         String header;
 
         auth = new JsonObject();
+
+        /*  TODO
         auth.add("username", new JsonPrimitive("mhm"));
         auth.add("password", new JsonPrimitive(""));
-        auth.add("serveraddress", new JsonPrimitive("walter.united.domain:5000"));
+        auth.add("serveraddress", new JsonPrimitive("walter.united.domain:5000")); */
+
         header = Base64.getEncoder().encodeToString(auth.toString().getBytes());
         return post(root.join("images", id, "push").withHeaders(HeaderList.of("X-Registry-Auth", header)), "");
     }

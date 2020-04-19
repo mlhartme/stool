@@ -45,12 +45,8 @@ public class Registry {
 
     private final HttpNode root;
 
-    /** Thread safe - has no fields at all */
-    private final JsonParser parser;
-
     public Registry(HttpNode root) {
         this.root = root;
-        this.parser = new JsonParser();
     }
 
     /** @return list of repositories */
@@ -75,9 +71,12 @@ public class Registry {
         hl = HeaderList.of("Accept", "application/vnd.docker.distribution.manifest.v2+json");
         return JsonParser.parseString(root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl).readString()).getAsJsonObject();
     }
+
+    /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
     public Map<String, String> labels(String repository, String digest) throws IOException {
         return toMap(info(repository, digest).get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
     }
+
     public JsonObject info(String repository, String digest) throws IOException {
         return JsonParser.parseString(root.join("v2/" + repository + "/blobs/" + digest).readString()).getAsJsonObject();
     }
