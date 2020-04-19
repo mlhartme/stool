@@ -16,10 +16,8 @@
 package net.oneandone.stool.docker;
 
 import com.google.gson.JsonObject;
-import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpNode;
-import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
 import org.junit.Test;
 

@@ -59,63 +59,22 @@ public class Registry {
         login = (HttpNode) root.getWorld().validNode(realm);
         login = login.withParameter("service", service);
         login = login.withParameter("scope", scope);
-        return JsonParser.parseString(login.readString()).getAsJsonObject().get("token").getAsString();
+        return getJson(login).get("token").getAsString();
     }
 
     /** @return list of repositories */
     public List<String> catalog() throws IOException {
-        final String prefix = "realm=\"";
         JsonObject result;
-        StatusException se;
-        String auth;
-        int start;
-        int end;
-        String url;
 
-        try {
-            result = JsonParser.parseString(root.join("v2/_catalog").readString()).getAsJsonObject();
-        } catch (NewInputStreamException e) {
-            if (e.getCause() instanceof StatusException) {
-                se = (StatusException) e.getCause();
-                if (se.getStatusLine().code == 401) {
-                    auth = se.getHeaderList().getFirstValue("Www-Authenticate");
-                    if (auth != null) {
-                        throw new AuthException(get(auth, "realm"), get(auth, "service"), get(auth, "scope"));
-                    } else {
-                        // fall-through
-                    }
-                }
-            }
-            throw e;
-        }
+        result = getJson(root.join("v2/_catalog"));
         return toList(result.get("repositories").getAsJsonArray());
-    }
-
-    private static String get(String header, String arg) throws IOException {
-        int idx;
-        int len;
-        int end;
-
-        idx = header.indexOf(arg);
-        if (idx == -1) {
-           throw new IOException("argument '" + arg + "' not found in header: " + header);
-        }
-        len = arg.length();
-        if (header.indexOf("=\"", idx + len) != idx + len) {
-            throw new IOException("argument '" + arg + "' not properly quoted: " + header);
-        }
-        end = header.indexOf('"', idx + len + 2);
-        if (end == -1) {
-            throw new IOException("argument '" + arg + "' not terminated: " + header);
-        }
-        return header.substring(idx + len + 2, end);
     }
 
     /** @return list of tags */
     public List<String> tags(String repository) throws IOException {
         JsonObject result;
 
-        result = JsonParser.parseString(root.join("v2/" + repository + "/tags/list").readString()).getAsJsonObject();
+        result = getJson(root.join("v2/" + repository + "/tags/list"));
         return toList(result.get("tags").getAsJsonArray());
     }
 
@@ -123,7 +82,7 @@ public class Registry {
         HeaderList hl;
 
         hl = HeaderList.of("Accept", "application/vnd.docker.distribution.manifest.v2+json");
-        return JsonParser.parseString(root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl).readString()).getAsJsonObject();
+        return getJson(root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl));
     }
 
     /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
@@ -132,7 +91,7 @@ public class Registry {
     }
 
     public JsonObject info(String repository, String digest) throws IOException {
-        return JsonParser.parseString(root.join("v2/" + repository + "/blobs/" + digest).readString()).getAsJsonObject();
+        return getJson(root.join("v2/" + repository + "/blobs/" + digest));
     }
 
     public void delete(String repository, String digest) throws IOException {
@@ -145,6 +104,31 @@ public class Registry {
             } else {
                 throw e;
             }
+        }
+    }
+
+    //--
+
+    /** @return list of repositories */
+    public JsonObject getJson(HttpNode node) throws IOException {
+        StatusException se;
+        String auth;
+
+        try {
+            return JsonParser.parseString(node.readString()).getAsJsonObject();
+        } catch (NewInputStreamException e) {
+            if (e.getCause() instanceof StatusException) {
+                se = (StatusException) e.getCause();
+                if (se.getStatusLine().code == 401) {
+                    auth = se.getHeaderList().getFirstValue("Www-Authenticate");
+                    if (auth != null) {
+                        throw new AuthException(getArgument(auth, "realm"), getArgument(auth, "service"), getArgument(auth, "scope"));
+                    } else {
+                        // fall-through
+                    }
+                }
+            }
+            throw e;
         }
     }
 
@@ -166,5 +150,25 @@ public class Registry {
             result.put(entry.getKey(), entry.getValue().getAsString());
         }
         return result;
+    }
+
+    private static String getArgument(String header, String arg) throws IOException {
+        int idx;
+        int len;
+        int end;
+
+        idx = header.indexOf(arg);
+        if (idx == -1) {
+            throw new IOException("argument '" + arg + "' not found in header: " + header);
+        }
+        len = arg.length();
+        if (header.indexOf("=\"", idx + len) != idx + len) {
+            throw new IOException("argument '" + arg + "' not properly quoted: " + header);
+        }
+        end = header.indexOf('"', idx + len + 2);
+        if (end == -1) {
+            throw new IOException("argument '" + arg + "' not terminated: " + header);
+        }
+        return header.substring(idx + len + 2, end);
     }
 }
