@@ -101,14 +101,14 @@ public class RegistryIT {
         root = (HttpNode) World.create().validNode("https://" + contargo);
         registry = Registry.create(root, "target/contargo.log");
         try {
-            registry.catalog();
+            registry.tags("cisoops-public/java-8");
             fail();
         } catch (AuthException e) {
             // ok
-            token = registry.login(e.realm, e.service, "registry:*:*");
+            token = registry.login(e.realm, e.service, e.scope);
             System.out.println("token: " + token);
             registry = new Registry(root, token);
-            System.out.println("catalog: " + registry.catalog());
+            System.out.println("tags: " + registry.tags("cisoops-public/java-8"));
         }
     }
 }
