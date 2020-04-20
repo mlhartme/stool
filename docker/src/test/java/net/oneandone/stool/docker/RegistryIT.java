@@ -64,7 +64,7 @@ public class RegistryIT {
                         false, log);
                 try {
                     root = (HttpNode) World.create().validNode("http://" + registryPrefix);
-                    registry = new Registry(root);
+                    registry = Registry.create(root);
                     assertEquals(Arrays.asList(), registry.catalog());
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
@@ -94,9 +94,9 @@ public class RegistryIT {
 
     }
     @Test
-    public void contargo() throws IOException {
-        final String contargo = "contargo.server.lan";
-        final String repository = "ak/localtomcat";
+    public void portus() throws IOException {
+        World world;
+        String repository;
         HttpNode root;
         Registry registry;
         Properties p;
@@ -104,15 +104,17 @@ public class RegistryIT {
         JsonObject manifest;
         String digest;
 
-        root = (HttpNode) World.create().validNode("https://" + contargo);
+        world = World.create();
+        p = world.guessProjectHome(getClass()).join("test.properties").readProperties();
+        root = (HttpNode) world.validNode("https://" + get(p, "portus"));
+        repository = get(p, "repository");
         registry = Registry.create(root, "target/contargo.log");
         try {
             registry.tags(repository);
             fail();
         } catch (AuthException e) {
             // ok
-            p = root.getWorld().guessProjectHome(getClass()).join("test.properties").readProperties();
-            registry = Registry.login(root, e.realm, e.service, e.scope, get(p, "user"), get(p, "password"));
+            registry = Registry.portus(root, e.realm, e.service, e.scope, get(p, "user"), get(p, "password"));
             tags = registry.tags(repository);
             System.out.println("tags: " + tags);
             System.out.println("v1 tags: " + registry.portusTags("6"));

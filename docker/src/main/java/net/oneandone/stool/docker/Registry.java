@@ -39,27 +39,33 @@ import java.util.Map;
  * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
 public class Registry {
-    public static Registry login(HttpNode root, String realm, String service, String scope,
-                                 String username, String password) throws IOException {
+    public static Registry portus(HttpNode root, String realm, String service, String scope,
+                                 String username, String applicationToken) throws IOException {
         HttpNode login;
         String token;
 
-        // auth for portus api
-        if (username != null) {
-            root.getRoot().addExtraHeader("Portus-Auth", username + ":" + password);
+        if (username == null) {
+            throw new IllegalArgumentException();
         }
+        if (applicationToken == null) {
+            throw new IllegalArgumentException();
+        }
+        // auth for portus api
+        root.getRoot().addExtraHeader("Portus-Auth", username + ":" + applicationToken);
 
         // auth for docker registry api
         login = (HttpNode) root.getWorld().validNode(realm);
-        if (username != null) {
-            login.getRoot().setCredentials(username, password);
-        }
+        login.getRoot().setCredentials(username, applicationToken);
         login = login.withParameter("service", service);
         login = login.withParameter("scope", scope);
         token = getJsonObject(login).get("token").getAsString();
         root.getRoot().addExtraHeader("Authorization", "Bearer " + token);
 
         return new Registry(root);
+    }
+
+    public static Registry create(HttpNode root) {
+        return create(root, null);
     }
 
     public static Registry create(HttpNode root, String wirelog) {
@@ -71,7 +77,7 @@ public class Registry {
 
     private final HttpNode root;
 
-    public Registry(HttpNode root) {
+    private Registry(HttpNode root) {
         this.root = root;
     }
 
