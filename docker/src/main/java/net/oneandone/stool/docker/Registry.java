@@ -53,10 +53,13 @@ public class Registry {
         }
     }
 
-    public String login(String realm, String service, String scope) throws IOException {
+    public String login(String realm, String service, String scope, String username, String password) throws IOException {
         HttpNode login;
 
         login = (HttpNode) root.getWorld().validNode(realm);
+        if (username != null) {
+            login.getRoot().setCredentials(username, password);
+        }
         login = login.withParameter("service", service);
         login = login.withParameter("scope", scope);
         return getJson(login).get("token").getAsString();

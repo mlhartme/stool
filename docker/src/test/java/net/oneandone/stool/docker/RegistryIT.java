@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -97,18 +98,29 @@ public class RegistryIT {
         HttpNode root;
         Registry registry;
         String token;
+        Properties p;
 
         root = (HttpNode) World.create().validNode("https://" + contargo);
         registry = Registry.create(root, "target/contargo.log");
         try {
-            registry.tags("cisoops-public/java-8");
+            registry.tags("ak/localtomcat");
             fail();
         } catch (AuthException e) {
             // ok
-            token = registry.login(e.realm, e.service, e.scope);
-            System.out.println("token: " + token);
+            p = root.getWorld().guessProjectHome(getClass()).join("test.properties").readProperties();
+            token = registry.login(e.realm, e.service, e.scope, get(p, "user"), get(p, "password"));
             registry = new Registry(root, token);
-            System.out.println("tags: " + registry.tags("cisoops-public/java-8"));
+            System.out.println("tags: " + registry.tags("ak/localtomcat"));
         }
+    }
+
+    private static String get(Properties p, String key) throws IOException {
+        String value;
+
+        value = p.getProperty(key);
+        if (value == null) {
+            throw new IOException("property not found: " + key);
+        }
+        return value;
     }
 }

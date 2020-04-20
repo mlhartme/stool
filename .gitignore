@@ -1,4 +1,5 @@
 /.idea/
 /stool.iml
 /target/
+/docker/test.properties
 
