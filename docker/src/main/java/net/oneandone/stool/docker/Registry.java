@@ -37,6 +37,22 @@ import java.util.Map;
  * and https://docs.docker.com/registry/deploying/
  */
 public class Registry {
+    public static Registry login(HttpNode root, String realm, String service, String scope,
+                                 String username, String password) throws IOException {
+        HttpNode login;
+        String token;
+
+        login = (HttpNode) root.getWorld().validNode(realm);
+        if (username != null) {
+            login.getRoot().setCredentials(username, password);
+        }
+        login = login.withParameter("service", service);
+        login = login.withParameter("scope", scope);
+        token = getJson(login).get("token").getAsString();
+        return new Registry(root, token);
+    }
+
+
     public static Registry create(HttpNode root, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
@@ -53,18 +69,6 @@ public class Registry {
         }
     }
 
-    public String login(String realm, String service, String scope, String username, String password) throws IOException {
-        HttpNode login;
-
-        login = (HttpNode) root.getWorld().validNode(realm);
-        if (username != null) {
-            login.getRoot().setCredentials(username, password);
-        }
-        login = login.withParameter("service", service);
-        login = login.withParameter("scope", scope);
-        return getJson(login).get("token").getAsString();
-    }
-
     /** @return list of repositories */
     public List<String> catalog() throws IOException {
         JsonObject result;
@@ -79,6 +83,10 @@ public class Registry {
 
         result = getJson(root.join("v2/" + repository + "/tags/list"));
         return toList(result.get("tags").getAsJsonArray());
+    }
+
+    public JsonObject v1Tags(String repository) throws IOException {
+        return getJson(root.join("api/v1/repositories/" + repository + "/tags"));
     }
 
     public JsonObject manifest(String repository, String tag) throws IOException {
@@ -113,7 +121,7 @@ public class Registry {
     //--
 
     /** @return list of repositories */
-    public JsonObject getJson(HttpNode node) throws IOException {
+    public static JsonObject getJson(HttpNode node) throws IOException {
         StatusException se;
         String auth;
 

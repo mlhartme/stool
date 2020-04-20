@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -95,22 +96,30 @@ public class RegistryIT {
     @Test
     public void contargo() throws IOException {
         final String contargo = "contargo.server.lan";
+        final String repository = "ak/localtomcat";
         HttpNode root;
         Registry registry;
-        String token;
         Properties p;
+        List<String> tags;
+        JsonObject manifest;
+        String digest;
 
         root = (HttpNode) World.create().validNode("https://" + contargo);
         registry = Registry.create(root, "target/contargo.log");
         try {
-            registry.tags("ak/localtomcat");
+            registry.tags(repository);
             fail();
         } catch (AuthException e) {
             // ok
             p = root.getWorld().guessProjectHome(getClass()).join("test.properties").readProperties();
-            token = registry.login(e.realm, e.service, e.scope, get(p, "user"), get(p, "password"));
-            registry = new Registry(root, token);
-            System.out.println("tags: " + registry.tags("ak/localtomcat"));
+            registry = Registry.login(root, e.realm, e.service, e.scope, get(p, "user"), get(p, "password"));
+            tags = registry.tags(repository);
+            System.out.println("tags: " + tags);
+            System.out.println("v1 tags: " + registry.v1Tags(repository));
+            manifest = registry.manifest(repository, tags.get(0));
+            System.out.println("manifest: " + manifest);
+            digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
+            System.out.println("info: " + registry.info(repository, digest));
         }
     }
 
