@@ -33,8 +33,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * See https://docs.docker.com/registry/spec/api/
- * and https://docs.docker.com/registry/deploying/
+ * Docker Registry API https://docs.docker.com/registry/spec/api/ and Portus API http://port.us.org/docs/API.html.
+ *
+ * I didn't find a way to query tag authors with Docker Registry API V2, so I hat to fall back to Portus' API :(
+ * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
 public class Registry {
     public static Registry login(HttpNode root, String realm, String service, String scope,
@@ -42,38 +44,42 @@ public class Registry {
         HttpNode login;
         String token;
 
+        // auth for portus api
+        if (username != null) {
+            root.getRoot().addExtraHeader("Portus-Auth", username + ":" + password);
+        }
+
+        // auth for docker registry api
         login = (HttpNode) root.getWorld().validNode(realm);
         if (username != null) {
             login.getRoot().setCredentials(username, password);
         }
         login = login.withParameter("service", service);
         login = login.withParameter("scope", scope);
-        token = getJson(login).get("token").getAsString();
-        return new Registry(root, token);
-    }
+        token = getJsonObject(login).get("token").getAsString();
+        root.getRoot().addExtraHeader("Authorization", "Bearer " + token);
 
+        return new Registry(root);
+    }
 
     public static Registry create(HttpNode root, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new Registry(root, null);
+        return new Registry(root);
     }
 
     private final HttpNode root;
 
-    public Registry(HttpNode root, String token) {
+    public Registry(HttpNode root) {
         this.root = root;
-        if (token != null) {
-            this.root.getRoot().addExtraHeader("Authorization", "Bearer " + token);
-        }
     }
 
     /** @return list of repositories */
     public List<String> catalog() throws IOException {
         JsonObject result;
 
-        result = getJson(root.join("v2/_catalog"));
+        result = getJsonObject(root.join("v2/_catalog"));
         return toList(result.get("repositories").getAsJsonArray());
     }
 
@@ -81,19 +87,19 @@ public class Registry {
     public List<String> tags(String repository) throws IOException {
         JsonObject result;
 
-        result = getJson(root.join("v2/" + repository + "/tags/list"));
+        result = getJsonObject(root.join("v2/" + repository + "/tags/list"));
         return toList(result.get("tags").getAsJsonArray());
     }
 
-    public JsonObject v1Tags(String repository) throws IOException {
-        return getJson(root.join("api/v1/repositories/" + repository + "/tags"));
+    public JsonArray portusTags(String repository) throws IOException {
+        return getJson(root.join("api/v1/repositories/" + repository + "/tags")).getAsJsonArray();
     }
 
     public JsonObject manifest(String repository, String tag) throws IOException {
         HeaderList hl;
 
         hl = HeaderList.of("Accept", "application/vnd.docker.distribution.manifest.v2+json");
-        return getJson(root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl));
+        return getJsonObject(root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl));
     }
 
     /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
@@ -102,7 +108,7 @@ public class Registry {
     }
 
     public JsonObject info(String repository, String digest) throws IOException {
-        return getJson(root.join("v2/" + repository + "/blobs/" + digest));
+        return getJsonObject(root.join("v2/" + repository + "/blobs/" + digest));
     }
 
     public void delete(String repository, String digest) throws IOException {
@@ -120,13 +126,16 @@ public class Registry {
 
     //--
 
-    /** @return list of repositories */
-    public static JsonObject getJson(HttpNode node) throws IOException {
+    public static JsonObject getJsonObject(HttpNode node) throws IOException {
+        return getJson(node).getAsJsonObject();
+    }
+
+    public static JsonElement getJson(HttpNode node) throws IOException {
         StatusException se;
         String auth;
 
         try {
-            return JsonParser.parseString(node.readString()).getAsJsonObject();
+            return JsonParser.parseString(node.readString());
         } catch (NewInputStreamException e) {
             if (e.getCause() instanceof StatusException) {
                 se = (StatusException) e.getCause();

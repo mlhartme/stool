@@ -64,7 +64,7 @@ public class RegistryIT {
                         false, log);
                 try {
                     root = (HttpNode) World.create().validNode("http://" + registryPrefix);
-                    registry = new Registry(root, null);
+                    registry = new Registry(root);
                     assertEquals(Arrays.asList(), registry.catalog());
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
@@ -115,7 +115,7 @@ public class RegistryIT {
             registry = Registry.login(root, e.realm, e.service, e.scope, get(p, "user"), get(p, "password"));
             tags = registry.tags(repository);
             System.out.println("tags: " + tags);
-            System.out.println("v1 tags: " + registry.v1Tags(repository));
+            System.out.println("v1 tags: " + registry.portusTags("6"));
             manifest = registry.manifest(repository, tags.get(0));
             System.out.println("manifest: " + manifest);
             digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
