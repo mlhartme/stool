@@ -29,7 +29,6 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,7 @@ import java.util.Map;
  */
 public class Registry {
     public static Registry portus(HttpNode root, String realm, String service, String scope,
-                                 String username, String applicationToken) throws IOException {
+                                 String username, String applicationToken, String wirelog) throws IOException {
         HttpNode login;
         String token;
 
@@ -63,7 +62,7 @@ public class Registry {
         token = getJsonObject(login).get("token").getAsString();
         root.getRoot().addExtraHeader("Authorization", "Bearer " + token);
 
-        return new Registry(root);
+        return create(root, wirelog);
     }
 
     public static Registry create(HttpNode root) {
@@ -109,7 +108,7 @@ public class Registry {
         String digest;
         JsonObject info;
 
-        manifest = manifest("registrytest", "1");
+        manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
         info = getJsonObject(root.join("v2/" + repository + "/blobs/" + digest));
         return new ImageInfo(digest, Strings.toList(repository + ":" + tag), null,
