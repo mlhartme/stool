@@ -132,11 +132,11 @@ public class Registry {
 
     //--
 
-    public static JsonObject getJsonObject(HttpNode node) throws IOException {
+    private static JsonObject getJsonObject(HttpNode node) throws IOException {
         return getJson(node).getAsJsonObject();
     }
 
-    public static JsonElement getJson(HttpNode node) throws IOException {
+    private static JsonElement getJson(HttpNode node) throws IOException {
         StatusException se;
         String auth;
 
