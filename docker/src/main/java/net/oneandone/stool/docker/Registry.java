@@ -28,6 +28,7 @@ import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,7 +63,7 @@ public class Registry {
         token = getJsonObject(login).get("token").getAsString();
         root.getRoot().addExtraHeader("Authorization", "Bearer " + token);
 
-        return create(root, wirelog);
+        return doCreate(true, root, wirelog);
     }
 
     public static Registry create(HttpNode root) {
@@ -70,15 +71,21 @@ public class Registry {
     }
 
     public static Registry create(HttpNode root, String wirelog) {
+        return doCreate(false, root, wirelog);
+    }
+
+    public static Registry doCreate(boolean portus, HttpNode root, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new Registry(root);
+        return new Registry(portus, root);
     }
 
+    private final boolean portus;
     private final HttpNode root;
 
-    private Registry(HttpNode root) {
+    private Registry(boolean portus, HttpNode root) {
+        this.portus = portus;
         this.root = root;
     }
 
@@ -98,20 +105,60 @@ public class Registry {
         return toList(result.get("tags").getAsJsonArray());
     }
 
-    public JsonArray portusTags(String repository) throws IOException {
-        return getJson(root.join("api/v1/repositories/" + repository + "/tags")).getAsJsonArray();
+    public JsonArray portusRepositories() throws IOException {
+        return getJson(root.join("api/v1/repositories")).getAsJsonArray();
     }
+
+    public String portusRepositoryId(String repository) throws IOException {
+        JsonObject obj;
+
+        for (JsonElement element : portusRepositories()) {
+            obj = element.getAsJsonObject();
+            if (repository.equals(obj.get("full_name").getAsString())) {
+                return obj.get("id").getAsString();
+            }
+        }
+        throw new IOException("repository not found: " + repository);
+    }
+
+    public JsonArray portusTags(String repositoryId) throws IOException {
+        return getJson(root.join("api/v1/repositories/" + repositoryId + "/tags")).getAsJsonArray();
+    }
+
+    public JsonObject portusTag(String portusRepositoryId, String tag) throws IOException {
+        JsonObject result;
+
+        for (JsonElement element : portusTags(portusRepositoryId)) {
+            result = element.getAsJsonObject();
+            if (tag.equals(result.get("name").getAsString())) {
+                return result;
+            }
+        }
+        throw new IOException("tag not found: " + tag);
+    }
+
 
     /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
     public ImageInfo info(String repository, String tag) throws IOException {
         JsonObject manifest;
         String digest;
         JsonObject info;
+        JsonObject obj;
+        String author;
+        LocalDateTime created;
 
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
         info = getJsonObject(root.join("v2/" + repository + "/blobs/" + digest));
-        return new ImageInfo(digest, Strings.toList(repository + ":" + tag), null,
+        if (portus) {
+            obj = portusTag(portusRepositoryId(repository), tag);
+            created = LocalDateTime.parse(obj.get("created_at").getAsString(), Daemon.DATE_FORMAT);
+            author = obj.get("author").getAsJsonObject().get("name").getAsString();
+        } else {
+            created = null;
+            author = null;
+        }
+        return new ImageInfo(digest, Strings.toList(repository + ":" + tag), created, author,
                 toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject()));
     }
 

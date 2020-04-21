@@ -178,7 +178,7 @@ public class Daemon implements AutoCloseable {
             repoTags = object.get("RepoTags");
             repositoryTags = repoTags.isJsonNull() ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
             l = object.get("Labels");
-            result.put(id, new ImageInfo(id, repositoryTags, toLocalTime(object.get("Created").getAsLong()),
+            result.put(id, new ImageInfo(id, repositoryTags, toLocalTime(object.get("Created").getAsLong()), "todo",
                     l.isJsonNull() ? new HashMap<>() : toStringMap(l.getAsJsonObject())));
         }
         return result;
@@ -585,7 +585,7 @@ public class Daemon implements AutoCloseable {
     }
 
     // https://github.com/moby/moby/pull/15010
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
 
     public long containerStartedAt(String id) throws IOException {
         JsonObject state;

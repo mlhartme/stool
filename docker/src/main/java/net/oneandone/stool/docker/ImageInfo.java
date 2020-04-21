@@ -37,12 +37,14 @@ public class ImageInfo {
 
     public final String id;
     public final LocalDateTime created;
+    public final String author;
     public final List<String> repositoryTags;
     public final Map<String, String> labels;
 
-    public ImageInfo(String id, List<String> repositoryTags, LocalDateTime created, Map<String, String> labels) {
+    public ImageInfo(String id, List<String> repositoryTags, LocalDateTime created, String author, Map<String, String> labels) {
         this.id = id;
         this.created = created;
+        this.author = author;
         this.repositoryTags = repositoryTags;
         this.labels = labels;
     }
