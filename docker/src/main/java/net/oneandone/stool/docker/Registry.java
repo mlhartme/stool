@@ -25,9 +25,11 @@ import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.fs.http.model.Method;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,20 +103,24 @@ public class Registry {
         return getJson(root.join("api/v1/repositories/" + repository + "/tags")).getAsJsonArray();
     }
 
-    public JsonObject manifest(String repository, String tag) throws IOException {
+    /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
+    public ImageInfo info(String repository, String tag) throws IOException {
+        JsonObject manifest;
+        String digest;
+        JsonObject info;
+
+        manifest = manifest("registrytest", "1");
+        digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
+        info = getJsonObject(root.join("v2/" + repository + "/blobs/" + digest));
+        return new ImageInfo(digest, Strings.toList(repository + ":" + tag), null,
+                toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject()));
+    }
+
+    private JsonObject manifest(String repository, String tag) throws IOException {
         HeaderList hl;
 
         hl = HeaderList.of("Accept", "application/vnd.docker.distribution.manifest.v2+json");
         return getJsonObject(root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl));
-    }
-
-    /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
-    public Map<String, String> labels(String repository, String digest) throws IOException {
-        return toMap(info(repository, digest).get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
-    }
-
-    public JsonObject info(String repository, String digest) throws IOException {
-        return getJsonObject(root.join("v2/" + repository + "/blobs/" + digest));
     }
 
     public void delete(String repository, String digest) throws IOException {

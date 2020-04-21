@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.docker;
 
-import com.google.gson.JsonObject;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Strings;
@@ -43,10 +42,9 @@ public class RegistryIT {
         HttpNode root;
         String container;
         Registry registry;
-        JsonObject manifest;
-        String digest;
         Map<Integer, String> ports;
         Writer log;
+        ImageInfo info;
 
         try (Daemon docker = Daemon.create("target/registry-wire.log")) {
             ports = new HashMap<>();
@@ -69,14 +67,11 @@ public class RegistryIT {
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     assertEquals(Arrays.asList("1"), registry.tags("registrytest"));
-                    manifest = registry.manifest("registrytest", "1");
-                    digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
-                    System.out.println("digest: " + digest);
-                    System.out.println("manifest: " + manifest);
+                    info = registry.info("registrytest", "1");
+                    System.out.println("digest: " + info.id);
+                    System.out.println("labels: " + info.labels);
 
-                    assertEquals(Strings.toMap("label1", "value1", "xyz", "123"), registry.labels("registrytest", digest));
-
-                    registry.delete("registrytest", digest);
+                    registry.delete("registrytest", info.id);
            /* TODO
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     assertEquals(Arrays.asList("registrytest"), registry.tags("registrytest"));
@@ -101,8 +96,6 @@ public class RegistryIT {
         Registry registry;
         Properties p;
         List<String> tags;
-        JsonObject manifest;
-        String digest;
 
         world = World.create();
         p = world.guessProjectHome(getClass()).join("test.properties").readProperties();
@@ -118,10 +111,7 @@ public class RegistryIT {
             tags = registry.tags(repository);
             System.out.println("tags: " + tags);
             System.out.println("v1 tags: " + registry.portusTags("6"));
-            manifest = registry.manifest(repository, tags.get(0));
-            System.out.println("manifest: " + manifest);
-            digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
-            System.out.println("info: " + registry.info(repository, digest));
+            System.out.println("info: " + registry.info(repository, tags.get(0)));
         }
     }
 
