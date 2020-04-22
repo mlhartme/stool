@@ -185,7 +185,7 @@ public class Daemon implements AutoCloseable {
     }
 
     public static String pruneImageId(String id) {
-        return Strings.removeLeft(id, "sha256:");
+        return id == null || id.trim().isEmpty() ? null : Strings.removeLeft(id, "sha256:");
     }
 
     private static LocalDateTime toLocalTime(long epochSeconds) {

@@ -17,6 +17,7 @@ package net.oneandone.stool.kubernetes;
 
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1Pod;
+import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.util.Strings;
 
@@ -28,13 +29,34 @@ public class PodInfo {
     public static PodInfo create(V1Pod pod) {
         V1ContainerStatus status;
         String containerId;
+        String imageId;
 
         status = status(pod);
-        containerId = status == null ? null : status.getContainerID();
-        if (containerId != null) {
-            containerId = Strings.removeLeft(status.getContainerID(), "docker://");
+        if (status != null) {
+            containerId = pruneDocker(status.getContainerID());
+            imageId = Daemon.pruneImageId(pruneDocker(status.getImageID()));
+        } else {
+            containerId = null;
+            imageId = null;
         }
-        return new PodInfo(pod.getMetadata().getName(), pod.getStatus().getPhase(), pod.getStatus().getPodIP(), containerId, pod.getMetadata().getLabels());
+        return new PodInfo(pod.getMetadata().getName(), pod.getStatus().getPhase(), pod.getStatus().getPodIP(),
+                imageId, containerId, pod.getMetadata().getLabels());
+    }
+
+    private static String pruneDocker(String id) {
+        final String pullable = "docker-pullable://";
+        int idx;
+
+        if (id == null || id.trim().isEmpty()) {
+            return null;
+        }
+        if (id.startsWith(pullable)) {
+            id = Strings.removeLeft(id, pullable);
+            idx = id.indexOf('@');
+            return id.substring(idx + 1);
+        } else {
+            return Strings.removeLeft(id, "docker://");
+        }
     }
 
     private static V1ContainerStatus status(V1Pod pod) {
@@ -53,13 +75,15 @@ public class PodInfo {
     public final String name;
     public final String phase;
     public final String ip;
+    public final String imageId;
     public final String containerId;
     public final Map<String, String> labels;
 
-    public PodInfo(String name, String phase, String ip, String containerId, Map<String, String> labels) {
+    public PodInfo(String name, String phase, String ip, String imageId, String containerId, Map<String, String> labels) {
         this.name = name;
         this.phase = phase;
         this.ip = ip;
+        this.imageId = imageId;
         this.containerId = containerId;
         this.labels = labels;
     }
