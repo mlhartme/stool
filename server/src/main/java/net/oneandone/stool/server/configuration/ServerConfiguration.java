@@ -181,6 +181,7 @@ public class ServerConfiguration {
         return !ldapUrl.isEmpty();
     }
 
+    // TODO: currently has no wire log -- use for docker ...
     public String engineLogFile() {
         return engineLog ? "/var/lib/stool/logs/engine.log" : null;
     }

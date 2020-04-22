@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
@@ -81,8 +82,8 @@ public class Server {
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
-        try (Engine engine = Engine.create(config.engineLogFile())) {
-            binds = binds(inspectSelf(engine));
+        try (Engine engine = Engine.create(); Daemon docker = Daemon.create(config.engineLogFile())) {
+            binds = binds(inspectSelf(engine, docker));
             pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
@@ -105,7 +106,7 @@ public class Server {
         return container.getWorld().file(hostPath);
     }
 
-    private static JsonObject inspectSelf(Engine engine) throws IOException {
+    private static JsonObject inspectSelf(Engine engine, Daemon docker) throws IOException {
         PodInfo pod;
         String container;
 
@@ -116,7 +117,7 @@ public class Server {
         container = pod.containerId;
         LOGGER.info("server container id: " + container);
         try {
-            return engine.docker.containerInspect(container, false);
+            return docker.containerInspect(container, false);
         } catch (IOException e) {
             throw new IOException("cannot inspect server container '" + container + ":' " + e.getMessage(), e);
         }
@@ -427,14 +428,14 @@ public class Server {
     //--
 
     /** used for running containers */
-    public int memoryReservedContainers(Engine engine) throws IOException {
+    public int memoryReservedContainers(Engine engine, Daemon docker) throws IOException {
         int reserved;
         Image image;
 
         reserved = 0;
         for (PodInfo pod : Stage.allPodMap(engine).values()) { // TODO: expensive
             if (pod.isRunning()) {
-                image = Image.load(engine, pod, Stage.container(engine, pod).imageId);
+                image = Image.load(docker, pod, Stage.container(docker, pod).imageId);
                 reserved += image.memory;
             }
         }
@@ -478,7 +479,7 @@ public class Server {
         return version.substring(0, minor);
     }
 
-    public int diskQuotaReserved(Engine engine) throws IOException {
+    public int diskQuotaReserved(Engine engine, Daemon docker) throws IOException {
         int reserved;
         Stage stage;
         Stage.Current current;
@@ -487,7 +488,7 @@ public class Server {
         reserved = 0;
         for (FileNode directory : stages.list()) {
             stage = load(directory);
-            current = stage.currentOpt(engine);
+            current = stage.currentOpt(engine, docker);
             if (current != null) {
                 info = current.container;
                 if (info != null) {

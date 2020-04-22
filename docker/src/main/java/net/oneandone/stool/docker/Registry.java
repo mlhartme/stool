@@ -158,6 +158,7 @@ public class Registry {
             created = null;
             author = null;
         }
+        // TODO: strip "sha:" prefix from image id?
         return new ImageInfo(digest, Strings.toList("127.0.0.1:31500/" /* TODO */ + repository + ":" + tag), created, author,
                 toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject()));
     }

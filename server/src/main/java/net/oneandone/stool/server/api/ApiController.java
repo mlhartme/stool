@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
@@ -79,18 +80,24 @@ public class ApiController {
     }
 
     private Engine engine() throws IOException {
-        return Engine.create(engineLogFile);
+        return Engine.create();
+    }
+
+    private Daemon docker() throws IOException {
+        return Daemon.create(engineLogFile);
     }
 
     @GetMapping("/info")
     public String info() throws IOException {
         JsonObject result;
 
-        try (Engine engine = engine()) {
+        try (Engine engine = engine(); Daemon docker = docker()) {
             result = new JsonObject();
             result.addProperty("version", Main.versionString(World.createMinimal() /* TODO */));
-            result.addProperty("memory-quota", server.configuration.memoryQuota == 0 ? "" : server.memoryReservedContainers(engine) + "/" + server.configuration.memoryQuota);
-            result.addProperty("disk-quota", server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved(engine) + "/" + server.configuration.diskQuota);
+            result.addProperty("memory-quota", server.configuration.memoryQuota == 0
+                    ? "" : server.memoryReservedContainers(engine, docker) + "/" + server.configuration.memoryQuota);
+            result.addProperty("disk-quota", server.configuration.diskQuota == 0
+                    ? "" : server.diskQuotaReserved(engine, docker) + "/" + server.configuration.diskQuota);
             return result.toString();
         }
     }
@@ -126,8 +133,8 @@ public class ApiController {
 
         result = new JsonArray();
         problems = new HashMap<>();
-        try (Engine engine = engine()) {
-            context = new Context(engine);
+        try (Engine engine = engine(); Daemon docker = docker()) {
+            context = new Context(engine, docker);
             for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
                 result.add(new JsonPrimitive(stage.getName()));
             }
@@ -146,8 +153,8 @@ public class ApiController {
 
         result = new JsonObject();
         problems = new HashMap<>();
-        try (Engine engine = engine()) {
-            context = new Context(engine);
+        try (Engine engine = engine(); Daemon docker = docker()) {
+            context = new Context(engine, docker);
             for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
                 select = "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr);
                 obj = new JsonObject();
@@ -203,8 +210,8 @@ public class ApiController {
         Context context;
 
         result = new JsonObject();
-        try (Engine engine = engine()) {
-            context = new Context(engine);
+        try (Engine engine = engine(); Daemon docker = docker()) {
+            context = new Context(engine, docker);
             for (Property property : server.load(stage).properties()) {
                 result.add(property.name(), new JsonPrimitive(property.get(context)));
             }
@@ -224,8 +231,8 @@ public class ApiController {
         stage = server.load(stageName);
         arguments = map(request, "");
         result = new JsonObject();
-        try (Engine engine = engine()) {
-            context = new Context(engine);
+        try (Engine engine = engine(); Daemon docker = docker()) {
+            context = new Context(engine, docker);
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
                 prop = stage.propertyOpt(entry.getKey());
                 if (prop == null) {
@@ -259,8 +266,8 @@ public class ApiController {
             selection = Separator.COMMA.split(select);
         }
         result = new JsonObject();
-        try (Engine engine = engine()) {
-            context = new Context(engine);
+        try (Engine engine = engine(); Daemon docker = docker()) {
+            context = new Context(engine, docker);
             for (Info info : server.load(stage).fields()) {
                 if (selection == null || selection.remove(info.name())) {
                     result.add(info.name(), new JsonPrimitive(info.getAsString(context)));
@@ -277,8 +284,8 @@ public class ApiController {
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         List<String> output;
 
-        try (Engine engine = engine()) {
-            output = new Validation(server, engine).run(stage, email, repair);
+        try (Engine engine = engine(); Daemon docker = docker()) {
+            output = new Validation(server, engine, docker).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }
@@ -294,11 +301,11 @@ public class ApiController {
         List<String> result;
         List<String> args;
 
-        try (Engine engine = engine()) {
+        try (Engine engine = engine(); Daemon docker = docker()) {
             result = new ArrayList<>();
             stage = server.load(name);
-            all = stage.images(engine);
-            current = stage.currentOpt(engine);
+            all = stage.images(engine, docker);
+            current = stage.currentOpt(engine, docker);
             for (Image image : all) {
                 marker = current != null && image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";
                 result.add(image.tag + "  " + marker);
@@ -334,9 +341,9 @@ public class ApiController {
 
         environment = map(request, "env.");
         global = server.configuration.diskQuota;
-        try (Engine engine = engine()) {
+        try (Engine engine = engine(); Daemon docker = docker()) {
             if (global != 0) {
-                reserved = server.diskQuotaReserved(engine);
+                reserved = server.diskQuotaReserved(engine, docker);
                 if (reserved > global) {
                     throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n");
                 }
@@ -344,8 +351,8 @@ public class ApiController {
 
             stage = server.load(stageName);
             stage.checkExpired();
-            stage.checkDiskQuota(engine);
-            return json(stage.start(engine, server.pool, image.isEmpty() ? null : image, http, https, environment)).toString();
+            stage.checkDiskQuota(engine, docker);
+            return json(stage.start(engine, docker, server.pool, image.isEmpty() ? null : image, http, https, environment)).toString();
         }
     }
 
@@ -358,14 +365,14 @@ public class ApiController {
     public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
         Stage stage;
 
-        try (Engine engine = engine()) {
+        try (Engine engine = engine(); Daemon docker = docker()) {
             stage = server.load(stageName);
-            stage.awaitStartup(new Context(engine));
+            stage.awaitStartup(new Context(engine, docker));
 
-            if (stage.currentOpt(engine) == null) {
+            if (stage.currentOpt(engine, docker) == null) {
                 throw new IllegalStateException();
             }
-            return Engine.obj(stage.urlMap(engine, server.pool)).toString();
+            return Engine.obj(stage.urlMap(engine, docker, server.pool)).toString();
         }
     }
 
@@ -381,8 +388,8 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/stop")
     public String stop(@PathVariable(value = "stage") String stage) throws IOException {
-        try (Engine engine = engine()) {
-            return json(server.load(stage).stop(engine)).toString();
+        try (Engine engine = engine(); Daemon docker = docker()) {
+            return json(server.load(stage).stop(engine, docker)).toString();
         }
     }
 
@@ -430,8 +437,8 @@ public class ApiController {
         Stage.Current current;
 
         stage = server.load(stageName);
-        try (Engine engine = engine()) {
-            current = stage.currentOpt(engine);
+        try (Engine engine = engine(); Daemon docker = docker()) {
+            current = stage.currentOpt(engine, docker);
         }
         if (current == null || current.container == null) {
             throw new ArgumentException("stage is not running: " + stageName);
@@ -478,8 +485,8 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
-        try (Engine engine = engine()) {
-            server.load(stage).remove(engine);
+        try (Engine engine = engine(); Daemon docker = docker()) {
+            server.load(stage).remove(engine, docker);
         }
     }
 

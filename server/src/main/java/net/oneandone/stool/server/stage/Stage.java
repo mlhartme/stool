@@ -257,7 +257,7 @@ public class Stage {
                 PodInfo info;
 
                 info = context.runningPodOpt(Stage.this);
-                return info == null ? null : container(context.engine, info).id;
+                return info == null ? null : container(context.docker, info).id;
             }
         });
         fields.add(new Field("uptime") {
@@ -476,10 +476,10 @@ public class Stage {
 
     //-- docker
 
-    public void wipeImages(Engine engine) throws IOException {
+    public void wipeImages(Engine engine, Daemon docker) throws IOException {
         for (String repositoryTag : imageTags(engine)) {
             Server.LOGGER.debug("remove image: " + repositoryTag);
-            engine.docker.imageRemove(repositoryTag, false);
+            docker.imageRemove(repositoryTag, false);
         }
     }
 
@@ -506,18 +506,18 @@ public class Stage {
     }
 
     /** @return sorted list */
-    public List<Image> images(Engine engine) throws IOException {
-        return images(engine, engine.imageList());
+    public List<Image> images(Engine engine, Daemon docker) throws IOException {
+        return images(docker, engine.imageList());
     }
 
     /** @return sorted list */
-    public List<Image> images(Engine engine, Map<String, ImageInfo> imageMap) throws IOException {
+    public List<Image> images(Daemon docker, Map<String, ImageInfo> imageMap) throws IOException {
         List<Image> result;
         Image image;
 
         result = new ArrayList<>();
         for (String repositoryTag : imageTags(imageMap)) {
-            image = Image.loadAll(engine, repositoryTag).get(repositoryTag);
+            image = Image.loadAll(docker, repositoryTag).get(repositoryTag);
             if (image == null) {
                 throw new IllegalStateException("TODO");
             }
@@ -534,17 +534,17 @@ public class Stage {
     }
 
     // --storage-opt size=42m could limit disk space, but it's only available for certain storage drivers (with certain mount options) ...
-    public void checkDiskQuota(Engine engine) throws IOException {
+    public void checkDiskQuota(Engine engine, Daemon docker) throws IOException {
         int used;
         int quota;
         Current current;
         ContainerInfo info;
 
-        current = currentOpt(engine);
+        current = currentOpt(engine, docker);
         if (current != null) {
             info = current.container;
             if (info != null) {
-                used = new Context(engine).sizeRw(info);
+                used = new Context(engine, docker).sizeRw(info);
                 quota = current.image.disk;
                 if (used > quota) {
                     throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");
@@ -557,7 +557,7 @@ public class Stage {
         return name.replace('.', '-');
     }
 
-    private void wipeResources(Engine engine) throws IOException {
+    private void wipeResources(Engine engine, Daemon docker) throws IOException {
         String podName;
         String httpService;
         String httpsService;
@@ -568,7 +568,7 @@ public class Stage {
         if (engine.serviceGetOpt(httpService) != null) {
             Server.LOGGER.debug("wipe kubernetes resources");
             if (engine.podProbe(podName) != null) {
-                podDelete(engine, podName);
+                podDelete(engine, docker, podName);
             }
             engine.serviceDelete(httpService);
             if (engine.serviceGetOpt(httpsService) != null) {
@@ -590,7 +590,7 @@ public class Stage {
 
     /** @return image actually started, null if this image is actually running
      *  @throws IOException if a different image is already running */
-    public String start(Engine engine, Pool pool, String imageOpt, int http, int https, Map<String, String> clientEnvironment)
+    public String start(Engine engine, Daemon docker, Pool pool, String imageOpt, int http, int https, Map<String, String> clientEnvironment)
             throws IOException {
         String podName;
         PodInfo running;
@@ -608,16 +608,16 @@ public class Stage {
 
         podName = podName();
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
-        memoryReserved = server.memoryReservedContainers(engine);
+        memoryReserved = server.memoryReservedContainers(engine, docker);
         memoryQuota = server.configuration.memoryQuota;
-        image = resolve(engine, imageOpt);
+        image = resolve(engine, docker, imageOpt);
         running = runningPodOpt(engine);
         if (running != null) {
-            if (image.id.equals(container(engine, running).imageId)) {
+            if (image.id.equals(container(docker, running).imageId)) {
                 return null;
             } else {
                 throw new IOException("conflict: cannot start image " + image.tag
-                        + " because a different image id " + image.id + " " + container(engine, running).imageId + " is already running");
+                        + " because a different image id " + image.id + " " + container(docker, running).imageId + " is already running");
             }
         }
         if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
@@ -627,7 +627,7 @@ public class Stage {
                     + "Consider stopping stages.");
         }
         memoryReserved += image.memory; // TODO
-        wipeResources(engine);
+        wipeResources(engine, docker);
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(configuration.environment);
         environment.putAll(clientEnvironment);
@@ -703,11 +703,11 @@ public class Stage {
         }
     }
 
-    private Image resolve(Engine engine, String imageOpt) throws IOException {
+    private Image resolve(Engine engine, Daemon docker, String imageOpt) throws IOException {
         List<Image> all;
         Image image;
 
-        all = images(engine);
+        all = images(engine, docker);
         if (all.isEmpty()) {
             throw new ArgumentException("no image to start - did you build the stage?");
         }
@@ -732,26 +732,26 @@ public class Stage {
     }
 
     /** @return tag actually stopped, or null if already stopped */
-    public String stop(Engine engine) throws IOException {
+    public String stop(Engine engine, Daemon docker) throws IOException {
         Current current;
 
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
-        current = currentOpt(engine);
+        current = currentOpt(engine, docker);
         if (current == null) {
             return null;
         }
         Server.LOGGER.info(current.image.tag + ": deleting pod ...");
-        podDelete(engine, podName()); // TODO: timeout 5 minutes
+        podDelete(engine, docker, podName()); // TODO: timeout 5 minutes
         return current.image.tag;
     }
 
     // TODO
-    public static void podDelete(Engine engine, String podName) throws IOException {
+    public static void podDelete(Engine engine, Daemon docker, String podName) throws IOException {
         String container;
 
         container = engine.podDelete(podName);
         try {
-            engine.docker.containerRemove(container);
+            docker.containerRemove(container);
         } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
             // fall-through, already deleted
         }
@@ -835,14 +835,14 @@ public class Stage {
 
     //--
 
-    public Map<String, String> urlMap(Engine engine, Pool pool) throws IOException {
-        return urlMap(engine, pool, allPodMap(engine).values());
+    public Map<String, String> urlMap(Engine engine, Daemon docker, Pool pool) throws IOException {
+        return urlMap(engine, docker, pool, allPodMap(engine).values());
     }
 
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, Pool pool, Collection<PodInfo> allPodList) throws IOException {
+    public Map<String, String> urlMap(Engine engine, Daemon docker, Pool pool, Collection<PodInfo> allPodList) throws IOException {
         Map<String, String> result;
         Ports ports;
         Image image;
@@ -851,7 +851,7 @@ public class Stage {
         image = null;
         for (PodInfo pod : allPodList) {
             if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
-                image = Image.load(engine, pod, container(engine, pod).imageId);
+                image = Image.load(docker, pod, container(docker, pod).imageId);
             }
         }
         ports = pool.stageOpt(name);
@@ -907,9 +907,9 @@ public class Stage {
         return result;
     }
 
-    public void remove(Engine engine) throws IOException {
-        wipeResources(engine);
-        wipeImages(engine);
+    public void remove(Engine engine, Daemon docker) throws IOException {
+        wipeResources(engine, docker);
+        wipeImages(engine, docker);
         server.pool.remove(name);
         getDirectory().deleteTree();
     }
@@ -946,14 +946,14 @@ public class Stage {
     }
 
     // not just this stage
-    public static ContainerInfo container(Engine engine, PodInfo pod) throws IOException {
+    public static ContainerInfo container(Daemon docker, PodInfo pod) throws IOException {
         String container;
 
         container = pod.containerId;
         if (container == null) {
             throw new IllegalStateException("TODO");
         }
-        return engine.docker.containerInfo(container);
+        return docker.containerInfo(container);
     }
 
     public PodInfo runningPodOpt(Map<String, PodInfo> allPodMap) {
@@ -990,17 +990,17 @@ public class Stage {
     }
 
     /** @return null if not running */
-    public Current currentOpt(Engine engine) throws IOException {
-        return currentOpt(engine, runningPodOpt(engine));
+    public Current currentOpt(Engine engine, Daemon docker) throws IOException {
+        return currentOpt(docker, runningPodOpt(engine));
     }
 
-    public Current currentOpt(Engine engine, PodInfo runningPodOpt) throws IOException {
+    public Current currentOpt(Daemon docker, PodInfo runningPodOpt) throws IOException {
         Image image;
         ContainerInfo container;
 
         if (runningPodOpt != null) {
-            container = container(engine, runningPodOpt);
-            image = Image.load(engine, runningPodOpt, container.imageId);
+            container = container(docker, runningPodOpt);
+            image = Image.load(docker, runningPodOpt, container.imageId);
             return new Current(image, runningPodOpt, container);
         } else {
             return null;
@@ -1118,14 +1118,14 @@ public class Stage {
 
     // CAUTION: blocks until ctrl-c.
     // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
-    public void tailF(Engine engine, PrintWriter dest) throws IOException {
+    public void tailF(Engine engine, Daemon docker, PrintWriter dest) throws IOException {
         PodInfo running;
 
         running = runningPodOpt(engine);
         if (running == null) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
-            engine.podLogsFollow(container(engine, running).id, new OutputStream() {
+            engine.podLogsFollow(container(docker, running).id, new OutputStream() {
                 @Override
                 public void write(int b) {
                     dest.write(b);

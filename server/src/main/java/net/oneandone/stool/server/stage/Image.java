@@ -17,6 +17,7 @@ package net.oneandone.stool.server.stage;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
@@ -32,11 +33,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Image implements Comparable<Image> {
-    public static Image load(Engine engine, PodInfo pod, String idOrRepoTag) throws IOException {
+    public static Image load(Daemon docker, PodInfo pod, String idOrRepoTag) throws IOException {
         Map<String, Image> all;
         Image result;
 
-        all = loadAll(engine, idOrRepoTag);
+        all = loadAll(docker, idOrRepoTag);
         result = all.get(pod.repositoryTag());
         if (result == null) {
             throw new IllegalStateException("missing image for " + pod.repositoryTag() + ": " + all);
@@ -44,7 +45,7 @@ public class Image implements Comparable<Image> {
         return result;
     }
 
-    public static Map<String, Image> loadAll(Engine engine, String idOrRepoTag) throws IOException {
+    public static Map<String, Image> loadAll(Daemon docker, String idOrRepoTag) throws IOException {
         JsonObject inspect;
         String repositoryTag;
         JsonElement labelsRaw;
@@ -53,7 +54,7 @@ public class Image implements Comparable<Image> {
         String id;
         Map<String, Image> result;
 
-        inspect = engine.docker.imageInspect(idOrRepoTag);
+        inspect = docker.imageInspect(idOrRepoTag);
         id = inspect.get("Id").getAsString();
         id = Strings.removeLeft(id, "sha256:");
         created = imageCreated(inspect.get("Created").getAsString());

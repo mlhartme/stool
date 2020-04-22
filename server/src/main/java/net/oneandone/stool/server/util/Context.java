@@ -17,6 +17,7 @@ package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.ContainerInfo;
+import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.docker.ImageInfo;
@@ -32,6 +33,7 @@ import java.util.Map;
 /** Context for info computation. TODO: naming tweaks */
 public class Context {
     public final Engine engine;
+    public final Daemon docker;
     private Map<String, ImageInfo> lazyAllImageMap;
     private final Map<String, List<Image>> stageImages;
     private Map<String, PodInfo> lazyAllPodMap;
@@ -45,8 +47,9 @@ public class Context {
     // CAUTION: key is the container id
     private final Map<String, Stats> containerStats;
 
-    public Context(Engine engine) {
+    public Context(Engine engine, Daemon docker) {
         this.engine = engine;
+        this.docker = docker;
         this.lazyAllImageMap = null;
         this.stageImages = new HashMap<>();
         this.lazyAllPodMap = null;
@@ -69,7 +72,7 @@ public class Context {
 
         result = stageImages.get(stage.getName());
         if (result == null) {
-            result = stage.images(engine, allImages());
+            result = stage.images(docker, allImages());
             stageImages.put(stage.getName(), result);
         }
         return result;
@@ -100,7 +103,7 @@ public class Context {
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.currentOpt(engine, runningPodOpt(stage));
+            result = stage.currentOpt(docker, runningPodOpt(stage));
             currentOpts.put(stage.getName(), result);
         }
         return result;
@@ -112,7 +115,7 @@ public class Context {
 
         result = urlMaps.get(stage.getName());
         if (result == null) {
-            result = stage.urlMap(engine, pool, allPodMap().values());
+            result = stage.urlMap(engine, docker, pool, allPodMap().values());
             urlMaps.put(stage.getName(), result);
         }
         return result;
@@ -134,7 +137,7 @@ public class Context {
 
         result = containerInspects.get(containerId);
         if (result == null) {
-            result = engine.docker.containerInspect(containerId, true);
+            result = docker.containerInspect(containerId, true);
             containerInspects.put(containerId, result);
         }
         return result;
@@ -145,7 +148,7 @@ public class Context {
 
         result = containerStats.get(containerId);
         if (result == null) {
-            result = engine.docker.containerStats(containerId);
+            result = docker.containerStats(containerId);
             containerStats.put(containerId, result);
         }
         return result;

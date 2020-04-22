@@ -100,20 +100,12 @@ public class Engine implements AutoCloseable {
     public static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
 
     public static Engine create() throws IOException {
-        return create(null);
-    }
-
-    public static Engine create(String wirelog) throws IOException {
-        return create("/var/run/docker.sock", wirelog);
-    }
-
-    public static Engine create(String socketPath, String wirelog) throws IOException {
         Engine result;
         PodInfo r;
         HttpNode root;
         JsonObject i;
 
-        result = new Engine(Daemon.create(socketPath, wirelog), null);
+        result = new Engine(null);
         r = result.podProbe("stool-registry");
         // TODO
         if (r != null) {
@@ -127,11 +119,9 @@ public class Engine implements AutoCloseable {
     private final ApiClient client;
     private final CoreV1Api core;
     private final String namespace;
-    public final Daemon docker;
     private Registry registry;
 
-    private Engine(Daemon docker, Registry registry) throws IOException {
-        this.docker = docker;
+    private Engine(Registry registry) throws IOException {
         this.registry = registry;
 
         client = Config.defaultClient();
@@ -145,7 +135,6 @@ public class Engine implements AutoCloseable {
     public void close() {
         // TODO: https://github.com/kubernetes-client/java/issues/865
         client.getHttpClient().connectionPool().evictAll();
-        docker.close();
     }
 
 
