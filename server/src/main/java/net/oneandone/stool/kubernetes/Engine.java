@@ -60,9 +60,7 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -181,26 +179,6 @@ public class Engine implements AutoCloseable {
             }
         }
         return result;
-    }
-
-    public String imageBuildWithOutput(String repositoryTag, FileNode context) throws IOException {
-        try (StringWriter dest = new StringWriter()) {
-            imageBuild(repositoryTag, Collections.emptyMap(), Collections.emptyMap(), context, false, dest);
-            return dest.toString();
-        }
-    }
-
-    public String imageBuild(String repositoryTag, Map<String, String> args, Map<String, String> labels,
-                             FileNode context, boolean noCache, Writer log) throws IOException {
-        return docker.imageBuild(repositoryTag, args, labels, context, noCache, log);
-    }
-
-    public JsonObject imageInspect(String id) throws IOException {
-        return docker.imageInspect(id);
-    }
-
-    public void imageRemove(String tagOrId, boolean force) throws IOException {
-        docker.imageRemove(tagOrId, force);
     }
 
     //-- namespace

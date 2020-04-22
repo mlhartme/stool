@@ -479,7 +479,7 @@ public class Stage {
     public void wipeImages(Engine engine) throws IOException {
         for (String repositoryTag : imageTags(engine)) {
             Server.LOGGER.debug("remove image: " + repositoryTag);
-            engine.imageRemove(repositoryTag, false);
+            engine.docker.imageRemove(repositoryTag, false);
         }
     }
 

@@ -53,7 +53,7 @@ public class Image implements Comparable<Image> {
         String id;
         Map<String, Image> result;
 
-        inspect = engine.imageInspect(idOrRepoTag);
+        inspect = engine.docker.imageInspect(idOrRepoTag);
         id = inspect.get("Id").getAsString();
         id = Strings.removeLeft(id, "sha256:");
         created = imageCreated(inspect.get("Created").getAsString());
