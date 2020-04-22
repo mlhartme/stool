@@ -49,11 +49,8 @@ import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
 import net.oneandone.stool.docker.Daemon;
-import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.ArgumentException;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -96,30 +93,14 @@ public class Engine implements AutoCloseable {
     //--
 
     public static Engine create() throws IOException {
-        Engine result;
-        PodInfo r;
-        HttpNode root;
-        JsonObject i;
-
-        result = new Engine(null);
-        r = result.podProbe("stool-registry");
-        // TODO
-        if (r != null) {
-            System.out.println("registry " + r.ip);
-            root = (HttpNode) World.create().validNode("http://" + r.ip + ":5000");
-            result.registry = Registry.create(root, null);
-        }
-        return result;
+        return new Engine();
     }
 
     private final ApiClient client;
     private final CoreV1Api core;
     private final String namespace;
-    public Registry registry;
 
-    private Engine(Registry registry) throws IOException {
-        this.registry = registry;
-
+    private Engine() throws IOException {
         client = Config.defaultClient();
         Configuration.setDefaultApiClient(client); // TODO: threading ...
 

@@ -18,6 +18,7 @@ package net.oneandone.stool.server.util;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.ContainerInfo;
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.docker.ImageInfo;
@@ -34,6 +35,7 @@ import java.util.Map;
 public class Context {
     public final Engine engine;
     public final Daemon docker;
+    public final Registry registry;
     private Map<String, ImageInfo> lazyAllImageMap;
     private final Map<String, List<Image>> stageImages;
     private Map<String, PodInfo> lazyAllPodMap;
@@ -47,9 +49,10 @@ public class Context {
     // CAUTION: key is the container id
     private final Map<String, Stats> containerStats;
 
-    public Context(Engine engine, Daemon docker) {
+    public Context(Engine engine, Daemon docker, Registry registry) {
         this.engine = engine;
         this.docker = docker;
+        this.registry = registry;
         this.lazyAllImageMap = null;
         this.stageImages = new HashMap<>();
         this.lazyAllPodMap = null;
@@ -62,7 +65,7 @@ public class Context {
 
     public Map<String, ImageInfo> allImages() throws IOException {
         if (lazyAllImageMap == null) {
-            lazyAllImageMap = engine.registry.imageList();
+            lazyAllImageMap = registry.imageList();
         }
         return lazyAllImageMap;
     }
@@ -72,7 +75,7 @@ public class Context {
 
         result = stageImages.get(stage.getName());
         if (result == null) {
-            result = stage.images(engine.registry, allImages());
+            result = stage.images(registry, allImages());
             stageImages.put(stage.getName(), result);
         }
         return result;
@@ -103,7 +106,7 @@ public class Context {
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.currentOpt(engine.registry, docker, runningPodOpt(stage));
+            result = stage.currentOpt(registry, docker, runningPodOpt(stage));
             currentOpts.put(stage.getName(), result);
         }
         return result;
@@ -115,7 +118,7 @@ public class Context {
 
         result = urlMaps.get(stage.getName());
         if (result == null) {
-            result = stage.urlMap(engine, docker, pool, allPodMap().values());
+            result = stage.urlMap(docker, registry, pool, allPodMap().values());
             urlMaps.put(stage.getName(), result);
         }
         return result;

@@ -477,16 +477,16 @@ public class Stage {
 
     //-- docker
 
-    public void wipeImages(Engine engine, Daemon docker) throws IOException {
-        for (String repositoryTag : imageTags(engine)) {
+    public void wipeImages(Daemon docker, Registry registry) throws IOException {
+        for (String repositoryTag : imageTags(registry)) {
             Server.LOGGER.debug("remove image: " + repositoryTag);
             docker.imageRemove(repositoryTag, false);
         }
     }
 
     /** @return list of tags belonging to this stage */
-    private List<String> imageTags(Engine engine) throws IOException {
-        return imageTags(engine.registry.imageList());
+    private List<String> imageTags(Registry registry) throws IOException {
+        return imageTags(registry.imageList());
     }
 
     /** @return list of repositoryTags belonging to this stage */
@@ -537,17 +537,17 @@ public class Stage {
     }
 
     // --storage-opt size=42m could limit disk space, but it's only available for certain storage drivers (with certain mount options) ...
-    public void checkDiskQuota(Engine engine, Daemon docker) throws IOException {
+    public void checkDiskQuota(Engine engine, Daemon docker, Registry registry) throws IOException {
         int used;
         int quota;
         Current current;
         ContainerInfo info;
 
-        current = currentOpt(engine, docker);
+        current = currentOpt(engine, docker, registry);
         if (current != null) {
             info = current.container;
             if (info != null) {
-                used = new Context(engine, docker).sizeRw(info);
+                used = new Context(engine, docker, registry).sizeRw(info);
                 quota = current.image.disk;
                 if (used > quota) {
                     throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");
@@ -593,7 +593,8 @@ public class Stage {
 
     /** @return image actually started, null if this image is actually running
      *  @throws IOException if a different image is already running */
-    public String start(Engine engine, Daemon docker, Pool pool, String imageOpt, int http, int https, Map<String, String> clientEnvironment)
+    public String start(Engine engine, Daemon docker, Registry registry, Pool pool, String imageOpt, int http,
+                        int https, Map<String, String> clientEnvironment)
             throws IOException {
         String podName;
         PodInfo running;
@@ -611,9 +612,9 @@ public class Stage {
 
         podName = podName();
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
-        memoryReserved = server.memoryReservedContainers(engine, docker);
+        memoryReserved = server.memoryReservedContainers(engine, docker, registry);
         memoryQuota = server.configuration.memoryQuota;
-        image = resolve(engine.registry, imageOpt);
+        image = resolve(registry, imageOpt);
         running = runningPodOpt(engine);
         if (running != null) {
             if (image.id.equals(container(docker, running).imageId)) {
@@ -735,11 +736,11 @@ public class Stage {
     }
 
     /** @return tag actually stopped, or null if already stopped */
-    public String stop(Engine engine, Daemon docker) throws IOException {
+    public String stop(Engine engine, Daemon docker, Registry registry) throws IOException {
         Current current;
 
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
-        current = currentOpt(engine, docker);
+        current = currentOpt(engine, docker, registry);
         if (current == null) {
             return null;
         }
@@ -838,14 +839,14 @@ public class Stage {
 
     //--
 
-    public Map<String, String> urlMap(Engine engine, Daemon docker, Pool pool) throws IOException {
-        return urlMap(engine, docker, pool, allPodMap(engine).values());
+    public Map<String, String> urlMap(Engine engine, Daemon docker, Registry registry, Pool pool) throws IOException {
+        return urlMap(docker, registry, pool, allPodMap(engine).values());
     }
 
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, Daemon docker, Pool pool, Collection<PodInfo> allPodList) throws IOException {
+    public Map<String, String> urlMap(Daemon docker, Registry registry, Pool pool, Collection<PodInfo> allPodList) throws IOException {
         Map<String, String> result;
         Ports ports;
         Image image;
@@ -854,7 +855,7 @@ public class Stage {
         image = null;
         for (PodInfo pod : allPodList) {
             if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
-                image = Image.load(engine.registry, pod, container(docker, pod).imageId);
+                image = Image.load(registry, pod, container(docker, pod).imageId);
             }
         }
         ports = pool.stageOpt(name);
@@ -910,9 +911,9 @@ public class Stage {
         return result;
     }
 
-    public void remove(Engine engine, Daemon docker) throws IOException {
+    public void remove(Engine engine, Daemon docker, Registry registry) throws IOException {
         wipeResources(engine, docker);
-        wipeImages(engine, docker);
+        wipeImages(docker, registry);
         server.pool.remove(name);
         getDirectory().deleteTree();
     }
@@ -993,8 +994,8 @@ public class Stage {
     }
 
     /** @return null if not running */
-    public Current currentOpt(Engine engine, Daemon docker) throws IOException {
-        return currentOpt(engine.registry, docker, runningPodOpt(engine));
+    public Current currentOpt(Engine engine, Daemon docker, Registry registry) throws IOException {
+        return currentOpt(registry, docker, runningPodOpt(engine));
     }
 
     public Current currentOpt(Registry registry, Daemon docker, PodInfo runningPodOpt) throws IOException {

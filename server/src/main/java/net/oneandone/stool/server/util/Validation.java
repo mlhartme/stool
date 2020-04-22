@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.util;
 
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
@@ -34,11 +35,13 @@ public class Validation {
     private final Server server;
     private final Engine engine;
     private final Daemon docker;
+    private final Registry registry;
 
-    public Validation(Server server, Engine engine, Daemon docker) {
+    public Validation(Server server, Engine engine, Daemon docker, Registry registry) {
         this.server = server;
         this.engine = engine;
         this.docker = docker;
+        this.registry = registry;
     }
 
     public List<String> run(String name, boolean email, boolean repair) throws IOException, MessagingException {
@@ -57,7 +60,7 @@ public class Validation {
     private void doRun(Stage stage, List<String> report, boolean repair) throws IOException {
         try {
             stage.checkExpired();
-            stage.checkDiskQuota(engine, docker);
+            stage.checkDiskQuota(engine, docker, registry);
             checkPorts(stage);
             return;
         } catch (ArgumentException e) {
@@ -66,7 +69,7 @@ public class Validation {
         if (repair) {
             if (stage.runningPodOpt(engine) != null) {
                 try {
-                    stage.stop(engine, docker);
+                    stage.stop(engine, docker, registry);
                     report.add("stage has been stopped");
                 } catch (Exception e) {
                     report.add("stage failed to stop: " + e.getMessage());
@@ -77,7 +80,7 @@ public class Validation {
                 if (stage.configuration.expire.expiredDays() >= server.configuration.autoRemove) {
                     try {
                         report.add("removing expired stage");
-                        stage.remove(engine, docker);
+                        stage.remove(engine, docker, registry);
                     } catch (Exception e) {
                         report.add("failed to remove expired stage: " + e.getMessage());
                         Server.LOGGER.debug(e.getMessage(), e);

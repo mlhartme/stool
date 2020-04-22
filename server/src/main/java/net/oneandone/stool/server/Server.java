@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
@@ -43,6 +44,7 @@ import net.oneandone.stool.server.util.SshDirectory;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
@@ -428,14 +430,14 @@ public class Server {
     //--
 
     /** used for running containers */
-    public int memoryReservedContainers(Engine engine, Daemon docker) throws IOException {
+    public int memoryReservedContainers(Engine engine, Daemon docker, Registry registry) throws IOException {
         int reserved;
         Image image;
 
         reserved = 0;
         for (PodInfo pod : Stage.allPodMap(engine).values()) { // TODO: expensive
             if (pod.isRunning()) {
-                image = Image.load(engine.registry, pod, Stage.container(docker, pod).imageId);
+                image = Image.load(registry, pod, Stage.container(docker, pod).imageId);
                 reserved += image.memory;
             }
         }
@@ -479,7 +481,7 @@ public class Server {
         return version.substring(0, minor);
     }
 
-    public int diskQuotaReserved(Engine engine, Daemon docker) throws IOException {
+    public int diskQuotaReserved(Engine engine, Daemon docker, Registry registry) throws IOException {
         int reserved;
         Stage stage;
         Stage.Current current;
@@ -488,7 +490,7 @@ public class Server {
         reserved = 0;
         for (FileNode directory : stages.list()) {
             stage = load(directory);
-            current = stage.currentOpt(engine, docker);
+            current = stage.currentOpt(engine, docker, registry);
             if (current != null) {
                 info = current.container;
                 if (info != null) {
@@ -497,6 +499,19 @@ public class Server {
             }
         }
         return reserved;
+    }
+
+    // TODO: expensive? reuse?
+    public Registry createRegistry(Engine engine) throws IOException {
+        PodInfo info;
+        HttpNode root;
+
+        info = engine.podProbe("stool-registry");
+        if (info == null) {
+            throw new IOException("registry not found");
+        }
+        root = (HttpNode) World.create().validNode("http://" + info.ip + ":5000");
+        return Registry.create(root, null);
     }
 
     //--
