@@ -568,7 +568,7 @@ public class Stage {
         if (engine.serviceGetOpt(httpService) != null) {
             Server.LOGGER.debug("wipe kubernetes resources");
             if (engine.podProbe(podName) != null) {
-                engine.podDelete(podName);
+                podDelete(engine, podName);
             }
             engine.serviceDelete(httpService);
             if (engine.serviceGetOpt(httpsService) != null) {
@@ -741,8 +741,21 @@ public class Stage {
             return null;
         }
         Server.LOGGER.info(current.image.tag + ": deleting pod ...");
-        engine.podDelete(podName()); // TODO: timeout 5 minutes
+        podDelete(engine, podName()); // TODO: timeout 5 minutes
         return current.image.tag;
+    }
+
+    // TODO
+    public static void podDelete(Engine engine, String podName) throws IOException {
+        String container;
+
+        container = engine.podDelete(podName);
+        try {
+            engine.docker.containerRemove(container);
+        } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
+            // fall-through, already deleted
+        }
+        // TODO: what if there's more than one container for this pod?
     }
 
     private Map<FileNode, String> logMount() throws IOException {

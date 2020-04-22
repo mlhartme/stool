@@ -18,6 +18,7 @@ package net.oneandone.stool.kubernetes;
 import net.oneandone.stool.docker.ContainerInfo;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Stats;
+import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -90,7 +91,7 @@ public class EngineIT {
             assertEquals("Succeeded", info.phase);
             assertEquals(Strings.toMap("foo", "bar"), info.labels);
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name));
-            engine.podDelete(name);
+            Stage.podDelete(engine, name);
             assertEquals(Collections.emptyMap(), engine.docker.containerListForImage(image));
             assertEquals(0, engine.podList().size());
             engine.docker.imageRemove(imageTag, false);
@@ -147,7 +148,7 @@ public class EngineIT {
 
             assertEquals(Arrays.asList(containerHealed), new ArrayList<>(docker.containerListForImage(image).keySet()));
 
-            engine.podDelete(pod);
+            Stage.podDelete(engine, pod);
 
             assertTrue(docker.containerListForImage(image).isEmpty());
             engine.docker.imageRemove(image, false);
@@ -167,7 +168,7 @@ public class EngineIT {
             assertTrue(engine.podCreate("restart-pod", "restart:tag"));
         }
         try (Engine engine = Engine.create()) {
-            engine.podDelete("restart-pod");
+            Stage.podDelete(engine, "restart-pod");
             engine.docker.imageRemove(image, false);
         }
         try (Engine engine = Engine.create()) {
@@ -175,7 +176,7 @@ public class EngineIT {
             assertTrue(engine.podCreate("restart-pod", "restart:tag"));
         }
         try (Engine engine = Engine.create()) {
-            engine.podDelete("restart-pod");
+            Stage.podDelete(engine, "restart-pod");
             engine.docker.imageRemove(image, false);
         }
     }
@@ -192,7 +193,7 @@ public class EngineIT {
             assertFalse(engine.podCreate(pod, image, Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after")));
             output = engine.podLogs(pod);
             assertEquals("bar after\n", output);
-            engine.podDelete(pod);
+            Stage.podDelete(engine, pod);
             engine.docker.imageRemove(image, false);
         }
     }
@@ -218,7 +219,7 @@ public class EngineIT {
                     Collections.emptyMap(), Collections.emptyList()));
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod));
             assertEquals(expected + "\n", engine.podLogs(pod));
-            engine.podDelete(pod);
+            Stage.podDelete(engine, pod);
             engine.docker.imageRemove(image, false);
         }
     }
@@ -241,7 +242,7 @@ public class EngineIT {
                     Collections.singletonMap(home, home.getAbsolute()), Collections.emptyList()));
             output = engine.podLogs(pod);
             assertTrue(output.contains(file.getAbsolute()));
-            engine.podDelete(pod);
+            Stage.podDelete(engine, pod);
 
             engine.docker.imageRemove(image, true);
         }
@@ -267,7 +268,7 @@ public class EngineIT {
             stats = docker.containerStats(container);
             assertEquals(limit, stats.memoryLimit);
             assertTrue(stats.memoryUsage <= stats.memoryLimit);
-            engine.podDelete(pod);
+            Stage.podDelete(engine, pod);
             engine.docker.imageRemove(image, false);
         }
     }
@@ -309,7 +310,7 @@ public class EngineIT {
             assertFalse(engine.podCreate(name, "secuser", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("blablub", engine.podLogs(name));
-            engine.podDelete(name);
+            Stage.podDelete(engine, name);
             engine.secretDelete(name);
         }
     }
@@ -334,7 +335,7 @@ public class EngineIT {
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("123foo", engine.podLogs(name));
 
-            engine.podDelete(name);
+            Stage.podDelete(engine, name);
             engine.configMapDelete(name);;
         }
     }

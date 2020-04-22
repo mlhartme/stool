@@ -52,7 +52,6 @@ import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.ArgumentException;
-import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -406,7 +405,8 @@ public class Engine implements AutoCloseable {
         return "Running".equals(phase);
     }
 
-    public void podDelete(String name) throws IOException {
+    /** @return containerId or null */
+    public String podDelete(String name) throws IOException {
         PodInfo info;
 
         info = podProbe(name);
@@ -426,15 +426,7 @@ public class Engine implements AutoCloseable {
             throw wrap(e);
         }
         podAwait(name, null);
-        if (info != null && info.containerId != null) {
-            // TODO: otherwise wiped by kubernetes gc, which is async
-            try {
-                docker.containerRemove(info.containerId);
-            } catch (FileNotFoundException e) {
-                // fall-through, already deleted
-            }
-            // TODO: what if there's more than one container for this pod?
-        }
+        return info == null ? null : info.containerId;
     }
 
     public Daemon.Status podContainerStatus(String name) throws IOException {
