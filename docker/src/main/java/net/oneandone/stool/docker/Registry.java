@@ -30,6 +30,8 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,6 +183,30 @@ public class Registry {
                 throw e;
             }
         }
+    }
+
+    //--
+
+    /** @return image ids mapped to ImageInfo */
+    public Map<String, ImageInfo> imageList() throws IOException {
+        return imageList(Collections.emptyMap());
+    }
+
+    // TODO: performance, caching
+    public Map<String, ImageInfo> imageList(Map<String, String> labels) throws IOException {
+        ImageInfo info;
+        Map<String, ImageInfo> result;
+
+        result = new HashMap<>();
+        for (String repository : catalog()) {
+            for (String tag : tags(repository)) {
+                info = info(repository, tag);
+                if (info.matches(labels)) {
+                    result.put(info.id, info);
+                }
+            }
+        }
+        return result;
     }
 
     //--

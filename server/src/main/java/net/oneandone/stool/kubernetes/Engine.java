@@ -49,7 +49,6 @@ import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
 import net.oneandone.stool.docker.Daemon;
-import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.World;
@@ -60,7 +59,6 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -140,30 +138,6 @@ public class Engine implements AutoCloseable {
 
     public String version() throws IOException {
         return "TODO";
-    }
-
-    //-- images
-
-    /** @return image ids mapped to ImageInfo */
-    public Map<String, net.oneandone.stool.docker.ImageInfo> imageList() throws IOException {
-        return imageList(Collections.emptyMap());
-    }
-
-    // TODO: performance, caching
-    public Map<String, ImageInfo> imageList(Map<String, String> labels) throws IOException {
-        ImageInfo info;
-        Map<String, ImageInfo> result;
-
-        result = new HashMap<>();
-        for (String repository : registry.catalog()) {
-            for (String tag : registry.tags(repository)) {
-                info = registry.info(repository, tag);
-                if (info.matches(labels)) {
-                    result.put(info.id, info);
-                }
-            }
-        }
-        return result;
     }
 
     //-- namespace

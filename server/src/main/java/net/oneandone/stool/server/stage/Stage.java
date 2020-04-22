@@ -486,7 +486,7 @@ public class Stage {
 
     /** @return list of tags belonging to this stage */
     private List<String> imageTags(Engine engine) throws IOException {
-        return imageTags(engine.imageList());
+        return imageTags(engine.registry.imageList());
     }
 
     /** @return list of repositoryTags belonging to this stage */
@@ -507,8 +507,8 @@ public class Stage {
     }
 
     /** @return sorted list */
-    public List<Image> images(Engine engine) throws IOException {
-        return images(engine.registry, engine.imageList());
+    public List<Image> images(Registry registry) throws IOException {
+        return images(registry, registry.imageList());
     }
 
     /** @return sorted list */
@@ -613,7 +613,7 @@ public class Stage {
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         memoryReserved = server.memoryReservedContainers(engine, docker);
         memoryQuota = server.configuration.memoryQuota;
-        image = resolve(engine, imageOpt);
+        image = resolve(engine.registry, imageOpt);
         running = runningPodOpt(engine);
         if (running != null) {
             if (image.id.equals(container(docker, running).imageId)) {
@@ -706,11 +706,11 @@ public class Stage {
         }
     }
 
-    private Image resolve(Engine engine, String imageOpt) throws IOException {
+    private Image resolve(Registry registry, String imageOpt) throws IOException {
         List<Image> all;
         Image image;
 
-        all = images(engine);
+        all = images(registry);
         if (all.isEmpty()) {
             throw new ArgumentException("no image to start - did you build the stage?");
         }

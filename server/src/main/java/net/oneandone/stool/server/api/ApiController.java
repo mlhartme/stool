@@ -304,7 +304,7 @@ public class ApiController {
         try (Engine engine = engine(); Daemon docker = docker()) {
             result = new ArrayList<>();
             stage = server.load(name);
-            all = stage.images(engine);
+            all = stage.images(engine.registry);
             current = stage.currentOpt(engine, docker);
             for (Image image : all) {
                 marker = current != null && image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";

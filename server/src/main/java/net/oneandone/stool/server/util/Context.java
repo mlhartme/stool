@@ -62,7 +62,7 @@ public class Context {
 
     public Map<String, ImageInfo> allImages() throws IOException {
         if (lazyAllImageMap == null) {
-            lazyAllImageMap = engine.imageList();
+            lazyAllImageMap = engine.registry.imageList();
         }
         return lazyAllImageMap;
     }
