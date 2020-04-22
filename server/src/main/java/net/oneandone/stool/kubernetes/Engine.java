@@ -152,9 +152,8 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    // TODO: kubernetes version
     public String version() throws IOException {
-        return docker.version();
+        return "TODO";
     }
 
     //-- images
