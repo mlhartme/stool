@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class PodInfo {
     public static PodInfo create(V1Pod pod) {
-        return new PodInfo(pod.getMetadata().getName(), pod.getStatus().getPhase(), containerId(pod),
+        return new PodInfo(pod.getMetadata().getName(), pod.getStatus().getPhase(), pod.getStatus().getPodIP(), containerId(pod),
                 pod.getMetadata().getLabels());
     }
 
@@ -46,12 +46,14 @@ public class PodInfo {
 
     public final String name;
     public final String phase;
+    public final String ip;
     public final String containerId;
     public final Map<String, String> labels;
 
-    public PodInfo(String name, String phase, String containerId, Map<String, String> labels) {
+    public PodInfo(String name, String phase, String ip, String containerId, Map<String, String> labels) {
         this.name = name;
         this.phase = phase;
+        this.ip = ip;
         this.containerId = containerId;
         this.labels = labels;
     }

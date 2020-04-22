@@ -48,4 +48,16 @@ public class ImageInfo {
         this.repositoryTags = repositoryTags;
         this.labels = labels;
     }
+
+    public boolean matches(Map<String, String> test) {
+        String cmp;
+
+        for (Map.Entry<String, String> entry : test.entrySet()) {
+            cmp = labels.get(entry.getKey());
+            if (cmp == null || !cmp.equals(entry.getValue())) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

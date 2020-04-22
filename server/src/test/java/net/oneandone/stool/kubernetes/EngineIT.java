@@ -111,9 +111,9 @@ public class EngineIT {
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         try (Engine engine = create()) {
             docker = engine.docker;
-            assertTrue(engine.imageList(labels).isEmpty());
+            assertTrue(engine.docker.imageList(labels).isEmpty());
             engine.imageBuild("some:tag", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 5\n"), false, null);
-            ids = new ArrayList<>(engine.imageList(labels).keySet());
+            ids = new ArrayList<>(engine.docker.imageList(labels).keySet());
             assertEquals(1, ids.size());
             image = ids.get(0);
             assertTrue(docker.containerListForImage(image).isEmpty());
@@ -150,7 +150,7 @@ public class EngineIT {
 
             assertTrue(docker.containerListForImage(image).isEmpty());
             engine.imageRemove(image, false);
-            assertEquals(new HashMap<>(), engine.imageList(labels));
+            assertEquals(new HashMap<>(), engine.docker.imageList(labels));
         }
     }
 

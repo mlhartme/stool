@@ -50,9 +50,12 @@ import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
+import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -60,9 +63,6 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -111,16 +111,31 @@ public class Engine implements AutoCloseable {
     }
 
     public static Engine create(String socketPath, String wirelog) throws IOException {
-        return new Engine(Daemon.create(socketPath, wirelog));
+        Engine result;
+        PodInfo r;
+        HttpNode root;
+        JsonObject i;
+
+        result = new Engine(Daemon.create(socketPath, wirelog), null);
+        r = result.podProbe("stool-registry");
+        // TODO
+        if (r != null) {
+            System.out.println("registry " + r.ip);
+            root = (HttpNode) World.create().validNode("http://" + r.ip + ":5000");
+            result.registry = Registry.create(root, null);
+        }
+        return result;
     }
 
     private final ApiClient client;
     private final CoreV1Api core;
     private final String namespace;
     public final Daemon docker;
+    private Registry registry;
 
-    private Engine(Daemon docker) throws IOException {
+    private Engine(Daemon docker, Registry registry) throws IOException {
         this.docker = docker;
+        this.registry = registry;
 
         client = Config.defaultClient();
         Configuration.setDefaultApiClient(client); // TODO: threading ...
@@ -139,7 +154,7 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    // TODO: kubernetes versiob
+    // TODO: kubernetes version
     public String version() throws IOException {
         return docker.version();
     }
@@ -151,17 +166,21 @@ public class Engine implements AutoCloseable {
         return imageList(Collections.emptyMap());
     }
 
+    // TODO: performance, caching
     public Map<String, ImageInfo> imageList(Map<String, String> labels) throws IOException {
-        return docker.imageList(labels);
-    }
+        ImageInfo info;
+        Map<String, ImageInfo> result;
 
-    private static String pruneImageId(String id) {
-        return Strings.removeLeft(id, "sha256:");
-    }
-
-    private static LocalDateTime toLocalTime(long epochSeconds) {
-        Instant instant = Instant.ofEpochSecond(epochSeconds);
-        return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+        result = new HashMap<>();
+        for (String repository : registry.catalog()) {
+            for (String tag : registry.tags(repository)) {
+                info = registry.info(repository, tag);
+                if (info.matches(labels)) {
+                    result.put(info.id, info);
+                }
+            }
+        }
+        return result;
     }
 
     public String imageBuildWithOutput(String repositoryTag, FileNode context) throws IOException {
