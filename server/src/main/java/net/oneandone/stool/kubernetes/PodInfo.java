@@ -23,15 +23,22 @@ import net.oneandone.sushi.util.Strings;
 import java.util.List;
 import java.util.Map;
 
+/** Represents a pod as used by Stool. In particular, the pod has a single container */
 public class PodInfo {
     public static PodInfo create(V1Pod pod) {
-        return new PodInfo(pod.getMetadata().getName(), pod.getStatus().getPhase(), pod.getStatus().getPodIP(), containerId(pod),
-                pod.getMetadata().getLabels());
+        V1ContainerStatus status;
+        String containerId;
+
+        status = status(pod);
+        containerId = status == null ? null : status.getContainerID();
+        if (containerId != null) {
+            containerId = Strings.removeLeft(status.getContainerID(), "docker://");
+        }
+        return new PodInfo(pod.getMetadata().getName(), pod.getStatus().getPhase(), pod.getStatus().getPodIP(), containerId, pod.getMetadata().getLabels());
     }
 
-    private static String containerId(V1Pod pod) {
+    private static V1ContainerStatus status(V1Pod pod) {
         List<V1ContainerStatus> lst;
-        String result;
 
         lst = pod.getStatus().getContainerStatuses();
         if (lst == null) {
@@ -40,8 +47,7 @@ public class PodInfo {
         if (lst.size() != 1) {
             throw new IllegalStateException("single container expected, got " + lst);
         }
-        result = lst.get(0).getContainerID();
-        return result == null ? null : Strings.removeLeft(result, "docker://");
+        return lst.get(0);
     }
 
     public final String name;
