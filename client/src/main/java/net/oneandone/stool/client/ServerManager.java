@@ -60,7 +60,7 @@ public class ServerManager {
     }
 
     public String registryNamespace() {
-        return "contargo.server.lan/mhm"; // TODO
+        return "127.0.0.1:31500"; // TODO
     }
 
     public Reference reference(String str) throws IOException {

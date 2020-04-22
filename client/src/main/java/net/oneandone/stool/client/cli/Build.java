@@ -104,7 +104,7 @@ public class Build extends ProjectCommand {
 
     //--
 
-    public void build(Daemon engine, String stage, FileNode war, String originScm, String originUser, Map<String, String> arguments)
+    private String build(Daemon engine, String stage, FileNode war, String originScm, String originUser, Map<String, String> arguments)
             throws Exception {
         long started;
         String registryNamespace;
@@ -153,10 +153,14 @@ public class Build extends ProjectCommand {
             str = output.toString();
             console.verbose.println("successfully built image: " + image);
             console.verbose.println(str);
+            console.verbose.println("pushing ...");
+            engine.imagePush(repositoryTag);
+            console.verbose.println("done");
             console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
         } finally {
             cleanupContext(Integer.toString(tag), keep);
         }
+        return repositoryTag;
     }
 
 
