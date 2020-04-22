@@ -15,11 +15,8 @@
  */
 package net.oneandone.stool.server.stage;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
-import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.sushi.util.Separator;
@@ -33,11 +30,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Image implements Comparable<Image> {
-    public static Image load(Daemon docker, PodInfo pod, String idOrRepoTag) throws IOException {
+    public static Image load(Registry registry, PodInfo pod, String idOrRepoTag) throws IOException {
         Map<String, Image> all;
         Image result;
 
-        all = loadAll(docker, idOrRepoTag);
+        all = loadAll(registry, idOrRepoTag);
         result = all.get(pod.repositoryTag());
         if (result == null) {
             throw new IllegalStateException("missing image for " + pod.repositoryTag() + ": " + all);
@@ -45,90 +42,63 @@ public class Image implements Comparable<Image> {
         return result;
     }
 
-    public static Map<String, Image> loadAll(Daemon docker, String idOrRepoTag) throws IOException {
-        JsonObject inspect;
+    public static Map<String, Image> loadAll(Registry registry, String idOrRepoTag) throws IOException {
         String repositoryTag;
-        JsonElement labelsRaw;
-        JsonObject labels;
+        Map<String, String> labels;
         LocalDateTime created;
         String id;
         Map<String, Image> result;
+        ImageInfo info;
 
-        inspect = docker.imageInspect(idOrRepoTag);
-        id = inspect.get("Id").getAsString();
-        id = Strings.removeLeft(id, "sha256:");
-        created = imageCreated(inspect.get("Created").getAsString());
-        labelsRaw = inspect.get("Config").getAsJsonObject().get("Labels");
         result = new HashMap<>();
-        if (labelsRaw.isJsonNull()) {
-            // TODO: probably for stool image, which has no labels
-            return result;
-        }
-        labels = labelsRaw.getAsJsonObject();
-        for (JsonElement element : inspect.get("RepoTags").getAsJsonArray()) {
-            repositoryTag = stoolRepoTagOpt(element.getAsString());
-            if (repositoryTag != null) {
-                result.put(repositoryTag, new Image(id, repositoryTag, tag(repositoryTag),
-                        Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(ImageInfo.IMAGE_LABEL_P12)),
-                        disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
-                        context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
-                        suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT).getAsString(),
-                        labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER).getAsString(),
-                        created, labels.get(ImageInfo.IMAGE_LABEL_CREATED_BY).getAsString(),
-                        args(labels),
-                        fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT))));
+        for (String repository : registry.catalog()) {
+            for (String tag : registry.tags(repository)) {
+                info = registry.info(repository, tag);
+                id = Strings.removeLeft(info.id, "sha256:");
+                repositoryTag = "127.0.0.1:31500/" + repository + ":" + tag; // TODO
+                if (idOrRepoTag.equals(id) || idOrRepoTag.equals(repositoryTag)) {
+                    created = info.created;
+                    labels = info.labels;
+                    result.put(repositoryTag, new Image(id, repositoryTag, tag(repositoryTag),
+                            Ports.fromDeclaredLabels(labels), labels.get(ImageInfo.IMAGE_LABEL_P12),
+                            disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
+                            context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
+                            suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
+                            labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
+                            created, labels.get(ImageInfo.IMAGE_LABEL_CREATED_BY), args(labels),
+                            fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT))));
+                }
             }
         }
         return result;
     }
 
-    // TODO: hack
-    private static String stoolRepoTagOpt(String repoTag) {
-        try {
-            tag(repoTag);
-            return repoTag;
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    public static LocalDateTime imageCreated(String date) {
-        return LocalDateTime.parse(date, Engine.CREATED_FMT);
-    }
-
-    private static Map<String, String> args(JsonObject labels) {
+    private static Map<String, String> args(Map<String, String> labels) {
         Map<String, String> result;
         String key;
 
         result = new HashMap<>();
-        for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
+        for (Map.Entry<String, String> entry : labels.entrySet()) {
             key = entry.getKey();
             if (key.startsWith(ImageInfo.IMAGE_LABEL_ARG_PREFIX)) {
-                result.put(key.substring(ImageInfo.IMAGE_LABEL_ARG_PREFIX.length()), entry.getValue().getAsString());
+                result.put(key.substring(ImageInfo.IMAGE_LABEL_ARG_PREFIX.length()), entry.getValue());
             }
         }
         return result;
     }
 
-    private static String p12(JsonElement element) {
-        return element == null ? null : element.getAsString();
+    private static int memory(String memory) {
+        return memory == null ? 1024 : Integer.parseInt(memory);
     }
 
-    private static int memory(JsonElement element) {
-        return element == null ? 1024 : Integer.parseInt(element.getAsString());
+    private static int disk(String disk) {
+        return disk == null ? 1024 * 42 : Integer.parseInt(disk);
     }
 
-    private static int disk(JsonElement element) {
-        return element == null ? 1024 * 42 : Integer.parseInt(element.getAsString());
-    }
-
-    private static String context(JsonElement element) {
+    private static String context(String context) {
         String result;
 
-        if (element == null) {
-            return "";
-        }
-        result = element.getAsString();
+        result = context == null ? "" : context;
         if (result.startsWith("/")) {
             throw new ArithmeticException("server must not start with '/': " + result);
         }
@@ -140,12 +110,12 @@ public class Image implements Comparable<Image> {
 
     private static final Separator SUFFIXES_SEP = Separator.on(',').trim();
 
-    private static List<String> suffixes(JsonElement element) {
+    private static List<String> suffixes(String suffixes) {
         List<String> result;
 
         result = new ArrayList<>();
-        if (element != null) {
-            result.addAll(SUFFIXES_SEP.split(element.getAsString()));
+        if (suffixes != null) {
+            result.addAll(SUFFIXES_SEP.split(suffixes));
         }
         if (result.isEmpty()) {
             result.add("");
@@ -153,12 +123,12 @@ public class Image implements Comparable<Image> {
         return result;
     }
 
-    private static List<String> fault(JsonElement element) {
+    private static List<String> fault(String fault) {
         List<String> result;
 
         result = new ArrayList<>();
-        if (element != null) {
-            result.addAll(Separator.COMMA.split(element.getAsString()));
+        if (fault != null) {
+            result.addAll(Separator.COMMA.split(fault));
         }
         return result;
     }

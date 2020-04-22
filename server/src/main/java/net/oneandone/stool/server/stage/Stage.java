@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.stage;
 
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
@@ -506,20 +507,22 @@ public class Stage {
     }
 
     /** @return sorted list */
-    public List<Image> images(Engine engine, Daemon docker) throws IOException {
-        return images(docker, engine.imageList());
+    public List<Image> images(Engine engine) throws IOException {
+        return images(engine.registry, engine.imageList());
     }
 
     /** @return sorted list */
-    public List<Image> images(Daemon docker, Map<String, ImageInfo> imageMap) throws IOException {
+    public List<Image> images(Registry registry, Map<String, ImageInfo> imageMap) throws IOException {
         List<Image> result;
+        Map<String, Image> all;
         Image image;
 
         result = new ArrayList<>();
         for (String repositoryTag : imageTags(imageMap)) {
-            image = Image.loadAll(docker, repositoryTag).get(repositoryTag);
+            all = Image.loadAll(registry, repositoryTag);
+            image = all.get(repositoryTag);
             if (image == null) {
-                throw new IllegalStateException("TODO");
+                throw new IllegalStateException("TODO: " + repositoryTag + " " + all.keySet());
             }
             result.add(image);
         }
@@ -610,7 +613,7 @@ public class Stage {
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         memoryReserved = server.memoryReservedContainers(engine, docker);
         memoryQuota = server.configuration.memoryQuota;
-        image = resolve(engine, docker, imageOpt);
+        image = resolve(engine, imageOpt);
         running = runningPodOpt(engine);
         if (running != null) {
             if (image.id.equals(container(docker, running).imageId)) {
@@ -703,11 +706,11 @@ public class Stage {
         }
     }
 
-    private Image resolve(Engine engine, Daemon docker, String imageOpt) throws IOException {
+    private Image resolve(Engine engine, String imageOpt) throws IOException {
         List<Image> all;
         Image image;
 
-        all = images(engine, docker);
+        all = images(engine);
         if (all.isEmpty()) {
             throw new ArgumentException("no image to start - did you build the stage?");
         }
@@ -851,7 +854,7 @@ public class Stage {
         image = null;
         for (PodInfo pod : allPodList) {
             if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
-                image = Image.load(docker, pod, container(docker, pod).imageId);
+                image = Image.load(engine.registry, pod, container(docker, pod).imageId);
             }
         }
         ports = pool.stageOpt(name);
@@ -991,16 +994,16 @@ public class Stage {
 
     /** @return null if not running */
     public Current currentOpt(Engine engine, Daemon docker) throws IOException {
-        return currentOpt(docker, runningPodOpt(engine));
+        return currentOpt(engine.registry, docker, runningPodOpt(engine));
     }
 
-    public Current currentOpt(Daemon docker, PodInfo runningPodOpt) throws IOException {
+    public Current currentOpt(Registry registry, Daemon docker, PodInfo runningPodOpt) throws IOException {
         Image image;
         ContainerInfo container;
 
         if (runningPodOpt != null) {
             container = container(docker, runningPodOpt);
-            image = Image.load(docker, runningPodOpt, container.imageId);
+            image = Image.load(registry, runningPodOpt, container.imageId);
             return new Current(image, runningPodOpt, container);
         } else {
             return null;

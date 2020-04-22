@@ -119,7 +119,7 @@ public class Engine implements AutoCloseable {
     private final ApiClient client;
     private final CoreV1Api core;
     private final String namespace;
-    private Registry registry;
+    public Registry registry;
 
     private Engine(Registry registry) throws IOException {
         this.registry = registry;

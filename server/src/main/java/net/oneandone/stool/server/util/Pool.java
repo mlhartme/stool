@@ -37,7 +37,6 @@ public class Pool {
             if (labels != null) {
                 stage = labels.get(Stage.POD_LABEL_STAGE);
                 if (stage != null) {
-                    System.out.println("loaded stage " + stage);
                     result.datas.add(new Data(stage, Ports.fromUsedLabels(labels)));
                 }
             }

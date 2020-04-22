@@ -72,7 +72,7 @@ public class Context {
 
         result = stageImages.get(stage.getName());
         if (result == null) {
-            result = stage.images(docker, allImages());
+            result = stage.images(engine.registry, allImages());
             stageImages.put(stage.getName(), result);
         }
         return result;
@@ -103,7 +103,7 @@ public class Context {
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.currentOpt(docker, runningPodOpt(stage));
+            result = stage.currentOpt(engine.registry, docker, runningPodOpt(stage));
             currentOpts.put(stage.getName(), result);
         }
         return result;
