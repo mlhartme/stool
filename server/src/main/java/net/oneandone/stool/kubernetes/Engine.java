@@ -97,8 +97,6 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
-
     public static Engine create() throws IOException {
         Engine result;
         PodInfo r;
