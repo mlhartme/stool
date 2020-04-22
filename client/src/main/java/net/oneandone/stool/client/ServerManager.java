@@ -59,8 +59,9 @@ public class ServerManager {
         servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
     }
 
-    public String registryNamespace() {
-        return "127.0.0.1:31500"; // TODO
+    // TODO
+    public static String registryNamespace() {
+        return "127.0.0.1:31500";
     }
 
     public Reference reference(String str) throws IOException {
