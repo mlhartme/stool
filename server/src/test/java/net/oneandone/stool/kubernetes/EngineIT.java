@@ -91,7 +91,7 @@ public class EngineIT {
             assertEquals("Succeeded", info.phase);
             assertEquals(Strings.toMap("foo", "bar"), info.labels);
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name));
-            Stage.podDelete(engine, docker, name);
+            podDelete(engine, docker, name);
             assertEquals(Collections.emptyMap(), docker.containerListForImage(image));
             assertEquals(0, engine.podList().size());
             docker.imageRemove(imageTag, false);
@@ -146,7 +146,7 @@ public class EngineIT {
 
             assertEquals(Arrays.asList(containerHealed), new ArrayList<>(docker.containerListForImage(image).keySet()));
 
-            Stage.podDelete(engine, docker, pod);
+            podDelete(engine, docker, pod);
 
             assertTrue(docker.containerListForImage(image).isEmpty());
             docker.imageRemove(image, false);
@@ -166,7 +166,7 @@ public class EngineIT {
             assertTrue(engine.podCreate("restart-pod", "restart:tag"));
         }
         try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
-            Stage.podDelete(engine, docker,"restart-pod");
+            podDelete(engine, docker,"restart-pod");
             docker.imageRemove(image, false);
         }
         try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
@@ -174,7 +174,7 @@ public class EngineIT {
             assertTrue(engine.podCreate("restart-pod", "restart:tag"));
         }
         try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
-            Stage.podDelete(engine, docker,"restart-pod");
+            podDelete(engine, docker,"restart-pod");
             docker.imageRemove(image, false);
         }
     }
@@ -191,7 +191,7 @@ public class EngineIT {
             assertFalse(engine.podCreate(pod, image, Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after")));
             output = engine.podLogs(pod);
             assertEquals("bar after\n", output);
-            Stage.podDelete(engine, docker, pod);
+            podDelete(engine, docker, pod);
             docker.imageRemove(image, false);
         }
     }
@@ -217,7 +217,7 @@ public class EngineIT {
                     Collections.emptyMap(), Collections.emptyList()));
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod));
             assertEquals(expected + "\n", engine.podLogs(pod));
-            Stage.podDelete(engine, docker, pod);
+            podDelete(engine, docker, pod);
             docker.imageRemove(image, false);
         }
     }
@@ -240,7 +240,7 @@ public class EngineIT {
                     Collections.singletonMap(home, home.getAbsolute()), Collections.emptyList()));
             output = engine.podLogs(pod);
             assertTrue(output.contains(file.getAbsolute()));
-            Stage.podDelete(engine, docker, pod);
+            podDelete(engine, docker, pod);
 
             docker.imageRemove(image, true);
         }
@@ -264,7 +264,7 @@ public class EngineIT {
             stats = docker.containerStats(container);
             assertEquals(limit, stats.memoryLimit);
             assertTrue(stats.memoryUsage <= stats.memoryLimit);
-            Stage.podDelete(engine, docker, pod);
+            podDelete(engine, docker, pod);
             docker.imageRemove(image, false);
         }
     }
@@ -306,7 +306,7 @@ public class EngineIT {
             assertFalse(engine.podCreate(name, "secuser", "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("blablub", engine.podLogs(name));
-            Stage.podDelete(engine, docker, name);
+            podDelete(engine, docker, name);
             engine.secretDelete(name);
         }
     }
@@ -331,7 +331,7 @@ public class EngineIT {
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("123foo", engine.podLogs(name));
 
-            Stage.podDelete(engine, docker, name);
+            podDelete(engine, docker, name);
             engine.configMapDelete(name);;
         }
     }
@@ -344,4 +344,18 @@ public class EngineIT {
             return dest.toString();
         }
     }
+
+    // TODO
+    public static void podDelete(Engine engine, Daemon docker, String podName) throws IOException {
+        String container;
+
+        container = engine.podDelete(podName);
+        try {
+            docker.containerRemove(container);
+        } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
+            // fall-through, already deleted
+        }
+        // TODO: what if there's more than one container for this pod?
+    }
+
 }

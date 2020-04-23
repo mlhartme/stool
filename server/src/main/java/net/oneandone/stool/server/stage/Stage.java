@@ -559,7 +559,7 @@ public class Stage {
         return name.replace('.', '-');
     }
 
-    private void wipeResources(Engine engine, Daemon docker) throws IOException {
+    private void wipeResources(Engine engine) throws IOException {
         String podName;
         String httpService;
         String httpsService;
@@ -570,7 +570,7 @@ public class Stage {
         if (engine.serviceGetOpt(httpService) != null) {
             Server.LOGGER.debug("wipe kubernetes resources");
             if (engine.podProbe(podName) != null) {
-                podDelete(engine, docker, podName);
+                engine.podDelete(podName);
             }
             engine.serviceDelete(httpService);
             if (engine.serviceGetOpt(httpsService) != null) {
@@ -592,7 +592,7 @@ public class Stage {
 
     /** @return image actually started, null if this image is actually running
      *  @throws IOException if a different image is already running */
-    public String start(Engine engine, Daemon docker, Registry registry, Pool pool, String imageOpt, int http,
+    public String start(Engine engine, Registry registry, Pool pool, String imageOpt, int http,
                         int https, Map<String, String> clientEnvironment)
             throws IOException {
         String podName;
@@ -630,7 +630,7 @@ public class Stage {
                     + "Consider stopping stages.");
         }
         memoryReserved += image.memory; // TODO
-        wipeResources(engine, docker);
+        wipeResources(engine);
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(configuration.environment);
         environment.putAll(clientEnvironment);
@@ -744,21 +744,8 @@ public class Stage {
             return null;
         }
         Server.LOGGER.info(current.image.tag + ": deleting pod ...");
-        podDelete(engine, docker, podName()); // TODO: timeout 5 minutes
+        engine.podDelete(podName()); // TODO: timeout 5 minutes
         return current.image.tag;
-    }
-
-    // TODO
-    public static void podDelete(Engine engine, Daemon docker, String podName) throws IOException {
-        String container;
-
-        container = engine.podDelete(podName);
-        try {
-            docker.containerRemove(container);
-        } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
-            // fall-through, already deleted
-        }
-        // TODO: what if there's more than one container for this pod?
     }
 
     private Map<FileNode, String> logMount() throws IOException {
@@ -911,7 +898,7 @@ public class Stage {
     }
 
     public void remove(Engine engine, Daemon docker, Registry registry) throws IOException {
-        wipeResources(engine, docker);
+        wipeResources(engine);
         wipeImages(docker, registry);
         server.pool.remove(name);
         getDirectory().deleteTree();

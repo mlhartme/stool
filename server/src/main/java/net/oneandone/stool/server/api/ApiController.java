@@ -359,7 +359,7 @@ public class ApiController {
             stage = server.load(stageName);
             stage.checkExpired();
             stage.checkDiskQuota(engine, registry);
-            return json(stage.start(engine, docker, registry,
+            return json(stage.start(engine, registry,
                     server.pool, image.isEmpty() ? null : image, http, https, environment)).toString();
         }
     }
