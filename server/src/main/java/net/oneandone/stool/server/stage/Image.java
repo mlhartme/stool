@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Image implements Comparable<Image> {
-    public static Image load(Registry registry, PodInfo pod, String idOrRepoTag) throws IOException {
+    public static Image load(Registry registry, PodInfo pod) throws IOException {
         Map<String, Image> all;
         Image result;
 
-        all = loadAll(registry, idOrRepoTag);
+        all = loadAll(registry, pod.repositoryTag);
         result = all.get(pod.repositoryTag());
         if (result == null) {
             throw new IllegalStateException("missing image for " + pod.repositoryTag() + ": " + all);

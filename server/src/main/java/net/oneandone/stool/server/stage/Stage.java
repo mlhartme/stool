@@ -839,14 +839,14 @@ public class Stage {
 
     //--
 
-    public Map<String, String> urlMap(Engine engine, Daemon docker, Registry registry, Pool pool) throws IOException {
-        return urlMap(docker, registry, pool, allPodMap(engine).values());
+    public Map<String, String> urlMap(Engine engine, Registry registry, Pool pool) throws IOException {
+        return urlMap(registry, pool, allPodMap(engine).values());
     }
 
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Daemon docker, Registry registry, Pool pool, Collection<PodInfo> allPodList) throws IOException {
+    public Map<String, String> urlMap(Registry registry, Pool pool, Collection<PodInfo> allPodList) throws IOException {
         Map<String, String> result;
         Ports ports;
         Image image;
@@ -855,7 +855,7 @@ public class Stage {
         image = null;
         for (PodInfo pod : allPodList) {
             if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
-                image = Image.load(registry, pod, pod.repositoryTag);
+                image = Image.load(registry, pod);
             }
         }
         ports = pool.stageOpt(name);
@@ -1004,7 +1004,7 @@ public class Stage {
 
         if (runningPodOpt != null) {
             container = container(docker, runningPodOpt);
-            image = Image.load(registry, runningPodOpt, container.imageId);
+            image = Image.load(registry, runningPodOpt);
             return new Current(image, runningPodOpt, container);
         } else {
             return null;

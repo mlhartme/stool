@@ -118,7 +118,7 @@ public class Context {
 
         result = urlMaps.get(stage.getName());
         if (result == null) {
-            result = stage.urlMap(docker, registry, pool, allPodMap().values());
+            result = stage.urlMap(registry, pool, allPodMap().values());
             urlMaps.put(stage.getName(), result);
         }
         return result;

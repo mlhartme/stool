@@ -382,7 +382,7 @@ public class ApiController {
             if (stage.currentOpt(engine, docker, registry) == null) {
                 throw new IllegalStateException();
             }
-            return Engine.obj(stage.urlMap(engine, docker, registry, server.pool)).toString();
+            return Engine.obj(stage.urlMap(engine, registry, server.pool)).toString();
         }
     }
 
