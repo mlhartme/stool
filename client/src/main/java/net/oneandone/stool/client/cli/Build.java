@@ -165,7 +165,7 @@ public class Build extends ProjectCommand {
 
 
     /** @return next version */
-    public int wipeOldImages(Daemon engine, String registryNamespace, String name) throws IOException {
+    public int wipeOldImages(Daemon docker, String registryNamespace, String name) throws IOException {
         Map<String, ImageInfo> images;
 
         int count;
@@ -173,7 +173,7 @@ public class Build extends ProjectCommand {
         List<String> sorted;
         String remove;
 
-        images = repositoryTags(registryNamespace, name, engine.imageList());
+        images = repositoryTags(registryNamespace, name, docker.imageList());
         result = nextTag(images.keySet());
         sorted = new ArrayList<>(images.keySet());
         Collections.sort(sorted);
@@ -181,9 +181,9 @@ public class Build extends ProjectCommand {
         count = sorted.size() - keep;
         while (count > 0 && !sorted.isEmpty()) {
             remove = sorted.remove(0);
-            if (!hasContainer(engine, remove)) {
+            if (!hasContainer(docker, remove)) {
                 console.info.println("remove image: " + remove);
-                engine.imageRemove(remove, false);
+                docker.imageRemove(remove, false);
                 count--;
             } else {
                 console.verbose.println("cannot remove image, because it's still in use: " + remove);
