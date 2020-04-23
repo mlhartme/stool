@@ -54,7 +54,7 @@ public class MainIT {
     @After
     public void after() throws IOException {
         kubectl("logs", "--namespace=stool", "pod/stool-server");
-        // TODO kubectl("delete", "-f", HOME.join("server.yaml").getAbsolute());
+        kubectl("delete", "-f", HOME.join("server.yaml").getAbsolute());
     }
 
     private final int port = 31000;
