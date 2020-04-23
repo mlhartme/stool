@@ -258,7 +258,7 @@ public class Stage {
                 PodInfo info;
 
                 info = context.runningPodOpt(Stage.this);
-                return info == null ? null : container(context.docker, info).id;
+                return info == null ? null : info.containerId;
             }
         });
         fields.add(new Field("uptime") {
@@ -949,17 +949,6 @@ public class Stage {
         return result;
     }
 
-    // not just this stage
-    public static ContainerInfo container(Daemon docker, PodInfo pod) throws IOException {
-        String container;
-
-        container = pod.containerId;
-        if (container == null) {
-            throw new IllegalStateException("TODO");
-        }
-        return docker.containerInfo(container);
-    }
-
     public PodInfo runningPodOpt(Map<String, PodInfo> allPodMap) {
         PodInfo result;
         PodInfo pod;
@@ -1003,7 +992,13 @@ public class Stage {
         ContainerInfo container;
 
         if (runningPodOpt != null) {
-            container = container(docker, runningPodOpt);
+            String container1;
+
+            container1 = runningPodOpt.containerId;
+            if (container1 == null) {
+                throw new IllegalStateException("TODO");
+            }
+            container = docker.containerInfo(container1);
             image = Image.load(registry, runningPodOpt);
             return new Current(image, runningPodOpt, container);
         } else {
@@ -1129,7 +1124,7 @@ public class Stage {
         if (running == null) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
-            engine.podLogsFollow(container(docker, running).id, new OutputStream() {
+            engine.podLogsFollow(running.containerId, new OutputStream() {
                 @Override
                 public void write(int b) {
                     dest.write(b);
