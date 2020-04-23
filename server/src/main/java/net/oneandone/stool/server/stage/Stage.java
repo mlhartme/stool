@@ -617,11 +617,11 @@ public class Stage {
         image = resolve(registry, imageOpt);
         running = runningPodOpt(engine);
         if (running != null) {
-            if (image.id.equals(container(docker, running).imageId)) {
+            if (image.repositoryTag.equals(running.repositoryTag)) {
                 return null;
             } else {
                 throw new IOException("conflict: cannot start image " + image.tag
-                        + " because a different image id " + image.id + " " + container(docker, running).imageId + " is already running");
+                        + " because a different image id " + image.repositoryTag + " " + running.repositoryTag + " is already running");
             }
         }
         if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
