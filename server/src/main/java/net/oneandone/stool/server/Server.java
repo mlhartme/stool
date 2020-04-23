@@ -29,7 +29,6 @@ import net.oneandone.stool.server.configuration.ServerConfiguration;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
-import net.oneandone.stool.docker.ContainerInfo;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
@@ -481,19 +480,17 @@ public class Server {
         return version.substring(0, minor);
     }
 
-    public int diskQuotaReserved(Engine engine, Daemon docker, Registry registry) throws IOException {
+    public int diskQuotaReserved(Engine engine, Registry registry) throws IOException {
         int reserved;
         Stage stage;
         Stage.Current current;
-        ContainerInfo info;
 
         reserved = 0;
         for (FileNode directory : stages.list()) {
             stage = load(directory);
-            current = stage.currentOpt(engine, docker, registry);
+            current = stage.currentOpt(engine, registry);
             if (current != null) {
-                info = current.container;
-                if (info != null) {
+                if (current.pod.containerId != null) {
                     reserved += current.image.disk;
                 }
             }

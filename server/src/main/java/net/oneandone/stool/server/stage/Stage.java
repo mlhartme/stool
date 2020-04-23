@@ -22,7 +22,6 @@ import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
-import net.oneandone.stool.docker.ContainerInfo;
 import net.oneandone.stool.kubernetes.Data;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.docker.ImageInfo;
@@ -284,7 +283,7 @@ public class Stage {
                 Current current;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : context.sizeRw(current.container);
+                return current == null ? null : context.sizeRw(current.pod.containerId);
             }
         });
         fields.add(new Field("cpu") {
@@ -297,7 +296,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = context.containerStats(current.container.id);
+                stats = context.containerStats(current.pod.containerId);
                 if (stats != null) {
                     return stats.cpu;
                 } else {
@@ -316,7 +315,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = context.containerStats(current.container.id);
+                stats = context.containerStats(current.pod.containerId);
                 if (stats != null) {
                     return stats.memoryUsage * 100 / stats.memoryLimit;
                 } else {
@@ -397,7 +396,7 @@ public class Stage {
         long used;
         long max;
 
-        if (current.container == null) {
+        if (current.pod.containerId == null) {
             return "";
         }
         if (current.image.ports.jmxmp == -1) {
@@ -541,13 +540,13 @@ public class Stage {
         int used;
         int quota;
         Current current;
-        ContainerInfo info;
+        String containerId;
 
-        current = currentOpt(engine, docker, registry);
+        current = currentOpt(engine, registry);
         if (current != null) {
-            info = current.container;
-            if (info != null) {
-                used = new Context(engine, docker, registry).sizeRw(info);
+            containerId = current.pod.containerId;
+            if (containerId != null) {
+                used = new Context(engine, docker, registry).sizeRw(containerId);
                 quota = current.image.disk;
                 if (used > quota) {
                     throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");
@@ -740,7 +739,7 @@ public class Stage {
         Current current;
 
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
-        current = currentOpt(engine, docker, registry);
+        current = currentOpt(engine, registry);
         if (current == null) {
             return null;
         }
@@ -923,12 +922,10 @@ public class Stage {
     public static class Current {
         public final Image image;
         public final PodInfo pod;
-        public final ContainerInfo container;
 
-        public Current(Image image, PodInfo pod, ContainerInfo container) {
+        public Current(Image image, PodInfo pod) {
             this.image = image;
             this.pod = pod;
-            this.container = container;
         }
     }
 
@@ -983,24 +980,19 @@ public class Stage {
     }
 
     /** @return null if not running */
-    public Current currentOpt(Engine engine, Daemon docker, Registry registry) throws IOException {
-        return currentOpt(registry, docker, runningPodOpt(engine));
+    public Current currentOpt(Engine engine, Registry registry) throws IOException {
+        return currentOpt(registry, runningPodOpt(engine));
     }
 
-    public Current currentOpt(Registry registry, Daemon docker, PodInfo runningPodOpt) throws IOException {
+    public Current currentOpt(Registry registry, PodInfo runningPodOpt) throws IOException {
         Image image;
-        ContainerInfo container;
 
         if (runningPodOpt != null) {
-            String container1;
-
-            container1 = runningPodOpt.containerId;
-            if (container1 == null) {
+            if (runningPodOpt.containerId == null) {
                 throw new IllegalStateException("TODO");
             }
-            container = docker.containerInfo(container1);
             image = Image.load(registry, runningPodOpt);
-            return new Current(image, runningPodOpt, container);
+            return new Current(image, runningPodOpt);
         } else {
             return null;
         }

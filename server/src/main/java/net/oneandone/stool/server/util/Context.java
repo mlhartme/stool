@@ -16,7 +16,6 @@
 package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
-import net.oneandone.stool.docker.ContainerInfo;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.docker.Stats;
@@ -106,7 +105,7 @@ public class Context {
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.currentOpt(registry, docker, runningPodOpt(stage));
+            result = stage.currentOpt(registry, runningPodOpt(stage));
             currentOpts.put(stage.getName(), result);
         }
         return result;
@@ -125,13 +124,13 @@ public class Context {
     }
 
     /** @return size of the read-write layer, not size of the root file system */
-    public int sizeRw(ContainerInfo info) throws IOException {
+    public int sizeRw(String containerId) throws IOException {
         JsonObject obj;
 
-        if (info == null) {
+        if (containerId == null) {
             return 0;
         }
-        obj = containerInspect(info.id);
+        obj = containerInspect(containerId);
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 

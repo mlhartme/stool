@@ -93,14 +93,14 @@ public class ApiController {
         JsonObject result;
         Registry registry;
 
-        try (Engine engine = engine(); Daemon docker = docker()) {
+        try (Engine engine = engine()) {
             registry = server.createRegistry(engine);
             result = new JsonObject();
             result.addProperty("version", Main.versionString(World.createMinimal() /* TODO */));
             result.addProperty("memory-quota", server.configuration.memoryQuota == 0
                     ? "" : server.memoryReservedContainers(engine, registry) + "/" + server.configuration.memoryQuota);
             result.addProperty("disk-quota", server.configuration.diskQuota == 0
-                    ? "" : server.diskQuotaReserved(engine, docker, registry) + "/" + server.configuration.diskQuota);
+                    ? "" : server.diskQuotaReserved(engine, registry) + "/" + server.configuration.diskQuota);
             return result.toString();
         }
     }
@@ -305,12 +305,12 @@ public class ApiController {
         List<String> args;
         Registry registry;
 
-        try (Engine engine = engine(); Daemon docker = docker()) {
+        try (Engine engine = engine()) {
             registry = server.createRegistry(engine);
             result = new ArrayList<>();
             stage = server.load(name);
             all = stage.images(registry);
-            current = stage.currentOpt(engine, docker, registry);
+            current = stage.currentOpt(engine, registry);
             for (Image image : all) {
                 marker = current != null && image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";
                 result.add(image.tag + "  " + marker);
@@ -350,7 +350,7 @@ public class ApiController {
         try (Engine engine = engine(); Daemon docker = docker()) {
             registry = server.createRegistry(engine);
             if (global != 0) {
-                reserved = server.diskQuotaReserved(engine, docker, registry);
+                reserved = server.diskQuotaReserved(engine, registry);
                 if (reserved > global) {
                     throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n");
                 }
@@ -379,7 +379,7 @@ public class ApiController {
             stage = server.load(stageName);
             stage.awaitStartup(new Context(engine, docker, registry));
 
-            if (stage.currentOpt(engine, docker, registry) == null) {
+            if (stage.currentOpt(engine, registry) == null) {
                 throw new IllegalStateException();
             }
             return Engine.obj(stage.urlMap(engine, registry, server.pool)).toString();
@@ -438,7 +438,7 @@ public class ApiController {
         String privateKey;
 
         current = currentWithPermissions(stageName);
-        privateKey = server.sshDirectory.addExec(current.container.id);
+        privateKey = server.sshDirectory.addExec(current.pod.containerId);
         return new JsonPrimitive(privateKey).toString();
     }
 
@@ -447,10 +447,10 @@ public class ApiController {
         Stage.Current current;
 
         stage = server.load(stageName);
-        try (Engine engine = engine(); Daemon docker = docker()) {
-            current = stage.currentOpt(engine, docker, server.createRegistry(engine));
+        try (Engine engine = engine()) {
+            current = stage.currentOpt(engine, server.createRegistry(engine));
         }
-        if (current == null || current.container == null) {
+        if (current == null || current.pod.containerId == null) {
             throw new ArgumentException("stage is not running: " + stageName);
         }
         server.checkFaultPermissions(User.authenticatedOrAnonymous().login, current.image.faultProjects);
