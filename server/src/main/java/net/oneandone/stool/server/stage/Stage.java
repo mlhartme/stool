@@ -855,7 +855,7 @@ public class Stage {
         image = null;
         for (PodInfo pod : allPodList) {
             if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
-                image = Image.load(registry, pod, container(docker, pod).imageId);
+                image = Image.load(registry, pod, pod.repositoryTag);
             }
         }
         ports = pool.stageOpt(name);

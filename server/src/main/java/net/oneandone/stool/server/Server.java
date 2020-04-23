@@ -437,7 +437,7 @@ public class Server {
         reserved = 0;
         for (PodInfo pod : Stage.allPodMap(engine).values()) { // TODO: expensive
             if (pod.isRunning()) {
-                image = Image.load(registry, pod, pod.imageId);
+                image = Image.load(registry, pod, pod.repositoryTag);
                 reserved += image.memory;
             }
         }
