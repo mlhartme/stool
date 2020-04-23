@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
@@ -34,13 +33,11 @@ import java.util.Set;
 public class Validation {
     private final Server server;
     private final Engine engine;
-    private final Daemon docker;
     private final Registry registry;
 
-    public Validation(Server server, Engine engine, Daemon docker, Registry registry) {
+    public Validation(Server server, Engine engine, Registry registry) {
         this.server = server;
         this.engine = engine;
-        this.docker = docker;
         this.registry = registry;
     }
 
@@ -69,7 +66,7 @@ public class Validation {
         if (repair) {
             if (stage.runningPodOpt(engine) != null) {
                 try {
-                    stage.stop(engine, docker, registry);
+                    stage.stop(engine, registry);
                     report.add("stage has been stopped");
                 } catch (Exception e) {
                     report.add("stage failed to stop: " + e.getMessage());
@@ -80,7 +77,7 @@ public class Validation {
                 if (stage.configuration.expire.expiredDays() >= server.configuration.autoRemove) {
                     try {
                         report.add("removing expired stage");
-                        stage.remove(engine, docker, registry);
+                        stage.remove(engine, registry);
                     } catch (Exception e) {
                         report.add("failed to remove expired stage: " + e.getMessage());
                         Server.LOGGER.debug(e.getMessage(), e);

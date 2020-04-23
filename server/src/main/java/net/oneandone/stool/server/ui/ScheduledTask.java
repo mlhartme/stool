@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.ui;
 
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
@@ -45,11 +44,11 @@ public class ScheduledTask {
         Registry registry;
 
         Server.LOGGER.info("scheduled stage validation");
-        try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
+        try (Engine engine = Engine.create()) {
             registry = server.createRegistry(engine);
             for (Stage stage : server.listAll()) {
                 Server.LOGGER.info("validate " + stage.getName() + ":");
-                output = new Validation(server, engine, docker, registry).run(stage.getName(), !server.configuration.mailHost.isEmpty(), true);
+                output = new Validation(server, engine, registry).run(stage.getName(), !server.configuration.mailHost.isEmpty(), true);
                 for (String line : output) {
                     Server.LOGGER.info("  " + line);
                 }

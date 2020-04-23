@@ -28,6 +28,9 @@ spec:
   containers:
     - name: registry
       image: registry:2
+      env:
+        - name: "REGISTRY_STORAGE_DELETE_ENABLED"
+          value: "true"
 ---
 apiVersion: v1
 kind: Service

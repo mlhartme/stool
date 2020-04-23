@@ -476,16 +476,11 @@ public class Stage {
 
     //-- docker
 
-    public void wipeImages(Daemon docker, Registry registry) throws IOException {
-        for (String repositoryTag : imageTags(registry)) {
-            Server.LOGGER.debug("remove image: " + repositoryTag);
-            docker.imageRemove(repositoryTag, false);
+    public void wipeImages(Registry registry) throws IOException {
+        for (String tag : registry.tags(name)) {
+            Server.LOGGER.debug("remove image: " + server.configuration.registryNamespace + "/" + name + ":" + tag);
+            registry.delete(name, registry.info(name, tag).id);
         }
-    }
-
-    /** @return list of tags belonging to this stage */
-    private List<String> imageTags(Registry registry) throws IOException {
-        return imageTags(registry.imageList());
     }
 
     /** @return list of repositoryTags belonging to this stage */
@@ -735,7 +730,7 @@ public class Stage {
     }
 
     /** @return tag actually stopped, or null if already stopped */
-    public String stop(Engine engine, Daemon docker, Registry registry) throws IOException {
+    public String stop(Engine engine, Registry registry) throws IOException {
         Current current;
 
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
@@ -897,9 +892,9 @@ public class Stage {
         return result;
     }
 
-    public void remove(Engine engine, Daemon docker, Registry registry) throws IOException {
+    public void remove(Engine engine, Registry registry) throws IOException {
         wipeResources(engine);
-        wipeImages(docker, registry);
+        wipeImages(registry);
         server.pool.remove(name);
         getDirectory().deleteTree();
     }

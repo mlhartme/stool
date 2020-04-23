@@ -287,8 +287,8 @@ public class ApiController {
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         List<String> output;
 
-        try (Engine engine = engine(); Daemon docker = docker()) {
-            output = new Validation(server, engine, docker, server.createRegistry(engine)).run(stage, email, repair);
+        try (Engine engine = engine()) {
+            output = new Validation(server, engine, server.createRegistry(engine)).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }
@@ -398,8 +398,8 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/stop")
     public String stop(@PathVariable(value = "stage") String stage) throws IOException {
-        try (Engine engine = engine(); Daemon docker = docker()) {
-            return json(server.load(stage).stop(engine, docker, server.createRegistry(engine))).toString();
+        try (Engine engine = engine()) {
+            return json(server.load(stage).stop(engine, server.createRegistry(engine))).toString();
         }
     }
 
@@ -495,8 +495,8 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
-        try (Engine engine = engine(); Daemon docker = docker()) {
-            server.load(stage).remove(engine, docker, server.createRegistry(engine));
+        try (Engine engine = engine()) {
+            server.load(stage).remove(engine, server.createRegistry(engine));
         }
     }
 
