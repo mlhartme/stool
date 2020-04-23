@@ -18,7 +18,6 @@ package net.oneandone.stool.server.util;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
@@ -32,7 +31,6 @@ import java.util.Map;
 public class Context {
     public final Engine engine;
     public final Registry registry;
-    private Map<String, ImageInfo> lazyAllImageMap;
     private final Map<String, List<Image>> stageImages;
     private Map<String, PodInfo> lazyAllPodMap;
     private final Map<String, PodInfo> runningPodOpts;
@@ -42,7 +40,6 @@ public class Context {
     public Context(Engine engine, Registry registry) {
         this.engine = engine;
         this.registry = registry;
-        this.lazyAllImageMap = null;
         this.stageImages = new HashMap<>();
         this.lazyAllPodMap = null;
         this.runningPodOpts = new HashMap<>();
@@ -50,19 +47,12 @@ public class Context {
         this.urlMaps = new HashMap<>();
     }
 
-    public Map<String, ImageInfo> allImages() throws IOException {
-        if (lazyAllImageMap == null) {
-            lazyAllImageMap = registry.imageList();
-        }
-        return lazyAllImageMap;
-    }
-
     public List<Image> images(Stage stage) throws IOException {
         List<Image> result;
 
         result = stageImages.get(stage.getName());
         if (result == null) {
-            result = stage.images(registry, allImages());
+            result = stage.images(registry);
             stageImages.put(stage.getName(), result);
         }
         return result;

@@ -20,7 +20,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Main;
@@ -82,10 +81,6 @@ public class ApiController {
 
     private Engine engine() throws IOException {
         return Engine.create();
-    }
-
-    private Daemon docker() throws IOException {
-        return Daemon.create(engineLogFile);
     }
 
     @GetMapping("/info")
@@ -347,7 +342,7 @@ public class ApiController {
 
         environment = map(request, "env.");
         global = server.configuration.diskQuota;
-        try (Engine engine = engine(); Daemon docker = docker()) {
+        try (Engine engine = engine()) {
             registry = server.createRegistry(engine);
             if (global != 0) {
                 reserved = server.diskQuotaReserved(engine, registry);

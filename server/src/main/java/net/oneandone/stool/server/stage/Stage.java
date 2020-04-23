@@ -24,7 +24,6 @@ import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.kubernetes.Data;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.kubernetes.ServiceInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
@@ -483,36 +482,22 @@ public class Stage {
         }
     }
 
-    /** @return list of repositoryTags belonging to this stage */
-    private List<String> imageTags(Map<String, ImageInfo> imageMap) {
-        ImageInfo info;
-        List<String> result;
-
-        result = new ArrayList<>();
-        for (Map.Entry<String, ImageInfo> entry : imageMap.entrySet()) {
-            info = entry.getValue();
-            for (String repositoryTag : info.repositoryTags) {
-                if (repositoryTag.startsWith(server.configuration.registryNamespace + "/" + name + ":")) {
-                    result.add(repositoryTag);
-                }
-            }
-        }
-        return result;
-    }
-
     /** @return sorted list */
     public List<Image> images(Registry registry) throws IOException {
-        return images(registry, registry.imageList());
-    }
-
-    /** @return sorted list */
-    public List<Image> images(Registry registry, Map<String, ImageInfo> imageMap) throws IOException {
+        List<String> tags;
         List<Image> result;
+        String repositoryTag;
         Map<String, Image> all;
         Image image;
 
         result = new ArrayList<>();
-        for (String repositoryTag : imageTags(imageMap)) {
+        try {
+            tags = registry.tags(name);
+        } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
+            return result;
+        }
+        for (String tag : tags) {
+            repositoryTag = server.configuration.registryNamespace + "/" + name + ":" + tag;
             all = Image.loadAll(registry, repositoryTag);
             image = all.get(repositoryTag);
             if (image == null) {
