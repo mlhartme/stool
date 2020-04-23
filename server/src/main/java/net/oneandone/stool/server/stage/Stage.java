@@ -612,7 +612,7 @@ public class Stage {
 
         podName = podName();
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
-        memoryReserved = server.memoryReservedContainers(engine, docker, registry);
+        memoryReserved = server.memoryReservedContainers(engine, registry);
         memoryQuota = server.configuration.memoryQuota;
         image = resolve(registry, imageOpt);
         running = runningPodOpt(engine);

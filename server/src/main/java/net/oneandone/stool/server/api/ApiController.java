@@ -98,7 +98,7 @@ public class ApiController {
             result = new JsonObject();
             result.addProperty("version", Main.versionString(World.createMinimal() /* TODO */));
             result.addProperty("memory-quota", server.configuration.memoryQuota == 0
-                    ? "" : server.memoryReservedContainers(engine, docker, registry) + "/" + server.configuration.memoryQuota);
+                    ? "" : server.memoryReservedContainers(engine, registry) + "/" + server.configuration.memoryQuota);
             result.addProperty("disk-quota", server.configuration.diskQuota == 0
                     ? "" : server.diskQuotaReserved(engine, docker, registry) + "/" + server.configuration.diskQuota);
             return result.toString();

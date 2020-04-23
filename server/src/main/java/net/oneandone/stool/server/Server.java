@@ -430,14 +430,14 @@ public class Server {
     //--
 
     /** used for running containers */
-    public int memoryReservedContainers(Engine engine, Daemon docker, Registry registry) throws IOException {
+    public int memoryReservedContainers(Engine engine, Registry registry) throws IOException {
         int reserved;
         Image image;
 
         reserved = 0;
         for (PodInfo pod : Stage.allPodMap(engine).values()) { // TODO: expensive
             if (pod.isRunning()) {
-                image = Image.load(registry, pod, Stage.container(docker, pod).imageId);
+                image = Image.load(registry, pod, pod.imageId);
                 reserved += image.memory;
             }
         }
