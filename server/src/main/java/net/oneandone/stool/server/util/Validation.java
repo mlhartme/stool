@@ -60,7 +60,7 @@ public class Validation {
     private void doRun(Stage stage, List<String> report, boolean repair) throws IOException {
         try {
             stage.checkExpired();
-            stage.checkDiskQuota(engine, docker, registry);
+            stage.checkDiskQuota(engine, registry);
             checkPorts(stage);
             return;
         } catch (ArgumentException e) {

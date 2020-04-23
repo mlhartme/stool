@@ -136,8 +136,8 @@ public class ApiController {
 
         result = new JsonArray();
         problems = new HashMap<>();
-        try (Engine engine = engine(); Daemon docker = docker()) {
-            context = new Context(engine, docker, server.createRegistry(engine));
+        try (Engine engine = engine()) {
+            context = new Context(engine, server.createRegistry(engine));
             for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
                 result.add(new JsonPrimitive(stage.getName()));
             }
@@ -156,8 +156,8 @@ public class ApiController {
 
         result = new JsonObject();
         problems = new HashMap<>();
-        try (Engine engine = engine(); Daemon docker = docker()) {
-            context = new Context(engine, docker, server.createRegistry(engine));
+        try (Engine engine = engine()) {
+            context = new Context(engine, server.createRegistry(engine));
             for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
                 select = "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr);
                 obj = new JsonObject();
@@ -213,8 +213,8 @@ public class ApiController {
         Context context;
 
         result = new JsonObject();
-        try (Engine engine = engine(); Daemon docker = docker()) {
-            context = new Context(engine, docker, server.createRegistry(engine));
+        try (Engine engine = engine()) {
+            context = new Context(engine, server.createRegistry(engine));
             for (Property property : server.load(stage).properties()) {
                 result.add(property.name(), new JsonPrimitive(property.get(context)));
             }
@@ -234,8 +234,8 @@ public class ApiController {
         stage = server.load(stageName);
         arguments = map(request, "");
         result = new JsonObject();
-        try (Engine engine = engine(); Daemon docker = docker()) {
-            context = new Context(engine, docker, server.createRegistry(engine));
+        try (Engine engine = engine()) {
+            context = new Context(engine, server.createRegistry(engine));
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
                 prop = stage.propertyOpt(entry.getKey());
                 if (prop == null) {
@@ -269,8 +269,8 @@ public class ApiController {
             selection = Separator.COMMA.split(select);
         }
         result = new JsonObject();
-        try (Engine engine = engine(); Daemon docker = docker()) {
-            context = new Context(engine, docker, server.createRegistry(engine));
+        try (Engine engine = engine()) {
+            context = new Context(engine, server.createRegistry(engine));
             for (Info info : server.load(stage).fields()) {
                 if (selection == null || selection.remove(info.name())) {
                     result.add(info.name(), new JsonPrimitive(info.getAsString(context)));
@@ -358,7 +358,7 @@ public class ApiController {
 
             stage = server.load(stageName);
             stage.checkExpired();
-            stage.checkDiskQuota(engine, docker, registry);
+            stage.checkDiskQuota(engine, registry);
             return json(stage.start(engine, docker, registry,
                     server.pool, image.isEmpty() ? null : image, http, https, environment)).toString();
         }
@@ -374,10 +374,10 @@ public class ApiController {
         Registry registry;
         Stage stage;
 
-        try (Engine engine = engine(); Daemon docker = docker()) {
+        try (Engine engine = engine()) {
             registry = server.createRegistry(engine);
             stage = server.load(stageName);
-            stage.awaitStartup(new Context(engine, docker, registry));
+            stage.awaitStartup(new Context(engine, registry));
 
             if (stage.currentOpt(engine, registry) == null) {
                 throw new IllegalStateException();

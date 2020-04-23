@@ -296,7 +296,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = context.containerStats(current.pod.containerId);
+                stats = null; // TODO: containerStats;
                 if (stats != null) {
                     return stats.cpu;
                 } else {
@@ -315,7 +315,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = context.containerStats(current.pod.containerId);
+                stats = null; // TODO: containerStats
                 if (stats != null) {
                     return stats.memoryUsage * 100 / stats.memoryLimit;
                 } else {
@@ -536,7 +536,7 @@ public class Stage {
     }
 
     // --storage-opt size=42m could limit disk space, but it's only available for certain storage drivers (with certain mount options) ...
-    public void checkDiskQuota(Engine engine, Daemon docker, Registry registry) throws IOException {
+    public void checkDiskQuota(Engine engine, Registry registry) throws IOException {
         int used;
         int quota;
         Current current;
@@ -546,7 +546,7 @@ public class Stage {
         if (current != null) {
             containerId = current.pod.containerId;
             if (containerId != null) {
-                used = new Context(engine, docker, registry).sizeRw(containerId);
+                used = new Context(engine, registry).sizeRw(containerId);
                 quota = current.image.disk;
                 if (used > quota) {
                     throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");
@@ -1109,7 +1109,7 @@ public class Stage {
 
     // CAUTION: blocks until ctrl-c.
     // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
-    public void tailF(Engine engine, Daemon docker, PrintWriter dest) throws IOException {
+    public void tailF(Engine engine, PrintWriter dest) throws IOException {
         PodInfo running;
 
         running = runningPodOpt(engine);

@@ -16,9 +16,7 @@
 package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Registry;
-import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.PodInfo;
@@ -33,7 +31,6 @@ import java.util.Map;
 /** Context for info computation. TODO: naming tweaks */
 public class Context {
     public final Engine engine;
-    public final Daemon docker;
     public final Registry registry;
     private Map<String, ImageInfo> lazyAllImageMap;
     private final Map<String, List<Image>> stageImages;
@@ -42,15 +39,8 @@ public class Context {
     private final Map<String, Stage.Current> currentOpts;
     private final Map<String, Map<String, String>> urlMaps;
 
-    // CAUTION: key is the container id; with rw
-    private final Map<String, JsonObject> containerInspects;
-
-    // CAUTION: key is the container id
-    private final Map<String, Stats> containerStats;
-
-    public Context(Engine engine, Daemon docker, Registry registry) {
+    public Context(Engine engine, Registry registry) {
         this.engine = engine;
-        this.docker = docker;
         this.registry = registry;
         this.lazyAllImageMap = null;
         this.stageImages = new HashMap<>();
@@ -58,8 +48,6 @@ public class Context {
         this.runningPodOpts = new HashMap<>();
         this.currentOpts = new HashMap<>();
         this.urlMaps = new HashMap<>();
-        this.containerInspects = new HashMap<>();
-        this.containerStats = new HashMap<>();
     }
 
     public Map<String, ImageInfo> allImages() throws IOException {
@@ -130,29 +118,10 @@ public class Context {
         if (containerId == null) {
             return 0;
         }
+        return 0;
+        /*
         obj = containerInspect(containerId);
-        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
+        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024)); */
     }
 
-    private JsonObject containerInspect(String containerId) throws IOException {
-        JsonObject result;
-
-        result = containerInspects.get(containerId);
-        if (result == null) {
-            result = docker.containerInspect(containerId, true);
-            containerInspects.put(containerId, result);
-        }
-        return result;
-    }
-
-    public Stats containerStats(String containerId) throws IOException {
-        Stats result;
-
-        result = containerStats.get(containerId);
-        if (result == null) {
-            result = docker.containerStats(containerId);
-            containerStats.put(containerId, result);
-        }
-        return result;
-    }
 }
