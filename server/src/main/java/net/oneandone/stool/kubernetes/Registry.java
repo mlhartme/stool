@@ -143,7 +143,7 @@ public class Registry {
 
 
     /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
-    public ImageInfo info(String repository, String tag) throws IOException {
+    private ImageInfo info(String repository, String tag) throws IOException {
         JsonObject manifest;
         String digest;
         JsonObject info;

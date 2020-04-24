@@ -17,7 +17,7 @@ package net.oneandone.stool.kubernetes;
 
 import net.oneandone.stool.docker.AuthException;
 import net.oneandone.stool.docker.Daemon;
-import net.oneandone.stool.docker.ImageInfo;
+import net.oneandone.stool.server.stage.TagInfo;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -58,7 +58,7 @@ public class RegistryIT {
         Registry registry;
         Map<Integer, String> ports;
         Writer log;
-        ImageInfo info;
+        TagInfo info;
 
         try (Daemon docker = Daemon.create(/* "target/registry-wire.log" */ null)) {
             ports = new HashMap<>();
@@ -81,11 +81,8 @@ public class RegistryIT {
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     assertEquals(Arrays.asList("1"), registry.tags("registrytest"));
-                    info = registry.info("registrytest", "1");
-                    System.out.println("digest: " + info.id);
-                    System.out.println("labels: " + info.labels);
-
-                    registry.delete("registrytest", info.id);
+                    info = registry.tagInfo("registrytest", "1");
+                    registry.delete("registrytest", "sha256:" + info.id);
            /* TODO
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     assertEquals(Arrays.asList("registrytest"), registry.tags("registrytest"));
@@ -123,7 +120,7 @@ public class RegistryIT {
                     "target/portus-wire.log");
             tags = registry.tags(repository);
             System.out.println("tags: " + tags);
-            System.out.println("info: " + registry.info(repository, tags.get(0)));
+            System.out.println("info: " + registry.tagInfo(repository, tags.get(0)));
             System.out.println("v1 tags: " + registry.portusTags("6"));
         }
     }
