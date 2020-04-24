@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.docker;
+package net.oneandone.stool.kubernetes;
 
+import net.oneandone.stool.docker.AuthException;
+import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Strings;
 import org.junit.Test;
@@ -34,6 +38,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class RegistryIT {
+    private static final World WORLD;
+
+    static {
+        try {
+            WORLD = World.create();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     @Test
     public void localhost() throws IOException {
         final int registryPort = 5000;
@@ -58,10 +72,10 @@ public class RegistryIT {
                 imageName = registryPrefix + "/registrytest:1";
                 docker.imageBuild(imageName, Collections.emptyMap(),
                         Strings.toMap("label1", "value1", "xyz", "123"),
-                        DaemonIT.dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
+                        dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
                         false, log);
                 try {
-                    root = (HttpNode) World.create().validNode("http://" + registryPrefix);
+                    root = (HttpNode) WORLD.validNode("http://" + registryPrefix);
                     registry = Registry.create(root);
                     assertEquals(Arrays.asList(), registry.catalog());
                     docker.imagePush(imageName);
@@ -90,16 +104,14 @@ public class RegistryIT {
     }
     @Test
     public void portus() throws IOException {
-        World world;
         String repository;
         HttpNode root;
         Registry registry;
         Properties p;
         List<String> tags;
 
-        world = World.create();
-        p = world.guessProjectHome(getClass()).join("test.properties").readProperties();
-        root = (HttpNode) world.validNode("https://" + get(p, "portus"));
+        p = WORLD.guessProjectHome(getClass()).join("test.properties").readProperties();
+        root = (HttpNode) WORLD.validNode("https://" + get(p, "portus"));
         repository = get(p, "repository");
         registry = Registry.create(root, "target/contargo.log");
         try {
@@ -124,5 +136,16 @@ public class RegistryIT {
             throw new IOException("property not found: " + key);
         }
         return value;
+    }
+
+    public static FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {
+        FileNode dir;
+
+        dir = WORLD.getTemp().createTempDirectory();
+        dir.join("Dockerfile").writeString(dockerfile);
+        for (FileNode extra : extras) {
+            extra.copyFile(dir.join(extra.getName()));
+        }
+        return dir;
     }
 }

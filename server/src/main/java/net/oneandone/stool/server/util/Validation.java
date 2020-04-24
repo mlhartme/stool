@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.docker.Registry;
+import net.oneandone.stool.kubernetes.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;

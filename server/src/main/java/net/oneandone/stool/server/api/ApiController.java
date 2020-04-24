@@ -20,7 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.stool.docker.Registry;
+import net.oneandone.stool.kubernetes.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;

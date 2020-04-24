@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
-import net.oneandone.stool.docker.Registry;
+import net.oneandone.stool.kubernetes.Registry;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.stage.Image;

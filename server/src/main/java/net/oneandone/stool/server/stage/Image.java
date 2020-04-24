@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.stage;
 
 import net.oneandone.stool.docker.ImageInfo;
-import net.oneandone.stool.docker.Registry;
+import net.oneandone.stool.kubernetes.Registry;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.sushi.util.Separator;
