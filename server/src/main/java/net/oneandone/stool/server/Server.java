@@ -17,14 +17,10 @@ package net.oneandone.stool.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Accessor;
@@ -49,7 +45,6 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -88,7 +83,7 @@ public class Server {
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
         try (Engine engine = Engine.create()) {
-            binds = binds(engine, config);
+            binds = binds(engine);
             pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
@@ -101,42 +96,7 @@ public class Server {
         }
     }
 
-    private static Map<String, String> binds(Engine engine, ServerConfiguration config) throws IOException {
-        PodInfo self;
-        Map<String, String> oldBinds;
-        Map<String, String> newBinds;
-
-        self = selfPod(engine);
-        oldBinds = oldBinds(self, config);
-        newBinds = newBinds(engine);
-        System.out.println("newBinds: " + newBinds);
-        System.out.println("oldBinds: " + oldBinds);
-        return newBinds;
-    }
-
-    /*
-    newBinds: {
-       /etc/fault/workspace=/Users/mhm/.fault
-       /root/.kube=/Users/mhm/.kube
-       /var/lib/stool=/Users/mhm/Projects/github.com/net/oneandone/stool/stool/client/target/it/home/server
-       /var/lib/stool/templates=/Users/mhm/Packages/cisotools/stool/templates-5
-       /var/run/docker.sock=/var/run/docker.sock
-     }
-     oldBinds: {
-       /var/run/secrets/kubernetes.io/serviceaccount=/var/lib/kubelet/pods/c9f0d47c-5e7e-4e01-9eae-7c88243a3eb8/volumes/kubernetes.io~secret/default-token-qssgc,
-       /etc/hosts=/var/lib/kubelet/pods/c9f0d47c-5e7e-4e01-9eae-7c88243a3eb8/etc-hosts
-       /dev/termination-log=/var/lib/kubelet/pods/c9f0d47c-5e7e-4e01-9eae-7c88243a3eb8/containers/stool-server/6a8725f4,
-
-       /etc/fault/workspace=/Users/mhm/.fault,
-       /root/.kube=/Users/mhm/.kube,
-       /var/lib/stool=/Users/mhm/Projects/github.com/net/oneandone/stool/stool/client/target/it/home/server,
-       /var/lib/stool/templates=/Users/mhm/Packages/cisotools/stool/templates-5,
-       /var/run/docker.sock=/var/run/docker.sock,
-     }
-
-     */
-
-    private static Map<String, String> newBinds(Engine engine) throws IOException {
+    private static Map<String, String> binds(Engine engine) throws IOException {
         V1Pod pod;
         Map<String, String> result;
         List<V1Container> lst;
@@ -171,11 +131,6 @@ public class Server {
         throw new IOException("volume mount not found: " + name);
     }
 
-    private static Map<String, String> oldBinds(PodInfo self, ServerConfiguration config) throws IOException {
-        Daemon docker = Daemon.create(config.engineLogFile());
-        return binds(inspect(self, docker));
-    }
-
     private static FileNode toHostFile(Map<String, String> binds, FileNode container) throws IOException {
         String hostPath;
 
@@ -184,64 +139,6 @@ public class Server {
             throw new IOException("no mapping found for " + container.getAbsolute() + ": " + binds);
         }
         return container.getWorld().file(hostPath);
-    }
-
-    private static PodInfo selfPod(Engine engine) throws IOException {
-        PodInfo pod;
-
-        pod = engine.podProbe("stool-server");
-        if (pod == null) {
-            throw new IOException("server pod not found");
-        }
-        return pod;
-    }
-
-    private static JsonObject inspect(PodInfo self, Daemon docker) throws IOException {
-        try {
-            return docker.containerInspect(self.containerId, false);
-        } catch (IOException e) {
-            throw new IOException("cannot inspect server container '" + self.containerId + ":' " + e.getMessage(), e);
-        }
-    }
-
-    /** @return container- to host path mapping with absolute paths without tailing / */
-    private static Map<String, String> binds(JsonObject inspected) throws IOException {
-        List<String> modes = Strings.toList("ro", "rw");
-        JsonArray binds;
-        String str;
-        int first;
-        int last;
-        Map<String, String> result;
-
-        binds = inspected.get("HostConfig").getAsJsonObject().get("Binds").getAsJsonArray();
-        result = new HashMap<>();
-        for (JsonElement element : binds) {
-            str = element.getAsString();
-            LOGGER.info("bind: " + str);
-            first = str.indexOf(':');
-            if (first == -1) {
-                throw new IOException("unexpected bind: " + str);
-            }
-            last = str.lastIndexOf(':');
-            if (last != first) {
-                if (!modes.contains(str.substring(last + 1))) {
-                    throw new IOException("unexpected mode: " + str.substring(last + 1));
-                }
-                str = str.substring(0, last);
-            }
-            result.put(canonical(str.substring(first + 1)), canonical(str.substring(0, first)));
-        }
-        return result;
-    }
-
-    private static String canonical(String str) throws IOException {
-        if (!str.startsWith("/")) {
-            throw new IOException("absolute path expeccted: " + str);
-        }
-        if (str.endsWith("/")) {
-            str = str.substring(0, str.length() - 1);
-        }
-        return str;
     }
 
     //--
