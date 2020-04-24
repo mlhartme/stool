@@ -21,17 +21,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.docker.AuthException;
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.server.stage.TagInfo;
+import net.oneandone.stool.server.util.Ports;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.fs.http.model.Method;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,6 +152,8 @@ public class Registry {
         JsonObject obj;
         String author;
         LocalDateTime created;
+        Map<String, String> labels;
+        String repositoryTag;
 
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
@@ -157,12 +163,80 @@ public class Registry {
             created = LocalDateTime.parse(obj.get("created_at").getAsString(), Daemon.DATE_FORMAT);
             author = obj.get("author").getAsJsonObject().get("name").getAsString();
         } else {
+            // TODO
             created = null;
             author = null;
         }
-        // TODO: author
-        return TagInfo.create(digest, repository, tag, created,
-                toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject()));
+        labels = toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
+        repositoryTag = "127.0.0.1:31500/" + repository + ":" + tag; // TODO
+        return new TagInfo(digest, repositoryTag, tag, author,
+                Ports.fromDeclaredLabels(labels), labels.get(ImageInfo.IMAGE_LABEL_P12),
+                disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
+                context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
+                suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
+                labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
+                created, labels.get(ImageInfo.IMAGE_LABEL_CREATED_BY), args(labels),
+                fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)));
+    }
+
+    private static Map<String, String> args(Map<String, String> labels) {
+        Map<String, String> result;
+        String key;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, String> entry : labels.entrySet()) {
+            key = entry.getKey();
+            if (key.startsWith(ImageInfo.IMAGE_LABEL_ARG_PREFIX)) {
+                result.put(key.substring(ImageInfo.IMAGE_LABEL_ARG_PREFIX.length()), entry.getValue());
+            }
+        }
+        return result;
+    }
+
+    private static int memory(String memory) {
+        return memory == null ? 1024 : Integer.parseInt(memory);
+    }
+
+    private static int disk(String disk) {
+        return disk == null ? 1024 * 42 : Integer.parseInt(disk);
+    }
+
+    private static String context(String context) {
+        String result;
+
+        result = context == null ? "" : context;
+        if (result.startsWith("/")) {
+            throw new ArithmeticException("server must not start with '/': " + result);
+        }
+        if (!result.isEmpty() && result.endsWith("/")) {
+            throw new ArithmeticException("server must not end with '/': " + result);
+        }
+        return result;
+    }
+
+    private static final Separator SUFFIXES_SEP = Separator.on(',').trim();
+
+    private static List<String> suffixes(String suffixes) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        if (suffixes != null) {
+            result.addAll(SUFFIXES_SEP.split(suffixes));
+        }
+        if (result.isEmpty()) {
+            result.add("");
+        }
+        return result;
+    }
+
+    private static List<String> fault(String fault) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        if (fault != null) {
+            result.addAll(Separator.COMMA.split(fault));
+        }
+        return result;
     }
 
 
