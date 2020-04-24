@@ -486,8 +486,6 @@ public class Stage {
     public List<Image> images(Registry registry) throws IOException {
         List<String> tags;
         List<Image> result;
-        String repositoryTag;
-        Map<String, Image> all;
         Image image;
 
         result = new ArrayList<>();
@@ -497,12 +495,7 @@ public class Stage {
             return result;
         }
         for (String tag : tags) {
-            repositoryTag = server.configuration.registryNamespace + "/" + name + ":" + tag;
-            all = Image.loadAll(registry, repositoryTag);
-            image = all.get(repositoryTag);
-            if (image == null) {
-                throw new IllegalStateException("TODO: " + repositoryTag + " " + all.keySet());
-            }
+            image = Image.load(registry, name, tag);
             result.add(image);
         }
         Collections.sort(result);

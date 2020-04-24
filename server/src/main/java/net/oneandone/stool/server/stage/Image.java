@@ -44,8 +44,6 @@ public class Image implements Comparable<Image> {
 
     public static Map<String, Image> loadAll(Registry registry, String idOrRepoTag) throws IOException {
         String repositoryTag;
-        Map<String, String> labels;
-        LocalDateTime created;
         String id;
         Map<String, Image> result;
         ImageInfo info;
@@ -53,24 +51,38 @@ public class Image implements Comparable<Image> {
         result = new HashMap<>();
         for (String repository : registry.catalog()) {
             for (String tag : registry.tags(repository)) {
+                repositoryTag = "127.0.0.1:31500/" + repository + ":" + tag; // TODO
                 info = registry.info(repository, tag);
                 id = Strings.removeLeft(info.id, "sha256:");
-                repositoryTag = "127.0.0.1:31500/" + repository + ":" + tag; // TODO
                 if (idOrRepoTag.equals(id) || idOrRepoTag.equals(repositoryTag)) {
-                    created = info.created;
-                    labels = info.labels;
-                    result.put(repositoryTag, new Image(id, repositoryTag, tag(repositoryTag),
-                            Ports.fromDeclaredLabels(labels), labels.get(ImageInfo.IMAGE_LABEL_P12),
-                            disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
-                            context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
-                            suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
-                            labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
-                            created, labels.get(ImageInfo.IMAGE_LABEL_CREATED_BY), args(labels),
-                            fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT))));
+                    result.put(repositoryTag, load(registry, repository, tag));
                 }
             }
         }
         return result;
+    }
+
+    public static Image load(Registry registry, String repository, String tag) throws IOException {
+        String repositoryTag;
+        Map<String, String> labels;
+        LocalDateTime created;
+        String id;
+        ImageInfo info;
+
+        info = registry.info(repository, tag);
+        id = Strings.removeLeft(info.id, "sha256:");
+        repositoryTag = "127.0.0.1:31500/" + repository + ":" + tag; // TODO
+
+        created = info.created;
+        labels = info.labels;
+        return new Image(id, repositoryTag, tag(repositoryTag),
+                Ports.fromDeclaredLabels(labels), labels.get(ImageInfo.IMAGE_LABEL_P12),
+                disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
+                context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
+                suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
+                labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
+                created, labels.get(ImageInfo.IMAGE_LABEL_CREATED_BY), args(labels),
+                fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)));
     }
 
     private static Map<String, String> args(Map<String, String> labels) {
