@@ -31,35 +31,18 @@ import java.util.Map;
 
 public class Image implements Comparable<Image> {
     public static Image load(Registry registry, PodInfo pod) throws IOException {
-        Map<String, Image> all;
-        Image result;
+        String repository;
+        int idx;
+        String tag;
 
-        all = loadAll(registry, pod.repositoryTag);
-        result = all.get(pod.repositoryTag());
-        if (result == null) {
-            throw new IllegalStateException("missing image for " + pod.repositoryTag() + ": " + all);
+        repository = Strings.removeLeft(pod.repositoryTag, "127.0.0.1:31500/");
+        idx = repository.indexOf(':');
+        if (idx == -1) {
+            throw new IllegalStateException(repository);
         }
-        return result;
-    }
-
-    public static Map<String, Image> loadAll(Registry registry, String idOrRepoTag) throws IOException {
-        String repositoryTag;
-        String id;
-        Map<String, Image> result;
-        ImageInfo info;
-
-        result = new HashMap<>();
-        for (String repository : registry.catalog()) {
-            for (String tag : registry.tags(repository)) {
-                repositoryTag = "127.0.0.1:31500/" + repository + ":" + tag; // TODO
-                info = registry.info(repository, tag);
-                id = Strings.removeLeft(info.id, "sha256:");
-                if (idOrRepoTag.equals(id) || idOrRepoTag.equals(repositoryTag)) {
-                    result.put(repositoryTag, load(registry, repository, tag));
-                }
-            }
-        }
-        return result;
+        tag = repository.substring(idx + 1);
+        repository = repository.substring(0, idx);
+        return load(registry, repository, tag);
     }
 
     public static Image load(Registry registry, String repository, String tag) throws IOException {
