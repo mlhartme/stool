@@ -29,7 +29,7 @@ import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
-import net.oneandone.stool.server.stage.Image;
+import net.oneandone.stool.server.stage.TagInfo;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.Context;
@@ -293,7 +293,7 @@ public class ApiController {
     @GetMapping("/stages/{stage}/images")
     public String images(@PathVariable("stage") String name) throws Exception {
         Stage stage;
-        List<Image> all;
+        List<TagInfo> all;
         Stage.Current current;
         String marker;
         List<String> result;
@@ -306,7 +306,7 @@ public class ApiController {
             stage = server.load(name);
             all = stage.images(registry);
             current = stage.currentOpt(engine, registry);
-            for (Image image : all) {
+            for (TagInfo image : all) {
                 marker = current != null && image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";
                 result.add(image.tag + "  " + marker);
                 result.add("   comment:     " + image.comment);

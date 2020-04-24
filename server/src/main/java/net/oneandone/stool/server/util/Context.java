@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import net.oneandone.stool.kubernetes.Registry;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.stool.server.stage.Image;
+import net.oneandone.stool.server.stage.TagInfo;
 import net.oneandone.stool.server.stage.Stage;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.Map;
 public class Context {
     public final Engine engine;
     public final Registry registry;
-    private final Map<String, List<Image>> stageImages;
+    private final Map<String, List<TagInfo>> stageImages;
     private Map<String, PodInfo> lazyAllPodMap;
     private final Map<String, PodInfo> runningPodOpts;
     private final Map<String, Stage.Current> currentOpts;
@@ -47,8 +47,8 @@ public class Context {
         this.urlMaps = new HashMap<>();
     }
 
-    public List<Image> images(Stage stage) throws IOException {
-        List<Image> result;
+    public List<TagInfo> images(Stage stage) throws IOException {
+        List<TagInfo> result;
 
         result = stageImages.get(stage.getName());
         if (result == null) {

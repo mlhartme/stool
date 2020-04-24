@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Image implements Comparable<Image> {
-    public static Image load(Registry registry, PodInfo pod) throws IOException {
+public class TagInfo implements Comparable<TagInfo> {
+    public static TagInfo load(Registry registry, PodInfo pod) throws IOException {
         String repository;
         int idx;
         String tag;
@@ -45,7 +45,7 @@ public class Image implements Comparable<Image> {
         return load(registry, repository, tag);
     }
 
-    public static Image load(Registry registry, String repository, String tag) throws IOException {
+    public static TagInfo load(Registry registry, String repository, String tag) throws IOException {
         String repositoryTag;
         Map<String, String> labels;
         LocalDateTime created;
@@ -58,7 +58,7 @@ public class Image implements Comparable<Image> {
 
         created = info.created;
         labels = info.labels;
-        return new Image(id, repositoryTag, tag(repositoryTag),
+        return new TagInfo(id, repositoryTag, tag(repositoryTag),
                 Ports.fromDeclaredLabels(labels), labels.get(ImageInfo.IMAGE_LABEL_P12),
                 disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
@@ -173,8 +173,8 @@ public class Image implements Comparable<Image> {
     public final List<String> faultProjects;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Image(String id, String repositoryTag, String tag, Ports ports, String p12, int disk, int memory, String urlContext, List<String> urlSuffixes, String comment,
-                 String originScm, String originUser, LocalDateTime createdAt, String createdBy, Map<String, String> args, List<String> faultProjects) {
+    public TagInfo(String id, String repositoryTag, String tag, Ports ports, String p12, int disk, int memory, String urlContext, List<String> urlSuffixes, String comment,
+                   String originScm, String originUser, LocalDateTime createdAt, String createdBy, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
@@ -209,7 +209,7 @@ public class Image implements Comparable<Image> {
     }
 
     @Override
-    public int compareTo(Image o) {
+    public int compareTo(TagInfo o) {
         if (tagNumber != null && o.tagNumber != null) {
             return tagNumber.compareTo(o.tagNumber);
         } else if (tagNumber == null && o.tagNumber == null) {
@@ -225,8 +225,8 @@ public class Image implements Comparable<Image> {
 
     //--
 
-    public static int nextTag(List<Image> images) {
-        Image image;
+    public static int nextTag(List<TagInfo> images) {
+        TagInfo image;
 
         for (int i = images.size() - 1; i >= 0; i--) {
             image = images.get(i);

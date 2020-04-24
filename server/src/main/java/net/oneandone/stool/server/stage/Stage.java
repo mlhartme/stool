@@ -178,7 +178,7 @@ public class Stage {
                 List<String> result;
 
                 result = new ArrayList<>();
-                for (Image image : context.images(Stage.this)) {
+                for (TagInfo image : context.images(Stage.this)) {
                     result.add(image.tag);
                 }
                 return result;
@@ -483,10 +483,10 @@ public class Stage {
     }
 
     /** @return sorted list */
-    public List<Image> images(Registry registry) throws IOException {
+    public List<TagInfo> images(Registry registry) throws IOException {
         List<String> tags;
-        List<Image> result;
-        Image image;
+        List<TagInfo> result;
+        TagInfo image;
 
         result = new ArrayList<>();
         try {
@@ -495,7 +495,7 @@ public class Stage {
             return result;
         }
         for (String tag : tags) {
-            image = Image.load(registry, name, tag);
+            image = TagInfo.load(registry, name, tag);
             result.add(image);
         }
         Collections.sort(result);
@@ -580,7 +580,7 @@ public class Stage {
         Map<String, String> labels;
         int memoryQuota;
         int memoryReserved;
-        Image image;
+        TagInfo image;
 
         podName = podName();
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
@@ -679,9 +679,9 @@ public class Stage {
         }
     }
 
-    private Image resolve(Registry registry, String imageOpt) throws IOException {
-        List<Image> all;
-        Image image;
+    private TagInfo resolve(Registry registry, String imageOpt) throws IOException {
+        List<TagInfo> all;
+        TagInfo image;
 
         all = images(registry);
         if (all.isEmpty()) {
@@ -698,8 +698,8 @@ public class Stage {
         return image;
     }
 
-    private static Image lookup(List<Image> images, String tag) {
-        for (Image image : images) {
+    private static TagInfo lookup(List<TagInfo> images, String tag) {
+        for (TagInfo image : images) {
             if (image.tag.equals(tag)) {
                 return image;
             }
@@ -733,7 +733,7 @@ public class Stage {
         return result;
     }
 
-    private Data certMountOpt(Image image) throws IOException {
+    private Data certMountOpt(TagInfo image) throws IOException {
         FileNode file;
         Data result;
         int idx;
@@ -752,7 +752,7 @@ public class Stage {
         return result;
     }
 
-    private Data faultDataOpt(Image image) throws IOException {
+    private Data faultDataOpt(TagInfo image) throws IOException {
         Data result;
         List<String> missing;
         FileNode innerRoot;
@@ -808,13 +808,13 @@ public class Stage {
     public Map<String, String> urlMap(Registry registry, Pool pool, Collection<PodInfo> allPodList) throws IOException {
         Map<String, String> result;
         Ports ports;
-        Image image;
+        TagInfo image;
 
         result = new LinkedHashMap<>();
         image = null;
         for (PodInfo pod : allPodList) {
             if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
-                image = Image.load(registry, pod);
+                image = TagInfo.load(registry, pod);
             }
         }
         ports = pool.stageOpt(name);
@@ -824,7 +824,7 @@ public class Stage {
         return result;
     }
 
-    private void addUrlMap(Image image, Ports ports, Map<String, String> dest) {
+    private void addUrlMap(TagInfo image, Ports ports, Map<String, String> dest) {
         if (image == null) {
             throw new IllegalStateException("no image for stage " + name);
         }
@@ -850,7 +850,7 @@ public class Stage {
         }
     }
 
-    private List<String> url(Image image, String protocol, int port) {
+    private List<String> url(TagInfo image, String protocol, int port) {
         String hostname;
         String url;
         List<String> result;
@@ -880,10 +880,10 @@ public class Stage {
     //--
 
     public static class Current {
-        public final Image image;
+        public final TagInfo image;
         public final PodInfo pod;
 
-        public Current(Image image, PodInfo pod) {
+        public Current(TagInfo image, PodInfo pod) {
             this.image = image;
             this.pod = pod;
         }
@@ -945,13 +945,13 @@ public class Stage {
     }
 
     public Current currentOpt(Registry registry, PodInfo runningPodOpt) throws IOException {
-        Image image;
+        TagInfo image;
 
         if (runningPodOpt != null) {
             if (runningPodOpt.containerId == null) {
                 throw new IllegalStateException("TODO");
             }
-            image = Image.load(registry, runningPodOpt);
+            image = TagInfo.load(registry, runningPodOpt);
             return new Current(image, runningPodOpt);
         } else {
             return null;
