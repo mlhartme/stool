@@ -302,6 +302,14 @@ public class Engine implements AutoCloseable {
 
     // TODO
     public PodInfo podProbe(String name) throws IOException {
+        V1Pod pod;
+
+        pod = podRaw(name);
+        return pod == null ? null : PodInfo.create(pod);
+    }
+
+    // TODO
+    public V1Pod podRaw(String name) throws IOException {
         V1PodList list;
 
         try {
@@ -309,7 +317,7 @@ public class Engine implements AutoCloseable {
                     null, null, null, null);
             for (V1Pod pod : list.getItems()) {
                 if (name.equals(pod.getMetadata().getName())) {
-                    return PodInfo.create(pod);
+                    return pod;
                 }
             }
         } catch (ApiException e) {

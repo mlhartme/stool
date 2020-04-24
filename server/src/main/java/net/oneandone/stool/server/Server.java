@@ -20,6 +20,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.kubernetes.client.openapi.models.V1Container;
+import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1Volume;
+import io.kubernetes.client.openapi.models.V1VolumeMount;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
@@ -83,8 +87,8 @@ public class Server {
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
-        try (Engine engine = Engine.create(); Daemon docker = Daemon.create(config.engineLogFile())) {
-            binds = binds(inspectSelf(engine, docker));
+        try (Engine engine = Engine.create()) {
+            binds = binds(engine, config);
             pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
@@ -97,6 +101,81 @@ public class Server {
         }
     }
 
+    private static Map<String, String> binds(Engine engine, ServerConfiguration config) throws IOException {
+        PodInfo self;
+        Map<String, String> oldBinds;
+        Map<String, String> newBinds;
+
+        self = selfPod(engine);
+        oldBinds = oldBinds(self, config);
+        newBinds = newBinds(engine);
+        System.out.println("newBinds: " + newBinds);
+        System.out.println("oldBinds: " + oldBinds);
+        return newBinds;
+    }
+
+    /*
+    newBinds: {
+       /etc/fault/workspace=/Users/mhm/.fault
+       /root/.kube=/Users/mhm/.kube
+       /var/lib/stool=/Users/mhm/Projects/github.com/net/oneandone/stool/stool/client/target/it/home/server
+       /var/lib/stool/templates=/Users/mhm/Packages/cisotools/stool/templates-5
+       /var/run/docker.sock=/var/run/docker.sock
+     }
+     oldBinds: {
+       /var/run/secrets/kubernetes.io/serviceaccount=/var/lib/kubelet/pods/c9f0d47c-5e7e-4e01-9eae-7c88243a3eb8/volumes/kubernetes.io~secret/default-token-qssgc,
+       /etc/hosts=/var/lib/kubelet/pods/c9f0d47c-5e7e-4e01-9eae-7c88243a3eb8/etc-hosts
+       /dev/termination-log=/var/lib/kubelet/pods/c9f0d47c-5e7e-4e01-9eae-7c88243a3eb8/containers/stool-server/6a8725f4,
+
+       /etc/fault/workspace=/Users/mhm/.fault,
+       /root/.kube=/Users/mhm/.kube,
+       /var/lib/stool=/Users/mhm/Projects/github.com/net/oneandone/stool/stool/client/target/it/home/server,
+       /var/lib/stool/templates=/Users/mhm/Packages/cisotools/stool/templates-5,
+       /var/run/docker.sock=/var/run/docker.sock,
+     }
+
+     */
+
+    private static Map<String, String> newBinds(Engine engine) throws IOException {
+        V1Pod pod;
+        Map<String, String> result;
+        List<V1Container> lst;
+        V1Container container;
+
+        pod = engine.podRaw("stool-server");
+        if (pod == null) {
+            throw new IOException("stool-server not found");
+        }
+        lst = pod.getSpec().getContainers();
+        if (lst == null || lst.size() != 1) {
+            throw new IOException("1 container expected: " + lst);
+        }
+        container = lst.get(0);
+        result = new HashMap<>();
+        for (V1Volume volume : pod.getSpec().getVolumes()) {
+            if (volume.getHostPath() != null) {
+                result.put(mount(container, volume.getName()), volume.getHostPath().getPath());
+            } else {
+                System.out.println("ignore volume: " + volume);
+            }
+        }
+        return result;
+    }
+
+    private static String mount(V1Container container, String name) throws IOException {
+        for (V1VolumeMount mount : container.getVolumeMounts()) {
+            if (name.equals(mount.getName())) {
+                return mount.getMountPath();
+            }
+        }
+        throw new IOException("volume mount not found: " + name);
+    }
+
+    private static Map<String, String> oldBinds(PodInfo self, ServerConfiguration config) throws IOException {
+        Daemon docker = Daemon.create(config.engineLogFile());
+        return binds(inspect(self, docker));
+    }
+
     private static FileNode toHostFile(Map<String, String> binds, FileNode container) throws IOException {
         String hostPath;
 
@@ -107,20 +186,21 @@ public class Server {
         return container.getWorld().file(hostPath);
     }
 
-    private static JsonObject inspectSelf(Engine engine, Daemon docker) throws IOException {
+    private static PodInfo selfPod(Engine engine) throws IOException {
         PodInfo pod;
-        String container;
 
         pod = engine.podProbe("stool-server");
         if (pod == null) {
             throw new IOException("server pod not found");
         }
-        container = pod.containerId;
-        LOGGER.info("server container id: " + container);
+        return pod;
+    }
+
+    private static JsonObject inspect(PodInfo self, Daemon docker) throws IOException {
         try {
-            return docker.containerInspect(container, false);
+            return docker.containerInspect(self.containerId, false);
         } catch (IOException e) {
-            throw new IOException("cannot inspect server container '" + container + ":' " + e.getMessage(), e);
+            throw new IOException("cannot inspect server container '" + self.containerId + ":' " + e.getMessage(), e);
         }
     }
 
