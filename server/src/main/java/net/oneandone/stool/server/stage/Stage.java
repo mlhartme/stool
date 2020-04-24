@@ -478,7 +478,7 @@ public class Stage {
     public void wipeImages(Registry registry) throws IOException {
         for (String tag : registry.tags(name)) {
             Server.LOGGER.debug("remove image: " + server.configuration.registryNamespace + "/" + name + ":" + tag);
-            registry.delete(name, "sha256:" + registry.tagInfo(name, tag).id); // TODO
+            registry.delete(name, registry.info(name, tag).id);
         }
     }
 
@@ -494,7 +494,7 @@ public class Stage {
             return result;
         }
         for (String tag : tags) {
-            result.add(registry.tagInfo(name, tag));
+            result.add(registry.info(name, tag));
         }
         Collections.sort(result);
         return result;

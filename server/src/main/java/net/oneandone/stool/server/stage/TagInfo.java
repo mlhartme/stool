@@ -42,7 +42,7 @@ public class TagInfo implements Comparable<TagInfo> {
         }
         tag = repository.substring(idx + 1);
         repository = repository.substring(0, idx);
-        return registry.tagInfo(repository, tag);
+        return registry.info(repository, tag);
     }
 
     public static TagInfo create(String id, String repository, String tag, LocalDateTime created, Map<String, String> labels) {
@@ -131,7 +131,8 @@ public class TagInfo implements Comparable<TagInfo> {
         return result.substring(idx + 1);
     }
 
-    public final String id;
+    public final String id; // includes "sha256:" prefix
+
     public final String repositoryTag;
     public final String tag;
     /** parsed version, null if version is not a number */

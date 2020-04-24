@@ -143,13 +143,14 @@ public class Registry {
 
 
     /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
-    private ImageInfo info(String repository, String tag) throws IOException {
+    public TagInfo info(String repository, String tag) throws IOException {
         JsonObject manifest;
         String digest;
         JsonObject info;
         JsonObject obj;
         String author;
         LocalDateTime created;
+        ImageInfo im;
 
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
@@ -163,17 +164,9 @@ public class Registry {
             author = null;
         }
         // TODO: strip "sha:" prefix from image id?
-        return new ImageInfo(digest, Strings.toList("127.0.0.1:31500/" /* TODO */ + repository + ":" + tag), created, author,
+        im = new ImageInfo(digest, Strings.toList("127.0.0.1:31500/" /* TODO */ + repository + ":" + tag), created, author,
                 toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject()));
-    }
-
-    public TagInfo tagInfo(String repository, String tag) throws IOException {
-        String id;
-        ImageInfo info;
-
-        info = info(repository, tag);
-        id = Strings.removeLeft(info.id, "sha256:");
-        return TagInfo.create(id, repository, tag, info.created, info.labels);
+        return TagInfo.create(im.id, repository, tag, created, im.labels);
     }
 
 

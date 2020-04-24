@@ -81,8 +81,8 @@ public class RegistryIT {
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     assertEquals(Arrays.asList("1"), registry.tags("registrytest"));
-                    info = registry.tagInfo("registrytest", "1");
-                    registry.delete("registrytest", "sha256:" + info.id);
+                    info = registry.info("registrytest", "1");
+                    registry.delete("registrytest", info.id);
            /* TODO
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     assertEquals(Arrays.asList("registrytest"), registry.tags("registrytest"));
@@ -120,7 +120,7 @@ public class RegistryIT {
                     "target/portus-wire.log");
             tags = registry.tags(repository);
             System.out.println("tags: " + tags);
-            System.out.println("info: " + registry.tagInfo(repository, tags.get(0)));
+            System.out.println("info: " + registry.info(repository, tags.get(0)));
             System.out.println("v1 tags: " + registry.portusTags("6"));
         }
     }
