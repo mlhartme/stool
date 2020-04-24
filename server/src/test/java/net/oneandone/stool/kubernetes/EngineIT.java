@@ -18,7 +18,6 @@ package net.oneandone.stool.kubernetes;
 import net.oneandone.stool.docker.ContainerInfo;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Stats;
-import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;

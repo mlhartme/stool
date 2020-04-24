@@ -313,7 +313,6 @@ public class Setup {
         StringBuilder builder;
 
         builder = new StringBuilder();
-        addMount(builder, "docker-socket", "/var/run/docker.sock", false);
         addMount(builder, "kube-config", "/root/.kube", false);
         addMount(builder, "stool-server", "/var/lib/stool", false);
         if (cisotools != null) {
@@ -327,7 +326,6 @@ public class Setup {
         StringBuilder builder;
 
         builder = new StringBuilder();
-        addVolume(builder, "docker-socket", "/var/run/docker.sock", "File");
         addVolume(builder, "kube-config", world.getHome().join(".kube").getAbsolute(), "Directory");
         addVolume(builder, "stool-server", home.join("server").getAbsolute(), "Directory");
         if (cisotools != null) {
