@@ -21,7 +21,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.docker.AuthException;
 import net.oneandone.stool.docker.Daemon;
-import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.server.stage.TagInfo;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -29,7 +28,6 @@ import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.fs.http.model.Method;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -150,7 +148,6 @@ public class Registry {
         JsonObject obj;
         String author;
         LocalDateTime created;
-        ImageInfo im;
 
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
@@ -163,10 +160,9 @@ public class Registry {
             created = null;
             author = null;
         }
-        // TODO: strip "sha:" prefix from image id?
-        im = new ImageInfo(digest, Strings.toList("127.0.0.1:31500/" /* TODO */ + repository + ":" + tag), created, author,
+        // TODO: author
+        return TagInfo.create(digest, repository, tag, created,
                 toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject()));
-        return TagInfo.create(im.id, repository, tag, created, im.labels);
     }
 
 
