@@ -46,18 +46,18 @@ public class TagInfo implements Comparable<TagInfo> {
     }
 
     public static TagInfo load(Registry registry, String repository, String tag) throws IOException {
-        String repositoryTag;
-        Map<String, String> labels;
-        LocalDateTime created;
         String id;
         ImageInfo info;
 
         info = registry.info(repository, tag);
         id = Strings.removeLeft(info.id, "sha256:");
-        repositoryTag = "127.0.0.1:31500/" + repository + ":" + tag; // TODO
+        return create(id, repository, tag, info.created, info.labels);
+    }
 
-        created = info.created;
-        labels = info.labels;
+    public static TagInfo create(String id, String repository, String tag, LocalDateTime created, Map<String, String> labels) {
+        String repositoryTag;
+
+        repositoryTag = "127.0.0.1:31500/" + repository + ":" + tag; // TODO
         return new TagInfo(id, repositoryTag, tag(repositoryTag),
                 Ports.fromDeclaredLabels(labels), labels.get(ImageInfo.IMAGE_LABEL_P12),
                 disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
