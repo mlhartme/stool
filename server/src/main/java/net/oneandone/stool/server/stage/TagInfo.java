@@ -42,16 +42,7 @@ public class TagInfo implements Comparable<TagInfo> {
         }
         tag = repository.substring(idx + 1);
         repository = repository.substring(0, idx);
-        return load(registry, repository, tag);
-    }
-
-    public static TagInfo load(Registry registry, String repository, String tag) throws IOException {
-        String id;
-        ImageInfo info;
-
-        info = registry.info(repository, tag);
-        id = Strings.removeLeft(info.id, "sha256:");
-        return create(id, repository, tag, info.created, info.labels);
+        return registry.tagInfo(repository, tag);
     }
 
     public static TagInfo create(String id, String repository, String tag, LocalDateTime created, Map<String, String> labels) {

@@ -486,7 +486,6 @@ public class Stage {
     public List<TagInfo> images(Registry registry) throws IOException {
         List<String> tags;
         List<TagInfo> result;
-        TagInfo image;
 
         result = new ArrayList<>();
         try {
@@ -495,8 +494,7 @@ public class Stage {
             return result;
         }
         for (String tag : tags) {
-            image = TagInfo.load(registry, name, tag);
-            result.add(image);
+            result.add(registry.tagInfo(name, tag));
         }
         Collections.sort(result);
         return result;

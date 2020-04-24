@@ -22,6 +22,7 @@ import com.google.gson.JsonParser;
 import net.oneandone.stool.docker.AuthException;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
+import net.oneandone.stool.server.stage.TagInfo;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -33,8 +34,6 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,6 +167,16 @@ public class Registry {
                 toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject()));
     }
 
+    public TagInfo tagInfo(String repository, String tag) throws IOException {
+        String id;
+        ImageInfo info;
+
+        info = info(repository, tag);
+        id = Strings.removeLeft(info.id, "sha256:");
+        return TagInfo.create(id, repository, tag, info.created, info.labels);
+    }
+
+
     private JsonObject manifest(String repository, String tag) throws IOException {
         HeaderList hl;
 
@@ -186,30 +195,6 @@ public class Registry {
                 throw e;
             }
         }
-    }
-
-    //--
-
-    /** @return image ids mapped to ImageInfo */
-    public Map<String, ImageInfo> imageList() throws IOException {
-        return imageList(Collections.emptyMap());
-    }
-
-    // TODO: performance, caching
-    public Map<String, ImageInfo> imageList(Map<String, String> labels) throws IOException {
-        ImageInfo info;
-        Map<String, ImageInfo> result;
-
-        result = new HashMap<>();
-        for (String repository : catalog()) {
-            for (String tag : tags(repository)) {
-                info = info(repository, tag);
-                if (info.matches(labels)) {
-                    result.put(info.id, info);
-                }
-            }
-        }
-        return result;
     }
 
     //--
