@@ -484,7 +484,7 @@ public class Server {
             throw new IOException("registry not found");
         }
         root = (HttpNode) World.create().validNode("http://" + info.ip + ":5000");
-        return Registry.create(root, null);
+        return Registry.local(root, null);
     }
 
     //--

@@ -77,7 +77,7 @@ public class RegistryIT {
                         false, log);
                 try {
                     root = (HttpNode) WORLD.validNode("http://" + registryPrefix);
-                    registry = Registry.create(root);
+                    registry = Registry.local(root);
                     assertEquals(Arrays.asList(), registry.catalog());
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
@@ -98,8 +98,8 @@ public class RegistryIT {
                 docker.containerRemove(container);
             }
         }
-
     }
+
     @Test
     public void portus() throws IOException {
         String repository;
@@ -111,7 +111,7 @@ public class RegistryIT {
         p = WORLD.guessProjectHome(getClass()).join("test.properties").readProperties();
         root = (HttpNode) WORLD.validNode("https://" + get(p, "portus"));
         repository = get(p, "repository");
-        registry = Registry.create(root, "target/contargo.log");
+        registry = Registry.local(root, "target/contargo.log");
         try {
             registry.tags(repository);
             fail();

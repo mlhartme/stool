@@ -73,11 +73,11 @@ public class Registry {
         return doCreate("todo", true, root, wirelog);
     }
 
-    public static Registry create(HttpNode root) {
-        return create(root, null);
+    public static Registry local(HttpNode root) {
+        return local(root, null);
     }
 
-    public static Registry create(HttpNode root, String wirelog) {
+    public static Registry local(HttpNode root, String wirelog) {
         return doCreate("127.0.0.1:31500/", false, root, wirelog);
     }
 
