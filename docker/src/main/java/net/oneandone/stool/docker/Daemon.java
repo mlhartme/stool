@@ -313,6 +313,10 @@ public class Daemon implements AutoCloseable {
         return post(root.join("images", id, "push").withHeaders(HeaderList.of("X-Registry-Auth", header)), "");
     }
 
+    public String imagePull(String repositoryTag) throws IOException {
+        return post(root.join("images/create").withParameter("fromImage", repositoryTag), "");
+    }
+
     public void imageRemove(String tagOrId, boolean force) throws IOException {
         HttpNode node;
 

@@ -65,6 +65,7 @@ public class RegistryIT {
             ports.put(registryPort, "" + registryPort);
             log = new StringWriter();
 
+            docker.imagePull("registry:2");
             container = docker.containerCreate("registry", "registry:2", null,null, false, null, null, null,
                     Collections.emptyMap(), Strings.toMap("REGISTRY_STORAGE_DELETE_ENABLED", "true"), Collections.emptyMap(), ports);
             docker.containerStart(container);
