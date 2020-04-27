@@ -330,7 +330,6 @@ public class Setup {
         addMount(builder, "stool-server", "/var/lib/stool", false);
         if (cisotools != null) {
             addMount(builder, "fault-workspace", "/etc/fault/workspace", true);
-            addMount(builder, "stool-templates", "/var/lib/stool/templates", true);
         }
         return builder.toString();
     }
@@ -343,7 +342,6 @@ public class Setup {
         addVolume(builder, "stool-server", home.join("server").getAbsolute(), "Directory");
         if (cisotools != null) {
             addVolume(builder, "fault-workspace", world.getHome().join(".fault").getAbsolute(), "Directory");
-            addVolume(builder, "stool-templates", cisotools.join("stool/templates-5").getAbsolute(), "Directory");
         }
         return builder.toString();
     }

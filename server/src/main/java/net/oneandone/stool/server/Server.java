@@ -288,10 +288,6 @@ public class Server {
         return entries;
     }
 
-    public FileNode templates() {
-        return home.join("templates");
-    }
-
     //-- Stage listings
 
     public List<Stage> list(Predicate predicate, Map<String, IOException> problems) throws IOException {
