@@ -57,7 +57,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -482,7 +481,7 @@ public class Stage {
         }
     }
 
-    /** @return sorted list */
+    /** @return sorted list, oldest first */
     public List<TagInfo> images(Registry registry) throws IOException {
         List<String> tags;
         List<TagInfo> result;
@@ -796,29 +795,28 @@ public class Stage {
 
     //--
 
-    public Map<String, String> urlMap(Engine engine, Registry registry, Pool pool) throws IOException {
-        return urlMap(registry, pool, allPodMap(engine).values());
-    }
-
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Registry registry, Pool pool, Collection<PodInfo> allPodList) throws IOException {
+    public Map<String, String> urlMap(Engine engine, Registry registry, Pool pool) throws IOException {
         Map<String, String> result;
         Ports ports;
+        PodInfo pod;
         TagInfo tag;
+        List<TagInfo> lst;
 
         result = new LinkedHashMap<>();
         ports = pool.stageOpt(name);
         if (ports != null) {
-            tag = null;
-            for (PodInfo pod : allPodList) {
-                if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
-                    tag = registry.info(pod);
+            pod = runningPodOpt(engine);
+            if (pod != null) {
+                tag = registry.info(pod);
+            } else {
+                lst = images(registry);
+                if (lst.isEmpty()) {
+                    throw new IllegalStateException("no image for stage " + name);
                 }
-            }
-            if (tag == null) {
-                throw new IllegalStateException("no image for stage " + name);
+                tag = lst.get(lst.size() - 1);
             }
             if (ports.http != -1) {
                 addNamed("http", url(tag, "http", ports.http), result);
@@ -844,7 +842,7 @@ public class Stage {
         }
     }
 
-    private List<String> url(TagInfo image, String protocol, int port) {
+    private List<String> url(TagInfo tag, String protocol, int port) {
         String hostname;
         String url;
         List<String> result;
@@ -853,12 +851,12 @@ public class Stage {
         if (server.configuration.vhosts) {
             hostname = getName() + "." + hostname;
         }
-        url = protocol + "://" + hostname + ":" + port + "/" + image.urlContext;
+        url = protocol + "://" + hostname + ":" + port + "/" + tag.urlContext;
         if (!url.endsWith("/")) {
             url = url + "/";
         }
         result = new ArrayList<>();
-        for (String suffix : image.urlSuffixes) {
+        for (String suffix : tag.urlSuffixes) {
             result.add(url + suffix);
         }
         return result;

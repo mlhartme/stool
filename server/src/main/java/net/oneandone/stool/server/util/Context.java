@@ -95,7 +95,7 @@ public class Context {
 
         result = urlMaps.get(stage.getName());
         if (result == null) {
-            result = stage.urlMap(registry, pool, allPodMap().values());
+            result = stage.urlMap(engine, registry, pool);
             urlMaps.put(stage.getName(), result);
         }
         return result;
