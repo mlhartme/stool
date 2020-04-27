@@ -806,18 +806,18 @@ public class Stage {
     public Map<String, String> urlMap(Registry registry, Pool pool, Collection<PodInfo> allPodList) throws IOException {
         Map<String, String> result;
         Ports ports;
-        TagInfo image;
+        TagInfo tag;
 
         result = new LinkedHashMap<>();
-        image = null;
+        tag = null;
         for (PodInfo pod : allPodList) {
             if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
-                image = TagInfo.load(registry, pod);
+                tag = registry.info(pod);
             }
         }
         ports = pool.stageOpt(name);
         if (ports != null) {
-            addUrlMap(image, ports, result);
+            addUrlMap(tag, ports, result);
        }
         return result;
     }
@@ -949,7 +949,7 @@ public class Stage {
             if (runningPodOpt.containerId == null) {
                 throw new IllegalStateException("TODO");
             }
-            image = TagInfo.load(registry, runningPodOpt);
+            image = registry.info(runningPodOpt);
             return new Current(image, runningPodOpt);
         } else {
             return null;

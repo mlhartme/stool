@@ -31,6 +31,7 @@ import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -84,13 +85,15 @@ public class Registry {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new Registry(portus, root);
+        return new Registry("127.0.0.1:31500/", portus, root);
     }
 
+    private final String prefix;
     private final boolean portus;
     private final HttpNode root;
 
-    private Registry(boolean portus, HttpNode root) {
+    private Registry(String prefix, boolean portus, HttpNode root) {
+        this.prefix = prefix;
         this.portus = portus;
         this.root = root;
     }
@@ -143,6 +146,20 @@ public class Registry {
         throw new IOException("tag not found: " + tag);
     }
 
+    public TagInfo info(PodInfo pod) throws IOException {
+        String repository;
+        int idx;
+        String tag;
+
+        repository = Strings.removeLeft(pod.repositoryTag, prefix);
+        idx = repository.indexOf(':');
+        if (idx == -1) {
+            throw new IllegalStateException(repository);
+        }
+        tag = repository.substring(idx + 1);
+        repository = repository.substring(0, idx);
+        return info(repository, tag);
+    }
 
     /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
     public TagInfo info(String repository, String tag) throws IOException {
@@ -168,7 +185,7 @@ public class Registry {
             author = null;
         }
         labels = toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
-        repositoryTag = "127.0.0.1:31500/" + repository + ":" + tag; // TODO
+        repositoryTag = prefix + repository + ":" + tag; // TODO
         return new TagInfo(digest, repositoryTag, tag, author,
                 Ports.fromDeclaredLabels(labels), labels.get(ImageInfo.IMAGE_LABEL_P12),
                 disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),

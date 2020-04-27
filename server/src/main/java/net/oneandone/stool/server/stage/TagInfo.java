@@ -15,32 +15,13 @@
  */
 package net.oneandone.stool.server.stage;
 
-import net.oneandone.stool.kubernetes.Registry;
-import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.util.Ports;
-import net.oneandone.sushi.util.Strings;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 public class TagInfo implements Comparable<TagInfo> {
-    public static TagInfo load(Registry registry, PodInfo pod) throws IOException {
-        String repository;
-        int idx;
-        String tag;
-
-        repository = Strings.removeLeft(pod.repositoryTag, "127.0.0.1:31500/");
-        idx = repository.indexOf(':');
-        if (idx == -1) {
-            throw new IllegalStateException(repository);
-        }
-        tag = repository.substring(idx + 1);
-        repository = repository.substring(0, idx);
-        return registry.info(repository, tag);
-    }
-
     public final String id; // includes "sha256:" prefix
 
     public final String repositoryTag;
