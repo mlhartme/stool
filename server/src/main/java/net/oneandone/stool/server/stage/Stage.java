@@ -809,29 +809,25 @@ public class Stage {
         TagInfo tag;
 
         result = new LinkedHashMap<>();
-        tag = null;
-        for (PodInfo pod : allPodList) {
-            if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
-                tag = registry.info(pod);
-            }
-        }
         ports = pool.stageOpt(name);
         if (ports != null) {
-            addUrlMap(tag, ports, result);
-       }
+            tag = null;
+            for (PodInfo pod : allPodList) {
+                if (name.equals(pod.labels.get(Stage.POD_LABEL_STAGE))) {
+                    tag = registry.info(pod);
+                }
+            }
+            if (tag == null) {
+                throw new IllegalStateException("no image for stage " + name);
+            }
+            if (ports.http != -1) {
+                addNamed("http", url(tag, "http", ports.http), result);
+            }
+            if (ports.https != -1) {
+                addNamed("https", url(tag, "https", ports.https), result);
+            }
+        }
         return result;
-    }
-
-    private void addUrlMap(TagInfo image, Ports ports, Map<String, String> dest) {
-        if (image == null) {
-            throw new IllegalStateException("no image for stage " + name);
-        }
-        if (ports.http != -1) {
-            addNamed("http", url(image, "http", ports.http), dest);
-        }
-        if (ports.https != -1) {
-            addNamed("https", url(image, "https", ports.https), dest);
-        }
     }
 
     private void addNamed(String key, List<String> urls, Map<String, String> dest) {

@@ -313,7 +313,7 @@ public class Setup {
         StringBuilder builder;
 
         builder = new StringBuilder();
-        addMount(builder, "kube-config", "/root/.kube", false);
+        addMount(builder, "kube-config", "/root/.kube/config", false);
         addMount(builder, "stool-server", "/var/lib/stool", false);
         if (cisotools != null) {
             addMount(builder, "fault-workspace", "/etc/fault/workspace", true);
@@ -326,7 +326,7 @@ public class Setup {
         StringBuilder builder;
 
         builder = new StringBuilder();
-        addVolume(builder, "kube-config", world.getHome().join(".kube").getAbsolute(), "Directory");
+        addVolume(builder, "kube-config", world.getHome().join(".kube/config").getAbsolute(), "File");
         addVolume(builder, "stool-server", home.join("server").getAbsolute(), "Directory");
         if (cisotools != null) {
             addVolume(builder, "fault-workspace", world.getHome().join(".fault").getAbsolute(), "Directory");
