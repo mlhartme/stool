@@ -70,7 +70,7 @@ public class Registry {
         token = getJsonObject(login).get("token").getAsString();
         root.getRoot().addExtraHeader("Authorization", "Bearer " + token);
 
-        return doCreate(true, root, wirelog);
+        return doCreate("todo", true, root, wirelog);
     }
 
     public static Registry create(HttpNode root) {
@@ -78,14 +78,14 @@ public class Registry {
     }
 
     public static Registry create(HttpNode root, String wirelog) {
-        return doCreate(false, root, wirelog);
+        return doCreate("127.0.0.1:31500/", false, root, wirelog);
     }
 
-    public static Registry doCreate(boolean portus, HttpNode root, String wirelog) {
+    public static Registry doCreate(String prefix, boolean portus, HttpNode root, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new Registry("127.0.0.1:31500/", portus, root);
+        return new Registry(prefix, portus, root);
     }
 
     private final String prefix;

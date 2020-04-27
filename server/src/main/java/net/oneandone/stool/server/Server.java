@@ -475,7 +475,6 @@ public class Server {
         return reserved;
     }
 
-    // TODO: expensive? reuse?
     public Registry createRegistry(Engine engine) throws IOException {
         PodInfo info;
         HttpNode root;
