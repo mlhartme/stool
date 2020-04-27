@@ -31,6 +31,7 @@ import net.oneandone.sushi.util.SubstitutionException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -270,6 +271,7 @@ public class Setup {
         cisotools = cisotools();
         port = Integer.parseInt(port());
         map = new HashMap<>();
+        map.put("kubeConfig", kubeConfig());
         map.put("env", env(cisotools, port));
         map.put("mounts", mounts(cisotools));
         map.put("volumes", volumes(cisotools));
@@ -278,6 +280,17 @@ public class Setup {
         } catch (SubstitutionException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public String kubeConfig() throws IOException {
+        return "apiVersion: v1\n"
+                + "data:\n"
+                + "  config: " + Base64.getEncoder().encodeToString(world.getHome().join(".kube/config").readBytes()) + "\n"
+                + "kind: Secret\n"
+                + "metadata:\n"
+                + "  name: kube-config\n"
+                + "  namespace: stool\n"
+                + "type: Opaque\n";
     }
 
     public String env(FileNode cisotools, int port) throws IOException {
@@ -313,7 +326,7 @@ public class Setup {
         StringBuilder builder;
 
         builder = new StringBuilder();
-        addMount(builder, "kube-config", "/root/.kube/config", false);
+        addMount(builder, "kube-config", "/root/.kube", false);
         addMount(builder, "stool-server", "/var/lib/stool", false);
         if (cisotools != null) {
             addMount(builder, "fault-workspace", "/etc/fault/workspace", true);
@@ -326,7 +339,7 @@ public class Setup {
         StringBuilder builder;
 
         builder = new StringBuilder();
-        addVolume(builder, "kube-config", world.getHome().join(".kube/config").getAbsolute(), "File");
+        addSecretVolume(builder, "kube-config");
         addVolume(builder, "stool-server", home.join("server").getAbsolute(), "Directory");
         if (cisotools != null) {
             addVolume(builder, "fault-workspace", world.getHome().join(".fault").getAbsolute(), "Directory");
@@ -346,6 +359,12 @@ public class Setup {
         dest.append("      hostPath:\n");
         dest.append("        path: \"" + path + "\"\n");
         dest.append("        type: " + type + "\n");
+    }
+
+    private static void addSecretVolume(StringBuilder dest, String name) {
+        dest.append("    - name: " + name + "\n");
+        dest.append("      secret:\n");
+        dest.append("        secretName: \"" + name + "\"\n");
     }
 
     private FileNode cisotoolsEnvironment() throws FileNotFoundException, ExistsException {
