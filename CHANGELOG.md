@@ -2,6 +2,7 @@
 
 ### 6.0.0 (pending)
 
+* run server with Java 14
 * start server with kubectl, not docker-compose
 * move stool build to the client
 * move docker code into separate docker package that's used in clients and server tests
