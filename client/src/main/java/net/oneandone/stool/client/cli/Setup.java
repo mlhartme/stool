@@ -196,7 +196,7 @@ public class Setup {
         ServerManager add;
         FileNode additional;
 
-        result = new ServerManager(home.join("servers.json"));
+        result = new ServerManager(home.join("client.json"));
         result.load();
 
         additional = cisotoolsEnvironment();
@@ -243,7 +243,7 @@ public class Setup {
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
-        manager = new ServerManager(home.join("servers.json"));
+        manager = new ServerManager(home.join("client.json"));
         for (Server s : environment.allServer()) {
             s.addTo(manager);
         }
@@ -371,7 +371,7 @@ public class Setup {
         FileNode cisotools;
 
         cisotools = cisotools();
-        return cisotools == null ? null : cisotools.join("stool/environment.json").checkFile();
+        return cisotools == null ? null : cisotools.join("stool/environment-6.json").checkFile();
     }
 
     private FileNode cisotools() {

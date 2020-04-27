@@ -97,7 +97,7 @@ public class Globals {
         FileNode file;
         ServerManager result;
 
-        file = home.join("servers.json");
+        file = home.join("client.json");
         result = new ServerManager(file, wirelog, invocation, command);
         result.load();
         return result;

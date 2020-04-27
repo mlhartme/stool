@@ -963,7 +963,7 @@ There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all 
         |- version                   (client version that created this directory)
         |- shell.inc
         |- server.yaml               (docker-comppose file to start local server)
-        |- servers.json              (list of Stool servers to talk to)
+        |- client.json               (client config - mostly the list of Stool servers to talk to)
         '- server                    (empty if there's no local server)
            |- version                (server version that created this directory)
            |- config.json            (Stool configuration)

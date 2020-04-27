@@ -8,6 +8,7 @@
 * move docker code into separate docker package that's used in clients and server tests
 
 * client
+  * renamed servers.json to client.json
   * setup: removed namespace argument
   * backstage is a properties file now, it maps stages to paths
   * `create`
