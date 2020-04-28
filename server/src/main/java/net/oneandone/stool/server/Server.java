@@ -43,7 +43,6 @@ import net.oneandone.stool.server.util.SshDirectory;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Separator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -470,19 +469,11 @@ public class Server {
         return reserved;
     }
 
-    public Registry createRegistry(Engine engine) throws IOException {
-        PodInfo info;
-        HttpNode root;
-
-        info = engine.podProbe("stool-registry");
-        if (info == null) {
-            throw new IOException("registry not found");
-        }
-        root = (HttpNode) World.create().validNode("http://" + info.ip + ":5000");
-        return Registry.local(root, null);
-    }
-
     //--
+
+    public Registry createRegistry(Engine engine) throws IOException {
+        return Registry.create(engine, configuration.registryNamespace);
+    }
 
     /** @return path to generates certificate */
     public FileNode certificate(String certname) throws IOException {

@@ -25,6 +25,7 @@ import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.server.stage.TagInfo;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.sushi.fs.NewInputStreamException;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
@@ -48,6 +49,26 @@ import java.util.Map;
  * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
 public class Registry {
+    public static Registry create(Engine engine, String registryPrefix) throws IOException {
+        PodInfo info;
+        HttpNode node;
+
+        if (LOCAL.equals(registryPrefix)) {
+            info = engine.podProbe("stool-registry");
+            if (info == null) {
+                throw new IOException("registry not found");
+            }
+            node = (HttpNode) World.create().validNode("http://" + info.ip + ":5000");
+            return Registry.local(node, null);
+        } else {
+            node = (HttpNode) World.create().validNode("http://" + registryPrefix);
+            throw new IllegalStateException(registryPrefix);
+            // TODO Registry.portus(node);
+        }
+    }
+
+    public static final String LOCAL = "127.0.0.1:31500/";
+
     public static Registry portus(HttpNode root, String realm, String service, String scope,
                                  String username, String applicationToken, String wirelog) throws IOException {
         HttpNode login;
@@ -78,7 +99,7 @@ public class Registry {
     }
 
     public static Registry local(HttpNode root, String wirelog) {
-        return doCreate("127.0.0.1:31500/", false, root, wirelog);
+        return doCreate(LOCAL, false, root, wirelog);
     }
 
     public static Registry doCreate(String prefix, boolean portus, HttpNode root, String wirelog) {

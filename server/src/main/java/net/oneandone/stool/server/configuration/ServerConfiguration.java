@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.configuration;
 
 import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.kubernetes.Registry;
 import net.oneandone.stool.server.util.Mailer;
 import net.oneandone.stool.server.util.Pool;
 
@@ -106,7 +107,7 @@ public class ServerConfiguration {
     public ServerConfiguration() {
         vhosts = false;
         loglevel = "INFO";
-        registryNamespace = "main";
+        registryNamespace = Registry.LOCAL;
         portFirst = 31000;
         portLast = 31999;
         dockerHost = "localhost";
