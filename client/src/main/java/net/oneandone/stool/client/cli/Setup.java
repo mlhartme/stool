@@ -20,7 +20,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Server;
-import net.oneandone.stool.client.ServerManager;
+import net.oneandone.stool.client.Configuration;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
@@ -82,7 +82,7 @@ public class Setup {
     }
 
     private void updateServers() throws IOException {
-        ServerManager environment;
+        Configuration environment;
 
         if (batch) {
             throw new ArgumentException("-batch is not supported in update mode");
@@ -99,7 +99,7 @@ public class Setup {
     }
 
     private void create() throws IOException {
-        ServerManager environment;
+        Configuration environment;
         String inc;
 
         environment = createEnvironment();
@@ -118,7 +118,7 @@ public class Setup {
         console.info.println("  (e.g. with 'echo \". " + inc + "\" >> ~/.bash_profile')");
         console.info.println("  Don't forget to restart your terminal.");
 
-        if (environment.lookup("localhost") != null) {
+        if (environment.serverLookup("localhost") != null) {
             console.info.println();
             console.info.println("You've enabled a local Stool server to host stages - start/stop it like this:");
             console.info.println("  kubectl apply -f " + home.join("server.yaml").getAbsolute());
@@ -150,8 +150,8 @@ public class Setup {
         }
     }
 
-    private ServerManager createEnvironment() throws IOException {
-        ServerManager result;
+    private Configuration createEnvironment() throws IOException {
+        Configuration result;
 
         result = readEnvironment();
         if (!batch && !result.isEmpty()) {
@@ -162,12 +162,12 @@ public class Setup {
         return result;
     }
 
-    private ServerManager select(ServerManager environment, boolean dflt) {
-        ServerManager result;
+    private Configuration select(Configuration environment, boolean dflt) {
+        Configuration result;
         Boolean enable;
         String yesNo;
 
-        result = new ServerManager(environment.file);
+        result = new Configuration(environment.file);
         console.info.println("Stages are hosted on servers. Please choose the servers you want to use:");
         for (Server server : environment.allServer()) {
             if (dflt) {
@@ -191,20 +191,20 @@ public class Setup {
         return result;
     }
 
-    private ServerManager updateEnvironment() throws IOException {
-        ServerManager result;
-        ServerManager add;
+    private Configuration updateEnvironment() throws IOException {
+        Configuration result;
+        Configuration add;
         FileNode additional;
 
-        result = new ServerManager(home.join("client.json"));
+        result = new Configuration(home.join("client.json"));
         result.load();
 
         additional = cisotoolsEnvironment();
         if (additional != null) {
-            add = new ServerManager(additional);
+            add = new Configuration(additional);
             add.load();
             for (Server s : add.allServer()) {
-                if (result.lookup(s.name) == null) {
+                if (result.serverLookup(s.name) == null) {
                     s.withEnabled(false).addTo(result);  // default to disabled, because hitting return for all servers must not change anything
                 }
             }
@@ -212,16 +212,16 @@ public class Setup {
         return result;
     }
 
-    private ServerManager readEnvironment() throws IOException {
+    private Configuration readEnvironment() throws IOException {
         FileNode file;
-        ServerManager manager;
+        Configuration manager;
 
         if (local) {
             file = null;
         } else {
             file = cisotoolsEnvironment();
         }
-        manager = new ServerManager(file);
+        manager = new Configuration(file);
         if (file != null) {
             manager.load();
         } else {
@@ -238,12 +238,12 @@ public class Setup {
         }
     }
 
-    public void doCreate(ServerManager environment) throws IOException {
-        ServerManager manager;
+    public void doCreate(Configuration environment) throws IOException {
+        Configuration manager;
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
-        manager = new ServerManager(home.join("client.json"));
+        manager = new Configuration(home.join("client.json"));
         for (Server s : environment.allServer()) {
             s.addTo(manager);
         }
@@ -311,7 +311,8 @@ public class Setup {
             addIfNew(env, "LDAP_UNIT", "cisostages");
             addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
             addIfNew(env, "ADMIN", "michael.hartmeier@ionos.com");
-            addIfNew(env, "REGISTRY_NAMESPACE", ServerManager.registryNamespace() + "/");
+            // TODO: contargo
+            //    addIfNew(env, "REGISTRY_NAMESPACE", Configuration.registryNamespace() + "/");
         }
         addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose
         builder = new StringBuilder();
@@ -326,7 +327,7 @@ public class Setup {
         StringBuilder builder;
 
         builder = new StringBuilder();
-        addMount(builder, "kube-config", "/root/.kube", false);
+        addMount(builder, "kube-config", "/root/.kube", true);
         addMount(builder, "stool-server", "/var/lib/stool", false);
         if (cisotools != null) {
             addMount(builder, "fault-workspace", "/etc/fault/workspace", true);

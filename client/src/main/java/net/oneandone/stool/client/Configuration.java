@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ServerManager {
+public class Configuration {
     public final FileNode file;
 
     public final FileNode wirelog;
@@ -39,11 +39,11 @@ public class ServerManager {
     public final String clientCommand;
     public final Map<String, Server> servers;
 
-    public ServerManager(FileNode file) {
+    public Configuration(FileNode file) {
         this(file, null, null, null);
     }
 
-    public ServerManager(FileNode file, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public Configuration(FileNode file, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.file = file;
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;
@@ -60,11 +60,11 @@ public class ServerManager {
     }
 
     // TODO
-    public static String registryNamespace() {
+    public String registryNamespace() {
         return "127.0.0.1:31500";
     }
 
-    public Reference reference(String str) throws IOException {
+    public Reference serverReference(String str) throws IOException {
         int idx;
         String server;
 
@@ -73,17 +73,13 @@ public class ServerManager {
             throw new IllegalArgumentException(str);
         }
         server = str.substring(idx + 1);
-        return new Reference(get(server).connect(file.getWorld()), str.substring(0, idx));
+        return new Reference(serverGet(server).connect(file.getWorld()), str.substring(0, idx));
     }
 
-    public Server lookup(String server) {
-        return servers.get(server);
-    }
-
-    public Server get(String server) {
+    public Server serverGet(String server) {
         Server result;
 
-        result = lookup(server);
+        result = serverLookup(server);
         if (result == null) {
             throw new ArgumentException("unknown server: " + server);
         }
@@ -91,6 +87,10 @@ public class ServerManager {
             throw new ArgumentException("server is disabled: " + server);
         }
         return result;
+    }
+
+    public Server serverLookup(String server) {
+        return servers.get(server);
     }
 
     /**
@@ -186,10 +186,10 @@ public class ServerManager {
         return false;
     }
 
-    public ServerManager newEnabled() {
-        ServerManager result;
+    public Configuration newEnabled() {
+        Configuration result;
 
-        result = new ServerManager(file);
+        result = new Configuration(file);
         for (Map.Entry<String, Server> entry : servers.entrySet()) {
             result.servers.put(entry.getKey(), entry.getValue().withEnabled(true));
         }

@@ -106,7 +106,7 @@ public class Create extends ProjectCommand {
         Reference reference;
 
         checkName(name);
-        client = globals.servers().get(server).connect(world);
+        client = globals.servers().serverGet(server).connect(world);
         reference = new Reference(client, name);
         try {
             client.create(name, config);

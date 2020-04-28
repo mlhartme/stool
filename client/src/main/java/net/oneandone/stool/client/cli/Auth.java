@@ -18,7 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Server;
-import net.oneandone.stool.client.ServerManager;
+import net.oneandone.stool.client.Configuration;
 import net.oneandone.sushi.fs.http.StatusException;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class Auth {
 
 
     public void run() throws Exception {
-        ServerManager manager;
+        Configuration manager;
         String username;
         String password;
         List<Server> dests;
@@ -48,7 +48,7 @@ public class Auth {
         manager = globals.servers();
         dests = new ArrayList<>();
         if (explicitServer != null) {
-            dests.add(manager.get(explicitServer));
+            dests.add(manager.serverGet(explicitServer));
         } else {
             for (Server server : manager.enabledServer()) {
                 if (server.hasToken()) {

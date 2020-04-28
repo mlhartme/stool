@@ -20,7 +20,7 @@ import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.ServerManager;
+import net.oneandone.stool.client.Configuration;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
 
@@ -65,7 +65,7 @@ public abstract class IteratedStageCommand extends StageCommand {
         return failures;
     }
 
-    private List<Reference> selectedList(ServerManager serverManager) throws IOException {
+    private List<Reference> selectedList(Configuration serverManager) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
@@ -80,7 +80,7 @@ public abstract class IteratedStageCommand extends StageCommand {
     }
 
     /** override this to change the default */
-    private List<Reference> defaultSelected(ServerManager serverManager) throws IOException {
+    private List<Reference> defaultSelected(Configuration serverManager) throws IOException {
         Project project;
         List<Reference> result;
 

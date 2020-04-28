@@ -93,12 +93,12 @@ public class Globals {
         return console;
     }
 
-    public ServerManager servers() throws IOException {
+    public Configuration servers() throws IOException {
         FileNode file;
-        ServerManager result;
+        Configuration result;
 
         file = home.join("client.json");
-        result = new ServerManager(file, wirelog, invocation, command);
+        result = new Configuration(file, wirelog, invocation, command);
         result.load();
         return result;
     }

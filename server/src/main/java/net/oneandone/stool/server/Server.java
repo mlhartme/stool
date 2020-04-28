@@ -82,7 +82,7 @@ public class Server {
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
         try (Engine engine = Engine.create()) {
-            binds = binds(engine);
+            binds = hostBinds(engine);
             pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
@@ -95,7 +95,7 @@ public class Server {
         }
     }
 
-    private static Map<String, String> binds(Engine engine) throws IOException {
+    private static Map<String, String> hostBinds(Engine engine) throws IOException {
         V1Pod pod;
         Map<String, String> result;
         List<V1Container> lst;
@@ -114,8 +114,6 @@ public class Server {
         for (V1Volume volume : pod.getSpec().getVolumes()) {
             if (volume.getHostPath() != null) {
                 result.put(mount(container, volume.getName()), volume.getHostPath().getPath());
-            } else {
-                System.out.println("ignore volume: " + volume);
             }
         }
         return result;

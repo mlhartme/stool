@@ -62,7 +62,7 @@ public class Server {
     }
 
     /** looks weired, but this method allows we to keep the token field private */
-    public void addTo(ServerManager dest) {
+    public void addTo(Configuration dest) {
         dest.add(name, enabled, url, token);
     }
 

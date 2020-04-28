@@ -23,7 +23,7 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.ServerManager;
+import net.oneandone.stool.client.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public abstract class InfoCommand extends StageCommand {
     @Override
     public EnumerationFailed runAll() throws Exception {
         Map<Client, String> clientFilters;
-        ServerManager serverManager;
+        Configuration serverManager;
         List<Reference> references;
         String clientFilter;
 
@@ -86,7 +86,7 @@ public abstract class InfoCommand extends StageCommand {
         return new EnumerationFailed();
     }
 
-    private List<Reference> projectReferences(ServerManager serverManager) throws IOException {
+    private List<Reference> projectReferences(Configuration serverManager) throws IOException {
         Project project;
         List<Reference> result;
 
