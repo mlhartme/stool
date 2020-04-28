@@ -183,7 +183,6 @@ public class Server {
         for (String name : new String[] {"stages", "certs"}) {
             home.join(name).mkdir();
         }
-        home.join("templates").mkdirOpt();
         home.join("version").writeString(version);
     }
 
