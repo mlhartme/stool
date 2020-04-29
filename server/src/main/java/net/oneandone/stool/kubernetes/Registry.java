@@ -138,38 +138,6 @@ public class Registry {
         return toList(result.get("tags").getAsJsonArray());
     }
 
-    public JsonArray portusRepositories() throws IOException {
-        return getJson(root.join("api/v1/repositories")).getAsJsonArray();
-    }
-
-    public String portusRepositoryId(String repository) throws IOException {
-        JsonObject obj;
-
-        for (JsonElement element : portusRepositories()) {
-            obj = element.getAsJsonObject();
-            if (repository.equals(obj.get("full_name").getAsString())) {
-                return obj.get("id").getAsString();
-            }
-        }
-        throw new IOException("repository not found: " + repository);
-    }
-
-    public JsonArray portusTags(String repositoryId) throws IOException {
-        return getJson(root.join("api/v1/repositories/" + repositoryId + "/tags")).getAsJsonArray();
-    }
-
-    public JsonObject portusTag(String portusRepositoryId, String tag) throws IOException {
-        JsonObject result;
-
-        for (JsonElement element : portusTags(portusRepositoryId)) {
-            result = element.getAsJsonObject();
-            if (tag.equals(result.get("name").getAsString())) {
-                return result;
-            }
-        }
-        throw new IOException("tag not found: " + tag);
-    }
-
     public TagInfo info(PodInfo pod) throws IOException {
         String repository;
         int idx;
@@ -216,6 +184,53 @@ public class Registry {
                 labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
                 created, labels.get(ImageInfo.IMAGE_LABEL_CREATED_BY), args(labels),
                 fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)));
+    }
+
+    public void delete(String repository, String digest) throws IOException {
+        try {
+            Method.delete(root.join("v2/" + repository + "/manifests/" + digest));
+        } catch (StatusException e) {
+            if (e.getStatusLine().code == 202) {
+                // TODO
+                return;
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    //--
+
+    private JsonArray portusRepositories() throws IOException {
+        return getJson(root.join("api/v1/repositories")).getAsJsonArray();
+    }
+
+    private String portusRepositoryId(String repository) throws IOException {
+        JsonObject obj;
+
+        for (JsonElement element : portusRepositories()) {
+            obj = element.getAsJsonObject();
+            if (repository.equals(obj.get("full_name").getAsString())) {
+                return obj.get("id").getAsString();
+            }
+        }
+        throw new IOException("repository not found: " + repository);
+    }
+
+    public JsonArray portusTags(String repositoryId) throws IOException {
+        return getJson(root.join("api/v1/repositories/" + repositoryId + "/tags")).getAsJsonArray();
+    }
+
+    public JsonObject portusTag(String portusRepositoryId, String tag) throws IOException {
+        JsonObject result;
+
+        for (JsonElement element : portusTags(portusRepositoryId)) {
+            result = element.getAsJsonObject();
+            if (tag.equals(result.get("name").getAsString())) {
+                return result;
+            }
+        }
+        throw new IOException("tag not found: " + tag);
     }
 
     private static Map<String, String> args(Map<String, String> labels) {
@@ -284,19 +299,6 @@ public class Registry {
 
         hl = HeaderList.of("Accept", "application/vnd.docker.distribution.manifest.v2+json");
         return getJsonObject(root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl));
-    }
-
-    public void delete(String repository, String digest) throws IOException {
-        try {
-            Method.delete(root.join("v2/" + repository + "/manifests/" + digest));
-        } catch (StatusException e) {
-            if (e.getStatusLine().code == 202) {
-                // TODO
-                return;
-            } else {
-                throw e;
-            }
-        }
     }
 
     //--
