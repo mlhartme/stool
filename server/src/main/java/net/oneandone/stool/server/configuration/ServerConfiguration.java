@@ -17,6 +17,7 @@ package net.oneandone.stool.server.configuration;
 
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.Registry;
+import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.util.Mailer;
 import net.oneandone.stool.server.util.Pool;
 
@@ -49,7 +50,7 @@ public class ServerConfiguration {
 
     public String loglevel;
 
-    public String registryNamespace;
+    private String registryPrefix;
 
     public int portFirst;
 
@@ -107,7 +108,7 @@ public class ServerConfiguration {
     public ServerConfiguration() {
         vhosts = false;
         loglevel = "INFO";
-        registryNamespace = Registry.LOCAL;
+        registryPrefix = Registry.LOCAL_HOST + "/";
         portFirst = 31000;
         portLast = 31999;
         dockerHost = "localhost";
@@ -127,6 +128,32 @@ public class ServerConfiguration {
         engineLog = false;
         defaultExpire = 0;
         environment = new HashMap<>();
+    }
+
+    public String registryHost() {
+        int idx;
+
+        idx = registryPrefix.indexOf('/');
+        return registryPrefix.substring(0, idx);
+    }
+
+    public String registryPathPrefix() {
+        int idx;
+
+        idx = registryPrefix.indexOf('/');
+        return registryPrefix.substring(idx + 1);
+    }
+
+    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
+    public void validateRegistryPrefix() {
+        if (!registryPrefix.endsWith("/")) {
+            throw new ArgumentException("invalid registry prefix: " + registryPrefix);
+        }
+        for (int i = 0, length = registryPrefix.length(); i < length; i++) {
+            if (Character.isUpperCase(registryPrefix.charAt(i))) {
+                throw new ArgumentException("invalid registry prefix: " + registryPrefix);
+            }
+        }
     }
 
     public Pool loadPool(Engine engine) throws IOException {

@@ -100,6 +100,10 @@ public class Stage {
         return name;
     }
 
+    public String getRepository() {
+        return server.configuration.registryPathPrefix() + name;
+    }
+
     public FileNode getDirectory() {
         return directory;
     }
@@ -475,9 +479,12 @@ public class Stage {
     //-- docker
 
     public void wipeImages(Registry registry) throws IOException {
-        for (String tag : registry.tags(name)) {
-            Server.LOGGER.debug("remove image: " + server.configuration.registryNamespace + "/" + name + ":" + tag);
-            registry.delete(name, registry.info(name, tag).id);
+        String repository;
+
+        repository = getRepository();
+        for (String tag : registry.tags(repository)) {
+            Server.LOGGER.debug("remove image: " + repository + ":" + tag);
+            registry.delete(repository, registry.info(repository, tag).id);
         }
     }
 
@@ -488,12 +495,12 @@ public class Stage {
 
         result = new ArrayList<>();
         try {
-            tags = registry.tags(name);
+            tags = registry.tags(getRepository());
         } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
             return result;
         }
         for (String tag : tags) {
-            result.add(registry.info(name, tag));
+            result.add(registry.info(getRepository(), tag));
         }
         Collections.sort(result);
         return result;

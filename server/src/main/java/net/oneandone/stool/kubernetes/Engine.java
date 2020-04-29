@@ -49,7 +49,6 @@ import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
 import net.oneandone.stool.docker.Daemon;
-import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
@@ -694,17 +693,6 @@ public class Engine implements AutoCloseable {
             return result;
         }
         return new IOException(e.getResponseBody(), e);
-    }
-
-    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public static void validateReference(String reference) {
-        char c;
-
-        for (int i = 0, length = reference.length(); i < length; i++) {
-            if (Character.isUpperCase(reference.charAt(i))) {
-                throw new ArgumentException("invalid reference: " + reference);
-            }
-        }
     }
 
     //-- json utils

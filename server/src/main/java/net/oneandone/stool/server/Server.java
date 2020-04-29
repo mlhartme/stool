@@ -470,7 +470,7 @@ public class Server {
     //--
 
     public Registry createRegistry(Engine engine) throws IOException {
-        return Registry.create(engine, configuration.registryNamespace);
+        return Registry.create(engine, configuration.registryHost());
     }
 
     /** @return path to generates certificate */
@@ -493,11 +493,11 @@ public class Server {
     //--
 
     public void validate(Engine engine) throws IOException {
-        Engine.validateReference(configuration.registryNamespace);
+        configuration.validateRegistryPrefix();
         if (configuration.auth()) {
             if (configuration.ldapSso.isEmpty()) {
-                LOGGER.error("ldapsso cannot be empty because security is enabled");
-                throw new IOException("ldapsso is empty");
+                LOGGER.error("ldapSso cannot be empty because security is enabled");
+                throw new IOException("ldapSso is empty");
             }
             if (System.getProperty("server.ssl.key-store") == null) {
                 LOGGER.error("enable ssl when running authenticated");

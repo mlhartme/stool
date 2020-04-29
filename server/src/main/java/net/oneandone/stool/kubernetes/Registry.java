@@ -49,11 +49,14 @@ import java.util.Map;
  * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
 public class Registry {
-    public static Registry create(Engine engine, String registryPrefix) throws IOException {
+    public static Registry create(Engine engine, String registryHost) throws IOException {
         PodInfo info;
         HttpNode node;
 
-        if (LOCAL.equals(registryPrefix)) {
+        if (registryHost.contains("/")) {
+            throw new IllegalArgumentException(registryHost);
+        }
+        if (LOCAL_HOST.equals(registryHost)) {
             info = engine.podProbe("stool-registry");
             if (info == null) {
                 throw new IOException("registry not found");
@@ -61,13 +64,13 @@ public class Registry {
             node = (HttpNode) World.create().validNode("http://" + info.ip + ":5000");
             return Registry.local(node, null);
         } else {
-            node = (HttpNode) World.create().validNode("http://" + registryPrefix);
-            throw new IllegalStateException(registryPrefix);
+            node = (HttpNode) World.create().validNode("http://" + registryHost);
+            throw new IllegalStateException(registryHost);
             // TODO Registry.portus(node);
         }
     }
 
-    public static final String LOCAL = "127.0.0.1:31500/";
+    public static final String LOCAL_HOST = "127.0.0.1:31500";
 
     public static Registry portus(HttpNode root, String realm, String service, String scope,
                                  String username, String applicationToken, String wirelog) throws IOException {
@@ -99,22 +102,22 @@ public class Registry {
     }
 
     public static Registry local(HttpNode root, String wirelog) {
-        return doCreate(LOCAL, false, root, wirelog);
+        return doCreate(LOCAL_HOST, false, root, wirelog);
     }
 
-    public static Registry doCreate(String prefix, boolean portus, HttpNode root, String wirelog) {
+    public static Registry doCreate(String host, boolean portus, HttpNode root, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new Registry(prefix, portus, root);
+        return new Registry(host, portus, root);
     }
 
-    private final String prefix;
+    private final String host;
     private final boolean portus;
     private final HttpNode root;
 
-    private Registry(String prefix, boolean portus, HttpNode root) {
-        this.prefix = prefix;
+    private Registry(String host, boolean portus, HttpNode root) {
+        this.host = host;
         this.portus = portus;
         this.root = root;
     }
@@ -172,7 +175,7 @@ public class Registry {
         int idx;
         String tag;
 
-        repository = Strings.removeLeft(pod.repositoryTag, prefix);
+        repository = Strings.removeLeft(pod.repositoryTag, host + "/");
         idx = repository.indexOf(':');
         if (idx == -1) {
             throw new IllegalStateException(repository);
@@ -191,7 +194,6 @@ public class Registry {
         String author;
         LocalDateTime created;
         Map<String, String> labels;
-        String repositoryTag;
 
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
@@ -206,8 +208,7 @@ public class Registry {
             author = null;
         }
         labels = toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
-        repositoryTag = prefix + repository + ":" + tag; // TODO
-        return new TagInfo(digest, repositoryTag, tag, author,
+        return new TagInfo(digest, host + "/" + repository + ":" + tag, tag, author,
                 Ports.fromDeclaredLabels(labels), labels.get(ImageInfo.IMAGE_LABEL_P12),
                 disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
