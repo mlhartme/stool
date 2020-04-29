@@ -21,7 +21,7 @@ import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
-import net.oneandone.stool.kubernetes.Registry;
+import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.kubernetes;
+package net.oneandone.stool.registry;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -21,6 +21,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.docker.AuthException;
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;

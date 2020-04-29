@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.kubernetes;
+package net.oneandone.stool.registry;
 
 import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.server.util.Ports;

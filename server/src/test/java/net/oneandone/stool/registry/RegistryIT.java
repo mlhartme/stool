@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.kubernetes;
+package net.oneandone.stool.registry;
 
 import net.oneandone.stool.docker.AuthException;
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.registry.Registry;
+import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;

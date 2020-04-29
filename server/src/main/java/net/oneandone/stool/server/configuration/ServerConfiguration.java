@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.configuration;
 
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.kubernetes.Registry;
+import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.util.Mailer;
 import net.oneandone.stool.server.util.Pool;
