@@ -70,7 +70,6 @@ public class Server {
         Pool pool;
         Server server;
         FileNode serverHome;
-        FileNode secrets;
         Map<String, String> binds;
         String localhostIp;
 
@@ -84,10 +83,9 @@ public class Server {
             binds = hostBinds(engine);
             pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
-            secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), version, home, serverHome, localhostIp, secrets, config, pool);
+            server = new Server(gson(world), version, home, serverHome, localhostIp, config, pool);
             server.validate(engine);
             server.checkVersion();
             return server;
@@ -202,7 +200,6 @@ public class Server {
 
     /** path so /var/lib/stool ON THE DOCKER HOST */
     public final FileNode serverHome;
-    public final FileNode secrets;
 
     /** used read-only */
     public final ServerConfiguration configuration;
@@ -218,7 +215,7 @@ public class Server {
     public final SshDirectory sshDirectory;
 
     public Server(Gson gson, String version, FileNode home, FileNode serverHome, String localhostIp,
-                  FileNode secrets, ServerConfiguration configuration, Pool pool) throws IOException {
+                  ServerConfiguration configuration, Pool pool) throws IOException {
         this.gson = gson;
         this.version = version;
         this.world = home.getWorld();
@@ -226,7 +223,6 @@ public class Server {
         this.logRoot = home.join("logs");
         this.serverHome = serverHome;
         this.localhostIp = localhostIp;
-        this.secrets = secrets;
         this.configuration = configuration;
         this.pool = pool;
         this.stages = home.join("stages");

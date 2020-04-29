@@ -761,7 +761,6 @@ public class Stage {
         List<String> missing;
         FileNode innerRoot;
         FileNode innerFile;
-        FileNode outerFile;
 
         if (image.faultProjects.isEmpty()) {
             return null;
@@ -777,11 +776,10 @@ public class Stage {
         innerRoot = directory.getWorld().file("/etc/fault/workspace");
         for (String project : image.faultProjects) {
             innerFile = innerRoot.join(project);
-            outerFile = server.secrets.join(project);
             if (innerFile.isDirectory()) {
                 result.addDirectory(innerRoot, innerFile);
             } else {
-                missing.add(outerFile.getAbsolute());
+                missing.add(innerFile.getAbsolute());
             }
         }
         if (!missing.isEmpty()) {
