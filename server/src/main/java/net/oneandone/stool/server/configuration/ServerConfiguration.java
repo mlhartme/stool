@@ -50,7 +50,7 @@ public class ServerConfiguration {
 
     public String loglevel;
 
-    private String registryPrefix;
+    public String registryPrefix;
 
     public int portFirst;
 
