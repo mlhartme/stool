@@ -239,15 +239,15 @@ public class Setup {
     }
 
     public void doCreate(Configuration environment) throws IOException {
-        Configuration manager;
+        Configuration configuration;
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
-        manager = new Configuration(home.join("client.json"));
+        configuration = new Configuration(home.join("client.json"));
         for (Server s : environment.allServer()) {
-            s.addTo(manager);
+            s.addTo(configuration);
         }
-        manager.save(gson);
+        configuration.save(gson);
         serverDir().mkdir();
         home.join("server.yaml").writeString(serverYaml());
         versionFile().writeString(Main.versionString(world));

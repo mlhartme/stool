@@ -18,7 +18,9 @@ package net.oneandone.stool.client;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -34,7 +36,7 @@ import java.util.Map;
 public class Configuration {
     public final FileNode file;
 
-    private final String registryNamespace;
+    private String registryPrefix;
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
@@ -46,7 +48,7 @@ public class Configuration {
 
     public Configuration(FileNode file, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.file = file;
-        this.registryNamespace = "127.0.0.1:31500";
+        this.registryPrefix = "127.0.0.1:31500/";
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
@@ -61,8 +63,11 @@ public class Configuration {
         servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
     }
 
-    public String registryNamespace() {
-        return registryNamespace;
+    public String registryPrefix() {
+        if (!registryPrefix.endsWith("/")) {
+            throw new IllegalStateException(registryPrefix);
+        }
+        return registryPrefix;
     }
 
     public Reference serverReference(String str) throws IOException {
@@ -154,12 +159,15 @@ public class Configuration {
     }
 
     public void load() throws IOException {
+        JsonObject all;
         JsonArray array;
         Server server;
 
         servers.clear();
 
-        array = new JsonParser().parse(file.readString()).getAsJsonArray();
+        all = JsonParser.parseString(file.readString()).getAsJsonObject();
+        registryPrefix = all.get("registryPrefix").getAsString();
+        array = all.get("servers").getAsJsonArray();
         for (JsonElement element : array) {
             server = Server.fromJson(element.getAsJsonObject(), wirelog, clientInvocation, clientCommand);
             servers.put(server.name, server);
@@ -168,13 +176,17 @@ public class Configuration {
 
     public void save(Gson gson) throws IOException {
         JsonArray array;
+        JsonObject obj;
 
         array = new JsonArray();
         for (Server server : servers.values()) {
             array.add(server.toJson());
         }
+        obj = new JsonObject();
+        obj.add("registryPrefix", new JsonPrimitive(registryPrefix));
+        obj.add("servers", array);
         try (Writer writer = file.newWriter()) {
-            gson.toJson(array, writer);
+            gson.toJson(obj, writer);
         }
     }
 
