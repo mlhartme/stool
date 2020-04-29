@@ -641,7 +641,7 @@ public class Stage {
         }
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
-                "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.dockerHost */,
+                "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {
             throw new IOException("pod already terminated: " + name);
         }
@@ -746,7 +746,7 @@ public class Stage {
             return null;
         }
         file = server.certificate(server.configuration.vhosts
-                ? getName() + "." + server.configuration.dockerHost : server.configuration.dockerHost);
+                ? getName() + "." + server.configuration.host : server.configuration.host);
         idx = image.p12.lastIndexOf('/');
         if (idx == -1) {
             throw new IllegalArgumentException(image.p12);
@@ -854,7 +854,7 @@ public class Stage {
         String url;
         List<String> result;
 
-        hostname = server.configuration.dockerHost;
+        hostname = server.configuration.host;
         if (server.configuration.vhosts) {
             hostname = getName() + "." + hostname;
         }

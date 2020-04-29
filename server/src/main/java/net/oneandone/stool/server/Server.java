@@ -376,7 +376,7 @@ public class Server {
             body.write("command: " + command + "\n");
             body.write("context: " + context + "\n");
             body.write("user: " + MDC.get("USER") + "\n"); // TODO
-            body.write("hostname: " + configuration.dockerHost + "\n");
+            body.write("hostname: " + configuration.host + "\n");
             writer = new PrintWriter(body);
             while (true) {
                 e.printStackTrace(writer);

@@ -59,7 +59,7 @@ public class ServerConfiguration {
     /**
      * used for output and application urls
      */
-    public String dockerHost;
+    public String host;
 
     /**
      * Use vhosts
@@ -106,12 +106,12 @@ public class ServerConfiguration {
     public Map<String, String> environment;
 
     public ServerConfiguration() {
+        host = "localhost";
         vhosts = false;
         loglevel = "INFO";
         registryPrefix = Registry.LOCAL_HOST + "/";
         portFirst = 31000;
         portLast = 31999;
-        dockerHost = "localhost";
         admin = "";
         autoRemove = -1;
         ldapUrl = "";

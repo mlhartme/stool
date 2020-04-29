@@ -134,6 +134,8 @@ client
   * set container hostname to md5(app + stage) + dockerhost to make sure the name does not exceed the 64 character limit of the kernel
 
 server
+* config changes
+  * renamed DOCKER_HOST to HOST
 * added per-stage environment; clients configure it with `stool config environment=FOO:bar` - note the colon to separate key and value;
   explicit environment arguments passed to `start` overwrite per-stage environment values
 * "create" now reports a conflict (409) if the stage already exists
