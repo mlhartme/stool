@@ -32,7 +32,6 @@ public class Context {
     public final Engine engine;
     public final Registry registry;
     private final Map<String, List<TagInfo>> stageImages;
-    private Map<String, PodInfo> lazyAllPodMap;
     private final Map<String, PodInfo> runningPodOpts;
     private final Map<String, Stage.Current> currentOpts;
     private final Map<String, Map<String, String>> urlMaps;
@@ -41,7 +40,6 @@ public class Context {
         this.engine = engine;
         this.registry = registry;
         this.stageImages = new HashMap<>();
-        this.lazyAllPodMap = null;
         this.runningPodOpts = new HashMap<>();
         this.currentOpts = new HashMap<>();
         this.urlMaps = new HashMap<>();
@@ -60,19 +58,12 @@ public class Context {
 
     //--
 
-    public Map<String, PodInfo> allPodMap() throws IOException {
-        if (lazyAllPodMap == null) {
-            lazyAllPodMap = Stage.allPodMap(engine);
-        }
-        return lazyAllPodMap;
-    }
-
     public PodInfo runningPodOpt(Stage stage) throws IOException {
         PodInfo result;
 
         result = runningPodOpts.get(stage.getName());
         if (result == null) {
-            result = stage.runningPodOpt(allPodMap());
+            result = stage.runningPodOpt(engine);
             runningPodOpts.put(stage.getName(), result);
         }
         return result;

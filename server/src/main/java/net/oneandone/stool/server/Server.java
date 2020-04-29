@@ -34,7 +34,6 @@ import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
-import net.oneandone.stool.server.stage.TagInfo;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.util.Pool;
@@ -400,13 +399,13 @@ public class Server {
     /** used for running containers */
     public int memoryReservedContainers(Engine engine, Registry registry) throws IOException {
         int reserved;
-        TagInfo image;
+        PodInfo pod;
 
         reserved = 0;
-        for (PodInfo pod : Stage.allPodMap(engine).values()) { // TODO: expensive
-            if (pod.isRunning()) {
-                image = registry.info(pod);
-                reserved += image.memory;
+        for (Stage stage : listAll()) {
+            pod = stage.runningPodOpt(engine);
+            if (pod != null) {
+                reserved += registry.info(pod).memory;
             }
         }
         return reserved;

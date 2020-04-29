@@ -888,54 +888,12 @@ public class Stage {
         }
     }
 
-    // TODO: filter query
-    // not just this stage
-    // @return all stage pods
-    public static Map<String, PodInfo> allPodMap(Engine engine) throws IOException {
-        Map<String, PodInfo> result;
-        Map<String, PodInfo> clone;
-
-        result = engine.podList(); // TODO: filter none-stool pods
-        clone = new HashMap<>(result);
-        for (Map.Entry<String, PodInfo> entry : clone.entrySet()) {
-            if (!entry.getValue().labels.containsKey(POD_LABEL_STAGE)) {
-                result.remove(entry.getKey());
-            }
-        }
-        return result;
-    }
-
-    public PodInfo runningPodOpt(Map<String, PodInfo> allPodMap) {
-        PodInfo result;
-        PodInfo pod;
-
-        result = null;
-        for (Map.Entry<String, PodInfo> entry : allPodMap.entrySet()) {
-            pod = entry.getValue();
-            if (name.equals(pod.labels.get(POD_LABEL_STAGE)) && pod.isRunning()) {
-                if (result != null) {
-                    throw new IllegalStateException();
-                }
-                result = pod;
-            }
-        }
-        return result;
-    }
-
     /** @return null if not running */
     public PodInfo runningPodOpt(Engine engine) throws IOException {
         PodInfo result;
 
-        result = null;
-        for (PodInfo pod : allPodMap(engine).values()) { // TODO: expensive
-            if (name.equals(pod.labels.get(POD_LABEL_STAGE)) && pod.isRunning()) {
-                if (result != null) {
-                    throw new IllegalStateException(result.toString());
-                }
-                result = pod;
-            }
-        }
-        return result;
+        result = engine.podProbe(podName());
+        return result != null && result.isRunning() ? result : null;
     }
 
     /** @return null if not running */
