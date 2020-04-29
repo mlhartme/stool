@@ -113,8 +113,7 @@ public class RegistryIT {
         root = (HttpNode) WORLD.validNode("https://" + get(p, "portus"));
 
         repository = get(p, "repository");
-        registry = Registry.portus(root, "repository:" + repository + ":*", get(p, "user"), get(p, "password"),
-                "target/portus-wire.log");
+        registry = Registry.portus(root, get(p, "user"), get(p, "password"), "target/portus-wire.log");
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
         System.out.println("info: " + registry.info(repository, tags.get(0)));

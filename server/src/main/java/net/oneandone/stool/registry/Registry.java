@@ -69,40 +69,18 @@ public class Registry {
 
     public static final String LOCAL_HOST = "127.0.0.1:31500";
 
-    public static Registry portus(HttpNode root, String scope,
-                                 String username, String applicationToken, String wirelog) throws IOException {
-        HttpNode login;
-        String token;
-        String realm;
-        String service;
-
+    public static Registry portus(HttpNode root, String username, String password, String wirelog) {
         if (username == null) {
             throw new IllegalArgumentException();
         }
-        if (applicationToken == null) {
+        if (password == null) {
             throw new IllegalArgumentException();
         }
 
-        // auth for portus api
-        root.getRoot().addExtraHeader("Portus-Auth", username + ":" + applicationToken);
+        // auth for portus api; in contrast to registry api auth, portus auth can be added upfront
+        root.getRoot().addExtraHeader("Portus-Auth", username + ":" + password);
 
-        // auth for docker registry api
-        try {
-            Registry.local(root).catalog();
-            throw new IllegalStateException(root.getUri().toString());
-        } catch (AuthException e) {
-            realm = e.realm;
-            service = e.service;
-            // fall-through
-        }
-        login = (HttpNode) root.getWorld().validNode(realm);
-        login.getRoot().setCredentials(username, applicationToken);
-        login = login.withParameter("service", service);
-        login = login.withParameter("scope", scope);
-        token = getJsonObject(login).get("token").getAsString();
-        root.getRoot().addExtraHeader("Authorization", "Bearer " + token);
-
-        return doCreate("todo", true, root, wirelog);
+        return doCreate("todo", true, username, password, root, wirelog);
     }
 
     public static Registry local(HttpNode root) {
@@ -110,26 +88,30 @@ public class Registry {
     }
 
     public static Registry local(HttpNode root, String wirelog) {
-        return doCreate(LOCAL_HOST, false, root, wirelog);
+        return doCreate(LOCAL_HOST, false, null, null, root, wirelog);
     }
 
-    public static Registry doCreate(String host, boolean portus, HttpNode root, String wirelog) {
+    public static Registry doCreate(String host, boolean portus, String username, String password, HttpNode root, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new Registry(host, portus, root);
+        return new Registry(host, portus, username, password, root);
     }
 
     private final String host;
     private final boolean portus;
+    private final String username;
+    private final String password;
     private final HttpNode root;
 
     private String authRepository;
     private String authToken;
 
-    private Registry(String host, boolean portus, HttpNode root) {
+    private Registry(String host, boolean portus, String username, String password, HttpNode root) {
         this.host = host;
         this.portus = portus;
+        this.username = username;
+        this.password = password;
         this.root = root;
 
         this.authRepository = null;
@@ -148,8 +130,42 @@ public class Registry {
     public List<String> tags(String repository) throws IOException {
         JsonObject result;
 
-        result = getJsonObject(root.join("v2/" + repository + "/tags/list"));
+        result = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/tags/list")));
         return toList(result.get("tags").getAsJsonArray());
+    }
+
+    private HttpNode repositoryAuth(String repository, HttpNode node) throws IOException {
+        String realm;
+        String service;
+        HttpNode login;
+        HeaderList hl;
+
+        if (!portus) {
+            return node;
+        }
+        if (authRepository == null || !authRepository.equals(repository)) {
+            // auth for docker registry api
+            try {
+                Registry.local(root).catalog();
+                throw new IllegalStateException(root.getUri().toString());
+            } catch (AuthException e) {
+                realm = e.realm;
+                service = e.service;
+                // fall-through
+            }
+            login = (HttpNode) root.getWorld().validNode(realm);
+            login.getRoot().setCredentials(username, password);
+            try {
+                login = login.withParameter("service", service);
+                login = login.withParameter("scope", "repository:" + repository + ":*");
+                authRepository = repository;
+                authToken = getJsonObject(login).get("token").getAsString();
+            } finally {
+                login.getRoot().setCredentials(null, null);
+            }
+        }
+        hl = HeaderList.of("Authorization", "Bearer " + authToken);
+        return node.withHeaders(hl);
     }
 
     public TagInfo info(PodInfo pod) throws IOException {
@@ -179,7 +195,7 @@ public class Registry {
 
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
-        info = getJsonObject(root.join("v2/" + repository + "/blobs/" + digest));
+        info = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/blobs/" + digest)));
         if (portus) {
             obj = portusTag(portusRepositoryId(repository), tag);
             created = LocalDateTime.parse(obj.get("created_at").getAsString(), Daemon.DATE_FORMAT);
@@ -244,7 +260,7 @@ public class Registry {
         HeaderList hl;
 
         hl = HeaderList.of("Accept", "application/vnd.docker.distribution.manifest.v2+json");
-        return getJsonObject(root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl));
+        return getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl)));
     }
 
     //--
