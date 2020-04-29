@@ -18,6 +18,7 @@ package net.oneandone.stool.server.stage;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.kubernetes.Registry;
 import net.oneandone.stool.docker.Stats;
+import net.oneandone.stool.kubernetes.TagInfo;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.configuration.Accessor;
