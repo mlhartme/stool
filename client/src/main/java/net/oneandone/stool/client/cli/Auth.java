@@ -45,7 +45,7 @@ public class Auth {
         String password;
         List<Server> dests;
 
-        manager = globals.servers();
+        manager = globals.configuration();
         dests = new ArrayList<>();
         if (explicitServer != null) {
             dests.add(manager.serverGet(explicitServer));

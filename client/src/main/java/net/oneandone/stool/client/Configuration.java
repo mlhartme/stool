@@ -34,6 +34,7 @@ import java.util.Map;
 public class Configuration {
     public final FileNode file;
 
+    private final String registryNamespace;
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
@@ -45,6 +46,7 @@ public class Configuration {
 
     public Configuration(FileNode file, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.file = file;
+        this.registryNamespace = "127.0.0.1:31500";
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
@@ -59,9 +61,8 @@ public class Configuration {
         servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
     }
 
-    // TODO
     public String registryNamespace() {
-        return "127.0.0.1:31500";
+        return registryNamespace;
     }
 
     public Reference serverReference(String str) throws IOException {

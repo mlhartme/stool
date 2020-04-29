@@ -79,7 +79,7 @@ public class Build extends ProjectCommand {
         if (project == null) {
             throw new ArgumentException("unknown project");
         }
-        apps = project.list(globals.servers());
+        apps = project.list(globals.configuration());
         if (apps.isEmpty()) {
             throw new IOException("no apps to build in project " + directory);
         }
@@ -121,7 +121,7 @@ public class Build extends ProjectCommand {
 
         started = System.currentTimeMillis();
         console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
-        registryNamespace = globals.servers().registryNamespace();
+        registryNamespace = globals.configuration().registryNamespace();
         template = template(arguments);
         tag = wipeOldImages(engine, registryNamespace, stage);
         context = createContext(stage, war);  // this is where concurrent builds are blocked

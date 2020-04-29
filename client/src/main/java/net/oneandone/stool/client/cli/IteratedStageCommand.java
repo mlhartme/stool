@@ -43,7 +43,7 @@ public abstract class IteratedStageCommand extends StageCommand {
         EnumerationFailed failures;
         Worker worker;
 
-        lst = selectedList(globals.servers());
+        lst = selectedList(globals.configuration());
         width = 0;
         for (Reference reference : lst) {
             width = Math.max(width, reference.toString().length());
@@ -65,29 +65,29 @@ public abstract class IteratedStageCommand extends StageCommand {
         return failures;
     }
 
-    private List<Reference> selectedList(Configuration serverManager) throws IOException {
+    private List<Reference> selectedList(Configuration configuration) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
-                return defaultSelected(serverManager);
+                return defaultSelected(configuration);
             case 1:
-                return serverManager.list(all ? null : stageClause);
+                return configuration.list(all ? null : stageClause);
             default:
                 throw new ArgumentException("too many select options");
         }
     }
 
     /** override this to change the default */
-    private List<Reference> defaultSelected(Configuration serverManager) throws IOException {
+    private List<Reference> defaultSelected(Configuration configuration) throws IOException {
         Project project;
         List<Reference> result;
 
         project = Project.lookup(working);
         result = new ArrayList<>();
         if (project != null) {
-            for (App app : project.list(serverManager)) {
+            for (App app : project.list(configuration)) {
                 result.add(app.reference);
             }
         }

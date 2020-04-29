@@ -78,14 +78,14 @@ public class Project {
         return backstage.readProperties().size();
     }
 
-    public List<App> list(Configuration serverManager) throws IOException {
+    public List<App> list(Configuration configuration) throws IOException {
         Properties p;
         List<App> result;
 
         p = backstage.readProperties();
         result = new ArrayList<>(p.size());
         for (Map.Entry<Object, Object> entry : p.entrySet()) {
-            result.add(new App(serverManager.serverReference((String) entry.getKey()), (String) entry.getValue()));
+            result.add(new App(configuration.serverReference((String) entry.getKey()), (String) entry.getValue()));
         }
         return result;
     }

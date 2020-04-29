@@ -93,7 +93,7 @@ public class Globals {
         return console;
     }
 
-    public Configuration servers() throws IOException {
+    public Configuration configuration() throws IOException {
         FileNode file;
         Configuration result;
 

@@ -45,27 +45,27 @@ public abstract class InfoCommand extends StageCommand {
     @Override
     public EnumerationFailed runAll() throws Exception {
         Map<Client, String> clientFilters;
-        Configuration serverManager;
+        Configuration configuration;
         List<Reference> references;
         String clientFilter;
 
         if (stageClause != null && all) {
             throw new ArgumentException("too many select options");
         }
-        serverManager = globals.servers();
+        configuration = globals.configuration();
         clientFilters = new LinkedHashMap<>();
         if (all) {
-            for (Client client : serverManager.connectMatching(serverManager.serverFilter(null))) {
-                clientFilters.put(client, globals.servers().clientFilter(""));
+            for (Client client : configuration.connectMatching(configuration.serverFilter(null))) {
+                clientFilters.put(client, globals.configuration().clientFilter(""));
             }
         } else if (stageClause != null) {
-            for (Client client : serverManager.connectMatching(serverManager.serverFilter(stageClause))) {
-                clientFilters.put(client, globals.servers().clientFilter(stageClause));
+            for (Client client : configuration.connectMatching(configuration.serverFilter(stageClause))) {
+                clientFilters.put(client, globals.configuration().clientFilter(stageClause));
             }
         } else {
-            references = projectReferences(serverManager);
+            references = projectReferences(configuration);
             if (references.isEmpty()) {
-                for (Client client : serverManager.connectMatching("")) {
+                for (Client client : configuration.connectMatching("")) {
                     clientFilters.put(client, "");
                 }
             } else {
@@ -86,14 +86,14 @@ public abstract class InfoCommand extends StageCommand {
         return new EnumerationFailed();
     }
 
-    private List<Reference> projectReferences(Configuration serverManager) throws IOException {
+    private List<Reference> projectReferences(Configuration configuration) throws IOException {
         Project project;
         List<Reference> result;
 
         project = Project.lookup(working);
         result = new ArrayList<>();
         if (project != null) {
-            for (App app : project.list(serverManager)) {
+            for (App app : project.list(configuration)) {
                 result.add(app.reference);
             }
         }

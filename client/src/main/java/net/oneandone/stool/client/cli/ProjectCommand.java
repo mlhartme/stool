@@ -37,7 +37,7 @@ public abstract class ProjectCommand extends ClientCommand {
     protected Reference reference(String nameAndServer) throws IOException {
         List<Reference> found;
 
-        found = globals.servers().list(nameAndServer);
+        found = globals.configuration().list(nameAndServer);
         switch (found.size()) {
             case 0:
                 throw new IOException("no such stage: " + nameAndServer);
