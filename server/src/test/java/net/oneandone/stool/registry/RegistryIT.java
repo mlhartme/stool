@@ -111,20 +111,14 @@ public class RegistryIT {
 
         p = WORLD.guessProjectHome(getClass()).join("test.properties").readProperties();
         root = (HttpNode) WORLD.validNode("https://" + get(p, "portus"));
+
         repository = get(p, "repository");
-        registry = Registry.local(root, "target/contargo.log");
-        try {
-            registry.tags(repository);
-            fail();
-        } catch (AuthException e) {
-            // ok
-            registry = Registry.portus(root, e.realm, e.service, e.scope, get(p, "user"), get(p, "password"),
-                    "target/portus-wire.log");
-            tags = registry.tags(repository);
-            System.out.println("tags: " + tags);
-            System.out.println("info: " + registry.info(repository, tags.get(0)));
-            System.out.println("v1 tags: " + registry.portusTags("6"));
-        }
+        registry = Registry.portus(root, "repository:" + repository + ":*", get(p, "user"), get(p, "password"),
+                "target/portus-wire.log");
+        tags = registry.tags(repository);
+        System.out.println("tags: " + tags);
+        System.out.println("info: " + registry.info(repository, tags.get(0)));
+        System.out.println("v1 tags: " + registry.portusTags("6"));
     }
 
     private static String get(Properties p, String key) throws IOException {

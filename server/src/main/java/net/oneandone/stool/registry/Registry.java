@@ -69,10 +69,12 @@ public class Registry {
 
     public static final String LOCAL_HOST = "127.0.0.1:31500";
 
-    public static Registry portus(HttpNode root, String realm, String service, String scope,
+    public static Registry portus(HttpNode root, String scope,
                                  String username, String applicationToken, String wirelog) throws IOException {
         HttpNode login;
         String token;
+        String realm;
+        String service;
 
         if (username == null) {
             throw new IllegalArgumentException();
@@ -80,10 +82,19 @@ public class Registry {
         if (applicationToken == null) {
             throw new IllegalArgumentException();
         }
+
         // auth for portus api
         root.getRoot().addExtraHeader("Portus-Auth", username + ":" + applicationToken);
 
         // auth for docker registry api
+        try {
+            Registry.local(root).catalog();
+            throw new IllegalStateException(root.getUri().toString());
+        } catch (AuthException e) {
+            realm = e.realm;
+            service = e.service;
+            // fall-through
+        }
         login = (HttpNode) root.getWorld().validNode(realm);
         login.getRoot().setCredentials(username, applicationToken);
         login = login.withParameter("service", service);
@@ -113,10 +124,16 @@ public class Registry {
     private final boolean portus;
     private final HttpNode root;
 
+    private String authRepository;
+    private String authToken;
+
     private Registry(String host, boolean portus, HttpNode root) {
         this.host = host;
         this.portus = portus;
         this.root = root;
+
+        this.authRepository = null;
+        this.authToken = null;
     }
 
     /** @return list of repositories */
