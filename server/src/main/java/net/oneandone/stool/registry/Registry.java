@@ -24,6 +24,7 @@ import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.sushi.fs.NewInputStreamException;
+import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -46,14 +47,11 @@ import java.util.Map;
  * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
 public class Registry {
-    public static Registry create(Engine engine, String registryHost) throws IOException {
+    public static Registry create(Engine engine, String url) throws IOException {
         PodInfo info;
         HttpNode node;
 
-        if (registryHost.contains("/")) {
-            throw new IllegalArgumentException(registryHost);
-        }
-        if (LOCAL_HOST.equals(registryHost)) {
+        if (("http://" + LOCAL_HOST + "/").equals(url)) {
             info = engine.podProbe("stool-registry");
             if (info == null) {
                 throw new IOException("registry not found");
@@ -61,26 +59,33 @@ public class Registry {
             node = (HttpNode) World.create().validNode("http://" + info.ip + ":5000");
             return Registry.local(node, null);
         } else {
-            node = (HttpNode) World.create().validNode("http://" + registryHost);
-            throw new IllegalStateException(registryHost);
-            // TODO Registry.portus(node);
+            return portus(World.create(), url, null);
         }
     }
 
     public static final String LOCAL_HOST = "127.0.0.1:31500";
 
-    public static Registry portus(HttpNode root, String username, String password, String wirelog) {
-        if (username == null) {
-            throw new IllegalArgumentException();
-        }
-        if (password == null) {
-            throw new IllegalArgumentException();
-        }
+    public static Registry portus(World world, String portus, String wirelog) throws NodeInstantiationException {
+        HttpNode root;
+        String ui;
+        int idx;
+        String username;
+        String password;
 
+        root = (HttpNode) world.validNode(portus);
+        ui = root.getRoot().getUserInfo();
+        if (ui == null) {
+            throw new IllegalArgumentException("missing credentials: " + portus);
+        }
+        root.getRoot().setCredentials(null, null);
+        root = (HttpNode) world.node(root.getUri()); // TODO: work-around for sushi bug: does not reset auth header
+        idx = ui.indexOf(':');
+        username = ui.substring(0, idx);
+        password = ui.substring(idx + 1);
         // auth for portus api; in contrast to registry api auth, portus auth can be added upfront
         root.getRoot().addExtraHeader("Portus-Auth", username + ":" + password);
 
-        return doCreate("todo", true, username, password, root, wirelog);
+        return doCreate(root.getRoot().getHostname(), true, username, password, root, wirelog);
     }
 
     public static Registry local(HttpNode root) {

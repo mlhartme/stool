@@ -28,6 +28,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -102,18 +103,16 @@ public class RegistryIT {
     }
 
     @Test
-    public void portus() throws IOException {
+    public void portus() throws IOException, URISyntaxException {
         String repository;
-        HttpNode root;
         Registry registry;
         Properties p;
         List<String> tags;
 
         p = WORLD.guessProjectHome(getClass()).join("test.properties").readProperties();
-        root = (HttpNode) WORLD.validNode("https://" + get(p, "portus"));
 
         repository = get(p, "repository");
-        registry = Registry.portus(root, get(p, "user"), get(p, "password"), "target/portus-wire.log");
+        registry = Registry.portus(WORLD, get(p, "portus"), "target/portus-wire.log");
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
         System.out.println("info: " + registry.info(repository, tags.get(0)));
