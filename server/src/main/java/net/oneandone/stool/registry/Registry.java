@@ -85,7 +85,7 @@ public class Registry {
         // auth for portus api; in contrast to registry api auth, portus auth can be added upfront
         root.getRoot().addExtraHeader("Portus-Auth", username + ":" + password);
 
-        return doCreate(root.getRoot().getHostname(), true, username, password, root, wirelog);
+        return doCreate(root, root.getRoot().getHostname(), true, username, password, wirelog);
     }
 
     public static Registry local(HttpNode root) {
@@ -93,10 +93,10 @@ public class Registry {
     }
 
     public static Registry local(HttpNode root, String wirelog) {
-        return doCreate(LOCAL_HOST, false, null, null, root, wirelog);
+        return doCreate(root, LOCAL_HOST, false, null, null, wirelog);
     }
 
-    public static Registry doCreate(String host, boolean portus, String username, String password, HttpNode root, String wirelog) {
+    public static Registry doCreate(HttpNode root, String host, boolean portus, String username, String password, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
@@ -113,6 +113,9 @@ public class Registry {
     private String authToken;
 
     private Registry(String host, boolean portus, String username, String password, HttpNode root) {
+        if (host.contains("/")) {
+            throw new IllegalArgumentException(host);
+        }
         this.host = host;
         this.portus = portus;
         this.username = username;

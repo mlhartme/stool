@@ -15,10 +15,7 @@
  */
 package net.oneandone.stool.registry;
 
-import net.oneandone.stool.docker.AuthException;
 import net.oneandone.stool.docker.Daemon;
-import net.oneandone.stool.registry.Registry;
-import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -28,7 +25,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +33,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class RegistryIT {
     private static final World WORLD;
@@ -103,7 +98,7 @@ public class RegistryIT {
     }
 
     @Test
-    public void portus() throws IOException, URISyntaxException {
+    public void portus() throws IOException {
         String repository;
         Registry registry;
         Properties p;

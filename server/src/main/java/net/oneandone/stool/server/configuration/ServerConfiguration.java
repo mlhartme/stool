@@ -23,6 +23,7 @@ import net.oneandone.stool.server.util.Pool;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,7 +51,7 @@ public class ServerConfiguration {
 
     public String loglevel;
 
-    public String registryPrefix;
+    public String registryUrl;
 
     public int portFirst;
 
@@ -109,7 +110,7 @@ public class ServerConfiguration {
         host = "localhost";
         vhosts = false;
         loglevel = "INFO";
-        registryPrefix = Registry.LOCAL_HOST + "/";
+        registryUrl = "http://" + Registry.LOCAL_HOST + "/";
         portFirst = 31000;
         portLast = 31999;
         admin = "";
@@ -130,28 +131,28 @@ public class ServerConfiguration {
         environment = new HashMap<>();
     }
 
-    public String registryHost() {
-        int idx;
-
-        idx = registryPrefix.indexOf('/');
-        return registryPrefix.substring(0, idx);
+    public String registryUrl() {
+        return registryUrl;
     }
 
-    public String registryPathPrefix() {
-        int idx;
+    public String registryPath() {
+        String path;
 
-        idx = registryPrefix.indexOf('/');
-        return registryPrefix.substring(idx + 1);
+        path = URI.create(registryUrl).getPath();
+        if (!path.isEmpty() && !path.endsWith("/")) {
+            path = path + "/";
+        }
+        return path;
     }
 
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public void validateRegistryPrefix() {
-        if (!registryPrefix.endsWith("/")) {
-            throw new ArgumentException("invalid registry prefix: " + registryPrefix);
+    public void validateRegistryUrl() {
+        if (!registryUrl.endsWith("/")) {
+            throw new ArgumentException("invalid registry prefix: " + registryUrl);
         }
-        for (int i = 0, length = registryPrefix.length(); i < length; i++) {
-            if (Character.isUpperCase(registryPrefix.charAt(i))) {
-                throw new ArgumentException("invalid registry prefix: " + registryPrefix);
+        for (int i = 0, length = registryUrl.length(); i < length; i++) {
+            if (Character.isUpperCase(registryUrl.charAt(i))) {
+                throw new ArgumentException("invalid registry prefix: " + registryUrl);
             }
         }
     }

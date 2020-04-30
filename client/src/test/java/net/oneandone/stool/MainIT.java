@@ -64,7 +64,6 @@ public class MainIT {
         FileNode working;
         String stage;
 
-
         working = IT_ROOT.join("projects").mkdirsOpt().join("it");
         System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
         System.out.println(working.exec("mvn", "clean", "package"));

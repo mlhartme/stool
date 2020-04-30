@@ -311,8 +311,8 @@ public class Setup {
             addIfNew(env, "LDAP_UNIT", "cisostages");
             addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
             addIfNew(env, "ADMIN", "michael.hartmeier@ionos.com");
-            // TODO: contargo
-            //    addIfNew(env, "REGISTRY_NAMESPACE", Configuration.registryNamespace() + "/");
+            // TODO
+            //   addIfNew(env, "REGISTRY_URL", "https://todouser:todopassword@contargo.server.lan/cisoops-public/stool");
         }
         addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose
         builder = new StringBuilder();

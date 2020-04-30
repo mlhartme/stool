@@ -102,7 +102,7 @@ public class Stage {
     }
 
     public String getRepository() {
-        return server.configuration.registryPathPrefix() + name;
+        return server.configuration.registryPath() + name;
     }
 
     public FileNode getDirectory() {

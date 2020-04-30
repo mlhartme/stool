@@ -308,7 +308,7 @@ The following environment variables can be used to configure Stool server in `$S
   Type number, default 31000.
 * **PORT_LAST**
   Last port available for stages. Type number, default 9999.
-* **REGISTRY_NAMESPACE**
+* **REGISTRY_URL**
   Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
 * **VHOSTS**
   `true` to create urls with subdomains for app and stage name.

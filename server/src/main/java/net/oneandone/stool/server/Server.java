@@ -465,7 +465,7 @@ public class Server {
     //--
 
     public Registry createRegistry(Engine engine) throws IOException {
-        return Registry.create(engine, configuration.registryHost());
+        return Registry.create(engine, configuration.registryUrl());
     }
 
     /** @return path to generates certificate */
@@ -488,7 +488,7 @@ public class Server {
     //--
 
     public void validate(Engine engine) throws IOException {
-        configuration.validateRegistryPrefix();
+        configuration.validateRegistryUrl();
         if (configuration.auth()) {
             if (configuration.ldapSso.isEmpty()) {
                 LOGGER.error("ldapSso cannot be empty because security is enabled");
