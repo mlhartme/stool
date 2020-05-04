@@ -219,9 +219,10 @@ public class Registry {
 
     public void delete(String repository, String digest) throws IOException {
         try {
-            Method.delete(root.join("v2/" + repository + "/manifests/" + digest));
+            Method.delete(withV2Header(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + digest))));
         } catch (StatusException e) {
             if (e.getStatusLine().code == 202) {
+                System.out.println("removed " + e.getStatusLine()); // TODO
                 // TODO
                 return;
             } else {
@@ -265,12 +266,15 @@ public class Registry {
     }
 
     private JsonObject manifest(String repository, String tag) throws IOException {
+        return getJsonObject(withV2Header(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + tag))));
+    }
+
+    private HttpNode withV2Header(HttpNode node) {
         HeaderList hl;
 
         hl = HeaderList.of("Accept", "application/vnd.docker.distribution.manifest.v2+json");
-        return getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + tag).withHeaders(hl)));
+        return node.withHeaders(hl);
     }
-
     //--
 
     private static JsonObject getJsonObject(HttpNode node) throws IOException {

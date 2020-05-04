@@ -480,11 +480,13 @@ public class Stage {
 
     public void wipeImages(Registry registry) throws IOException {
         String repository;
+        String id;
 
         repository = getRepository();
         for (String tag : registry.tags(repository)) {
-            Server.LOGGER.debug("remove image: " + repository + ":" + tag);
-            registry.delete(repository, registry.info(repository, tag).id);
+            id = registry.info(repository, tag).id;
+            Server.LOGGER.debug("remove image: " + repository + ":" + tag + " (id=" + id + ")");
+            registry.delete(repository, id);
         }
     }
 
