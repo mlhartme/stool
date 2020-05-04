@@ -154,7 +154,7 @@ public class Build extends ProjectCommand {
             console.verbose.println("successfully built image: " + image);
             console.verbose.println(str);
             console.verbose.println("pushing ...");
-            engine.imagePush(repositoryTag);
+            console.info.println(engine.imagePush(repositoryTag));
             console.verbose.println("done");
             console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
         } finally {
