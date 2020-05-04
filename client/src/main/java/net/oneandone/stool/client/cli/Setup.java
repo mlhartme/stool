@@ -301,7 +301,7 @@ public class Setup {
         env = new LinkedHashMap<>();
         debugPort = Integer.toString(port + 1);
         addIfNew(env, "HOST", LOCALHOST);
-        addIfNew(env, "OPTS", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + debugPort);
+        addIfNew(env, "OPTS", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:" + debugPort);
         for (Map.Entry<String, String> entry : opts.entrySet()) {
             addIfNew(env, entry.getKey(), entry.getValue());
         }

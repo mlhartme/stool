@@ -152,13 +152,20 @@ public class ServerConfiguration {
         if (!registryUrl.endsWith("/")) {
             throw new ArgumentException("invalid registry prefix: " + registryUrl);
         }
-        for (int i = 0, length = registryUrl.length(); i < length; i++) {
-            if (Character.isUpperCase(registryUrl.charAt(i))) {
-                throw new ArgumentException("invalid registry prefix: " + registryUrl);
+        URI uri;
+
+        uri = URI.create(registryUrl);
+        checkLowercase(uri.getHost());
+        checkLowercase(uri.getPath());
+    }
+
+    private static void checkLowercase(String str) {
+        for (int i = 0, length = str.length(); i < length; i++) {
+            if (Character.isUpperCase(str.charAt(i))) {
+                throw new ArgumentException("invalid registry prefix: " + str);
             }
         }
     }
-
     public Pool loadPool(Engine engine) throws IOException {
         return Pool.load(engine, portFirst + 4 /* 4 ports reserved for the server (http(s), debug, jmx, unused) */, portLast);
     }

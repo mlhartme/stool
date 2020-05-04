@@ -59,7 +59,7 @@ public class Registry {
             node = (HttpNode) World.create().validNode("http://" + info.ip + ":5000");
             return Registry.local(node, null);
         } else {
-            return portus(World.create(), url, null);
+            return portus(World.create(), Strings.removeRight(url, "/"), null);
         }
     }
 
@@ -78,7 +78,7 @@ public class Registry {
             throw new IllegalArgumentException("missing credentials: " + portus);
         }
         root.getRoot().setCredentials(null, null);
-        root = (HttpNode) world.node(root.getUri()); // TODO: work-around for sushi bug: does not reset auth header
+        root = (HttpNode) world.node(root.getUri().resolve("/")); // TODO: work-around for sushi bug: does not reset auth header
         idx = ui.indexOf(':');
         username = ui.substring(0, idx);
         password = ui.substring(idx + 1);
