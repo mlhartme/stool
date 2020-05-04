@@ -137,9 +137,11 @@ public class Registry {
     /** @return list of tags */
     public List<String> tags(String repository) throws IOException {
         JsonObject result;
+        JsonElement tags;
 
         result = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/tags/list")));
-        return toList(result.get("tags").getAsJsonArray());
+        tags = result.get("tags");
+        return tags.isJsonNull() ? new ArrayList<>() : toList(tags.getAsJsonArray());
     }
 
     private HttpNode repositoryAuth(String repository, HttpNode node) throws IOException {
@@ -263,6 +265,10 @@ public class Registry {
             }
         }
         throw new IOException("tag not found: " + tag);
+    }
+
+    public void portusDelete(String repository) throws IOException {
+        Method.delete(root.join("api/v1/repositories").join(portusRepositoryId(repository)));
     }
 
     private JsonObject manifest(String repository, String tag) throws IOException {

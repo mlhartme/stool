@@ -114,6 +114,24 @@ public class RegistryIT {
         System.out.println("v1 tags: " + registry.portusTags("6"));
     }
 
+    @Test
+    public void portusDelete() throws IOException {
+        String repository;
+        Registry registry;
+        Properties p;
+        List<String> tags;
+
+        p = WORLD.guessProjectHome(getClass()).join("test.properties").readProperties();
+
+        repository = "cisoops-public/waterloo/app.foo";
+        registry = Registry.portus(WORLD, get(p, "portus"), "target/portus-wire.log");
+        tags = registry.tags(repository);
+        System.out.println("tags: " + tags);
+        registry.portusDelete(repository);
+        tags = registry.tags(repository);
+        System.out.println("tags: " + tags);
+    }
+
     private static String get(Properties p, String key) throws IOException {
         String value;
 
