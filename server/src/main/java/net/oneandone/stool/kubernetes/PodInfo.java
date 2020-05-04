@@ -18,7 +18,6 @@ package net.oneandone.stool.kubernetes;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1Pod;
-import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.List;
@@ -95,10 +94,6 @@ public class PodInfo {
         this.repositoryTag = repositoryTag;
         this.containerId = containerId;
         this.labels = labels;
-    }
-
-    public String repositoryTag() {
-        return Engine.decodeLabel(labels.get(Stage.POD_LABEL_REPOSITORY_TAG));
     }
 
     public boolean isRunning() {

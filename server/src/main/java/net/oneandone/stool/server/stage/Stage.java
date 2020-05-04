@@ -74,7 +74,6 @@ import java.util.Set;
 public class Stage {
     private static final String CONTAINER_PREFIX = "net.oneandone.stool-container-";
 
-    public static final String POD_LABEL_REPOSITORY_TAG = CONTAINER_PREFIX + "repo-tag";
     public static final String POD_LABEL_STAGE = CONTAINER_PREFIX + "stage";
     public static final String POD_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
     public static final String POD_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "port.";
@@ -619,7 +618,6 @@ public class Stage {
         hostPorts = pool.allocate(this, http, https);
         labels = new HashMap<>();
         labels.put(POD_LABEL_STAGE, name);
-        labels.put(POD_LABEL_REPOSITORY_TAG, Engine.encodeLabel(image.repositoryTag));
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             labels.put(POD_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }

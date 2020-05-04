@@ -71,6 +71,16 @@ public class Engine implements AutoCloseable {
     private static final String UTF_8 = "utf8";
 
     public static String encodeLabel(String value) {
+        String result;
+
+        result = encodeLabelRaw(value);
+        if (result.length() > 63) {
+            throw new IllegalStateException("value too long: " + value);
+        }
+        return result;
+    }
+
+    public static String encodeLabelRaw(String value) {
         try {
             return "a-" + Base64.getEncoder().encodeToString(value.getBytes(UTF_8)).replace('=', '-') + "-z";
         } catch (UnsupportedEncodingException e) {
