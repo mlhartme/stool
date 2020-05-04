@@ -20,6 +20,7 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.util.Mailer;
 import net.oneandone.stool.server.util.Pool;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -139,6 +140,7 @@ public class ServerConfiguration {
         String path;
 
         path = URI.create(registryUrl).getPath();
+        path = Strings.removeLeft(path, "/");
         if (!path.isEmpty() && !path.endsWith("/")) {
             path = path + "/";
         }

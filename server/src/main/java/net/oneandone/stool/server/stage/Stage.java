@@ -555,6 +555,7 @@ public class Stage {
                 engine.serviceDelete(httpsService);
             }
             engine.serviceDelete(jmxServiceName());
+            engine.serviceDelete(debugServiceName());
             try {
                 engine.secretDelete(podName);
             } catch (FileNotFoundException e) {
@@ -641,6 +642,7 @@ public class Stage {
                     Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
         }
         engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
+        engine.serviceCreate(debugServiceName(), hostPorts.debug, image.ports.debug, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {
@@ -664,6 +666,9 @@ public class Stage {
 
     public String jmxServiceName() {
         return podName() + "jmxmp";
+    }
+    public String debugServiceName() {
+        return podName() + "debug";
     }
 
     private static String md5(String str) {
