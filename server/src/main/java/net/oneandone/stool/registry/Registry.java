@@ -219,7 +219,21 @@ public class Registry {
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);
     }
 
-    public void delete(String repository, String digest) throws IOException {
+    public void deleteRepository(String repository) throws IOException {
+        String id;
+
+        if (portus) {
+            portusDelete(repository);
+        } else {
+            for (String tag : tags(repository)) {
+                id = info(repository, tag).id;
+                deleteTagByDigest(repository, id);
+            }
+        }
+    }
+
+    // TODO: returns 202 and does not actually remove the tag
+    public void deleteTagByDigest(String repository, String digest) throws IOException {
         try {
             Method.delete(withV2Header(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + digest))));
         } catch (StatusException e) {

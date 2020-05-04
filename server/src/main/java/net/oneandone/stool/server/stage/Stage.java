@@ -479,15 +479,7 @@ public class Stage {
     //-- docker
 
     public void wipeImages(Registry registry) throws IOException {
-        String repository;
-        String id;
-
-        repository = getRepository();
-        for (String tag : registry.tags(repository)) {
-            id = registry.info(repository, tag).id;
-            Server.LOGGER.debug("remove image: " + repository + ":" + tag + " (id=" + id + ")");
-            registry.delete(repository, id);
-        }
+        registry.deleteRepository(getRepository());
     }
 
     /** @return sorted list, oldest first */
