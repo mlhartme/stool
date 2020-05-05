@@ -195,6 +195,7 @@ public class Setup {
         Configuration result;
         Configuration add;
         FileNode additional;
+        FileNode file;
 
         result = new Configuration(home.join("client.json"));
         result.load();
@@ -240,6 +241,7 @@ public class Setup {
 
     public void doCreate(Configuration environment) throws IOException {
         Configuration configuration;
+        FileNode file;
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
@@ -247,6 +249,13 @@ public class Setup {
         for (Server s : environment.allServer()) {
             s.addTo(configuration);
         }
+
+        // TODO
+        file = world.getHome().join("Projects/github.com/net/oneandone/stool/stool/server/test.properties");
+        if (file.exists()) {
+            configuration.setRegistryPrefix(file.readProperties().getProperty("prefix"));
+        }
+
         configuration.save(gson);
         serverDir().mkdir();
         home.join("server.yaml").writeString(serverYaml());
@@ -297,6 +306,7 @@ public class Setup {
         Map<String, String> env;
         StringBuilder builder;
         String debugPort;
+        FileNode file;
 
         env = new LinkedHashMap<>();
         debugPort = Integer.toString(port + 1);
@@ -312,7 +322,10 @@ public class Setup {
             addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
             addIfNew(env, "ADMIN", "michael.hartmeier@ionos.com");
             // TODO
-            //   addIfNew(env, "REGISTRY_URL", "https://todouser:todopassword@contargo.server.lan/cisoops-public/stool");
+            file = world.getHome().join("Projects/github.com/net/oneandone/stool/stool/server/test.properties");
+            if (file.exists()) {
+                addIfNew(env, "REGISTRY_URL", file.readProperties().getProperty("portus"));
+            }
         }
         addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose
         builder = new StringBuilder();

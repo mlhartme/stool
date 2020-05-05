@@ -63,6 +63,10 @@ public class Configuration {
         servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
     }
 
+    public void setRegistryPrefix(String str) {
+        this.registryPrefix = str;
+    }
+
     public String registryPrefix() {
         if (!registryPrefix.endsWith("/")) {
             throw new IllegalStateException(registryPrefix);
