@@ -126,13 +126,15 @@ public class Server {
     }
 
     private static FileNode toHostFile(Map<String, String> binds, FileNode container) throws IOException {
+        return container;
+        /* TODO
         String hostPath;
 
         hostPath = binds.get(container.getAbsolute());
         if (hostPath == null) {
             throw new IOException("no mapping found for " + container.getAbsolute() + ": " + binds);
         }
-        return container.getWorld().file(hostPath);
+        return container.getWorld().file(hostPath); */
     }
 
     //--
