@@ -101,18 +101,21 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public static Engine create() throws IOException {
-        return new Engine();
+    public static Engine local() throws IOException {
+        return new Engine(Config.defaultClient());
+    }
+
+    public static Engine inCluster() throws IOException {
+        return new Engine(Config.fromCluster());
     }
 
     private final ApiClient client;
     private final CoreV1Api core;
     private final String namespace;
 
-    private Engine() throws IOException {
-        client = Config.defaultClient();
+    private Engine(ApiClient client) {
+        this.client = client;
         Configuration.setDefaultApiClient(client); // TODO: threading ...
-
         // client.setDebugging(true);
         core = new CoreV1Api();
         namespace = "stool";
