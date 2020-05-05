@@ -3,8 +3,6 @@ kind: Namespace
 metadata:
   name: stool
 ---
----
-${kubeConfig}---
 apiVersion: v1
 kind: Service
 metadata:

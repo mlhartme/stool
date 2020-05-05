@@ -101,12 +101,9 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public static Engine local() throws IOException {
+    public static Engine create() throws IOException {
+        // default client automatically detects inCluster config
         return new Engine(Config.defaultClient());
-    }
-
-    public static Engine inCluster() throws IOException {
-        return new Engine(Config.fromCluster());
     }
 
     private final ApiClient client;

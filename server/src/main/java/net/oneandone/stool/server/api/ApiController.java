@@ -80,7 +80,7 @@ public class ApiController {
     }
 
     private Engine engine() throws IOException {
-        return Engine.inCluster();
+        return Engine.create();
     }
 
     @GetMapping("/info")

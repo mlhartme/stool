@@ -45,14 +45,14 @@ public class EngineIT {
     private static final World WORLD = World.createMinimal();
 
     private Engine create() throws IOException {
-        return Engine.local();
+        return Engine.create();
     }
 
     @BeforeClass
     public static void beforeClass() throws IOException {
         Engine engine;
 
-        engine = Engine.local();
+        engine = Engine.create();
         engine.namespaceReset();
     }
 
@@ -164,15 +164,15 @@ public class EngineIT {
             image = docker.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
             assertTrue(engine.podCreate("restart-pod", "restart:tag"));
         }
-        try (Engine engine = Engine.local(); Daemon docker = Daemon.create()) {
+        try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
             podDelete(engine, docker,"restart-pod");
             docker.imageRemove(image, false);
         }
-        try (Engine engine = Engine.local(); Daemon docker = Daemon.create()) {
+        try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
             image = docker.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
             assertTrue(engine.podCreate("restart-pod", "restart:tag"));
         }
-        try (Engine engine = Engine.local(); Daemon docker = Daemon.create()) {
+        try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
             podDelete(engine, docker,"restart-pod");
             docker.imageRemove(image, false);
         }

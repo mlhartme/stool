@@ -79,7 +79,7 @@ public class Server {
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
-        try (Engine engine = Engine.inCluster()) {
+        try (Engine engine = Engine.create()) {
             binds = hostBinds(engine);
             pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
