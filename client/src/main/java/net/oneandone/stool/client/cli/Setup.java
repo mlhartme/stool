@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class Setup {
     private static final String LOCALHOST = "localhost";
@@ -49,8 +50,11 @@ public class Setup {
     private final boolean local;
     private final Map<String, String> opts;
 
+    private final Properties todo;
+
     public Setup(Globals globals, boolean batch, boolean local, List<String> opts) {
         int idx;
+        String path;
 
         this.world = globals.getWorld();
         this.gson = globals.getGson();
@@ -66,6 +70,17 @@ public class Setup {
                 throw new ArgumentException("invalid option: " + opt);
             }
             this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
+        }
+
+        path = System.getProperty("test.properties");
+        if (path == null) {
+            todo = null;
+        } else {
+            try {
+                todo = world.file(path).readProperties();
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
@@ -195,7 +210,6 @@ public class Setup {
         Configuration result;
         Configuration add;
         FileNode additional;
-        FileNode file;
 
         result = new Configuration(home.join("client.json"));
         result.load();
@@ -241,7 +255,6 @@ public class Setup {
 
     public void doCreate(Configuration environment) throws IOException {
         Configuration configuration;
-        FileNode file;
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
@@ -251,9 +264,8 @@ public class Setup {
         }
 
         // TODO
-        file = world.getHome().join("Projects/github.com/net/oneandone/stool/stool/server/test.properties");
-        if (file.exists()) {
-            configuration.setRegistryPrefix(file.readProperties().getProperty("prefix"));
+        if (todo != null) {
+            configuration.setRegistryPrefix(todo.getProperty("prefix"));
         }
 
         configuration.save(gson);
@@ -321,10 +333,8 @@ public class Setup {
             addIfNew(env, "LDAP_UNIT", "cisostages");
             addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
             addIfNew(env, "ADMIN", "michael.hartmeier@ionos.com");
-            // TODO
-            file = world.getHome().join("Projects/github.com/net/oneandone/stool/stool/server/test.properties");
-            if (file.exists()) {
-                addIfNew(env, "REGISTRY_URL", file.readProperties().getProperty("portus"));
+            if (todo != null) {
+                addIfNew(env, "REGISTRY_URL", todo.getProperty("portus"));
             }
         }
         addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose

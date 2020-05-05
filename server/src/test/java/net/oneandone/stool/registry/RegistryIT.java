@@ -107,7 +107,7 @@ public class RegistryIT {
         p = WORLD.guessProjectHome(getClass()).join("test.properties").readProperties();
 
         repository = get(p, "repository");
-        registry = Registry.portus(WORLD, get(p, "portus"), "target/portus-wire.log");
+        registry = Registry.portus(WORLD, Strings.removeRight(get(p, "portus"), "/"), "target/portus-wire.log");
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
         System.out.println("info: " + registry.info(repository, tags.get(0)));

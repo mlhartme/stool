@@ -298,7 +298,15 @@ public class Daemon implements AutoCloseable {
         return post(root.join("images", id, "tag").withParameter("repo", repository).withParameter("tag", tag), "");
     }
 
-    public String imagePush(String id) throws IOException {
+    public String imagePush(String id) throws IOException { // TODO
+        return world.getHome().exec("docker", "push", id);
+    }
+
+    /* TODO:
+     * missing proper authentication
+     * missing proper error reporting - fails silently
+     */
+    public String inProcessImagePush(String id) throws IOException {
         JsonObject auth;
         String header;
 
