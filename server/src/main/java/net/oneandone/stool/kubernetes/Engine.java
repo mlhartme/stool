@@ -19,6 +19,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
+import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
@@ -243,17 +244,17 @@ public class Engine implements AutoCloseable {
         serviceCreate(name, nodePort, containerPort, selector, Strings.toMap());
     }
 
-    public void serviceCreate(String name, int nodePort, int containerPort, Map<String, String> selector, Map<String, String> labels)
+    public void serviceCreate(String name, int todoUnused, int containerPort, Map<String, String> selector, Map<String, String> labels)
             throws IOException {
         V1ServicePort port;
 
         port = new V1ServicePort();
-        port.setNodePort(nodePort);
         port.setPort(containerPort);
+        port.setTargetPort(new IntOrString(containerPort));
         try {
             core.createNamespacedService(namespace, new V1ServiceBuilder()
                     .withNewMetadata().withName(name).withLabels(labels).endMetadata()
-                    .withNewSpec().withType("NodePort").withPorts(port).withSelector(selector).endSpec()
+                    .withNewSpec().withType("ClusterIP").withPorts(Collections.singletonList(port)).withSelector(selector).endSpec()
                     .build(), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
