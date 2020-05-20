@@ -51,8 +51,6 @@ public class ServerConfiguration {
 
     public String registryUrl;
 
-    public int port;
-
     /**
      * used for output and application urls
      */
@@ -99,7 +97,6 @@ public class ServerConfiguration {
 
     public ServerConfiguration() {
         host = "localhost";
-        port = 31000;
         loglevel = "INFO";
         registryUrl = "http://" + Registry.LOCAL_HOST + "/";
         admin = "";

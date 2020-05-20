@@ -40,7 +40,8 @@ metadata:
 spec:
   ports:
     - nodePort: 31000
-      port: 31000
+      port: 80
+      targetPort: 8080
   selector:
     app: stool-server
   type: NodePort

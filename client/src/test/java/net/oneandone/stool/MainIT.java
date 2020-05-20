@@ -57,8 +57,6 @@ public class MainIT {
         kubectl("delete", "-f", HOME.join("server.yaml").getAbsolute());
     }
 
-    private final int port = 31000;
-
     @Test
     public void turnaround() throws IOException, InterruptedException {
         FileNode working;
@@ -69,7 +67,7 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        stool("setup", "-batch", "-local", "PORT=" + port);
+        stool("setup", "-batch", "-local");
 
         kubectl("delete", "--ignore-not-found", "-f", HOME.join("server.yaml").getAbsolute());
         kubectl("apply", "-f", HOME.join("server.yaml").getAbsolute());

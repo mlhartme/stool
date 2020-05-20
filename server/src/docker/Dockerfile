@@ -3,7 +3,6 @@ FROM contargo.server.lan/cisoops-public/java-13:1.0.4
 
 ENV LOGLEVEL=INFO
 ENV HOST=host.docker.internal
-ENV PORT=31000
 ENV ADMIN=
 ENV AUTO_REMOVE=-1
 ENV LDAP_URL=

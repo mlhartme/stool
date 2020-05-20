@@ -239,7 +239,7 @@ public class Setup {
         if (file != null) {
             manager.load();
         } else {
-            manager.add("localhost", true, "http://" + LOCALHOST + ":" + port() + "/api", null);
+            manager.add("localhost", true, "http://" + LOCALHOST + ":" + serverPort() + "/api", null);
         }
         return manager;
     }
@@ -273,8 +273,8 @@ public class Setup {
         versionFile().writeString(Main.versionString(world));
     }
 
-    private String port() {
-        return opts.getOrDefault("PORT", "31000");
+    private int serverPort() {
+        return 31000;
     }
 
     public String version() throws IOException {
@@ -289,7 +289,7 @@ public class Setup {
 
         result = world.resource("server.yaml").readString();
         cisotools = cisotools();
-        port = Integer.parseInt(port());
+        port = serverPort();
         map = new HashMap<>();
         map.put("env", env(cisotools, port));
         map.put("mounts", mounts(cisotools));

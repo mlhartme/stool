@@ -24,7 +24,6 @@
   * condiguration
     * dumped `vhosts` switch
     * dumped `portFirst` and `portLast` 
-    * added port to configure the server port
   * `start` dumped http(s) arguments
   * stage container replaced by
     * pod
