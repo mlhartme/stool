@@ -240,7 +240,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         serviceProperties = new ServiceProperties();
         // TODO: report an error when not running https ...
         protocol = System.getProperty("security.require-ssl") != null ? "https" : "http";
-        url = protocol + "://" + server.configuration.host + ":" + server.configuration.portFirst + "/login/cas";
+        url = protocol + "://" + server.configuration.host + ":" + server.configuration.port + "/login/cas";
         Server.LOGGER.info("sso service: " + url);
         serviceProperties.setService(url);
         serviceProperties.setSendRenew(false);

@@ -274,7 +274,7 @@ public class Setup {
     }
 
     private String port() {
-        return opts.getOrDefault("PORT_FIRST", "31000");
+        return opts.getOrDefault("PORT", "31000");
     }
 
     public String version() throws IOException {

@@ -69,7 +69,7 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        stool("setup", "-batch", "-local", "PORT_FIRST=" + port, "PORT_LAST=" + (port + 20));
+        stool("setup", "-batch", "-local", "PORT=" + port);
 
         kubectl("delete", "--ignore-not-found", "-f", HOME.join("server.yaml").getAbsolute());
         kubectl("apply", "-f", HOME.join("server.yaml").getAbsolute());

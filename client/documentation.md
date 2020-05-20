@@ -301,13 +301,8 @@ The following environment variables can be used to configure Stool server in `$S
   Password for mailHost. Type string, default empty.
 * **MEMORY_QUOTA**
   Max memory that all apps may reserve. 0 to disable. Type number, default 0.
-* **PORT_FIRST**
-  First port available for stages. Note that the first 4 values are reserved for the dashboard and will not be used for stages.
-  Stool allocates stage ports from the range $PORT_FIRST ... $POST_LAST. To choose a port for a given Stage, Stool computes a hash of stage
-  and app name in this range. If this port if already allocated, the next higher port is checked (with roll-over to portFirst if necessary).
-  Type number, default 31000.
-* **PORT_LAST**
-  Last port available for stages. Type number, default 9999.
+* **PORT**
+  Port to run server at.
 * **REGISTRY_URL**
   Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
 

@@ -51,9 +51,7 @@ public class ServerConfiguration {
 
     public String registryUrl;
 
-    public int portFirst;
-
-    public int portLast;
+    public int port;
 
     /**
      * used for output and application urls
@@ -101,10 +99,9 @@ public class ServerConfiguration {
 
     public ServerConfiguration() {
         host = "localhost";
+        port = 31000;
         loglevel = "INFO";
         registryUrl = "http://" + Registry.LOCAL_HOST + "/";
-        portFirst = 31000;
-        portLast = 31999;
         admin = "";
         autoRemove = -1;
         ldapUrl = "";
