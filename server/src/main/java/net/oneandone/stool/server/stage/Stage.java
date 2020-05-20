@@ -597,7 +597,7 @@ public class Stage {
         environment.putAll(clientEnvironment);
         Server.LOGGER.debug("environment: " + environment);
         Server.LOGGER.info(name + ": starting container ... ");
-        mounts = logMount();
+        mounts = new HashMap<>();
         labels = new HashMap<>();
         labels.put(POD_LABEL_STAGE, name);
         for (Map.Entry<String, String> entry : environment.entrySet()) {
@@ -704,18 +704,6 @@ public class Stage {
         Server.LOGGER.info(current.image.tag + ": deleting pod ...");
         engine.podDelete(podName()); // TODO: timeout 5 minutes
         return current.image.tag;
-    }
-
-    private Map<FileNode, String> logMount() throws IOException {
-        FileNode hostLogRoot;
-        Map<FileNode, String> result;
-
-        hostLogRoot = server.serverHome.join("stages", getName(), "logs");
-        // same as hostLogRoot, but the path as needed inside the server:
-        logs().mkdirsOpt();
-        result = new HashMap<>();
-        result.put(hostLogRoot, "/var/log/stool");
-        return result;
     }
 
     private Data certMountOpt(TagInfo image) throws IOException {

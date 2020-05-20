@@ -63,7 +63,6 @@ public class Server {
         FileNode home;
         ServerConfiguration config;
         Server server;
-        FileNode serverHome;
         String localhostIp;
 
         version = Main.versionString(world);
@@ -73,10 +72,9 @@ public class Server {
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
         try (Engine engine = Engine.create()) {
-            serverHome = world.file("/var/lib/stool"); // TODO: lost after restart
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), version, home, serverHome, localhostIp, config);
+            server = new Server(gson(world), version, home, localhostIp, config);
             server.validate(engine);
             server.checkVersion();
             return server;
@@ -146,9 +144,6 @@ public class Server {
 
     public final String localhostIp;
 
-    /** path so /var/lib/stool ON THE DOCKER HOST */
-    public final FileNode serverHome;
-
     /** used read-only */
     public final ServerConfiguration configuration;
 
@@ -160,14 +155,12 @@ public class Server {
 
     public final SshDirectory sshDirectory;
 
-    public Server(Gson gson, String version, FileNode home, FileNode serverHome, String localhostIp,
-                  ServerConfiguration configuration) throws IOException {
+    public Server(Gson gson, String version, FileNode home, String localhostIp, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.version = version;
         this.world = home.getWorld();
         this.home = home;
         this.logRoot = home.join("logs");
-        this.serverHome = serverHome;
         this.localhostIp = localhostIp;
         this.configuration = configuration;
         this.stages = home.join("stages");
