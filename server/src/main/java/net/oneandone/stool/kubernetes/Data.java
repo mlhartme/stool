@@ -99,7 +99,7 @@ public class Data {
         if (secret) {
             engine.secretCreate(name, data);
         } else {
-            engine.configMapCreate(name, data);
+            engine.configMapCreateBinary(name, data);
         }
     }
 

@@ -675,22 +675,29 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    public Map<String, String> configMapReadUtf8(String name) throws IOException {
+    public void configMapCreate(String name, Map<String, String> data) throws IOException {
         V1ConfigMap map;
-        Map<String, String> result;
+
+        map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withData(data).build();
         try {
-            map = core.readNamespacedConfigMap(name, namespace, null, null, null);
-            result = new HashMap<>();
-            for (Map.Entry<String, byte[]> entry : map.getBinaryData().entrySet()) {
-                result.put(entry.getKey(), new String(entry.getValue(), "utf8"));
-            }
-            return result;
+            core.createNamespacedConfigMap(namespace, map, null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
     }
 
-    public void configMapCreate(String name, Map<String, byte[]> data) throws IOException {
+    public Map<String, String> configMapRead(String name) throws IOException {
+        V1ConfigMap map;
+
+        try {
+            map = core.readNamespacedConfigMap(name, namespace, null, null, null);
+            return map.getData();
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    public void configMapCreateBinary(String name, Map<String, byte[]> data) throws IOException {
         V1ConfigMap map;
 
         map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withBinaryData(data).build();

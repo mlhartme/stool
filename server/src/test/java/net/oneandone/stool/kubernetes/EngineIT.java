@@ -327,7 +327,20 @@ public class EngineIT {
 
     @Test
     public void configMap() throws IOException {
+        Map<String, String> data;
         final String name = "cm";
+
+        data = Strings.toMap("test.yaml", "123", "sub-file", "foo");
+        try (Engine engine = create(); Daemon docker = Daemon.create()) {
+            engine.configMapCreate(name, data);
+            assertEquals(data, engine.configMapRead(name));
+            engine.configMapDelete(name);;
+        }
+    }
+
+    @Test
+    public void configMapBinary() throws IOException {
+        final String name = "cmbinary";
         Data data;
 
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
@@ -336,8 +349,6 @@ public class EngineIT {
             data.addUtf8("sub/file", "foo");
             data.define(engine);
 
-            assertEquals(new HashMap<>(Strings.toMap("sub_file", "foo", "test.yaml", "123")), // TODO _ vs /
-                    new HashMap<>(engine.configMapReadUtf8(name)));
             assertTrue(engine.configMapList().containsKey(name));
 
             docker.imageBuild("config", Collections.emptyMap(), Collections.emptyMap(),
