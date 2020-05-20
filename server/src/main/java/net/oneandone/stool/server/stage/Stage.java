@@ -570,7 +570,6 @@ public class Stage {
         String podName;
         PodInfo running;
         Daemon.Status status;
-        Ports hostPorts;
         Map<String, String> environment;
         Map<FileNode, String> mounts;
         List<Data> dataList;
@@ -609,7 +608,6 @@ public class Stage {
         Server.LOGGER.debug("environment: " + environment);
         Server.LOGGER.info(name + ": starting container ... ");
         mounts = logMount();
-        hostPorts = pool.allocate(this, http, https);
         labels = new HashMap<>();
         labels.put(POD_LABEL_STAGE, name);
         for (Map.Entry<String, String> entry : environment.entrySet()) {
@@ -627,14 +625,14 @@ public class Stage {
             dataList.add(fault);
             fault.define(engine);
         }
-        engine.serviceCreate(podName + "http", hostPorts.http, image.ports.http,
-                Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
-        if (hostPorts.https != -1) {
-            engine.serviceCreate(podName + "https", hostPorts.https, image.ports.https,
-                    Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels(hostPorts));
+        engine.serviceCreate(podName + "http", image.ports.http,
+                Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
+        if (false /* TODO hostPorts.https != -1 */) {
+            engine.serviceCreate(podName + "https", image.ports.https,
+                    Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
         }
-        engine.serviceCreate(jmxServiceName(), hostPorts.jmxmp, image.ports.jmxmp, POD_LABEL_STAGE, name);
-        engine.serviceCreate(debugServiceName(), hostPorts.debug, image.ports.debug, POD_LABEL_STAGE, name);
+        engine.serviceCreate(jmxServiceName(), image.ports.jmxmp, POD_LABEL_STAGE, name);
+        engine.serviceCreate(debugServiceName(), image.ports.debug, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {
@@ -648,12 +646,8 @@ public class Stage {
         return image.tag;
     }
 
-    private Map<String, String> httpServiceLabels(Ports hostPorts) {
-        Map<String, String> result;
-
-        result = hostPorts.toUsedLabels();
-        result.put(POD_LABEL_STAGE, name);
-        return result;
+    private Map<String, String> httpServiceLabels() {
+        return Strings.toMap(POD_LABEL_STAGE, name);
     }
 
     public String jmxServiceName() {

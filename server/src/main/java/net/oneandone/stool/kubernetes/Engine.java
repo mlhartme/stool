@@ -236,15 +236,15 @@ public class Engine implements AutoCloseable {
         return ServiceInfo.create(service);
     }
 
-    public void serviceCreate(String name, int nodePort, int containerPort, String... selector) throws IOException {
-        serviceCreate(name, nodePort, containerPort, Strings.toMap(selector));
+    public void serviceCreate(String name, int containerPort, String... selector) throws IOException {
+        serviceCreate(name, containerPort, Strings.toMap(selector));
     }
 
-    public void serviceCreate(String name, int nodePort, int containerPort, Map<String, String> selector) throws IOException {
-        serviceCreate(name, nodePort, containerPort, selector, Strings.toMap());
+    public void serviceCreate(String name, int containerPort, Map<String, String> selector) throws IOException {
+        serviceCreate(name, containerPort, selector, Strings.toMap());
     }
 
-    public void serviceCreate(String name, int todoUnused, int containerPort, Map<String, String> selector, Map<String, String> labels)
+    public void serviceCreate(String name, int containerPort, Map<String, String> selector, Map<String, String> labels)
             throws IOException {
         V1ServicePort port;
 

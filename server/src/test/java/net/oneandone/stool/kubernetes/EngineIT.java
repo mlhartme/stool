@@ -277,7 +277,7 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             assertEquals(0, engine.serviceList().size());
-            engine.serviceCreate(name, 30001, 8080);
+            engine.serviceCreate(name, 8080);
             info = engine.serviceList().get(name);
             assertEquals(8080, info.containerPort);
             engine.serviceDelete(name);
