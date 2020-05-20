@@ -17,10 +17,6 @@ package net.oneandone.stool.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.kubernetes.client.openapi.models.V1Container;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1Volume;
-import io.kubernetes.client.openapi.models.V1VolumeMount;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Accessor;
@@ -68,7 +64,6 @@ public class Server {
         ServerConfiguration config;
         Server server;
         FileNode serverHome;
-        Map<String, String> binds;
         String localhostIp;
 
         version = Main.versionString(world);
@@ -78,8 +73,7 @@ public class Server {
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
         try (Engine engine = Engine.create()) {
-            binds = hostBinds(engine);
-            serverHome = toHostFile(binds, world.file("/var/lib/stool"));
+            serverHome = world.file("/var/lib/stool"); // TODO: lost after restart
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
             server = new Server(gson(world), version, home, serverHome, localhostIp, config);
@@ -87,51 +81,6 @@ public class Server {
             server.checkVersion();
             return server;
         }
-    }
-
-    private static Map<String, String> hostBinds(Engine engine) throws IOException {
-        V1Pod pod;
-        Map<String, String> result;
-        List<V1Container> lst;
-        V1Container container;
-
-        pod = engine.podRaw("stool-server");
-        if (pod == null) {
-            throw new IOException("stool-server not found");
-        }
-        lst = pod.getSpec().getContainers();
-        if (lst == null || lst.size() != 1) {
-            throw new IOException("1 container expected: " + lst);
-        }
-        container = lst.get(0);
-        result = new HashMap<>();
-        for (V1Volume volume : pod.getSpec().getVolumes()) {
-            if (volume.getHostPath() != null) {
-                result.put(mount(container, volume.getName()), volume.getHostPath().getPath());
-            }
-        }
-        return result;
-    }
-
-    private static String mount(V1Container container, String name) throws IOException {
-        for (V1VolumeMount mount : container.getVolumeMounts()) {
-            if (name.equals(mount.getName())) {
-                return mount.getMountPath();
-            }
-        }
-        throw new IOException("volume mount not found: " + name);
-    }
-
-    private static FileNode toHostFile(Map<String, String> binds, FileNode container) throws IOException {
-        return container;
-        /* TODO
-        String hostPath;
-
-        hostPath = binds.get(container.getAbsolute());
-        if (hostPath == null) {
-            throw new IOException("no mapping found for " + container.getAbsolute() + ": " + binds);
-        }
-        return container.getWorld().file(hostPath); */
     }
 
     //--
