@@ -274,10 +274,10 @@ public class EngineIT {
         }
     }
 
-    //-- services
+    //-- services and ingress
 
     @Test
-    public void services() throws IOException {
+    public void servicesAndIngress() throws IOException {
         final String name = "service";
         ServiceInfo info;
 
@@ -288,6 +288,9 @@ public class EngineIT {
             assertEquals(1234, info.port);
             engine.serviceDelete(name);
             assertEquals(0, engine.serviceList().size());
+
+            engine.ingressCreate("ingress", name, 1234);
+            engine.ingressDelete("ingress");
         }
     }
 
