@@ -21,7 +21,6 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
-import io.kubernetes.client.custom.V1Patch;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
@@ -122,7 +121,6 @@ public class Engine implements AutoCloseable {
         Configuration.setDefaultApiClient(client); // TODO: threading ...
         // client.setDebugging(true);
         core = new CoreV1Api();
-        core.patchNamespacedService(new V1Patch());
         extensions = new ExtensionsV1beta1Api();
         namespace = "stool";
     }
@@ -675,6 +673,21 @@ public class Engine implements AutoCloseable {
             throw wrap(e);
         }
         return result;
+    }
+
+    public Map<String, String> configMapReadUtf8(String name) throws IOException {
+        V1ConfigMap map;
+        Map<String, String> result;
+        try {
+            map = core.readNamespacedConfigMap(name, namespace, null, null, null);
+            result = new HashMap<>();
+            for (Map.Entry<String, byte[]> entry : map.getBinaryData().entrySet()) {
+                result.put(entry.getKey(), new String(entry.getValue(), "utf8"));
+            }
+            return result;
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
     }
 
     public void configMapCreate(String name, Map<String, byte[]> data) throws IOException {

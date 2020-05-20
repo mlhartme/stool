@@ -526,8 +526,8 @@ public class Stage {
         String httpsService;
 
         podName = podName();
-        httpService = podName + "http";
-        httpsService = podName + "https";
+        httpService = httpServiceName();
+        httpsService = httpsServiceName();
         if (engine.serviceGetOpt(httpService) != null) {
             Server.LOGGER.debug("wipe kubernetes resources");
             if (engine.podProbe(podName) != null) {
@@ -615,13 +615,13 @@ public class Stage {
             dataList.add(fault);
             fault.define(engine);
         }
-        engine.serviceCreate(podName + "http", Ports.HTTP, image.ports.http,
+        engine.serviceCreate(httpServiceName(), Ports.HTTP, image.ports.http,
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
-        engine.serviceCreate(podName + "https", Ports.HTTPS, image.ports.https,
+        engine.serviceCreate(httpsServiceName(), Ports.HTTPS, image.ports.https,
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
         engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, POD_LABEL_STAGE, name);
         engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, POD_LABEL_STAGE, name);
-        engine.ingressCreate(podName, getName() + "." + server.configuration.host, podName + "http", Ports.HTTP);
+        engine.ingressCreate(podName, stageHost(), httpServiceName(), Ports.HTTP);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {
@@ -639,6 +639,12 @@ public class Stage {
         return Strings.toMap(POD_LABEL_STAGE, name);
     }
 
+    public String httpServiceName() {
+        return podName() + "http";
+    }
+    public String httpsServiceName() {
+        return podName() + "https";
+    }
     public String jmxServiceName() {
         return podName() + "jmxmp";
     }

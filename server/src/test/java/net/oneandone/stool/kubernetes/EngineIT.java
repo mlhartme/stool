@@ -336,6 +336,8 @@ public class EngineIT {
             data.addUtf8("sub/file", "foo");
             data.define(engine);
 
+            assertEquals(new HashMap<>(Strings.toMap("sub_file", "foo", "test.yaml", "123")), // TODO _ vs /
+                    new HashMap<>(engine.configMapReadUtf8(name)));
             assertTrue(engine.configMapList().containsKey(name));
 
             docker.imageBuild("config", Collections.emptyMap(), Collections.emptyMap(),
