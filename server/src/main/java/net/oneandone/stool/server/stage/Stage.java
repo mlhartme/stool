@@ -541,6 +541,7 @@ public class Stage {
             }
             engine.serviceDelete(jmxServiceName());
             engine.serviceDelete(debugServiceName());
+            engine.ingressDelete(podName);
             try {
                 engine.secretDelete(podName);
             } catch (FileNotFoundException e) {
@@ -622,6 +623,7 @@ public class Stage {
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
         engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, POD_LABEL_STAGE, name);
         engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, POD_LABEL_STAGE, name);
+        engine.ingressCreate(podName, getName() + "." + server.configuration.host, podName + "http", Ports.HTTP);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {

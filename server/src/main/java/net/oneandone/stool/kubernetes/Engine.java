@@ -297,7 +297,7 @@ public class Engine implements AutoCloseable {
 
     //-- ingress
 
-    public void ingressCreate(String name, String serviceName, int servicePort) throws IOException {
+    public void ingressCreate(String name, String host, String serviceName, int servicePort) throws IOException {
         ExtensionsV1beta1IngressBuilder ingress;
         ExtensionsV1beta1HTTPIngressRuleValueBuilder rule;
         ExtensionsV1beta1HTTPIngressPathBuilder path;
@@ -308,7 +308,7 @@ public class Engine implements AutoCloseable {
         rule = rule.withPaths(path.build());
         ingress = new ExtensionsV1beta1IngressBuilder()
                 .withNewMetadata().withName(name).endMetadata()
-                .withNewSpec().addNewRule().withHttp(rule.build()).endRule().endSpec();
+                .withNewSpec().addNewRule().withHost(host).withHttp(rule.build()).endRule().endSpec();
         try {
             extensions.createNamespacedIngress(namespace, ingress.build(), null, null, null);
         } catch (ApiException e) {
