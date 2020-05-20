@@ -21,6 +21,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
+import io.kubernetes.client.custom.V1Patch;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
@@ -121,6 +122,7 @@ public class Engine implements AutoCloseable {
         Configuration.setDefaultApiClient(client); // TODO: threading ...
         // client.setDebugging(true);
         core = new CoreV1Api();
+        core.patchNamespacedService(new V1Patch());
         extensions = new ExtensionsV1beta1Api();
         namespace = "stool";
     }

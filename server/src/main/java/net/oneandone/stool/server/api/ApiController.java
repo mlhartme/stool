@@ -497,7 +497,7 @@ public class ApiController {
         stage = server.load(stageName);
         dir = stage.logs();
         result = new JsonArray();
-        for (FileNode file : stage.logs().find("**/*")) {
+        for (FileNode file : dir.find("**/*")) {
             if (!file.isDirectory()) {
                 result.add(new JsonPrimitive(file.getRelative(dir)));
             }

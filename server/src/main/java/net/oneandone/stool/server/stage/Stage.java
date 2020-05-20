@@ -106,7 +106,7 @@ public class Stage {
     }
 
     /** for application logs */
-    public FileNode logs() {
+    public FileNode logs() { // TODO: currently dead
         return directory.join("logs");
     }
 
