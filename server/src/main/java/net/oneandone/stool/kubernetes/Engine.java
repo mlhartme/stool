@@ -236,25 +236,25 @@ public class Engine implements AutoCloseable {
         return ServiceInfo.create(service);
     }
 
-    public void serviceCreate(String name, int containerPort, String... selector) throws IOException {
-        serviceCreate(name, containerPort, Strings.toMap(selector));
+    public void serviceCreate(String name, int port, int targetPort, String... selector) throws IOException {
+        serviceCreate(name, port, targetPort, Strings.toMap(selector));
     }
 
-    public void serviceCreate(String name, int containerPort, Map<String, String> selector) throws IOException {
-        serviceCreate(name, containerPort, selector, Strings.toMap());
+    public void serviceCreate(String name, int port, int targetPort, Map<String, String> selector) throws IOException {
+        serviceCreate(name, port, targetPort, selector, Strings.toMap());
     }
 
-    public void serviceCreate(String name, int containerPort, Map<String, String> selector, Map<String, String> labels)
+    public void serviceCreate(String name, int port, int targetPort, Map<String, String> selector, Map<String, String> labels)
             throws IOException {
-        V1ServicePort port;
+        V1ServicePort p;
 
-        port = new V1ServicePort();
-        port.setPort(containerPort);
-        port.setTargetPort(new IntOrString(containerPort));
+        p = new V1ServicePort();
+        p.setPort(port);
+        p.setTargetPort(new IntOrString(targetPort));
         try {
             core.createNamespacedService(namespace, new V1ServiceBuilder()
                     .withNewMetadata().withName(name).withLabels(labels).endMetadata()
-                    .withNewSpec().withType("ClusterIP").withPorts(Collections.singletonList(port)).withSelector(selector).endSpec()
+                    .withNewSpec().withType("ClusterIP").withPorts(Collections.singletonList(p)).withSelector(selector).endSpec()
                     .build(), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);

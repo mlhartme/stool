@@ -616,14 +616,12 @@ public class Stage {
             dataList.add(fault);
             fault.define(engine);
         }
-        engine.serviceCreate(podName + "http", image.ports.http,
+        engine.serviceCreate(podName + "http", Ports.HTTP, image.ports.http,
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
-        if (false /* TODO hostPorts.https != -1 */) {
-            engine.serviceCreate(podName + "https", image.ports.https,
-                    Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
-        }
-        engine.serviceCreate(jmxServiceName(), image.ports.jmxmp, POD_LABEL_STAGE, name);
-        engine.serviceCreate(debugServiceName(), image.ports.debug, POD_LABEL_STAGE, name);
+        engine.serviceCreate(podName + "https", Ports.HTTPS, image.ports.https,
+                Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
+        engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, POD_LABEL_STAGE, name);
+        engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, POD_LABEL_STAGE, name);
         if (!engine.podCreate(podName, image.repositoryTag,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {
