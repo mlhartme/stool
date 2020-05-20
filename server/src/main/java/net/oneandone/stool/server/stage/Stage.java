@@ -972,7 +972,7 @@ public class Stage {
         } else {
             service = context.engine.serviceGet(jmxServiceName());
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            return new JMXServiceURL("service:jmx:jmxmp://" + service.clusterIp + ":" + service.containerPort);
+            return new JMXServiceURL("service:jmx:jmxmp://" + service.clusterIp + ":" + service.port);
         }
     }
 

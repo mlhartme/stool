@@ -50,10 +50,16 @@ public class EngineIT {
 
     @BeforeClass
     public static void beforeClass() throws IOException {
-        Engine engine;
+        try {
+            Engine engine;
 
-        engine = Engine.create();
-        engine.namespaceReset();
+            engine = Engine.create();
+            engine.namespaceReset();
+        } catch (Exception e) {
+            // TODO: junit silently ignores exceptions here ...
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {
@@ -277,9 +283,9 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             assertEquals(0, engine.serviceList().size());
-            engine.serviceCreate(name, 8080, 8080);
+            engine.serviceCreate(name, 1234, 8080);
             info = engine.serviceList().get(name);
-            assertEquals(8080, info.containerPort);
+            assertEquals(1234, info.port);
             engine.serviceDelete(name);
             assertEquals(0, engine.serviceList().size());
         }

@@ -36,13 +36,13 @@ public class ServiceInfo {
 
     public final String name;
     public final String clusterIp;
-    public final int containerPort;
+    public final int port;
     public final Map<String, String> labels;
 
-    public ServiceInfo(String name, String clusterIp, int containerPort, Map<String, String> labels) {
+    public ServiceInfo(String name, String clusterIp, int port, Map<String, String> labels) {
         this.name = name;
         this.clusterIp = clusterIp;
-        this.containerPort = containerPort;
+        this.port = port;
         this.labels = labels;
     }
 }
