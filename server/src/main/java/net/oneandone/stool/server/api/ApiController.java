@@ -331,8 +331,6 @@ public class ApiController {
     @PostMapping("/stages/{stage}/start")
     public String start(@PathVariable(value = "stage") String stageName,
                         @RequestParam(value = "image", required = false, defaultValue = "") String image,
-                        @RequestParam(value = "http", required = false, defaultValue = "-1") int http,
-                        @RequestParam(value = "https", required = false, defaultValue = "-1") int https,
                         HttpServletRequest request) throws IOException {
         Stage stage;
         Registry registry;
@@ -355,7 +353,7 @@ public class ApiController {
             stage.checkExpired();
             stage.checkDiskQuota(engine, registry);
             return json(stage.start(engine, registry,
-                    server.pool, image.isEmpty() ? null : image, http, https, environment)).toString();
+                    image.isEmpty() ? null : image, environment)).toString();
         }
     }
 
@@ -377,7 +375,7 @@ public class ApiController {
             if (stage.currentOpt(engine, registry) == null) {
                 throw new IllegalStateException();
             }
-            return Engine.obj(stage.urlMap(engine, registry, server.pool)).toString();
+            return Engine.obj(stage.urlMap(engine, registry)).toString();
         }
     }
 
@@ -400,22 +398,17 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/tunnel")
     public String tunnel(@PathVariable(value = "stage") String stageName, @RequestParam("port") String port) throws IOException {
-        Ports ports;
         int mappedPort;
         JsonObject result;
         String privateKey;
 
         currentWithPermissions(stageName);
-        ports = server.pool.stageOpt(stageName);
-        if (ports == null) {
-            throw new ArgumentException("stage is not running: " + stageName);
-        }
         switch (port) {
             case "jmx":
-                mappedPort = ports.jmxmp;
+                mappedPort = Ports.JMXMP;
                 break;
             case "debug":
-                mappedPort = ports.debug;
+                mappedPort = Ports.DEBUG;
                 break;
             default:
                 throw new ArgumentException("unknown port: " + port);

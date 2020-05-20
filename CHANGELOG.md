@@ -17,9 +17,11 @@
   * `build` dumped war argument  
   * `attach` with optional path
   * `detach` with list of stages
+  * `start` dumped http(s) arguments
   * renamed `-project` option to `-working` and made it available for all stage commands, too
 
 * server
+  * `start` dumped http(s) arguments
   * stage container replaced by
     * pod
     * http+https service

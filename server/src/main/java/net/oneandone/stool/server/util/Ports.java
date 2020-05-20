@@ -23,6 +23,9 @@ import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
+    public static final int JMXMP = 505;
+    public static final int DEBUG = 506;
+
     public enum Port {
         HTTP, HTTPS, JMXMP, DEBUG;
 

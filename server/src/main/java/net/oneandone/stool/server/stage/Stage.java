@@ -31,7 +31,6 @@ import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -246,7 +245,7 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get(Context context) throws IOException {
-                return context.urlMap(server.pool, Stage.this);
+                return context.urlMap(Stage.this);
             }
         });
         return fields;
@@ -347,20 +346,13 @@ public class Stage {
         fields.add(new Field("debug-port") {
             @Override
             public Object get(Context context) {
-                Ports ports;
-
-                ports = server.pool.stageOpt(name);
-                return ports != null && ports.debug != -1 ? ports.debug : null;
+                return Ports.DEBUG;
             }
         });
         fields.add(new Field("jmx-port") {
             @Override
             public Object get(Context context) {
-                Ports ports;
-
-                ports = server.pool.stageOpt(name);
-                return ports != null && ports.jmxmp != -1 ? (ports.jmxmp + " # "
-                        + String.format(server.configuration.jmxUsage, ports.jmxmp)) : null;
+                return Ports.JMXMP;
             }
         });
         fields.add(new Field("environment") {
@@ -564,8 +556,7 @@ public class Stage {
 
     /** @return image actually started, null if this image is actually running
      *  @throws IOException if a different image is already running */
-    public String start(Engine engine, Registry registry, Pool pool, String imageOpt, int http,
-                        int https, Map<String, String> clientEnvironment)
+    public String start(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment)
             throws IOException {
         String podName;
         PodInfo running;
@@ -795,32 +786,23 @@ public class Stage {
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, Registry registry, Pool pool) throws IOException {
+    public Map<String, String> urlMap(Engine engine, Registry registry) throws IOException {
         Map<String, String> result;
-        Ports ports;
         PodInfo pod;
         TagInfo tag;
         List<TagInfo> lst;
 
         result = new LinkedHashMap<>();
-        ports = pool.stageOpt(name);
-        if (ports != null) {
-            pod = runningPodOpt(engine);
-            if (pod != null) {
-                tag = registry.info(pod);
-            } else {
-                lst = images(registry);
-                if (lst.isEmpty()) {
-                    throw new IllegalStateException("no image for stage " + name);
-                }
-                tag = lst.get(lst.size() - 1);
-            }
-            if (ports.http != -1) {
-                addNamed("http", url(tag, "http", ports.http), result);
-            }
-            if (ports.https != -1) {
-                addNamed("https", url(tag, "https", ports.https), result);
-            }
+        pod = runningPodOpt(engine);
+        if (pod != null) {
+            tag = registry.info(pod);
+        } else {
+            lst = images(registry);
+            tag = lst.isEmpty() ? null : lst.get(lst.size() - 1);
+        }
+        if (tag != null) {
+            addNamed("http", url(tag, "http"), result);
+            addNamed("https", url(tag, "https"), result);
         }
         return result;
     }
@@ -839,7 +821,7 @@ public class Stage {
         }
     }
 
-    private List<String> url(TagInfo tag, String protocol, int port) {
+    private List<String> url(TagInfo tag, String protocol) {
         String hostname;
         String url;
         List<String> result;
@@ -848,7 +830,7 @@ public class Stage {
         if (server.configuration.vhosts) {
             hostname = getName() + "." + hostname;
         }
-        url = protocol + "://" + hostname + ":" + port + "/" + tag.urlContext;
+        url = protocol + "://" + hostname + "/" + tag.urlContext;
         if (!url.endsWith("/")) {
             url = url + "/";
         }
@@ -862,7 +844,6 @@ public class Stage {
     public void remove(Engine engine, Registry registry) throws IOException {
         wipeResources(engine);
         wipeImages(registry);
-        server.pool.remove(name);
         getDirectory().deleteTree();
     }
 

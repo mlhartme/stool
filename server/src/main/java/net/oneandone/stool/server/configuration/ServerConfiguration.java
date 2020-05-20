@@ -15,14 +15,11 @@
  */
 package net.oneandone.stool.server.configuration;
 
-import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.util.Mailer;
-import net.oneandone.stool.server.util.Pool;
 import net.oneandone.sushi.util.Strings;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.HashMap;
@@ -165,9 +162,6 @@ public class ServerConfiguration {
                 throw new ArgumentException("invalid registry prefix: " + str);
             }
         }
-    }
-    public Pool loadPool(Engine engine) throws IOException {
-        return Pool.load(engine, portFirst + 4 /* 4 ports reserved for the server (http(s), debug, jmx, unused) */, portLast);
     }
 
     private void loadEnv() {

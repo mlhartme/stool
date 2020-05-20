@@ -58,7 +58,6 @@ public class Validation {
         try {
             stage.checkExpired();
             stage.checkDiskQuota(engine, registry);
-            checkPorts(stage);
             return;
         } catch (ArgumentException e) {
             report.add(e.getMessage());
@@ -89,22 +88,6 @@ public class Validation {
             }
         }
     }
-
-    private void checkPorts(Stage stage) throws IOException {
-        Ports internal;
-        Ports external;
-
-        internal = server.pool.stageOpt(stage.getName());
-        external = server.configuration.loadPool(engine)
-                .stageOpt(stage.getName());
-        if (internal == null && external == null) {
-            return;
-        }
-        if (internal == null || external == null || !internal.equals(external)) {
-            throw new ArgumentException("ports mismatch:\n  internal: " + internal + "\n  external: " + external);
-        }
-    }
-
 
     private void email(String name, Set<String> users, List<String> report) throws MessagingException {
         String hostname;

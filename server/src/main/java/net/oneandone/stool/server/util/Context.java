@@ -81,12 +81,12 @@ public class Context {
     }
 
     // TODO: always the same pool assumed
-    public Map<String, String> urlMap(Pool pool, Stage stage) throws IOException {
+    public Map<String, String> urlMap(Stage stage) throws IOException {
         Map<String, String> result;
 
         result = urlMaps.get(stage.getName());
         if (result == null) {
-            result = stage.urlMap(engine, registry, pool);
+            result = stage.urlMap(engine, registry);
             urlMaps.put(stage.getName(), result);
         }
         return result;

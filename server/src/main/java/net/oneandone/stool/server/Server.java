@@ -36,7 +36,6 @@ import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.UserManager;
-import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Predicate;
 import net.oneandone.stool.server.util.SshDirectory;
 import net.oneandone.sushi.fs.MkdirException;
@@ -67,7 +66,6 @@ public class Server {
         String version;
         FileNode home;
         ServerConfiguration config;
-        Pool pool;
         Server server;
         FileNode serverHome;
         Map<String, String> binds;
@@ -81,11 +79,10 @@ public class Server {
         LOGGER.info("server configuration: " + config);
         try (Engine engine = Engine.create()) {
             binds = hostBinds(engine);
-            pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), version, home, serverHome, localhostIp, config, pool);
+            server = new Server(gson(world), version, home, serverHome, localhostIp, config);
             server.validate(engine);
             server.checkVersion();
             return server;
@@ -206,8 +203,6 @@ public class Server {
     /** used read-only */
     public final ServerConfiguration configuration;
 
-    public final Pool pool;
-
     private final FileNode stages;
 
     public final UserManager userManager;
@@ -217,7 +212,7 @@ public class Server {
     public final SshDirectory sshDirectory;
 
     public Server(Gson gson, String version, FileNode home, FileNode serverHome, String localhostIp,
-                  ServerConfiguration configuration, Pool pool) throws IOException {
+                  ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.version = version;
         this.world = home.getWorld();
@@ -226,7 +221,6 @@ public class Server {
         this.serverHome = serverHome;
         this.localhostIp = localhostIp;
         this.configuration = configuration;
-        this.pool = pool;
         this.stages = home.join("stages");
         this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
