@@ -21,6 +21,7 @@
   * renamed `-project` option to `-working` and made it available for all stage commands, too
 
 * server
+  * dumped `vhosts` configuration switch
   * `start` dumped http(s) arguments
   * stage container replaced by
     * pod

@@ -22,7 +22,6 @@ ENV APP_PROPERTIES_FILE=WEB-INF/classes/META-INF/pominfo.properties
 ENV APP_PROPERTIES_PREFIX=stool.
 ENV JMX_USAGE="jconsole localhost:%s"
 ENV ENVIRONMENT=
-ENV VHOSTS=false
 
 ENV OPTS=
 

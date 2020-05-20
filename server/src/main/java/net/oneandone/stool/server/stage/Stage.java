@@ -71,12 +71,10 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String CONTAINER_PREFIX = "net.oneandone.stool-container-";
+    private static final String CONTAINER_PREFIX = "net.oneandone.stool-pod-";
 
     public static final String POD_LABEL_STAGE = CONTAINER_PREFIX + "stage";
     public static final String POD_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
-    public static final String POD_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "port.";
-
 
     //--
 
@@ -728,8 +726,7 @@ public class Stage {
         if (image.ports.https == -1 || image.p12 == null) {
             return null;
         }
-        file = server.certificate(server.configuration.vhosts
-                ? getName() + "." + server.configuration.host : server.configuration.host);
+        file = server.certificate(stageHost());
         idx = image.p12.lastIndexOf('/');
         if (idx == -1) {
             throw new IllegalArgumentException(image.p12);
@@ -821,15 +818,16 @@ public class Stage {
         }
     }
 
+    public String stageHost() {
+        return getName() + "." + server.configuration.host;
+    }
+
     private List<String> url(TagInfo tag, String protocol) {
         String hostname;
         String url;
         List<String> result;
 
-        hostname = server.configuration.host;
-        if (server.configuration.vhosts) {
-            hostname = getName() + "." + hostname;
-        }
+        hostname = stageHost();
         url = protocol + "://" + hostname + "/" + tag.urlContext;
         if (!url.endsWith("/")) {
             url = url + "/";

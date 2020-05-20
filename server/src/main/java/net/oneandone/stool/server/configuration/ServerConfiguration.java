@@ -61,11 +61,6 @@ public class ServerConfiguration {
     public String host;
 
     /**
-     * Use vhosts
-     */
-    public boolean vhosts;
-
-    /**
      * Name + email. Used for problem reports, feedback emails,
      */
     public String admin;
@@ -106,7 +101,6 @@ public class ServerConfiguration {
 
     public ServerConfiguration() {
         host = "localhost";
-        vhosts = false;
         loglevel = "INFO";
         registryUrl = "http://" + Registry.LOCAL_HOST + "/";
         portFirst = 31000;

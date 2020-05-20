@@ -315,7 +315,6 @@ public class Setup {
             addIfNew(env, entry.getKey(), entry.getValue());
         }
         addIfNew(env, "ENGINE_LOG", "false"); // for engine wire logs
-        addIfNew(env, "VHOSTS", Boolean.toString(hasDnsStar()));
         if (cisotools != null) {
             addIfNew(env, "LDAP_UNIT", "cisostages");
             addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
@@ -398,19 +397,5 @@ public class Setup {
 
     public FileNode versionFile() {
         return home.join("version");
-    }
-
-    private boolean hasDnsStar() throws UnknownHostException {
-        String ip;
-
-        ip = hostip(LOCALHOST);
-        if (ip.isEmpty()) {
-            return false; // no dns entry at all
-        }
-        try {
-            return hostip("subdomain." + LOCALHOST).equals(ip);
-        } catch (UnknownHostException e) {
-            return false;
-        }
     }
 }

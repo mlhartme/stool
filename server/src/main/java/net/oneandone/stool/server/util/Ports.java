@@ -16,9 +16,7 @@
 package net.oneandone.stool.server.util;
 
 import net.oneandone.stool.docker.ImageInfo;
-import net.oneandone.stool.server.stage.Stage;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
@@ -45,20 +43,12 @@ public class Ports {
         }
     }
 
-    public static Ports fromUsedLabels(Map<String, String> labels) {
-        return fromLabels(labels, Stage.POD_LABEL_PORT_USED_PREFIX);
-    }
-
     public static Ports fromDeclaredLabels(Map<String, String> labels) {
-        return fromLabels(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX);
-    }
-
-    private static Ports fromLabels(Map<String, String> labels, String prefix) {
         return new Ports(
-                Port.HTTP.get(labels, prefix),
-                Port.HTTPS.get(labels, prefix),
-                Port.JMXMP.get(labels, prefix),
-                Port.DEBUG.get(labels, prefix));
+                Port.HTTP.get(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX),
+                Port.HTTPS.get(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX),
+                Port.JMXMP.get(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX),
+                Port.DEBUG.get(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX));
     }
 
     //--
@@ -95,21 +85,6 @@ public class Ports {
             return http == ports.http && https == ports.https && jmxmp == ports.jmxmp && debug == ports.debug;
         }
         return false;
-    }
-
-    public Map<String, String> toUsedLabels() {
-        return toLabels(Stage.POD_LABEL_PORT_USED_PREFIX);
-    }
-
-    private Map<String, String> toLabels(String prefix) {
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        Port.HTTP.add(result, prefix, http);
-        Port.HTTPS.add(result, prefix, https);
-        Port.JMXMP.add(result, prefix, jmxmp);
-        Port.DEBUG.add(result, prefix, debug);
-        return result;
     }
 
 }
