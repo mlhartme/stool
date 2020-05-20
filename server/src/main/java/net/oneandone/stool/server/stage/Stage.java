@@ -990,7 +990,6 @@ public class Stage {
     }
 
     public JMXServiceURL clusterJmxUrl(Context context) throws IOException {
-        String ip;
         PodInfo running;
         ServiceInfo service;
 
@@ -999,9 +998,8 @@ public class Stage {
             return null;
         } else {
             service = context.engine.serviceGet(jmxServiceName());
-            ip = service.clusterIp;
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            return new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + service.containerPort);
+            return new JMXServiceURL("service:jmx:jmxmp://" + service.clusterIp + ":" + service.containerPort);
         }
     }
 
