@@ -87,7 +87,7 @@ public class EngineIT {
             assertEquals(Collections.emptyMap(), engine.podList());
             image = docker.imageBuild(imageTag, Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD echo ho\n"), false, null);
-            assertFalse(engine.podCreate(name, imageTag, "foo", "bar"));
+            assertFalse(engine.podCreate(name, imageTag, false, "foo", "bar"));
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name));
             lst = engine.podList().values();
             assertEquals(1, lst.size());
@@ -123,7 +123,7 @@ public class EngineIT {
             image = ids.get(0);
             assertTrue(docker.containerListForImage(image).isEmpty());
             assertTrue(docker.containerList("stooltest").isEmpty());
-            engine.podCreate(pod, "some:tag", null,true, null, Strings.toMap("containerLabel", "bla"),
+            engine.podCreate(pod, "some:tag", false, null,true, null, Strings.toMap("containerLabel", "bla"),
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyList());
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
 
@@ -168,7 +168,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
             image = docker.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
-            assertTrue(engine.podCreate("restart-pod", "restart:tag"));
+            assertTrue(engine.podCreate("restart-pod", "restart:tag", false));
         }
         try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
             podDelete(engine, docker,"restart-pod");
@@ -176,7 +176,7 @@ public class EngineIT {
         }
         try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
             image = docker.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
-            assertTrue(engine.podCreate("restart-pod", "restart:tag"));
+            assertTrue(engine.podCreate("restart-pod", "restart:tag", false));
         }
         try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
             podDelete(engine, docker,"restart-pod");
@@ -193,7 +193,7 @@ public class EngineIT {
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
             output = imageBuildWithOutput(docker, image, dockerfile("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx\n"));
             assertNotNull(output);
-            assertFalse(engine.podCreate(pod, image, Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after")));
+            assertFalse(engine.podCreate(pod, image, false, Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after")));
             output = engine.podLogs(pod);
             assertEquals("bar after\n", output);
             podDelete(engine, docker, pod);
@@ -218,7 +218,7 @@ public class EngineIT {
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
             output = imageBuildWithOutput(docker, image, dockerfile("FROM debian:stretch-slim\nRUN echo pod\nCMD hostname\n"));
             assertNotNull(output);
-            assertFalse(engine.podCreate(pod, image, hostname, false, null, Strings.toMap(), Strings.toMap(),
+            assertFalse(engine.podCreate(pod, image, false, hostname, false, null, Strings.toMap(), Strings.toMap(),
                     Collections.emptyMap(), Collections.emptyList()));
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod));
             assertEquals(expected + "\n", engine.podLogs(pod));
@@ -241,7 +241,7 @@ public class EngineIT {
             output = imageBuildWithOutput(docker, image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
             assertNotNull(output);
 
-            assertFalse(engine.podCreate(pod, image, null,false, null, Collections.emptyMap(), Collections.emptyMap(),
+            assertFalse(engine.podCreate(pod, image, false,null,false, null, Collections.emptyMap(), Collections.emptyMap(),
                     Collections.singletonMap(home, home.getAbsolute()), Collections.emptyList()));
             output = engine.podLogs(pod);
             assertTrue(output.contains(file.getAbsolute()));
@@ -263,7 +263,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
             docker.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
-            engine.podCreate(pod, image, null,false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
+            engine.podCreate(pod, image, false, null,false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
                     Collections.emptyList());
             container = engine.podProbe(pod).containerId;
             stats = docker.containerStats(container);
@@ -317,7 +317,7 @@ public class EngineIT {
             docker.imageBuild("secuser", Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD cat /etc/secrets/sub/renamed.txt\n"), false, null);
 
-            assertFalse(engine.podCreate(name, "secuser", "somehost", false, null,
+            assertFalse(engine.podCreate(name, "secuser", false, "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("blablub", engine.podLogs(name));
             podDelete(engine, docker, name);
@@ -354,7 +354,7 @@ public class EngineIT {
             docker.imageBuild("config", Collections.emptyMap(), Collections.emptyMap(),
                     dockerfile("FROM debian:stretch-slim\nCMD cat /etc/test.yaml /etc/sub/file\n"), false, null);
 
-            assertFalse(engine.podCreate(name, "config", "somehost", false, null,
+            assertFalse(engine.podCreate(name, "config", false,"somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("123foo", engine.podLogs(name));
 

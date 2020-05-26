@@ -372,24 +372,25 @@ public class Engine implements AutoCloseable {
         return null;
     }
 
-    public boolean podCreate(String name, String image, String... labels) throws IOException {
-        return podCreate(name, image, Strings.toMap(labels));
+    public boolean podCreate(String name, String image, boolean imagePull, String... labels) throws IOException {
+        return podCreate(name, image, imagePull, Strings.toMap(labels));
     }
 
-    public boolean podCreate(String name, String image, Map<String, String> labels) throws IOException {
-        return podCreate(name, image, labels, Strings.toMap());
+    public boolean podCreate(String name, String image, boolean imagePull, Map<String, String> labels) throws IOException {
+        return podCreate(name, image, imagePull, labels, Strings.toMap());
     }
 
-    public boolean podCreate(String name, String image, Map<String, String> labels, Map<String, String> env) throws IOException {
-        return podCreate(name, image, null, false, null, labels, env, Collections.emptyMap(), Collections.emptyList());
+    public boolean podCreate(String name, String image, boolean imagePull, Map<String, String> labels, Map<String, String> env) throws IOException {
+        return podCreate(name, image, imagePull, null, false, null, labels, env, Collections.emptyMap(), Collections.emptyList());
     }
 
-    public boolean podCreate(String name, String image, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    public boolean podCreate(String name, String image, boolean imagePull, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
                           Map<FileNode, String> hostVolumes, List<Data> dataVolumes) throws IOException {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, image, hostname, healing, memory, labels, env, hostVolumes, dataVolumes), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, imagePull, hostname, healing, memory, labels, env, hostVolumes, dataVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -528,7 +529,8 @@ public class Engine implements AutoCloseable {
     }
 
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
-    private static V1Pod pod(String name, String image, String hostname, boolean healing, Integer memory,
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    private static V1Pod pod(String name, String image, boolean imagePull, String hostname, boolean healing, Integer memory,
                              Map<String, String> labels, Map<String, String> env, Map<FileNode, String> hostVolumes,
                              List<Data> dataVolumes) {
         List<V1EnvVar> lst;
@@ -586,7 +588,7 @@ public class Engine implements AutoCloseable {
                   .withName(name + "-container")
                   .withImage(image)
                   .withEnv(lst)
-                  .withImagePullPolicy("Never") // TODO
+                  .withImagePullPolicy(imagePull ? "IfNotPresent" : "Never")
                 .endContainer().endSpec().build();
     }
 
