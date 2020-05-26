@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -182,18 +180,13 @@ public class EngineIT {
     }
 
     private void doHostnameTest(String pod, String hostname, String expected) throws IOException, InterruptedException {
-        String image = "hostname";
-        String output;
-
-        try (Engine engine = create(); Daemon docker = Daemon.create()) {
-            output = imageBuildWithOutput(docker, image, dockerfile("FROM debian:stretch-slim\nRUN echo pod\nCMD hostname\n"));
-            assertNotNull(output);
-            assertFalse(engine.podCreate(pod, image, false, null,hostname, false, null, Strings.toMap(), Strings.toMap(),
+        try (Engine engine = create()) {
+            assertFalse(engine.podCreate(pod, "debian:stretch-slim", false,
+                    new String[] { "hostname"}, hostname, false, null, Strings.toMap(), Strings.toMap(),
                     Collections.emptyMap(), Collections.emptyList()));
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod));
             assertEquals(expected + "\n", engine.podLogs(pod));
-            podDelete(engine, docker, pod);
-            docker.imageRemove(image, false);
+            engine.podDelete(pod);
         }
     }
 
