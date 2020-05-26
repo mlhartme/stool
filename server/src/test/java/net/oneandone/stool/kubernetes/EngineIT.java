@@ -31,11 +31,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotEquals;
 
@@ -262,19 +260,17 @@ public class EngineIT {
         final String name = "sec";
         Data data;
 
-        try (Engine engine = create(); Daemon docker = Daemon.create()) {
+        try (Engine engine = create()) {
             data = Data.secrets(name, "/etc/secrets");
             data.addUtf8("sub/renamed.txt", "blablub");
             data.define(engine);
 
             assertTrue(engine.secretList().containsKey(name));
-            docker.imageBuild("secuser", Collections.emptyMap(), Collections.emptyMap(),
-                    dockerfile("FROM debian:stretch-slim\nCMD cat /etc/secrets/sub/renamed.txt\n"), false, null);
-
-            assertFalse(engine.podCreate(name, "secuser", false, null,"somehost", false, null,
+            assertFalse(engine.podCreate(name, "debian:stretch-slim", false,
+                    new String[] { "cat", "/etc/secrets/sub/renamed.txt" },"somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("blablub", engine.podLogs(name));
-            podDelete(engine, docker, name);
+            engine.podDelete(name);
             engine.secretDelete(name);
         }
     }
@@ -285,7 +281,7 @@ public class EngineIT {
         final String name = "cm";
 
         data = Strings.toMap("test.yaml", "123", "sub-file", "foo");
-        try (Engine engine = create(); Daemon docker = Daemon.create()) {
+        try (Engine engine = create()) {
             engine.configMapCreate(name, data);
             assertEquals(data, engine.configMapRead(name));
             engine.configMapDelete(name);;
