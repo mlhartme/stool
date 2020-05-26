@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import net.oneandone.stool.docker.ContainerInfo;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.sushi.fs.World;
@@ -86,35 +85,22 @@ public class EngineIT {
     public void podHealing() throws IOException, InterruptedException {
         String image;
         String pod = "mhm";
-        String container;
+        String containerOrig;
         String containerHealed;
-        Map<String, ContainerInfo> map;
-        Stats stats;
 
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
             image = "debian:stretch-slim";
-            assertTrue(docker.containerListForImage(image).isEmpty());
-            assertTrue(docker.containerList("stooltest").isEmpty());
             engine.podCreate(pod, image, false, new String[] { "sleep", "5"},null,true, null, Strings.toMap("containerLabel", "bla"),
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyList());
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
 
-            container = engine.podProbe(pod).containerId;
-            stats = docker.containerStats(container);
-            assertEquals(0, stats.cpu);
-
-            map = docker.containerListForImage(image);
-            assertEquals(1, map.size());
-            assertTrue(map.containsKey(container));
-            assertEquals(Daemon.Status.RUNNING, map.get(container).state);
-
-            docker.containerStop(container, 5);
+            containerOrig = engine.podProbe(pod).containerId;
+            docker.containerStop(containerOrig, 5);
             Thread.sleep(2500);
 
-            map = docker.containerListForImage(image);
-            containerHealed = map.keySet().iterator().next();
-            assertNotEquals(container, containerHealed);
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
+            containerHealed = engine.podProbe(pod).containerId;
+            assertNotEquals(containerOrig, containerHealed);
 
             assertEquals(Arrays.asList(containerHealed), new ArrayList<>(docker.containerListForImage(image).keySet()));
 
