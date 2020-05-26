@@ -159,18 +159,15 @@ public class EngineIT {
 
     @Test
     public void podEnv() throws IOException {
-        String image = "stooltest";
         String pod = "podenv";
         String output;
 
-        try (Engine engine = create(); Daemon docker = Daemon.create()) {
-            output = imageBuildWithOutput(docker, image, dockerfile("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx\n"));
-            assertNotNull(output);
-            assertFalse(engine.podCreate(pod, image, false, null, Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after")));
+        try (Engine engine = create()) {
+            assertFalse(engine.podCreate(pod, "debian:stretch-slim", false, new String[] { "sh", "-c", "echo $foo $notfound $xxx"},
+                    Strings.toMap(), Strings.toMap("foo", "bar", "xxx", "after")));
             output = engine.podLogs(pod);
             assertEquals("bar after\n", output);
-            podDelete(engine, docker, pod);
-            docker.imageRemove(image, false);
+            engine.podDelete(pod);
         }
     }
 
