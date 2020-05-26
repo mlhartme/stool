@@ -24,8 +24,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -101,8 +99,6 @@ public class EngineIT {
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
             containerHealed = engine.podProbe(pod).containerId;
             assertNotEquals(containerOrig, containerHealed);
-
-            assertEquals(Arrays.asList(containerHealed), new ArrayList<>(docker.containerListForImage(image).keySet()));
 
             engine.podDelete(pod);
 
