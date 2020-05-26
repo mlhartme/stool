@@ -144,14 +144,14 @@ public class EngineIT {
         try (Engine engine = create()) {
             assertTrue(engine.podCreate("restart-pod", "debian:stretch-slim", false, new String[] { "sleep", "3"}));
         }
-        try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
-            podDelete(engine, docker,"restart-pod");
+        try (Engine engine = Engine.create()) {
+            engine.podDelete("restart-pod");
         }
-        try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
+        try (Engine engine = Engine.create()) {
             assertTrue(engine.podCreate("restart-pod", "debian:stretch-slim", false, new String[] { "sleep", "3"}));
         }
-        try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
-            podDelete(engine, docker,"restart-pod");
+        try (Engine engine = Engine.create()) {
+            engine.podDelete("restart-pod");
         }
     }
 
@@ -194,23 +194,18 @@ public class EngineIT {
     public void podMount() throws IOException {
         FileNode home;
         FileNode file;
-        String image = "stooltest";
         String pod = "bindmount";
         String output;
 
         home = WORLD.getHome();
         file = home.createTempFile();
-        try (Engine engine = create(); Daemon docker = Daemon.create()) {
-            output = imageBuildWithOutput(docker, image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
-            assertNotNull(output);
-
-            assertFalse(engine.podCreate(pod, image, false, null,null,false, null, Collections.emptyMap(), Collections.emptyMap(),
+        try (Engine engine = create()) {
+            assertFalse(engine.podCreate(pod, "debian:stretch-slim", false, new String[] { "ls", file.getAbsolute()},
+                    null,false, null, Collections.emptyMap(), Collections.emptyMap(),
                     Collections.singletonMap(home, home.getAbsolute()), Collections.emptyList()));
             output = engine.podLogs(pod);
-            assertTrue(output.contains(file.getAbsolute()));
-            podDelete(engine, docker, pod);
-
-            docker.imageRemove(image, true);
+            assertTrue(output, output.contains(file.getAbsolute()));
+            engine.podDelete(pod);
         }
     }
 
