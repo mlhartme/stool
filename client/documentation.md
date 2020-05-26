@@ -601,7 +601,8 @@ The hostname of the container is set to <id>.<servername>, where id is a hash of
 serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names. 
 And the hash makes it impossible to derived stage or application name from the hostname -- applications are strongly discouraged to 
 check the hostname to configure themselves, use environment variables defined for that purpose instead. Future versions of Stool will 
-remove the server name from the container's hostname as well. TODO: how to define additional environment variables?
+remove the server name from the container's hostname as well. 
+TODO: how to define additional environment variables?
 
 
 [//]: # (include stageOptions.md)

@@ -101,8 +101,6 @@ public class EngineIT {
             assertNotEquals(containerOrig, containerHealed);
 
             engine.podDelete(pod);
-
-            assertTrue(docker.containerListForImage(image).isEmpty());
         }
     }
 
