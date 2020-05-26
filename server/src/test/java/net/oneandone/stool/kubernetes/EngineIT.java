@@ -58,17 +58,6 @@ public class EngineIT {
         }
     }
 
-    private FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {
-        FileNode dir;
-
-        dir = WORLD.getTemp().createTempDirectory();
-        dir.join("Dockerfile").writeString(dockerfile);
-        for (FileNode extra : extras) {
-            extra.copyFile(dir.join(extra.getName()));
-        }
-        return dir;
-    }
-
     //-- pods
 
     @Test
@@ -130,7 +119,7 @@ public class EngineIT {
 
             assertEquals(Arrays.asList(containerHealed), new ArrayList<>(docker.containerListForImage(image).keySet()));
 
-            podDelete(engine, docker, pod);
+            engine.podDelete(pod);
 
             assertTrue(docker.containerListForImage(image).isEmpty());
         }
@@ -293,7 +282,7 @@ public class EngineIT {
         final String name = "cmbinary";
         Data data;
 
-        try (Engine engine = create(); Daemon docker = Daemon.create()) {
+        try (Engine engine = create()) {
             data = Data.configMap(name, "/etc", true);
             data.addUtf8("test.yaml", "123");
             data.addUtf8("sub/file", "foo");
@@ -301,24 +290,13 @@ public class EngineIT {
 
             assertTrue(engine.configMapList().containsKey(name));
 
-            docker.imageBuild("config", Collections.emptyMap(), Collections.emptyMap(),
-                    dockerfile("FROM debian:stretch-slim\nCMD cat /etc/test.yaml /etc/sub/file\n"), false, null);
-
-            assertFalse(engine.podCreate(name, "config", false, null,"somehost", false, null,
+            assertFalse(engine.podCreate(name, "debian:stretch-slim", false,
+                    new String[] { "cat /etc/test.yaml /etc/sub/file"}, "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("123foo", engine.podLogs(name));
 
-            podDelete(engine, docker, name);
+            engine.podDelete(name);
             engine.configMapDelete(name);;
-        }
-    }
-
-    //--
-
-    private String imageBuildWithOutput(Daemon docker, String repositoryTag, FileNode context) throws IOException {
-        try (StringWriter dest = new StringWriter()) {
-            docker.imageBuild(repositoryTag, Collections.emptyMap(), Collections.emptyMap(), context, false, dest);
-            return dest.toString();
         }
     }
 
