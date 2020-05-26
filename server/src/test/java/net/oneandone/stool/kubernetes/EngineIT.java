@@ -25,7 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -291,7 +290,7 @@ public class EngineIT {
             assertTrue(engine.configMapList().containsKey(name));
 
             assertFalse(engine.podCreate(name, "debian:stretch-slim", false,
-                    new String[] { "cat /etc/test.yaml /etc/sub/file"}, "somehost", false, null,
+                    new String[] { "cat", "/etc/test.yaml", "/etc/sub/file"}, "somehost", false, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("123foo", engine.podLogs(name));
 
@@ -299,18 +298,4 @@ public class EngineIT {
             engine.configMapDelete(name);;
         }
     }
-
-    // TODO
-    public static void podDelete(Engine engine, Daemon docker, String podName) throws IOException {
-        String container;
-
-        container = engine.podDelete(podName);
-        try {
-            docker.containerRemove(container);
-        } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
-            // fall-through, already deleted
-        }
-        // TODO: what if there's more than one container for this pod?
-    }
-
 }
