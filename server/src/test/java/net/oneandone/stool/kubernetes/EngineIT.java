@@ -100,8 +100,6 @@ public class EngineIT {
 
     @Test
     public void podHealing() throws IOException, InterruptedException {
-        Map<String, String> labels;
-        List<String> ids;
         String image;
         String pod = "mhm";
         String container;
@@ -109,16 +107,11 @@ public class EngineIT {
         Map<String, ContainerInfo> map;
         Stats stats;
 
-        labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
-            assertTrue(docker.imageList(labels).isEmpty());
-            docker.imageBuild("some:tag", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 5\n"), false, null);
-            ids = new ArrayList<>(docker.imageList(labels).keySet());
-            assertEquals(1, ids.size());
-            image = ids.get(0);
+            image = "debian:stretch-slim";
             assertTrue(docker.containerListForImage(image).isEmpty());
             assertTrue(docker.containerList("stooltest").isEmpty());
-            engine.podCreate(pod, "some:tag", false, null,null,true, null, Strings.toMap("containerLabel", "bla"),
+            engine.podCreate(pod, image, false, new String[] { "sleep", "5"},null,true, null, Strings.toMap("containerLabel", "bla"),
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyList());
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
 
@@ -126,11 +119,6 @@ public class EngineIT {
             stats = docker.containerStats(container);
             assertEquals(0, stats.cpu);
 
-            map = docker.containerListForImage(image);
-            assertEquals(1, map.size());
-            assertTrue(map.containsKey(container));
-
-            assertEquals(Arrays.asList(container), new ArrayList<>(docker.containerList("stooltest").keySet()));
             map = docker.containerListForImage(image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
@@ -149,33 +137,23 @@ public class EngineIT {
             podDelete(engine, docker, pod);
 
             assertTrue(docker.containerListForImage(image).isEmpty());
-            docker.imageRemove(image, false);
-            assertEquals(new HashMap<>(), docker.imageList(labels));
         }
     }
 
 
     @Test
     public void podRestart() throws IOException {
-        String image;
-        String message;
-
-        message = UUID.randomUUID().toString();
-        try (Engine engine = create(); Daemon docker = Daemon.create()) {
-            image = docker.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
-            assertTrue(engine.podCreate("restart-pod", "restart:tag", false, null));
+        try (Engine engine = create()) {
+            assertTrue(engine.podCreate("restart-pod", "debian:stretch-slim", false, new String[] { "sleep", "3"}));
         }
         try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
             podDelete(engine, docker,"restart-pod");
-            docker.imageRemove(image, false);
         }
         try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
-            image = docker.imageBuild("restart:tag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
-            assertTrue(engine.podCreate("restart-pod", "restart:tag", false, null));
+            assertTrue(engine.podCreate("restart-pod", "debian:stretch-slim", false, new String[] { "sleep", "3"}));
         }
         try (Engine engine = Engine.create(); Daemon docker = Daemon.create()) {
             podDelete(engine, docker,"restart-pod");
-            docker.imageRemove(image, false);
         }
     }
 
