@@ -32,6 +32,7 @@ import io.kubernetes.client.openapi.models.ExtensionsV1beta1IngressBuilder;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ConfigMapBuilder;
 import io.kubernetes.client.openapi.models.V1ConfigMapList;
+import io.kubernetes.client.openapi.models.V1ContainerBuilder;
 import io.kubernetes.client.openapi.models.V1ContainerState;
 import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
@@ -372,25 +373,27 @@ public class Engine implements AutoCloseable {
         return null;
     }
 
-    public boolean podCreate(String name, String image, boolean imagePull, String... labels) throws IOException {
-        return podCreate(name, image, imagePull, Strings.toMap(labels));
+    public boolean podCreate(String name, String image, boolean imagePull, String[] command, String... labels) throws IOException {
+        return podCreate(name, image, imagePull, command, Strings.toMap(labels));
     }
 
-    public boolean podCreate(String name, String image, boolean imagePull, Map<String, String> labels) throws IOException {
-        return podCreate(name, image, imagePull, labels, Strings.toMap());
+    public boolean podCreate(String name, String image, boolean imagePull, String[] command, Map<String, String> labels) throws IOException {
+        return podCreate(name, image, imagePull, command, labels, Strings.toMap());
     }
 
-    public boolean podCreate(String name, String image, boolean imagePull, Map<String, String> labels, Map<String, String> env) throws IOException {
-        return podCreate(name, image, imagePull, null, false, null, labels, env, Collections.emptyMap(), Collections.emptyList());
+    public boolean podCreate(String name, String image, boolean imagePull, String[] command, Map<String, String> labels, Map<String, String> env) throws IOException {
+        return podCreate(name, image, imagePull, command, null, false, null, labels, env, Collections.emptyMap(), Collections.emptyList());
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public boolean podCreate(String name, String image, boolean imagePull, String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
+    public boolean podCreate(String name, String image, boolean imagePull, String[] command,
+                             String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
                           Map<FileNode, String> hostVolumes, List<Data> dataVolumes) throws IOException {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, image, imagePull, hostname, healing, memory, labels, env, hostVolumes, dataVolumes), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, imagePull, command,
+                    hostname, healing, memory, labels, env, hostVolumes, dataVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -530,7 +533,8 @@ public class Engine implements AutoCloseable {
 
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private static V1Pod pod(String name, String image, boolean imagePull, String hostname, boolean healing, Integer memory,
+    private static V1Pod pod(String name, String image, boolean imagePull, String[] command,
+                             String hostname, boolean healing, Integer memory,
                              Map<String, String> labels, Map<String, String> env, Map<FileNode, String> hostVolumes,
                              List<Data> dataVolumes) {
         List<V1EnvVar> lst;
@@ -543,6 +547,7 @@ public class Engine implements AutoCloseable {
         List<V1VolumeMount> ml;
         V1VolumeMount m;
         Map<String, Quantity> limits;
+        V1ContainerBuilder container;
 
         lst = new ArrayList<>();
         for (Map.Entry<String, String> entry : env.entrySet()) {
@@ -576,20 +581,25 @@ public class Engine implements AutoCloseable {
         if (memory != null) {
             limits.put("memory", new Quantity(memory.toString()));
         }
+        container = new V1ContainerBuilder();
+        container.addAllToVolumeMounts(ml)
+                .withNewResources().withLimits(limits).endResources()
+                .withName(name + "-container")
+                .withImage(image)
+                .withEnv(lst)
+                .withImagePullPolicy(imagePull ? "IfNotPresent" : "Never");
+
+        if (command != null) {
+            container.withCommand(command);
+        }
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy(healing ? "Always" : "Never")
                 .withHostname(hostname)
                 .addAllToVolumes(vl)
-                .addNewContainer()
-                  .addAllToVolumeMounts(ml)
-                  .withNewResources().withLimits(limits).endResources()
-                  .withName(name + "-container")
-                  .withImage(image)
-                  .withEnv(lst)
-                  .withImagePullPolicy(imagePull ? "IfNotPresent" : "Never")
-                .endContainer().endSpec().build();
+                .addToContainers(container.build())
+                .endSpec().build();
     }
 
     //-- secrets

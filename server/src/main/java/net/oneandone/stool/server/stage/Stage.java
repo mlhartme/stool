@@ -622,7 +622,7 @@ public class Stage {
         engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, POD_LABEL_STAGE, name);
         engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, POD_LABEL_STAGE, name);
         engine.ingressCreate(podName, stageHost(), httpServiceName(), Ports.HTTP);
-        if (!engine.podCreate(podName, image.repositoryTag, false,
+        if (!engine.podCreate(podName, image.repositoryTag, false, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {
             throw new IOException("pod already terminated: " + name);
