@@ -213,22 +213,18 @@ public class EngineIT {
     public void podLimit() throws IOException {
         final int limit = 1024*1024*5;
         Stats stats;
-        String image = "podlimit";
         String pod = "pod";
-        String message;
         String container;
 
-        message = UUID.randomUUID().toString();
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
-            docker.imageBuild(image, Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + "; sleep 3\n"), false, null);
-            engine.podCreate(pod, image, false, null, null,false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
+            engine.podCreate(pod, "debian:stretch-slim", false, new String[] { "sleep", "3" },
+                    null,false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
                     Collections.emptyList());
             container = engine.podProbe(pod).containerId;
             stats = docker.containerStats(container);
             assertEquals(limit, stats.memoryLimit);
             assertTrue(stats.memoryUsage <= stats.memoryLimit);
-            podDelete(engine, docker, pod);
-            docker.imageRemove(image, false);
+            engine.podDelete(pod);
         }
     }
 
