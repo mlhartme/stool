@@ -71,6 +71,7 @@ spec:
   containers:
   - name: stool-server
     image: contargo.server.lan/cisoops-public/stool-server:latest
+    imagePullPolicy: Never
     env:
 ${env}    volumeMounts:
 ${mounts}  volumes:
