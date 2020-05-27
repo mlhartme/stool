@@ -287,7 +287,7 @@ public class Setup {
         int port;
         Map<String, String> map;
 
-        result = world.resource("server.yaml").readString();
+        result = world.resource("local.yaml").readString();
         cisotools = cisotools();
         port = serverPort();
         map = new HashMap<>();
@@ -301,11 +301,10 @@ public class Setup {
         }
     }
 
-    public String env(FileNode cisotools, int port) throws IOException {
+    public String env(FileNode cisotools, int port) {
         Map<String, String> env;
         StringBuilder builder;
         String debugPort;
-        FileNode file;
 
         env = new LinkedHashMap<>();
         debugPort = Integer.toString(port + 1);
