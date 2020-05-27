@@ -97,6 +97,10 @@ public class RegistryIT {
         }
     }
 
+    private static Properties testProperties() throws IOException {
+        return WORLD.getHome().join(".stool.properties").readProperties(); // TODO
+    }
+
     @Test
     public void portus() throws IOException {
         String repository;
@@ -104,7 +108,7 @@ public class RegistryIT {
         Properties p;
         List<String> tags;
 
-        p = WORLD.guessProjectHome(getClass()).join("test.properties").readProperties();
+        p = testProperties();
 
         repository = get(p, "repository");
         registry = Registry.portus(WORLD, Strings.removeRight(get(p, "portus"), "/"), "target/portus-wire.log");
@@ -121,7 +125,7 @@ public class RegistryIT {
         Properties p;
         List<String> tags;
 
-        p = WORLD.guessProjectHome(getClass()).join("test.properties").readProperties();
+        p = testProperties();
 
         repository = "cisoops-public/waterloo/app.foo";
         registry = Registry.portus(WORLD, get(p, "portus"), "target/portus-wire.log");

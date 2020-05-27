@@ -71,15 +71,10 @@ public class Setup {
             this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
         }
 
-        path = System.getProperty("test.properties");
-        if (path == null) {
-            todo = null;
-        } else {
-            try {
-                todo = world.file(path).readProperties();
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+        try {
+            todo = world.getHome().join(".stool.properties").readProperties();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -287,17 +282,28 @@ public class Setup {
         int port;
         Map<String, String> map;
 
-        result = world.resource("local.yaml").readString();
-        cisotools = cisotools();
-        port = serverPort();
-        map = new HashMap<>();
-        map.put("env", env(cisotools, port));
-        map.put("mounts", mounts(cisotools));
-        map.put("volumes", volumes(cisotools));
-        try {
-            return Substitution.ant().apply(result, map);
-        } catch (SubstitutionException e) {
-            throw new IllegalStateException(e);
+        if (local) {
+            result = world.resource("local.yaml").readString();
+            cisotools = cisotools();
+            port = serverPort();
+            map = new HashMap<>();
+            map.put("env", env(cisotools, port));
+            map.put("mounts", mounts(cisotools));
+            map.put("volumes", volumes(cisotools));
+            try {
+                return Substitution.ant().apply(result, map);
+            } catch (SubstitutionException e) {
+                throw new IllegalStateException(e);
+            }
+        } else {
+            result = world.resource("caas.yaml").readString();
+            map = new HashMap<>();
+            map.put("portus", todo.getProperty("portus"));
+            try {
+                return Substitution.ant().apply(result, map);
+            } catch (SubstitutionException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 

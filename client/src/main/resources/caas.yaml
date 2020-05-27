@@ -1,0 +1,76 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-routes
+  namespace: stool
+spec:
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: default
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: stool-ingress
+  namespace: stool
+spec:
+  rules:
+  - host: stool.caas.bs.kae.de.iplatform.1and1.org
+    http:
+     paths:
+     - path: /
+       backend:
+        serviceName: stool-server-http
+        servicePort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stool-server-http
+  namespace: stool
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  selector:
+    app: stool-server
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: stool-server
+  namespace: stool
+  labels:
+    app: stool-server
+spec:
+  restartPolicy: Never
+  serviceAccountName: stool-server
+  containers:
+  - name: stool-server
+    image: contargo.server.lan/cisoops-public/stool-server:snapshot-200525-085903-0705
+    env:
+    - name: HOST
+      value: "caas.bs.kae.de.iplatform.1and1.org"
+    - name: OPTS
+      value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:31001"
+    - name: ENGINE_LOG
+      value: "false"
+    - name: VHOSTS
+      value: "false"
+    - name: LDAP_UNIT
+      value: "cisostages"
+    - name: JMX_USAGE
+      value: "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d"
+    - name: ADMIN
+      value: "michael.hartmeier@ionos.com"
+    - name: REGISTRY_URL
+      value: "${portus}"
+    - name: LOGLEVEL
+      value: "INFO"

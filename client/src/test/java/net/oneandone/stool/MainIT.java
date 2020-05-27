@@ -67,8 +67,6 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        // TODO
-        // System.setProperty("test.properties", WORLD.guessProjectHome(getClass()).getParent().join("server/test.properties").getAbsolute());
         stool("setup", "-batch", "-local");
 
         kubectl("delete", "--ignore-not-found", "-f", HOME.join("server.yaml").getAbsolute());
