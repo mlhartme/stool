@@ -30,6 +30,7 @@ import net.oneandone.sushi.util.SubstitutionException;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -49,10 +50,12 @@ public class Setup {
     private final boolean local;
     private final Map<String, String> opts;
 
-    private final Properties todo;
+    private final URI portus;
+    private final String portusPrefix;
 
     public Setup(Globals globals, boolean batch, boolean local, List<String> opts) {
         int idx;
+        Properties tmp;
 
         this.world = globals.getWorld();
         this.gson = globals.getGson();
@@ -71,10 +74,13 @@ public class Setup {
         }
 
         try {
-            todo = world.getHome().join(".stool.properties").readProperties();
+            // TODO
+            tmp = world.getHome().join(".stool.properties").readProperties();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+        portus = URI.create(tmp.getProperty("portus"));
+        portusPrefix = portus.getHost() + portus.getPath();
     }
 
     public void run() throws IOException {
@@ -256,7 +262,7 @@ public class Setup {
             s.addTo(configuration);
         }
 
-        configuration.setRegistryPrefix(todo.getProperty("prefix"));
+        configuration.setRegistryPrefix(portusPrefix);
         configuration.save(gson);
         serverDir().mkdir();
         home.join("server.yaml").writeString(serverYaml());
@@ -292,7 +298,7 @@ public class Setup {
             }
         } else {
             map = new HashMap<>();
-            map.put("portus", todo.getProperty("portus"));
+            map.put("portus", portus.toString());
             result = world.resource("caas.yaml").readString();
             try {
                 return Substitution.ant().apply(result, map);
@@ -319,7 +325,7 @@ public class Setup {
             addIfNew(env, "LDAP_UNIT", "cisostages");
             addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
             addIfNew(env, "ADMIN", "michael.hartmeier@ionos.com");
-            addIfNew(env, "REGISTRY_URL", todo.getProperty("portus"));
+            addIfNew(env, "REGISTRY_URL", portus.toString());
         }
         addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose
         builder = new StringBuilder();
