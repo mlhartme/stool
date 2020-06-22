@@ -53,7 +53,6 @@ public class Setup {
 
     public Setup(Globals globals, boolean batch, boolean local, List<String> opts) {
         int idx;
-        String path;
 
         this.world = globals.getWorld();
         this.gson = globals.getGson();
@@ -257,11 +256,7 @@ public class Setup {
             s.addTo(configuration);
         }
 
-        // TODO
-        if (todo != null) {
-            configuration.setRegistryPrefix(todo.getProperty("prefix"));
-        }
-
+        configuration.setRegistryPrefix(todo.getProperty("prefix"));
         configuration.save(gson);
         serverDir().mkdir();
         home.join("server.yaml").writeString(serverYaml());
@@ -296,9 +291,9 @@ public class Setup {
                 throw new IllegalStateException(e);
             }
         } else {
-            result = world.resource("caas.yaml").readString();
             map = new HashMap<>();
             map.put("portus", todo.getProperty("portus"));
+            result = world.resource("caas.yaml").readString();
             try {
                 return Substitution.ant().apply(result, map);
             } catch (SubstitutionException e) {
@@ -324,9 +319,7 @@ public class Setup {
             addIfNew(env, "LDAP_UNIT", "cisostages");
             addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
             addIfNew(env, "ADMIN", "michael.hartmeier@ionos.com");
-            if (todo != null) {
-                addIfNew(env, "REGISTRY_URL", todo.getProperty("portus"));
-            }
+            addIfNew(env, "REGISTRY_URL", todo.getProperty("portus"));
         }
         addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose
         builder = new StringBuilder();
