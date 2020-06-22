@@ -110,7 +110,7 @@ public class RegistryIT {
 
         p = testProperties();
 
-        repository = get(p, "repository");
+        repository = get(p, "test.repository");
         registry = Registry.portus(WORLD, Strings.removeRight(get(p, "portus"), "/"), "target/portus-wire.log");
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
