@@ -42,16 +42,10 @@ public class EngineIT {
 
     @BeforeClass
     public static void beforeClass() throws IOException {
-        try {
-            Engine engine;
+        Engine engine;
 
-            engine = Engine.create();
-            engine.namespaceReset();
-        } catch (Exception e) {
-            // TODO: junit silently ignores exceptions here ...
-            e.printStackTrace();
-            throw e;
-        }
+        engine = Engine.create();
+        engine.namespaceReset();
     }
 
     //-- pods
