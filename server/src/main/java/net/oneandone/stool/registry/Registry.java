@@ -134,8 +134,27 @@ public class Registry {
         return toList(result.get("repositories").getAsJsonArray());
     }
 
-    /** @return list of tags */
+    /** @return list of tags; empty list if repository does not exist */
     public List<String> tags(String repository) throws IOException {
+        List<String> result;
+        String id;
+
+        if (portus) {
+            result = new ArrayList<>();
+            id = portusRepositoryIdOpt(repository);
+            if (id != null) {
+                for (JsonElement element : portusTags(id)) {
+                    result.add(element.getAsJsonObject().get("name").getAsString());
+                }
+            }
+            return result;
+        } else {
+            return simpleTags(repository);
+        }
+    }
+
+    /** @return list of tags */
+    public List<String> simpleTags(String repository) throws IOException {
         JsonObject result;
         JsonElement tags;
 
@@ -254,6 +273,16 @@ public class Registry {
     }
 
     private String portusRepositoryId(String repository) throws IOException {
+        String result;
+
+        result = portusRepositoryIdOpt(repository);
+        if (result == null) {
+            throw new IOException("repository not found: " + repository);
+        }
+        return result;
+    }
+
+    private String portusRepositoryIdOpt(String repository) throws IOException {
         JsonObject obj;
 
         for (JsonElement element : portusRepositories()) {
@@ -262,7 +291,7 @@ public class Registry {
                 return obj.get("id").getAsString();
             }
         }
-        throw new IOException("repository not found: " + repository);
+        return null;
     }
 
     public JsonArray portusTags(String repositoryId) throws IOException {

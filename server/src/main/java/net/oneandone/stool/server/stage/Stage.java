@@ -483,6 +483,7 @@ public class Stage {
         } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
             return result;
         }
+        System.out.println(getRepository() + " tags: " + tags);
         for (String tag : tags) {
             result.add(registry.info(getRepository(), tag));
         }
