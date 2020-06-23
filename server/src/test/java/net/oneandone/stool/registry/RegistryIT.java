@@ -75,7 +75,7 @@ public class RegistryIT {
                         false, log);
                 try {
                     root = (HttpNode) WORLD.validNode("http://" + registryPrefix);
-                    registry = Registry.local(root);
+                    registry = PortusRegistry.local(root);
                     assertEquals(Arrays.asList(), registry.catalog());
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
@@ -111,11 +111,11 @@ public class RegistryIT {
         p = testProperties();
 
         repository = get(p, "test.repository");
-        registry = Registry.portus(WORLD, Strings.removeRight(get(p, "portus"), "/"), "target/portus-wire.log");
+        registry = PortusRegistry.portus(WORLD, Strings.removeRight(get(p, "portus"), "/"), "target/portus-wire.log");
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
         System.out.println("info: " + registry.info(repository, tags.get(0)));
-        System.out.println("v1 tags: " + registry.portusTags("6"));
+        System.out.println("v1 tags: " + registry.tags("6"));
     }
 
     @Ignore // TODO
@@ -128,10 +128,10 @@ public class RegistryIT {
         p = testProperties();
 
         repository = "cisoops-public/waterloo/app.foo";
-        registry = Registry.portus(WORLD, get(p, "portus"), "target/portus-wire.log");
+        registry = PortusRegistry.portus(WORLD, get(p, "portus"), "target/portus-wire.log");
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
-        registry.portusDelete(repository);
+        ((PortusRegistry) registry).portusDelete(repository);
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
     }
