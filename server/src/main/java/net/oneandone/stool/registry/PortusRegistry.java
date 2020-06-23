@@ -59,17 +59,14 @@ public class PortusRegistry extends Registry {
         idx = ui.indexOf(':');
         username = ui.substring(0, idx);
         password = ui.substring(idx + 1);
+
         // auth for portus api; in contrast to registry api auth, portus auth can be added upfront
         root.getRoot().addExtraHeader("Portus-Auth", username + ":" + password);
 
-        return doCreate(root, root.getRoot().getHostname(), username, password, wirelog);
-    }
-
-    public static PortusRegistry doCreate(HttpNode root, String host, String username, String password, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new PortusRegistry(host, username, password, root);
+        return new PortusRegistry(root.getRoot().getHostname(), username, password, root);
     }
 
     private final String host;
