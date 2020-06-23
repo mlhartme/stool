@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.docker.AuthException;
 import net.oneandone.stool.kubernetes.PodInfo;
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -74,7 +75,11 @@ public class DockerRegistry extends Registry {
         JsonObject result;
         JsonElement tags;
 
-        result = getJsonObject(root.join("v2/" + repository + "/tags/list"));
+        try {
+            result = getJsonObject(root.join("v2/" + repository + "/tags/list"));
+        } catch (FileNotFoundException e) {
+            return new ArrayList<>();
+        }
         tags = result.get("tags");
         return tags.isJsonNull() ? new ArrayList<>() : toList(tags.getAsJsonArray());
     }
