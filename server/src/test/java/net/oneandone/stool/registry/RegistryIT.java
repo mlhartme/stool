@@ -81,7 +81,7 @@ public class RegistryIT {
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     assertEquals(Arrays.asList("1"), registry.tags("registrytest"));
                     info = registry.info("registrytest", "1");
-                    registry.deleteTagByDigest("registrytest", info.id);
+                    ((DockerRegistry) registry).deleteTagByDigest("registrytest", info.id);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     // TODO: should be empty
                     assertEquals(Arrays.asList("1"), registry.tags("registrytest"));
@@ -131,7 +131,7 @@ public class RegistryIT {
         registry = PortusRegistry.portus(WORLD, get(p, "portus"), "target/portus-wire.log");
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
-        ((PortusRegistry) registry).portusDelete(repository);
+        registry.deleteRepository(repository);
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
     }

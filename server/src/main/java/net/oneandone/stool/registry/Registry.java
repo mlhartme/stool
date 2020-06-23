@@ -59,5 +59,4 @@ public abstract class Registry {
     public abstract TagInfo info(PodInfo pod) throws IOException;
     public abstract TagInfo info(String repository, String tag) throws IOException;
     public abstract void deleteRepository(String repository) throws IOException;
-    public abstract void deleteTagByDigest(String repository, String digest) throws IOException;
 }

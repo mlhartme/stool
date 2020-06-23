@@ -66,18 +66,17 @@ public class PortusRegistry extends Registry {
         // auth for portus api; in contrast to registry api auth, portus auth can be added upfront
         root.getRoot().addExtraHeader("Portus-Auth", username + ":" + password);
 
-        return doCreate(root, root.getRoot().getHostname(), true, username, password, wirelog);
+        return doCreate(root, root.getRoot().getHostname(), username, password, wirelog);
     }
 
-    public static PortusRegistry doCreate(HttpNode root, String host, boolean portus, String username, String password, String wirelog) {
+    public static PortusRegistry doCreate(HttpNode root, String host, String username, String password, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new PortusRegistry(host, portus, username, password, root);
+        return new PortusRegistry(host, username, password, root);
     }
 
     private final String host;
-    private final boolean portus;
     private final String username;
     private final String password;
     private final HttpNode root;
@@ -85,12 +84,11 @@ public class PortusRegistry extends Registry {
     private String authRepository;
     private String authToken;
 
-    private PortusRegistry(String host, boolean portus, String username, String password, HttpNode root) {
+    private PortusRegistry(String host, String username, String password, HttpNode root) {
         if (host.contains("/")) {
             throw new IllegalArgumentException(host);
         }
         this.host = host;
-        this.portus = portus;
         this.username = username;
         this.password = password;
         this.root = root;
@@ -112,28 +110,14 @@ public class PortusRegistry extends Registry {
         List<String> result;
         String id;
 
-        if (portus) {
-            result = new ArrayList<>();
-            id = portusRepositoryIdOpt(repository);
-            if (id != null) {
-                for (JsonElement element : portusTags(id)) {
-                    result.add(element.getAsJsonObject().get("name").getAsString());
-                }
+        result = new ArrayList<>();
+        id = portusRepositoryIdOpt(repository);
+        if (id != null) {
+            for (JsonElement element : portusTags(id)) {
+                result.add(element.getAsJsonObject().get("name").getAsString());
             }
-            return result;
-        } else {
-            return simpleTags(repository);
         }
-    }
-
-    /** @return list of tags */
-    public List<String> simpleTags(String repository) throws IOException {
-        JsonObject result;
-        JsonElement tags;
-
-        result = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/tags/list")));
-        tags = result.get("tags");
-        return tags.isJsonNull() ? new ArrayList<>() : toList(tags.getAsJsonArray());
+        return result;
     }
 
     private HttpNode repositoryAuth(String repository, HttpNode node) throws IOException {
@@ -142,9 +126,6 @@ public class PortusRegistry extends Registry {
         HttpNode login;
         HeaderList hl;
 
-        if (!portus) {
-            return node;
-        }
         if (authRepository == null || !authRepository.equals(repository)) {
             // auth for docker registry api
             try {
@@ -198,45 +179,15 @@ public class PortusRegistry extends Registry {
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
         info = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/blobs/" + digest)));
-        if (portus) {
-            obj = portusTag(portusRepositoryId(repository), tag);
-            created = LocalDateTime.parse(obj.get("created_at").getAsString(), Daemon.DATE_FORMAT);
-            author = obj.get("author").getAsJsonObject().get("name").getAsString();
-        } else {
-            // TODO
-            created = null;
-            author = null;
-        }
+        obj = portusTag(portusRepositoryId(repository), tag);
+        created = LocalDateTime.parse(obj.get("created_at").getAsString(), Daemon.DATE_FORMAT);
+        author = obj.get("author").getAsJsonObject().get("name").getAsString();
         labels = toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);
     }
 
     public void deleteRepository(String repository) throws IOException {
-        String id;
-
-        if (portus) {
-            portusDelete(repository);
-        } else {
-            for (String tag : tags(repository)) {
-                id = info(repository, tag).id;
-                deleteTagByDigest(repository, id);
-            }
-        }
-    }
-
-    // TODO: returns 202 and does not actually remove the tag
-    public void deleteTagByDigest(String repository, String digest) throws IOException {
-        try {
-            Method.delete(withV2Header(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + digest))));
-        } catch (StatusException e) {
-            if (e.getStatusLine().code == 202) {
-                System.out.println("removed " + e.getStatusLine()); // TODO
-                // TODO
-                return;
-            } else {
-                throw e;
-            }
-        }
+        Method.delete(root.join("api/v1/repositories").join(portusRepositoryId(repository)));
     }
 
     //--
@@ -281,10 +232,6 @@ public class PortusRegistry extends Registry {
             }
         }
         throw new IOException("tag not found: " + tag);
-    }
-
-    public void portusDelete(String repository) throws IOException {
-        Method.delete(root.join("api/v1/repositories").join(portusRepositoryId(repository)));
     }
 
     private JsonObject manifest(String repository, String tag) throws IOException {
