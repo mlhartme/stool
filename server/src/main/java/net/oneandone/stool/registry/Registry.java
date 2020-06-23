@@ -31,11 +31,9 @@ import java.util.Map;
  * But I keep the Docker implementation to preserve knowledge, and maybe I find a ways later ...
  */
 public abstract class Registry {
-    public static final String LOCAL_HOST = "127.0.0.1:31500";
-
     /** @return list of repositories */
-    public abstract List<String> catalog() throws IOException;
-    public abstract void deleteRepository(String repository) throws IOException;
+    public abstract List<String> list() throws IOException;
+    public abstract void delete(String repository) throws IOException;
     public abstract List<String> tags(String repository) throws IOException;
 
     public abstract TagInfo info(PodInfo pod) throws IOException;

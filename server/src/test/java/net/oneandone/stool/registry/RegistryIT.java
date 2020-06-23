@@ -76,13 +76,13 @@ public class RegistryIT {
                 try {
                     root = (HttpNode) WORLD.validNode("http://" + registryPrefix);
                     registry = DockerRegistry.create(root);
-                    assertEquals(Arrays.asList(), registry.catalog());
+                    assertEquals(Arrays.asList(), registry.list());
                     docker.imagePush(imageName);
-                    assertEquals(Arrays.asList("registrytest"), registry.catalog());
+                    assertEquals(Arrays.asList("registrytest"), registry.list());
                     assertEquals(Arrays.asList("1"), registry.tags("registrytest"));
                     assertEquals("1", registry.info("registrytest", "1").tag);
-                    registry.deleteRepository("registrytest");
-                    assertEquals(Arrays.asList("registrytest"), registry.catalog());
+                    registry.delete("registrytest");
+                    assertEquals(Arrays.asList("registrytest"), registry.list());
                     // TODO: should be empty
                     assertEquals(Arrays.asList("1"), registry.tags("registrytest"));
                     System.out.println("ok");
@@ -120,7 +120,7 @@ public class RegistryIT {
         try (Daemon docker = Daemon.create(/* "target/registry-wire.log" */ null)) {
             registry = PortusRegistry.create(WORLD, registryUri.toString(), "target/portus-wire.log");
             try {
-                registry.deleteRepository(repository);
+                registry.delete(repository);
             } catch (PortusRegistry.RepositoryNotFoundException e) {
                 // ok
             }
@@ -138,12 +138,12 @@ public class RegistryIT {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                assertTrue(registry.catalog().contains(repository));
+                assertTrue(registry.list().contains(repository));
                 assertEquals(Arrays.asList("1"), registry.tags(repository));
                 assertEquals("1", registry.info(repository, "1").tag);
-                registry.deleteRepository(repository);
+                registry.delete(repository);
                 assertEquals(Arrays.asList(), registry.tags(repository));
-                assertFalse(registry.catalog().contains(repository));
+                assertFalse(registry.list().contains(repository));
             } finally {
                 docker.imageRemove(imageName, false);
             }

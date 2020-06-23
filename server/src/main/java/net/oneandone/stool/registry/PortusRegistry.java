@@ -91,7 +91,7 @@ public class PortusRegistry extends Registry {
     }
 
     /** @return list of repositories */
-    public List<String> catalog() throws IOException {
+    public List<String> list() throws IOException {
         List<String> result;
 
         result = new ArrayList<>();
@@ -125,7 +125,7 @@ public class PortusRegistry extends Registry {
         if (authRepository == null || !authRepository.equals(repository)) {
             // auth for docker registry api
             try {
-                DockerRegistry.create(root).catalog();
+                DockerRegistry.create(root).list();
                 throw new IllegalStateException(root.getUri().toString());
             } catch (AuthException e) {
                 realm = e.realm;
@@ -188,7 +188,7 @@ public class PortusRegistry extends Registry {
         }
     }
 
-    public void deleteRepository(String repository) throws IOException {
+    public void delete(String repository) throws IOException {
         Method.delete(root.join("api/v1/repositories").join(portusRepositoryId(repository)));
     }
 

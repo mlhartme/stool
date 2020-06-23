@@ -47,7 +47,7 @@ public class DockerRegistry extends Registry {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new DockerRegistry(LOCAL_HOST, root);
+        return new DockerRegistry(root.getRoot().getHostname(), root);
     }
 
     private final String host;
@@ -62,7 +62,7 @@ public class DockerRegistry extends Registry {
     }
 
     /** @return list of repositories */
-    public List<String> catalog() throws IOException {
+    public List<String> list() throws IOException {
         JsonObject result;
 
         result = getJsonObject(root.join("v2/_catalog"));
@@ -113,7 +113,7 @@ public class DockerRegistry extends Registry {
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);
     }
 
-    public void deleteRepository(String repository) throws IOException {
+    public void delete(String repository) throws IOException {
         String id;
 
         for (String tag : tags(repository)) {

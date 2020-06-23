@@ -469,7 +469,7 @@ public class Stage {
     //-- docker
 
     public void wipeImages(Registry registry) throws IOException {
-        registry.deleteRepository(getRepository());
+        registry.delete(getRepository());
     }
 
     /** @return sorted list, oldest first */

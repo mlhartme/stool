@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.configuration;
 
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.util.Mailer;
 import net.oneandone.sushi.util.Strings;
@@ -98,7 +97,7 @@ public class ServerConfiguration {
     public ServerConfiguration() {
         host = "localhost";
         loglevel = "INFO";
-        registryUrl = "http://" + Registry.LOCAL_HOST + "/";
+        registryUrl = "http://localhost:31500/";
         admin = "";
         autoRemove = -1;
         ldapUrl = "";
