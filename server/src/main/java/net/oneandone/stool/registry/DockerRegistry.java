@@ -20,11 +20,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.docker.AuthException;
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.sushi.fs.NewInputStreamException;
-import net.oneandone.sushi.fs.NodeInstantiationException;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
@@ -45,47 +42,23 @@ import java.util.Map;
  * I didn't find a way to query tag authors with Docker Registry API V2, so I hat to fall back to Portus' API :(
  * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
-public class PortusRegistry extends Registry {
-    public static PortusRegistry portus(World world, String portus, String wirelog) throws NodeInstantiationException {
-        HttpNode root;
-        String ui;
-        int idx;
-        String username;
-        String password;
-
-        root = (HttpNode) world.validNode(portus);
-        ui = root.getRoot().getUserInfo();
-        if (ui == null) {
-            throw new IllegalArgumentException("missing credentials: " + portus);
-        }
-        root.getRoot().setCredentials(null, null);
-        root = (HttpNode) world.node(root.getUri().resolve("/")); // TODO: work-around for sushi bug: does not reset auth header
-        idx = ui.indexOf(':');
-        username = ui.substring(0, idx);
-        password = ui.substring(idx + 1);
-        // auth for portus api; in contrast to registry api auth, portus auth can be added upfront
-        root.getRoot().addExtraHeader("Portus-Auth", username + ":" + password);
-
-        return doCreate(root, root.getRoot().getHostname(), true, username, password, wirelog);
-    }
-
-    private static PortusRegistry local(HttpNode root) {
+public class DockerRegistry extends Registry {
+    public static DockerRegistry local(HttpNode root) {
         return local(root, null);
     }
 
-    private static PortusRegistry local(HttpNode root, String wirelog) {
-        return doCreate(root, LOCAL_HOST, false, null, null, wirelog);
+    public static DockerRegistry local(HttpNode root, String wirelog) {
+        return doCreate(root, LOCAL_HOST, null, null, wirelog);
     }
 
-    public static PortusRegistry doCreate(HttpNode root, String host, boolean portus, String username, String password, String wirelog) {
+    private static DockerRegistry doCreate(HttpNode root, String host, String username, String password, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new PortusRegistry(host, portus, username, password, root);
+        return new DockerRegistry(host, username, password, root);
     }
 
     private final String host;
-    private final boolean portus;
     private final String username;
     private final String password;
     private final HttpNode root;
@@ -93,12 +66,11 @@ public class PortusRegistry extends Registry {
     private String authRepository;
     private String authToken;
 
-    private PortusRegistry(String host, boolean portus, String username, String password, HttpNode root) {
+    private DockerRegistry(String host, String username, String password, HttpNode root) {
         if (host.contains("/")) {
             throw new IllegalArgumentException(host);
         }
         this.host = host;
-        this.portus = portus;
         this.username = username;
         this.password = password;
         this.root = root;
@@ -117,25 +89,6 @@ public class PortusRegistry extends Registry {
 
     /** @return list of tags; empty list if repository does not exist */
     public List<String> tags(String repository) throws IOException {
-        List<String> result;
-        String id;
-
-        if (portus) {
-            result = new ArrayList<>();
-            id = portusRepositoryIdOpt(repository);
-            if (id != null) {
-                for (JsonElement element : portusTags(id)) {
-                    result.add(element.getAsJsonObject().get("name").getAsString());
-                }
-            }
-            return result;
-        } else {
-            return simpleTags(repository);
-        }
-    }
-
-    /** @return list of tags */
-    public List<String> simpleTags(String repository) throws IOException {
         JsonObject result;
         JsonElement tags;
 
@@ -145,37 +98,7 @@ public class PortusRegistry extends Registry {
     }
 
     private HttpNode repositoryAuth(String repository, HttpNode node) throws IOException {
-        String realm;
-        String service;
-        HttpNode login;
-        HeaderList hl;
-
-        if (!portus) {
-            return node;
-        }
-        if (authRepository == null || !authRepository.equals(repository)) {
-            // auth for docker registry api
-            try {
-                PortusRegistry.local(root).catalog();
-                throw new IllegalStateException(root.getUri().toString());
-            } catch (AuthException e) {
-                realm = e.realm;
-                service = e.service;
-                // fall-through
-            }
-            login = (HttpNode) root.getWorld().validNode(realm);
-            login.getRoot().setCredentials(username, password);
-            try {
-                login = login.withParameter("service", service);
-                login = login.withParameter("scope", "repository:" + repository + ":*");
-                authRepository = repository;
-                authToken = getJsonObject(login).get("token").getAsString();
-            } finally {
-                login.getRoot().setCredentials(null, null);
-            }
-        }
-        hl = HeaderList.of("Authorization", "Bearer " + authToken);
-        return node.withHeaders(hl);
+        return node;
     }
 
     public TagInfo info(PodInfo pod) throws IOException {
@@ -198,7 +121,6 @@ public class PortusRegistry extends Registry {
         JsonObject manifest;
         String digest;
         JsonObject info;
-        JsonObject obj;
         String author;
         LocalDateTime created;
         Map<String, String> labels;
@@ -206,15 +128,9 @@ public class PortusRegistry extends Registry {
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
         info = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/blobs/" + digest)));
-        if (portus) {
-            obj = portusTag(portusRepositoryId(repository), tag);
-            created = LocalDateTime.parse(obj.get("created_at").getAsString(), Daemon.DATE_FORMAT);
-            author = obj.get("author").getAsJsonObject().get("name").getAsString();
-        } else {
-            // TODO
-            created = null;
-            author = null;
-        }
+        // TODO
+        created = null;
+        author = null;
         labels = toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);
     }
@@ -222,13 +138,9 @@ public class PortusRegistry extends Registry {
     public void deleteRepository(String repository) throws IOException {
         String id;
 
-        if (portus) {
-            portusDelete(repository);
-        } else {
-            for (String tag : tags(repository)) {
-                id = info(repository, tag).id;
-                deleteTagByDigest(repository, id);
-            }
+        for (String tag : tags(repository)) {
+            id = info(repository, tag).id;
+            deleteTagByDigest(repository, id);
         }
     }
 
@@ -245,54 +157,6 @@ public class PortusRegistry extends Registry {
                 throw e;
             }
         }
-    }
-
-    //--
-
-    private JsonArray portusRepositories() throws IOException {
-        return getJson(root.join("api/v1/repositories")).getAsJsonArray();
-    }
-
-    private String portusRepositoryId(String repository) throws IOException {
-        String result;
-
-        result = portusRepositoryIdOpt(repository);
-        if (result == null) {
-            throw new IOException("repository not found: " + repository);
-        }
-        return result;
-    }
-
-    private String portusRepositoryIdOpt(String repository) throws IOException {
-        JsonObject obj;
-
-        for (JsonElement element : portusRepositories()) {
-            obj = element.getAsJsonObject();
-            if (repository.equals(obj.get("full_name").getAsString())) {
-                return obj.get("id").getAsString();
-            }
-        }
-        return null;
-    }
-
-    public JsonArray portusTags(String repositoryId) throws IOException {
-        return getJson(root.join("api/v1/repositories/" + repositoryId + "/tags")).getAsJsonArray();
-    }
-
-    public JsonObject portusTag(String portusRepositoryId, String tag) throws IOException {
-        JsonObject result;
-
-        for (JsonElement element : portusTags(portusRepositoryId)) {
-            result = element.getAsJsonObject();
-            if (tag.equals(result.get("name").getAsString())) {
-                return result;
-            }
-        }
-        throw new IOException("tag not found: " + tag);
-    }
-
-    public void portusDelete(String repository) throws IOException {
-        Method.delete(root.join("api/v1/repositories").join(portusRepositoryId(repository)));
     }
 
     private JsonObject manifest(String repository, String tag) throws IOException {

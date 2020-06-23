@@ -75,7 +75,7 @@ public class RegistryIT {
                         false, log);
                 try {
                     root = (HttpNode) WORLD.validNode("http://" + registryPrefix);
-                    registry = PortusRegistry.local(root);
+                    registry = DockerRegistry.local(root);
                     assertEquals(Arrays.asList(), registry.catalog());
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
