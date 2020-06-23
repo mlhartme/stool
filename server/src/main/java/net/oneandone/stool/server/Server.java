@@ -17,6 +17,7 @@ package net.oneandone.stool.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Accessor;
@@ -38,6 +39,7 @@ import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -403,7 +405,10 @@ public class Server {
     //--
 
     public Registry createRegistry(Engine engine) throws IOException {
-        return Registry.create(engine, configuration.registryUrl());
+        String url;
+
+        url = Strings.removeRight(configuration.registryUrl(), "/");
+        return PortusRegistry.portus(world, url, null);
     }
 
     /** @return path to generates certificate */

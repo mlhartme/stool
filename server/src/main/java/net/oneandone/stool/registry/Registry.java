@@ -18,11 +18,7 @@ package net.oneandone.stool.registry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.http.HttpNode;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,26 +31,7 @@ import java.util.Map;
  * But I keep the Docker implementation to preserve knowledge, and maybe I find a ways later ...
  */
 public abstract class Registry {
-    public static Registry create(Engine engine, String url) throws IOException {
-        PodInfo info;
-        HttpNode node;
-
-        if (("http://" + LOCAL_HOST + "/").equals(url)) {
-            info = engine.podProbe("stool-registry");
-            if (info == null) {
-                throw new IOException("registry not found");
-            }
-            node = (HttpNode) World.create().validNode("http://" + info.ip + ":5000");
-            return DockerRegistry.create(node, null);
-        } else {
-            return PortusRegistry.portus(World.create(), Strings.removeRight(url, "/"), null);
-        }
-    }
-
     public static final String LOCAL_HOST = "127.0.0.1:31500";
-
-    protected Registry() {
-    }
 
     /** @return list of repositories */
     public abstract List<String> catalog() throws IOException;
