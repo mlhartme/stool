@@ -69,14 +69,6 @@ public class PortusRegistry extends Registry {
         return doCreate(root, root.getRoot().getHostname(), true, username, password, wirelog);
     }
 
-    private static PortusRegistry local(HttpNode root) {
-        return local(root, null);
-    }
-
-    private static PortusRegistry local(HttpNode root, String wirelog) {
-        return doCreate(root, LOCAL_HOST, false, null, null, wirelog);
-    }
-
     public static PortusRegistry doCreate(HttpNode root, String host, boolean portus, String username, String password, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
@@ -156,7 +148,7 @@ public class PortusRegistry extends Registry {
         if (authRepository == null || !authRepository.equals(repository)) {
             // auth for docker registry api
             try {
-                PortusRegistry.local(root).catalog();
+                DockerRegistry.local(root).catalog();
                 throw new IllegalStateException(root.getUri().toString());
             } catch (AuthException e) {
                 realm = e.realm;
