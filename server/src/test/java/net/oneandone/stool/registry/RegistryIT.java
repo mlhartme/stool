@@ -56,7 +56,6 @@ public class RegistryIT {
         Registry registry;
         Map<Integer, String> ports;
         Writer log;
-        TagInfo info;
 
         try (Daemon docker = Daemon.create(/* "target/registry-wire.log" */ null)) {
             ports = new HashMap<>();
@@ -75,13 +74,13 @@ public class RegistryIT {
                         false, log);
                 try {
                     root = (HttpNode) WORLD.validNode("http://" + registryPrefix);
-                    registry = DockerRegistry.local(root);
+                    registry = DockerRegistry.create(root);
                     assertEquals(Arrays.asList(), registry.catalog());
                     docker.imagePush(imageName);
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     assertEquals(Arrays.asList("1"), registry.tags("registrytest"));
-                    info = registry.info("registrytest", "1");
-                    ((DockerRegistry) registry).deleteTagByDigest("registrytest", info.id);
+                    assertEquals("1", registry.info("registrytest", "1").tag);
+                    registry.deleteRepository("registrytest");
                     assertEquals(Arrays.asList("registrytest"), registry.catalog());
                     // TODO: should be empty
                     assertEquals(Arrays.asList("1"), registry.tags("registrytest"));

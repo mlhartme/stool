@@ -41,7 +41,7 @@ public abstract class Registry {
                 throw new IOException("registry not found");
             }
             node = (HttpNode) World.create().validNode("http://" + info.ip + ":5000");
-            return DockerRegistry.local(node, null);
+            return DockerRegistry.create(node, null);
         } else {
             return PortusRegistry.portus(World.create(), Strings.removeRight(url, "/"), null);
         }

@@ -129,7 +129,7 @@ public class PortusRegistry extends Registry {
         if (authRepository == null || !authRepository.equals(repository)) {
             // auth for docker registry api
             try {
-                DockerRegistry.local(root).catalog();
+                DockerRegistry.create(root).catalog();
                 throw new IllegalStateException(root.getUri().toString());
             } catch (AuthException e) {
                 realm = e.realm;

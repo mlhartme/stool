@@ -43,40 +43,26 @@ import java.util.Map;
  * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
 public class DockerRegistry extends Registry {
-    public static DockerRegistry local(HttpNode root) {
-        return local(root, null);
+    public static DockerRegistry create(HttpNode root) {
+        return create(root, null);
     }
 
-    public static DockerRegistry local(HttpNode root, String wirelog) {
-        return doCreate(root, LOCAL_HOST, null, null, wirelog);
-    }
-
-    private static DockerRegistry doCreate(HttpNode root, String host, String username, String password, String wirelog) {
+    public static DockerRegistry create(HttpNode root, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new DockerRegistry(host, username, password, root);
+        return new DockerRegistry(LOCAL_HOST, root);
     }
 
     private final String host;
-    private final String username;
-    private final String password;
     private final HttpNode root;
 
-    private String authRepository;
-    private String authToken;
-
-    private DockerRegistry(String host, String username, String password, HttpNode root) {
+    private DockerRegistry(String host, HttpNode root) {
         if (host.contains("/")) {
             throw new IllegalArgumentException(host);
         }
         this.host = host;
-        this.username = username;
-        this.password = password;
         this.root = root;
-
-        this.authRepository = null;
-        this.authToken = null;
     }
 
     /** @return list of repositories */
@@ -145,7 +131,7 @@ public class DockerRegistry extends Registry {
     }
 
     // TODO: returns 202 and does not actually remove the tag
-    public void deleteTagByDigest(String repository, String digest) throws IOException {
+    private void deleteTagByDigest(String repository, String digest) throws IOException {
         try {
             Method.delete(withV2Header(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + digest))));
         } catch (StatusException e) {
