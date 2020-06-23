@@ -404,7 +404,7 @@ public class Server {
 
     //--
 
-    public Registry createRegistry(Engine engine) throws IOException {
+    public Registry createRegistry() throws IOException {
         String url;
 
         url = Strings.removeRight(configuration.registryUrl(), "/");

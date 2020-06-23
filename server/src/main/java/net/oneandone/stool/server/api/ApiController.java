@@ -89,7 +89,7 @@ public class ApiController {
         Registry registry;
 
         try (Engine engine = engine()) {
-            registry = server.createRegistry(engine);
+            registry = server.createRegistry();
             result = new JsonObject();
             result.addProperty("version", Main.versionString(World.createMinimal() /* TODO */));
             result.addProperty("memory-quota", server.configuration.memoryQuota == 0
@@ -132,7 +132,7 @@ public class ApiController {
         result = new JsonArray();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            context = new Context(engine, server.createRegistry(engine));
+            context = new Context(engine, server.createRegistry());
             for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
                 result.add(new JsonPrimitive(stage.getName()));
             }
@@ -152,7 +152,7 @@ public class ApiController {
         result = new JsonObject();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            context = new Context(engine, server.createRegistry(engine));
+            context = new Context(engine, server.createRegistry());
             for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
                 select = "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr);
                 obj = new JsonObject();
@@ -209,7 +209,7 @@ public class ApiController {
 
         result = new JsonObject();
         try (Engine engine = engine()) {
-            context = new Context(engine, server.createRegistry(engine));
+            context = new Context(engine, server.createRegistry());
             for (Property property : server.load(stage).properties()) {
                 result.add(property.name(), new JsonPrimitive(property.get(context)));
             }
@@ -230,7 +230,7 @@ public class ApiController {
         arguments = map(request, "");
         result = new JsonObject();
         try (Engine engine = engine()) {
-            context = new Context(engine, server.createRegistry(engine));
+            context = new Context(engine, server.createRegistry());
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
                 prop = stage.propertyOpt(entry.getKey());
                 if (prop == null) {
@@ -265,7 +265,7 @@ public class ApiController {
         }
         result = new JsonObject();
         try (Engine engine = engine()) {
-            context = new Context(engine, server.createRegistry(engine));
+            context = new Context(engine, server.createRegistry());
             for (Info info : server.load(stage).fields()) {
                 if (selection == null || selection.remove(info.name())) {
                     result.add(info.name(), new JsonPrimitive(info.getAsString(context)));
@@ -283,7 +283,7 @@ public class ApiController {
         List<String> output;
 
         try (Engine engine = engine()) {
-            output = new Validation(server, engine, server.createRegistry(engine)).run(stage, email, repair);
+            output = new Validation(server, engine, server.createRegistry()).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }
@@ -301,7 +301,7 @@ public class ApiController {
         Registry registry;
 
         try (Engine engine = engine()) {
-            registry = server.createRegistry(engine);
+            registry = server.createRegistry();
             result = new ArrayList<>();
             stage = server.load(name);
             all = stage.images(registry);
@@ -341,7 +341,7 @@ public class ApiController {
         environment = map(request, "env.");
         global = server.configuration.diskQuota;
         try (Engine engine = engine()) {
-            registry = server.createRegistry(engine);
+            registry = server.createRegistry();
             if (global != 0) {
                 reserved = server.diskQuotaReserved(engine, registry);
                 if (reserved > global) {
@@ -368,7 +368,7 @@ public class ApiController {
         Stage stage;
 
         try (Engine engine = engine()) {
-            registry = server.createRegistry(engine);
+            registry = server.createRegistry();
             stage = server.load(stageName);
             stage.awaitStartup(new Context(engine, registry));
 
@@ -392,7 +392,7 @@ public class ApiController {
     @PostMapping("/stages/{stage}/stop")
     public String stop(@PathVariable(value = "stage") String stage) throws IOException {
         try (Engine engine = engine()) {
-            return json(server.load(stage).stop(engine, server.createRegistry(engine))).toString();
+            return json(server.load(stage).stop(engine, server.createRegistry())).toString();
         }
     }
 
@@ -436,7 +436,7 @@ public class ApiController {
 
         stage = server.load(stageName);
         try (Engine engine = engine()) {
-            current = stage.currentOpt(engine, server.createRegistry(engine));
+            current = stage.currentOpt(engine, server.createRegistry());
         }
         if (current == null || current.pod.containerId == null) {
             throw new ArgumentException("stage is not running: " + stageName);
@@ -484,7 +484,7 @@ public class ApiController {
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
         try (Engine engine = engine()) {
-            server.load(stage).remove(engine, server.createRegistry(engine));
+            server.load(stage).remove(engine, server.createRegistry());
         }
     }
 
