@@ -20,20 +20,21 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Strings;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RegistryIT {
     private static final World WORLD;
@@ -102,37 +103,51 @@ public class RegistryIT {
 
     @Test
     public void portus() throws IOException {
-        String repository;
+        String imageName;
+        URI registryUri;
         Registry registry;
+        Writer log;
         Properties p;
-        List<String> tags;
+        String registryPrefix;
+        String repository;
 
         p = testProperties();
 
-        repository = get(p, "test.repository");
-        registry = PortusRegistry.create(WORLD, Strings.removeRight(get(p, "portus"), "/"), "target/portus-wire.log");
-        tags = registry.tags(repository);
-        System.out.println("tags: " + tags);
-        System.out.println("info: " + registry.info(repository, tags.get(0)));
-        System.out.println("v1 tags: " + registry.tags("6"));
-    }
-
-    @Ignore // TODO
-    public void portusDelete() throws IOException {
-        String repository;
-        Registry registry;
-        Properties p;
-        List<String> tags;
-
-        p = testProperties();
-
-        repository = "cisoops-public/waterloo/app.foo";
-        registry = PortusRegistry.create(WORLD, get(p, "portus"), "target/portus-wire.log");
-        tags = registry.tags(repository);
-        System.out.println("tags: " + tags);
-        registry.deleteRepository(repository);
-        tags = registry.tags(repository);
-        System.out.println("tags: " + tags);
+        registryUri = URI.create(get(p, "portus") + "it-todo"); // TODO: include hostname in prefix
+        registryPrefix = registryUri.getHost() + registryUri.getPath();
+        repository = registryPrefix.substring(registryPrefix.indexOf('/') + 1) + "/registrytest";
+        log = new StringWriter();
+        try (Daemon docker = Daemon.create(/* "target/registry-wire.log" */ null)) {
+            registry = PortusRegistry.create(WORLD, registryUri.toString(), "target/portus-wire.log");
+            try {
+                registry.deleteRepository(repository);
+            } catch (PortusRegistry.RepositoryNotFoundException e) {
+                // ok
+            }
+            assertEquals(0, registry.tags(repository).size());
+            imageName = registryPrefix + "/registrytest:1";
+            docker.imageBuild(imageName, Collections.emptyMap(),
+                    Strings.toMap("label1", "value1", "xyz", "123"),
+                    dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
+                    false, log);
+            try {
+                assertEquals(Arrays.asList(), registry.tags(repository));
+                docker.imagePush(imageName);
+                try { // TODO
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                assertTrue(registry.catalog().contains(repository));
+                assertEquals(Arrays.asList("1"), registry.tags(repository));
+                assertEquals("1", registry.info(repository, "1").tag);
+                registry.deleteRepository(repository);
+                assertEquals(Arrays.asList(), registry.tags(repository));
+                assertFalse(registry.catalog().contains(repository));
+            } finally {
+                docker.imageRemove(imageName, false);
+            }
+        }
     }
 
     private static String get(Properties p, String key) throws IOException {

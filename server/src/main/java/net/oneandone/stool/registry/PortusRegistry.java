@@ -42,20 +42,20 @@ import java.util.Map;
  * Registry implementation with Portus API http://port.us.org/docs/API.html.
  */
 public class PortusRegistry extends Registry {
-    public static PortusRegistry create(World world, String portus, String wirelog) throws NodeInstantiationException {
+    public static PortusRegistry create(World world, String uri, String wirelog) throws NodeInstantiationException {
         HttpNode root;
         String ui;
         int idx;
         String username;
         String password;
 
-        root = (HttpNode) world.validNode(portus);
+        root = (HttpNode) world.validNode(uri);
         ui = root.getRoot().getUserInfo();
         if (ui == null) {
-            throw new IllegalArgumentException("missing credentials: " + portus);
+            throw new IllegalArgumentException("missing credentials: " + uri);
         }
         root.getRoot().setCredentials(null, null);
-        root = (HttpNode) world.node(root.getUri().resolve("/")); // TODO: work-around for sushi bug: does not reset auth header
+        root = (HttpNode) world.node(root.getUri().resolve("/")); // TODO: work-around for sushi bug: does not reset auth header  TODO: removes path from uri
         idx = ui.indexOf(':');
         username = ui.substring(0, idx);
         password = ui.substring(idx + 1);
@@ -95,10 +95,13 @@ public class PortusRegistry extends Registry {
 
     /** @return list of repositories */
     public List<String> catalog() throws IOException {
-        JsonObject result;
+        List<String> result;
 
-        result = getJsonObject(root.join("v2/_catalog"));
-        return toList(result.get("repositories").getAsJsonArray());
+        result = new ArrayList<>();
+        for (JsonElement element : portusRepositories()) {
+            result.add(element.getAsJsonObject().get("full_name").getAsString());
+        }
+        return result;
     }
 
     /** @return list of tags; empty list if repository does not exist */
@@ -182,6 +185,12 @@ public class PortusRegistry extends Registry {
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);
     }
 
+    public static class RepositoryNotFoundException extends IOException {
+        public RepositoryNotFoundException(String repository) {
+            super(repository);
+        }
+    }
+
     public void deleteRepository(String repository) throws IOException {
         Method.delete(root.join("api/v1/repositories").join(portusRepositoryId(repository)));
     }
@@ -197,7 +206,7 @@ public class PortusRegistry extends Registry {
 
         result = portusRepositoryIdOpt(repository);
         if (result == null) {
-            throw new IOException("repository not found: " + repository);
+            throw new RepositoryNotFoundException(repository);
         }
         return result;
     }

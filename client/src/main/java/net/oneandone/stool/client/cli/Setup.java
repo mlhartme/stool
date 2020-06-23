@@ -79,7 +79,7 @@ public class Setup {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        portus = URI.create(tmp.getProperty("portus"));
+        portus = URI.create(tmp.getProperty("portus") + (local ? LOCALHOST + "/" : "waterloo/"));
         portusPrefix = portus.getHost() + portus.getPath();
     }
 
