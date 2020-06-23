@@ -54,7 +54,7 @@ spec:
   serviceAccountName: stool-server
   containers:
   - name: stool-server
-    image: contargo.server.lan/cisoops-public/stool-server:snapshot-200525-085903-0705
+    image: contargo.server.lan/cisoops-public/stool-server:latest
     env:
     - name: HOST
       value: "caas.bs.kae.de.iplatform.1and1.org"
