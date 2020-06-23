@@ -42,7 +42,7 @@ import java.util.Map;
  * Registry implementation with Portus API http://port.us.org/docs/API.html.
  */
 public class PortusRegistry extends Registry {
-    public static PortusRegistry portus(World world, String portus, String wirelog) throws NodeInstantiationException {
+    public static PortusRegistry create(World world, String portus, String wirelog) throws NodeInstantiationException {
         HttpNode root;
         String ui;
         int idx;

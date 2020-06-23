@@ -47,7 +47,7 @@ public class RegistryIT {
     }
 
     @Test
-    public void localhost() throws IOException {
+    public void docker() throws IOException {
         final int registryPort = 5000;
         final String registryPrefix = "localhost:" + registryPort;
         String imageName;
@@ -110,7 +110,7 @@ public class RegistryIT {
         p = testProperties();
 
         repository = get(p, "test.repository");
-        registry = PortusRegistry.portus(WORLD, Strings.removeRight(get(p, "portus"), "/"), "target/portus-wire.log");
+        registry = PortusRegistry.create(WORLD, Strings.removeRight(get(p, "portus"), "/"), "target/portus-wire.log");
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
         System.out.println("info: " + registry.info(repository, tags.get(0)));
@@ -127,7 +127,7 @@ public class RegistryIT {
         p = testProperties();
 
         repository = "cisoops-public/waterloo/app.foo";
-        registry = PortusRegistry.portus(WORLD, get(p, "portus"), "target/portus-wire.log");
+        registry = PortusRegistry.create(WORLD, get(p, "portus"), "target/portus-wire.log");
         tags = registry.tags(repository);
         System.out.println("tags: " + tags);
         registry.deleteRepository(repository);

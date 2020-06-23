@@ -408,7 +408,7 @@ public class Server {
         String url;
 
         url = Strings.removeRight(configuration.registryUrl(), "/");
-        return PortusRegistry.portus(world, url, null);
+        return PortusRegistry.create(world, url, null);
     }
 
     /** @return path to generates certificate */
