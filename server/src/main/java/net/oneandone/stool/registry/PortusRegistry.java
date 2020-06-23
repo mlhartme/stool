@@ -35,15 +35,11 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Docker Registry API https://docs.docker.com/registry/spec/api/ and Portus API http://port.us.org/docs/API.html.
- *
- * I didn't find a way to query tag authors with Docker Registry API V2, so I hat to fall back to Portus' API :(
- * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
+ * Registry implementation with Portus API http://port.us.org/docs/API.html.
  */
 public class PortusRegistry extends Registry {
     public static PortusRegistry portus(World world, String portus, String wirelog) throws NodeInstantiationException {
@@ -218,11 +214,11 @@ public class PortusRegistry extends Registry {
         return null;
     }
 
-    public JsonArray portusTags(String repositoryId) throws IOException {
+    private JsonArray portusTags(String repositoryId) throws IOException {
         return getJson(root.join("api/v1/repositories/" + repositoryId + "/tags")).getAsJsonArray();
     }
 
-    public JsonObject portusTag(String portusRepositoryId, String tag) throws IOException {
+    private JsonObject portusTag(String portusRepositoryId, String tag) throws IOException {
         JsonObject result;
 
         for (JsonElement element : portusTags(portusRepositoryId)) {
@@ -270,45 +266,5 @@ public class PortusRegistry extends Registry {
             }
             throw e;
         }
-    }
-
-    private static List<String> toList(JsonArray array) {
-        List<String> result;
-
-        result = new ArrayList<>(array.size());
-        for (JsonElement element : array) {
-            result.add(element.getAsString());
-        }
-        return result;
-    }
-
-    private static Map<String, String> toMap(JsonObject object) {
-        Map<String, String> result;
-
-        result = new LinkedHashMap<>(object.size());
-        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return result;
-    }
-
-    private static String getArgument(String header, String arg) throws IOException {
-        int idx;
-        int len;
-        int end;
-
-        idx = header.indexOf(arg);
-        if (idx == -1) {
-            throw new IOException("argument '" + arg + "' not found in header: " + header);
-        }
-        len = arg.length();
-        if (header.indexOf("=\"", idx + len) != idx + len) {
-            throw new IOException("argument '" + arg + "' not properly quoted: " + header);
-        }
-        end = header.indexOf('"', idx + len + 2);
-        if (end == -1) {
-            throw new IOException("argument '" + arg + "' not terminated: " + header);
-        }
-        return header.substring(idx + len + 2, end);
     }
 }

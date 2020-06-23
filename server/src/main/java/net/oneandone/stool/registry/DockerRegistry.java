@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.registry;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -32,14 +31,11 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Docker Registry API https://docs.docker.com/registry/spec/api/ and Portus API http://port.us.org/docs/API.html.
- *
- * I didn't find a way to query tag authors with Docker Registry API V2, so I hat to fall back to Portus' API :(
+ * Registry implementation with Docker Registry V2 API https://docs.docker.com/registry/spec/api/
  * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
 public class DockerRegistry extends Registry {
@@ -78,13 +74,9 @@ public class DockerRegistry extends Registry {
         JsonObject result;
         JsonElement tags;
 
-        result = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/tags/list")));
+        result = getJsonObject(root.join("v2/" + repository + "/tags/list"));
         tags = result.get("tags");
         return tags.isJsonNull() ? new ArrayList<>() : toList(tags.getAsJsonArray());
-    }
-
-    private HttpNode repositoryAuth(String repository, HttpNode node) throws IOException {
-        return node;
     }
 
     public TagInfo info(PodInfo pod) throws IOException {
@@ -113,7 +105,7 @@ public class DockerRegistry extends Registry {
 
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
-        info = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/blobs/" + digest)));
+        info = getJsonObject(root.join("v2/" + repository + "/blobs/" + digest));
         // TODO
         created = null;
         author = null;
@@ -133,7 +125,7 @@ public class DockerRegistry extends Registry {
     // TODO: returns 202 and does not actually remove the tag
     private void deleteTagByDigest(String repository, String digest) throws IOException {
         try {
-            Method.delete(withV2Header(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + digest))));
+            Method.delete(withV2Header(root.join("v2/" + repository + "/manifests/" + digest)));
         } catch (StatusException e) {
             if (e.getStatusLine().code == 202) {
                 System.out.println("removed " + e.getStatusLine()); // TODO
@@ -146,7 +138,7 @@ public class DockerRegistry extends Registry {
     }
 
     private JsonObject manifest(String repository, String tag) throws IOException {
-        return getJsonObject(withV2Header(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + tag))));
+        return getJsonObject(withV2Header(root.join("v2/" + repository + "/manifests/" + tag)));
     }
 
     private HttpNode withV2Header(HttpNode node) {
@@ -181,45 +173,5 @@ public class DockerRegistry extends Registry {
             }
             throw e;
         }
-    }
-
-    private static List<String> toList(JsonArray array) {
-        List<String> result;
-
-        result = new ArrayList<>(array.size());
-        for (JsonElement element : array) {
-            result.add(element.getAsString());
-        }
-        return result;
-    }
-
-    private static Map<String, String> toMap(JsonObject object) {
-        Map<String, String> result;
-
-        result = new LinkedHashMap<>(object.size());
-        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return result;
-    }
-
-    private static String getArgument(String header, String arg) throws IOException {
-        int idx;
-        int len;
-        int end;
-
-        idx = header.indexOf(arg);
-        if (idx == -1) {
-            throw new IOException("argument '" + arg + "' not found in header: " + header);
-        }
-        len = arg.length();
-        if (header.indexOf("=\"", idx + len) != idx + len) {
-            throw new IOException("argument '" + arg + "' not properly quoted: " + header);
-        }
-        end = header.indexOf('"', idx + len + 2);
-        if (end == -1) {
-            throw new IOException("argument '" + arg + "' not terminated: " + header);
-        }
-        return header.substring(idx + len + 2, end);
     }
 }
