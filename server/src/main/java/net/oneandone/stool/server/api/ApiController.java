@@ -501,7 +501,7 @@ public class ApiController {
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
         }
-        dir = stage.getLogs();
+        dir = stage.getLogs(); // TODO: application logs
         result = new JsonArray();
         for (FileNode file : dir.find("**/*")) {
             if (!file.isDirectory()) {

@@ -81,15 +81,11 @@ public class Stage {
     public final Server server;
     private final String name;
 
-    /** Former stage directorz, now stores logs. CAUTION: not thread safe */
-    private final FileNode logs;
-
     public final StageConfiguration configuration;
 
-    public Stage(Server server, String name, FileNode logs, StageConfiguration configuration) {
+    public Stage(Server server, String name, StageConfiguration configuration) {
         this.server = server;
         this.name = name;
-        this.logs = logs;
         this.configuration = configuration;
     }
 
@@ -97,13 +93,12 @@ public class Stage {
         return name;
     }
 
-    public String getRepository() {
-        return server.configuration.registryPath() + name;
+    public FileNode getLogs() {
+        return server.getLogs(); // TODO: that's not the application logs
     }
 
-    /** for application logs */
-    public FileNode getLogs() {
-        return logs;
+    public String getRepository() {
+        return server.configuration.registryPath() + name;
     }
 
     //-- fields and properties
@@ -746,7 +741,7 @@ public class Stage {
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.createdBy, image.faultProjects);
         }
-        innerRoot = logs.getWorld().file("/etc/fault/workspace");
+        innerRoot = server.getLogs().getWorld().file("/etc/fault/workspace");
         for (String project : image.faultProjects) {
             innerFile = innerRoot.join(project);
             if (innerFile.isDirectory()) {
@@ -835,7 +830,6 @@ public class Stage {
     public void remove(Engine engine, Registry registry) throws IOException {
         wipeResources(engine);
         wipeImages(registry);
-        getLogs().deleteTree();
     }
 
     //--

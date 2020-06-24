@@ -172,6 +172,10 @@ public class Server {
         this.sshDirectory = SshDirectory.create(world.file("/home/stool/.ssh"));
     }
 
+    public FileNode getLogs() {
+        return logRoot;
+    }
+
     /** @return last entry first; list may be empty because old log files are removed. */
     public List<AccessLogEntry> accessLog(String stage, int max, boolean modificationsOnly) throws IOException {
         AccessLogEntry entry;
@@ -272,7 +276,7 @@ public class Server {
         } catch (MkdirException e) {
             throw new StageExistsException();
         }
-        return new Stage(this, name, dir, new StageConfiguration());
+        return new Stage(this, name, new StageConfiguration());
     }
 
     //-- Stage access
@@ -285,7 +289,7 @@ public class Server {
         } catch (FileNotFoundException e) {
             throw new StageNotFoundException(name, e);
         }
-        return new Stage(this, name, stages, c);
+        return new Stage(this, name, c);
     }
 
     //--
