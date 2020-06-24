@@ -229,7 +229,7 @@ public class Server {
         for (FileNode directory : stages.list()) {
             if (StageConfiguration.file(directory).exists()) {
                 try {
-                    stage = load(directory);
+                    stage = load(directory.getName());
                 } catch (IOException e) {
                     problems.put(directory.getAbsolute(), e);
                     continue;
@@ -277,16 +277,12 @@ public class Server {
 
     //-- Stage access
 
-    public Stage load(FileNode stage) throws IOException {
-        return new Stage(this, stage, loadStageConfiguration(stage));
-    }
-
     public Stage load(String name) throws IOException {
         FileNode directory;
 
         directory = stages.join(name);
         if (directory.exists()) {
-            return load(directory);
+            return new Stage(this, directory, loadStageConfiguration(directory));
         } else {
             throw new StageNotFoundException(name);
         }
@@ -391,7 +387,7 @@ public class Server {
 
         reserved = 0;
         for (FileNode directory : stages.list()) {
-            stage = load(directory);
+            stage = load(directory.getName());
             current = stage.currentOpt(engine, registry);
             if (current != null) {
                 if (current.pod.containerId != null) {
