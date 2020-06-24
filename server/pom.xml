@@ -30,6 +30,11 @@
       <artifactId>client-java</artifactId>
       <version>8.0.0</version>
     </dependency>
+    <dependency><!-- TODO fabric8 xor kubernetes -->
+      <groupId>io.fabric8</groupId>
+      <artifactId>openshift-client</artifactId>
+      <version>4.10.2</version>
+    </dependency>
 
     <!-- spring core -->
     <dependency>
