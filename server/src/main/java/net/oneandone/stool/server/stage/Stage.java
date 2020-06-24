@@ -520,6 +520,9 @@ public class Stage {
     private String podName() {
         return name.replace('.', '-');
     }
+    private String certName() {
+        return podName() + "cert";
+    }
 
     private void wipeResources(Engine engine) throws IOException {
         String podName;
@@ -547,7 +550,7 @@ public class Stage {
                 // ok
             }
             try {
-                engine.configMapDelete(podName);
+                engine.configMapDelete(certName());
             } catch (FileNotFoundException e) {
                 // ok
             }
@@ -726,7 +729,7 @@ public class Stage {
         if (idx == -1) {
             throw new IllegalArgumentException(image.p12);
         }
-        result = Data.configMap(podName(), image.p12.substring(0, idx), true);
+        result = Data.configMap(certName(), image.p12.substring(0, idx), true);
         result.add(image.p12.substring(idx + 1), file.readBytes());
         return result;
     }

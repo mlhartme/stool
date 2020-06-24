@@ -43,7 +43,7 @@ public class StageConfiguration {
     }
 
     private static String configName(String n) {
-        return (n + "config").replace('.', '-');
+        return n.replace('.', '-');
     }
 
     //--
