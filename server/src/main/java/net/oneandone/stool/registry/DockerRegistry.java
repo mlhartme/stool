@@ -37,7 +37,7 @@ import java.util.Map;
 
 /**
  * Registry implementation with Docker Registry V2 API https://docs.docker.com/registry/spec/api/
- * I didn't find the official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
+ * I didn't find any official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
 public class DockerRegistry extends Registry {
     public static DockerRegistry create(HttpNode root) {
@@ -111,7 +111,7 @@ public class DockerRegistry extends Registry {
         manifest = manifest(repository, tag);
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
         info = getJsonObject(root.join("v2/" + repository + "/blobs/" + digest));
-        // TODO
+        // TODO: not available via docker registry api
         created = null;
         author = null;
         labels = toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
@@ -133,8 +133,6 @@ public class DockerRegistry extends Registry {
             Method.delete(withV2Header(root.join("v2/" + repository + "/manifests/" + digest)));
         } catch (StatusException e) {
             if (e.getStatusLine().code == 202) {
-                System.out.println("removed " + e.getStatusLine()); // TODO
-                // TODO
                 return;
             } else {
                 throw e;

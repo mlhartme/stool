@@ -86,6 +86,7 @@ public class MainIT {
         stool(working, "config", "-stage", stage, "comment=42");
         stool(working, "build",  "-v");
         stool(working, "images", "-stage", stage);
+        Thread.sleep(2000); // TODO: because portus needs a few cycles to make the new upload available
         stool(working, "start", "-v", "-stage", stage);
         stool(working, "validate", "-stage", stage);
         stool(working, "status", "-stage", stage);

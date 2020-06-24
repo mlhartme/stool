@@ -676,20 +676,8 @@ public class Stage {
         TagInfo image;
 
         all = images(registry);
-        // TODO: work-around for spradic MainIt start failures
-        for (int i = 0; true; i++) {
-            if (!all.isEmpty()) {
-                break;
-            }
-            if (i > 10) {
-                throw new ArgumentException("no image to start - did you build the stage?");
-            }
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                // fall-throug
-            }
-            all = images(registry);
+        if (all.isEmpty()) {
+            throw new ArgumentException("no image to start - did you build the stage?");
         }
         if (imageOpt == null) {
             image = all.get(all.size() - 1);
