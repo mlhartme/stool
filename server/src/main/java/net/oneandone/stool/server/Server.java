@@ -272,7 +272,7 @@ public class Server {
         } catch (MkdirException e) {
             throw new StageExistsException();
         }
-        return new Stage(this, dir, new StageConfiguration());
+        return new Stage(this, name, dir, new StageConfiguration());
     }
 
     //-- Stage access
@@ -285,7 +285,7 @@ public class Server {
         } catch (FileNotFoundException e) {
             throw new StageNotFoundException(name, e);
         }
-        return new Stage(this, stages.join(name), c);
+        return new Stage(this, name, stages, c);
     }
 
     //--

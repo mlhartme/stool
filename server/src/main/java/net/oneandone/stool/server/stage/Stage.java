@@ -81,15 +81,15 @@ public class Stage {
     public final Server server;
     private final String name;
 
-    /** CAUTION: not thread safe */
-    private final FileNode directory;
+    /** Former stage directorz, now stores logs. CAUTION: not thread safe */
+    private final FileNode logs;
 
     public final StageConfiguration configuration;
 
-    public Stage(Server server, FileNode directory, StageConfiguration configuration) {
+    public Stage(Server server, String name, FileNode logs, StageConfiguration configuration) {
         this.server = server;
-        this.name = directory.getName();
-        this.directory = directory;
+        this.name = name;
+        this.logs = logs;
         this.configuration = configuration;
     }
 
@@ -101,13 +101,9 @@ public class Stage {
         return server.configuration.registryPath() + name;
     }
 
-    public FileNode getDirectory() {
-        return directory;
-    }
-
     /** for application logs */
-    public FileNode logs() { // TODO: currently dead
-        return directory.join("logs");
+    public FileNode getLogs() {
+        return logs;
     }
 
     //-- fields and properties
@@ -745,13 +741,12 @@ public class Stage {
         }
 
         // same as hostLogRoot, but the path as needed inside the server:
-        logs().mkdirsOpt();
         result = Data.secrets(podName(), "/root/.fault");
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.createdBy, image.faultProjects);
         }
-        innerRoot = directory.getWorld().file("/etc/fault/workspace");
+        innerRoot = logs.getWorld().file("/etc/fault/workspace");
         for (String project : image.faultProjects) {
             innerFile = innerRoot.join(project);
             if (innerFile.isDirectory()) {
@@ -840,7 +835,7 @@ public class Stage {
     public void remove(Engine engine, Registry registry) throws IOException {
         wipeResources(engine);
         wipeImages(registry);
-        getDirectory().deleteTree();
+        getLogs().deleteTree();
     }
 
     //--

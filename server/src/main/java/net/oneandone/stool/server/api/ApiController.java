@@ -501,7 +501,7 @@ public class ApiController {
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
         }
-        dir = stage.logs();
+        dir = stage.getLogs();
         result = new JsonArray();
         for (FileNode file : dir.find("**/*")) {
             if (!file.isDirectory()) {
@@ -523,7 +523,7 @@ public class ApiController {
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
         }
-        resource = new FileSystemResource(stage.logs().join(file).toPath());
+        resource = new FileSystemResource(stage.getLogs().join(file).toPath());
         return new ResponseEntity<>(resource, HttpStatus.OK);
     }
 
