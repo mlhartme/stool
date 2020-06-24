@@ -46,7 +46,7 @@ public class ScheduledTask {
         Server.LOGGER.info("scheduled stage validation");
         try (Engine engine = Engine.create()) {
             registry = server.createRegistry();
-            for (Stage stage : server.listAll()) {
+            for (Stage stage : server.listAll(engine)) {
                 Server.LOGGER.info("validate " + stage.getName() + ":");
                 output = new Validation(server, engine, registry).run(stage.getName(), !server.configuration.mailHost.isEmpty(), true);
                 for (String line : output) {

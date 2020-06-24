@@ -20,8 +20,9 @@ import java.io.IOException;
 public class StageNotFoundException extends IOException {
     public final String stage;
 
-    public StageNotFoundException(String stage) {
+    public StageNotFoundException(String stage, Throwable cause) {
         super("stage not found: " + stage);
         this.stage = stage;
+        initCause(cause);
     }
 }

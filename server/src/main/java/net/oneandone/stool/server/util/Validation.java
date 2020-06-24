@@ -45,7 +45,7 @@ public class Validation {
         List<String> report;
         Stage stage;
 
-        stage = server.load(name);
+        stage = server.load(engine, name);
         report = new ArrayList<>();
         doRun(stage, report, repair);
         if (email && !report.isEmpty()) {

@@ -16,12 +16,11 @@
 package net.oneandone.stool.server.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.stool.kubernetes.Engine;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -32,14 +31,19 @@ public class StageConfiguration {
     public static final String NOTIFY_CREATED_BY = "@created-by";
     public static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
-    public static FileNode file(FileNode stage) {
-        return stage.join("config.json");
+    private static final String CONFIG_MAP_KEY = "config";
+
+    public static StageConfiguration load(Gson gson, Engine engine, String stageName) throws IOException {
+        String str;
+        StringReader reader;
+
+        str = engine.configMapRead(configName(stageName)).get(CONFIG_MAP_KEY);
+        reader = new StringReader(str);
+        return gson.fromJson(reader, StageConfiguration.class);
     }
 
-    public static StageConfiguration load(Gson gson, Node file) throws IOException {
-        try (Reader reader = file.newReader()) {
-            return gson.fromJson(reader, StageConfiguration.class);
-        }
+    private static String configName(String n) {
+        return (n + "config").replace('.', '-');
     }
 
     //--
@@ -65,10 +69,20 @@ public class StageConfiguration {
         this.environment = new HashMap<>();
     }
 
-    public void save(Gson gson, Node file) throws IOException {
-        try (Writer writer = file.newWriter()) {
-            gson.toJson(this, writer);
+    public void save(Gson gson, Engine engine, String stageName, boolean overwrite) throws IOException {
+        String configName;
+        StringWriter writer;
+        Map<String, String> map;
+
+        configName = configName(stageName);
+        if (overwrite) {
+            engine.configMapDelete(configName);
         }
+        writer = new StringWriter();
+        gson.toJson(this, writer);
+        map = new HashMap<>();
+        map.put(CONFIG_MAP_KEY, writer.toString());
+        engine.configMapCreate(configName, map);
     }
 
     //--

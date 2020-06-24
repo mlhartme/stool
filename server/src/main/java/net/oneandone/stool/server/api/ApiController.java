@@ -121,26 +121,26 @@ public class ApiController {
     @GetMapping("/stages")
     public String list(@RequestParam(value = "filter", required = false, defaultValue = "") String filter,
                        @RequestParam(value = "select", required = false, defaultValue = "") String select) throws IOException {
-        return select.isEmpty() ? legacyList(filter) : newList(filter, select);
+        try (Engine engine = engine()) {
+            return select.isEmpty() ? legacyList(engine, filter) : newList(filter, select);
+        }
     }
 
-    private String legacyList(String filter) throws IOException {
+    private String legacyList(Engine engine, String filter) throws IOException {
         JsonArray result;
         Map<String, IOException> problems;
         Context context;
 
         result = new JsonArray();
         problems = new HashMap<>();
-        try (Engine engine = engine()) {
-            context = new Context(engine, server.createRegistry());
-            for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
-                result.add(new JsonPrimitive(stage.getName()));
-            }
-            if (!problems.isEmpty()) {
-                throw new IOException("nested problems: " + problems);
-            }
-            return result.toString();
+        context = new Context(engine, server.createRegistry());
+        for (Stage stage : server.list(engine, new PredicateParser(context).parse(filter), problems)) {
+            result.add(new JsonPrimitive(stage.getName()));
         }
+        if (!problems.isEmpty()) {
+            throw new IOException("nested problems: " + problems);
+        }
+        return result.toString();
     }
     private String newList(String filter, String selectStr) throws IOException {
         JsonObject result;
@@ -153,7 +153,7 @@ public class ApiController {
         problems = new HashMap<>();
         try (Engine engine = engine()) {
             context = new Context(engine, server.createRegistry());
-            for (Stage stage : server.list(new PredicateParser(context).parse(filter), problems)) {
+            for (Stage stage : server.list(engine, new PredicateParser(context).parse(filter), problems)) {
                 select = "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr);
                 obj = new JsonObject();
                 result.add(stage.getName(), obj);
@@ -199,7 +199,9 @@ public class ApiController {
             }
             property.set(entry.getValue());
         }
-        stage.saveConfig();
+        try (Engine engine = engine()) {
+            stage.saveConfig(engine, false);
+        }
     }
 
     @GetMapping("/stages/{stage}/properties")
@@ -210,7 +212,7 @@ public class ApiController {
         result = new JsonObject();
         try (Engine engine = engine()) {
             context = new Context(engine, server.createRegistry());
-            for (Property property : server.load(stage).properties()) {
+            for (Property property : server.load(engine, stage).properties()) {
                 result.add(property.name(), new JsonPrimitive(property.get(context)));
             }
             return result.toString();
@@ -226,10 +228,10 @@ public class ApiController {
         JsonObject result;
         Context context;
 
-        stage = server.load(stageName);
-        arguments = map(request, "");
-        result = new JsonObject();
         try (Engine engine = engine()) {
+            stage = server.load(engine, stageName);
+            arguments = map(request, "");
+            result = new JsonObject();
             context = new Context(engine, server.createRegistry());
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
                 prop = stage.propertyOpt(entry.getKey());
@@ -245,7 +247,7 @@ public class ApiController {
                     throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
                 }
             }
-            stage.saveConfig();
+            stage.saveConfig(engine, true);
             return result.toString();
         }
     }
@@ -266,7 +268,7 @@ public class ApiController {
         result = new JsonObject();
         try (Engine engine = engine()) {
             context = new Context(engine, server.createRegistry());
-            for (Info info : server.load(stage).fields()) {
+            for (Info info : server.load(engine, stage).fields()) {
                 if (selection == null || selection.remove(info.name())) {
                     result.add(info.name(), new JsonPrimitive(info.getAsString(context)));
                 }
@@ -303,7 +305,7 @@ public class ApiController {
         try (Engine engine = engine()) {
             registry = server.createRegistry();
             result = new ArrayList<>();
-            stage = server.load(name);
+            stage = server.load(engine, name);
             all = stage.images(registry);
             current = stage.currentOpt(engine, registry);
             for (TagInfo image : all) {
@@ -349,7 +351,7 @@ public class ApiController {
                 }
             }
 
-            stage = server.load(stageName);
+            stage = server.load(engine, stageName);
             stage.checkExpired();
             stage.checkDiskQuota(engine, registry);
             return json(stage.start(engine, registry,
@@ -369,7 +371,7 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             registry = server.createRegistry();
-            stage = server.load(stageName);
+            stage = server.load(engine, stageName);
             stage.awaitStartup(new Context(engine, registry));
 
             if (stage.currentOpt(engine, registry) == null) {
@@ -392,7 +394,7 @@ public class ApiController {
     @PostMapping("/stages/{stage}/stop")
     public String stop(@PathVariable(value = "stage") String stage) throws IOException {
         try (Engine engine = engine()) {
-            return json(server.load(stage).stop(engine, server.createRegistry())).toString();
+            return json(server.load(engine, stage).stop(engine, server.createRegistry())).toString();
         }
     }
 
@@ -434,8 +436,8 @@ public class ApiController {
         Stage stage;
         Stage.Current current;
 
-        stage = server.load(stageName);
         try (Engine engine = engine()) {
+            stage = server.load(engine, stageName);
             current = stage.currentOpt(engine, server.createRegistry());
         }
         if (current == null || current.pod.containerId == null) {
@@ -469,12 +471,14 @@ public class ApiController {
         JsonArray result;
 
         result = new JsonArray();
-        entries = server.load(stage).accessLogAll(max);
-        for (AccessLogEntry entry : entries) {
-            result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
-            if (details) {
-                for (DetailsLogEntry detail : server.detailsLog(entry.clientInvocation)) {
-                    result.add(new JsonPrimitive("  " + detail.level + " " + detail.message));
+        try (Engine engine = engine()) {
+            entries = server.load(engine, stage).accessLogAll(max);
+            for (AccessLogEntry entry : entries) {
+                result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
+                if (details) {
+                    for (DetailsLogEntry detail : server.detailsLog(entry.clientInvocation)) {
+                        result.add(new JsonPrimitive("  " + detail.level + " " + detail.message));
+                    }
                 }
             }
         }
@@ -484,7 +488,7 @@ public class ApiController {
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
         try (Engine engine = engine()) {
-            server.load(stage).remove(engine, server.createRegistry());
+            server.load(engine, stage).remove(engine, server.createRegistry());
         }
     }
 
@@ -494,7 +498,9 @@ public class ApiController {
         FileNode dir;
         Stage stage;
 
-        stage = server.load(stageName);
+        try (Engine engine = engine()) {
+            stage = server.load(engine, stageName);
+        }
         dir = stage.logs();
         result = new JsonArray();
         for (FileNode file : dir.find("**/*")) {
@@ -514,7 +520,9 @@ public class ApiController {
         file = request.getRequestURI();
         file = Strings.removeLeft(file, request.getContextPath());
         file = Strings.removeLeft(file, "/api/stages/" + stageName + "/logs/");
-        stage = server.load(stageName);
+        try (Engine engine = engine()) {
+            stage = server.load(engine, stageName);
+        }
         resource = new FileSystemResource(stage.logs().join(file).toPath());
         return new ResponseEntity<>(resource, HttpStatus.OK);
     }

@@ -438,8 +438,8 @@ public class Stage {
         }
     }
 
-    public void saveConfig() throws IOException {
-        configuration.save(server.gson, StageConfiguration.file(directory));
+    public void saveConfig(Engine engine, boolean overwrite) throws IOException {
+        configuration.save(server.gson, engine, name, overwrite);
     }
 
     /** @return logins */

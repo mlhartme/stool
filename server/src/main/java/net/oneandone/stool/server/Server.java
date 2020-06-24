@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.mail.MessagingException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -221,35 +222,34 @@ public class Server {
 
     //-- Stage listings
 
-    public List<Stage> list(Predicate predicate, Map<String, IOException> problems) throws IOException {
+    public List<Stage> list(Engine engine, Predicate predicate, Map<String, IOException> problems) throws IOException {
         List<Stage> result;
         Stage stage;
 
         result = new ArrayList<>();
         for (FileNode directory : stages.list()) {
-            if (StageConfiguration.file(directory).exists()) {
+            if (directory.isDirectory()) {
                 try {
-                    stage = load(directory.getName());
+                    stage = load(engine, directory.getName());
                 } catch (IOException e) {
+                    e.printStackTrace();
                     problems.put(directory.getAbsolute(), e);
                     continue;
                 }
                 if (predicate.matches(stage)) {
                     result.add(stage);
                 }
-            } else {
-                // stage is being created, we're usually waiting the the checkout to complete
             }
         }
         return result;
     }
 
-    public List<Stage> listAll() throws IOException {
+    public List<Stage> listAll(Engine engine) throws IOException {
         List<Stage> result;
         Map<String, IOException> problems;
 
         problems = new HashMap<>();
-        result = list(new Predicate() {
+        result = list(engine, new Predicate() {
             @Override
             public boolean matches(Stage stage) {
                 return true;
@@ -277,19 +277,15 @@ public class Server {
 
     //-- Stage access
 
-    public Stage load(String name) throws IOException {
-        FileNode directory;
+    public Stage load(Engine engine, String name) throws IOException {
+        StageConfiguration c;
 
-        directory = stages.join(name);
-        if (directory.exists()) {
-            return new Stage(this, directory, loadStageConfiguration(directory));
-        } else {
-            throw new StageNotFoundException(name);
+        try {
+            c = StageConfiguration.load(gson, engine, name);
+        } catch (FileNotFoundException e) {
+            throw new StageNotFoundException(name, e);
         }
-    }
-
-    private StageConfiguration loadStageConfiguration(FileNode stage) throws IOException {
-        return StageConfiguration.load(gson, StageConfiguration.file(stage));
+        return new Stage(this, stages.join(name), c);
     }
 
     //--
@@ -334,7 +330,7 @@ public class Server {
         PodInfo pod;
 
         reserved = 0;
-        for (Stage stage : listAll()) {
+        for (Stage stage : listAll(engine)) {
             pod = stage.runningPodOpt(engine);
             if (pod != null) {
                 reserved += registry.info(pod).memory;
@@ -387,7 +383,7 @@ public class Server {
 
         reserved = 0;
         for (FileNode directory : stages.list()) {
-            stage = load(directory.getName());
+            stage = load(engine, directory.getName());
             current = stage.currentOpt(engine, registry);
             if (current != null) {
                 if (current.pod.containerId != null) {
