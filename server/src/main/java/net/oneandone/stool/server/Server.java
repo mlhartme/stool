@@ -35,7 +35,6 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.util.Predicate;
 import net.oneandone.stool.server.util.SshDirectory;
-import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -123,9 +122,7 @@ public class Server {
             world.resource("files/home/cert.sh").copyFile(dest);
             dest.setPermissions("rwx--x--x");
         }
-        for (String name : new String[] {"stages", "certs"}) {
-            home.join(name).mkdir();
-        }
+        home.join("certs").mkdir();
         home.join("version").writeString(version);
     }
 
@@ -150,8 +147,6 @@ public class Server {
     /** used read-only */
     public final ServerConfiguration configuration;
 
-    private final FileNode stages;
-
     public final UserManager userManager;
 
     public final Map<String, Accessor> accessors;
@@ -166,7 +161,6 @@ public class Server {
         this.logRoot = home.join("logs");
         this.localhostIp = localhostIp;
         this.configuration = configuration;
-        this.stages = home.join("stages");
         this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
         this.sshDirectory = SshDirectory.create(world.file("/home/stool/.ssh"));
@@ -231,18 +225,16 @@ public class Server {
         Stage stage;
 
         result = new ArrayList<>();
-        for (FileNode directory : stages.list()) {
-            if (directory.isDirectory()) {
-                try {
-                    stage = load(engine, directory.getName());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    problems.put(directory.getAbsolute(), e);
-                    continue;
-                }
-                if (predicate.matches(stage)) {
-                    result.add(stage);
-                }
+        for (String name : StageConfiguration.list(engine)) {
+            try {
+                stage = load(engine, name);
+            } catch (IOException e) {
+                e.printStackTrace();
+                problems.put(name, e);
+                continue;
+            }
+            if (predicate.matches(stage)) {
+                result.add(stage);
             }
         }
         return result;
@@ -267,17 +259,6 @@ public class Server {
 
     //-- Stage create
 
-
-    public Stage create(String name) throws StageExistsException {
-        FileNode dir;
-
-        try {
-            dir = stages.join(name).mkdir();
-        } catch (MkdirException e) {
-            throw new StageExistsException();
-        }
-        return new Stage(this, name, new StageConfiguration());
-    }
 
     //-- Stage access
 
@@ -386,8 +367,8 @@ public class Server {
         Stage.Current current;
 
         reserved = 0;
-        for (FileNode directory : stages.list()) {
-            stage = load(engine, directory.getName());
+        for (String name : StageConfiguration.list(engine)) {
+            stage = load(engine, name);
             current = stage.currentOpt(engine, registry);
             if (current != null) {
                 if (current.pod.containerId != null) {

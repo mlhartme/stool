@@ -21,6 +21,7 @@ import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
+import net.oneandone.stool.server.StageExistsException;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.kubernetes.Data;
@@ -34,6 +35,7 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
 
 import javax.management.AttributeNotFoundException;
@@ -429,8 +431,14 @@ public class Stage {
         }
     }
 
-    public void saveConfig(Engine engine, boolean overwrite) throws IOException {
-        configuration.save(server.gson, engine, name, overwrite);
+    public void saveConfig(Engine engine, boolean overwrite) throws IOException, StageExistsException {
+        try {
+            configuration.save(server.gson, engine, name, overwrite);
+        } catch (StatusException e) {
+            if (e.getStatusLine().code == 409) {
+                throw new StageExistsException();
+            }
+        }
     }
 
     /** @return logins */

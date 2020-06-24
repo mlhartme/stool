@@ -27,6 +27,7 @@ import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.StageExistsException;
 import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.registry.TagInfo;
@@ -184,23 +185,22 @@ public class ApiController {
         Stage stage;
         Property property;
 
-        try {
-            stage = server.create(name);
-        } catch (StageExistsException e) {
-            response.sendError(409 /* conflict */, "stage exists: " + name);
-            return;
-        }
-        config = map(request, "");
-        stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
-        for (Map.Entry<String, String> entry : config.entrySet()) {
-            property = stage.propertyOpt(entry.getKey());
-            if (property == null) {
-                throw new ArgumentException("unknown property: " + entry.getKey());
-            }
-            property.set(entry.getValue());
-        }
         try (Engine engine = engine()) {
-            stage.saveConfig(engine, false);
+            stage = new Stage(server, name, new StageConfiguration());
+            config = map(request, "");
+            stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
+            for (Map.Entry<String, String> entry : config.entrySet()) {
+                property = stage.propertyOpt(entry.getKey());
+                if (property == null) {
+                    throw new ArgumentException("unknown property: " + entry.getKey());
+                }
+                property.set(entry.getValue());
+            }
+            try {
+                stage.saveConfig(engine, false);
+            } catch (StageExistsException e) {
+                response.sendError(409 /* conflict */, "stage exists: " + name);
+            }
         }
     }
 
@@ -247,7 +247,11 @@ public class ApiController {
                     throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
                 }
             }
-            stage.saveConfig(engine, true);
+            try {
+                stage.saveConfig(engine, true);
+            } catch (StageExistsException e) {
+                throw new IllegalStateException(e);
+            }
             return result.toString();
         }
     }
