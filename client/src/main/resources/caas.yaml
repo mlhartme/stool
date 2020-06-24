@@ -13,20 +13,21 @@ spec:
   policyTypes:
     - Ingress
 ---
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: route.openshift.io/v1
+kind: Route
 metadata:
-  name: stool-ingress
+  name: stool-route
   namespace: stool
 spec:
-  rules:
-  - host: stool.caas.bs.kae.de.iplatform.1and1.org
-    http:
-     paths:
-     - path: /
-       backend:
-        serviceName: stool-server-http
-        servicePort: 80
+  host: stool.caas.bs.kae.de.iplatform.1and1.org
+  path: /
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: stool-server-http
 ---
 apiVersion: v1
 kind: Service
