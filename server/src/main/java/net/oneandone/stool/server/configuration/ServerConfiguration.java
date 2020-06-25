@@ -91,7 +91,7 @@ public class ServerConfiguration {
 
     public int defaultExpire;
 
-    // default environment for every container
+    // default environment for every stage
     public Map<String, String> environment;
 
     public ServerConfiguration() {

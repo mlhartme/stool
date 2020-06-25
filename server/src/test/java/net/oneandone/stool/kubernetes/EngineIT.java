@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotEquals;
 public class EngineIT {
     private static final World WORLD = World.createMinimal();
 
-    private Engine create() throws IOException {
+    private static Engine create() throws IOException {
         return Engine.create();
     }
 
@@ -44,7 +44,7 @@ public class EngineIT {
     public static void beforeClass() throws IOException {
         Engine engine;
 
-        engine = Engine.create();
+        engine = create();
         engine.namespaceReset();
     }
 
@@ -104,13 +104,13 @@ public class EngineIT {
         try (Engine engine = create()) {
             assertTrue(engine.podCreate("restart-pod", "debian:stretch-slim", false, new String[] { "sleep", "3"}));
         }
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = create()) {
             engine.podDelete("restart-pod");
         }
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = create()) {
             assertTrue(engine.podCreate("restart-pod", "debian:stretch-slim", false, new String[] { "sleep", "3"}));
         }
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = create()) {
             engine.podDelete("restart-pod");
         }
     }
