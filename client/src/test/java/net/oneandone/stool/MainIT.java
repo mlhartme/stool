@@ -104,6 +104,7 @@ public class MainIT {
 
         try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
             server = IT_ROOT.launcher("kubectl");
+            server.arg("--context=local");
             server.arg(cmd);
             log.write(server.toString() + "\n");
             server.exec(log);

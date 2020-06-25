@@ -28,12 +28,20 @@ public class OpenShift implements AutoCloseable {
     private final OpenShiftClient client;
     private final String namespace;
 
-    public OpenShift() {
+    public static OpenShift create(String context) {
         Config config;
 
-        config = Config.autoConfigure("caas"); // TODO
-        client = new DefaultOpenShiftClient(config);
-        namespace = client.getNamespace();
+        config = Config.autoConfigure(context);
+        return new OpenShift(new DefaultOpenShiftClient(config));
+    }
+
+    public static OpenShift create() {
+        return new OpenShift(new DefaultOpenShiftClient());
+    }
+
+    private OpenShift(OpenShiftClient client) {
+        this.client = client;
+        this.namespace = client.getNamespace();
     }
 
     @Override

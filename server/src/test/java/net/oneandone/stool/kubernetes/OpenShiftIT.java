@@ -26,7 +26,7 @@ public class OpenShiftIT {
     public void routes() {
         final String name = "testroute";
 
-        try (OpenShift os = new OpenShift()) {
+        try (OpenShift os = OpenShift.create("caas" /* TODO */)) {
             System.out.println(os.routeList());
             assertFalse(os.routeList().contains(name));
             os.routeCreate(name);

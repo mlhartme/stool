@@ -17,6 +17,8 @@ package net.oneandone.stool.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
@@ -66,17 +68,30 @@ public class Server {
         ServerConfiguration config;
         Server server;
         String localhostIp;
-
         version = Main.versionString(world);
         home = world.file("/var/lib/stool");
         home(version, home);
+        boolean openShift;
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
         try (Engine engine = Engine.create()) {
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), version, home, localhostIp, config);
+            try (OpenShift os = OpenShift.create()) {
+                try {
+                    os.routeList();
+                    openShift = true;
+                } catch (KubernetesClientException e) {
+                    if (e.getCode() == 404) {
+                        openShift = false;
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+            LOGGER.info("OpenShift: " + openShift);
+            server = new Server(gson(world), version, openShift, home, localhostIp, config);
             server.validate(engine);
             server.checkVersion();
             return server;
@@ -136,6 +151,8 @@ public class Server {
     /** CAUTION: not thread safe! Try to use engine.world instead */
     private final World world;
 
+    public final boolean openShift;
+
     /** CAUTION: not thread safe! */
     private final FileNode home;
 
@@ -153,10 +170,11 @@ public class Server {
 
     public final SshDirectory sshDirectory;
 
-    public Server(Gson gson, String version, FileNode home, String localhostIp, ServerConfiguration configuration) throws IOException {
+    public Server(Gson gson, String version, boolean openShift, FileNode home, String localhostIp, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.version = version;
         this.world = home.getWorld();
+        this.openShift = openShift;
         this.home = home;
         this.logRoot = home.join("logs");
         this.localhostIp = localhostIp;
