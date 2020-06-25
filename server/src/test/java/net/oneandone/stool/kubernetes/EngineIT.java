@@ -15,10 +15,6 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import io.fabric8.openshift.api.model.Route;
-import io.fabric8.openshift.api.model.RouteBuilder;
-import io.fabric8.openshift.client.DefaultOpenShiftClient;
-import io.fabric8.openshift.client.OpenShiftClient;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.sushi.fs.World;
@@ -30,7 +26,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -40,22 +35,6 @@ import static org.junit.Assert.assertNotEquals;
 
 public class EngineIT {
     private static final World WORLD = World.createMinimal();
-
-    public static void main(String[] args) {
-        Route newRoute;
-
-        try (OpenShiftClient client = new DefaultOpenShiftClient()) {
-            newRoute = new RouteBuilder()
-                    .withNewMetadata().withNamespace(client.getNamespace()).withName("mhm").endMetadata()
-                    .withNewSpec().withNewTo().withKind("Service").withName("stool-server-http").endTo().endSpec()
-                    .build();
-            client.routes().inNamespace(client.getNamespace()).create(newRoute);
-            List<Route> routes = client.routes().inNamespace(client.getNamespace()).list().getItems();
-            for (Route route : routes) {
-                System.out.println("route: " + route.getMetadata().getName() + " " + route.getSpec());
-            }
-        }
-    }
 
     private Engine create() throws IOException {
         return Engine.create();
