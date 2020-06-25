@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.stage;
 
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.registry.TagInfo;
@@ -542,7 +543,11 @@ public class Stage {
             }
             engine.serviceDelete(jmxServiceName());
             engine.serviceDelete(debugServiceName());
-            engine.ingressDelete(podName);
+            if (server.openShift) {
+                OpenShift.create().routeDelete(podName);
+            } else {
+                engine.ingressDelete(podName);
+            }
             try {
                 engine.secretDelete(podName);
             } catch (FileNotFoundException e) {
@@ -624,7 +629,11 @@ public class Stage {
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
         engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, POD_LABEL_STAGE, name);
         engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, POD_LABEL_STAGE, name);
-        engine.ingressCreate(podName, stageHost(), httpServiceName(), Ports.HTTP);
+        if (server.openShift) {
+            OpenShift.create().routeCreate(podName, stageHost(), httpServiceName(), Ports.HTTP);
+        } else {
+            engine.ingressCreate(podName, stageHost(), httpServiceName(), Ports.HTTP);
+        }
         if (!engine.podCreate(podName, image.repositoryTag, true, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {

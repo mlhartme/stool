@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.kubernetes;
 
+import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteBuilder;
@@ -49,12 +50,18 @@ public class OpenShift implements AutoCloseable {
         client.close();
     }
 
-    public void routeCreate(String name) {
+    public void routeCreate(String name, String host, String serviceName, int targetPort) {
         Route route;
 
         route = new RouteBuilder()
                 .withNewMetadata().withNamespace(namespace).withName(name).endMetadata()
-                .withNewSpec().withNewTo().withKind("Service").withName("stool-server-http").endTo().endSpec()
+                .withNewSpec()
+                   .withHost(host)
+                   .withPath("/")
+                   .withNewTo().withKind("Service").withName(serviceName).endTo()
+                   .withNewPort().withTargetPort(new IntOrString(targetPort)).endPort()
+                   .withNewTls().withTermination("edge").endTls()
+                .endSpec()
                 .build();
         client.routes().inNamespace(namespace).create(route);
     }

@@ -29,7 +29,7 @@ public class OpenShiftIT {
         try (OpenShift os = OpenShift.create("caas" /* TODO */)) {
             System.out.println(os.routeList());
             assertFalse(os.routeList().contains(name));
-            os.routeCreate(name);
+            os.routeCreate(name, "somehost", "someService", 80);
             assertTrue(os.routeList().contains(name));
             os.routeDelete(name);
         }
