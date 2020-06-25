@@ -37,7 +37,7 @@ public class EngineIT {
     private static final World WORLD = World.createMinimal();
 
     private static Engine create() throws IOException {
-        return Engine.create();
+        return Engine.create(WORLD, "local"); // TODO
     }
 
     @BeforeClass

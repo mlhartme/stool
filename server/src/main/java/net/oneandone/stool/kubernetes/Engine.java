@@ -54,12 +54,15 @@ import io.kubernetes.client.openapi.models.V1ServicePort;
 import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
+import io.kubernetes.client.util.KubeConfig;
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -110,6 +113,19 @@ public class Engine implements AutoCloseable {
     public static Engine create() throws IOException {
         // default client automatically detects inCluster config
         return new Engine(Config.defaultClient());
+    }
+
+    public static Engine create(World world, String context) throws IOException {
+        KubeConfig config;
+
+        try (Reader src = world.getHome().join(KubeConfig.KUBEDIR).join(KubeConfig.KUBECONFIG).newReader()) {
+            config = KubeConfig.loadKubeConfig(src);
+            if (!config.setContext(context)) {
+                throw new IllegalArgumentException(context);
+            }
+        }
+        // default client automatically detects inCluster config
+        return new Engine(Config.fromConfig(config));
     }
 
     private final ApiClient client;
