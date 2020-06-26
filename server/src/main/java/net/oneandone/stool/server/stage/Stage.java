@@ -546,7 +546,8 @@ public class Stage {
             if (server.openShift) {
                 OpenShift.create().routeDelete(podName);
             } else {
-                engine.ingressDelete(podName);
+                engine.ingressDelete(httpIngress());
+                engine.ingressDelete(httpsIngress());
             }
             try {
                 engine.secretDelete(podName);
@@ -632,7 +633,8 @@ public class Stage {
         if (server.openShift) {
             OpenShift.create().routeCreate(podName, stageHost(), httpServiceName(), Ports.HTTP);
         } else {
-            engine.ingressCreate(podName, stageHost(), httpServiceName(), Ports.HTTP);
+            engine.ingressCreate(httpIngress(), stageHost(), httpServiceName(), Ports.HTTP);
+            engine.ingressCreate(httpsIngress(), stageHost(), httpsServiceName(), Ports.HTTPS);
         }
         if (!engine.podCreate(podName, image.repositoryTag, true, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
@@ -651,6 +653,12 @@ public class Stage {
         return Strings.toMap(POD_LABEL_STAGE, name);
     }
 
+    public String httpIngress() {
+        return podName() + "http";
+    }
+    public String httpsIngress() {
+        return podName() + "https";
+    }
     public String httpServiceName() {
         return podName() + "http";
     }
