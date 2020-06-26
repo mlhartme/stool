@@ -540,7 +540,8 @@ public class Stage {
             engine.serviceDelete(jmxServiceName());
             engine.serviceDelete(debugServiceName());
             if (server.openShift) {
-                OpenShift.create().routeDelete(podName);
+                OpenShift.create().routeDelete(httpRouteName());
+                OpenShift.create().routeDelete(httpsRouteName());
             } else {
                 engine.ingressDelete(appIngressName());
             }
@@ -627,8 +628,10 @@ public class Stage {
         engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, POD_LABEL_STAGE, name);
         engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, POD_LABEL_STAGE, name);
         if (server.openShift) {
-            OpenShift.create().routeCreate(podName, stageHost(), appServiceName(), Ports.HTTP);
+            OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, Ports.HTTP);
+            OpenShift.create().routeCreate(httpsRouteName(), stageHost(), appServiceName(), true, Ports.HTTPS);
         } else {
+            // TODO: does not map both ports ...
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
         }
         if (!engine.podCreate(podName, image.repositoryTag, true, null,
@@ -658,6 +661,12 @@ public class Stage {
         return Strings.toMap(POD_LABEL_STAGE, name);
     }
 
+    public String httpRouteName() {
+        return podName() + "http";
+    }
+    public String httpsRouteName() {
+        return podName() + "https";
+    }
     public String appIngressName() {
         return podName() + "ingress";
     }

@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteBuilder;
+import io.fabric8.openshift.api.model.RouteSpecBuilder;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 
@@ -50,20 +51,23 @@ public class OpenShift implements AutoCloseable {
         client.close();
     }
 
-    public void routeCreate(String name, String host, String serviceName, int targetPort) {
-        Route route;
+    public void routeCreate(String name, String host, String serviceName, boolean tlsPassthrough, int targetPort) {
+        RouteSpecBuilder spec;
+        RouteBuilder route;
 
+        spec = new RouteSpecBuilder()
+                .withHost(host)
+                .withNewTo().withKind("Service").withName(serviceName).endTo()
+                .withNewPort().withTargetPort(new IntOrString(targetPort)).endPort();
+        if (tlsPassthrough) {
+            spec.withNewTls().withTermination("passthrough").endTls();
+        } else {
+            spec.withPath("/");
+        }
         route = new RouteBuilder()
                 .withNewMetadata().withNamespace(namespace).withName(name).endMetadata()
-                .withNewSpec()
-                   .withHost(host)
-                   .withPath("/")
-                   .withNewTo().withKind("Service").withName(serviceName).endTo()
-                   .withNewPort().withTargetPort(new IntOrString(targetPort)).endPort()
-                   .withNewTls().withTermination("edge").endTls()
-                .endSpec()
-                .build();
-        client.routes().inNamespace(namespace).create(route);
+                .withSpec(spec.build());
+        client.routes().inNamespace(namespace).create(route.build());
     }
 
     public void routeDelete(String name) {

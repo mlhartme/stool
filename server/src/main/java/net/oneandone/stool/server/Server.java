@@ -91,7 +91,7 @@ public class Server {
                 }
             }
             LOGGER.info("OpenShift: " + openShift);
-            server = new Server(gson(world), version, false /* TODO */, home, localhostIp, config);
+            server = new Server(gson(world), version, openShift, home, localhostIp, config);
             server.validate(engine);
             server.checkVersion();
             return server;

@@ -29,7 +29,6 @@ import io.kubernetes.client.openapi.apis.ExtensionsV1beta1Api;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1HTTPIngressPathBuilder;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1HTTPIngressRuleValueBuilder;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1IngressBuilder;
-import io.kubernetes.client.openapi.models.ExtensionsV1beta1IngressTLS;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ConfigMapBuilder;
 import io.kubernetes.client.openapi.models.V1ConfigMapList;
