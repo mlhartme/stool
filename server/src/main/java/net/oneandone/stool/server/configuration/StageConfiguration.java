@@ -93,15 +93,19 @@ public class StageConfiguration {
         StringWriter writer;
         Map<String, String> map;
 
-        configName = configName(stageName);
         if (overwrite) {
-            engine.configMapDelete(configName);
+            delete(engine, stageName);
         }
+        configName = configName(stageName);
         writer = new StringWriter();
         gson.toJson(this, writer);
         map = new HashMap<>();
         map.put(CONFIG_MAP_KEY, writer.toString());
         engine.configMapCreate(configName, map);
+    }
+
+    public static void delete(Engine engine, String stageName) throws IOException {
+        engine.configMapDelete(configName(stageName));
     }
 
     //--

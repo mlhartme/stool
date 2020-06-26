@@ -526,28 +526,23 @@ public class Stage {
 
     private void wipeResources(Engine engine) throws IOException {
         String podName;
-        String httpService;
-        String httpsService;
+        String serviceName;
 
         podName = podName();
-        httpService = httpServiceName();
-        httpsService = httpsServiceName();
-        if (engine.serviceGetOpt(httpService) != null) {
+        StageConfiguration.delete(engine, name);
+        serviceName = appServiceName();
+        if (engine.serviceGetOpt(serviceName) != null) {
             Server.LOGGER.debug("wipe kubernetes resources");
             if (engine.podProbe(podName) != null) {
                 engine.podDelete(podName);
             }
-            engine.serviceDelete(httpService);
-            if (engine.serviceGetOpt(httpsService) != null) {
-                engine.serviceDelete(httpsService);
-            }
+            engine.serviceDelete(serviceName);
             engine.serviceDelete(jmxServiceName());
             engine.serviceDelete(debugServiceName());
             if (server.openShift) {
                 OpenShift.create().routeDelete(podName);
             } else {
-                engine.ingressDelete(httpIngress());
-                engine.ingressDelete(httpsIngress());
+                engine.ingressDelete(appIngressName());
             }
             try {
                 engine.secretDelete(podName);
@@ -624,17 +619,17 @@ public class Stage {
             dataList.add(fault);
             fault.define(engine);
         }
-        engine.serviceCreate(httpServiceName(), Ports.HTTP, image.ports.http,
-                Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
-        engine.serviceCreate(httpsServiceName(), Ports.HTTPS, image.ports.https,
+        engine.serviceCreate(appServiceName(),
+                Strings.toList("http", "https"),
+                ports(Ports.HTTP, Ports.HTTPS),
+                ports(image.ports.http, image.ports.https),
                 Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
         engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, POD_LABEL_STAGE, name);
         engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, POD_LABEL_STAGE, name);
         if (server.openShift) {
-            OpenShift.create().routeCreate(podName, stageHost(), httpServiceName(), Ports.HTTP);
+            OpenShift.create().routeCreate(podName, stageHost(), appServiceName(), Ports.HTTP);
         } else {
-            engine.ingressCreate(httpIngress(), stageHost(), httpServiceName(), Ports.HTTP);
-            engine.ingressCreate(httpsIngress(), stageHost(), httpsServiceName(), Ports.HTTPS);
+            engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
         }
         if (!engine.podCreate(podName, image.repositoryTag, true, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
@@ -649,21 +644,25 @@ public class Stage {
         return image.tag;
     }
 
+    private static List<Integer> ports(int... ports) {
+        List<Integer> result;
+
+        result = new ArrayList<>(ports.length);
+        for (int port : ports) {
+            result.add(port);
+        }
+        return result;
+    }
+
     private Map<String, String> httpServiceLabels() {
         return Strings.toMap(POD_LABEL_STAGE, name);
     }
 
-    public String httpIngress() {
-        return podName() + "http";
+    public String appIngressName() {
+        return podName() + "ingress";
     }
-    public String httpsIngress() {
-        return podName() + "https";
-    }
-    public String httpServiceName() {
-        return podName() + "http";
-    }
-    public String httpsServiceName() {
-        return podName() + "https";
+    public String appServiceName() {
+        return podName() + "app";
     }
     public String jmxServiceName() {
         return podName() + "jmxmp";

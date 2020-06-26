@@ -25,18 +25,21 @@ public class ServiceInfo {
     public static ServiceInfo create(V1Service service) {
         String name;
         List<V1ServicePort> ports;
+        int port;
 
         name = service.getMetadata().getName();
         ports = service.getSpec().getPorts();
-        if (ports.size() != 1) {
-            throw new IllegalStateException(ports.toString());
+        if (ports.size() == 1) {
+            port = ports.get(0).getPort();
+        } else {
+            port = -1;
         }
-        return new ServiceInfo(name, service.getSpec().getClusterIP(), ports.get(0).getPort(), service.getMetadata().getLabels());
+        return new ServiceInfo(name, service.getSpec().getClusterIP(), port, service.getMetadata().getLabels());
     }
 
     public final String name;
     public final String clusterIp;
-    public final int port;
+    public final int port; // TODO: -1 for more than one port
     public final Map<String, String> labels;
 
     public ServiceInfo(String name, String clusterIp, int port, Map<String, String> labels) {

@@ -29,6 +29,7 @@ import io.kubernetes.client.openapi.apis.ExtensionsV1beta1Api;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1HTTPIngressPathBuilder;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1HTTPIngressRuleValueBuilder;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1IngressBuilder;
+import io.kubernetes.client.openapi.models.ExtensionsV1beta1IngressTLS;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ConfigMapBuilder;
 import io.kubernetes.client.openapi.models.V1ConfigMapList;
@@ -269,15 +270,32 @@ public class Engine implements AutoCloseable {
 
     public void serviceCreate(String name, int port, int targetPort, Map<String, String> selector, Map<String, String> labels)
             throws IOException {
+        serviceCreate(name, Collections.singletonList("p"), Collections.singletonList(port), Collections.singletonList(targetPort),
+                selector, labels);
+    }
+
+    public void serviceCreate(String name, List<String> portNames, List<Integer> ports, List<Integer> targetPorts, Map<String, String> selector, Map<String, String> labels)
+            throws IOException {
+        int count;
+        List<V1ServicePort> lst;
         V1ServicePort p;
 
-        p = new V1ServicePort();
-        p.setPort(port);
-        p.setTargetPort(new IntOrString(targetPort));
+        count = portNames.size();
+        if (count != ports.size() || count != targetPorts.size()) {
+            throw new IllegalArgumentException(count + " vs " + ports.size() + " vs " + targetPorts.size());
+        }
+        lst = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            p = new V1ServicePort();
+            p.setName(portNames.get(i));
+            p.setPort(ports.get(i));
+            p.setTargetPort(new IntOrString(targetPorts.get(i)));
+            lst.add(p);
+        }
         try {
             core.createNamespacedService(namespace, new V1ServiceBuilder()
                     .withNewMetadata().withName(name).withLabels(labels).endMetadata()
-                    .withNewSpec().withType("ClusterIP").withPorts(Collections.singletonList(p)).withSelector(selector).endSpec()
+                    .withNewSpec().withType("ClusterIP").withPorts(lst).withSelector(selector).endSpec()
                     .build(), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
@@ -325,7 +343,8 @@ public class Engine implements AutoCloseable {
         rule = rule.withPaths(path.build());
         ingress = new ExtensionsV1beta1IngressBuilder()
                 .withNewMetadata().withName(name).endMetadata()
-                .withNewSpec().addNewRule().withHost(host).withHttp(rule.build()).endRule().endSpec();
+                .withNewSpec()
+                   .addNewRule().withHost(host).withHttp(rule.build()).endRule().endSpec();
         try {
             extensions.createNamespacedIngress(namespace, ingress.build(), null, null, null);
         } catch (ApiException e) {
