@@ -524,12 +524,11 @@ public class Stage {
         return podName() + "cert";
     }
 
-    private void wipeResources(Engine engine) throws IOException {
+    private void wipeRunningResources(Engine engine) throws IOException {
         String podName;
         String serviceName;
 
         podName = podName();
-        StageConfiguration.delete(engine, name);
         serviceName = appServiceName();
         if (engine.serviceGetOpt(serviceName) != null) {
             Server.LOGGER.debug("wipe kubernetes resources");
@@ -596,7 +595,7 @@ public class Stage {
                     + "Consider stopping stages.");
         }
         memoryReserved += image.memory; // TODO
-        wipeResources(engine);
+        wipeRunningResources(engine);
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(configuration.environment);
         environment.putAll(clientEnvironment);
@@ -861,7 +860,8 @@ public class Stage {
     }
 
     public void remove(Engine engine, Registry registry) throws IOException {
-        wipeResources(engine);
+        StageConfiguration.delete(engine, name);
+        wipeRunningResources(engine);
         wipeImages(registry);
     }
 
