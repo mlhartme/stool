@@ -13,30 +13,30 @@ spec:
   policyTypes:
     - Ingress
 ---
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: route.openshift.io/v1
+kind: Route
 metadata:
-  name: stool-ingress
+  name: stool-https-route
   namespace: stool
 spec:
-  rules:
-    - host: stool.${host}
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: stool-server-http
-              servicePort: 80
+  host: stool.${host}
+  port:
+    targetPort: https
+  tls:
+    termination: passthrough
+  to:
+    kind: Service
+    name: stool-service
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: stool-server-http
+  name: stool-service
   namespace: stool
 spec:
   ports:
-    - name: http
-      port: 80
+    - name: https
+      port: 443
       targetPort: 8080
   selector:
     app: stool-server
@@ -55,11 +55,15 @@ spec:
   containers:
   - name: stool-server
     image: contargo.server.lan/cisoops-public/stool-server:latest
+    volumeMounts:
+      - mountPath: /usr/local/tomcat/conf/tomcat.p12
+        name: cert-volume
+        subPath: tomcat.p12
     env:
     - name: HOST
       value: "${host}"
     - name: OPTS
-      value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:31001"
+      value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:31001 -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true"
     - name: ENGINE_LOG
       value: "false"
     - name: VHOSTS
@@ -74,3 +78,11 @@ spec:
       value: "${portus}"
     - name: LOGLEVEL
       value: "INFO"
+  volumes:
+    - configMap:
+        defaultMode: 420
+        items:
+          - key: tomcat.p12
+            path: tomcat.p12
+        name: stool-cert
+      name: cert-volume
