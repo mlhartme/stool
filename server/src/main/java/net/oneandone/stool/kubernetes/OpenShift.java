@@ -51,7 +51,7 @@ public class OpenShift implements AutoCloseable {
         client.close();
     }
 
-    public void routeCreate(String name, String host, String serviceName, boolean tlsPassthrough, int targetPort) {
+    public void routeCreate(String name, String host, String serviceName, boolean tlsPassthrough, String targetPort) {
         RouteSpecBuilder spec;
         RouteBuilder route;
 

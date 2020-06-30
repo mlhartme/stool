@@ -627,8 +627,8 @@ public class Stage {
         engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, POD_LABEL_STAGE, name);
         engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, POD_LABEL_STAGE, name);
         if (server.openShift) {
-            OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, Ports.HTTP);
-            OpenShift.create().routeCreate(httpsRouteName(), stageHost(), appServiceName(), true, Ports.HTTPS);
+            OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, "http");
+            OpenShift.create().routeCreate(httpsRouteName(), stageHost(), appServiceName(), true, "https");
         } else {
             // TODO: does not map both ports ...
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
