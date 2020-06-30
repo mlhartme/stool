@@ -20,7 +20,7 @@ metadata:
   namespace: stool
 spec:
   rules:
-    - host: stool.caas.bs.kae.de.iplatform.1and1.org
+    - host: stool.${host}
       http:
         paths:
           - path: /
@@ -57,7 +57,7 @@ spec:
     image: contargo.server.lan/cisoops-public/stool-server:latest
     env:
     - name: HOST
-      value: "caas.bs.kae.de.iplatform.1and1.org"
+      value: "${host}"
     - name: OPTS
       value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:31001"
     - name: ENGINE_LOG
