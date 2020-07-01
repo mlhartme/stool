@@ -19,7 +19,7 @@ metadata:
   name: stool-https-route
   namespace: stool
 spec:
-  host: stool.${host}
+  host: ${host}
   port:
     targetPort: https
   tls:
