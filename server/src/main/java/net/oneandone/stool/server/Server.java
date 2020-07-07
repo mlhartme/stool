@@ -69,7 +69,6 @@ public class Server {
         Server server;
         String localhostIp;
         version = Main.versionString(world);
-        home = world.file("/var/lib/stool");
         boolean openShift;
 
         config = ServerConfiguration.load();
@@ -90,7 +89,7 @@ public class Server {
                 }
             }
             LOGGER.info("OpenShift: " + openShift);
-            server = new Server(gson(world), version, openShift, home, localhostIp, config);
+            server = new Server(gson(world), version, world, openShift, localhostIp, config);
             server.validate(engine);
             return server;
         }
@@ -125,12 +124,12 @@ public class Server {
 
     public final SshDirectory sshDirectory;
 
-    public Server(Gson gson, String version, boolean openShift, FileNode home, String localhostIp, ServerConfiguration configuration) throws IOException {
+    public Server(Gson gson, String version, World world, boolean openShift, String localhostIp, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.version = version;
-        this.world = home.getWorld();
+        this.world = world;
         this.openShift = openShift;
-        this.home = home;
+        this.home = world.file("/var/lib/stool").checkDirectory();
         this.logRoot = home.join("logs");
         this.localhostIp = localhostIp;
         this.configuration = configuration;
@@ -352,7 +351,7 @@ public class Server {
         FileNode file;
         FileNode tmp;
 
-        script = world.file("/var/lib/stool/cert.sh");
+        script = home.join("cert.sh");
         if (!script.isFile()) {
             throw new IOException("don't know how to generate certificate: " + script.getAbsolute());
         }

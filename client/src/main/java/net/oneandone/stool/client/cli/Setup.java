@@ -256,6 +256,7 @@ public class Setup {
         Configuration configuration;
 
         home.mkdir();
+        world.resource("files/home").copyDirectory(home);
         configuration = new Configuration(home.join("client.json"));
         for (Server s : environment.allServer()) {
             s.addTo(configuration);
@@ -263,7 +264,6 @@ public class Setup {
 
         configuration.setRegistryPrefix(portusPrefix);
         configuration.save(gson);
-        serverDir().mkdir();
         home.join("server.yaml").writeString(serverYaml());
         versionFile().writeString(Main.versionString(world));
     }
@@ -392,10 +392,6 @@ public class Setup {
 
     private static String hostip(String name) throws UnknownHostException {
         return InetAddress.getByName(name).getHostAddress();
-    }
-
-    public FileNode serverDir() {
-        return home.join("server");
     }
 
     public FileNode versionFile() {
