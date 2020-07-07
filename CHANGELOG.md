@@ -27,6 +27,7 @@
   * renamed `-project` option to `-working` and made it available for all stage commands, too
 
 * server
+  * Dockerfile: renamed env OPTS to env JAVA_OPTS
   * condiguration
     * dumped `vhosts` switch
     * dumped `portFirst` and `portLast` 

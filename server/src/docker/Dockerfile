@@ -21,8 +21,10 @@ ENV APP_PROPERTIES_PREFIX=stool.
 ENV JMX_USAGE="jconsole localhost:%s"
 ENV ENVIRONMENT=
 
-ENV OPTS=
+ENV JAVA_OPTS=
 
 COPY maven/*.jar /usr/local/bin/stool-server.jar
+COPY cert.sh /var/lib/stool/cert.sh
+RUN mkdir /var/lib/stool/certs
 
-CMD java $OPTS -jar /usr/local/bin/stool-server.jar
+CMD [ "java", "-jar", "/usr/local/bin/stool-server.jar" ]

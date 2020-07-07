@@ -70,7 +70,6 @@ public class Server {
         String localhostIp;
         version = Main.versionString(world);
         home = world.file("/var/lib/stool");
-        home(version, home);
         boolean openShift;
 
         config = ServerConfiguration.load();
@@ -93,52 +92,8 @@ public class Server {
             LOGGER.info("OpenShift: " + openShift);
             server = new Server(gson(world), version, openShift, home, localhostIp, config);
             server.validate(engine);
-            server.checkVersion();
             return server;
         }
-    }
-
-    //--
-
-    public static void home(String version, FileNode home) throws IOException {
-        FileNode homeVersionFile;
-        String was;
-
-        home.checkDirectory();
-        homeVersionFile = home.join("version");
-        if (homeVersionFile.isFile()) {
-            was = homeVersionFile.readString().trim();
-            if (was.equals(version)) {
-                Server.LOGGER.info("using server home: " + home);
-            } else {
-                if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
-                    throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
-                }
-                Server.LOGGER.info("minor version change " + was + " -> " + version + ": " + home);
-                homeVersionFile.writeString(version);
-                Server.LOGGER.info("version number updated");
-            }
-        } else {
-            Server.LOGGER.info("initializing server home " + home);
-            initializeHome(version, home);
-        }
-    }
-
-    private static void initializeHome(String version, FileNode home) throws IOException {
-        World world;
-        FileNode dest;
-
-        home.checkExists();
-        world = home.getWorld();
-        dest = home.join("cert.sh");
-        if (dest.exists()) {
-            // nothing to do -- cert.sh was probably set up by the server admins
-        } else {
-            world.resource("files/home/cert.sh").copyFile(dest);
-            dest.setPermissions("rwx--x--x");
-        }
-        home.join("certs").mkdir();
-        home.join("version").writeString(version);
     }
 
     //--
@@ -352,18 +307,6 @@ public class Server {
                 .create();
     }
 
-    public void checkVersion() throws IOException {
-        String homeVersion;
-        String binVersion;
-
-        homeVersion = home.join("version").readString().trim();
-        binVersion = Main.versionString(world);
-        if (!homeVersion.equals(binVersion)) {
-            throw new IOException("Cannot use home directory version " + homeVersion + " with Stool " + binVersion
-               + "\nTry 'stool setup'");
-        }
-    }
-
     public static String majorMinor(String version) {
         int major;
         int minor;
@@ -410,8 +353,8 @@ public class Server {
         FileNode tmp;
 
         script = world.file("/var/lib/stool/cert.sh");
-        if (script == null || !script.isFile()) {
-            throw new IOException("don't know how to generate certificate: " + script);
+        if (!script.isFile()) {
+            throw new IOException("don't know how to generate certificate: " + script.getAbsolute());
         }
         file = home.join("certs", certname);
         tmp = world.getTemp().createTempDirectory();  // fresh tmp directory to use the script for different stages concurrently
