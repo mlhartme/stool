@@ -953,21 +953,7 @@ There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all 
         |- version                   (client version that created this directory)
         |- shell.inc
         |- server.yaml               (docker-comppose file to start local server)
-        |- client.json               (client config - mostly the list of Stool servers to talk to)
-        '- server                    (empty if there's no local server)
-           |- version                (server version that created this directory)
-           |- config.json            (Stool configuration)
-           |- users.json             (only if authentication is enabled)
-           |- templates              (Docker templates; may be a symlink to a directory of your choice)
-           |- logs                   (Stool log files)
-           |  :
-           '- stages
-              |- name                (directory for the respective stage)
-              :  |- config.json      (stage configuration)
-                 |- context          (Docker build context of the last build)
-                 '- logs
-                      |- app1        (log file of appsrunning stage)
-                          :
+        '- client.json               (client config - mostly the list of Stool servers to talk to)
 
 ... of project directories
 
