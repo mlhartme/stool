@@ -1,6 +1,6 @@
 # Stool shell code
 
-__projectDir() {
+__scProjectDir() {
   local dir="$1"
   while [ "${dir}" != "/" ] ; do
     if [ -f "${dir}"/.backstage ] ; then
@@ -13,8 +13,8 @@ __projectDir() {
   return
 }
 
-__stageIndicator() {
-  local project=$(__projectDir $1)
+__scStageIndicator() {
+  local project=$(__scProjectDir $1)
   if [ -f "${project}/.backstage" ] ; then
       local id="$(grep = .backstage | cut -d = -f 1 | tr '\n' ' ')"
       id=${id%?}
@@ -26,15 +26,11 @@ __stageIndicator() {
   fi
 }
 
-__stageName() {
-  grep \"name\" "$1"/config.json | cut -d':' -f2 | cut -d'"' -f2
-}
-
 if [ -n "${ZSH_VERSION}" ] ; then
-    if [ -z "${STOOL_NO_PROMPT}" ] ; then
+    if [ -z "${SC_NO_PROMPT}" ] ; then
         __stoolPrompt() {
             local dir=$(pwd)
-            local indicator=$(__stageIndicator $dir)
+            local indicator=$(__scStageIndicator $dir)
             if [ -n "$indicator" ] ; then
                 echo $indicator
             fi
@@ -49,22 +45,22 @@ elif [ -n "${BASH_VERSION}" ] ; then
     # bash prompt
     #
 
-    if [ -z "${STOOL_NO_PROMPT}" ] ; then
-        if [ -z ${STOOL_OLD_PROMPT_COMMAND} ] ; then
-            export STOOL_OLD_PROMPT_COMMAND=${PROMPT_COMMAND}
+    if [ -z "${SC_NO_PROMPT}" ] ; then
+        if [ -z ${SC_OLD_PROMPT_COMMAND} ] ; then
+            export SC_OLD_PROMPT_COMMAND=${PROMPT_COMMAND}
             __stoolPromptUpdate() {
-                eval "${STOOL_OLD_PROMPT_COMMAND}"
+                eval "${SC_OLD_PROMPT_COMMAND}"
                 local dir=$(pwd)
                 if [ "x${dir}" != "x${__PROJECT_DIR}" ] ; then
                   # cwd has changed, update stage dir
                   export __PROJECT_DIR="$dir"
                 fi
-                if [ "x${STOOL_PS1}" = "x" ] ; then
+                if [ "x${SC_PS1}" = "x" ] ; then
                   # We're called for the first time: setup PS1.
                   # Note that we have to delay this setup until the first PROMPT_COMMAND invocation to give users a chance to customize
                   # PS1 settings (e.g. in their ~/.bashrc for interactive shells)
-                  export STOOL_PS1="${PS1}"
-                  PS1="\$(__stageIndicator \${__PROJECT_DIR})${STOOL_PS1}"
+                  export SC_PS1="${PS1}"
+                  PS1="\$(__scStageIndicator \${__PROJECT_DIR})${SC_PS1}"
                 # else
                 #   already initialized, nothing to do
                 fi
@@ -73,7 +69,7 @@ elif [ -n "${BASH_VERSION}" ] ; then
         # else
         #   Already initialized, do nothing
         #   CAUTION:
-        #   Initializing again would cause an infinite loop because __stoolPromptCommand calls itself ::stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
+        #   Initializing again would cause an infinite loop because __stoolPromptCommand calls itself ::stoolPromptCommand from $SC_OLD_PROMPT_COMMAND
         fi
     # else
     #   do nothing, the user does not want stool prompt
@@ -84,12 +80,12 @@ elif [ -n "${BASH_VERSION}" ] ; then
     # bash completion
     #
 
-    _stool_stageList() {
+    _sc_stageList() {
       # TODO
       echo none
     }
 
-    _stool_complete() {
+    _sc_complete() {
           local cur prev cmd
           local select_opts general_opts
           COMPREPLY=()
@@ -111,27 +107,27 @@ elif [ -n "${BASH_VERSION}" ] ; then
                 return 0
                 ;;
             status)
-                local stages=$(_stool_stageList)
+                local stages=$(_sc_stageList)
                 COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
                 return 0
                 ;;
             tunnel)
-                local stages=$(_stool_stageList)
+                local stages=$(_sc_stageList)
                 COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
                 return 0
                 ;;
             attach)
-                local stages=$(_stool_stageList)
+                local stages=$(_sc_stageList)
                 COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
                 return 0
                 ;;
             detach)
-                local stages=$(_stool_stageList)
+                local stages=$(_sc_stageList)
                 COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
                 return 0
                 ;;
             build)
-                local stages=$(_stool_stageList)
+                local stages=$(_sc_stageList)
                 COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
                 return 0
                 ;;
@@ -168,5 +164,5 @@ elif [ -n "${BASH_VERSION}" ] ; then
           return 0
     }
 
-    complete -F _stool_complete stool
+    complete -F _sc_complete stool
 fi

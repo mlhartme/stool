@@ -75,7 +75,7 @@ public class RegistryIT {
     }
 
     private static Properties testProperties() throws IOException {
-        return WORLD.getHome().join(".stool.properties").readProperties(); // TODO
+        return WORLD.getHome().join(".sc.properties").readProperties(); // TODO
     }
 
     @Test

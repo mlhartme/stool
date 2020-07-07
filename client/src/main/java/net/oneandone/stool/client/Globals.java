@@ -35,11 +35,11 @@ public class Globals {
         if (homeOpt != null) {
             home = homeOpt;
         } else {
-            str = System.getenv("STOOL_HOME");
+            str = System.getenv("SC_HOME");
             if (str != null) {
                 home = world.file(str);
             } else {
-                home = world.getHome().join(".stool");
+                home = world.getHome().join(".sc");
             }
         }
         return new Globals(console, world, home, UUID.randomUUID().toString(), command);

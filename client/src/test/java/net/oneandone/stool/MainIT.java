@@ -66,7 +66,7 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        stool("setup", "-batch", "-local");
+        sc("setup", "-batch", "-local");
 
         kubectl("delete", "--ignore-not-found", "-f", HOME.join("server.yaml").getAbsolute());
         kubectl("apply", "-f", HOME.join("server.yaml").getAbsolute());
@@ -75,27 +75,27 @@ public class MainIT {
 
         stage = "it@localhost";
 
-        stool(working, "list");
-        stool(working,"create", "-e", stage + "=target/*.war");
-        stool(working,"list");
-        stool(working,"status", "-stage", stage);
-        stool(working, "detach");
-        stool(working, "attach", stage + "=target/*.war");
-        stool(working, "validate", "-stage", stage);
-        stool(working, "config", "-stage", stage, "comment");
-        stool(working, "config", "-stage", stage, "comment=42");
-        stool(working, "build",  "-v");
-        stool(working, "images", "-stage", stage);
+        sc(working, "list");
+        sc(working,"create", "-e", stage + "=target/*.war");
+        sc(working,"list");
+        sc(working,"status", "-stage", stage);
+        sc(working, "detach");
+        sc(working, "attach", stage + "=target/*.war");
+        sc(working, "validate", "-stage", stage);
+        sc(working, "config", "-stage", stage, "comment");
+        sc(working, "config", "-stage", stage, "comment=42");
+        sc(working, "build",  "-v");
+        sc(working, "images", "-stage", stage);
         Thread.sleep(2000); // TODO: because portus needs a few cycles to make the new upload available
-        stool(working, "start", "-v", "-stage", stage);
-        stool(working, "validate", "-stage", stage);
-        stool(working, "status", "-stage", stage);
-        stool(working, "restart", "-v", "-stage", stage);
-        stool(working, "stop", "-v", "-stage", stage);
-        stool(working, "list", "-stage", stage);
-        stool(working, "validate", "-stage", stage);
-        stool(working, "history", "-stage", stage);
-        stool(working, "remove", "-stage", stage, "-batch");
+        sc(working, "start", "-v", "-stage", stage);
+        sc(working, "validate", "-stage", stage);
+        sc(working, "status", "-stage", stage);
+        sc(working, "restart", "-v", "-stage", stage);
+        sc(working, "stop", "-v", "-stage", stage);
+        sc(working, "list", "-stage", stage);
+        sc(working, "validate", "-stage", stage);
+        sc(working, "history", "-stage", stage);
+        sc(working, "remove", "-stage", stage, "-batch");
         working.deleteTree();
     }
 
@@ -112,7 +112,7 @@ public class MainIT {
     }
     private static int id = 0;
 
-    private void stool(FileNode working, String... args) throws IOException {
+    private void sc(FileNode working, String... args) throws IOException {
         String[] nested;
 
         nested = new String[2 + args.length];
@@ -120,9 +120,9 @@ public class MainIT {
         nested[1] = "-working";
         nested[2] = working.getAbsolute();
         System.arraycopy(args, 1, nested, 3, args.length - 1);
-        stool(nested);
+        sc(nested);
     }
-    private void stool(String... args) throws IOException {
+    private void sc(String... args) throws IOException {
         int result;
         String command;
 

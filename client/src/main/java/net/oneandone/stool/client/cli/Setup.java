@@ -75,7 +75,7 @@ public class Setup {
 
         try {
             // TODO
-            tmp = world.getHome().join(".stool.properties").readProperties();
+            tmp = world.getHome().join(".sc.properties").readProperties();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

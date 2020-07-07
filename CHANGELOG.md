@@ -2,6 +2,12 @@
 
 ### 6.0.0 (pending)
 
+* usable in parallel with stool 5
+  * meta
+    * `sc` stands for stool client; I've chosen this name because it's similar to `oc` and the `kc` alias I use
+  * client renamed to `sc`
+  * folder renamed to `~/.sc`
+  * STOOL_HOME renamed to SC_HOME
 * run server with Java 14
 * start server with kubectl, not docker-compose
 * move stool build to the client
