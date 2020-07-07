@@ -33,8 +33,7 @@ public class TagInfo implements Comparable<TagInfo> {
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
                 labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
-                created, labels.get(ImageInfo.IMAGE_LABEL_CREATED_BY), args(labels),
-                fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)));
+                created, args(labels), fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)));
     }
 
     private static Map<String, String> args(Map<String, String> labels) {
@@ -127,7 +126,6 @@ public class TagInfo implements Comparable<TagInfo> {
     public final String originScm;
     public final String originUser;
     public final LocalDateTime createdAt;
-    public final String createdBy;
     public final Map<String, String> args;
 
     /** maps relative host path to absolute container path */
@@ -136,7 +134,7 @@ public class TagInfo implements Comparable<TagInfo> {
     @SuppressWarnings("checkstyle:ParameterNumber")
     public TagInfo(String id, String repositoryTag, String tag, String author, Ports ports, String p12, int disk, int memory,
                    String urlContext, List<String> urlSuffixes, String comment, String originScm, String originUser,
-                   LocalDateTime createdAt, String createdBy, Map<String, String> args, List<String> faultProjects) {
+                   LocalDateTime createdAt, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
@@ -158,7 +156,6 @@ public class TagInfo implements Comparable<TagInfo> {
         this.originScm = originScm;
         this.originUser = originUser;
         this.createdAt = createdAt;
-        this.createdBy = createdBy;
         this.args = args;
         this.faultProjects = faultProjects;
     }

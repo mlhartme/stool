@@ -319,7 +319,7 @@ public class ApiController {
                 result.add("   origin-scm:  " + image.originScm);
                 result.add("   origin-user: " + image.originUser);
                 result.add("   created-at:  " + image.createdAt);
-                result.add("   created-by:  " + image.createdBy);
+                result.add("   created-by:  " + image.author);
                 result.add("   memory:      " + image.memory);
                 result.add("   disk:        " + image.disk);
                 result.add("   build args:");

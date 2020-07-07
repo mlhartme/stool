@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 
 public class App {
-    // TODO: per app configurable ...
     public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/stool.properties";
     public static final String PROPERTIES_PREFIX = "";
 

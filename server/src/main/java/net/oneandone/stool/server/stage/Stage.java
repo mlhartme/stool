@@ -771,7 +771,7 @@ public class Stage {
         result = Data.secrets(podName(), "/root/.fault");
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
-            server.checkFaultPermissions(image.createdBy, image.faultProjects);
+            server.checkFaultPermissions(image.author, image.faultProjects);
         }
         innerRoot = server.getLogs().getWorld().file("/etc/fault/workspace");
         for (String project : image.faultProjects) {

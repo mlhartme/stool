@@ -80,7 +80,6 @@ public class Context {
         return result;
     }
 
-    // TODO: always the same pool assumed
     public Map<String, String> urlMap(Stage stage) throws IOException {
         Map<String, String> result;
 

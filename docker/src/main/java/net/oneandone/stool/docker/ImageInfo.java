@@ -32,7 +32,6 @@ public class ImageInfo {
     public static final String IMAGE_LABEL_COMMENT = IMAGE_PREFIX + "comment";
     public static final String IMAGE_LABEL_ORIGIN_SCM = IMAGE_PREFIX + "origin-scm";
     public static final String IMAGE_LABEL_ORIGIN_USER = IMAGE_PREFIX + "origin-user";
-    public static final String IMAGE_LABEL_CREATED_BY = IMAGE_PREFIX + "created-by";
     public static final String IMAGE_LABEL_ARG_PREFIX = IMAGE_PREFIX + "arg.";
 
     public final String id;

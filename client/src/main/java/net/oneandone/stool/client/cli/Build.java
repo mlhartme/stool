@@ -134,7 +134,6 @@ public class Build extends ProjectCommand {
             labels.put(ImageInfo.IMAGE_LABEL_COMMENT, comment);
             labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_SCM, originScm);
             labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_USER, originUser);
-            labels.put(ImageInfo.IMAGE_LABEL_CREATED_BY, "TODO");
             for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
                 labels.put(ImageInfo.IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
             }
@@ -192,8 +191,8 @@ public class Build extends ProjectCommand {
         return result;
     }
 
-    private boolean hasContainer(Daemon engine, String repoTag) {
-        return false; // TODO
+    private boolean hasContainer(Daemon engine, String repoTag) throws IOException {
+        return engine.containerListForImage(repoTag).size() > 0;
     }
 
     public static String tag(String repositoryTag) {
