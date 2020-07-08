@@ -316,7 +316,7 @@ public class Setup {
         env = new LinkedHashMap<>();
         debugPort = Integer.toString(port + 1);
         addIfNew(env, "HOST", LOCALHOST);
-        addIfNew(env, "JAVA_OPTS", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + debugPort); // TODO: prefix port with :* when back zo Java 14
+        addIfNew(env, "OPTS", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + debugPort); // TODO: prefix port with :* when back zo Java 14
         for (Map.Entry<String, String> entry : opts.entrySet()) {
             addIfNew(env, entry.getKey(), entry.getValue());
         }
