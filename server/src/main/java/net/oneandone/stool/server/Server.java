@@ -64,7 +64,6 @@ public class Server {
 
     public static Server create(World world) throws IOException {
         String version;
-        FileNode home;
         ServerConfiguration config;
         Server server;
         String localhostIp;
