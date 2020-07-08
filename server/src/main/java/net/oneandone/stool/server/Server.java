@@ -72,7 +72,7 @@ public class Server {
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = Engine.createFromCluster()) {
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
             try (OpenShift os = OpenShift.create()) {

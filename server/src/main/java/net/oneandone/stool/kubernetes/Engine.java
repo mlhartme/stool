@@ -64,6 +64,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -110,9 +113,15 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public static Engine create() throws IOException {
+    public static Engine createFromCluster() throws IOException {
+        String namespace;
+
+        // see https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/
+        namespace = new String(Files.readAllBytes(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/namespace")),
+                StandardCharsets.UTF_8.name());
+        System.out.println("namespace: " + namespace);
         // default client automatically detects inCluster config
-        return new Engine(Config.defaultClient());
+        return new Engine(Config.fromCluster(), namespace);
     }
 
     public static Engine create(World world, String context) throws IOException {
@@ -125,7 +134,7 @@ public class Engine implements AutoCloseable {
             }
         }
         // default client automatically detects inCluster config
-        return new Engine(Config.fromConfig(config));
+        return new Engine(Config.fromConfig(config), config.getNamespace());
     }
 
     private final ApiClient client;
@@ -133,13 +142,13 @@ public class Engine implements AutoCloseable {
     private final ExtensionsV1beta1Api extensions;
     private final String namespace;
 
-    private Engine(ApiClient client) {
+    private Engine(ApiClient client, String namespace) {
         this.client = client;
         Configuration.setDefaultApiClient(client); // TODO: threading ...
         // client.setDebugging(true);
-        core = new CoreV1Api();
-        extensions = new ExtensionsV1beta1Api();
-        namespace = "stool";
+        this.core = new CoreV1Api();
+        this.extensions = new ExtensionsV1beta1Api();
+        this.namespace = namespace;
     }
 
     public void close() {
