@@ -119,7 +119,6 @@ public class Engine implements AutoCloseable {
         // see https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/
         namespace = new String(Files.readAllBytes(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/namespace")),
                 StandardCharsets.UTF_8.name());
-        System.out.println("namespace: " + namespace);
         // default client automatically detects inCluster config
         return new Engine(Config.fromCluster(), namespace);
     }
