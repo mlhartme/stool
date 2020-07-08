@@ -298,7 +298,7 @@ public class Setup {
         } else {
             map = new HashMap<>();
             map.put("portus", portus.toString());
-            map.put("host", "cp.waterloo.server.lan");
+            map.put("host", "cp.waterloo.server.lan"); // TODO
             result = world.resource("caas.yaml").readString();
             try {
                 return Substitution.ant().apply(result, map);
