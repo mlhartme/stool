@@ -47,13 +47,13 @@ public class Setup {
     private final Console console;
     private final String version;
     private final boolean batch;
-    private final boolean local;
+    private final String remote;
     private final Map<String, String> opts;
 
     private final URI portus;
     private final String portusPrefix;
 
-    public Setup(Globals globals, boolean batch, boolean local, List<String> opts) {
+    public Setup(Globals globals, boolean batch, String remote, List<String> opts) {
         int idx;
         Properties tmp;
 
@@ -63,7 +63,7 @@ public class Setup {
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.batch = batch;
-        this.local = local;
+        this.remote = remote;
         this.opts = new HashMap<>();
         for (String opt : opts) {
             idx = opt.indexOf('=');
@@ -79,7 +79,7 @@ public class Setup {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        portus = URI.create(tmp.getProperty("portus") + (local ? LOCALHOST + "/" : "waterloo/"));
+        portus = URI.create(tmp.getProperty("portus") + (remote == null ? LOCALHOST + "/" : "waterloo/")); // TODO
         portusPrefix = portus.getHost() + portus.getPath();
     }
 
@@ -101,8 +101,8 @@ public class Setup {
         if (batch) {
             throw new ArgumentException("-batch is not supported in update mode");
         }
-        if (local) {
-            throw new ArgumentException("-local is not supported in update mode");
+        if (remote == null) { // TODO: why?
+            throw new ArgumentException("local is not supported in update mode");
         }
         environment = updateEnvironment();
         environment = select(environment, true);
@@ -230,7 +230,7 @@ public class Setup {
         FileNode file;
         Configuration manager;
 
-        if (local) {
+        if (remote == null) {
             file = null;
         } else {
             file = cisotoolsEnvironment();
@@ -282,7 +282,7 @@ public class Setup {
         int port;
         Map<String, String> map;
 
-        if (local) {
+        if (remote == null) {
             result = world.resource("local.yaml").readString();
             cisotools = cisotools();
             port = serverPort();
@@ -298,7 +298,7 @@ public class Setup {
         } else {
             map = new HashMap<>();
             map.put("portus", portus.toString());
-            map.put("host", "cp.waterloo.server.lan"); // TODO
+            map.put("host", remote);
             result = world.resource("caas.yaml").readString();
             try {
                 return Substitution.ant().apply(result, map);

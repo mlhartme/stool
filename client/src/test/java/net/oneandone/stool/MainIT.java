@@ -66,7 +66,7 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        sc("setup", "-batch", "-local");
+        sc("setup", "-batch");
 
         kubectl("delete", "--ignore-not-found", "-f", HOME.join("server.yaml").getAbsolute());
         kubectl("apply", "-f", HOME.join("server.yaml").getAbsolute());
