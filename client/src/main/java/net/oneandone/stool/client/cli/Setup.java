@@ -57,7 +57,6 @@ public class Setup {
     private final String version;
     private final boolean batch;
     private final String nameAndHost;
-
     private final String registryPrefix;
 
     public Setup(Globals globals, String nameAndHost, boolean batch) {

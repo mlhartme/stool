@@ -64,10 +64,9 @@ public class Server {
     }
 
     public void run() throws IOException {
-        console.info.println("Creating " + dest);
         dest.checkNotExists();
         dest.writeString(serverYaml());
-
+        console.info.println("Created " + dest);
         console.info.println("You've enabled a local Stool server to host stages - start/stop it like this:");
         console.info.println("  kubectl apply -f " + dest.getAbsolute());
         console.info.println("  kubectl delete -f " + dest.getAbsolute());
