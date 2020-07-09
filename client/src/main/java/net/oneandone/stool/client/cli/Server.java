@@ -25,6 +25,7 @@ import net.oneandone.sushi.util.SubstitutionException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -105,6 +106,7 @@ public class Server {
             map = new HashMap<>();
             map.put("portus", portus.toString());
             map.put("host", hostname);
+            map.put("cert", cert(world));
             result = world.resource("caas.yaml").readString();
             try {
                 return Substitution.ant().apply(result, map);
@@ -112,6 +114,22 @@ public class Server {
                 throw new IllegalStateException(e);
             }
         }
+    }
+
+    private static String cert(World world) throws IOException {
+        FileNode puppet;
+        FileNode chain;
+        FileNode p12;
+
+        puppet = world.file(System.getenv("PUPPET_FILES_ROOT")).checkDirectory();
+        chain = world.getTemp().createTempFile();
+        p12 = world.getTemp().createTempFile();
+        chain.writeString(puppet.join("otherfiles/certificates/cp.waterloo.server.lan.crt").readString()
+                + puppet.join("otherfiles/certificates/ca/1und1PUKIIssuingCA2.pem"));
+        puppet.exec("openssl", "pkcs12", "-export", "-in", chain.getAbsolute(),
+                "-inkey", puppet.join("otherfiles/certificates/cp.waterloo.server.lan.key").getAbsolute(),
+                "-out", p12.getAbsolute(), "-name", "tomcat", "-passout", "pass:changeit");
+        return Base64.getEncoder().encodeToString(p12.readBytes());
     }
 
     public String env(FileNode cisotools, int port) {

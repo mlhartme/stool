@@ -27,6 +27,28 @@ spec:
     name: stool-service
 ---
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: stool-accout
+---
+apiVersion: authorization.openshift.io/v1
+kind: RoleBinding
+metadata:
+  name: stool-admin-binding
+roleRef:
+  name: admin
+subjects:
+  - kind: ServiceAccount
+    name: stool-accout
+---
+apiVersion: v1
+binaryData:
+  tomcat.p12: ${cert}
+kind: ConfigMap
+metadata:
+  name: stool-cert
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: stool-service
