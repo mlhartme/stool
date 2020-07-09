@@ -25,17 +25,9 @@ import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Substitution;
-import net.oneandone.sushi.util.SubstitutionException;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 public class Setup {
@@ -47,13 +39,12 @@ public class Setup {
     private final Console console;
     private final String version;
     private final boolean batch;
-    private final String remote;
-    private final Map<String, String> opts;
+    private final boolean local;
 
     private final URI portus;
     private final String portusPrefix;
 
-    public Setup(Globals globals, boolean batch, String remote, List<String> opts) {
+    public Setup(Globals globals, boolean batch, boolean local) {
         int idx;
         Properties tmp;
 
@@ -63,23 +54,14 @@ public class Setup {
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.batch = batch;
-        this.remote = remote;
-        this.opts = new HashMap<>();
-        for (String opt : opts) {
-            idx = opt.indexOf('=');
-            if (idx == -1) {
-                throw new ArgumentException("invalid option: " + opt);
-            }
-            this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
-        }
-
+        this.local = local;
         try {
             // TODO
             tmp = world.getHome().join(".sc.properties").readProperties();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        portus = URI.create(tmp.getProperty("portus") + (remote == null ? LOCALHOST + "/" : "waterloo/")); // TODO
+        portus = URI.create(tmp.getProperty("portus") + (local ? LOCALHOST + "/" : "waterloo/")); // TODO
         portusPrefix = portus.getHost() + portus.getPath();
     }
 
@@ -101,7 +83,7 @@ public class Setup {
         if (batch) {
             throw new ArgumentException("-batch is not supported in update mode");
         }
-        if (remote == null) { // TODO: why?
+        if (local) { // TODO: why?
             throw new ArgumentException("local is not supported in update mode");
         }
         environment = updateEnvironment();
@@ -219,7 +201,8 @@ public class Setup {
             add.load();
             for (Server s : add.allServer()) {
                 if (result.serverLookup(s.name) == null) {
-                    s.withEnabled(false).addTo(result);  // default to disabled, because hitting return for all servers must not change anything
+                    s.withEnabled(false).addTo(result);
+                    // default to disabled, because hitting return for all servers must not change anything
                 }
             }
         }
@@ -230,7 +213,7 @@ public class Setup {
         FileNode file;
         Configuration manager;
 
-        if (remote == null) {
+        if (local) {
             file = null;
         } else {
             file = cisotoolsEnvironment();
@@ -242,14 +225,6 @@ public class Setup {
             manager.add("localhost", true, "http://" + LOCALHOST + ":" + serverPort() + "/api", null);
         }
         return manager;
-    }
-
-    //--
-
-    public static void addIfNew(Map<String, String> env, String name, String value) {
-        if (!env.containsKey(name)) {
-            env.put(name, value);
-        }
     }
 
     public void doCreate(Configuration environment) throws IOException {
@@ -264,7 +239,6 @@ public class Setup {
 
         configuration.setRegistryPrefix(portusPrefix);
         configuration.save(gson);
-        home.join("server.yaml").writeString(serverYaml());
         versionFile().writeString(Main.versionString(world));
     }
 
@@ -274,106 +248,6 @@ public class Setup {
 
     public String version() throws IOException {
         return versionFile().readString().trim();
-    }
-
-    public String serverYaml() throws IOException {
-        String result;
-        FileNode cisotools;
-        int port;
-        Map<String, String> map;
-
-        if (remote == null) {
-            result = world.resource("local.yaml").readString();
-            cisotools = cisotools();
-            port = serverPort();
-            map = new HashMap<>();
-            map.put("env", env(cisotools, port));
-            map.put("mounts", mounts(cisotools));
-            map.put("volumes", volumes(cisotools));
-            try {
-                return Substitution.ant().apply(result, map);
-            } catch (SubstitutionException e) {
-                throw new IllegalStateException(e);
-            }
-        } else {
-            map = new HashMap<>();
-            map.put("portus", portus.toString());
-            map.put("host", remote);
-            result = world.resource("caas.yaml").readString();
-            try {
-                return Substitution.ant().apply(result, map);
-            } catch (SubstitutionException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-    }
-
-    public String env(FileNode cisotools, int port) {
-        Map<String, String> env;
-        StringBuilder builder;
-        String debugPort;
-
-        env = new LinkedHashMap<>();
-        debugPort = Integer.toString(port + 1);
-        addIfNew(env, "HOST", LOCALHOST);
-        addIfNew(env, "OPTS", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + debugPort); // TODO: prefix port with :* when back zo Java 14
-        for (Map.Entry<String, String> entry : opts.entrySet()) {
-            addIfNew(env, entry.getKey(), entry.getValue());
-        }
-        addIfNew(env, "ENGINE_LOG", "false"); // for engine wire logs
-        if (cisotools != null) {
-            addIfNew(env, "LDAP_UNIT", "cisostages");
-            addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
-            addIfNew(env, "ADMIN", "michael.hartmeier@ionos.com");
-            addIfNew(env, "REGISTRY_URL", portus.toString());
-        }
-        addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose
-        builder = new StringBuilder();
-        for (Map.Entry<String, String> entry : env.entrySet()) {
-            builder.append("      - name: " + entry.getKey() + "\n");
-            builder.append("        value: \"" + entry.getValue() + "\"\n");
-        }
-        return builder.toString();
-    }
-
-    public String mounts(FileNode cisotools) {
-        StringBuilder builder;
-
-        builder = new StringBuilder();
-        if (cisotools != null) {
-            addMount(builder, "fault-workspace", "/etc/fault/workspace", true);
-        }
-        return builder.toString();
-    }
-
-    public String volumes(FileNode cisotools) {
-        StringBuilder builder;
-
-        builder = new StringBuilder();
-        addVolume(builder, "stool-server", home.join("server").getAbsolute(), "Directory");
-        if (cisotools != null) {
-            addVolume(builder, "fault-workspace", world.getHome().join(".fault").getAbsolute(), "Directory");
-        }
-        return builder.toString();
-    }
-
-    private static void addMount(StringBuilder dest, String name, String path, boolean readOnly) {
-         dest.append("      - name: " + name + "\n");
-         dest.append("        mountPath: \"" + path + "\"\n");
-         dest.append("        readOnly: " + readOnly + "\n");
-    }
-
-    private static void addVolume(StringBuilder dest, String name, String path, String type) {
-        dest.append("    - name: " + name + "\n");
-        dest.append("      hostPath:\n");
-        dest.append("        path: \"" + path + "\"\n");
-        dest.append("        type: " + type + "\n");
-    }
-
-    private static void addSecretVolume(StringBuilder dest, String name) {
-        dest.append("    - name: " + name + "\n");
-        dest.append("      secret:\n");
-        dest.append("        secretName: \"" + name + "\"\n");
     }
 
     private FileNode cisotoolsEnvironment() throws FileNotFoundException, ExistsException {
@@ -388,10 +262,6 @@ public class Setup {
 
         path = System.getenv("CISOTOOLS_HOME");
         return path == null ? null : world.file(path);
-    }
-
-    private static String hostip(String name) throws UnknownHostException {
-        return InetAddress.getByName(name).getHostAddress();
     }
 
     public FileNode versionFile() {

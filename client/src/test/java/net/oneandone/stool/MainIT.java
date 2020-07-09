@@ -35,6 +35,7 @@ public class MainIT {
     private static final FileNode PROJECT_ROOT;
     private static final FileNode IT_ROOT;
     private static final FileNode HOME;
+    private static final FileNode SERVER_YAML;
 
     static {
         try {
@@ -42,6 +43,7 @@ public class MainIT {
             PROJECT_ROOT = WORLD.guessProjectHome(MainIT.class);
             IT_ROOT = PROJECT_ROOT.join("target/it").mkdirOpt();
             HOME = IT_ROOT.join("home");
+            SERVER_YAML = IT_ROOT.join("server.yaml");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -53,7 +55,7 @@ public class MainIT {
     @After
     public void after() throws IOException {
         kubectl("logs", "--namespace=stool", "pod/stool-server");
-        kubectl("delete", "-f", HOME.join("server.yaml").getAbsolute());
+        kubectl("delete", "-f", SERVER_YAML.getAbsolute());
     }
 
     @Test
@@ -66,10 +68,11 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        sc("setup", "-batch");
+        sc("setup", "-batch", "-local");
+        sc("server", "localhost", SERVER_YAML.getAbsolute());
 
-        kubectl("delete", "--ignore-not-found", "-f", HOME.join("server.yaml").getAbsolute());
-        kubectl("apply", "-f", HOME.join("server.yaml").getAbsolute());
+        kubectl("delete", "--ignore-not-found", "-f", SERVER_YAML.getAbsolute());
+        kubectl("apply", "-f", SERVER_YAML.getAbsolute());
 
         Thread.sleep(30000); // TODO
 

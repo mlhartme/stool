@@ -71,7 +71,8 @@ public class Main {
               cli.begin("globals.getWorld", "");
                        cli.begin("globals.getConsole", "");
                 cli.add(Auth.class, "auth -batch server?");
-                cli.add(Setup.class, "setup -batch -remote opts*");
+                cli.add(Setup.class, "setup -batch -local");
+                cli.add(Server.class, "server hostname dest opts*");
                 cli.base(ClientCommand.class, "-working { setWorkingOpt(working) }");
                     cli.add(Create.class, "create -optional nameAndServer properties*");
                     cli.add(Build.class, "build -nocache -keep=3 -restart -m= args*");

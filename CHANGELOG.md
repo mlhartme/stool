@@ -2,7 +2,7 @@
 
 ### 6.0.0 (pending)
 
-* usable in parallel with stool 5
+* usable in parallel with older versions of stool
   * meta
     * `sc` stands for stool client; I've chosen this name because it's similar to `oc` and the `kc` alias I use
   * client renamed to `sc`
@@ -14,6 +14,7 @@
 * move docker code into separate docker package that's used in clients and server tests
 
 * client
+  * split `setup` into `setup` and `server`
   * renamed servers.json to client.json
   * setup: removed namespace argument
   * backstage is a properties file now, it maps stages to paths
