@@ -53,10 +53,11 @@ public class Setup {
     private final boolean batch;
     private final boolean local;
 
-    private final URI portus;
     private final String portusPrefix;
 
     public Setup(Globals globals, boolean batch, boolean local) {
+        URI portus;
+
         this.world = globals.getWorld();
         this.gson = globals.getGson();
         this.home = globals.getHome();
@@ -64,7 +65,9 @@ public class Setup {
         this.version = Main.versionString(world);
         this.batch = batch;
         this.local = local;
-        this.portus = portus(world, local ? LOCALHOST : "notlocal");
+
+        portus = portus(world, local ? LOCALHOST : "notlocal");
+
         this.portusPrefix = portus.getHost() + portus.getPath();
     }
 
