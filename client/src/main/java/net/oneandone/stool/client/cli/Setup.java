@@ -31,6 +31,18 @@ import java.net.URI;
 import java.util.Properties;
 
 public class Setup {
+    public static URI portus(World world, String hostname) {
+        Properties tmp;
+
+        try {
+            // TODO
+            tmp = world.getHome().join(".sc.properties").readProperties();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return URI.create(tmp.getProperty("portus") + (hostname.equals(LOCALHOST) ? LOCALHOST + "/" : "waterloo/")); // TODO
+    }
+
     private static final String LOCALHOST = "localhost"; // TODO
 
     private final World world;
@@ -45,9 +57,6 @@ public class Setup {
     private final String portusPrefix;
 
     public Setup(Globals globals, boolean batch, boolean local) {
-        int idx;
-        Properties tmp;
-
         this.world = globals.getWorld();
         this.gson = globals.getGson();
         this.home = globals.getHome();
@@ -55,14 +64,8 @@ public class Setup {
         this.version = Main.versionString(world);
         this.batch = batch;
         this.local = local;
-        try {
-            // TODO
-            tmp = world.getHome().join(".sc.properties").readProperties();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-        portus = URI.create(tmp.getProperty("portus") + (local ? LOCALHOST + "/" : "waterloo/")); // TODO
-        portusPrefix = portus.getHost() + portus.getPath();
+        this.portus = portus(world, local ? LOCALHOST : "notlocal");
+        this.portusPrefix = portus.getHost() + portus.getPath();
     }
 
     public void run() throws IOException {
