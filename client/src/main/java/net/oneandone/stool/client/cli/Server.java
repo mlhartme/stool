@@ -41,7 +41,7 @@ public class Server {
 
     private final URI portus;
 
-    public Server(Globals globals, String hostname, FileNode dest, List<String> opts) {
+    public Server(Globals globals, String hostname, String shortname, FileNode dest, List<String> opts) {
         int idx;
 
         this.world = globals.getWorld();
@@ -56,7 +56,7 @@ public class Server {
             }
             this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
         }
-        portus = Setup.portus(world, hostname);
+        this.portus = Setup.portus(world).resolve(shortname + "/");
     }
 
     private boolean isLocalhost() {

@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.docker.BuildArgument;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Daemon;
@@ -86,7 +87,7 @@ public class Build extends ProjectCommand {
         try (Daemon engine = Daemon.create()) {
             for (App app : apps) {
                 war = directory.findOne(app.path);
-                build(engine, app.reference.stage, war, project.getOriginOrUnknown(), createdOn(), app.arguments(war, explicitArguments));
+                build(engine, app.reference, war, project.getOriginOrUnknown(), createdOn(), app.arguments(war, explicitArguments));
                 if (restart) {
                     new Restart(globals, null).doRun(app.reference);
                 }
@@ -104,7 +105,7 @@ public class Build extends ProjectCommand {
 
     //--
 
-    private String build(Daemon engine, String stage, FileNode war, String originScm, String originUser, Map<String, String> arguments)
+    private String build(Daemon engine, Reference reference, FileNode war, String originScm, String originUser, Map<String, String> arguments)
             throws Exception {
         long started;
         String registryPrefix;
@@ -121,12 +122,12 @@ public class Build extends ProjectCommand {
 
         started = System.currentTimeMillis();
         console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
-        registryPrefix = globals.configuration().registryPrefix();
+        registryPrefix = globals.configuration().registryPrefix() + reference.client.getName() + "/";
         template = template(arguments);
-        tag = wipeOldImages(engine, registryPrefix, stage);
-        context = createContext(stage, war);  // this is where concurrent builds are blocked
+        tag = wipeOldImages(engine, registryPrefix, reference.stage);
+        context = createContext(reference.stage, war);  // this is where concurrent builds are blocked
         try {
-            repositoryTag = registryPrefix + stage + ":" + tag;
+            repositoryTag = registryPrefix + reference.stage + ":" + tag;
             defaults = BuildArgument.scan(template.join("Dockerfile"));
             buildArgs = buildArgs(defaults, arguments);
             populateContext(context, template);

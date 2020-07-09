@@ -68,8 +68,8 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        sc("setup", "-batch", "-local");
-        sc("server", "localhost", SERVER_YAML.getAbsolute());
+        sc("server", "localhost", "localhost" /* TODO */, SERVER_YAML.getAbsolute());
+        sc("setup", "-batch", "localhost=http://localhost:31000/api");
 
         kubectl("delete", "--ignore-not-found", "-f", SERVER_YAML.getAbsolute());
         kubectl("apply", "-f", SERVER_YAML.getAbsolute());

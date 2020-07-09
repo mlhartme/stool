@@ -31,7 +31,7 @@ import java.net.URI;
 import java.util.Properties;
 
 public class Setup {
-    public static URI portus(World world, String hostname) {
+    public static URI portus(World world) {
         Properties tmp;
 
         try {
@@ -40,10 +40,8 @@ public class Setup {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        return URI.create(tmp.getProperty("portus") + (hostname.equals(LOCALHOST) ? LOCALHOST + "/" : "waterloo/")); // TODO
+        return URI.create(tmp.getProperty("portus"));
     }
-
-    private static final String LOCALHOST = "localhost"; // TODO
 
     private final World world;
     private final Gson gson;
@@ -51,11 +49,11 @@ public class Setup {
     private final Console console;
     private final String version;
     private final boolean batch;
-    private final boolean local;
+    private final String nameAndHost;
 
     private final String portusPrefix;
 
-    public Setup(Globals globals, boolean batch, boolean local) {
+    public Setup(Globals globals, String nameAndHost, boolean batch) {
         URI portus;
 
         this.world = globals.getWorld();
@@ -64,9 +62,9 @@ public class Setup {
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.batch = batch;
-        this.local = local;
+        this.nameAndHost = nameAndHost;
 
-        portus = portus(world, local ? LOCALHOST : "notlocal");
+        portus = portus(world);
 
         this.portusPrefix = portus.getHost() + portus.getPath();
     }
@@ -89,7 +87,7 @@ public class Setup {
         if (batch) {
             throw new ArgumentException("-batch is not supported in update mode");
         }
-        if (local) { // TODO: why?
+        if (nameAndHost != null) { // TODO: why?
             throw new ArgumentException("local is not supported in update mode");
         }
         environment = updateEnvironment();
@@ -218,8 +216,9 @@ public class Setup {
     private Configuration readEnvironment() throws IOException {
         FileNode file;
         Configuration manager;
+        int idx;
 
-        if (local) {
+        if (nameAndHost != null) {
             file = null;
         } else {
             file = cisotoolsEnvironment();
@@ -228,7 +227,11 @@ public class Setup {
         if (file != null) {
             manager.load();
         } else {
-            manager.add("localhost", true, "http://" + LOCALHOST + ":" + serverPort() + "/api", null);
+            idx = nameAndHost.indexOf('=');
+            if (idx == -1) {
+                throw new IllegalStateException(nameAndHost);
+            }
+            manager.add(nameAndHost.substring(0, idx), true, nameAndHost.substring(idx + 1), null);
         }
         return manager;
     }
@@ -246,10 +249,6 @@ public class Setup {
         configuration.setRegistryPrefix(portusPrefix);
         configuration.save(gson);
         versionFile().writeString(Main.versionString(world));
-    }
-
-    private int serverPort() {
-        return 31000;
     }
 
     public String version() throws IOException {
