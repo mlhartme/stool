@@ -32,7 +32,6 @@ metadata:
   name: stool-account
 ---
 apiVersion: authorization.openshift.io/v1
-groupNames: null
 kind: RoleBinding
 metadata:
   name: stool-admin-binding
@@ -48,6 +47,13 @@ binaryData:
 kind: ConfigMap
 metadata:
   name: stool-cert
+---
+apiVersion: v1
+binaryData:
+  cert.sh: ${cert-script}
+kind: ConfigMap
+metadata:
+  name: stool-cert-script
 ---
 apiVersion: v1
 kind: Service
@@ -78,6 +84,9 @@ spec:
       - mountPath: /usr/local/tomcat/conf/tomcat.p12
         name: cert-volume
         subPath: tomcat.p12
+      - mountPath: /var/lib/stool/cert.sh
+        name: cert-script-volume
+        subPath: cert.sh
     env:
     - name: HOST
       value: "${host}"
@@ -107,9 +116,15 @@ spec:
       value: "INFO"
   volumes:
     - configMap:
-        defaultMode: 420
         items:
           - key: tomcat.p12
             path: tomcat.p12
         name: stool-cert
       name: cert-volume
+    - configMap:
+        items:
+          - key: cert.sh
+            path: cert.sh
+            mode: 0755
+        name: stool-cert-script
+      name: cert-script-volume

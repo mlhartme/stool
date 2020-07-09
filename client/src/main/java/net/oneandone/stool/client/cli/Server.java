@@ -107,6 +107,7 @@ public class Server {
             map.put("portus", portus.toString());
             map.put("host", hostname);
             map.put("cert", cert(world));
+            map.put("cert-script", certScript(world));
             result = world.resource("caas.yaml").readString();
             try {
                 return Substitution.ant().apply(result, map);
@@ -114,6 +115,10 @@ public class Server {
                 throw new IllegalStateException(e);
             }
         }
+    }
+
+    private static String certScript(World world) throws IOException {
+        return Base64.getEncoder().encodeToString(world.resource("caas-cert.sh").readBytes());
     }
 
     private static String cert(World world) throws IOException {
