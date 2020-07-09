@@ -72,7 +72,7 @@ public class Main {
                        cli.begin("globals.getConsole", "");
                 cli.add(Auth.class, "auth -batch server?");
                 cli.add(Setup.class, "setup nameAndHost? -batch");
-                cli.add(Server.class, "server hostname shortname dest opts*");
+                cli.add(Server.class, "server hostname args*");
                 cli.base(ClientCommand.class, "-working { setWorkingOpt(working) }");
                     cli.add(Create.class, "create -optional nameAndServer properties*");
                     cli.add(Build.class, "build -nocache -keep=3 -restart -m= args*");

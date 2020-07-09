@@ -20,6 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
 
@@ -42,15 +43,17 @@ public class Server {
 
     private final URI portus;
 
-    public Server(Globals globals, String hostname, String shortname, FileNode dest, List<String> opts) {
+    public Server(Globals globals, String hostname, List<String> args) {
         int idx;
+        String shortname;
 
         this.world = globals.getWorld();
-        this.dest = dest;
         this.console = globals.getConsole();
         this.hostname = hostname;
         this.opts = new HashMap<>();
-        for (String opt : opts) {
+        shortname = eat(args, shortname(hostname));
+        this.dest = world.file(eat(args, shortname + ".yaml"));
+        for (String opt : args) {
             idx = opt.indexOf('=');
             if (idx == -1) {
                 throw new ArgumentException("invalid option: " + opt);
@@ -58,6 +61,22 @@ public class Server {
             this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
         }
         this.portus = Setup.portus(world).resolve(shortname + "/");
+    }
+
+    private static String eat(List<String> args, String dflt) {
+        if (args.isEmpty()) {
+            return dflt;
+        } else {
+            return args.remove(0);
+        }
+    }
+
+    private static String shortname(String hostname) {
+        String result;
+
+        result = Strings.removeRightOpt(hostname, ".server.lan");
+        result = result.replace('.', '-');
+        return result;
     }
 
     private boolean isLocalhost() {
