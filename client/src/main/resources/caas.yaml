@@ -29,9 +29,10 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: stool-accout
+  name: stool-account
 ---
 apiVersion: authorization.openshift.io/v1
+groupNames: null
 kind: RoleBinding
 metadata:
   name: stool-admin-binding
@@ -39,7 +40,7 @@ roleRef:
   name: admin
 subjects:
   - kind: ServiceAccount
-    name: stool-accout
+    name: stool-account
 ---
 apiVersion: v1
 binaryData:
@@ -69,7 +70,7 @@ metadata:
     app: stool-server
 spec:
   restartPolicy: Never
-  serviceAccountName: stool-server
+  serviceAccountName: stool-account
   containers:
   - name: stool-server
     image: contargo.server.lan/cisoops-public/stool-server:latest

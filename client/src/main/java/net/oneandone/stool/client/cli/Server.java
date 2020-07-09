@@ -68,7 +68,7 @@ public class Server {
         dest.checkNotExists();
         dest.writeString(serverYaml());
         console.info.println("Created " + dest);
-        console.info.println("You've enabled a local Stool server to host stages - start/stop it like this:");
+        console.info.println("Start/stop server like this:");
         console.info.println("  kubectl apply -f " + dest.getAbsolute());
         console.info.println("  kubectl delete -f " + dest.getAbsolute());
     }
