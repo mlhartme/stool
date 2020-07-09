@@ -91,7 +91,7 @@ public class Server {
 
         if (isLocalhost()) {
             result = world.resource("local.yaml").readString();
-            cisotools = cisotools();
+            cisotools = Setup.cisotools(world);
             port = serverPort();
             map = new HashMap<>();
             map.put("env", env(cisotools, port));
@@ -174,12 +174,5 @@ public class Server {
         dest.append("      hostPath:\n");
         dest.append("        path: \"" + path + "\"\n");
         dest.append("        type: " + type + "\n");
-    }
-
-    private FileNode cisotools() {
-        String path;
-
-        path = System.getenv("CISOTOOLS_HOME");
-        return path == null ? null : world.file(path);
     }
 }

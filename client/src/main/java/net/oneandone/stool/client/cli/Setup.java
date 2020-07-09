@@ -31,6 +31,13 @@ import java.net.URI;
 import java.util.Properties;
 
 public class Setup {
+    public static FileNode cisotools(World world) {
+        String path;
+
+        path = System.getenv("CISOTOOLS_HOME");
+        return path == null ? null : world.file(path);
+    }
+
     public static URI portus(World world) {
         Properties tmp;
 
@@ -51,7 +58,7 @@ public class Setup {
     private final boolean batch;
     private final String nameAndHost;
 
-    private final String portusPrefix;
+    private final String registryPrefix;
 
     public Setup(Globals globals, String nameAndHost, boolean batch) {
         URI portus;
@@ -66,7 +73,7 @@ public class Setup {
 
         portus = portus(world);
 
-        this.portusPrefix = portus.getHost() + portus.getPath();
+        this.registryPrefix = portus.getHost() + portus.getPath();
     }
 
     public void run() throws IOException {
@@ -82,7 +89,7 @@ public class Setup {
     }
 
     private void updateServers() throws IOException {
-        Configuration environment;
+        Configuration configuration;
 
         if (batch) {
             throw new ArgumentException("-batch is not supported in update mode");
@@ -90,26 +97,26 @@ public class Setup {
         if (nameAndHost != null) { // TODO: why?
             throw new ArgumentException("local is not supported in update mode");
         }
-        environment = updateEnvironment();
-        environment = select(environment, true);
+        configuration = updateConfiguration();
+        configuration = select(configuration, true);
         console.info.println();
         console.readline("Press return to update servers, ctrl-c to abort");
-        environment.save(gson);
+        configuration.save(gson);
         console.info.println("done");
     }
 
     private void create() throws IOException {
-        Configuration environment;
+        Configuration configuration;
         String inc;
 
-        environment = createEnvironment();
+        configuration = createConfiguration();
         if (!batch) {
             console.info.println();
             console.info.println("Ready to create Stool home directory: " + home.getAbsolute());
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        doCreate(environment);
+        doCreate(configuration);
         inc = home.join("shell.inc").getAbsolute();
         console.info.println("Done.");
         console.info.println();
@@ -117,14 +124,7 @@ public class Setup {
         console.info.println("  Make sure to source " + inc + " in your shell profile");
         console.info.println("  (e.g. with 'echo \". " + inc + "\" >> ~/.bash_profile')");
         console.info.println("  Don't forget to restart your terminal.");
-
-        if (environment.serverLookup("localhost") != null) {
-            console.info.println();
-            console.info.println("You've enabled a local Stool server to host stages - start/stop it like this:");
-            console.info.println("  kubectl apply -f " + home.join("server.yaml").getAbsolute());
-            console.info.println("  kubectl delete -f " + home.join("server.yaml").getAbsolute());
-        }
-        if (environment.needAuthentication()) {
+        if (configuration.needAuthentication()) {
             console.info.println("At least one of the servers you're using needs authentication. Please run");
             console.info.println("  stool auth");
             console.info.println("once to do so.");
@@ -150,10 +150,10 @@ public class Setup {
         }
     }
 
-    private Configuration createEnvironment() throws IOException {
+    private Configuration createConfiguration() throws IOException {
         Configuration result;
 
-        result = readEnvironment();
+        result = readConfiguration();
         if (!batch && !result.isEmpty()) {
             result = select(result, false);
         } else {
@@ -162,14 +162,14 @@ public class Setup {
         return result;
     }
 
-    private Configuration select(Configuration environment, boolean dflt) {
+    private Configuration select(Configuration configuration, boolean dflt) {
         Configuration result;
         Boolean enable;
         String yesNo;
 
-        result = new Configuration(environment.file);
+        result = new Configuration(configuration.file);
         console.info.println("Stages are hosted on servers. Please choose the servers you want to use:");
-        for (Server server : environment.allServer()) {
+        for (Server server : configuration.allServer()) {
             if (dflt) {
                 yesNo = server.enabled ? "Y/n" : "y/N";
             } else {
@@ -191,7 +191,7 @@ public class Setup {
         return result;
     }
 
-    private Configuration updateEnvironment() throws IOException {
+    private Configuration updateConfiguration() throws IOException {
         Configuration result;
         Configuration add;
         FileNode additional;
@@ -213,7 +213,7 @@ public class Setup {
         return result;
     }
 
-    private Configuration readEnvironment() throws IOException {
+    private Configuration readConfiguration() throws IOException {
         FileNode file;
         Configuration manager;
         int idx;
@@ -246,30 +246,15 @@ public class Setup {
             s.addTo(configuration);
         }
 
-        configuration.setRegistryPrefix(portusPrefix);
+        configuration.setRegistryPrefix(registryPrefix);
+        configuration.setVersion(version);
         configuration.save(gson);
-        versionFile().writeString(Main.versionString(world));
-    }
-
-    public String version() throws IOException {
-        return versionFile().readString().trim();
     }
 
     private FileNode cisotoolsEnvironment() throws FileNotFoundException, ExistsException {
         FileNode cisotools;
 
-        cisotools = cisotools();
+        cisotools = cisotools(world);
         return cisotools == null ? null : cisotools.join("stool/environment-6.json").checkFile();
-    }
-
-    private FileNode cisotools() {
-        String path;
-
-        path = System.getenv("CISOTOOLS_HOME");
-        return path == null ? null : world.file(path);
-    }
-
-    public FileNode versionFile() {
-        return home.join("version");
     }
 }

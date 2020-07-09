@@ -950,9 +950,7 @@ There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all 
 
 ... of $SC_HOME (default is `~/.stool`)
 
-        |- version                   (client version that created this directory)
         |- shell.inc
-        |- server.yaml               (docker-comppose file to start local server)
         '- client.json               (client config - mostly the list of Stool servers to talk to)
 
 ... of project directories

@@ -36,6 +36,8 @@ import java.util.Map;
 public class Configuration {
     public final FileNode file;
 
+
+    private String version;
     private String registryPrefix;
     public final FileNode wirelog;
     public final String clientInvocation;
@@ -48,6 +50,7 @@ public class Configuration {
 
     public Configuration(FileNode file, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.file = file;
+        this.version = null;
         this.registryPrefix = "127.0.0.1:31500/";
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;
@@ -61,6 +64,13 @@ public class Configuration {
 
     public void add(String name, boolean enabled, String url, String token) {
         servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+    public String version() {
+        return version;
     }
 
     public void setRegistryPrefix(String str) {
