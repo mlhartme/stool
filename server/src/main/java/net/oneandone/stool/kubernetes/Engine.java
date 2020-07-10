@@ -24,6 +24,7 @@ import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
+import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.apis.ExtensionsV1beta1Api;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1HTTPIngressPathBuilder;
@@ -36,6 +37,8 @@ import io.kubernetes.client.openapi.models.V1ContainerBuilder;
 import io.kubernetes.client.openapi.models.V1ContainerState;
 import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
+import io.kubernetes.client.openapi.models.V1Deployment;
+import io.kubernetes.client.openapi.models.V1DeploymentList;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1HostPathVolumeSource;
 import io.kubernetes.client.openapi.models.V1Namespace;
@@ -138,6 +141,7 @@ public class Engine implements AutoCloseable {
 
     private final ApiClient client;
     private final CoreV1Api core;
+    private final AppsV1Api apps;
     private final ExtensionsV1beta1Api extensions;
     private final String namespace;
 
@@ -146,6 +150,7 @@ public class Engine implements AutoCloseable {
         Configuration.setDefaultApiClient(client); // TODO: threading ...
         // client.setDebugging(true);
         this.core = new CoreV1Api();
+        this.apps = new AppsV1Api();
         this.extensions = new ExtensionsV1beta1Api();
         this.namespace = namespace;
     }
@@ -366,6 +371,27 @@ public class Engine implements AutoCloseable {
         } catch (ApiException e) {
             throw wrap(e);
         }
+    }
+
+    //-- deployments
+
+    public Map<String, DeploymentInfo> deploymentList() throws IOException {
+        V1DeploymentList list;
+        Map<String, DeploymentInfo> result;
+        String name;
+
+        try {
+            list = apps.listNamespacedDeployment(namespace, null, null, null, null, null,
+                    null, null, null, null);
+            result = new LinkedHashMap<>();
+            for (V1Deployment deployment : list.getItems()) {
+                name = deployment.getMetadata().getName();
+                result.put(name, DeploymentInfo.create(deployment));
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        return result;
     }
 
     //-- pods
