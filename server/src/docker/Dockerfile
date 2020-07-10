@@ -27,4 +27,4 @@ COPY maven/*.jar /usr/local/bin/stool-server.jar
 COPY cert.sh /var/lib/stool/cert.sh
 RUN mkdir /var/lib/stool/certs
 
-CMD [ "sh", "-c", "java ${OPTS} -jar /usr/local/bin/stool-server.jar" ]
+CMD [ "sh", "-c", "exec java ${OPTS} -jar /usr/local/bin/stool-server.jar" ]
