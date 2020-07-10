@@ -126,7 +126,7 @@ public class Server {
             map.put("portus", portus.toString());
             map.put("host", hostname);
             map.put("cert", cert(world));
-            map.put("cert-script", certScript(world));
+            map.put("cert-script", certScript(world, hostname));
             result = world.resource("caas.yaml").readString();
             try {
                 return Substitution.ant().apply(result, map);
