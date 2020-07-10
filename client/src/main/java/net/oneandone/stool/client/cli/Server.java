@@ -143,7 +143,8 @@ public class Server {
 
         str = world.resource("caas-cert.sh").readString();
         try {
-            str = DUBBLE.apply(str, Strings.toMap("domain", hostname));
+            str = DUBBLE
+                    .apply(str, Strings.toMap("domain", hostname));
         } catch (SubstitutionException e) {
             throw new IllegalStateException(e);
         }
@@ -188,8 +189,8 @@ public class Server {
         addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose
         builder = new StringBuilder();
         for (Map.Entry<String, String> entry : env.entrySet()) {
-            builder.append("      - name: " + entry.getKey() + "\n");
-            builder.append("        value: \"" + entry.getValue() + "\"\n");
+            builder.append("          - name: " + entry.getKey() + "\n");
+            builder.append("            value: \"" + entry.getValue() + "\"\n");
         }
         return builder.toString();
     }
@@ -215,15 +216,15 @@ public class Server {
     }
 
     private static void addMount(StringBuilder dest, String name, String path, boolean readOnly) {
-         dest.append("      - name: " + name + "\n");
-         dest.append("        mountPath: \"" + path + "\"\n");
-         dest.append("        readOnly: " + readOnly + "\n");
+         dest.append("          - name: " + name + "\n");
+         dest.append("            mountPath: \"" + path + "\"\n");
+         dest.append("            readOnly: " + readOnly + "\n");
     }
 
     private static void addVolume(StringBuilder dest, String name, String path, String type) {
-        dest.append("    - name: " + name + "\n");
-        dest.append("      hostPath:\n");
-        dest.append("        path: \"" + path + "\"\n");
-        dest.append("        type: " + type + "\n");
+        dest.append("        - name: " + name + "\n");
+        dest.append("          hostPath:\n");
+        dest.append("            path: \"" + path + "\"\n");
+        dest.append("            type: " + type + "\n");
     }
 }
