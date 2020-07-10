@@ -102,6 +102,8 @@ public class Server {
         return 31000;
     }
 
+    private static final Substitution DUBBLE = new Substitution("${{", "}}", '\\');
+
     public String serverYaml() throws IOException {
         String result;
         FileNode cisotools;
@@ -141,7 +143,7 @@ public class Server {
 
         str = world.resource("caas-cert.sh").readString();
         try {
-            str = Substitution.ant().apply(str, Strings.toMap("domain", hostname));
+            str = DUBBLE.apply(str, Strings.toMap("domain", hostname));
         } catch (SubstitutionException e) {
             throw new IllegalStateException(e);
         }

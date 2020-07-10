@@ -8,7 +8,7 @@ dest=$2
 echo "generating ${certname} -> ${dest}"
 
 # length: 32 chars hash + <30 chars for display host name
-hashname=$(echo "${certname}" | md5sum | cut -f 1 -d ' ').${domain}
+hashname=$(echo "${certname}" | md5sum | cut -f 1 -d ' ').${{domain}}
 
 echo "[ req ]" > config.cnf
 echo "prompt = no" >> config.cnf

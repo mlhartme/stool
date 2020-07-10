@@ -621,6 +621,7 @@ public class Engine implements AutoCloseable {
         }
         limits = new HashMap<>();
         if (memory != null) {
+            limits.put("cpu", new Quantity("2"));
             limits.put("memory", new Quantity(memory.toString()));
         }
         container = new V1ContainerBuilder();

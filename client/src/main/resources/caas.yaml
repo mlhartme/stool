@@ -80,6 +80,11 @@ spec:
   containers:
   - name: stool-server
     image: contargo.server.lan/cisoops-public/stool-server:latest
+    resources:
+      limits:
+        cpu: 2
+      requests:
+        cpu: 200m
     volumeMounts:
       - mountPath: /usr/local/tomcat/conf/tomcat.p12
         name: cert-volume
