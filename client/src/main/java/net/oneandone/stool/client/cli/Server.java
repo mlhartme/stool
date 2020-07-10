@@ -136,7 +136,15 @@ public class Server {
         }
     }
 
-    private static String certScript(World world) throws IOException {
+    private static String certScript(World world, String hostname) throws IOException {
+        String str;
+
+        str = world.resource("caas-cert.sh").readString();
+        try {
+            str = Substitution.ant().apply(str, Strings.toMap("domain", hostname));
+        } catch (SubstitutionException e) {
+            throw new IllegalStateException(e);
+        }
         return Base64.getEncoder().encodeToString(world.resource("caas-cert.sh").readBytes());
     }
 
