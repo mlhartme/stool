@@ -38,6 +38,7 @@ import io.kubernetes.client.openapi.models.V1ContainerState;
 import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1Deployment;
+import io.kubernetes.client.openapi.models.V1DeploymentBuilder;
 import io.kubernetes.client.openapi.models.V1DeploymentList;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1HostPathVolumeSource;
@@ -392,6 +393,101 @@ public class Engine implements AutoCloseable {
             throw wrap(e);
         }
         return result;
+    }
+
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
+                                    String image, boolean imagePull, String[] command,
+                                    String hostname, Integer memory, Map<String, String> containerLabels,
+                                    Map<String, String> env, Map<FileNode, String> hostVolumes, List<Data> dataVolumes) throws IOException {
+        try {
+            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, image, imagePull, command,
+                    hostname, memory, containerLabels, env, hostVolumes, dataVolumes), null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
+    /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    private static V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
+                           String image, boolean imagePull, String[] command,
+                           String hostname, Integer memory,
+                           Map<String, String> containerLabels, Map<String, String> env, Map<FileNode, String> hostVolumes,
+                           List<Data> dataVolumes) {
+        List<V1EnvVar> lst;
+        V1EnvVar var;
+        List<V1Volume> vl;
+        V1Volume v;
+        int volumeCount;
+        String vname;
+        V1HostPathVolumeSource hp;
+        List<V1VolumeMount> ml;
+        V1VolumeMount m;
+        Map<String, Quantity> limits;
+        V1ContainerBuilder container;
+
+        lst = new ArrayList<>();
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            var = new V1EnvVar();
+            var.setName(entry.getKey());
+            var.setValue(entry.getValue());
+            lst.add(var);
+        }
+        vl = new ArrayList<>();
+        ml = new ArrayList<>();
+        volumeCount = 0;
+        for (Map.Entry<FileNode, String> entry : hostVolumes.entrySet()) {
+            hp = new V1HostPathVolumeSource();
+            hp.setPath(entry.getKey().getAbsolute());
+            vname = "volume" + ++volumeCount;
+            v = new V1Volume();
+            v.setName(vname);
+            v.setHostPath(hp);
+            vl.add(v);
+            m = new V1VolumeMount();
+            m.setName(vname);
+            m.setMountPath(entry.getValue());
+            ml.add(m);
+        }
+        for (Data data : dataVolumes) {
+            vname = "volume" + ++volumeCount;
+            vl.add(data.volume(vname));
+            data.mounts(vname, ml);
+        }
+        limits = new HashMap<>();
+        if (memory != null) {
+            limits.put("cpu", new Quantity("2"));
+            limits.put("memory", new Quantity(memory.toString()));
+        }
+        container = new V1ContainerBuilder();
+        container.addAllToVolumeMounts(ml)
+                .withNewResources().withLimits(limits).endResources()
+                .withName(name + "-container")
+                .withImage(image)
+                .withEnv(lst)
+                .withImagePullPolicy(imagePull ? "IfNotPresent" : "Never");
+
+        if (command != null) {
+            container.withCommand(command);
+        }
+        return new V1DeploymentBuilder()
+                .withNewMetadata()
+                  .withName(name)
+                  .withLabels(deploymentLabels)
+                .endMetadata()
+                .withNewSpec()
+                  .withReplicas(1)
+                  .withNewSelector().withMatchLabels(selector).endSelector()
+                  .withNewTemplate()
+                    .withNewMetadata().withLabels(containerLabels).endMetadata()
+                    .withNewSpec()
+                      .withHostname(hostname)
+                      .addAllToVolumes(vl)
+                      .addToContainers(container.build())
+                    .endSpec()
+                  .endTemplate()
+                .endSpec().build();
     }
 
     //-- pods
