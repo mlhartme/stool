@@ -143,12 +143,11 @@ public class Server {
 
         str = world.resource("caas-cert.sh").readString();
         try {
-            str = DUBBLE
-                    .apply(str, Strings.toMap("domain", hostname));
+            str = DUBBLE.apply(str, Strings.toMap("domain", hostname));
         } catch (SubstitutionException e) {
             throw new IllegalStateException(e);
         }
-        return Base64.getEncoder().encodeToString(world.resource("caas-cert.sh").readBytes());
+        return Base64.getEncoder().encodeToString(str.getBytes("utf8"));
     }
 
     private static String cert(World world) throws IOException {
