@@ -159,7 +159,7 @@ public class Server {
         chain = world.getTemp().createTempFile();
         p12 = world.getTemp().createTempFile();
         chain.writeString(puppet.join("otherfiles/certificates/cp.waterloo.server.lan.crt").readString()
-                + puppet.join("otherfiles/certificates/ca/1und1PUKIIssuingCA2.pem"));
+                + puppet.join("otherfiles/certificates/ca/1und1PUKIIssuingCA2.pem").readString());
         puppet.exec("openssl", "pkcs12", "-export", "-in", chain.getAbsolute(),
                 "-inkey", puppet.join("otherfiles/certificates/cp.waterloo.server.lan.key").getAbsolute(),
                 "-out", p12.getAbsolute(), "-name", "tomcat", "-passout", "pass:changeit");
