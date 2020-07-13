@@ -127,7 +127,7 @@ public class Server {
             map = new HashMap<>();
             map.put("portus", portus.toString());
             map.put("host", hostname);
-            map.put("cert", cert(world));
+            map.put("cert", cert(world, hostname));
             map.put("cert-script", certScript(world, hostname));
             result = world.resource("caas.yaml").readString();
             try {
@@ -150,7 +150,7 @@ public class Server {
         return Base64.getEncoder().encodeToString(str.getBytes("utf8"));
     }
 
-    private static String cert(World world) throws IOException {
+    private static String cert(World world, String hostname) throws IOException {
         FileNode puppet;
         FileNode chain;
         FileNode p12;
@@ -158,10 +158,10 @@ public class Server {
         puppet = world.file(System.getenv("PUPPET_FILES_ROOT")).checkDirectory();
         chain = world.getTemp().createTempFile();
         p12 = world.getTemp().createTempFile();
-        chain.writeString(puppet.join("otherfiles/certificates/cp.waterloo.server.lan.crt").readString()
+        chain.writeString(puppet.join("otherfiles/certificates/" + hostname + ".crt").readString()
                 + puppet.join("otherfiles/certificates/ca/1und1PUKIIssuingCA2.pem").readString());
         puppet.exec("openssl", "pkcs12", "-export", "-in", chain.getAbsolute(),
-                "-inkey", puppet.join("otherfiles/certificates/cp.waterloo.server.lan.key").getAbsolute(),
+                "-inkey", puppet.join("otherfiles/certificates/" + hostname + ".key").getAbsolute(),
                 "-out", p12.getAbsolute(), "-name", "tomcat", "-passout", "pass:changeit");
         return Base64.getEncoder().encodeToString(p12.readBytes());
     }
