@@ -27,7 +27,7 @@ spec:
       port: 80
       targetPort: 8080
   selector:
-    app: stool-server
+    app: stool
   type: NodePort
 ---
 apiVersion: v1
@@ -40,28 +40,28 @@ spec:
     - nodePort: 31001
       port: 31001
   selector:
-    app: stool-server
+    app: stool
   type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: stool-server
+  name: stool
   namespace: stool
   labels:
-    app: stool-server
+    app: stool
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: stool-server
+      app: stool
   template:
     metadata:
       labels:
-        app: stool-server
+        app: stool
     spec:
       containers:
-      - name: stool-server
+      - name: stool
         image: contargo.server.lan/cisoops-public/stool-server:latest
         imagePullPolicy: Never
         env:

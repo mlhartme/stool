@@ -54,7 +54,7 @@ public class MainIT {
 
     @After
     public void after() throws IOException {
-        kubectl("logs", "--namespace=stool", "--selector=app=stool-server");
+        kubectl("logs", "--namespace=stool", "--selector=app=stool");
         kubectl("delete", "-f", SERVER_YAML.getAbsolute());
     }
 
