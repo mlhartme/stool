@@ -68,68 +68,76 @@ spec:
     app: stool-server
   type: ClusterIP
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: stool-server
   labels:
     app: stool-server
 spec:
-  restartPolicy: Never
-  serviceAccountName: stool-account
-  containers:
-  - name: stool-server
-    image: contargo.server.lan/cisoops-public/stool-server:latest
-    resources:
-      limits:
-        cpu: 2
-      requests:
-        cpu: 200m
-    volumeMounts:
-      - mountPath: /usr/local/tomcat/conf/tomcat.p12
-        name: cert-volume
-        subPath: tomcat.p12
-      - mountPath: /var/lib/stool/cert.sh
-        name: cert-script-volume
-        subPath: cert.sh
-    env:
-    - name: HOST
-      value: "${host}"
-    - name: OPTS
-      value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:31001 -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true"
-    - name: ENGINE_LOG
-      value: "false"
-    - name: VHOSTS
-      value: "false"
-    - name: LDAP_UNIT
-      value: "cisostages"
-    - name: LDAP_URL
-      value: "ldaps://ldap.1and1.org:636/ou=ims_service,o=1und1,c=DE"
-    - name: LDAP_PRINCIPAL
-      value: "uid=cisostages,ou=accounts,ou=ims_service,o=1und1,c=DE"
-    - name: LDAP_CREDENTIALS
-      value: "MzJmMWRhOG"
-    - name: LDAP_SSO
-      value: "https://login.1and1.org/ims-sso"
-    - name: JMX_USAGE
-      value: "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d"
-    - name: ADMIN
-      value: "michael.hartmeier@ionos.com"
-    - name: REGISTRY_URL
-      value: "${portus}"
-    - name: LOGLEVEL
-      value: "INFO"
-  volumes:
-    - configMap:
-        items:
-          - key: tomcat.p12
-            path: tomcat.p12
-        name: stool-cert
-      name: cert-volume
-    - configMap:
-        items:
-          - key: cert.sh
-            path: cert.sh
-            mode: 0755
-        name: stool-cert-script
-      name: cert-script-volume
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stool-server
+  template:
+    metadata:
+      labels:
+        app: stool-server
+    spec:
+      serviceAccountName: stool-account
+      containers:
+      - name: stool-server
+        image: contargo.server.lan/cisoops-public/stool-server:latest
+        resources:
+          limits:
+            cpu: 2
+          requests:
+            cpu: 200m
+        volumeMounts:
+          - mountPath: /usr/local/tomcat/conf/tomcat.p12
+            name: cert-volume
+            subPath: tomcat.p12
+          - mountPath: /var/lib/stool/cert.sh
+            name: cert-script-volume
+            subPath: cert.sh
+        env:
+        - name: HOST
+          value: "${host}"
+        - name: OPTS
+          value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:31001 -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true"
+        - name: ENGINE_LOG
+          value: "false"
+        - name: VHOSTS
+          value: "false"
+        - name: LDAP_UNIT
+          value: "cisostages"
+        - name: LDAP_URL
+          value: "ldaps://ldap.1and1.org:636/ou=ims_service,o=1und1,c=DE"
+        - name: LDAP_PRINCIPAL
+          value: "uid=cisostages,ou=accounts,ou=ims_service,o=1und1,c=DE"
+        - name: LDAP_CREDENTIALS
+          value: "MzJmMWRhOG"
+        - name: LDAP_SSO
+          value: "https://login.1and1.org/ims-sso"
+        - name: JMX_USAGE
+          value: "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d"
+        - name: ADMIN
+          value: "michael.hartmeier@ionos.com"
+        - name: REGISTRY_URL
+          value: "${portus}"
+        - name: LOGLEVEL
+          value: "INFO"
+      volumes:
+        - configMap:
+            items:
+              - key: tomcat.p12
+                path: tomcat.p12
+            name: stool-cert
+          name: cert-volume
+        - configMap:
+            items:
+              - key: cert.sh
+                path: cert.sh
+                mode: 0755
+            name: stool-cert-script
+          name: cert-script-volume
