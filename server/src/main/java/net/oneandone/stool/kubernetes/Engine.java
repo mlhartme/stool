@@ -395,6 +395,54 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
+    // TODO
+    public DeploymentInfo deploymentProbe(String name) throws IOException {
+        V1Deployment deployment;
+
+        deployment = deploymentRaw(name);
+        return deployment == null ? null : DeploymentInfo.create(deployment);
+    }
+
+    // TODO
+    public V1Deployment deploymentRaw(String name) throws IOException {
+        V1DeploymentList list;
+
+        try {
+            list = apps.listNamespacedDeployment(namespace, null, null, null, null, null,
+                    null, null, null, null);
+            for (V1Deployment deployment : list.getItems()) {
+                if (name.equals(deployment.getMetadata().getName())) {
+                    return deployment;
+                }
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        return null;
+    }
+
+    private DeploymentInfo deploymentAwait(String name) throws IOException {
+        DeploymentInfo info;
+        int count;
+
+        count = 0;
+        while (true) {
+            info = deploymentProbe(name);
+            if (info.available > 0) {
+                return info;
+            }
+            count++;
+            if (count > 500) {
+                throw new IOException(name + ": waiting for available replicas timed out");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new IOException(name + "waiting for replicas interrupted", e);
+            }
+        }
+    }
+
     @SuppressWarnings("checkstyle:ParameterNumber")
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                                     String image, boolean imagePull, String[] command,
@@ -406,6 +454,7 @@ public class Engine implements AutoCloseable {
         } catch (ApiException e) {
             throw wrap(e);
         }
+        deploymentAwait(name);
     }
 
     /** @return containerId or null */

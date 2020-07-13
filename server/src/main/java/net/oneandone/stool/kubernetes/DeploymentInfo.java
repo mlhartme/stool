@@ -16,13 +16,27 @@
 package net.oneandone.stool.kubernetes;
 
 import io.kubernetes.client.openapi.models.V1Deployment;
+import io.kubernetes.client.openapi.models.V1DeploymentStatus;
+
+import java.util.HashMap;
 import java.util.Map;
 
 /** Represents a pod as used by Stool. In particular, the pod has a single container */
 public class DeploymentInfo {
     public static DeploymentInfo create(V1Deployment deployment) {
-        return new DeploymentInfo(deployment.getMetadata().getName(), deployment.getMetadata().getLabels(),
-                deployment.getStatus().getAvailableReplicas());
+        V1DeploymentStatus status;
+        Map<String, String> labels;
+        Integer replicas;
+
+        if (deployment.getMetadata() == null) {
+            throw new IllegalStateException("not metadata");
+        }
+        labels = deployment.getMetadata().getLabels();
+        status = deployment.getStatus();
+        replicas = status == null ? null : status.getAvailableReplicas();
+        return new DeploymentInfo(deployment.getMetadata().getName(),
+                labels == null ? new HashMap<>() : labels,
+                replicas == null ? 0 : replicas);
     }
 
     public final String name;

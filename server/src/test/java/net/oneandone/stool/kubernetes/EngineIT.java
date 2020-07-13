@@ -282,6 +282,7 @@ public class EngineIT {
         DeploymentInfo info;
 
         try (Engine engine = create()) {
+
             assertEquals(0, engine.deploymentList().size());
             engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(), "debian:stretch-slim", true,
                     new String[] { "sleep", "1000" }, null, null, Strings.toMap("app", "foo"), Strings.toMap(),
