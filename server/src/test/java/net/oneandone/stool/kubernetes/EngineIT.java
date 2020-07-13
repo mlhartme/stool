@@ -30,6 +30,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotEquals;
 
@@ -282,6 +283,7 @@ public class EngineIT {
         PodInfo pod;
 
         try (Engine engine = create()) {
+            assertNull(engine.deploymentProbe("nosuchdeployment"));
 
             assertEquals(0, engine.deploymentList().size());
             engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(), "debian:stretch-slim", true,

@@ -64,6 +64,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -395,7 +396,6 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    // TODO
     public DeploymentInfo deploymentProbe(String name) throws IOException {
         V1Deployment deployment;
 
@@ -403,22 +403,16 @@ public class Engine implements AutoCloseable {
         return deployment == null ? null : DeploymentInfo.create(deployment);
     }
 
-    // TODO
     public V1Deployment deploymentRaw(String name) throws IOException {
-        V1DeploymentList list;
-
         try {
-            list = apps.listNamespacedDeployment(namespace, null, null, null, null, null,
-                    null, null, null, null);
-            for (V1Deployment deployment : list.getItems()) {
-                if (name.equals(deployment.getMetadata().getName())) {
-                    return deployment;
-                }
-            }
+            return apps.readNamespacedDeployment(name, namespace, null, null, null);
         } catch (ApiException e) {
-            throw wrap(e);
+            try {
+                throw wrap(e);
+            } catch (FileNotFoundException ignored) {
+                return null;
+            }
         }
-        return null;
     }
 
     private DeploymentInfo deploymentAwait(String name) throws IOException {
