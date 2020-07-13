@@ -558,15 +558,40 @@ public class Engine implements AutoCloseable {
                 .endSpec().build();
     }
 
+    //--
+
+    public static String labelSelector(Map<String, String> labelSelector) throws IOException {
+        StringBuilder builder;
+
+        builder = new StringBuilder();
+        for (Map.Entry<String, String> entry : labelSelector.entrySet()) {
+            if (builder.length() > 0) {
+                builder.append(',');
+            }
+            builder.append(entry.getKey());
+            builder.append('=');
+            builder.append(entry.getValue());
+        }
+        return builder.toString();
+    }
+
     //-- pods
 
     public Map<String, PodInfo> podList() throws IOException {
+        return doPodList(null);
+    }
+
+    public Map<String, PodInfo> podList(Map<String, String> labelSelector) throws IOException {
+        return doPodList(labelSelector(labelSelector));
+    }
+
+    private Map<String, PodInfo> doPodList(String labelSelector) throws IOException {
         V1PodList list;
         Map<String, PodInfo> result;
         String name;
 
         try {
-            list = core.listNamespacedPod(namespace, null, null, null, null, null,
+            list = core.listNamespacedPod(namespace, null, null, null, null, labelSelector,
                     null, null, null, null);
             result = new LinkedHashMap<>();
             for (V1Pod pod : list.getItems()) {

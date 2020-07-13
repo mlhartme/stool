@@ -280,6 +280,8 @@ public class EngineIT {
         String name = "dpl";
         Map<String, DeploymentInfo> map;
         DeploymentInfo info;
+        Map<String, PodInfo> pods;
+        PodInfo pod;
 
         try (Engine engine = create()) {
 
@@ -289,10 +291,16 @@ public class EngineIT {
                     Collections.emptyMap(), Collections.emptyList());
 
             map = engine.deploymentList();
+
             assertEquals(1, map.size());
             info = map.get(name);
             assertEquals(name, info.name);
             assertEquals(1, info.available);
+
+            pods = engine.podList(Strings.toMap("app", "foo"));
+            assertEquals(1, pods.size());
+            pod = pods.values().iterator().next();
+            assertTrue(pod.isRunning());
 
             engine.deploymentDelete(name);
             assertEquals(0, engine.deploymentList().size());
