@@ -397,15 +397,8 @@ public class Engine implements AutoCloseable {
     }
 
     public DeploymentInfo deploymentProbe(String name) throws IOException {
-        V1Deployment deployment;
-
-        deployment = deploymentRaw(name);
-        return deployment == null ? null : DeploymentInfo.create(deployment);
-    }
-
-    public V1Deployment deploymentRaw(String name) throws IOException {
         try {
-            return apps.readNamespacedDeployment(name, namespace, null, null, null);
+            return DeploymentInfo.create(apps.readNamespacedDeployment(name, namespace, null, null, null));
         } catch (ApiException e) {
             try {
                 throw wrap(e);
@@ -598,30 +591,17 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    // TODO
+    /** @return null if not found */
     public PodInfo podProbe(String name) throws IOException {
-        V1Pod pod;
-
-        pod = podRaw(name);
-        return pod == null ? null : PodInfo.create(pod);
-    }
-
-    // TODO
-    public V1Pod podRaw(String name) throws IOException {
-        V1PodList list;
-
         try {
-            list = core.listNamespacedPod(namespace, null, null, null, null, null,
-                    null, null, null, null);
-            for (V1Pod pod : list.getItems()) {
-                if (name.equals(pod.getMetadata().getName())) {
-                    return pod;
-                }
-            }
+            return PodInfo.create(core.readNamespacedPod(name, namespace, null, null, null));
         } catch (ApiException e) {
-            throw wrap(e);
+            try {
+                throw wrap(e);
+            } catch (FileNotFoundException ignored) {
+                return null;
+            }
         }
-        return null;
     }
 
     public boolean podCreate(String name, String image, boolean imagePull, String[] command, String... labels) throws IOException {
