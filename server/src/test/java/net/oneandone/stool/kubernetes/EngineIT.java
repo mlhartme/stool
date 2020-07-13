@@ -24,8 +24,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -270,6 +272,29 @@ public class EngineIT {
 
             engine.podDelete(name);
             engine.configMapDelete(name);;
+        }
+    }
+
+    @Test
+    public void deployment() throws IOException {
+        String name = "dpl";
+        Map<String, DeploymentInfo> map;
+        DeploymentInfo info;
+
+        try (Engine engine = create()) {
+            assertEquals(0, engine.deploymentList().size());
+            engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(), "debian:stretch-slim", true,
+                    new String[] { "sleep", "1000" }, null, null, Strings.toMap("app", "foo"), Strings.toMap(),
+                    Collections.emptyMap(), Collections.emptyList());
+
+            map = engine.deploymentList();
+            assertEquals(1, map.size());
+            info = map.get(name);
+            assertEquals(name, info.name);
+            assertEquals(1, info.available);
+
+            engine.deploymentDelete(name);
+            assertEquals(0, engine.deploymentList().size());
         }
     }
 }

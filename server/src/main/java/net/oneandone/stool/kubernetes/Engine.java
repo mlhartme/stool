@@ -408,6 +408,25 @@ public class Engine implements AutoCloseable {
         }
     }
 
+    /** @return containerId or null */
+    public void deploymentDelete(String name) throws IOException {
+        try {
+            apps.deleteNamespacedDeployment(name, namespace, null,
+                    null, null, null, null,  null);
+        } catch (JsonSyntaxException e) {
+            if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
+                // TODO The Java Client is generated, and this code generation does not support union return types,
+                //      see https://github.com/kubernetes-client/java/issues/86
+                // TODO: check if pod was actually deletes
+                // fall-through
+            } else {
+                throw e;
+            }
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
+
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
     private static V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,

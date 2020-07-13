@@ -21,14 +21,17 @@ import java.util.Map;
 /** Represents a pod as used by Stool. In particular, the pod has a single container */
 public class DeploymentInfo {
     public static DeploymentInfo create(V1Deployment deployment) {
-        return new DeploymentInfo(deployment.getMetadata().getName(), deployment.getMetadata().getLabels());
+        return new DeploymentInfo(deployment.getMetadata().getName(), deployment.getMetadata().getLabels(),
+                deployment.getStatus().getAvailableReplicas());
     }
 
     public final String name;
     public final Map<String, String> labels;
+    public final int available;
 
-    public DeploymentInfo(String name, Map<String, String> labels) {
+    public DeploymentInfo(String name, Map<String, String> labels, int available) {
         this.name = name;
         this.labels = labels;
+        this.available = available;
     }
 }
