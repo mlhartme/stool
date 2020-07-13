@@ -717,7 +717,7 @@ public class Engine implements AutoCloseable {
         return lst.get(0);
     }
 
-    private String podAwait(String name, String... expectedPhases) throws IOException {
+    public String podAwait(String name, String... expectedPhases) throws IOException {
         PodInfo info;
         int count;
         String phase;

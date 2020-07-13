@@ -24,10 +24,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -304,6 +302,8 @@ public class EngineIT {
 
             engine.deploymentDelete(name);
             assertEquals(0, engine.deploymentList().size());
+
+            engine.podAwait(pod.name, null);
         }
     }
 }
