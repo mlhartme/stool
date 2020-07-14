@@ -172,10 +172,26 @@ public class Engine implements AutoCloseable {
     //-- namespace
 
     public void namespaceReset() throws IOException {
-        if (namespaceList().containsKey(namespace)) {
-            namespaceDelete();
+        for (String deployment : deploymentList().keySet()) {
+            System.out.println("delete deployment: " + deployment);
+            deploymentDelete(deployment);
         }
-        namespaceCreate();
+        for (String pod: podList().keySet()) {
+            System.out.println("delete pod: " + pod);
+            podDelete(pod);
+        }
+        for (String service : serviceList().keySet()) {
+            System.out.println("delete service: " + service);
+            serviceDelete(service);
+        }
+        for (String cm : configMapList().keySet()) {
+            System.out.println("delete configMap: " + cm);
+            configMapDelete(cm);
+        }
+        for (String s : secretList().keySet()) {
+            System.out.println("delete secret: " + s);
+            secretDelete(s);
+        }
     }
 
     public void namespaceCreate() throws IOException {

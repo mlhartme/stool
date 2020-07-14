@@ -729,6 +729,7 @@ public class Stage {
     /** @return tag actually stopped, or null if already stopped */
     public String stop(Engine engine, Registry registry) throws IOException {
         Current current;
+        PodInfo pod;
 
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         current = currentOpt(engine, registry);
@@ -736,8 +737,12 @@ public class Stage {
             return null;
         }
         Server.LOGGER.info(current.image.tag + ": deleting deployment ...");
-        engine.deploymentDelete(deploymentName()); // TODO: timeout 5 minutes
-        // TODO: await?
+        pod = runningPodOpt(engine);
+        if (pod == null) {
+            throw new IllegalStateException();
+        }
+        engine.deploymentDelete(deploymentName());
+        engine.podAwait(pod.name, null);
         return current.image.tag;
     }
 
