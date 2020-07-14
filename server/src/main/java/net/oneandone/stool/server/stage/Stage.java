@@ -517,23 +517,23 @@ public class Stage {
         }
     }
 
-    private String podName() {
+    private String deploymentName() {
         return name.replace('.', '-');
     }
     private String certName() {
-        return podName() + "cert";
+        return deploymentName() + "cert";
     }
 
     private void wipeRunningResources(Engine engine) throws IOException {
-        String podName;
+        String deploymentName;
         String serviceName;
 
-        podName = podName();
+        deploymentName = deploymentName();
         serviceName = appServiceName();
         if (engine.serviceGetOpt(serviceName) != null) {
             Server.LOGGER.debug("wipe kubernetes resources");
-            if (engine.podProbe(podName) != null) {
-                engine.podDelete(podName);
+            if (engine.deploymentProbe(deploymentName) != null) {
+                engine.deploymentDelete(deploymentName);
             }
             engine.serviceDelete(serviceName);
             engine.serviceDelete(jmxServiceName());
@@ -545,7 +545,7 @@ public class Stage {
                 engine.ingressDelete(appIngressName());
             }
             try {
-                engine.secretDelete(podName);
+                engine.secretDelete(deploymentName);
             } catch (FileNotFoundException e) {
                 // ok
             }
@@ -561,7 +561,7 @@ public class Stage {
      *  @throws IOException if a different image is already running */
     public String start(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment)
             throws IOException {
-        String podName;
+        String deploymentName;
         PodInfo running;
         Daemon.Status status;
         Map<String, String> environment;
@@ -574,7 +574,7 @@ public class Stage {
         int memoryReserved;
         TagInfo image;
 
-        podName = podName();
+        deploymentName = deploymentName();
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         memoryReserved = server.memoryReservedContainers(engine, registry);
         memoryQuota = server.configuration.memoryQuota;
@@ -633,16 +633,17 @@ public class Stage {
             // TODO: does not map both ports ...
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
         }
-        if (!engine.podCreate(podName, image.repositoryTag, true, null,
+        engine.deploymentCreate(deploymentName, Strings.toMap(POD_LABEL_STAGE, name), labels, image.repositoryTag, true, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
-                false, 1024 * 1024 * image.memory, labels, environment, mounts, dataList)) {
-            throw new IOException("pod already terminated: " + name);
-        }
-        Server.LOGGER.debug("created pod " + podName);
+                1024 * 1024 * image.memory, labels, environment, mounts, dataList);
+
+        Server.LOGGER.debug("created deployment " + deploymentName);
+
+        /* TODO: await running?
         status = engine.podContainerStatus(podName);
         if (status != Daemon.Status.RUNNING) {
             throw new IOException("unexpected status: " + status);
-        }
+        } */
         return image.tag;
     }
 
@@ -661,22 +662,22 @@ public class Stage {
     }
 
     public String httpRouteName() {
-        return podName() + "http";
+        return deploymentName() + "http";
     }
     public String httpsRouteName() {
-        return podName() + "https";
+        return deploymentName() + "https";
     }
     public String appIngressName() {
-        return podName() + "ingress";
+        return deploymentName() + "ingress";
     }
     public String appServiceName() {
-        return podName() + "app";
+        return deploymentName() + "app";
     }
     public String jmxServiceName() {
-        return podName() + "jmxmp";
+        return deploymentName() + "jmxmp";
     }
     public String debugServiceName() {
-        return podName() + "debug";
+        return deploymentName() + "debug";
     }
 
     private static String md5(String str) {
@@ -734,8 +735,9 @@ public class Stage {
         if (current == null) {
             return null;
         }
-        Server.LOGGER.info(current.image.tag + ": deleting pod ...");
-        engine.podDelete(podName()); // TODO: timeout 5 minutes
+        Server.LOGGER.info(current.image.tag + ": deleting deployment ...");
+        engine.deploymentDelete(deploymentName()); // TODO: timeout 5 minutes
+        // TODO: await?
         return current.image.tag;
     }
 
@@ -768,7 +770,7 @@ public class Stage {
         }
 
         // same as hostLogRoot, but the path as needed inside the server:
-        result = Data.secrets(podName(), "/root/.fault");
+        result = Data.secrets(deploymentName(), "/root/.fault");
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.author, image.faultProjects);
@@ -879,10 +881,20 @@ public class Stage {
 
     /** @return null if not running */
     public PodInfo runningPodOpt(Engine engine) throws IOException {
-        PodInfo result;
+        Map<String, PodInfo> lst;
 
-        result = engine.podProbe(podName());
-        return result != null && result.isRunning() ? result : null;
+        lst = engine.podList(Strings.toMap(POD_LABEL_STAGE, name));
+        switch (lst.size()) {
+            case 0:
+                return null;
+            case 1:
+                PodInfo result;
+
+                result = lst.values().iterator().next();
+                return result.isRunning() ? result : null;
+            default:
+                throw new IOException(lst.toString());
+        }
     }
 
     /** @return null if not running */
