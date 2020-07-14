@@ -189,8 +189,10 @@ public class Engine implements AutoCloseable {
             configMapDelete(cm);
         }
         for (String s : secretList().keySet()) {
-            System.out.println("delete secret: " + s);
-            secretDelete(s);
+            if (!s.startsWith("default-token-")) {
+                System.out.println("delete secret: " + s);
+                secretDelete(s);
+            }
         }
     }
 

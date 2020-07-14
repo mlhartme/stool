@@ -76,7 +76,7 @@ import java.util.Set;
 public class Stage {
     private static final String CONTAINER_PREFIX = "net.oneandone.stool-pod-";
 
-    public static final String POD_LABEL_STAGE = CONTAINER_PREFIX + "stage";
+    public static final String DEPLOYMENT_LABEL_STAGE = CONTAINER_PREFIX + "stage";
     public static final String POD_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
 
     //--
@@ -603,7 +603,7 @@ public class Stage {
         Server.LOGGER.info(name + ": starting container ... ");
         mounts = new HashMap<>();
         labels = new HashMap<>();
-        labels.put(POD_LABEL_STAGE, name);
+        labels.put(DEPLOYMENT_LABEL_STAGE, name);
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             labels.put(POD_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
@@ -623,9 +623,9 @@ public class Stage {
                 Strings.toList("http", "https"),
                 ports(Ports.HTTP, Ports.HTTPS),
                 ports(image.ports.http, image.ports.https),
-                Strings.toMap(POD_LABEL_STAGE, name), httpServiceLabels());
-        engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, POD_LABEL_STAGE, name);
-        engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, POD_LABEL_STAGE, name);
+                Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), httpServiceLabels());
+        engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, DEPLOYMENT_LABEL_STAGE, name);
+        engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, DEPLOYMENT_LABEL_STAGE, name);
         if (server.openShift) {
             OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, "http");
             OpenShift.create().routeCreate(httpsRouteName(), stageHost(), appServiceName(), true, "https");
@@ -633,7 +633,7 @@ public class Stage {
             // TODO: does not map both ports ...
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
         }
-        engine.deploymentCreate(deploymentName, Strings.toMap(POD_LABEL_STAGE, name), labels, image.repositoryTag, true, null,
+        engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), labels, image.repositoryTag, true, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 1024 * 1024 * image.memory, labels, environment, mounts, dataList);
 
@@ -658,7 +658,7 @@ public class Stage {
     }
 
     private Map<String, String> httpServiceLabels() {
-        return Strings.toMap(POD_LABEL_STAGE, name);
+        return Strings.toMap(DEPLOYMENT_LABEL_STAGE, name);
     }
 
     public String httpRouteName() {
@@ -888,7 +888,7 @@ public class Stage {
     public PodInfo runningPodOpt(Engine engine) throws IOException {
         Map<String, PodInfo> lst;
 
-        lst = engine.podList(Strings.toMap(POD_LABEL_STAGE, name));
+        lst = engine.podList(Strings.toMap(DEPLOYMENT_LABEL_STAGE, name));
         switch (lst.size()) {
             case 0:
                 return null;
