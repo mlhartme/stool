@@ -228,7 +228,7 @@ public class Setup {
         } else {
             idx = nameAndHost.indexOf('=');
             if (idx == -1) {
-                throw new IllegalStateException(nameAndHost);
+                throw new IllegalStateException("missing '=': " + nameAndHost);
             }
             manager.add(nameAndHost.substring(0, idx), true, nameAndHost.substring(idx + 1), null);
         }
