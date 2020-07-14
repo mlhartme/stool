@@ -74,10 +74,10 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String CONTAINER_PREFIX = "net.oneandone.stool-pod-";
+    private static final String LABEL_PREFIX = "net.oneandone.stool-";
 
-    public static final String DEPLOYMENT_LABEL_STAGE = CONTAINER_PREFIX + "stage";
-    public static final String POD_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
+    public static final String DEPLOYMENT_LABEL_STAGE = LABEL_PREFIX + "stage";
+    public static final String DEPLOYMENT_LABEL_ENV_PREFIX = LABEL_PREFIX  + "env.";
 
     //--
 
@@ -366,8 +366,8 @@ public class Stage {
         if (info != null) {
             for (Map.Entry<String, String> entry : info.labels.entrySet()) {
                 key = entry.getKey();
-                if (key.startsWith(Stage.POD_LABEL_ENV_PREFIX)) {
-                    result.put(key.substring(Stage.POD_LABEL_ENV_PREFIX.length()), entry.getValue());
+                if (key.startsWith(Stage.DEPLOYMENT_LABEL_ENV_PREFIX)) {
+                    result.put(key.substring(Stage.DEPLOYMENT_LABEL_ENV_PREFIX.length()), entry.getValue());
                 }
             }
         }
@@ -524,7 +524,7 @@ public class Stage {
         return deploymentName() + "cert";
     }
 
-    private void wipeRunningResources(Engine engine) throws IOException {
+    private void wipeStartedResources(Engine engine) throws IOException {
         String deploymentName;
         String serviceName;
 
@@ -595,7 +595,7 @@ public class Stage {
                     + "Consider stopping stages.");
         }
         memoryReserved += image.memory; // TODO
-        wipeRunningResources(engine);
+        wipeStartedResources(engine);
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(configuration.environment);
         environment.putAll(clientEnvironment);
@@ -605,7 +605,7 @@ public class Stage {
         labels = new HashMap<>();
         labels.put(DEPLOYMENT_LABEL_STAGE, name);
         for (Map.Entry<String, String> entry : environment.entrySet()) {
-            labels.put(POD_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
+            labels.put(DEPLOYMENT_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
 
         dataList = new ArrayList<>();
@@ -868,7 +868,7 @@ public class Stage {
 
     public void remove(Engine engine, Registry registry) throws IOException {
         StageConfiguration.delete(engine, name);
-        wipeRunningResources(engine);
+        wipeStartedResources(engine);
         wipeImages(registry);
     }
 
