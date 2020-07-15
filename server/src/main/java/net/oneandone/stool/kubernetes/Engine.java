@@ -61,7 +61,6 @@ import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.KubeConfig;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.FileNotFoundException;
@@ -454,10 +453,10 @@ public class Engine implements AutoCloseable {
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                                     String image, boolean imagePull, String[] command,
                                     String hostname, Integer cpu, Integer memory, Map<String, String> containerLabels,
-                                    Map<String, String> env, Map<FileNode, String> hostVolumes, List<Data> dataVolumes) throws IOException {
+                                    Map<String, String> env, List<Data> dataVolumes) throws IOException {
         try {
             apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, image, imagePull, command,
-                    hostname, cpu, memory, containerLabels, env, hostVolumes, dataVolumes), null, null, null);
+                    hostname, cpu, memory, containerLabels, env, dataVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -488,8 +487,7 @@ public class Engine implements AutoCloseable {
     private static V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                            String image, boolean imagePull, String[] command,
                            String hostname, Integer cpu, Integer memory,
-                           Map<String, String> containerLabels, Map<String, String> env, Map<FileNode, String> hostVolumes,
-                           List<Data> dataVolumes) {
+                           Map<String, String> containerLabels, Map<String, String> env, List<Data> dataVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -512,19 +510,6 @@ public class Engine implements AutoCloseable {
         vl = new ArrayList<>();
         ml = new ArrayList<>();
         volumeCount = 0;
-        for (Map.Entry<FileNode, String> entry : hostVolumes.entrySet()) {
-            hp = new V1HostPathVolumeSource();
-            hp.setPath(entry.getKey().getAbsolute());
-            vname = "volume" + ++volumeCount;
-            v = new V1Volume();
-            v.setName(vname);
-            v.setHostPath(hp);
-            vl.add(v);
-            m = new V1VolumeMount();
-            m.setName(vname);
-            m.setMountPath(entry.getValue());
-            ml.add(m);
-        }
         for (Data data : dataVolumes) {
             vname = "volume" + ++volumeCount;
             vl.add(data.volume(vname));
@@ -635,18 +620,18 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, String image, boolean imagePull, String[] command, Map<String, String> labels, Map<String, String> env) throws IOException {
-        return podCreate(name, image, imagePull, command, null, false, null, null, labels, env, Collections.emptyMap(), Collections.emptyList());
+        return podCreate(name, image, imagePull, command, null, false, null, null, labels, env, Collections.emptyList());
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public boolean podCreate(String name, String image, boolean imagePull, String[] command,
                              String hostname, boolean healing, Integer cpu, Integer memory, Map<String, String> labels, Map<String, String> env,
-                          Map<FileNode, String> hostVolumes, List<Data> dataVolumes) throws IOException {
+                             List<Data> dataVolumes) throws IOException {
         String phase;
 
         try {
             core.createNamespacedPod(namespace, pod(name, image, imagePull, command,
-                    hostname, healing, cpu, memory, labels, env, hostVolumes, dataVolumes), null, null, null);
+                    hostname, healing, cpu, memory, labels, env, dataVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -788,8 +773,7 @@ public class Engine implements AutoCloseable {
     @SuppressWarnings("checkstyle:ParameterNumber")
     private static V1Pod pod(String name, String image, boolean imagePull, String[] command,
                              String hostname, boolean healing, Integer cpu, Integer memory,
-                             Map<String, String> labels, Map<String, String> env, Map<FileNode, String> hostVolumes,
-                             List<Data> dataVolumes) {
+                             Map<String, String> labels, Map<String, String> env, List<Data> dataVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -812,19 +796,6 @@ public class Engine implements AutoCloseable {
         vl = new ArrayList<>();
         ml = new ArrayList<>();
         volumeCount = 0;
-        for (Map.Entry<FileNode, String> entry : hostVolumes.entrySet()) {
-            hp = new V1HostPathVolumeSource();
-            hp.setPath(entry.getKey().getAbsolute());
-            vname = "volume" + ++volumeCount;
-            v = new V1Volume();
-            v.setName(vname);
-            v.setHostPath(hp);
-            vl.add(v);
-            m = new V1VolumeMount();
-            m.setName(vname);
-            m.setMountPath(entry.getValue());
-            ml.add(m);
-        }
         for (Data data : dataVolumes) {
             vname = "volume" + ++volumeCount;
             vl.add(data.volume(vname));

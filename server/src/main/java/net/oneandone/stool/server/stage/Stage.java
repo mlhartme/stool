@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.stage;
 
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.docker.Stats;
@@ -563,9 +562,7 @@ public class Stage {
             throws IOException {
         String deploymentName;
         PodInfo running;
-        Daemon.Status status;
         Map<String, String> environment;
-        Map<FileNode, String> mounts;
         List<Data> dataList;
         Data cert;
         Data fault;
@@ -601,7 +598,6 @@ public class Stage {
         environment.putAll(clientEnvironment);
         Server.LOGGER.debug("environment: " + environment);
         Server.LOGGER.info(name + ": starting container ... ");
-        mounts = new HashMap<>();
         labels = new HashMap<>();
         labels.put(DEPLOYMENT_LABEL_STAGE, name);
         for (Map.Entry<String, String> entry : environment.entrySet()) {
@@ -635,7 +631,7 @@ public class Stage {
         }
         engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), labels, image.repositoryTag, true, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
-                1 /* TODO */, 1024 * 1024 * image.memory, labels, environment, mounts, dataList);
+                1 /* TODO */, 1024 * 1024 * image.memory, labels, environment, dataList);
 
         Server.LOGGER.debug("created deployment " + deploymentName);
 
