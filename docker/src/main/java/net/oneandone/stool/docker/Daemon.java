@@ -122,6 +122,10 @@ public class Daemon implements AutoCloseable {
         this.parser = new JsonParser();
     }
 
+    public String getHost() {
+        return root.getRoot().getHostname();
+    }
+
     public void close() {
         root.getWorld().close();
     }

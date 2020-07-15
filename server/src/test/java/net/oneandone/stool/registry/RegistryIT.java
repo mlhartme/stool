@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,14 +50,16 @@ public class RegistryIT {
 
     @Test
     public void docker() throws IOException {
-        final int registryPort = 5000;
-        final String registryPrefix = "localhost:" + registryPort;
         HttpNode root;
         String container;
         Registry registry;
         Map<Integer, String> ports;
 
         try (Daemon docker = Daemon.create(/* "target/registry-wire.log" */ null)) {
+            final int registryPort = 5000;
+            final String registryPrefix = docker.getHost() + ":" + registryPort;
+            System.out.println("prefix: " + registryPrefix);
+
             ports = new HashMap<>();
             ports.put(registryPort, "" + registryPort);
             docker.imagePull("registry:2");
