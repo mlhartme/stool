@@ -99,4 +99,8 @@ public class PodInfo {
     public boolean isRunning() {
         return "Running".equals(phase);
     }
+
+    public String toString() {
+        return name + ":" + repositoryTag + " " + containerId + " " + phase + " " + ip;
+    }
 }

@@ -21,6 +21,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class EngineIT {
     private static final World WORLD = World.createMinimal();
 
     private static Engine create() throws IOException {
-        return Engine.create(WORLD, "stool-engine-it"); // TODO
+        return Engine.create(WORLD, "minishift"); // TODO
     }
 
     @BeforeClass
@@ -83,7 +84,8 @@ public class EngineIT {
 
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
             image = "debian:stretch-slim";
-            engine.podCreate(pod, image, false, new String[] { "sleep", "5"},null,true, null, Strings.toMap("containerLabel", "bla"),
+            engine.podCreate(pod, image, false, new String[] { "sleep", "5"},null, true, null,
+                    null, Strings.toMap("containerLabel", "bla"),
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyList());
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
 
@@ -143,7 +145,7 @@ public class EngineIT {
     private void doHostnameTest(String pod, String hostname, String expected) throws IOException, InterruptedException {
         try (Engine engine = create()) {
             assertFalse(engine.podCreate(pod, "debian:stretch-slim", false,
-                    new String[] { "hostname"}, hostname, false, null, Strings.toMap(), Strings.toMap(),
+                    new String[] { "hostname"}, hostname, false, null, null, Strings.toMap(), Strings.toMap(),
                     Collections.emptyMap(), Collections.emptyList()));
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod));
             assertEquals(expected + "\n", engine.podLogs(pod));
@@ -151,19 +153,19 @@ public class EngineIT {
         }
     }
 
-    @Test
+    @Test @Ignore // TODO
     public void podMount() throws IOException {
-        FileNode home;
+        FileNode dir;
         FileNode file;
         String pod = "bindmount";
         String output;
 
-        home = WORLD.getHome();
-        file = home.createTempFile();
+        dir = WORLD.file("/tmp"); // something that work on a workstation, in a vm, and in a container
+        file = dir.createTempFile();
         try (Engine engine = create()) {
             assertFalse(engine.podCreate(pod, "debian:stretch-slim", false, new String[] { "ls", file.getAbsolute()},
-                    null,false, null, Collections.emptyMap(), Collections.emptyMap(),
-                    Collections.singletonMap(home, home.getAbsolute()), Collections.emptyList()));
+                    null, false, null, null, Collections.emptyMap(), Collections.emptyMap(),
+                    Collections.singletonMap(dir, dir.getAbsolute()), Collections.emptyList()));
             output = engine.podLogs(pod);
             assertTrue(output, output.contains(file.getAbsolute()));
             engine.podDelete(pod);
@@ -174,12 +176,12 @@ public class EngineIT {
     public void podLimit() throws IOException {
         final int limit = 1024*1024*5;
         Stats stats;
-        String pod = "pod";
+        String pod = "limit";
         String container;
 
         try (Engine engine = create(); Daemon docker = Daemon.create()) {
             engine.podCreate(pod, "debian:stretch-slim", false, new String[] { "sleep", "3" },
-                    null,false, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
+                    null, false, null, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(),
                     Collections.emptyList());
             container = engine.podProbe(pod).containerId;
             stats = docker.containerStats(container);
@@ -230,7 +232,7 @@ public class EngineIT {
 
             assertTrue(engine.secretList().containsKey(name));
             assertFalse(engine.podCreate(name, "debian:stretch-slim", false,
-                    new String[] { "cat", "/etc/secrets/sub/renamed.txt" },"somehost", false, null,
+                    new String[] { "cat", "/etc/secrets/sub/renamed.txt" },"somehost", false, null, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("blablub", engine.podLogs(name));
             engine.podDelete(name);
@@ -265,7 +267,7 @@ public class EngineIT {
             assertTrue(engine.configMapList().containsKey(name));
 
             assertFalse(engine.podCreate(name, "debian:stretch-slim", false,
-                    new String[] { "cat", "/etc/test.yaml", "/etc/sub/file"}, "somehost", false, null,
+                    new String[] { "cat", "/etc/test.yaml", "/etc/sub/file"}, "somehost", false, null, null,
                     Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.singletonList(data)));
             assertEquals("123foo", engine.podLogs(name));
 
@@ -287,7 +289,7 @@ public class EngineIT {
 
             assertEquals(0, engine.deploymentList().size());
             engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(), "debian:stretch-slim", true,
-                    new String[] { "sleep", "1000" }, null, null, Strings.toMap("app", "foo"), Strings.toMap(),
+                    new String[] { "sleep", "1000" }, null, null, null, Strings.toMap("app", "foo"), Strings.toMap(),
                     Collections.emptyMap(), Collections.emptyList());
 
             map = engine.deploymentList();

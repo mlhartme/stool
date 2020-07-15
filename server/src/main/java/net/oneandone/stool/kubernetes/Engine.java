@@ -189,7 +189,9 @@ public class Engine implements AutoCloseable {
             configMapDelete(cm);
         }
         for (String s : secretList().keySet()) {
-            if (!s.startsWith("default-token-")) {
+            if (s.startsWith("default-") || s.startsWith("deployer-") || s.startsWith("builder-")) {
+                // skip
+            } else {
                 System.out.println("delete secret: " + s);
                 secretDelete(s);
             }
@@ -451,11 +453,11 @@ public class Engine implements AutoCloseable {
     @SuppressWarnings("checkstyle:ParameterNumber")
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                                     String image, boolean imagePull, String[] command,
-                                    String hostname, Integer memory, Map<String, String> containerLabels,
+                                    String hostname, Integer cpu, Integer memory, Map<String, String> containerLabels,
                                     Map<String, String> env, Map<FileNode, String> hostVolumes, List<Data> dataVolumes) throws IOException {
         try {
             apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, image, imagePull, command,
-                    hostname, memory, containerLabels, env, hostVolumes, dataVolumes), null, null, null);
+                    hostname, cpu, memory, containerLabels, env, hostVolumes, dataVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -485,7 +487,7 @@ public class Engine implements AutoCloseable {
     @SuppressWarnings("checkstyle:ParameterNumber")
     private static V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                            String image, boolean imagePull, String[] command,
-                           String hostname, Integer memory,
+                           String hostname, Integer cpu, Integer memory,
                            Map<String, String> containerLabels, Map<String, String> env, Map<FileNode, String> hostVolumes,
                            List<Data> dataVolumes) {
         List<V1EnvVar> lst;
@@ -530,8 +532,10 @@ public class Engine implements AutoCloseable {
         }
         limits = new HashMap<>();
         if (memory != null) {
-            limits.put("cpu", new Quantity("2"));
             limits.put("memory", new Quantity(memory.toString()));
+        }
+        if (cpu != null) {
+            limits.put("cpu", new Quantity(cpu.toString()));
         }
         container = new V1ContainerBuilder();
         container.addAllToVolumeMounts(ml)
@@ -631,18 +635,18 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, String image, boolean imagePull, String[] command, Map<String, String> labels, Map<String, String> env) throws IOException {
-        return podCreate(name, image, imagePull, command, null, false, null, labels, env, Collections.emptyMap(), Collections.emptyList());
+        return podCreate(name, image, imagePull, command, null, false, null, null, labels, env, Collections.emptyMap(), Collections.emptyList());
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public boolean podCreate(String name, String image, boolean imagePull, String[] command,
-                             String hostname, boolean healing, Integer memory, Map<String, String> labels, Map<String, String> env,
+                             String hostname, boolean healing, Integer cpu, Integer memory, Map<String, String> labels, Map<String, String> env,
                           Map<FileNode, String> hostVolumes, List<Data> dataVolumes) throws IOException {
         String phase;
 
         try {
             core.createNamespacedPod(namespace, pod(name, image, imagePull, command,
-                    hostname, healing, memory, labels, env, hostVolumes, dataVolumes), null, null, null);
+                    hostname, healing, cpu, memory, labels, env, hostVolumes, dataVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -783,7 +787,7 @@ public class Engine implements AutoCloseable {
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
     private static V1Pod pod(String name, String image, boolean imagePull, String[] command,
-                             String hostname, boolean healing, Integer memory,
+                             String hostname, boolean healing, Integer cpu, Integer memory,
                              Map<String, String> labels, Map<String, String> env, Map<FileNode, String> hostVolumes,
                              List<Data> dataVolumes) {
         List<V1EnvVar> lst;
@@ -827,8 +831,10 @@ public class Engine implements AutoCloseable {
             data.mounts(vname, ml);
         }
         limits = new HashMap<>();
+        if (cpu != null) {
+            limits.put("cpu", new Quantity(cpu.toString()));
+        }
         if (memory != null) {
-            limits.put("cpu", new Quantity("2"));
             limits.put("memory", new Quantity(memory.toString()));
         }
         container = new V1ContainerBuilder();

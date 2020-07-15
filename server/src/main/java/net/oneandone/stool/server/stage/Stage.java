@@ -635,7 +635,7 @@ public class Stage {
         }
         engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), labels, image.repositoryTag, true, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
-                1024 * 1024 * image.memory, labels, environment, mounts, dataList);
+                1 /* TODO */, 1024 * 1024 * image.memory, labels, environment, mounts, dataList);
 
         Server.LOGGER.debug("created deployment " + deploymentName);
 
