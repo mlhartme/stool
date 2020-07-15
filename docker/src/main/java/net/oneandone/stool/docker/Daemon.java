@@ -21,8 +21,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import jnr.unixsocket.UnixSocketAddress;
-import jnr.unixsocket.UnixSocketChannel;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -35,46 +33,13 @@ import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Strings;
 
-import javax.net.SocketFactory;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509KeyManager;
-import javax.net.ssl.X509TrustManager;
-import javax.security.auth.x500.X500Principal;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.nio.CharBuffer;
-import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -83,16 +48,10 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 /**
  * Connect to local docker daemon via unix socket. https://docs.docker.com/engine/api/v1.37/
@@ -106,207 +65,49 @@ public class Daemon implements AutoCloseable {
         REMOVING /* not used in my code, but docker engine documentation says it can be returned */
     }
 
-    public static void main(String[] args) throws Exception {
-        FileNode path;
-        URL url;
-        HttpsURLConnection conn;
-        KeyStore trustStore;
-        KeyStore keyStore;
-        SSLContext sslContext;
-
-        path = World.create().file("/Users/mhm/.minishift/certs");
-        trustStore = trustStore(path.join("ca.pem"));
-        keyStore = keyStore(path);
-
-        sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(new KeyManager[] { keyManager(keyStore) }, new TrustManager[]{trustManager(trustStore)}, null);
-
-        HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-
-        url = new URL("https://192.168.64.7:2376/v1.40/version");
-        //url = new URL("https://contargo.server.lan/");
-        //url = new URL("https://heise.de/");
-        conn = (HttpsURLConnection) url.openConnection();
-        try (InputStream is = conn.getInputStream()) {
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-
-            String inputLine;
-
-            while ((inputLine = br.readLine()) != null) {
-                System.out.println(inputLine);
-            }
-        }
-    }
-
-    //--  see https://gist.github.com/dain/29ce5c135796c007f9ec88e82ab21822
-
-    private static final Pattern CERT_PATTERN = Pattern.compile(
-            "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+" + // Header
-                    "([a-z0-9+/=\\r\\n]+)" +                    // Base64 text
-                    "-+END\\s+.*CERTIFICATE[^-]*-+",            // Footer
-            CASE_INSENSITIVE);
-
-    private static final Pattern KEY_PATTERN = Pattern.compile(
-            "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" + // Header
-                    "([a-z0-9+/=\\r\\n]+)" +                       // Base64 text
-                    "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",            // Footer
-            CASE_INSENSITIVE);
-
-    public static KeyStore loadTrustStore(String certificateChainArg) throws IOException, GeneralSecurityException {
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        keyStore.load(null, null);
-
-        List<X509Certificate> certificateChain = readCertificateChain(certificateChainArg);
-        for (X509Certificate certificate : certificateChain) {
-            X500Principal principal = certificate.getSubjectX500Principal();
-            keyStore.setCertificateEntry(principal.getName("RFC2253"), certificate);
-        }
-        return keyStore;
-    }
-
-    public static KeyStore loadKeyStore(String certificateChainArg, String privateKey) throws IOException, GeneralSecurityException {
-        PKCS8EncodedKeySpec encodedKeySpec = readPrivateKey(privateKey);
-        PrivateKey key;
-
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        key = keyFactory.generatePrivate(encodedKeySpec);
-
-        List<X509Certificate> certificateChain = readCertificateChain(certificateChainArg);
-        if (certificateChain.isEmpty()) {
-            throw new CertificateException("Certificate file does not contain any certificates");
-        }
-
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        keyStore.load(null, null);
-        keyStore.setKeyEntry("key", key, "".toCharArray(), certificateChain.stream().toArray(Certificate[]::new));
-        return keyStore;
-    }
-
-    //--
-
-    private static List<X509Certificate> readCertificateChain(String contents) throws GeneralSecurityException {
-        Matcher matcher = CERT_PATTERN.matcher(contents);
-        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-        List<X509Certificate> certificates = new ArrayList<>();
-
-        int start = 0;
-        while (matcher.find(start)) {
-            byte[] buffer = decode(matcher.group(1));
-            certificates.add((X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(buffer)));
-            start = matcher.end();
-        }
-
-        return certificates;
-    }
-
-    private static PKCS8EncodedKeySpec readPrivateKey(String content) throws IOException {
-        Matcher matcher = KEY_PATTERN.matcher(content);
-        if (!matcher.find()) {
-            throw new IOException("found no private key");
-        }
-        byte[] encodedKey = decode(matcher.group(1));
-
-        return new PKCS8EncodedKeySpec(encodedKey);
-    }
-
-    private static KeyStore keyStore(FileNode dir) throws Exception {
-        return loadKeyStore(dir.join("cert.pem").readString(), dir.join("key8.pem").readString());
-    }
-
-    private static KeyStore trustStore(FileNode ca) throws GeneralSecurityException, IOException {
-        KeyStore result;
-
-        result = loadTrustStore(ca.readString());
-        Enumeration e = result.aliases();
-        while (e.hasMoreElements()) {
-            System.out.println("alias: " + e.nextElement());
-        }
-        return result;
-    }
-
-    private static X509TrustManager trustManager(KeyStore trustStore) throws NoSuchAlgorithmException, KeyStoreException {
-        TrustManagerFactory trustManagerFactory;
-
-        trustManagerFactory = TrustManagerFactory.getInstance("PKIX");
-        trustManagerFactory.init(trustStore);
-        for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
-            if (trustManager instanceof X509TrustManager) {
-                return (X509TrustManager) trustManager;
-            }
-        }
-        throw new IllegalStateException();
-    }
-
-    private static X509KeyManager keyManager(KeyStore keyStore) throws NoSuchAlgorithmException, KeyStoreException, NoSuchProviderException, UnrecoverableKeyException {
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
-        keyManagerFactory.init(keyStore, "".toCharArray());
-
-        for (KeyManager keyManager : keyManagerFactory.getKeyManagers()) {
-            if (keyManager instanceof X509KeyManager) {
-                return (X509KeyManager) keyManager;
-            }
-        }
-        throw new IllegalStateException();
-    }
-
-    private static byte[] decode(String base64) {
-        return Base64.getMimeDecoder().decode(base64.getBytes(US_ASCII));
-    }
-
-
     public static Daemon create() throws IOException {
         return create(null);
     }
 
     public static Daemon create(String wirelog) throws IOException {
-        return create("/var/run/docker.sock", wirelog);
-    }
-
-    public static Daemon create(String socketPath, String wirelog) throws IOException {
+        final String tcp = "tcp://";
         World world;
         HttpFilesystem fs;
         HttpNode root;
+        String dockerHost;
+        String certs;
 
         // CAUTION: local World because I need a special socket factory and multiple Engine instances must *not* share the same buffers
         world = World.create();
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        fs = (HttpFilesystem) world.getFilesystem("http");
-        fs.setSocketFactorySelector((String protocol, String hostname) ->
-                new SocketFactory() {
-                    @Override
-                    public Socket createSocket(String s, int i) throws IOException {
-                        return socket();
-                    }
-
-                    @Override
-                    public Socket createSocket(String s, int i, InetAddress inetAddress, int i1) throws IOException {
-                        return socket();
-                    }
-
-                    @Override
-                    public Socket createSocket(InetAddress inetAddress, int i) throws IOException {
-                        return socket();
-                    }
-
-                    @Override
-                    public Socket createSocket(InetAddress inetAddress, int i, InetAddress inetAddress1, int i1) throws IOException {
-                        return socket();
-                    }
-
-                    private Socket socket() throws IOException {
-                        UnixSocketAddress address;
-
-                        address = new UnixSocketAddress(new File(socketPath));
-                        return UnixSocketChannel.open(address).socket();
-                    }
-                }
-        );
-        root = (HttpNode) world.validNode("http://localhost/v1.38");
+        dockerHost = getenv("DOCKER_HOST", "/var/run/docker.sock");
+        if (dockerHost.startsWith(tcp)) {
+            if (!"1".equals(System.getenv("DOCKER_TLS_VERIFY"))) {
+                throw new IOException("unsupported DOCKER_TLS_VERIFY: " + System.getenv("DOCKER_TLS_VERIFY"));
+            }
+            certs = System.getenv("DOCKER_CERT_PATH");
+            if (certs == null) {
+                throw new IOException("missing certs path");
+            }
+            fs = (HttpFilesystem) world.getFilesystem("https");
+            fs.setSocketFactorySelector((String protocol, String hostname) -> DaemonSocket.tcpSocketFactory(world.file(certs)));
+            root = (HttpNode) world.validNode("https://" + Strings.removeLeft(dockerHost, tcp));
+        } else {
+            fs = (HttpFilesystem) world.getFilesystem("http");
+            fs.setSocketFactorySelector((String protocol, String hostname) -> DaemonSocket.unixSocketFactory(dockerHost));
+            root = (HttpNode) world.validNode("http://localhost/v1.38");
+        }
         root.getRoot().addExtraHeader("Content-Type", "application/json");
         return new Daemon(root);
+    }
+
+    private static String getenv(String name, String dflt) {
+        String result;
+
+        result = System.getenv(name);
+        return result != null ? result : dflt;
     }
 
     public final World world;
