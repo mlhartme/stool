@@ -97,7 +97,7 @@ public class Daemon implements AutoCloseable {
         } else {
             fs = (HttpFilesystem) world.getFilesystem("http");
             fs.setSocketFactorySelector((String protocol, String hostname) -> DaemonSocket.unixSocketFactory(dockerHost));
-            root = (HttpNode) world.validNode("http://localhost/v1.38");
+            root = (HttpNode) world.validNode("http://localhost/v1.26"); // that's in openshift 3.11
         }
         root.getRoot().addExtraHeader("Content-Type", "application/json");
         return new Daemon(root);
@@ -201,6 +201,8 @@ public class Daemon implements AutoCloseable {
         String line;
         JsonElement aux;
         String id;
+        String successResult;
+        String tmp;
         FileNode tar;
 
         validateReference(repositoryTag);
@@ -217,6 +219,7 @@ public class Daemon implements AutoCloseable {
         error = null;
         errorDetail = null;
         id = null;
+        successResult = null;
         tar = FileNodes.tar(context);
         try {
             try (InputStream raw = postStream(build, tar)) {
@@ -228,13 +231,24 @@ public class Daemon implements AutoCloseable {
                             throw new BuildError(repositoryTag, error, errorDetail, output.toString());
                         }
                         if (id == null) {
+                            if (successResult != null) {  // TODO: needed for 1.26 -- unused in 1.38
+                                // successResult is shortend - get the full id
+                                return pruneImageId(imageInspect(successResult).get("Id").getAsString());
+                            }
                             throw new IOException("missing id");
                         }
                         return id;
                     }
                     object = parser.parse(line).getAsJsonObject();
 
-                    eatStream(object, output, log);
+                    tmp = eatStream(object, output, log);
+                    if (successResult == null) {
+                        successResult = tmp;
+                    } else {
+                        if (tmp != null) {
+                            throw new IOException("too many success results: " + successResult + " vs " + tmp);
+                        }
+                    }
                     eatString(object, "status", output, log);
                     eatString(object, "id", output, log);
                     eatString(object, "progress", output, log);
@@ -665,8 +679,20 @@ public class Daemon implements AutoCloseable {
 
     //--
 
-    private void eatStream(JsonObject object, StringBuilder result, Writer log) throws IOException {
-        eat(object, "stream", "", "", true, result, log);
+    private String eatStream(JsonObject object, StringBuilder result, Writer log) throws IOException {
+        String prefix = "Successfully built ";
+        JsonElement json;
+        String str;
+
+        json = eat(object, "stream", "", "", true, result, log);
+        if (json == null) {
+            return null;
+        }
+        str = json.getAsString();
+        if (!str.startsWith(prefix)) {
+            return null;
+        }
+        return str.substring(prefix.length()).trim();
     }
 
     private JsonElement eatString(JsonObject object, String key, StringBuilder result, Writer log) throws IOException {
