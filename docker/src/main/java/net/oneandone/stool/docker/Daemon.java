@@ -36,16 +36,45 @@ import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Strings;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
+import javax.security.auth.x500.X500Principal;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URL;
+import java.nio.CharBuffer;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -54,10 +83,16 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 /**
  * Connect to local docker daemon via unix socket. https://docs.docker.com/engine/api/v1.37/
@@ -70,6 +105,174 @@ public class Daemon implements AutoCloseable {
         EXITED,
         REMOVING /* not used in my code, but docker engine documentation says it can be returned */
     }
+
+    public static void main(String[] args) throws Exception {
+        String path = "/Users/mhm/.minishift/certs/";
+        URL url;
+        HttpsURLConnection conn;
+        KeyStore trustStore;
+        KeyStore keyStore;
+        SSLContext sslContext;
+
+        trustStore = trustStore(path + "ca.pem" /* "/Users/mhm/Downloads/pukirootca1.crt" */);
+        keyStore = keyStore(new File(path + "cert.pem"), new File(path + "key8.pem"));
+
+        sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(new KeyManager[] { keyManager(keyStore) }, new TrustManager[]{trustManager(trustStore)}, null);
+
+        HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+
+        url = new URL("https://192.168.64.7:2376/v1.40/version");
+        //url = new URL("https://contargo.server.lan/");
+        //url = new URL("https://heise.de/");
+        conn = (HttpsURLConnection) url.openConnection();
+        try (InputStream is = conn.getInputStream()) {
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+
+            String inputLine;
+
+            while ((inputLine = br.readLine()) != null) {
+                System.out.println(inputLine);
+            }
+        }
+    }
+
+    //--  see https://gist.github.com/dain/29ce5c135796c007f9ec88e82ab21822
+
+    private static final Pattern CERT_PATTERN = Pattern.compile(
+            "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+" + // Header
+                    "([a-z0-9+/=\\r\\n]+)" +                    // Base64 text
+                    "-+END\\s+.*CERTIFICATE[^-]*-+",            // Footer
+            CASE_INSENSITIVE);
+
+    private static final Pattern KEY_PATTERN = Pattern.compile(
+            "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" + // Header
+                    "([a-z0-9+/=\\r\\n]+)" +                       // Base64 text
+                    "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",            // Footer
+            CASE_INSENSITIVE);
+
+    public static KeyStore loadTrustStore(File certificateChainFile) throws IOException, GeneralSecurityException {
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(null, null);
+
+        List<X509Certificate> certificateChain = readCertificateChain(certificateChainFile);
+        for (X509Certificate certificate : certificateChain) {
+            X500Principal principal = certificate.getSubjectX500Principal();
+            keyStore.setCertificateEntry(principal.getName("RFC2253"), certificate);
+        }
+        return keyStore;
+    }
+
+    public static KeyStore loadKeyStore(File certificateChainFile, File privateKeyFile) throws IOException, GeneralSecurityException {
+        PKCS8EncodedKeySpec encodedKeySpec = readPrivateKey(privateKeyFile);
+        PrivateKey key;
+
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        key = keyFactory.generatePrivate(encodedKeySpec);
+
+        List<X509Certificate> certificateChain = readCertificateChain(certificateChainFile);
+        if (certificateChain.isEmpty()) {
+            throw new CertificateException("Certificate file does not contain any certificates: " + certificateChainFile);
+        }
+
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(null, null);
+        keyStore.setKeyEntry("key", key, "".toCharArray(), certificateChain.stream().toArray(Certificate[]::new));
+        return keyStore;
+    }
+
+    //--
+
+    private static List<X509Certificate> readCertificateChain(File certificateChainFile)
+            throws IOException, GeneralSecurityException {
+        String contents = readFile(certificateChainFile);
+
+        Matcher matcher = CERT_PATTERN.matcher(contents);
+        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+        List<X509Certificate> certificates = new ArrayList<>();
+
+        int start = 0;
+        while (matcher.find(start)) {
+            byte[] buffer = base64Decode(matcher.group(1));
+            certificates.add((X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(buffer)));
+            start = matcher.end();
+        }
+
+        return certificates;
+    }
+
+    private static PKCS8EncodedKeySpec readPrivateKey(File keyFile) throws IOException, GeneralSecurityException {
+        String content = readFile(keyFile);
+
+        Matcher matcher = KEY_PATTERN.matcher(content);
+        if (!matcher.find()) {
+            throw new KeyStoreException("found no private key: " + keyFile);
+        }
+        byte[] encodedKey = base64Decode(matcher.group(1));
+
+        return new PKCS8EncodedKeySpec(encodedKey);
+    }
+
+    private static byte[] base64Decode(String base64) {
+        return Base64.getMimeDecoder().decode(base64.getBytes(US_ASCII));
+    }
+
+    private static String readFile(File file)
+            throws IOException {
+        try (Reader reader = new InputStreamReader(new FileInputStream(file), US_ASCII)) {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            CharBuffer buffer = CharBuffer.allocate(2048);
+            while (reader.read(buffer) != -1) {
+                buffer.flip();
+                stringBuilder.append(buffer);
+                buffer.clear();
+            }
+            return stringBuilder.toString();
+        }
+    }
+
+    private static KeyStore keyStore(File cert, File key) throws Exception {
+        return loadKeyStore(cert, key);
+    }
+
+    private static KeyStore trustStore(String path) throws GeneralSecurityException, IOException {
+        KeyStore result;
+
+        result = loadTrustStore(new File(path));
+        Enumeration e = result.aliases();
+        while (e.hasMoreElements()) {
+            System.out.println("alias: " + e.nextElement());
+        }
+        return result;
+    }
+
+    private static X509TrustManager trustManager(KeyStore trustStore) throws NoSuchAlgorithmException, KeyStoreException {
+        TrustManagerFactory trustManagerFactory;
+
+        trustManagerFactory = TrustManagerFactory.getInstance("PKIX");
+        trustManagerFactory.init(trustStore);
+        for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
+            if (trustManager instanceof X509TrustManager) {
+                return (X509TrustManager) trustManager;
+            }
+        }
+        throw new IllegalStateException();
+    }
+
+    private static X509KeyManager keyManager(KeyStore keyStore) throws NoSuchAlgorithmException, KeyStoreException, NoSuchProviderException, UnrecoverableKeyException {
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
+        keyManagerFactory.init(keyStore, "".toCharArray());
+
+        for (KeyManager keyManager : keyManagerFactory.getKeyManagers()) {
+            if (keyManager instanceof X509KeyManager) {
+                return (X509KeyManager) keyManager;
+            }
+        }
+        throw new IllegalStateException();
+    }
+
 
     public static Daemon create() throws IOException {
         return create(null);
