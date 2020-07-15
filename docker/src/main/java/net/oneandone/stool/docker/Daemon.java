@@ -107,15 +107,16 @@ public class Daemon implements AutoCloseable {
     }
 
     public static void main(String[] args) throws Exception {
-        String path = "/Users/mhm/.minishift/certs/";
+        FileNode path;
         URL url;
         HttpsURLConnection conn;
         KeyStore trustStore;
         KeyStore keyStore;
         SSLContext sslContext;
 
-        trustStore = trustStore(path + "ca.pem" /* "/Users/mhm/Downloads/pukirootca1.crt" */);
-        keyStore = keyStore(new File(path + "cert.pem"), new File(path + "key8.pem"));
+        path = World.create().file("/Users/mhm/.minishift/certs");
+        trustStore = trustStore(path.join("ca.pem"));
+        keyStore = keyStore(path);
 
         sslContext = SSLContext.getInstance("TLS");
         sslContext.init(new KeyManager[] { keyManager(keyStore) }, new TrustManager[]{trustManager(trustStore)}, null);
@@ -152,11 +153,11 @@ public class Daemon implements AutoCloseable {
                     "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",            // Footer
             CASE_INSENSITIVE);
 
-    public static KeyStore loadTrustStore(File certificateChainFile) throws IOException, GeneralSecurityException {
+    public static KeyStore loadTrustStore(String certificateChainArg) throws IOException, GeneralSecurityException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
         keyStore.load(null, null);
 
-        List<X509Certificate> certificateChain = readCertificateChain(certificateChainFile);
+        List<X509Certificate> certificateChain = readCertificateChain(certificateChainArg);
         for (X509Certificate certificate : certificateChain) {
             X500Principal principal = certificate.getSubjectX500Principal();
             keyStore.setCertificateEntry(principal.getName("RFC2253"), certificate);
@@ -164,16 +165,16 @@ public class Daemon implements AutoCloseable {
         return keyStore;
     }
 
-    public static KeyStore loadKeyStore(File certificateChainFile, File privateKeyFile) throws IOException, GeneralSecurityException {
-        PKCS8EncodedKeySpec encodedKeySpec = readPrivateKey(privateKeyFile);
+    public static KeyStore loadKeyStore(String certificateChainArg, String privateKey) throws IOException, GeneralSecurityException {
+        PKCS8EncodedKeySpec encodedKeySpec = readPrivateKey(privateKey);
         PrivateKey key;
 
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         key = keyFactory.generatePrivate(encodedKeySpec);
 
-        List<X509Certificate> certificateChain = readCertificateChain(certificateChainFile);
+        List<X509Certificate> certificateChain = readCertificateChain(certificateChainArg);
         if (certificateChain.isEmpty()) {
-            throw new CertificateException("Certificate file does not contain any certificates: " + certificateChainFile);
+            throw new CertificateException("Certificate file does not contain any certificates");
         }
 
         KeyStore keyStore = KeyStore.getInstance("JKS");
@@ -184,17 +185,14 @@ public class Daemon implements AutoCloseable {
 
     //--
 
-    private static List<X509Certificate> readCertificateChain(File certificateChainFile)
-            throws IOException, GeneralSecurityException {
-        String contents = readFile(certificateChainFile);
-
+    private static List<X509Certificate> readCertificateChain(String contents) throws GeneralSecurityException {
         Matcher matcher = CERT_PATTERN.matcher(contents);
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
         List<X509Certificate> certificates = new ArrayList<>();
 
         int start = 0;
         while (matcher.find(start)) {
-            byte[] buffer = base64Decode(matcher.group(1));
+            byte[] buffer = decode(matcher.group(1));
             certificates.add((X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(buffer)));
             start = matcher.end();
         }
@@ -202,45 +200,24 @@ public class Daemon implements AutoCloseable {
         return certificates;
     }
 
-    private static PKCS8EncodedKeySpec readPrivateKey(File keyFile) throws IOException, GeneralSecurityException {
-        String content = readFile(keyFile);
-
+    private static PKCS8EncodedKeySpec readPrivateKey(String content) throws IOException {
         Matcher matcher = KEY_PATTERN.matcher(content);
         if (!matcher.find()) {
-            throw new KeyStoreException("found no private key: " + keyFile);
+            throw new IOException("found no private key");
         }
-        byte[] encodedKey = base64Decode(matcher.group(1));
+        byte[] encodedKey = decode(matcher.group(1));
 
         return new PKCS8EncodedKeySpec(encodedKey);
     }
 
-    private static byte[] base64Decode(String base64) {
-        return Base64.getMimeDecoder().decode(base64.getBytes(US_ASCII));
+    private static KeyStore keyStore(FileNode dir) throws Exception {
+        return loadKeyStore(dir.join("cert.pem").readString(), dir.join("key8.pem").readString());
     }
 
-    private static String readFile(File file)
-            throws IOException {
-        try (Reader reader = new InputStreamReader(new FileInputStream(file), US_ASCII)) {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            CharBuffer buffer = CharBuffer.allocate(2048);
-            while (reader.read(buffer) != -1) {
-                buffer.flip();
-                stringBuilder.append(buffer);
-                buffer.clear();
-            }
-            return stringBuilder.toString();
-        }
-    }
-
-    private static KeyStore keyStore(File cert, File key) throws Exception {
-        return loadKeyStore(cert, key);
-    }
-
-    private static KeyStore trustStore(String path) throws GeneralSecurityException, IOException {
+    private static KeyStore trustStore(FileNode ca) throws GeneralSecurityException, IOException {
         KeyStore result;
 
-        result = loadTrustStore(new File(path));
+        result = loadTrustStore(ca.readString());
         Enumeration e = result.aliases();
         while (e.hasMoreElements()) {
             System.out.println("alias: " + e.nextElement());
@@ -271,6 +248,10 @@ public class Daemon implements AutoCloseable {
             }
         }
         throw new IllegalStateException();
+    }
+
+    private static byte[] decode(String base64) {
+        return Base64.getMimeDecoder().decode(base64.getBytes(US_ASCII));
     }
 
 
