@@ -64,16 +64,6 @@ public class DaemonIT {
     }
 
     @Test
-    public void invalidDockerfile() throws IOException {
-        try (Daemon docker = create()) {
-            docker.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nls -la /dev/fuse\n"), false, null);
-            fail();
-        } catch (StatusException e) {
-            assertEquals(400, e.getStatusLine().code);
-        }
-    }
-
-    @Test
     public void copy() throws IOException {
         String image = "stooltest";
 
@@ -88,11 +78,11 @@ public class DaemonIT {
         String image = "stooltest";
 
         try (Daemon docker = create()) {
-            docker.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
+            docker.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCOPY nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
             fail();
         } catch (BuildError e) {
             // ok
-            assertTrue(e.error.contains("COPY failed"));
+            assertTrue(e.error, e.error.contains("nosuchfile"));
             assertNotNull("", e.output);
         }
     }
