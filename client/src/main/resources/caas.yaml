@@ -87,7 +87,7 @@ spec:
       serviceAccountName: stool-account
       containers:
       - name: stool
-        image: contargo.server.lan/cisoops-public/stool-server:latest
+        image: ${repositoryTag}
         resources:
           limits:
             cpu: 2

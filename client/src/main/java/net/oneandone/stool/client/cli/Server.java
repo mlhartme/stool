@@ -18,6 +18,8 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -40,18 +42,20 @@ public class Server {
     private final FileNode dest;
     private final Console console;
     private final boolean overwrite;
+    private final boolean resolve;
     private final String hostname;
     private final Map<String, String> opts;
 
     private final URI portus;
 
-    public Server(Globals globals, boolean overwrite, String hostname, List<String> args) {
+    public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, List<String> args) {
         int idx;
         String shortname;
 
         this.world = globals.getWorld();
         this.console = globals.getConsole();
         this.overwrite = overwrite;
+        this.resolve = resolve;
         this.hostname = hostname;
         this.opts = new HashMap<>();
         shortname = eat(args, shortname(hostname));
@@ -103,7 +107,7 @@ public class Server {
             dest.checkNotExists();
         }
         dest.writeString(serverYaml());
-        console.info.println("Successfully created " + dest);
+        console.info.println("done: " + dest);
     }
 
     public static void addIfNew(Map<String, String> env, String name, String value) {
@@ -141,6 +145,7 @@ public class Server {
             map = new HashMap<>();
             map.put("portus", portus.toString());
             map.put("host", hostname);
+            map.put("repositoryTag", repositoryTag());
             map.put("cert", tomcatP12(world, console, hostname));
             map.put("cert-script", certScript(world, hostname));
             result = world.resource("caas.yaml").readString();
@@ -149,6 +154,27 @@ public class Server {
             } catch (SubstitutionException e) {
                 throw new IllegalStateException(e);
             }
+        }
+    }
+
+    private String repositoryTag() throws IOException {
+        if (resolve) {
+            try (Daemon docker = Daemon.create()) {
+                for (ImageInfo image : docker.imageList().values()) {
+                    if (image.repositoryTags.remove("contargo.server.lan/cisoops-public/stool-server:latest")) {
+                        if (image.repositoryTags.isEmpty()) {
+                            throw new IllegalStateException();
+                        }
+                        if (image.repositoryTags.size() > 1) {
+                            console.info.println("warning: repository tag ambiguous: " + image.repositoryTags);
+                        }
+                        return image.repositoryTags.get(0);
+                    }
+                }
+            }
+            throw new IOException("resolve failed");
+        } else {
+            return "latest";
         }
     }
 
