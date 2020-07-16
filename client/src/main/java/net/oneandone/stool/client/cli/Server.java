@@ -103,10 +103,7 @@ public class Server {
             dest.checkNotExists();
         }
         dest.writeString(serverYaml());
-        console.info.println("Created " + dest);
-        console.info.println("Start/stop server like this:");
-        console.info.println("  kubectl apply -f " + dest.getAbsolute());
-        console.info.println("  kubectl delete -f " + dest.getAbsolute());
+        console.info.println("Successfully created " + dest);
     }
 
     public static void addIfNew(Map<String, String> env, String name, String value) {
@@ -144,7 +141,7 @@ public class Server {
             map = new HashMap<>();
             map.put("portus", portus.toString());
             map.put("host", hostname);
-            map.put("cert", cert(world, hostname));
+            map.put("cert", tomcatP12(world, console, hostname));
             map.put("cert-script", certScript(world, hostname));
             result = world.resource("caas.yaml").readString();
             try {
@@ -167,19 +164,29 @@ public class Server {
         return Base64.getEncoder().encodeToString(str.getBytes("utf8"));
     }
 
-    private static String cert(World world, String hostname) throws IOException {
+    private static String tomcatP12(World world, Console console, String hostname) throws IOException {
         FileNode puppet;
-        FileNode chain;
+        FileNode key;
+        FileNode crt;
+        FileNode ca;
         FileNode p12;
+        FileNode chain;
+        long p12modified;
 
-        puppet = world.file(System.getenv("PUPPET_FILES_ROOT")).checkDirectory();
-        chain = world.getTemp().createTempFile();
-        p12 = world.getTemp().createTempFile();
-        chain.writeString(puppet.join("otherfiles/certificates/" + hostname + ".crt").readString()
-                + puppet.join("otherfiles/certificates/ca/1und1PUKIIssuingCA2.pem").readString());
-        puppet.exec("openssl", "pkcs12", "-export", "-in", chain.getAbsolute(),
-                "-inkey", puppet.join("otherfiles/certificates/" + hostname + ".key").getAbsolute(),
-                "-out", p12.getAbsolute(), "-name", "tomcat", "-passout", "pass:changeit");
+        puppet = world.file(System.getenv("PUPPET_FILES_ROOT")).join("otherfiles/certificates").checkDirectory();
+        p12 = puppet.join(hostname + ".p12");
+        crt = puppet.join(hostname + ".crt");
+        key = puppet.join(hostname + ".key");
+        ca = puppet.join("ca/1und1PUKIIssuingCA2.pem");
+        p12modified = p12.exists() ? p12.getLastModified() : Long.MIN_VALUE;
+        if (crt.getLastModified() > p12modified || key.getLastModified() > p12modified || ca.getLastModified() > p12modified) {
+            console.info.println("generating " + p12);
+            chain = world.getTemp().createTempFile();
+            chain.writeString(crt.readString() + ca.readString());
+            puppet.exec("openssl", "pkcs12", "-export", "-in", chain.getAbsolute(),
+                    "-inkey", key.getAbsolute(),
+                    "-out", p12.getAbsolute(), "-name", "tomcat", "-passout", "pass:changeit");
+        }
         return Base64.getEncoder().encodeToString(p12.readBytes());
     }
 
