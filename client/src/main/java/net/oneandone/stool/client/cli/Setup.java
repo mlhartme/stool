@@ -27,8 +27,6 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.Properties;
 
 public class Setup {
     public static FileNode cisotools(World world) {
@@ -36,18 +34,6 @@ public class Setup {
 
         path = System.getenv("CISOTOOLS_HOME");
         return path == null ? null : world.file(path);
-    }
-
-    public static URI portus(World world) {
-        Properties tmp;
-
-        try {
-            // TODO
-            tmp = world.getHome().join(".sc.properties").readProperties();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-        return URI.create(tmp.getProperty("portus"));
     }
 
     private final World world;
@@ -59,9 +45,7 @@ public class Setup {
     private final String nameAndHost;
     private final String registryPrefix;
 
-    public Setup(Globals globals, String nameAndHost, boolean batch) {
-        URI portus;
-
+    public Setup(Globals globals, String nameAndHost, boolean batch, String registryPrefix) {
         this.world = globals.getWorld();
         this.gson = globals.getGson();
         this.home = globals.getHome();
@@ -69,10 +53,7 @@ public class Setup {
         this.version = Main.versionString(world);
         this.batch = batch;
         this.nameAndHost = nameAndHost;
-
-        portus = portus(world);
-
-        this.registryPrefix = portus.getHost() + portus.getPath();
+        this.registryPrefix = registryPrefix;
     }
 
     public void run() throws IOException {
@@ -244,8 +225,7 @@ public class Setup {
         for (Server s : environment.allServer()) {
             s.addTo(configuration);
         }
-
-        configuration.setRegistryPrefix(registryPrefix);
+        configuration.setRegistryPrefix(registryPrefix != null ? registryPrefix : environment.registryPrefix());
         configuration.setVersion(version);
         configuration.save(gson);
     }

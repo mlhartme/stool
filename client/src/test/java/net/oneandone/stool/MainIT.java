@@ -16,6 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.client.cli.Main;
+import net.oneandone.stool.client.cli.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -24,6 +25,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 
 import static org.junit.Assert.fail;
 
@@ -58,6 +60,13 @@ public class MainIT {
         kubectl("delete", "-f", SERVER_YAML.getAbsolute());
     }
 
+    private static String portusPrefix() {
+        URI portus;
+
+        portus = Server.portus(WORLD);
+        return portus.getHost() + portus.getPath();
+    }
+
     @Test
     public void turnaround() throws IOException, InterruptedException {
         FileNode working;
@@ -69,7 +78,7 @@ public class MainIT {
         System.out.println("git");
 
         sc("server", "localhost", "localhost" /* TODO */, SERVER_YAML.getAbsolute());
-        sc("setup", "-batch", "localhost=http://localhost:31000/api");
+        sc("setup", "-batch", "-registryPrefix", portusPrefix(), "localhost=http://localhost:31000/api");
 
         kubectl("delete", "--ignore-not-found", "-f", SERVER_YAML.getAbsolute());
         kubectl("apply", "-f", SERVER_YAML.getAbsolute());

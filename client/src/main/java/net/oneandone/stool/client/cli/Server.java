@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class Server {
     private static final String LOCALHOST = "localhost"; // TODO
@@ -60,7 +61,19 @@ public class Server {
             }
             this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
         }
-        this.portus = Setup.portus(world).resolve(shortname + "/");
+        this.portus = portus(world).resolve(shortname + "/");
+    }
+
+    public static URI portus(World world) {
+        Properties tmp;
+
+        try {
+            // TODO
+            tmp = world.getHome().join(".sc.properties").readProperties();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return URI.create(tmp.getProperty("portus"));
     }
 
     private static String eat(List<String> args, String dflt) {

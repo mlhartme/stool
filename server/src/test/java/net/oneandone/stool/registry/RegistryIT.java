@@ -48,7 +48,7 @@ public class RegistryIT {
         }
     }
 
-    @Test @Ignore // TODO
+    @Test // TODO
     public void docker() throws IOException {
         HttpNode root;
         String container;
