@@ -39,17 +39,19 @@ public class Server {
     private final World world;
     private final FileNode dest;
     private final Console console;
+    private final boolean overwrite;
     private final String hostname;
     private final Map<String, String> opts;
 
     private final URI portus;
 
-    public Server(Globals globals, String hostname, List<String> args) {
+    public Server(Globals globals, boolean overwrite, String hostname, List<String> args) {
         int idx;
         String shortname;
 
         this.world = globals.getWorld();
         this.console = globals.getConsole();
+        this.overwrite = overwrite;
         this.hostname = hostname;
         this.opts = new HashMap<>();
         shortname = eat(args, shortname(hostname));
@@ -97,7 +99,9 @@ public class Server {
     }
 
     public void run() throws IOException {
-        dest.checkNotExists();
+        if (!overwrite) {
+            dest.checkNotExists();
+        }
         dest.writeString(serverYaml());
         console.info.println("Created " + dest);
         console.info.println("Start/stop server like this:");
