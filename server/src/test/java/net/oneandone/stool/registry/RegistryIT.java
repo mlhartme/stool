@@ -16,11 +16,11 @@
 package net.oneandone.stool.registry;
 
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.util.Secrets;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Strings;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -77,10 +77,6 @@ public class RegistryIT {
         }
     }
 
-    private static Properties testProperties() throws IOException {
-        return WORLD.getHome().join(".sc.properties").readProperties(); // TODO
-    }
-
     @Test
     public void portus() throws IOException {
         URI registryUri;
@@ -89,8 +85,7 @@ public class RegistryIT {
         String registryPrefix;
         String repository;
 
-        p = testProperties();
-        registryUri = URI.create(get(p, "portus") + "it-todo"); // TODO: include hostname in prefix
+        registryUri = Secrets.portus(WORLD).resolve("it-todo"); // TODO: include hostname in prefix
         registryPrefix = registryUri.getHost() + registryUri.getPath();
         repository = registryPrefix.substring(registryPrefix.indexOf('/') + 1) + "/registrytest";
         registry = PortusRegistry.create(WORLD, registryUri.toString(), "target/portus-wire.log");

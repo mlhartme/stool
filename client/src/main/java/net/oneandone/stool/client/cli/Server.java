@@ -20,6 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
+import net.oneandone.stool.util.Secrets;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -48,7 +49,7 @@ public class Server {
 
     private final URI portus;
 
-    public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, List<String> args) {
+    public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, List<String> args) throws IOException {
         int idx;
         String shortname;
 
@@ -67,19 +68,7 @@ public class Server {
             }
             this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
         }
-        this.portus = portus(world).resolve(shortname + "/");
-    }
-
-    public static URI portus(World world) {
-        Properties tmp;
-
-        try {
-            // TODO
-            tmp = world.getHome().join(".sc.properties").readProperties();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-        return URI.create(tmp.getProperty("portus"));
+        this.portus = Secrets.portus(world).resolve(shortname + "/");
     }
 
     private static String eat(List<String> args, String dflt) {
