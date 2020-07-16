@@ -16,7 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.client.cli.Main;
-import net.oneandone.stool.client.cli.Server;
+import net.oneandone.stool.util.Secrets;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -60,10 +60,10 @@ public class MainIT {
         kubectl("delete", "-f", SERVER_YAML.getAbsolute());
     }
 
-    private static String portusPrefix() {
+    private static String portusPrefix() throws IOException {
         URI portus;
 
-        portus = Server.portus(WORLD);
+        portus = Secrets.portus(WORLD);
         return portus.getHost() + portus.getPath();
     }
 
