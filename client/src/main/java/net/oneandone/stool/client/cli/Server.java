@@ -67,7 +67,7 @@ public class Server {
             }
             this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
         }
-        this.portus = Secrets.portus(world).resolve(shortname + "/");
+        this.portus = Secrets.portus(world, getClass()).resolve(shortname + "/");
     }
 
     private static String eat(List<String> args, String dflt) {

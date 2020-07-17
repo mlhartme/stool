@@ -63,7 +63,7 @@ public class MainIT {
     private static String portusPrefix() throws IOException {
         URI portus;
 
-        portus = Secrets.portus(WORLD);
+        portus = Secrets.portus(WORLD, MainIT.class);
         return portus.getHost() + portus.getPath();
     }
 
