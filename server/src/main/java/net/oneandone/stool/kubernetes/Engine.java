@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
@@ -117,18 +116,22 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public static Engine createFromCluster() throws IOException {
+    public static Engine createFromCluster(Map<String, String> implicitLabels) throws IOException {
         String namespace;
+        Engine engine;
 
         // see https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/
         namespace = new String(Files.readAllBytes(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/namespace")),
                 StandardCharsets.UTF_8.name());
         // default client automatically detects inCluster config
-        return new Engine(Config.fromCluster(), namespace);
+        engine = new Engine(Config.fromCluster(), namespace);
+        engine.implicitLabels.putAll(implicitLabels);
+        return engine;
     }
 
-    public static Engine create(World world, String context) throws IOException {
+    public static Engine create(World world, String context, Map<String, String> implicitLabels) throws IOException {
         KubeConfig config;
+        Engine engine;
 
         try (Reader src = world.getHome().join(KubeConfig.KUBEDIR).join(KubeConfig.KUBECONFIG).newReader()) {
             config = KubeConfig.loadKubeConfig(src);
@@ -137,7 +140,9 @@ public class Engine implements AutoCloseable {
             }
         }
         // default client automatically detects inCluster config
-        return new Engine(Config.fromConfig(config), config.getNamespace());
+        engine = new Engine(Config.fromConfig(config), config.getNamespace());
+        engine.implicitLabels.putAll(implicitLabels);
+        return engine;
     }
 
     private final ApiClient client;
@@ -145,6 +150,7 @@ public class Engine implements AutoCloseable {
     private final AppsV1Api apps;
     private final ExtensionsV1beta1Api extensions;
     private final String namespace;
+    private final Map<String, String> implicitLabels;
 
     private Engine(ApiClient client, String namespace) {
         this.client = client;
@@ -154,6 +160,11 @@ public class Engine implements AutoCloseable {
         this.apps = new AppsV1Api();
         this.extensions = new ExtensionsV1beta1Api();
         this.namespace = namespace;
+        this.implicitLabels = new HashMap<>();
+    }
+
+    public void addImplicitLabel(String key, String value) {
+        implicitLabels.put(key, value);
     }
 
     public void close() {
@@ -171,23 +182,29 @@ public class Engine implements AutoCloseable {
     //-- namespace
 
     public void namespaceReset() throws IOException {
-        for (String deployment : deploymentList().keySet()) {
-            System.out.println("delete deployment: " + deployment);
-            deploymentDelete(deployment);
+        for (DeploymentInfo deployment : deploymentList().values()) {
+            if (hasImplicit(deployment.labels)) {
+                System.out.println("delete deployment: " + deployment);
+                deploymentDelete(deployment.name);
+            }
         }
-        for (String pod: podList().keySet()) {
-            System.out.println("delete pod: " + pod);
-            podDelete(pod);
+        for (PodInfo pod: podList().values()) {
+            if (hasImplicit(pod.labels)) {
+                System.out.println("delete pod: " + pod);
+                podDelete(pod.name);
+            }
         }
-        for (String service : serviceList().keySet()) {
-            System.out.println("delete service: " + service);
-            serviceDelete(service);
+        for (ServiceInfo service : serviceList().values()) {
+            if (hasImplicit(service.labels)) {
+                System.out.println("delete service: " + service);
+                serviceDelete(service.name);
+            }
         }
-        for (String cm : configMapList().keySet()) {
+        for (String cm : configMapList().keySet()) { // TODO: cmInfo
             System.out.println("delete configMap: " + cm);
             configMapDelete(cm);
         }
-        for (String s : secretList().keySet()) {
+        for (String s : secretList().keySet()) { // TODO: secretsInfo
             if (s.startsWith("default-") || s.startsWith("deployer-") || s.startsWith("builder-")) {
                 // skip
             } else {
@@ -199,7 +216,9 @@ public class Engine implements AutoCloseable {
 
     public void namespaceCreate() throws IOException {
         try {
-            core.createNamespace(new V1NamespaceBuilder().withNewMetadata().withName(namespace).endMetadata().build(),
+            core.createNamespace(new V1NamespaceBuilder()
+                            .withNewMetadata().withLabels(implicitLabels).withName(namespace).endMetadata()
+                            .build(),
                     null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
@@ -307,7 +326,8 @@ public class Engine implements AutoCloseable {
                 selector, labels);
     }
 
-    public void serviceCreate(String name, List<String> portNames, List<Integer> ports, List<Integer> targetPorts, Map<String, String> selector, Map<String, String> labels)
+    public void serviceCreate(String name, List<String> portNames, List<Integer> ports, List<Integer> targetPorts, Map<String, String> selector,
+                              Map<String, String> labels)
             throws IOException {
         int count;
         List<V1ServicePort> lst;
@@ -327,7 +347,7 @@ public class Engine implements AutoCloseable {
         }
         try {
             core.createNamespacedService(namespace, new V1ServiceBuilder()
-                    .withNewMetadata().withName(name).withLabels(labels).endMetadata()
+                    .withNewMetadata().withName(name).withLabels(withImplicit(labels)).endMetadata()
                     .withNewSpec().withType("ClusterIP").withPorts(lst).withSelector(selector).endSpec()
                     .build(), null, null, null);
         } catch (ApiException e) {
@@ -375,7 +395,7 @@ public class Engine implements AutoCloseable {
         rule = new ExtensionsV1beta1HTTPIngressRuleValueBuilder();
         rule = rule.withPaths(path.build());
         ingress = new ExtensionsV1beta1IngressBuilder()
-                .withNewMetadata().withName(name).endMetadata()
+                .withNewMetadata().withName(name).withLabels(implicitLabels).endMetadata()
                 .withNewSpec()
                    .addNewRule().withHost(host).withHttp(rule.build()).endRule().endSpec();
         try {
@@ -484,19 +504,16 @@ public class Engine implements AutoCloseable {
 
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private static V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
+    private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                            String image, boolean imagePull, String[] command,
                            String hostname, Integer cpu, Integer memory,
                            Map<String, String> containerLabels, Map<String, String> env, List<Data> dataVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
-        V1Volume v;
         int volumeCount;
         String vname;
-        V1HostPathVolumeSource hp;
         List<V1VolumeMount> ml;
-        V1VolumeMount m;
         Map<String, Quantity> limits;
         V1ContainerBuilder container;
 
@@ -536,13 +553,13 @@ public class Engine implements AutoCloseable {
         return new V1DeploymentBuilder()
                 .withNewMetadata()
                   .withName(name)
-                  .withLabels(deploymentLabels)
+                  .withLabels(withImplicit(deploymentLabels))
                 .endMetadata()
                 .withNewSpec()
                   .withReplicas(1)
                   .withNewSelector().withMatchLabels(selector).endSelector()
                   .withNewTemplate()
-                    .withNewMetadata().withLabels(containerLabels).endMetadata()
+                    .withNewMetadata().withLabels(withImplicit(containerLabels)).endMetadata()
                     .withNewSpec()
                       .withHostname(hostname)
                       .addAllToVolumes(vl)
@@ -552,9 +569,24 @@ public class Engine implements AutoCloseable {
                 .endSpec().build();
     }
 
+    private boolean hasImplicit(Map<String, String> labels) {
+        return labels.entrySet().containsAll(implicitLabels.entrySet());
+    }
+
+    private Map<String, String> withImplicit(Map<String, String> explicit) {
+        Map<String, String> result;
+
+        if (explicit.isEmpty()) {
+            return implicitLabels;
+        }
+        result = new HashMap<>(implicitLabels);
+        result.putAll(explicit);
+        return result;
+    }
+
     //--
 
-    public static String labelSelector(Map<String, String> labelSelector) throws IOException {
+    public static String labelSelector(Map<String, String> labelSelector) {
         StringBuilder builder;
 
         builder = new StringBuilder();
@@ -739,7 +771,7 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    public void podLogsFollow(String pod, OutputStream dest) throws IOException {
+    public void podLogsFollow(String pod, OutputStream dest) {
         throw new IllegalStateException("TODO");
     }
 
@@ -771,7 +803,7 @@ public class Engine implements AutoCloseable {
 
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private static V1Pod pod(String name, String image, boolean imagePull, String[] command,
+    private V1Pod pod(String name, String image, boolean imagePull, String[] command,
                              String hostname, boolean healing, Integer cpu, Integer memory,
                              Map<String, String> labels, Map<String, String> env, List<Data> dataVolumes) {
         List<V1EnvVar> lst;
@@ -820,7 +852,7 @@ public class Engine implements AutoCloseable {
             container.withCommand(command);
         }
         return new V1PodBuilder()
-                .withNewMetadata().withName(name).withLabels(labels).endMetadata()
+                .withNewMetadata().withName(name).withLabels(withImplicit(labels)).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy(healing ? "Always" : "Never")
                 .withHostname(hostname)
@@ -834,7 +866,8 @@ public class Engine implements AutoCloseable {
     public void secretCreate(String name, Map<String, byte[]> data) throws IOException {
         V1Secret secret;
 
-        secret = new V1SecretBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withData(data).build();
+        secret = new V1SecretBuilder().withNewMetadata().withName(name).withLabels(implicitLabels).withNamespace(namespace).endMetadata()
+                .withData(data).build();
         try {
             core.createNamespacedSecret(namespace, secret, null, null, null);
         } catch (ApiException e) {
@@ -917,7 +950,8 @@ public class Engine implements AutoCloseable {
     public void configMapCreate(String name, Map<String, String> data) throws IOException {
         V1ConfigMap map;
 
-        map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withData(data).build();
+        map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).withLabels(implicitLabels).endMetadata()
+                .withData(data).build();
         try {
             core.createNamespacedConfigMap(namespace, map, null, null, null);
         } catch (ApiException e) {
@@ -1011,16 +1045,6 @@ public class Engine implements AutoCloseable {
         result = new JsonObject();
         for (Map.Entry<String, String> entry : obj.entrySet()) {
             result.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
-        }
-        return result;
-    }
-
-    public static Map<String, String> toStringMap(JsonObject obj) {
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
         }
         return result;
     }

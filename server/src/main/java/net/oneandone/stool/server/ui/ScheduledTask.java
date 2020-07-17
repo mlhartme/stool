@@ -44,7 +44,7 @@ public class ScheduledTask {
         Registry registry;
 
         Server.LOGGER.info("scheduled stage validation");
-        try (Engine engine = Engine.createFromCluster()) {
+        try (Engine engine = Engine.createFromCluster(Server.STOOL_LABELS)) {
             registry = server.createRegistry();
             for (Stage stage : server.listAll(engine)) {
                 Server.LOGGER.info("validate " + stage.getName() + ":");

@@ -60,6 +60,8 @@ import java.util.Properties;
 
 /** Immutable. */
 public class Server {
+    public static final Map<String, String> STOOL_LABELS = Strings.toMap("origin", "net.oneandone.stool.server");
+
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
     public static Server create(World world) throws IOException {
@@ -72,7 +74,7 @@ public class Server {
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
-        try (Engine engine = Engine.createFromCluster()) {
+        try (Engine engine = Engine.createFromCluster(STOOL_LABELS)) {
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
             try (OpenShift os = OpenShift.create()) {

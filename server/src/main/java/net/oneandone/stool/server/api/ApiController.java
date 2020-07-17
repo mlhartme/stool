@@ -81,7 +81,7 @@ public class ApiController {
     }
 
     private Engine engine() throws IOException {
-        return Engine.createFromCluster();
+        return Engine.createFromCluster(Server.STOOL_LABELS);
     }
 
     @GetMapping("/info")

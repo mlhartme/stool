@@ -37,7 +37,7 @@ public class EngineIT {
     private static final World WORLD = World.createMinimal();
 
     private static Engine create() throws IOException {
-        return Engine.create(WORLD, "stool-engine-it"); // TODO
+        return Engine.create(WORLD, "stool-engine-it" /* TODO */, Strings.toMap("origin", "net.oneandone.stool.engine-it"));
     }
 
     @BeforeClass
@@ -66,7 +66,7 @@ public class EngineIT {
             info = lst.iterator().next();
             assertEquals(name, info.name);
             assertEquals("Succeeded", info.phase);
-            assertEquals(Strings.toMap("foo", "bar"), info.labels);
+            assertTrue(info.labels.entrySet().containsAll(Strings.toMap("foo", "bar").entrySet()));
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name));
             engine.podDelete(name);
             assertEquals(0, engine.podList().size());
