@@ -16,6 +16,9 @@
 package net.oneandone.stool.kubernetes;
 
 import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.metrics.v1beta1.ContainerMetrics;
+import io.fabric8.kubernetes.api.model.metrics.v1beta1.PodMetrics;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteBuilder;
@@ -25,10 +28,17 @@ import io.fabric8.openshift.client.OpenShiftClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class OpenShift implements AutoCloseable {
     private final OpenShiftClient client;
     private final String namespace;
+
+    public static void main(String[] args) {
+        try (OpenShift os = create("test-pearl")) {
+            System.out.println("stats: " + os.stats("stool-55cc886d87-grsvq "));
+        }
+    }
 
     public static OpenShift create(String context) {
         Config config;
@@ -87,5 +97,19 @@ public class OpenShift implements AutoCloseable {
             result.add(route.getMetadata().getName());
         }
         return result;
+    }
+
+    public Stats stats(String pod) {
+        PodMetrics p;
+        List<ContainerMetrics> lst;
+        Map<String, Quantity> usage;
+
+        p = client.top().pods().metrics(namespace, pod);
+        lst = p.getContainers();
+        if (lst.size() != 1) {
+            throw new IllegalStateException();
+        }
+        usage = lst.get(0).getUsage();
+        return new Stats(usage.get("cpu").toString(), usage.get("memory").toString());
     }
 }
