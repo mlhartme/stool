@@ -111,7 +111,7 @@ public class RegistryIT {
                 false, log);
         try {
             assertEquals(Arrays.asList(), registry.tags(repository));
-            docker.imagePush(imageName);
+            System.out.println("image push: " + docker.imagePush(imageName));
             try { // TODO
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
