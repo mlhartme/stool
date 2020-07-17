@@ -184,32 +184,32 @@ public class Engine implements AutoCloseable {
     public void namespaceReset() throws IOException {
         for (DeploymentInfo deployment : deploymentList().values()) {
             if (hasImplicit(deployment.labels)) {
-                System.out.println("delete deployment: " + deployment);
+                System.out.println("delete deployment: " + deployment.name);
                 deploymentDelete(deployment.name);
             }
         }
         for (PodInfo pod: podList().values()) {
             if (hasImplicit(pod.labels)) {
-                System.out.println("delete pod: " + pod);
+                System.out.println("delete pod: " + pod.name);
                 podDelete(pod.name);
             }
         }
         for (ServiceInfo service : serviceList().values()) {
             if (hasImplicit(service.labels)) {
-                System.out.println("delete service: " + service);
+                System.out.println("delete service: " + service.name);
                 serviceDelete(service.name);
             }
         }
-        for (String cm : configMapList().keySet()) { // TODO: cmInfo
-            System.out.println("delete configMap: " + cm);
-            configMapDelete(cm);
+        for (DataInfo cm : configMapList().values()) {
+            if (hasImplicit(cm.labels)) {
+                System.out.println("delete configMap: " + cm.name);
+                configMapDelete(cm.name);
+            }
         }
-        for (String s : secretList().keySet()) { // TODO: secretsInfo
-            if (s.startsWith("default-") || s.startsWith("deployer-") || s.startsWith("builder-")) {
-                // skip
-            } else {
-                System.out.println("delete secret: " + s);
-                secretDelete(s);
+        for (DataInfo s : secretList().values()) {
+            if (hasImplicit(s.labels)) {
+                System.out.println("delete secret: " + s.name);
+                secretDelete(s.name);
             }
         }
     }
@@ -885,15 +885,15 @@ public class Engine implements AutoCloseable {
     }
 
     /** @return name- to phase mapping */
-    public Map<String, String> secretList() throws IOException {
+    public Map<String, DataInfo> secretList() throws IOException {
         V1SecretList lst;
-        Map<String, String> result;
+        Map<String, DataInfo> result;
 
         try {
             lst = core.listNamespacedSecret(namespace, null, null, null, null, null, null, null, null, null);
             result = new HashMap();
             for (V1Secret ns : lst.getItems()) {
-                result.put(ns.getMetadata().getName(), ns.getMetadata().getName());
+                result.put(ns.getMetadata().getName(), DataInfo.create(ns.getMetadata()));
             }
         } catch (ApiException e) {
             throw wrap(e);
@@ -931,15 +931,15 @@ public class Engine implements AutoCloseable {
     //-- config maps
 
     /** @return name- to phase mapping */
-    public Map<String, String> configMapList() throws IOException {
+    public Map<String, DataInfo> configMapList() throws IOException {
         V1ConfigMapList lst;
-        Map<String, String> result;
+        Map<String, DataInfo> result;
 
         try {
             lst = core.listNamespacedConfigMap(namespace, null, null, null, null, null, null, null, null, null);
             result = new HashMap();
             for (V1ConfigMap m : lst.getItems()) {
-                result.put(m.getMetadata().getName(), m.getMetadata().getName()); // TODO: more info
+                result.put(m.getMetadata().getName(), DataInfo.create(m.getMetadata()));
             }
         } catch (ApiException e) {
             throw wrap(e);
