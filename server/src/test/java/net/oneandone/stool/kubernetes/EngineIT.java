@@ -77,19 +77,30 @@ public class EngineIT {
     public void podHealing() throws IOException, InterruptedException {
         String image;
         String pod = "mhm";
+        PodInfo info;
         String containerOrig;
         String containerHealed;
 
-        try (Engine engine = create(); Daemon docker = Daemon.create()) {
+        try (Engine engine = create()) {
             image = "debian:stretch-slim";
-            engine.podCreate(pod, image, false, new String[] { "sleep", "5"},null, true, null,
+            engine.podCreate(pod, image, false, new String[] { "sleep", "2"},null, true, null,
                     null, Strings.toMap("containerLabel", "bla"),
                     Collections.emptyMap(), Collections.emptyList());
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
 
             containerOrig = engine.podProbe(pod).containerId;
-            docker.containerStop(containerOrig, 5);
-            Thread.sleep(2500);
+            containerHealed = containerOrig;
+            for (int i = 0; i < 100; i++) {
+                info = engine.podProbe(pod);
+                if (info != null) {
+                    containerHealed = info.containerId;
+                    if (!containerOrig.equals(containerHealed)) {
+                        break;
+                    }
+                }
+                Thread.sleep(100);
+            }
+            assertNotEquals(containerHealed, containerOrig);
 
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
             containerHealed = engine.podProbe(pod).containerId;
