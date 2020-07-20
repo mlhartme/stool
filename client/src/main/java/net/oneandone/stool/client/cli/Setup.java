@@ -148,6 +148,7 @@ public class Setup {
         String yesNo;
 
         result = new Configuration(configuration.file);
+        result.setRegistryPrefix(configuration.registryPrefix());
         console.info.println("Stages are hosted on servers. Please choose the servers you want to use:");
         for (Server server : configuration.allServer()) {
             if (dflt) {
@@ -183,6 +184,7 @@ public class Setup {
         if (additional != null) {
             add = new Configuration(additional);
             add.load();
+            result.setRegistryPrefix(add.registryPrefix());
             for (Server s : add.allServer()) {
                 if (result.serverLookup(s.name) == null) {
                     s.withEnabled(false).addTo(result);

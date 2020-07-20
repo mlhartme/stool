@@ -16,7 +16,6 @@
 package net.oneandone.stool.kubernetes;
 
 import net.oneandone.stool.docker.Daemon;
-import net.oneandone.stool.docker.Stats;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 import org.junit.BeforeClass;
@@ -142,16 +141,16 @@ public class EngineIT {
     }
 
     @Test
-    public void podImplicitHostname() throws IOException, InterruptedException {
+    public void podImplicitHostname() throws IOException {
         doHostnameTest("podimplicit", null, "podimplicit");
     }
 
     @Test
-    public void podExplicitHostname() throws IOException, InterruptedException {
+    public void podExplicitHostname() throws IOException {
         doHostnameTest("podexplicit", "ex", "ex");
     }
 
-    private void doHostnameTest(String pod, String hostname, String expected) throws IOException, InterruptedException {
+    private void doHostnameTest(String pod, String hostname, String expected) throws IOException {
         try (Engine engine = create()) {
             assertFalse(engine.podCreate(pod, "debian:stretch-slim", false,
                     new String[] { "hostname"}, hostname, false, null, null, Strings.toMap(), Strings.toMap(),
@@ -165,17 +164,15 @@ public class EngineIT {
     @Test
     public void podLimit() throws IOException {
         final int limit = 1024*1024*5;
-        Stats stats;
         String pod = "limit";
-        String container;
 
-        try (Engine engine = create(); Daemon docker = Daemon.create()) {
+        try (Engine engine = create()) {
             engine.podCreate(pod, "debian:stretch-slim", false, new String[] { "sleep", "3" },
                     null, false, null, limit, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyList());
-            container = engine.podProbe(pod).containerId;
-            stats = docker.containerStats(container);
-            assertEquals(limit, stats.memoryLimit);
-            assertTrue(stats.memoryUsage <= stats.memoryLimit);
+
+            // TODO: only available when stats server is installed
+            // assert on openshift.stats(pod)
+
             engine.podDelete(pod);
         }
     }

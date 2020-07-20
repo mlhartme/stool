@@ -34,6 +34,7 @@ public class PodInfo {
         container = container(pod);
         repositoryTag = container != null ? container.getImage() : null;
         status = status(pod);
+
         // CAUTION:
         // status also contains an imageId which seems ok in most cases. However, I've seen obscure ids, maybe
         // prefixed by docker-pullable://, so I can't rely on it
