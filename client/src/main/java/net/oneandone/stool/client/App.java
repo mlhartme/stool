@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/** Mapping between stage and how to build it */
 public class App {
     public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/stool.properties";
     public static final String PROPERTIES_PREFIX = "";
