@@ -100,9 +100,8 @@ public class Setup {
         inc = home.join("shell.inc").getAbsolute();
         console.info.println("Done.");
         console.info.println();
-        console.info.println("If you want bash completion and a stage indicator in your shell prompt: ");
-        console.info.println("  Make sure to source " + inc + " in your shell profile");
-        console.info.println("  (e.g. with 'echo \". " + inc + "\" >> ~/.bash_profile')");
+        console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
+        console.info.println("  Make sure to run 'eval $(sc shell-inc)' in your shell profile.");
         console.info.println("  Don't forget to restart your terminal.");
         if (configuration.needAuthentication()) {
             console.info.println("At least one of the servers you're using needs authentication. Please run");
@@ -222,7 +221,6 @@ public class Setup {
         Configuration configuration;
 
         home.mkdir();
-        world.resource("files/home").copyDirectory(home);
         configuration = new Configuration(home.join("client.json"));
         for (Server s : environment.allServer()) {
             s.addTo(configuration);
