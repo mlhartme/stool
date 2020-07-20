@@ -111,9 +111,10 @@ public class Project {
         return true;
     }
 
-
-    public void delete() throws IOException {
-        backstage.deleteFile();
+    public void prune() throws IOException {
+        if (backstage.readProperties().isEmpty()) {
+            backstage.deleteFile();
+        }
     }
 
     //--

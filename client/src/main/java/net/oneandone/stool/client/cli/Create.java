@@ -87,17 +87,26 @@ public class Create extends ProjectCommand {
             throw new ArgumentException("project already has a stage; detach it first");
         }
         project = Project.create(directory);
-        if (pathOpt != null) {
-            directory.findOne(pathOpt);
-            add(project, baseName, pathOpt);
-        } else {
-            wars = project.wars();
-            if (wars.isEmpty()) {
-                throw new ArgumentException("no wars found - did you build your project?");
+        try {
+            if (pathOpt != null) {
+                directory.findOne(pathOpt);
+                add(project, baseName, pathOpt);
+            } else {
+                wars = project.wars();
+                if (wars.isEmpty()) {
+                    throw new ArgumentException("no wars found - did you build your project?");
+                }
+                for (FileNode war : wars) {
+                    add(project, App.app(war) + "." + baseName, war.getRelative(directory));
+                }
             }
-            for (FileNode war : wars) {
-                add(project, App.app(war) + "." + baseName, war.getRelative(directory));
+        } catch (IOException e) {
+            try {
+                project.prune();
+            } catch (IOException e2) {
+                e.addSuppressed(e2);
             }
+            throw e;
         }
     }
 

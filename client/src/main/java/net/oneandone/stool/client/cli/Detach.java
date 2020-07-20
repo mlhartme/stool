@@ -39,15 +39,9 @@ public class Detach extends ProjectCommand {
         if (project == null) {
             throw new ArgumentException("project is not attached");
         }
-        if (stages.isEmpty()) {
-            project.delete();
-        } else {
-            for (String stage : stages) {
-                project.remove(reference(stage));
-            }
-            if (project.size() == 0) {
-                project.delete();
-            }
+        for (String stage : stages) {
+            project.remove(reference(stage));
         }
+        project.prune();
     }
 }

@@ -56,9 +56,7 @@ public class Remove extends IteratedStageCommand {
             if (project.remove(reference)) {
                 console.info.println("detaching stage: " + reference);
             }
-            if (project.size() == 0) {
-                project.delete();
-            }
+            project.prune();
         }
     }
 }
