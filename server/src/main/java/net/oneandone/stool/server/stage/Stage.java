@@ -308,7 +308,7 @@ public class Stage {
                 }
                 stats = OpenShift.create().statsOpt(current.pod.name);
                 if (stats != null) {
-                    return stats.cpu;
+                    return stats.memory;
                 } else {
                     return "n.a.";
                 }
