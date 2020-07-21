@@ -91,7 +91,7 @@ public class MainIT {
         sc(working,"create", "-e", stage + "=target/*.war");
         sc(working,"list");
         sc(working,"status", "-stage", stage);
-        sc(working, "detach");
+        sc(working, "detach", stage);
         sc(working, "attach", stage + "=target/*.war");
         sc(working, "validate", "-stage", stage);
         sc(working, "config", "-stage", stage, "comment");
