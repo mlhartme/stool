@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.ContainerMetrics;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.PodMetrics;
 import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteBuilder;
 import io.fabric8.openshift.api.model.RouteSpecBuilder;
@@ -35,8 +36,8 @@ public class OpenShift implements AutoCloseable {
     private final String namespace;
 
     public static void main(String[] args) {
-        try (OpenShift os = create("test-pearl")) {
-            System.out.println("stats: " + os.stats("stool-55cc886d87-grsvq "));
+        try (OpenShift os = create("stool-engine-it")) {
+            System.out.println("stats: " + os.statsOpt("stool-55cc886d87-grsvq "));
         }
     }
 
@@ -99,12 +100,21 @@ public class OpenShift implements AutoCloseable {
         return result;
     }
 
-    public Stats stats(String pod) {
+    public Stats statsOpt(String pod) {
         PodMetrics p;
         List<ContainerMetrics> lst;
         Map<String, Quantity> usage;
 
-        p = client.top().pods().metrics(namespace, pod);
+        try {
+            p = client.top().pods().metrics(namespace, pod);
+        } catch (KubernetesClientException e) {
+            if (e.getCode() == 404) {
+                // TODO: could be stats not found or pod not found ...
+                return null;
+            } else {
+                throw e;
+            }
+        }
         lst = p.getContainers();
         if (lst.size() != 1) {
             throw new IllegalStateException();

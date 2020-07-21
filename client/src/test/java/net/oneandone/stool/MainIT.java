@@ -57,7 +57,7 @@ public class MainIT {
     @After
     public void after() throws IOException {
         kubectl("logs", "--namespace=stool", "--selector=app=stool");
-        kubectl("delete", "-f", SERVER_YAML.getAbsolute());
+        // kubectl("delete", "-f", SERVER_YAML.getAbsolute());
     }
 
     private static String portusPrefix() throws IOException {

@@ -16,8 +16,8 @@
 package net.oneandone.stool.server.stage;
 
 import net.oneandone.stool.kubernetes.OpenShift;
+import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.Registry;
-import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
@@ -288,12 +288,11 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = null; // TODO: containerStats;
+                stats = OpenShift.create().statsOpt(current.pod.name);
                 if (stats != null) {
                     return stats.cpu;
                 } else {
-                    // not started
-                    return 0;
+                    return "n.a.";
                 }
             }
         });
@@ -307,12 +306,11 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = null; // TODO: containerStats
+                stats = OpenShift.create().statsOpt(current.pod.name);
                 if (stats != null) {
-                    return stats.memoryUsage * 100 / stats.memoryLimit;
+                    return stats.cpu;
                 } else {
-                    // not started
-                    return 0L;
+                    return "n.a.";
                 }
             }
         });
