@@ -86,7 +86,10 @@ public class Build extends ProjectCommand {
         }
         try (Daemon engine = Daemon.create()) {
             for (App app : apps) {
-                war = directory.findOne(app.path);
+                war = Project.warMatcher(directory.join(app.path));
+                if (war == null) {
+                    throw new IOException(app.reference.stage + ": no war found in " + app.path);
+                }
                 build(engine, app.reference, war, project.getOriginOrUnknown(), createdOn(), app.arguments(war, explicitArguments));
                 if (restart) {
                     new Restart(globals, null).doRun(app.reference);
