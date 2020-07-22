@@ -57,7 +57,6 @@ public class MainIT {
     @After
     public void after() throws IOException {
         kubectl("logs", "--namespace=stool", "--selector=app=stool");
-        // kubectl("delete", "-f", SERVER_YAML.getAbsolute());
     }
 
     private static String portusPrefix() throws IOException {
@@ -88,11 +87,11 @@ public class MainIT {
         stage = "it@localhost";
 
         sc(working, "list");
-        sc(working,"create", "-e", stage + "=target/*.war");
+        sc(working,"create", "-e", stage);
         sc(working,"list");
         sc(working,"status", "-stage", stage);
         sc(working, "detach", stage);
-        sc(working, "attach", stage + "=target/*.war");
+        sc(working, "attach", stage);
         sc(working, "validate", "-stage", stage);
         sc(working, "config", "-stage", stage, "comment");
         sc(working, "config", "-stage", stage, "comment=42");
@@ -107,7 +106,7 @@ public class MainIT {
         sc(working, "list", "-stage", stage);
         sc(working, "validate", "-stage", stage);
         sc(working, "history", "-stage", stage);
-        sc(working, "remove", "-stage", stage, "-batch");
+        sc(working, "delete", "-stage", stage, "-batch");
         working.deleteTree();
     }
 

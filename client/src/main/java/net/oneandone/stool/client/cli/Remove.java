@@ -16,47 +16,17 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
 
 import java.io.IOException;
 
 public class Remove extends IteratedStageCommand {
-    private final boolean batch;
-    private final boolean stop;
-
-    public Remove(Globals globals, boolean batch, boolean stop) {
+    public Remove(Globals globals) {
         super(globals);
-        this.batch = batch;
-        this.stop = stop;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        boolean up;
-        Project project;
-
-        up = up(reference);
-        if (stop && up) {
-            new Stop(globals).doRun(reference);
-            up = up(reference);
-        }
-        if (up) {
-            throw new IOException("stage is not stopped.");
-        }
-        if (!batch) {
-            console.info.println("Ready to delete stage " + reference + "?");
-            console.pressReturn();
-        }
-
-        reference.client.remove(reference.stage);
-
-        project = Project.lookup(working);
-        if (project != null) {
-            if (project.remove(reference)) {
-                console.info.println("detaching stage: " + reference);
-            }
-            project.prune();
-        }
+        throw new IOException("this command has been renamed to 'delete'");
     }
 }

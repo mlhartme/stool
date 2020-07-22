@@ -12,6 +12,7 @@
 * start server with kubectl, not docker-compose
 * move stool build to the client
 * move docker code into separate docker package that's used in clients and server tests
+* renamed 'remove' to 'delete'
 
 * client
   * split `setup` into `setup` and `server`

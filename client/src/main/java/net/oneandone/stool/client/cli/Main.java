@@ -84,7 +84,8 @@ public class Main {
                       cli.add(History.class, "history -details=false -max=-1");
                       cli.add(Images.class, "images");
                       cli.add(Ls.class, "list info* { select*(info) }");
-                      cli.add(Remove.class, "remove -batch -stop");
+                      cli.add(Delete.class, "delete -batch -stop");
+                      cli.add(Remove.class, "remove");
                       cli.add(Restart.class, "restart image?");
                       cli.add(Start.class, "start -http=-1 -https=-1 envAppIndex*");
                       cli.add(Status.class, "status info* { select*(info) }");
