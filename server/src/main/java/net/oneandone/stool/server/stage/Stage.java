@@ -860,7 +860,7 @@ public class Stage {
         return result;
     }
 
-    public void remove(Engine engine, Registry registry) throws IOException {
+    public void delete(Engine engine, Registry registry) throws IOException {
         StageConfiguration.delete(engine, name);
         wipeStartedResources(engine);
         wipeImages(registry);

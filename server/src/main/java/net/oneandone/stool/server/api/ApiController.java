@@ -489,10 +489,10 @@ public class ApiController {
         return result.toString();
     }
 
-    @PostMapping("/stages/{stage}/remove")
-    public void remove(@PathVariable(value = "stage") String stage) throws IOException {
+    @PostMapping("/stages/{stage}/delete")
+    public void delete(@PathVariable(value = "stage") String stage) throws IOException {
         try (Engine engine = engine()) {
-            server.load(engine, stage).remove(engine, server.createRegistry());
+            server.load(engine, stage).delete(engine, server.createRegistry());
         }
     }
 

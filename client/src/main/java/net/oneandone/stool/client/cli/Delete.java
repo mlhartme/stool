@@ -49,7 +49,7 @@ public class Delete extends IteratedStageCommand {
             console.pressReturn();
         }
 
-        reference.client.remove(reference.stage);
+        reference.client.delete(reference.stage);
 
         project = Project.lookup(working);
         if (project != null) {

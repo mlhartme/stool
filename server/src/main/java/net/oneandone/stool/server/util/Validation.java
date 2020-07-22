@@ -76,7 +76,7 @@ public class Validation {
                 if (stage.configuration.expire.expiredDays() >= server.configuration.autoRemove) {
                     try {
                         report.add("removing expired stage");
-                        stage.remove(engine, registry);
+                        stage.delete(engine, registry);
                     } catch (Exception e) {
                         report.add("failed to remove expired stage: " + e.getMessage());
                         Server.LOGGER.debug(e.getMessage(), e);

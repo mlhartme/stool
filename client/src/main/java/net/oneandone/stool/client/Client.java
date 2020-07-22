@@ -218,8 +218,8 @@ public class Client {
         return getJson(node).getAsString();
     }
 
-    public void remove(String stage) throws IOException {
-        postEmpty(node(stage, "remove"), "");
+    public void delete(String stage) throws IOException {
+        postEmpty(node(stage, "delete"), "");
     }
 
     //--
