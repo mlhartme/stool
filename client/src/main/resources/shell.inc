@@ -16,7 +16,7 @@ __scProjectDir() {
 __scStageIndicator() {
   local project=$(__scProjectDir $1)
   if [ -f "${project}/.backstage" ] ; then
-      local id="$(grep = .backstage | cut -d = -f 1 | tr '\n' ' ')"
+      local id="$(grep = ${project}/.backstage | cut -d = -f 1 | tr '\n' ' ')"
       id=${id%?}
       echo -n "{${id}} "
       return
@@ -164,5 +164,5 @@ elif [ -n "${BASH_VERSION}" ] ; then
           return 0
     }
 
-    complete -F _sc_complete stool
+    complete -F _sc_complete sc
 fi
