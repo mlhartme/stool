@@ -15,12 +15,14 @@
  */
 package net.oneandone.stool.client;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -187,52 +189,66 @@ public class Project {
 
     //--
 
-    protected static void addWars(FileNode current, List<FileNode> result) throws IOException {
-        List<FileNode> files;
-        List<FileNode> wars;
+    public static final String SUBST = "_";
 
-        files = current.list();
-        if (!hasPom(files)) {
-            return;
+    public static String subst(String name, FileNode war) throws IOException {
+        return name.replace(SUBST, App.app(war));
+    }
+
+    public static Map<FileNode, FileNode> findWarsAndCheck(FileNode directory, String stage) throws IOException {
+        Map<FileNode, FileNode> wars;
+
+        directory.checkDirectory();
+        wars = findWars(directory);
+        if (wars.isEmpty()) {
+            throw new ArgumentException(directory.getAbsolute() + ": no wars found - did you build your project?");
+        } else if (wars.size() > 1) {
+            if (!stage.contains(SUBST)) {
+                throw new ArgumentException(stage + ": missing '" + SUBST + "' in stage name to attach " + wars.size() + " stages");
+            }
         }
+        return wars;
+    }
 
-        wars = current.find("target/*.war");
-        switch (wars.size()) {
+    public static Map<FileNode, FileNode> findWars(FileNode directory) throws IOException {
+        Map<FileNode, FileNode> result;
+
+        result = new HashMap<>();
+        addWars(directory, result);
+        return result;
+    }
+
+    private static void addWars(FileNode directory, Map<FileNode, FileNode> result) throws IOException {
+        FileNode war;
+
+        war = warMatcher(directory);
+        if (war != null) {
+            if (result.put(directory, war) != null) {
+                throw new IllegalStateException(result.toString());
+            }
+        } else {
+            for (FileNode child : directory.list()) {
+                if (child.isDirectory()) {
+                    addWars(child, result);
+                }
+            }
+        }
+    }
+
+    public static FileNode warMatcher(FileNode directory) throws IOException {
+        List<FileNode> lst;
+
+        if (!directory.join("pom.xml").isFile()) {
+            return null;
+        }
+        lst = directory.find("target/*.war");
+        switch (lst.size()) {
             case 0:
-                // do nothing
-                break;
+                return null;
             case 1:
-                result.add(wars.get(0));
-                break;
+                return lst.get(0);
             default:
-                throw new IOException(current + ": wars ambiguous: " + wars);
+                throw new IOException("ambiguous: " + directory + " " + lst);
         }
-        for (FileNode file : files) {
-            if (file.isDirectory()) {
-                addWars(file, result);
-            }
-        }
-    }
-
-    private static boolean hasPom(List<FileNode> list) {
-        String name;
-
-        for (FileNode file : list) {
-            name = file.getName();
-            if (name.equals("pom.xml") || name.equals("workspace.xml")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private List<FileNode> lazyWars;
-
-    public List<FileNode> wars() throws IOException {
-        if (lazyWars == null) {
-            lazyWars = new ArrayList<>();
-            addWars(directory, lazyWars);
-        }
-        return lazyWars;
     }
 }

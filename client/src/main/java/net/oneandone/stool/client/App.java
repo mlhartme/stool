@@ -25,12 +25,18 @@ import java.util.Properties;
 
 /** Mapping between stage and how to build it */
 public class App {
+    /* TODO: configurable
     public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/stool.properties";
-    public static final String PROPERTIES_PREFIX = "";
+    public static final String PROPERTIES_PREFIX = ""; */
+    public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/pominfo.properties";
+    public static final String PROPERTIES_PREFIX = "stool.";
 
     private static final String APP_ARGUMENT = "_app";
 
+    /** assiciated stage on the server */
     public final Reference reference;
+
+    /** path (possibly with wildcards) that is applied to locate the war file */
     public final String path;
 
     public App(Reference reference, String path) {

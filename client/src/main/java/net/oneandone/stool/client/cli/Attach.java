@@ -15,55 +15,39 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.util.List;
+import java.util.Map;
 
 public class Attach extends ProjectCommand {
+    private final FileNode pathOpt;
     private final String stage;
-    private final String pathOpt;
 
-    public Attach(Globals globals, String stage) {
+    public Attach(Globals globals, FileNode pathOpt, String stage) {
         super(globals);
 
-        int idx;
-
-        idx = stage.indexOf("=");
-        if (idx == -1) {
-            this.stage = stage;
-            this.pathOpt = null;
-        } else {
-            this.stage = stage.substring(0, idx);
-            this.pathOpt = stage.substring(idx + 1);
-        }
+        this.pathOpt = pathOpt;
+        this.stage = stage;
     }
 
     @Override
     public void doRun(FileNode directory) throws Exception {
         Project project;
-        List<FileNode> wars;
+        Map<FileNode, FileNode> wars; // maps directories to war files
         String nameAndServer;
 
         project = Project.lookup(directory);
         if (project == null) {
             project = Project.create(directory);
         }
-        if (pathOpt == null) {
-            wars = project.wars();
-            if (wars.isEmpty()) {
-                throw new ArgumentException("no wars found - did you build your project?");
-            }
-            for (FileNode war : wars) {
-                nameAndServer = App.app(war) + "." + stage;
-                project.add(new App(reference(nameAndServer), war.getRelative(directory)));
-            }
-        } else {
-            directory.findOne(pathOpt);
-            project.add(new App(reference(stage), pathOpt));
+
+        wars = Project.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
+        for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
+            nameAndServer = Project.subst(stage, entry.getValue());
+            project.add(new App(reference(nameAndServer), entry.getKey().getRelative(directory)));
         }
     }
 }

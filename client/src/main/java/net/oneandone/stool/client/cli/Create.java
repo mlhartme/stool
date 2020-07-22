@@ -31,30 +31,24 @@ import java.util.Map;
 
 public class Create extends ProjectCommand {
     private final boolean optional;
-    private final String baseName;
+    private final FileNode pathOpt;
+    private final String stage;
     private final String server;
-    private final String pathOpt;
     private final Map<String, String> config;
 
-    public Create(Globals globals, boolean optional, String nameAndServer, List<String> args) {
+    public Create(Globals globals, boolean optional, FileNode pathOpt, String nameAndServer, List<String> args) {
         super(globals);
 
         int idx;
 
         this.optional = optional;
-        idx = nameAndServer.indexOf("=");
-        if (idx == -1) {
-            this.pathOpt = null;
-        } else {
-            this.pathOpt = nameAndServer.substring(idx + 1);
-            nameAndServer = nameAndServer.substring(0, idx);
-        }
+        this.pathOpt = pathOpt;
         idx = nameAndServer.indexOf('@');
         if (idx == -1) {
             throw new ArgumentException("expected <name>@<server>, got " + nameAndServer);
         }
         this.server = nameAndServer.substring(idx + 1);
-        this.baseName = nameAndServer.substring(0, idx);
+        this.stage = nameAndServer.substring(0, idx);
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);
@@ -80,7 +74,7 @@ public class Create extends ProjectCommand {
     @Override
     public void doRun(FileNode directory) throws IOException {
         Project project;
-        List<FileNode> wars;
+        Map<FileNode, FileNode> wars;
 
         project = Project.lookup(directory);
         if (project != null) {
@@ -88,17 +82,9 @@ public class Create extends ProjectCommand {
         }
         project = Project.create(directory);
         try {
-            if (pathOpt != null) {
-                directory.findOne(pathOpt);
-                add(project, baseName, pathOpt);
-            } else {
-                wars = project.wars();
-                if (wars.isEmpty()) {
-                    throw new ArgumentException("no wars found - did you build your project?");
-                }
-                for (FileNode war : wars) {
-                    add(project, App.app(war) + "." + baseName, war.getRelative(directory));
-                }
+            wars = Project.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
+            for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
+                add(project, Project.subst(stage, entry.getValue()), entry.getKey().getRelative(directory));
             }
         } catch (IOException e) {
             try {
@@ -110,7 +96,7 @@ public class Create extends ProjectCommand {
         }
     }
 
-    private void add(Project project, String name, String path) throws IOException {
+    private void add(Project project, String name, String appPath) throws IOException {
         Client client;
         Reference reference;
 
@@ -129,11 +115,10 @@ public class Create extends ProjectCommand {
             }
         }
         try {
-            project.add(new App(reference, path));
+            project.add(new App(reference, appPath));
         } catch (IOException e) {
             throw new IOException("failed to attach stage: " + e.getMessage(), e);
         }
-
     }
 
     //-- stage name
