@@ -385,7 +385,7 @@ public class Stage {
             return "[no jmx port]";
         }
 
-        url = clusterJmxUrl(context);
+        url = podJmxUrl(context);
         try {
             objectName = new ObjectName("java.lang:type=Memory");
         } catch (MalformedObjectNameException e) {
@@ -561,7 +561,8 @@ public class Stage {
         List<Data> dataList;
         Data cert;
         Data fault;
-        Map<String, String> labels;
+        Map<String, String> deploymentLabels;
+        Map<String, String> podLabels;
         int memoryQuota;
         int memoryReserved;
         TagInfo image;
@@ -586,6 +587,7 @@ public class Stage {
                     + "  requested: " + image.memory + "\n"
                     + "Consider stopping stages.");
         }
+
         memoryReserved += image.memory; // TODO
         wipeStartedResources(engine);
         environment = new HashMap<>(server.configuration.environment);
@@ -593,11 +595,15 @@ public class Stage {
         environment.putAll(clientEnvironment);
         Server.LOGGER.debug("environment: " + environment);
         Server.LOGGER.info(name + ": starting container ... ");
-        labels = new HashMap<>();
-        labels.put(DEPLOYMENT_LABEL_STAGE, name);
+        deploymentLabels = new HashMap<>();
+        deploymentLabels.put(DEPLOYMENT_LABEL_STAGE, name);
         for (Map.Entry<String, String> entry : environment.entrySet()) {
-            labels.put(DEPLOYMENT_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
+            deploymentLabels.put(DEPLOYMENT_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
         }
+
+        podLabels = new HashMap<>();
+        podLabels.put(DEPLOYMENT_LABEL_STAGE, name);
+        podLabels.put(Ports.Port.JMXMP.label(), "x" + image.ports.jmxmp);
 
         dataList = new ArrayList<>();
         cert = certMountOpt(image);
@@ -622,9 +628,9 @@ public class Stage {
             // TODO: does not map both ports ...
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
         }
-        engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), labels, image.repositoryTag, true, null,
+        engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels, image.repositoryTag, true, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
-                1 /* TODO */, 1024 * 1024 * image.memory, labels, environment, dataList);
+                1 /* TODO */, 1024 * 1024 * image.memory, podLabels, environment, dataList);
 
         Server.LOGGER.debug("created deployment " + deploymentName);
 
@@ -945,7 +951,7 @@ public class Stage {
         JMXServiceURL url;
         String state;
 
-        url = clusterJmxUrl(context);
+        url = podJmxUrl(context);
         if (url != null) {
             for (int count = 0; true; count++) {
                 try {
@@ -982,15 +988,19 @@ public class Stage {
         }
     }
 
-    public JMXServiceURL clusterJmxUrl(Context context) throws IOException {
+    public JMXServiceURL podJmxUrl(Context context) throws IOException {
         PodInfo running;
+        int port;
+        String str;
 
         running = context.runningPodOpt(this);
         if (running == null) {
             return null;
         } else {
+            str = running.labels.get(Ports.Port.JMXMP.label());
+            port = Integer.parseInt(Strings.removeLeft(str, "x"));
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            return new JMXServiceURL("service:jmx:jmxmp://" + running.ip + ":" + 5555 /* TODO */);
+            return new JMXServiceURL("service:jmx:jmxmp://" + running.ip + ":" + port);
         }
     }
 

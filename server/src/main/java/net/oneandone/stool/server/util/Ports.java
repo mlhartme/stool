@@ -29,10 +29,14 @@ public class Ports {
     public enum Port {
         HTTP, HTTPS, JMXMP, DEBUG;
 
+        public String label() {
+            return ImageInfo.IMAGE_LABEL_PORT_PREFIX + toString().toLowerCase();
+        }
+
         public int get(Map<String, String> labels) {
             String str;
 
-            str = labels.get(ImageInfo.IMAGE_LABEL_PORT_PREFIX + toString().toLowerCase());
+            str = labels.get(label());
             return str == null ? -1 : Integer.parseInt(str);
         }
     }
