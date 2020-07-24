@@ -45,10 +45,10 @@ public class Ports {
 
     public static Ports fromDeclaredLabels(Map<String, String> labels) {
         return new Ports(
-                Port.HTTP.get(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX),
-                Port.HTTPS.get(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX),
-                Port.JMXMP.get(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX),
-                Port.DEBUG.get(labels, ImageInfo.IMAGE_LABEL_PORT_DECLARED_PREFIX));
+                Port.HTTP.get(labels, ImageInfo.IMAGE_LABEL_PORT_PREFIX),
+                Port.HTTPS.get(labels, ImageInfo.IMAGE_LABEL_PORT_PREFIX),
+                Port.JMXMP.get(labels, ImageInfo.IMAGE_LABEL_PORT_PREFIX),
+                Port.DEBUG.get(labels, ImageInfo.IMAGE_LABEL_PORT_PREFIX));
     }
 
     //--
