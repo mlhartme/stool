@@ -27,7 +27,6 @@ import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.kubernetes.Data;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.stool.kubernetes.ServiceInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
@@ -533,7 +532,6 @@ public class Stage {
                 engine.deploymentDelete(deploymentName);
             }
             engine.serviceDelete(serviceName);
-            engine.serviceDelete(jmxServiceName());
             if (server.openShift) {
                 OpenShift.create().routeDelete(httpRouteName());
                 OpenShift.create().routeDelete(httpsRouteName());
@@ -617,7 +615,6 @@ public class Stage {
                 ports(Ports.HTTP, Ports.HTTPS),
                 ports(image.ports.http, image.ports.https),
                 Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), httpServiceLabels());
-        engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, DEPLOYMENT_LABEL_STAGE, name);
         if (server.openShift) {
             OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, "http");
             OpenShift.create().routeCreate(httpsRouteName(), stageHost(), appServiceName(), true, "https");
@@ -664,9 +661,6 @@ public class Stage {
     }
     public String appServiceName() {
         return deploymentName() + "app";
-    }
-    public String jmxServiceName() {
-        return deploymentName() + "jmxmp";
     }
 
     private static String md5(String str) {
@@ -990,15 +984,13 @@ public class Stage {
 
     public JMXServiceURL clusterJmxUrl(Context context) throws IOException {
         PodInfo running;
-        ServiceInfo service;
 
         running = context.runningPodOpt(this);
         if (running == null) {
             return null;
         } else {
-            service = context.engine.serviceGet(jmxServiceName());
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            return new JMXServiceURL("service:jmx:jmxmp://" + service.clusterIp + ":" + service.port);
+            return new JMXServiceURL("service:jmx:jmxmp://" + running.ip + ":" + 5555 /* TODO */);
         }
     }
 
