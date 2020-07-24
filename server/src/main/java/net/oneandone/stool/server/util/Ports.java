@@ -29,26 +29,16 @@ public class Ports {
     public enum Port {
         HTTP, HTTPS, JMXMP, DEBUG;
 
-        public int get(Map<String, String> labels, String prefix) {
+        public int get(Map<String, String> labels) {
             String str;
 
-            str = labels.get(prefix + toString().toLowerCase());
+            str = labels.get(ImageInfo.IMAGE_LABEL_PORT_PREFIX + toString().toLowerCase());
             return str == null ? -1 : Integer.parseInt(str);
-        }
-
-        public void add(Map<String, String> dest, String prefix, int value) {
-            if (value != -1) {
-                dest.put(prefix + toString().toLowerCase(), Integer.toString(value));
-            }
         }
     }
 
     public static Ports fromDeclaredLabels(Map<String, String> labels) {
-        return new Ports(
-                Port.HTTP.get(labels, ImageInfo.IMAGE_LABEL_PORT_PREFIX),
-                Port.HTTPS.get(labels, ImageInfo.IMAGE_LABEL_PORT_PREFIX),
-                Port.JMXMP.get(labels, ImageInfo.IMAGE_LABEL_PORT_PREFIX),
-                Port.DEBUG.get(labels, ImageInfo.IMAGE_LABEL_PORT_PREFIX));
+        return new Ports(Port.HTTP.get(labels), Port.HTTPS.get(labels), Port.JMXMP.get(labels), Port.DEBUG.get(labels));
     }
 
     //--
