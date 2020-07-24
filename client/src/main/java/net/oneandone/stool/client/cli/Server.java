@@ -206,13 +206,18 @@ public class Server {
 
     public String env(FileNode cisotools, int port) {
         Map<String, String> env;
+        String modules;
         StringBuilder builder;
         String debugPort;
 
         env = new LinkedHashMap<>();
         debugPort = Integer.toString(port + 1);
         addIfNew(env, "HOST", LOCALHOST);
-        addIfNew(env, "OPTS", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + debugPort); // TODO: prefix port with :* when back zo Java 14
+
+        modules = "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny";
+        // TODO: prefix port with :* when back zo Java 14
+        addIfNew(env, "OPTS", modules + " -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + debugPort);
+
         for (Map.Entry<String, String> entry : opts.entrySet()) {
             addIfNew(env, entry.getKey(), entry.getValue());
         }
