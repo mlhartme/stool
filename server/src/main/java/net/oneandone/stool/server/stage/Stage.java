@@ -534,7 +534,6 @@ public class Stage {
             }
             engine.serviceDelete(serviceName);
             engine.serviceDelete(jmxServiceName());
-            engine.serviceDelete(debugServiceName());
             if (server.openShift) {
                 OpenShift.create().routeDelete(httpRouteName());
                 OpenShift.create().routeDelete(httpsRouteName());
@@ -619,7 +618,6 @@ public class Stage {
                 ports(image.ports.http, image.ports.https),
                 Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), httpServiceLabels());
         engine.serviceCreate(jmxServiceName(), Ports.JMXMP, image.ports.jmxmp, DEPLOYMENT_LABEL_STAGE, name);
-        engine.serviceCreate(debugServiceName(), Ports.DEBUG, image.ports.debug, DEPLOYMENT_LABEL_STAGE, name);
         if (server.openShift) {
             OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, "http");
             OpenShift.create().routeCreate(httpsRouteName(), stageHost(), appServiceName(), true, "https");
@@ -669,9 +667,6 @@ public class Stage {
     }
     public String jmxServiceName() {
         return deploymentName() + "jmxmp";
-    }
-    public String debugServiceName() {
-        return deploymentName() + "debug";
     }
 
     private static String md5(String str) {
