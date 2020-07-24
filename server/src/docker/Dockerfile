@@ -1,5 +1,4 @@
-FROM contargo.server.lan/cisoops-public/java-13:1.0.4
-# TODO: use java 14 when https://bugs.openjdk.java.net/browse/JDK-8236039 is included
+FROM contargo.server.lan/cisoops-public/java-14:1.0.2
 
 ENV LOGLEVEL=INFO
 ENV HOST=host.docker.internal

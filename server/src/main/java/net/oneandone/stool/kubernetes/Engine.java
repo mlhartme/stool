@@ -40,7 +40,6 @@ import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1DeploymentBuilder;
 import io.kubernetes.client.openapi.models.V1DeploymentList;
 import io.kubernetes.client.openapi.models.V1EnvVar;
-import io.kubernetes.client.openapi.models.V1HostPathVolumeSource;
 import io.kubernetes.client.openapi.models.V1Namespace;
 import io.kubernetes.client.openapi.models.V1NamespaceBuilder;
 import io.kubernetes.client.openapi.models.V1NamespaceList;
@@ -201,6 +200,7 @@ public class Engine implements AutoCloseable {
             }
         }
         for (DataInfo cm : configMapList().values()) {
+            // TODO: System.out.println("configMap: " + cm.name + " " + cm.labels);
             if (hasImplicit(cm.labels)) {
                 System.out.println("delete configMap: " + cm.name);
                 configMapDelete(cm.name);
@@ -812,9 +812,7 @@ public class Engine implements AutoCloseable {
         V1Volume v;
         int volumeCount;
         String vname;
-        V1HostPathVolumeSource hp;
         List<V1VolumeMount> ml;
-        V1VolumeMount m;
         Map<String, Quantity> limits;
         V1ContainerBuilder container;
 
@@ -952,6 +950,7 @@ public class Engine implements AutoCloseable {
 
         map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).withLabels(implicitLabels).endMetadata()
                 .withData(data).build();
+        // TODO: System.out.println("create with implicit: " + implicitLabels + " " + map.getMetadata().getLabels());
         try {
             core.createNamespacedConfigMap(namespace, map, null, null, null);
         } catch (ApiException e) {
