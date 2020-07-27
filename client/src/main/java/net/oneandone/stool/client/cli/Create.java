@@ -31,17 +31,19 @@ import java.util.Map;
 
 public class Create extends ProjectCommand {
     private final boolean optional;
+    private final boolean detached;
     private final FileNode pathOpt;
     private final String stage;
     private final String server;
     private final Map<String, String> config;
 
-    public Create(Globals globals, boolean optional, FileNode pathOpt, String nameAndServer, List<String> args) {
+    public Create(Globals globals, boolean optional, boolean detached, FileNode pathOpt, String nameAndServer, List<String> args) {
         super(globals);
 
         int idx;
 
         this.optional = optional;
+        this.detached = detached;
         this.pathOpt = pathOpt;
         idx = nameAndServer.indexOf('@');
         if (idx == -1) {
@@ -73,22 +75,29 @@ public class Create extends ProjectCommand {
 
     @Override
     public void doRun(FileNode directory) throws IOException {
-        Project project;
+        Project projectOpt;
         Map<FileNode, FileNode> wars;
 
-        project = Project.lookup(directory);
-        if (project != null) {
+        projectOpt = Project.lookup(directory);
+        if (projectOpt != null) { // TODO: feels weired
             throw new ArgumentException("project already has a stage; detach it first");
         }
-        project = Project.create(directory);
+        if (detached) {
+            projectOpt = null;
+        } else {
+            projectOpt = Project.create(directory);
+        }
         try {
             wars = Project.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
             for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
-                add(project, Project.subst(stage, entry.getValue()), entry.getKey().getRelative(directory));
+                add(projectOpt, Project.subst(stage, entry.getValue()), entry.getKey().getRelative(directory));
             }
         } catch (IOException e) {
             try {
-                project.prune();
+                if (projectOpt != null) {
+                    projectOpt.prune();
+
+                }
             } catch (IOException e2) {
                 e.addSuppressed(e2);
             }
@@ -96,7 +105,7 @@ public class Create extends ProjectCommand {
         }
     }
 
-    private void add(Project project, String name, String appPath) throws IOException {
+    private void add(Project projectOpt, String name, String appPath) throws IOException {
         Client client;
         Reference reference;
 
@@ -114,10 +123,14 @@ public class Create extends ProjectCommand {
                 throw new IOException("stage already exists: " + reference);
             }
         }
-        try {
-            project.add(new App(reference, appPath));
-        } catch (IOException e) {
-            throw new IOException("failed to attach stage: " + e.getMessage(), e);
+        if (projectOpt != null) {
+            try {
+                projectOpt.add(new App(reference, appPath));
+            } catch (IOException e) {
+                throw new IOException("failed to attach stage: " + e.getMessage(), e);
+            }
+        } else {
+            // -detached
         }
     }
 

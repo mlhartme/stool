@@ -603,7 +603,9 @@ public class Stage {
 
         podLabels = new HashMap<>();
         podLabels.put(DEPLOYMENT_LABEL_STAGE, name);
-        podLabels.put(Ports.Port.JMXMP.label(), "x" + image.ports.jmxmp);
+        if (image.ports.jmxmp != -1) {
+            podLabels.put(Ports.Port.JMXMP.label(), "x" + image.ports.jmxmp);
+        }
 
         dataList = new ArrayList<>();
         cert = certMountOpt(image);
@@ -998,9 +1000,13 @@ public class Stage {
             return null;
         } else {
             str = running.labels.get(Ports.Port.JMXMP.label());
-            port = Integer.parseInt(Strings.removeLeft(str, "x"));
-            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            return new JMXServiceURL("service:jmx:jmxmp://" + running.ip + ":" + port);
+            if (str == null) {
+                return null;
+            } else {
+                port = Integer.parseInt(Strings.removeLeft(str, "x"));
+                // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+                return new JMXServiceURL("service:jmx:jmxmp://" + running.ip + ":" + port);
+            }
         }
     }
 
