@@ -533,8 +533,18 @@ public class Stage {
             }
             engine.serviceDelete(serviceName);
             if (server.openShift) {
-                OpenShift.create().routeDelete(httpRouteName());
-                OpenShift.create().routeDelete(httpsRouteName());
+                try {
+                    OpenShift.create().routeDelete(httpRouteName());
+                } catch (Exception e) {
+                    // TODO
+                    System.out.println("todo: http route delete failed: " + e.getMessage());
+                }
+                try {
+                    OpenShift.create().routeDelete(httpsRouteName());
+                } catch (Exception e) {
+                    // TODO
+                    System.out.println("todo: https route delete failed: " + e.getMessage());
+                }
             } else {
                 engine.ingressDelete(appIngressName());
             }
@@ -566,7 +576,6 @@ public class Stage {
         int memoryQuota;
         int memoryReserved;
         TagInfo image;
-        LinkedHashMap<Integer, Integer> ports;
 
         deploymentName = deploymentName();
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
@@ -619,24 +628,15 @@ public class Stage {
             dataList.add(fault);
             fault.define(engine);
         }
-        ports = new LinkedHashMap<>();
-        if (image.ports.http != -1) {
-            ports.put(Ports.HTTP, image.ports.http);
-        }
-        if (image.ports.https != -1) {
-            ports.put(Ports.HTTPS, image.ports.https);
-        }
-        if (ports.isEmpty()) {
-            throw new IOException("neither http nor https specified");
-        }
-        engine.serviceCreate(appServiceName(),
-                Strings.toList("http", "https"),
-                new ArrayList<>(ports.keySet()),
-                new ArrayList<>(ports.values()),
-                Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), httpServiceLabels());
+
+        appService(engine, image);
         if (server.openShift) {
-            OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, "http");
-            OpenShift.create().routeCreate(httpsRouteName(), stageHost(), appServiceName(), true, "https");
+            if (image.ports.http != -1) {
+                OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, "http");
+            }
+            if (image.ports.https != -1) {
+                OpenShift.create().routeCreate(httpsRouteName(), stageHost(), appServiceName(), true, "https");
+            }
         } else {
             // TODO: does not map both ports ...
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
@@ -655,8 +655,29 @@ public class Stage {
         return image.tag;
     }
 
-    private Map<String, String> httpServiceLabels() {
-        return Strings.toMap(DEPLOYMENT_LABEL_STAGE, name);
+    private void appService(Engine engine, TagInfo image) throws IOException {
+        List<String> names;
+        List<Integer> src;
+        List<Integer> dest;
+
+        names = new ArrayList<>();
+        src = new ArrayList<>();
+        dest = new ArrayList<>();
+        if (image.ports.http != -1) {
+            names.add("http");
+            src.add(Ports.HTTP);
+            dest.add(image.ports.http);
+        }
+        if (image.ports.https != -1) {
+            names.add("https");
+            src.add(Ports.HTTPS);
+            dest.add(image.ports.https);
+        }
+        if (names.isEmpty()) {
+            throw new IOException("neither http nor https specified");
+        }
+        engine.serviceCreate(appServiceName(), names, src, dest,
+                Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), Strings.toMap(DEPLOYMENT_LABEL_STAGE, name));
     }
 
     public String httpRouteName() {

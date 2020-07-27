@@ -116,7 +116,7 @@ dashboard = {
                                    "      <a class='dropdown-item' href='mailto:?subject=" + encodeURIComponent("Stage " + name) + "&body=" + encodeURIComponent(mailBody) + "'>\n" +
                                    "        <span style='white-space: nowrap'><i class='fas fa-share'></i> Share</span></a>\n" +
                                    "      <a class='dropdown-item' data-toggle='modal' data-target='#logs' data-stage='" + eName + "'>Log files ...</a>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='remove' data-arguments='stop&batch' data-stage='" + eName + "'>Remove</a>\n"
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='delete' data-arguments='stop&batch' data-stage='" + eName + "'>Delete</a>\n"
                                    "    </div>\n" +
                                    "  </div>\n" +
                                    "</td>\n"
