@@ -566,6 +566,7 @@ public class Stage {
         int memoryQuota;
         int memoryReserved;
         TagInfo image;
+        LinkedHashMap<Integer, Integer> ports;
 
         deploymentName = deploymentName();
         server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
@@ -618,10 +619,20 @@ public class Stage {
             dataList.add(fault);
             fault.define(engine);
         }
+        ports = new LinkedHashMap<>();
+        if (image.ports.http != -1) {
+            ports.put(Ports.HTTP, image.ports.http);
+        }
+        if (image.ports.https != -1) {
+            ports.put(Ports.HTTPS, image.ports.https);
+        }
+        if (ports.isEmpty()) {
+            throw new IOException("neither http not https specitied");
+        }
         engine.serviceCreate(appServiceName(),
                 Strings.toList("http", "https"),
-                ports(Ports.HTTP, Ports.HTTPS),
-                ports(image.ports.http, image.ports.https),
+                new ArrayList<>(ports.keySet()),
+                new ArrayList<>(ports.values()),
                 Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), httpServiceLabels());
         if (server.openShift) {
             OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, "http");
@@ -642,16 +653,6 @@ public class Stage {
             throw new IOException("unexpected status: " + status);
         } */
         return image.tag;
-    }
-
-    private static List<Integer> ports(int... ports) {
-        List<Integer> result;
-
-        result = new ArrayList<>(ports.length);
-        for (int port : ports) {
-            result.add(port);
-        }
-        return result;
     }
 
     private Map<String, String> httpServiceLabels() {
