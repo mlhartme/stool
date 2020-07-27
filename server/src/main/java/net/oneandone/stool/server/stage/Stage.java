@@ -627,7 +627,7 @@ public class Stage {
             ports.put(Ports.HTTPS, image.ports.https);
         }
         if (ports.isEmpty()) {
-            throw new IOException("neither http not https specitied");
+            throw new IOException("neither http nor https specified");
         }
         engine.serviceCreate(appServiceName(),
                 Strings.toList("http", "https"),
