@@ -104,7 +104,7 @@ spec:
         - name: HOST
           value: "${host}"
         - name: OPTS
-          value: "--illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:31001 -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true"
+          value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:31001 -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true"
         - name: ENGINE_LOG
           value: "false"
         - name: VHOSTS
