@@ -25,6 +25,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,7 @@ public class Create extends ProjectCommand {
     public void doRun(FileNode directory) throws IOException {
         Project projectOpt;
         Map<FileNode, FileNode> wars;
+        Map<FileNode, String> map;
 
         projectOpt = Project.lookup(directory);
         if (projectOpt != null) { // TODO: feels weired
@@ -88,9 +90,17 @@ public class Create extends ProjectCommand {
             projectOpt = Project.create(directory);
         }
         try {
-            wars = Project.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
-            for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
-                add(projectOpt, Project.subst(stage, entry.getValue()), entry.getKey().getRelative(directory));
+            map = new HashMap<>();
+            if (Project.hasSubst(stage)) {
+                wars = Project.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
+                for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
+                    map.put(entry.getKey(), Project.subst(stage, entry.getValue()));
+                }
+            } else {
+                map.put(pathOpt != null ? pathOpt : directory, stage);
+            }
+            for (Map.Entry<FileNode, String> entry : map.entrySet()) {
+                add(projectOpt, entry.getKey().getRelative(directory), entry.getValue());
             }
         } catch (IOException e) {
             try {
@@ -105,7 +115,7 @@ public class Create extends ProjectCommand {
         }
     }
 
-    private void add(Project projectOpt, String name, String appPath) throws IOException {
+    private void add(Project projectOpt, String appPath, String name) throws IOException {
         Client client;
         Reference reference;
 

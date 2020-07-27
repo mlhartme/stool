@@ -191,6 +191,10 @@ public class Project {
 
     public static final String SUBST = "_";
 
+    public static boolean hasSubst(String name) {
+        return name.contains(SUBST);
+    }
+
     public static String subst(String name, FileNode war) throws IOException {
         return name.replace(SUBST, App.app(war));
     }
