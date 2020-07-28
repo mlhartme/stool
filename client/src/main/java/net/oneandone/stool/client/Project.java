@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-/** List of Apps */
+/** List of Apps. Represents .backstage */
 public class Project {
     public static Project create(FileNode project) throws IOException {
         FileNode backstage;
@@ -63,6 +63,7 @@ public class Project {
         return null;
     }
 
+    /* This name is legacy - I keep it because applications have it in their .gitignores */
     private static FileNode backstage(FileNode project) {
         return project.join(".backstage");
     }
