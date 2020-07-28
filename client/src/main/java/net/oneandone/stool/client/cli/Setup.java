@@ -87,7 +87,6 @@ public class Setup {
 
     private void create() throws IOException {
         Configuration configuration;
-        String inc;
 
         configuration = createConfiguration();
         if (!batch) {
@@ -97,7 +96,6 @@ public class Setup {
         }
         console.info.println("Creating " + home);
         doCreate(configuration);
-        inc = home.join("shell.inc").getAbsolute();
         console.info.println("Done.");
         console.info.println();
         console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
@@ -179,7 +177,7 @@ public class Setup {
         result = new Configuration(home.join("client.json"));
         result.load();
 
-        additional = cisotoolsEnvironment();
+        additional = cisotoolsEnvironment(world);
         if (additional != null) {
             add = new Configuration(additional);
             add.load();
@@ -202,7 +200,7 @@ public class Setup {
         if (nameAndHost != null) {
             file = null;
         } else {
-            file = cisotoolsEnvironment();
+            file = cisotoolsEnvironment(world);
         }
         manager = new Configuration(file);
         if (file != null) {
@@ -230,7 +228,7 @@ public class Setup {
         configuration.save(gson);
     }
 
-    private FileNode cisotoolsEnvironment() throws FileNotFoundException, ExistsException {
+    public static FileNode cisotoolsEnvironment(World world) throws FileNotFoundException, ExistsException {
         FileNode cisotools;
 
         cisotools = cisotools(world);

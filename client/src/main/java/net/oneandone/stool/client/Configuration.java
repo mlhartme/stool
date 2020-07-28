@@ -97,6 +97,19 @@ public class Configuration {
         throw new IOException("context not set");
     }
 
+    public Configuration withContext(String name) {
+        Configuration result;
+        Server server;
+
+        result = new Configuration(file);
+        result.setRegistryPrefix(registryPrefix);
+        for (Map.Entry<String, Server> entry : servers.entrySet()) {
+            server = entry.getValue();
+            result.servers.put(entry.getKey(), server.withEnabled(name.equals(server.name)));
+        }
+        return result;
+    }
+
     public Server serverGet(String server) {
         Server result;
 
