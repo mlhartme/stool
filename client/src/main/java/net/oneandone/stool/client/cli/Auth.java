@@ -22,46 +22,32 @@ import net.oneandone.stool.client.Configuration;
 import net.oneandone.sushi.fs.http.StatusException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Auth {
     private final Globals globals;
     private final Console console;
     private final boolean batch;
-    private final String explicitServer;
 
-    public Auth(Globals globals, boolean batch, String server) {
+    public Auth(Globals globals, boolean batch) {
         this.globals = globals;
         this.console = globals.getConsole();
         this.batch = batch;
-        this.explicitServer = server;
     }
 
     public void run() throws Exception {
         Configuration configuration;
         String username;
         String password;
-        List<Server> dests;
 
         configuration = globals.configuration();
-        dests = new ArrayList<>();
-        if (explicitServer != null) {
-            dests.add(configuration.serverGet(explicitServer));
-        } else {
-            Server server = configuration.context();
-            if (server.hasToken()) {
-                dests.add(server);
-            }
-            if (dests.isEmpty()) {
-                console.info.println("Nothing to do, there are no servers that need authentication.");
-                return;
-            }
+
+        Server server = configuration.context();
+        if (!server.hasToken()) {
+            console.info.println("Nothing to do, there are no servers that need authentication.");
+            return;
         }
 
-        for (Server server : dests) {
-            console.info.println(server.name + " " + server.url);
-        }
+        console.info.println(server.name + " " + server.url);
         if (batch) {
             username = env("STOOL_USERNAME");
             password = env("STOOL_PASSWORD");
@@ -71,19 +57,18 @@ public class Auth {
             username = console.readline("username: ");
             password = new String(System.console().readPassword("password:"));
         }
-        for (Server dest : dests) {
-            try {
-                dest.auth(globals.getWorld(), username, password);
-            } catch (StatusException e) {
-                if (e.getStatusLine().code == 401) {
-                    throw new IOException(dest.url + ": " + e.getMessage(), e);
-                } else {
-                    throw e;
-                }
+
+        try {
+            server.auth(globals.getWorld(), username, password);
+        } catch (StatusException e) {
+            if (e.getStatusLine().code == 401) {
+                throw new IOException(server.url + ": " + e.getMessage(), e);
+            } else {
+                throw e;
             }
         }
         configuration.save(globals.getGson());
-        console.info.println("Successfully updated token for " + dests.size() + " server(s)");
+        console.info.println("Successfully updated token for " + server.name);
     }
 
     private static String env(String name) throws IOException {

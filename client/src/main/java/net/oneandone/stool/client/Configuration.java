@@ -52,18 +52,12 @@ public class Configuration {
         this.file = file;
         this.version = null;
         this.registryPrefix = "127.0.0.1:31500/";
+        this.servers = new LinkedHashMap<>();
+
+        // transient
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
-        this.servers = new LinkedHashMap<>();
-    }
-
-    public boolean isEmpty() {
-        return servers.isEmpty();
-    }
-
-    public void add(String name, boolean enabled, String url, String token) {
-        servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
     }
 
     public void setVersion(String version) {
@@ -76,12 +70,22 @@ public class Configuration {
     public void setRegistryPrefix(String str) {
         this.registryPrefix = str;
     }
-
     public String registryPrefix() {
         if (!registryPrefix.endsWith("/")) {
             throw new IllegalStateException(registryPrefix);
         }
         return registryPrefix;
+    }
+
+
+    //-- servers
+
+    public boolean isEmpty() {
+        return servers.isEmpty();
+    }
+
+    public void add(String name, boolean enabled, String url, String token) {
+        servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
     }
 
     public Server context() throws IOException {

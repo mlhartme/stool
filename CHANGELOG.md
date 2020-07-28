@@ -15,7 +15,8 @@
 * renamed 'remove' to 'delete'
 
 * client
-  * context command instead of update-setup
+  * `auth` now applied to current context, explicit server argument is gone
+  * `context` command instead of update-setup
   * split `setup` into `setup` and `server`
   * renamed servers.json to client.json
   * setup: removed namespace argument
