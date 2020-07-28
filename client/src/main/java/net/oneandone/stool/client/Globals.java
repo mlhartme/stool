@@ -96,8 +96,8 @@ public class Globals {
     public Configuration configuration() throws IOException {
         Configuration result;
 
-        result = new Configuration(config, wirelog, invocation, command);
-        result.load();
+        result = new Configuration(world, wirelog, invocation, command);
+        result.load(getConfig());
         return result;
     }
 }

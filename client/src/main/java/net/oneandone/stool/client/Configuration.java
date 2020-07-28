@@ -21,7 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.inline.ArgumentException;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -34,9 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Configuration {
-    public final FileNode file;
-
-
+    private final World world;
     private String version;
     private String registryPrefix;
     public final FileNode wirelog;
@@ -44,12 +42,12 @@ public class Configuration {
     public final String clientCommand;
     public final Map<String, Server> servers;
 
-    public Configuration(FileNode file) {
-        this(file, null, null, null);
+    public Configuration(World world) {
+        this(world, null, null, null);
     }
 
-    public Configuration(FileNode file, FileNode wirelog, String clientInvocation, String clientCommand) {
-        this.file = file;
+    public Configuration(World world, FileNode wirelog, String clientInvocation, String clientCommand) {
+        this.world = world;
         this.version = null;
         this.registryPrefix = "127.0.0.1:31500/";
         this.servers = new LinkedHashMap<>();
@@ -101,7 +99,7 @@ public class Configuration {
         Configuration result;
         Server server;
 
-        result = new Configuration(file);
+        result = new Configuration(world);
         result.setRegistryPrefix(registryPrefix);
         for (Map.Entry<String, Server> entry : servers.entrySet()) {
             server = entry.getValue();
@@ -111,20 +109,7 @@ public class Configuration {
     }
 
     public Reference reference(String stageName) throws IOException {
-        return new Reference(context().connect(file.getWorld()), stageName);
-    }
-
-    public Server serverGet(String server) {
-        Server result;
-
-        result = serverLookup(server);
-        if (result == null) {
-            throw new ArgumentException("unknown server: " + server);
-        }
-        if (!result.enabled) {
-            throw new ArgumentException("server is disabled: " + server);
-        }
-        return result;
+        return new Reference(context().connect(world), stageName);
     }
 
     public Server serverLookup(String server) {
@@ -132,7 +117,7 @@ public class Configuration {
     }
 
     public Client connectContext() throws IOException {
-        return context().connect(file.getWorld());
+        return context().connect(world);
     }
 
     public List<Reference> list(String filter) throws IOException {
@@ -145,7 +130,7 @@ public class Configuration {
         return result;
     }
 
-    public void load() throws IOException {
+    public void load(FileNode file) throws IOException {
         JsonObject all;
         JsonArray array;
         Server server;
@@ -161,7 +146,7 @@ public class Configuration {
         }
     }
 
-    public void save(Gson gson) throws IOException {
+    public void save(Gson gson, FileNode file) throws IOException {
         JsonArray array;
         JsonObject obj;
 
@@ -177,6 +162,7 @@ public class Configuration {
         }
     }
 
+    // TODO
     public boolean needAuthentication() {
         for (Server server : servers.values()) {
             if (server.enabled && server.hasToken()) {
@@ -185,19 +171,6 @@ public class Configuration {
         }
         return false;
     }
-
-    public Configuration withFile(FileNode otherFile) {
-        Configuration result;
-
-        result = new Configuration(otherFile);
-        for (Server s : allServer()) {
-            s.addTo(result);
-        }
-        result.setRegistryPrefix(registryPrefix);
-        result.setVersion(version);
-        return result;
-    }
-
 
     public Collection<Server> allServer() {
         return Collections.unmodifiableCollection(servers.values());

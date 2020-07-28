@@ -57,7 +57,7 @@ public class Setup {
             throw new IOException("Stool is already set up in " + configurationFile.getAbsolute());
         }
         configuration = configuration();
-        save(configuration);
+        configuration.save(gson, configurationFile);
         console.info.println("Done - created " + configurationFile.getAbsolute() + " for Stool version " + version);
         console.info.println();
         console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
@@ -104,18 +104,11 @@ public class Setup {
         Configuration result;
 
         template = cisotoolsEnvironment(world);
-        result = new Configuration(template);
+        result = new Configuration(world);
         if (template != null) {
-            result.load();
+            result.load(template);
         }
         return result;
-    }
-
-    private void save(Configuration environment) throws IOException {
-        Configuration configuration;
-
-        configuration = environment.withFile(configurationFile);
-        configuration.save(gson);
     }
 
     public static FileNode cisotoolsEnvironment(World world) throws FileNotFoundException, ExistsException {
