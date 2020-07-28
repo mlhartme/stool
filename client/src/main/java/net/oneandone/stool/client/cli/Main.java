@@ -61,7 +61,7 @@ public class Main {
             out = new PrefixWriter(new PrintWriter(System.out));
             console = new Console(out, out, System.in);
         }
-        globals = Globals.create(console, world, itHome, "stool " + Separator.SPACE.join(args));
+        globals = Globals.create(console, world, itHome.join("stool.json"), "stool " + Separator.SPACE.join(args));
         cli = new Cli(globals.getConsole()::handleException);
         cli.primitive(FileNode.class, "file name", null, world::file);
         cli.begin(globals.getConsole(), "-v -e  { setVerbose(v) setStacktraces(e) }");

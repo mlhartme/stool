@@ -28,43 +28,43 @@ import java.util.UUID;
 
 /** Global client stuff */
 public class Globals {
-    public static Globals create(Console console, World world, FileNode homeOpt, String command) throws IOException {
-        FileNode home;
+    public static Globals create(Console console, World world, FileNode configOpt, String command) {
+        FileNode config;
         String str;
 
-        if (homeOpt != null) {
-            home = homeOpt;
+        if (configOpt != null) {
+            config = configOpt;
         } else {
-            str = System.getenv("SC_HOME");
+            str = System.getenv("STOOL_JSON");
             if (str != null) {
-                home = world.file(str);
+                config = world.file(str);
             } else {
-                home = world.getHome().join(".sc");
+                config = world.getHome().join(".stool.json");
             }
         }
-        return new Globals(console, world, home, UUID.randomUUID().toString(), command);
+        return new Globals(console, world, config, UUID.randomUUID().toString(), command);
     }
 
     private final Console console;
     private final World world;
     private final Gson gson;
-    private final FileNode home;
+    private final FileNode config;
     private final String invocation;
     private final String command;
     private FileNode wirelog;
 
-    public Globals(Console console, World world, FileNode home, String invocation, String command) {
+    public Globals(Console console, World world, FileNode config, String invocation, String command) {
         this.console = console;
         this.world = world;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        this.home = home;
+        this.config = config;
         this.invocation = invocation;
         this.command = command;
         this.wirelog = null;
     }
 
-    public FileNode getHome() {
-        return home;
+    public FileNode getConfig() {
+        return config;
     }
 
     public FileNode templates() throws ExistsException, DirectoryNotFoundException {
@@ -94,11 +94,9 @@ public class Globals {
     }
 
     public Configuration configuration() throws IOException {
-        FileNode file;
         Configuration result;
 
-        file = home.join("client.json");
-        result = new Configuration(file, wirelog, invocation, command);
+        result = new Configuration(config, wirelog, invocation, command);
         result.load();
         return result;
     }

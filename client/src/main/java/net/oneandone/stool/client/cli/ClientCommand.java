@@ -42,9 +42,8 @@ public abstract class ClientCommand {
         this.console = globals.getConsole();
         this.working = globals.getWorld().getWorking();
 
-        if (!globals.getHome().exists()) {
-            throw new ArgumentException("Stool home directory not found: " + globals.getHome().getAbsolute()
-                    + "\nRun 'stool setup' to create it.");
+        if (!globals.getConfig().exists()) {
+            throw new ArgumentException("Stool config not found: " + globals.getConfig().getAbsolute() + "\nRun 'stool setup' to create it.");
         }
     }
 

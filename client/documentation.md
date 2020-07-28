@@ -260,7 +260,7 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 
 #### Stool Server Configuration
 
-The following environment variables can be used to configure Stool server in `$SC_HOME/server/server.yaml`. 
+The following environment variables can be used to configure Stool server:
 
 * **ADMIN** 
   Email of the person to receive validation failures and exception mails. Empty to disable these emails.
@@ -944,21 +944,6 @@ Old logs are removed after 90 days or if they exceed 1 GB.
 ### Upgrading 
 
 There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all stages.
-
-
-## Directory Layout
-
-... of $SC_HOME (default is `~/.stool`)
-
-        |- shell.inc
-        '- client.json               (client config - mostly the list of Stool servers to talk to)
-
-... of project directories
-
-        :
-        :  (normal project files)
-        :
-        '- .backstage             (file containing the attached stage)
 
 
 ### Building Stool

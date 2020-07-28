@@ -36,7 +36,7 @@ public class Setup {
 
     private final World world;
     private final Gson gson;
-    private final FileNode home;
+    private final FileNode configurationFile;
     private final Console console;
     private final String version;
     private final String spec;
@@ -44,29 +44,21 @@ public class Setup {
     public Setup(Globals globals, String spec) {
         this.world = globals.getWorld();
         this.gson = globals.getGson();
-        this.home = globals.getHome();
+        this.configurationFile = globals.getConfig();
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.spec = spec;
     }
 
     public void run() throws IOException {
-        if (home.isDirectory()) {
-            throw new IOException("Stool is already set up in " + home.getAbsolute());
-        }
-        console.info.println("Stool " + version + " setup in " + home);
-        console.info.println();
-
-        create();
-    }
-
-    private void create() throws IOException {
         Configuration configuration;
 
+        if (configurationFile.exists()) {
+            throw new IOException("Stool is already set up in " + configurationFile.getAbsolute());
+        }
         configuration = configuration();
-        console.info.println("Creating " + home);
         save(configuration);
-        console.info.println("Done.");
+        console.info.println("Done - created " + configurationFile.getAbsolute() + " for Stool version " + version);
         console.info.println();
         console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
         console.info.println("  Make sure to run 'eval \"$(sc shell-inc)\"' in your shell profile.");
@@ -122,8 +114,7 @@ public class Setup {
     private void save(Configuration environment) throws IOException {
         Configuration configuration;
 
-        home.mkdir();
-        configuration = environment.withFile(home.join("client.json"));
+        configuration = environment.withFile(configurationFile);
         configuration.save(gson);
     }
 
