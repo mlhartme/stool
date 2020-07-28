@@ -87,8 +87,8 @@ public class Setup {
             registryPrefix = url.substring(idx + 1);
             url = url.substring(0, idx);
 
-            result.servers.clear();
-            result.add(name, true, url, null);
+            result.contexts.clear();
+            result.addContext(name, true, url, null);
             result.setRegistryPrefix(registryPrefix);
         }
         return result;

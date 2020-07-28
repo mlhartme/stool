@@ -23,14 +23,14 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
-public class Server {
-    public static Server fromJson(JsonObject obj, FileNode wirelog, String clientInvocation, String clientCommand) {
+public class Context {
+    public static Context fromJson(JsonObject obj, FileNode wirelog, String clientInvocation, String clientCommand) {
         JsonElement token;
         JsonElement enabled;
 
         token = obj.get("token");
         enabled = obj.get("enabled");
-        return new Server(obj.get("name").getAsString(), obj.get("url").getAsString(),
+        return new Context(obj.get("name").getAsString(), obj.get("url").getAsString(),
                 enabled == null || "true".equals(enabled.getAsString()),
                 token == null ? null : token.getAsString(),
                 wirelog, clientInvocation, clientCommand);
@@ -47,7 +47,7 @@ public class Server {
     private volatile String clientInvocation;
     private volatile String clientCommand;
 
-    public Server(String name, String url, boolean enabled, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public Context(String name, String url, boolean enabled, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.name = name;
         this.url = url;
         this.enabled = enabled;
@@ -56,11 +56,6 @@ public class Server {
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
-    }
-
-    /** looks weired, but this method allows we to keep the token field private */
-    public void addTo(Configuration dest) {
-        dest.add(name, enabled, url, token);
     }
 
     public boolean hasToken() {
@@ -96,8 +91,8 @@ public class Server {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof Server) {
-            return ((Server) obj).name.equals(name);
+        if (obj instanceof Context) {
+            return ((Context) obj).name.equals(name);
         } else {
             return false;
         }

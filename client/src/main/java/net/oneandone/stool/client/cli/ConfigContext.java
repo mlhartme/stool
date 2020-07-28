@@ -18,7 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Configuration;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Context;
 
 import java.io.IOException;
 
@@ -36,16 +36,16 @@ public class ConfigContext {
     public void run() throws IOException {
         Configuration configuration;
         String old;
-        Server found;
+        Context found;
 
         configuration = new Configuration(globals.getWorld());
         configuration.load(globals.getStoolJson());
         if (setOpt == null) {
             console.info.println(configuration.context().name);
         } else {
-            found = configuration.serverLookup(setOpt);
+            found = configuration.contextLookup(setOpt);
             if (found == null) {
-                throw new IOException(setOpt + ": not found, available contexts: " + configuration.servers.keySet());
+                throw new IOException(setOpt + ": not found, available contexts: " + configuration.contexts.keySet());
             }
             old = configuration.context().name;
             if (old.equals(setOpt)) {

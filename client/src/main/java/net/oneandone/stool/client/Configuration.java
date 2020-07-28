@@ -39,7 +39,7 @@ public class Configuration {
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
-    public final Map<String, Server> servers;
+    public final Map<String, Context> contexts;
 
     public Configuration(World world) {
         this(world, null, null, null);
@@ -49,7 +49,7 @@ public class Configuration {
         this.world = world;
         this.version = null;
         this.registryPrefix = "127.0.0.1:31500/";
-        this.servers = new LinkedHashMap<>();
+        this.contexts = new LinkedHashMap<>();
 
         // transient
         this.wirelog = wirelog;
@@ -75,47 +75,44 @@ public class Configuration {
     }
 
 
-    //-- servers
+    //-- contexts
 
-    public boolean isEmpty() {
-        return servers.isEmpty();
-    }
-
-    public void add(String name, boolean enabled, String url, String token) {
-        servers.put(name, new Server(name, url, enabled, token, null, clientInvocation, clientCommand));
-    }
-
-    public Server context() throws IOException {
-        for (Server server : servers.values()) {
-            if (server.enabled) {
-                return server;
+    public Context context() throws IOException {
+        for (Context context : contexts.values()) {
+            if (context.enabled) {
+                return context;
             }
         }
         throw new IOException("context not set");
     }
+
     public void setContext(String name) {
-        for (Server server : servers.values()) {
-            server.enabled = name.equals(server.name);
+        for (Context context : contexts.values()) {
+            context.enabled = name.equals(context.name);
         }
+    }
+
+    public void addContext(String name, boolean enabled, String url, String token) {
+        contexts.put(name, new Context(name, url, enabled, token, null, clientInvocation, clientCommand));
+    }
+
+    public Context contextLookup(String context) {
+        return contexts.get(context);
+    }
+
+    public Client contextConnect() throws IOException {
+        return context().connect(world);
     }
 
     public Reference reference(String stageName) throws IOException {
         return new Reference(context().connect(world), stageName);
     }
 
-    public Server serverLookup(String server) {
-        return servers.get(server);
-    }
-
-    public Client connectContext() throws IOException {
-        return context().connect(world);
-    }
-
     public List<Reference> list(String filter) throws IOException {
         Client client;
         List<Reference> result;
 
-        client = connectContext();
+        client = contextConnect();
         result = new ArrayList<>();
         result.addAll(Reference.list(client, client.list(filter)));
         return result;
@@ -124,16 +121,16 @@ public class Configuration {
     public void load(FileNode file) throws IOException {
         JsonObject all;
         JsonArray array;
-        Server server;
+        Context context;
 
-        servers.clear();
+        contexts.clear();
 
         all = JsonParser.parseString(file.readString()).getAsJsonObject();
         registryPrefix = all.get("registryPrefix").getAsString();
         array = all.get("servers").getAsJsonArray();
         for (JsonElement element : array) {
-            server = Server.fromJson(element.getAsJsonObject(), wirelog, clientInvocation, clientCommand);
-            servers.put(server.name, server);
+            context = Context.fromJson(element.getAsJsonObject(), wirelog, clientInvocation, clientCommand);
+            contexts.put(context.name, context);
         }
     }
 
@@ -142,7 +139,7 @@ public class Configuration {
         JsonObject obj;
 
         array = new JsonArray();
-        for (Server server : servers.values()) {
+        for (Context server : contexts.values()) {
             array.add(server.toJson());
         }
         obj = new JsonObject();

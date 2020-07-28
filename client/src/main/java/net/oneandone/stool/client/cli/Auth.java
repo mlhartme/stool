@@ -17,7 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Context;
 import net.oneandone.stool.client.Configuration;
 import net.oneandone.sushi.fs.http.StatusException;
 
@@ -41,7 +41,7 @@ public class Auth {
 
         configuration = globals.configuration();
 
-        Server server = configuration.context();
+        Context server = configuration.context();
         if (!server.hasToken()) {
             console.info.println("Nothing to do, there are no servers that need authentication.");
             return;
