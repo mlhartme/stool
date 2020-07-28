@@ -191,29 +191,20 @@ public class Configuration {
         return false;
     }
 
-    public Configuration newEnabled() {
+    public Configuration withFile(FileNode otherFile) {
         Configuration result;
 
-        result = new Configuration(file);
-        for (Map.Entry<String, Server> entry : servers.entrySet()) {
-            result.servers.put(entry.getKey(), entry.getValue().withEnabled(true));
+        result = new Configuration(otherFile);
+        for (Server s : allServer()) {
+            s.addTo(result);
         }
+        result.setRegistryPrefix(registryPrefix);
+        result.setVersion(version);
         return result;
     }
 
+
     public Collection<Server> allServer() {
         return Collections.unmodifiableCollection(servers.values());
-    }
-
-    public Collection<Server> enabledServer() {
-        List<Server> lst;
-
-        lst = new ArrayList<>();
-        for (Server server : servers.values()) {
-            if (server.enabled) {
-                lst.add(server);
-            }
-        }
-        return Collections.unmodifiableList(lst);
     }
 }

@@ -50,10 +50,9 @@ public class Auth {
         if (explicitServer != null) {
             dests.add(manager.serverGet(explicitServer));
         } else {
-            for (Server server : manager.enabledServer()) {
-                if (server.hasToken()) {
-                    dests.add(server);
-                }
+            Server server = manager.server();
+            if (server.hasToken()) {
+                dests.add(server);
             }
             if (dests.isEmpty()) {
                 console.info.println("Nothing to do, there are no servers that need authentication.");

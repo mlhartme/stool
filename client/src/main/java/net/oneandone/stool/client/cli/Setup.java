@@ -16,10 +16,8 @@
 package net.oneandone.stool.client.cli;
 
 import com.google.gson.Gson;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Server;
 import net.oneandone.stool.client.Configuration;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.FileNotFoundException;
@@ -41,61 +39,33 @@ public class Setup {
     private final FileNode home;
     private final Console console;
     private final String version;
-    private final boolean batch;
-    private final String nameAndHost;
-    private final String registryPrefix;
+    private final String spec;
 
-    public Setup(Globals globals, String nameAndHost, boolean batch, String registryPrefix) {
+    public Setup(Globals globals, String spec) {
         this.world = globals.getWorld();
         this.gson = globals.getGson();
         this.home = globals.getHome();
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
-        this.batch = batch;
-        this.nameAndHost = nameAndHost;
-        this.registryPrefix = registryPrefix;
+        this.spec = spec;
     }
 
     public void run() throws IOException {
         if (home.isDirectory()) {
-            console.info.println("Stool is already set up in " + home.getAbsolute() + ", updating servers only.");
-            updateServers();
-        } else {
-            console.info.println("Stool " + version + " setup in " + home);
-            console.info.println();
-
-            create();
+            throw new IOException("Stool is already set up in " + home.getAbsolute());
         }
-    }
-
-    private void updateServers() throws IOException {
-        Configuration configuration;
-
-        if (batch) {
-            throw new ArgumentException("-batch is not supported in update mode");
-        }
-        if (nameAndHost != null) { // TODO: why?
-            throw new ArgumentException("local is not supported in update mode");
-        }
-        configuration = updateConfiguration();
-        configuration = select(configuration, true);
+        console.info.println("Stool " + version + " setup in " + home);
         console.info.println();
-        console.readline("Press return to update servers, ctrl-c to abort");
-        configuration.save(gson);
-        console.info.println("done");
+
+        create();
     }
 
     private void create() throws IOException {
         Configuration configuration;
 
-        configuration = createConfiguration();
-        if (!batch) {
-            console.info.println();
-            console.info.println("Ready to create Stool home directory: " + home.getAbsolute());
-            console.pressReturn();
-        }
+        configuration = configuration();
         console.info.println("Creating " + home);
-        doCreate(configuration);
+        save(configuration);
         console.info.println("Done.");
         console.info.println();
         console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
@@ -108,123 +78,52 @@ public class Setup {
         }
     }
 
-    private Boolean yesNo(String str) {
-        String answer;
-
-        while (true) {
-            answer = console.readline(str);
-            answer = answer.toLowerCase();
-            switch (answer) {
-                case "y":
-                    return true;
-                case "n":
-                    return false;
-                case "":
-                    return null;
-                default:
-                    console.info.println("invalid answer: " + answer);
-            }
-        }
-    }
-
-    private Configuration createConfiguration() throws IOException {
-        Configuration result;
-
-        result = readConfiguration();
-        if (!batch && !result.isEmpty()) {
-            result = select(result, false);
-        } else {
-            result = result.newEnabled();
-        }
-        return result;
-    }
-
-    private Configuration select(Configuration configuration, boolean dflt) {
-        Configuration result;
-        Boolean enable;
-        String yesNo;
-
-        result = new Configuration(configuration.file);
-        result.setRegistryPrefix(configuration.registryPrefix());
-        console.info.println("Stages are hosted on servers. Please choose the servers you want to use:");
-        for (Server server : configuration.allServer()) {
-            if (dflt) {
-                yesNo = server.enabled ? "Y/n" : "y/N";
-            } else {
-                yesNo = "y/n";
-            }
-            while (true) {
-                enable = yesNo("  " + server.name + " (" + server.url + ") [" + yesNo + "]? ");
-                if (enable == null) {
-                    if (dflt) {
-                        enable = server.enabled;
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
-            server.withEnabled(enable).addTo(result);
-        }
-        return result;
-    }
-
-    private Configuration updateConfiguration() throws IOException {
-        Configuration result;
-        Configuration add;
-        FileNode additional;
-
-        result = new Configuration(home.join("client.json"));
-        result.load();
-
-        additional = cisotoolsEnvironment(world);
-        if (additional != null) {
-            add = new Configuration(additional);
-            add.load();
-            result.setRegistryPrefix(add.registryPrefix());
-            for (Server s : add.allServer()) {
-                if (result.serverLookup(s.name) == null) {
-                    s.withEnabled(false).addTo(result);
-                    // default to disabled, because hitting return for all servers must not change anything
-                }
-            }
-        }
-        return result;
-    }
-
-    private Configuration readConfiguration() throws IOException {
-        FileNode file;
-        Configuration manager;
+    private Configuration configuration() throws IOException {
         int idx;
+        Configuration result;
+        String name;
+        String url;
+        String registryPrefix;
 
-        if (nameAndHost != null) {
-            file = null;
-        } else {
-            file = cisotoolsEnvironment(world);
-        }
-        manager = new Configuration(file);
-        if (file != null) {
-            manager.load();
-        } else {
-            idx = nameAndHost.indexOf('=');
+        result = initialConfiguration();
+        if (spec != null) {
+            idx = spec.indexOf('=');
             if (idx == -1) {
-                throw new IllegalStateException("missing '=': " + nameAndHost);
+                throw new IllegalStateException("missing '=': " + spec);
             }
-            manager.add(nameAndHost.substring(0, idx), true, nameAndHost.substring(idx + 1), null);
+            name = spec.substring(0, idx);
+            url = spec.substring(idx + 1);
+            idx = url.indexOf('@');
+            if (idx == -1) {
+                throw new IllegalStateException("missing '@': " + spec);
+            }
+            registryPrefix = url.substring(idx + 1);
+            url = url.substring(0, idx);
+
+            result.servers.clear();
+            result.add(name, true, url, null);
+            result.setRegistryPrefix(registryPrefix);
         }
-        return manager;
+        return result;
     }
 
-    public void doCreate(Configuration environment) throws IOException {
+    private Configuration initialConfiguration() throws IOException {
+        FileNode template;
+        Configuration result;
+
+        template = cisotoolsEnvironment(world);
+        result = new Configuration(template);
+        if (template != null) {
+            result.load();
+        }
+        return result;
+    }
+
+    private void save(Configuration environment) throws IOException {
         Configuration configuration;
 
         home.mkdir();
-        configuration = new Configuration(home.join("client.json"));
-        for (Server s : environment.allServer()) {
-            s.addTo(configuration);
-        }
-        configuration.setRegistryPrefix(registryPrefix != null ? registryPrefix : environment.registryPrefix());
-        configuration.setVersion(version);
+        configuration = environment.withFile(home.join("client.json"));
         configuration.save(gson);
     }
 

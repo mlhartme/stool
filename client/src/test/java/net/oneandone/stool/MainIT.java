@@ -77,7 +77,7 @@ public class MainIT {
         System.out.println("git");
 
         sc("server", "localhost", "localhost" /* TODO */, SERVER_YAML.getAbsolute());
-        sc("setup", "-batch", "-registryPrefix", portusPrefix(), "localhost=http://localhost:31000/api");
+        sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
 
         kubectl("delete", "--ignore-not-found", "-f", SERVER_YAML.getAbsolute());
         kubectl("apply", "-f", SERVER_YAML.getAbsolute());
