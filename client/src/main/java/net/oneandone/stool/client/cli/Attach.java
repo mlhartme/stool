@@ -39,7 +39,7 @@ public class Attach extends ProjectCommand {
         Map<FileNode, FileNode> wars; // maps directories to war files
         String nameAndServer;
 
-        project = Project.lookup(directory);
+        project = Project.lookup(directory, globals.configuration());
         if (project == null) {
             project = Project.create(directory);
         }
@@ -49,5 +49,6 @@ public class Attach extends ProjectCommand {
             nameAndServer = Project.subst(stage, entry.getValue());
             project.add(new App(reference(nameAndServer), entry.getKey().getRelative(directory)));
         }
+        project.save();
     }
 }

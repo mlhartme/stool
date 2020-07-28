@@ -28,12 +28,12 @@ import java.util.UUID;
 
 /** Global client stuff */
 public class Globals {
-    public static Globals create(Console console, World world, FileNode configOpt, String command) {
+    public static Globals create(Console console, World world, FileNode stoolJsonOpt, String command) {
         FileNode stoolJson;
         String str;
 
-        if (configOpt != null) {
-            stoolJson = configOpt;
+        if (stoolJsonOpt != null) {
+            stoolJson = stoolJsonOpt;
         } else {
             str = System.getenv("STOOL_JSON");
             if (str != null) {

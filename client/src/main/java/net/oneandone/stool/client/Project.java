@@ -22,6 +22,7 @@ import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,28 +36,30 @@ public class Project {
 
         backstage = backstage(project);
         backstage.checkNotExists();
-        backstage.writeProperties(new Properties());
         result = new Project(backstage);
         return result;
     }
 
-    public static Project get(FileNode dir) throws IOException {
+    public static Project get(FileNode dir, Configuration configuration) throws IOException {
         Project result;
 
-        result = Project.lookup(dir);
+        result = Project.lookup(dir, configuration);
         if (result == null) {
             throw new IOException("not a project: " + dir);
         }
         return result;
     }
 
-    public static Project lookup(FileNode dir) {
+    public static Project lookup(FileNode dir, Configuration configuration) throws IOException {
         FileNode backstage;
+        Project result;
 
         while (dir != null) {
             backstage = backstage(dir);
             if (backstage.isFile()) {
-                return new Project(backstage);
+                result = new Project(backstage);
+                result.load(configuration);
+                return result;
             }
             dir = dir.getParent();
         }
@@ -72,54 +75,73 @@ public class Project {
 
     private final FileNode directory;
     private final FileNode backstage;
+    private final List<App> apps;
 
     private Project(FileNode backstage) {
         this.directory = backstage.getParent();
         this.backstage = backstage;
+        this.apps = new ArrayList<>();
     }
 
-    public int size() throws IOException {
-        return backstage.readProperties().size();
-    }
-
-    public List<App> list(Configuration configuration) throws IOException {
+    public void load(Configuration configuration) throws IOException {
         Properties p;
-        List<App> result;
         Reference reference;
 
         p = backstage.readProperties();
-        result = new ArrayList<>(p.size());
+        apps.clear();
         for (Map.Entry<Object, Object> entry : p.entrySet()) {
             reference = configuration.reference((String) entry.getKey());
-            result.add(new App(reference, (String) entry.getValue()));
+            apps.add(new App(reference, (String) entry.getValue()));
         }
-        return result;
+    }
+
+    public int size() {
+        return apps.size();
+    }
+
+    public List<App> list() {
+        return Collections.unmodifiableList(apps);
+    }
+
+    public App lookup(String stage) {
+        for (App app : apps) {
+            if (stage.equals(app.reference.stage)) {
+                return app;
+            }
+        }
+        return null;
     }
 
     public void add(App app) throws IOException {
-        Properties p;
-
-        p = backstage.readProperties();
-        if (p.put(app.reference.stage, app.path) != null) {
-            throw new IOException("duplicate stage: " + app.reference.stage);
+        if (lookup(app.reference.stage) != null) {
+            throw new IOException("duplicate app: " + app.reference.stage);
         }
-        backstage.writeProperties(p);
+        apps.add(app);
     }
 
-    public boolean remove(String stage) throws IOException {
-        Properties p;
-
-        p = backstage.readProperties();
-        if (p.remove(stage) == null) {
-            return false;
+    public boolean remove(String stage) {
+        for (App app : apps) {
+            if (stage.equals(app.reference.stage)) {
+                apps.remove(app);
+                return true;
+            }
         }
-        backstage.writeProperties(p);
-        return true;
+        return false;
     }
 
-    public void prune() throws IOException {
-        if (backstage.readProperties().isEmpty()) {
+    public void save() throws IOException {
+        Properties p;
+
+        if (apps.isEmpty()) {
             backstage.deleteFile();
+        } else {
+            p = new Properties();
+            for (App app : apps) {
+                if (p.put(app.reference.toString(), app.path) != null) {
+                    throw new IllegalStateException(p.toString());
+                }
+            }
+            backstage.writeProperties(p);
         }
     }
 

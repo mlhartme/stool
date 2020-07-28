@@ -35,13 +35,13 @@ public class Detach extends ProjectCommand {
     public void doRun(FileNode directory) throws IOException {
         Project project;
 
-        project = Project.lookup(directory);
+        project = Project.lookup(directory, globals.configuration());
         if (project == null) {
             throw new ArgumentException("project is not attached");
         }
         for (String stage : stages) {
             project.remove(stage);
         }
-        project.prune();
+        project.save();
     }
 }

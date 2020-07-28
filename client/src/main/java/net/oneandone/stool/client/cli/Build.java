@@ -76,11 +76,11 @@ public class Build extends ProjectCommand {
         List<App> apps;
         FileNode war;
 
-        project = Project.lookup(directory);
+        project = Project.lookup(directory, globals.configuration());
         if (project == null) {
             throw new ArgumentException("unknown project");
         }
-        apps = project.list(globals.configuration());
+        apps = project.list();
         if (apps.isEmpty()) {
             throw new IOException("no apps to build in project " + directory);
         }

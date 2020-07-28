@@ -47,21 +47,21 @@ public class Main {
         return run(world(), null, args);
     }
 
-    public static int run(World world, FileNode itHome, String[] args) throws IOException {
+    public static int run(World world, FileNode clientJson, String[] args) throws IOException {
         Cli cli;
         Globals globals;
 
         Console console;
         PrintWriter out;
 
-        if (itHome != null) {
-            out = new PrefixWriter(itHome.getParent().join("client.log").newAppender());
+        if (clientJson != null) {
+            out = new PrefixWriter(clientJson.getParent().join("client.log").newAppender());
             console = new Console(out, out, System.in);
         } else {
             out = new PrefixWriter(new PrintWriter(System.out));
             console = new Console(out, out, System.in);
         }
-        globals = Globals.create(console, world, itHome.join("stool.json"), "stool " + Separator.SPACE.join(args));
+        globals = Globals.create(console, world, clientJson, "stool " + Separator.SPACE.join(args));
         cli = new Cli(globals.getConsole()::handleException);
         cli.primitive(FileNode.class, "file name", null, world::file);
         cli.begin(globals.getConsole(), "-v -e  { setVerbose(v) setStacktraces(e) }");

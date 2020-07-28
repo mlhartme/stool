@@ -84,10 +84,10 @@ public abstract class IteratedStageCommand extends StageCommand {
         Project project;
         List<Reference> result;
 
-        project = Project.lookup(working);
+        project = Project.lookup(working, configuration);
         result = new ArrayList<>();
         if (project != null) {
-            for (App app : project.list(configuration)) {
+            for (App app : project.list()) {
                 result.add(app.reference);
             }
         }

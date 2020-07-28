@@ -72,7 +72,7 @@ public class Create extends ProjectCommand {
         Map<FileNode, FileNode> wars;
         Map<FileNode, String> map;
 
-        projectOpt = Project.lookup(directory);
+        projectOpt = Project.lookup(directory, globals.configuration());
         if (projectOpt != null) { // TODO: feels weired
             throw new ArgumentException("project already has a stage; detach it first");
         }
@@ -94,11 +94,11 @@ public class Create extends ProjectCommand {
             for (Map.Entry<FileNode, String> entry : map.entrySet()) {
                 add(projectOpt, entry.getKey().getRelative(directory), entry.getValue());
             }
+            projectOpt.save();
         } catch (IOException e) {
             try {
                 if (projectOpt != null) {
-                    projectOpt.prune();
-
+                    projectOpt.save();
                 }
             } catch (IOException e2) {
                 e.addSuppressed(e2);
