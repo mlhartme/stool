@@ -127,26 +127,17 @@ public class Configuration {
         return servers.get(server);
     }
 
-    // TODO: simplify
-    public List<Client> connectContext() throws IOException {
-        List<Client> result;
-
-        result = new ArrayList<>();
-        for (Server server : servers.values()) {
-            if (server.equals(context())) {
-                result.add(server.connect(file.getWorld()));
-            }
-        }
-        return result;
+    public Client connectContext() throws IOException {
+        return context().connect(file.getWorld());
     }
 
     public List<Reference> list(String filter) throws IOException {
+        Client client;
         List<Reference> result;
 
+        client = connectContext();
         result = new ArrayList<>();
-        for (Client client : connectContext()) {
-            result.addAll(Reference.list(client, client.list(filter)));
-        }
+        result.addAll(Reference.list(client, client.list(filter)));
         return result;
     }
 
