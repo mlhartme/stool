@@ -67,7 +67,7 @@ public class Auth {
                 throw e;
             }
         }
-        configuration.save(globals.getGson(), globals.getConfig());
+        configuration.save(globals.getGson(), globals.getStoolJson());
         console.info.println("Successfully updated token for " + server.name);
     }
 

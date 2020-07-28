@@ -37,13 +37,16 @@ public abstract class ClientCommand {
     protected FileNode working;
 
     public ClientCommand(Globals globals) {
+        FileNode stoolJson;
+
         this.globals = globals;
         this.world = globals.getWorld();
         this.console = globals.getConsole();
         this.working = globals.getWorld().getWorking();
 
-        if (!globals.getConfig().exists()) {
-            throw new ArgumentException("Stool config not found: " + globals.getConfig().getAbsolute() + "\nRun 'stool setup' to create it.");
+        stoolJson = globals.getStoolJson();
+        if (!stoolJson.exists()) {
+            throw new ArgumentException("Stool configuration not found: " + stoolJson + "\nRun 'stool setup' to create it.");
         }
     }
 

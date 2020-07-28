@@ -36,7 +36,7 @@ public class Setup {
 
     private final World world;
     private final Gson gson;
-    private final FileNode configurationFile;
+    private final FileNode stoolJson;
     private final Console console;
     private final String version;
     private final String spec;
@@ -44,7 +44,7 @@ public class Setup {
     public Setup(Globals globals, String spec) {
         this.world = globals.getWorld();
         this.gson = globals.getGson();
-        this.configurationFile = globals.getConfig();
+        this.stoolJson = globals.getStoolJson();
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.spec = spec;
@@ -53,12 +53,12 @@ public class Setup {
     public void run() throws IOException {
         Configuration configuration;
 
-        if (configurationFile.exists()) {
-            throw new IOException("Stool is already set up in " + configurationFile.getAbsolute());
+        if (stoolJson.exists()) {
+            throw new IOException("Stool is already set up in " + stoolJson.getAbsolute());
         }
         configuration = configuration();
-        configuration.save(gson, configurationFile);
-        console.info.println("Done - created " + configurationFile.getAbsolute() + " for Stool version " + version);
+        configuration.save(gson, stoolJson);
+        console.info.println("Done - created " + stoolJson.getAbsolute() + " for Stool version " + version);
         console.info.println();
         console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
         console.info.println("  Make sure to run 'eval \"$(sc shell-inc)\"' in your shell profile.");

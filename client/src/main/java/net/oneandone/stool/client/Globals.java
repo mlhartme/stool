@@ -29,42 +29,42 @@ import java.util.UUID;
 /** Global client stuff */
 public class Globals {
     public static Globals create(Console console, World world, FileNode configOpt, String command) {
-        FileNode config;
+        FileNode stoolJson;
         String str;
 
         if (configOpt != null) {
-            config = configOpt;
+            stoolJson = configOpt;
         } else {
             str = System.getenv("STOOL_JSON");
             if (str != null) {
-                config = world.file(str);
+                stoolJson = world.file(str);
             } else {
-                config = world.getHome().join(".stool.json");
+                stoolJson = world.getHome().join(".stool.json");
             }
         }
-        return new Globals(console, world, config, UUID.randomUUID().toString(), command);
+        return new Globals(console, world, stoolJson, UUID.randomUUID().toString(), command);
     }
 
     private final Console console;
     private final World world;
     private final Gson gson;
-    private final FileNode config;
+    private final FileNode stoolJson;
     private final String invocation;
     private final String command;
     private FileNode wirelog;
 
-    public Globals(Console console, World world, FileNode config, String invocation, String command) {
+    public Globals(Console console, World world, FileNode stoolJson, String invocation, String command) {
         this.console = console;
         this.world = world;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        this.config = config;
+        this.stoolJson = stoolJson;
         this.invocation = invocation;
         this.command = command;
         this.wirelog = null;
     }
 
-    public FileNode getConfig() {
-        return config;
+    public FileNode getStoolJson() {
+        return stoolJson;
     }
 
     public FileNode templates() throws ExistsException, DirectoryNotFoundException {
@@ -97,7 +97,7 @@ public class Globals {
         Configuration result;
 
         result = new Configuration(world, wirelog, invocation, command);
-        result.load(getConfig());
+        result.load(getStoolJson());
         return result;
     }
 }
