@@ -22,12 +22,12 @@ import net.oneandone.stool.client.Server;
 
 import java.io.IOException;
 
-public class Context {
+public class ConfigContext {
     private final Globals globals;
     private final Console console;
     private final String setOpt;
 
-    public Context(Globals globals, String setOpt) {
+    public ConfigContext(Globals globals, String setOpt) {
         this.globals = globals;
         this.console = globals.getConsole();
         this.setOpt = setOpt;

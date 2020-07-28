@@ -72,7 +72,7 @@ public class Main {
                        cli.begin("globals.getConsole", "");
                 cli.add(Auth.class, "auth -batch");
                 cli.add(Setup.class, "setup nameAndHost?");
-                cli.add(Context.class, "context name?");
+                cli.add(ConfigContext.class, "context name?");
                 cli.add(ShellInc.class, "shell-inc");
                 cli.add(Server.class, "server -overwrite -resolve hostname args*");
                 cli.base(ClientCommand.class, "-working { setWorkingOpt(working) }");
