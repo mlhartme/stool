@@ -39,7 +39,7 @@ public class Context {
         Server found;
 
         configuration = new Configuration(globals.getWorld());
-        configuration.load(Setup.cisotoolsEnvironment(globals.getWorld()));
+        configuration.load(globals.getStoolJson());
         if (setOpt == null) {
             console.info.println(configuration.context().name);
         } else {
@@ -51,8 +51,8 @@ public class Context {
             if (old.equals(setOpt)) {
                 console.info.println("not changed: " + old);
             } else {
-                configuration = configuration.withContext(setOpt);
-                configuration.save(globals.getGson(), Setup.cisotoolsEnvironment(globals.getWorld()));
+                configuration.setContext(setOpt);
+                configuration.save(globals.getGson(), globals.getStoolJson());
                 console.info.println("changed " + old + " -> " + setOpt);
             }
         }

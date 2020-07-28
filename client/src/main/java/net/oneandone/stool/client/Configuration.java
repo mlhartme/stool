@@ -27,12 +27,11 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/** client configuration */
 public class Configuration {
     private final World world;
     private String version;
@@ -83,7 +82,7 @@ public class Configuration {
     }
 
     public void add(String name, boolean enabled, String url, String token) {
-        servers.put(name, new Server(name, enabled, url, token, null, clientInvocation, clientCommand));
+        servers.put(name, new Server(name, url, enabled, token, null, clientInvocation, clientCommand));
     }
 
     public Server context() throws IOException {
@@ -94,18 +93,10 @@ public class Configuration {
         }
         throw new IOException("context not set");
     }
-
-    public Configuration withContext(String name) {
-        Configuration result;
-        Server server;
-
-        result = new Configuration(world);
-        result.setRegistryPrefix(registryPrefix);
-        for (Map.Entry<String, Server> entry : servers.entrySet()) {
-            server = entry.getValue();
-            result.servers.put(entry.getKey(), server.withEnabled(name.equals(server.name)));
+    public void setContext(String name) {
+        for (Server server : servers.values()) {
+            server.enabled = name.equals(server.name);
         }
-        return result;
     }
 
     public Reference reference(String stageName) throws IOException {
@@ -160,19 +151,5 @@ public class Configuration {
         try (Writer writer = file.newWriter()) {
             gson.toJson(obj, writer);
         }
-    }
-
-    // TODO
-    public boolean needAuthentication() {
-        for (Server server : servers.values()) {
-            if (server.enabled && server.hasToken()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public Collection<Server> allServer() {
-        return Collections.unmodifiableCollection(servers.values());
     }
 }

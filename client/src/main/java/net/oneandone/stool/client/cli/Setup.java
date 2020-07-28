@@ -63,11 +63,6 @@ public class Setup {
         console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
         console.info.println("  Make sure to run 'eval \"$(sc shell-inc)\"' in your shell profile.");
         console.info.println("  Don't forget to restart your terminal.");
-        if (configuration.needAuthentication()) {
-            console.info.println("At least one of the servers you're using needs authentication. Please run");
-            console.info.println("  stool auth");
-            console.info.println("once to do so.");
-        }
     }
 
     private Configuration configuration() throws IOException {

@@ -30,14 +30,15 @@ public class Server {
 
         token = obj.get("token");
         enabled = obj.get("enabled");
-        return new Server(obj.get("name").getAsString(), enabled == null || "true".equals(enabled.getAsString()),
-                obj.get("url").getAsString(), token == null ? null : token.getAsString(),
+        return new Server(obj.get("name").getAsString(), obj.get("url").getAsString(),
+                enabled == null || "true".equals(enabled.getAsString()),
+                token == null ? null : token.getAsString(),
                 wirelog, clientInvocation, clientCommand);
     }
 
     public final String name;
-    public final boolean enabled;
     public final String url;
+    public boolean enabled;
 
     /** null to work anonymously */
     public String token;
@@ -46,19 +47,15 @@ public class Server {
     private volatile String clientInvocation;
     private volatile String clientCommand;
 
-    public Server(String name, boolean enabled, String url, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public Server(String name, String url, boolean enabled, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.name = name;
-        this.enabled = enabled;
         this.url = url;
+        this.enabled = enabled;
         this.token = token;
 
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
-    }
-
-    public Server withEnabled(boolean withEnabled) {
-        return new Server(name, withEnabled, url, token, wirelog, clientInvocation, clientCommand);
     }
 
     /** looks weired, but this method allows we to keep the token field private */
@@ -69,6 +66,7 @@ public class Server {
     public boolean hasToken() {
         return token != null;
     }
+
     public void auth(World world, String username, String password) throws IOException {
         Client client;
 
