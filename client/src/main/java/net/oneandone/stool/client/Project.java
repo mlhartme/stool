@@ -89,7 +89,7 @@ public class Project {
         p = backstage.readProperties();
         result = new ArrayList<>(p.size());
         for (Map.Entry<Object, Object> entry : p.entrySet()) {
-            reference = configuration.serverReferenceNew((String) entry.getKey());
+            reference = configuration.reference((String) entry.getKey());
             result.add(new App(reference, (String) entry.getValue()));
         }
         return result;

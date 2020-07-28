@@ -41,13 +41,13 @@ public class Context {
         configuration = new Configuration(Setup.cisotoolsEnvironment(globals.getWorld()));
         configuration.load();
         if (setOpt == null) {
-            console.info.println(configuration.server().name);
+            console.info.println(configuration.context().name);
         } else {
             found = configuration.serverLookup(setOpt);
             if (found == null) {
                 throw new IOException(setOpt + ": not found, available contexts: " + configuration.servers.keySet());
             }
-            old = configuration.server().name;
+            old = configuration.context().name;
             if (old.equals(setOpt)) {
                 console.info.println("not changed: " + old);
             } else {

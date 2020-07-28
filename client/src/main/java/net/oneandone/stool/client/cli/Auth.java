@@ -38,19 +38,18 @@ public class Auth {
         this.explicitServer = server;
     }
 
-
     public void run() throws Exception {
-        Configuration manager;
+        Configuration configuration;
         String username;
         String password;
         List<Server> dests;
 
-        manager = globals.configuration();
+        configuration = globals.configuration();
         dests = new ArrayList<>();
         if (explicitServer != null) {
-            dests.add(manager.serverGet(explicitServer));
+            dests.add(configuration.serverGet(explicitServer));
         } else {
-            Server server = manager.server();
+            Server server = configuration.context();
             if (server.hasToken()) {
                 dests.add(server);
             }
@@ -83,7 +82,7 @@ public class Auth {
                 }
             }
         }
-        manager.save(globals.getGson());
+        configuration.save(globals.getGson());
         console.info.println("Successfully updated token for " + dests.size() + " server(s)");
     }
 

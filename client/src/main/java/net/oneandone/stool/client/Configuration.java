@@ -84,11 +84,7 @@ public class Configuration {
         return registryPrefix;
     }
 
-    public Reference serverReferenceNew(String stageName) throws IOException {
-        return new Reference(server().connect(file.getWorld()), stageName);
-    }
-
-    public Server server() throws IOException {
+    public Server context() throws IOException {
         for (Server server : servers.values()) {
             if (server.enabled) {
                 return server;
@@ -108,6 +104,10 @@ public class Configuration {
             result.servers.put(entry.getKey(), server.withEnabled(name.equals(server.name)));
         }
         return result;
+    }
+
+    public Reference reference(String stageName) throws IOException {
+        return new Reference(context().connect(file.getWorld()), stageName);
     }
 
     public Server serverGet(String server) {
@@ -133,7 +133,7 @@ public class Configuration {
 
         result = new ArrayList<>();
         for (Server server : servers.values()) {
-            if (server.equals(server())) {
+            if (server.equals(context())) {
                 result.add(server.connect(file.getWorld()));
             }
         }

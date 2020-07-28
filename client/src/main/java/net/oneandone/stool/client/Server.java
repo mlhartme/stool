@@ -93,4 +93,15 @@ public class Server {
         return result;
     }
 
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof Server) {
+            return ((Server) obj).name.equals(name);
+        } else {
+            return false;
+        }
+    }
 }
