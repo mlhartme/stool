@@ -84,7 +84,7 @@ public class MainIT {
 
         Thread.sleep(30000); // TODO
 
-        stage = "it@localhost";
+        stage = "it";
 
         sc(working, "list");
         sc(working,"create", "-e", stage);

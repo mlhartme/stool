@@ -84,16 +84,17 @@ public class Configuration {
         return registryPrefix;
     }
 
-    public Reference serverReference(String str) throws IOException {
-        int idx;
-        String server;
+    public Reference serverReferenceNew(String stageName) throws IOException {
+        return new Reference(server().connect(file.getWorld()), stageName);
+    }
 
-        idx = str.indexOf('@');
-        if (idx == -1) {
-            throw new IllegalArgumentException(str);
+    public Server server() throws IOException {
+        for (Server server : servers.values()) {
+            if (server.enabled) {
+                return server;
+            }
         }
-        server = str.substring(idx + 1);
-        return new Reference(serverGet(server).connect(file.getWorld()), str.substring(0, idx));
+        throw new IOException("context not set");
     }
 
     public Server serverGet(String server) {
@@ -113,46 +114,14 @@ public class Configuration {
         return servers.get(server);
     }
 
-    /**
-     * @param filter may be null
-     * @return may be null
-     */
-    public String serverFilter(String filter) {
-        int idx;
-
-        if (filter == null) {
-            return "";
-        } else {
-            idx = filter.lastIndexOf('@');
-            return idx == -1 ? "" : filter.substring(idx + 1);
-        }
-    }
-
-    /**
-     * @param filter may be null
-     * @return never null
-     */
-    public String clientFilter(String filter) {
-        int idx;
-
-        if (filter == null) {
-            return null;
-        } else {
-            idx = filter.lastIndexOf('@');
-            return idx == -1 ? filter : filter.substring(0, idx);
-        }
-    }
-
-    /** @param serverFilter never null */
-    public List<Client> connectMatching(String serverFilter) throws IOException {
+    // TODO: simplify
+    public List<Client> connectContext() throws IOException {
         List<Client> result;
 
         result = new ArrayList<>();
         for (Server server : servers.values()) {
-            if (server.enabled) {
-                if (serverFilter.isEmpty() || server.name.toLowerCase().equals(serverFilter.toLowerCase())) {
-                    result.add(server.connect(file.getWorld()));
-                }
+            if (server.equals(server())) {
+                result.add(server.connect(file.getWorld()));
             }
         }
         return result;
@@ -160,14 +129,10 @@ public class Configuration {
 
     public List<Reference> list(String filter) throws IOException {
         List<Reference> result;
-        String clientFilter;
-        String serverFilter;
 
-        serverFilter = serverFilter(filter);
-        clientFilter = clientFilter(filter);
         result = new ArrayList<>();
-        for (Client client : connectMatching(serverFilter)) {
-            result.addAll(Reference.list(client, client.list(clientFilter)));
+        for (Client client : connectContext()) {
+            result.addAll(Reference.list(client, client.list(filter)));
         }
         return result;
     }

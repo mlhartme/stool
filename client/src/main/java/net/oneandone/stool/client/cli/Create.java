@@ -35,23 +35,15 @@ public class Create extends ProjectCommand {
     private final boolean detached;
     private final FileNode pathOpt;
     private final String stage;
-    private final String server;
     private final Map<String, String> config;
 
-    public Create(Globals globals, boolean optional, boolean detached, FileNode pathOpt, String nameAndServer, List<String> args) {
+    public Create(Globals globals, boolean optional, boolean detached, FileNode pathOpt, String stage, List<String> args) {
         super(globals);
-
-        int idx;
 
         this.optional = optional;
         this.detached = detached;
         this.pathOpt = pathOpt;
-        idx = nameAndServer.indexOf('@');
-        if (idx == -1) {
-            throw new ArgumentException("expected <name>@<server>, got " + nameAndServer);
-        }
-        this.server = nameAndServer.substring(idx + 1);
-        this.stage = nameAndServer.substring(0, idx);
+        this.stage = stage;
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);
@@ -120,7 +112,7 @@ public class Create extends ProjectCommand {
         Reference reference;
 
         checkName(name);
-        client = globals.configuration().serverGet(server).connect(world);
+        client = globals.configuration().server().connect(world);
         reference = new Reference(client, name);
         try {
             client.create(name, config);

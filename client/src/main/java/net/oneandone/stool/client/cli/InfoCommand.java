@@ -55,17 +55,17 @@ public abstract class InfoCommand extends StageCommand {
         configuration = globals.configuration();
         clientFilters = new LinkedHashMap<>();
         if (all) {
-            for (Client client : configuration.connectMatching(configuration.serverFilter(null))) {
-                clientFilters.put(client, globals.configuration().clientFilter(""));
+            for (Client client : configuration.connectContext()) {
+                clientFilters.put(client, "");
             }
         } else if (stageClause != null) {
-            for (Client client : configuration.connectMatching(configuration.serverFilter(stageClause))) {
-                clientFilters.put(client, globals.configuration().clientFilter(stageClause));
+            for (Client client : configuration.connectContext()) {
+                clientFilters.put(client, stageClause);
             }
         } else {
             references = projectReferences(configuration);
             if (references.isEmpty()) {
-                for (Client client : configuration.connectMatching("")) {
+                for (Client client : configuration.connectContext()) {
                     clientFilters.put(client, "");
                 }
             } else {

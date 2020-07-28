@@ -84,11 +84,13 @@ public class Project {
     public List<App> list(Configuration configuration) throws IOException {
         Properties p;
         List<App> result;
+        Reference reference;
 
         p = backstage.readProperties();
         result = new ArrayList<>(p.size());
         for (Map.Entry<Object, Object> entry : p.entrySet()) {
-            result.add(new App(configuration.serverReference((String) entry.getKey()), (String) entry.getValue()));
+            reference = configuration.serverReferenceNew((String) entry.getKey());
+            result.add(new App(reference, (String) entry.getValue()));
         }
         return result;
     }
@@ -97,17 +99,17 @@ public class Project {
         Properties p;
 
         p = backstage.readProperties();
-        if (p.put(app.reference.toString(), app.path) != null) {
-            throw new IOException("duplicate stage: " + app.reference);
+        if (p.put(app.reference.stage, app.path) != null) {
+            throw new IOException("duplicate stage: " + app.reference.stage);
         }
         backstage.writeProperties(p);
     }
 
-    public boolean remove(Reference reference) throws IOException {
+    public boolean remove(String stage) throws IOException {
         Properties p;
 
         p = backstage.readProperties();
-        if (p.remove(reference.toString()) == null) {
+        if (p.remove(stage) == null) {
             return false;
         }
         backstage.writeProperties(p);

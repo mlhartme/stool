@@ -40,7 +40,7 @@ public class Detach extends ProjectCommand {
             throw new ArgumentException("project is not attached");
         }
         for (String stage : stages) {
-            project.remove(reference(stage));
+            project.remove(stage);
         }
         project.prune();
     }

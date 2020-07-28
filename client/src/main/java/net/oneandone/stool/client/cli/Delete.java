@@ -53,7 +53,7 @@ public class Delete extends IteratedStageCommand {
 
         project = Project.lookup(working);
         if (project != null) {
-            if (project.remove(reference)) {
+            if (project.remove(reference.stage)) {
                 console.info.println("detaching stage: " + reference);
             }
             project.prune();
