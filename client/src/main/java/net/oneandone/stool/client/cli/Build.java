@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.client.cli;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Reference;
@@ -303,18 +301,6 @@ public class Build extends ProjectCommand {
         }
         result.append(")\n");
         return result.toString();
-    }
-
-    private JsonObject buildResult(String image, String error, String output) {
-        JsonObject result;
-
-        result = new JsonObject();
-        result.add("tag", new JsonPrimitive(image));
-        if (error != null) {
-            result.add("error", new JsonPrimitive(error));
-        }
-        result.add("output", new JsonPrimitive(output));
-        return result;
     }
 
     //--

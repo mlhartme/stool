@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.client.cli;
 
-import com.google.gson.Gson;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Configuration;
@@ -35,7 +34,6 @@ public class Setup {
     }
 
     private final World world;
-    private final Gson gson;
     private final FileNode stoolYaml;
     private final Console console;
     private final String version;
@@ -43,7 +41,6 @@ public class Setup {
 
     public Setup(Globals globals, String spec) {
         this.world = globals.getWorld();
-        this.gson = globals.getGson();
         this.stoolYaml = globals.getStoolYaml();
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
