@@ -35,6 +35,7 @@ public class Project {
         Project result;
 
         backstage = backstage(project);
+        backstage.getParent().checkNotExists();
         backstage.checkNotExists();
         result = new Project(backstage);
         return result;
@@ -56,9 +57,12 @@ public class Project {
         return null;
     }
 
-    /* This name is legacy - I keep it because applications have it in their .gitignores */
+    /**
+     * The backstage name is legacy - I keep it because applications have it in their .gitignores.
+     * I create a directory to store the actual data to co-exist with Stool 5
+     */
     private static FileNode backstage(FileNode project) {
-        return project.join(".backstage");
+        return project.join(".backstage/project.properties");
     }
 
     //--
@@ -124,6 +128,7 @@ public class Project {
 
         if (apps.isEmpty()) {
             backstage.deleteFile();
+            backstage.getParent().deleteDirectory();
         } else {
             p = new Properties();
             for (App app : apps) {
@@ -131,6 +136,7 @@ public class Project {
                     throw new IllegalStateException(p.toString());
                 }
             }
+            backstage.getParent().mkdirOpt();
             backstage.writeProperties(p);
         }
     }
