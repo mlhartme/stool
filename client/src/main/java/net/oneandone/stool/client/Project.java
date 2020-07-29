@@ -40,16 +40,6 @@ public class Project {
         return result;
     }
 
-    public static Project get(FileNode dir, Configuration configuration) throws IOException {
-        Project result;
-
-        result = Project.lookup(dir, configuration);
-        if (result == null) {
-            throw new IOException("not a project: " + dir);
-        }
-        return result;
-    }
-
     public static Project lookup(FileNode dir, Configuration configuration) throws IOException {
         FileNode backstage;
         Project result;
@@ -137,7 +127,7 @@ public class Project {
         } else {
             p = new Properties();
             for (App app : apps) {
-                if (p.put(app.reference.toString(), app.path) != null) {
+                if (p.put(app.reference.stage, app.path) != null) {
                     throw new IllegalStateException(p.toString());
                 }
             }
