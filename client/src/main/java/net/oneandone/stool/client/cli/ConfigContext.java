@@ -35,7 +35,8 @@ public class ConfigContext {
 
     public void run() throws IOException {
         Configuration configuration;
-        String old;
+        Context old;
+        String oldName;
         Context found;
 
         configuration = new Configuration(globals.getWorld());
@@ -45,15 +46,16 @@ public class ConfigContext {
         } else {
             found = configuration.contextLookup(setOpt);
             if (found == null) {
-                throw new IOException(setOpt + ": not found, available contexts: " + configuration.contexts.keySet());
+                throw new IOException(setOpt + ": context not found, available contexts: " + configuration.contexts.keySet());
             }
-            old = configuration.context().name;
-            if (old.equals(setOpt)) {
-                console.info.println("not changed: " + old);
+            old = configuration.contextOpt();
+            oldName = old == null ? "(none)" : old.name;
+            if (oldName.equals(setOpt)) {
+                console.info.println("not changed: " + oldName);
             } else {
                 configuration.setContext(setOpt);
                 configuration.save(globals.getStoolYaml());
-                console.info.println("changed " + old + " -> " + setOpt);
+                console.info.println("changed " + oldName + " -> " + setOpt);
             }
         }
     }

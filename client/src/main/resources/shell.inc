@@ -3,7 +3,7 @@
 __scProjectDir() {
   local dir="$1"
   while [ "${dir}" != "/" ] ; do
-    if [ -f "${dir}"/.backstage/project.properties ] ; then
+    if [ -f "${dir}"/.backstage/project.yaml ] ; then
       echo -n "${dir}"
       return
     fi
@@ -15,8 +15,8 @@ __scProjectDir() {
 
 __scStageIndicator() {
   local project=$(__scProjectDir $1)
-  if [ -f "${project}/.backstage/project.properties" ] ; then
-      local id="$(grep = ${project}/.backstage/project.properties | cut -d = -f 1 | tr '\n' ' ')"
+  if [ -f "${project}/.backstage/project.yaml" ] ; then
+      local id="$(grep "stages:" -A 100 "${project}/.backstage/project.yaml" | grep "^ " | cut -d : -f 1 | xargs | tr '\n' ' ')"
       id=${id%?}
       echo -n "{${id}} "
       return
@@ -166,3 +166,4 @@ elif [ -n "${BASH_VERSION}" ] ; then
 
     complete -F _sc_complete sc
 fi
+

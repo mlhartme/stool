@@ -83,12 +83,22 @@ public class Configuration {
     //-- contexts
 
     public Context context() throws IOException {
+        Context result;
+
+        result = contextOpt();
+        if (result == null) {
+            throw new IOException("context not set");
+        }
+        return result;
+    }
+
+    public Context contextOpt() {
         for (Context context : contexts.values()) {
             if (context.enabled) {
                 return context;
             }
         }
-        throw new IOException("context not set");
+        return null;
     }
 
     public void setContext(String name) {
