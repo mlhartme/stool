@@ -36,7 +36,7 @@ public class MainIT {
     private static final World WORLD;
     private static final FileNode PROJECT_ROOT;
     private static final FileNode IT_ROOT;
-    private static final FileNode CLIENT_JSON;
+    private static final FileNode CLIENT_YAML;
     private static final FileNode SERVER_YAML;
 
     static {
@@ -44,7 +44,7 @@ public class MainIT {
             WORLD = Main.world();
             PROJECT_ROOT = WORLD.guessProjectHome(MainIT.class);
             IT_ROOT = PROJECT_ROOT.join("target/it").mkdirOpt();
-            CLIENT_JSON = IT_ROOT.join("stool.json");
+            CLIENT_YAML = IT_ROOT.join("stool.yaml");
             SERVER_YAML = IT_ROOT.join("server.yaml");
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -141,7 +141,7 @@ public class MainIT {
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = Main.run(WORLD, CLIENT_JSON, args);
+        result = Main.run(WORLD, CLIENT_YAML, args);
         if (result == 0) {
             System.out.println();
         } else {

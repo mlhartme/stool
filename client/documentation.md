@@ -928,7 +928,7 @@ Prerequisites:
 Install steps
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
 * Make it executable, rename it to `stool` and add it to your $PATH.
-* run `stool setup`
+* run `sc setup`
 
 
 ### Server setup

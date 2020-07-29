@@ -39,7 +39,7 @@ public class Globals {
             if (str != null) {
                 stoolYaml = world.file(str);
             } else {
-                stoolYaml = world.getHome().join(".stool.json");
+                stoolYaml = world.getHome().join(".stool.yaml");
             }
         }
         return new Globals(console, world, stoolYaml, UUID.randomUUID().toString(), command);
