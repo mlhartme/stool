@@ -59,7 +59,7 @@ public abstract class InfoCommand extends StageCommand {
         } else if (stageClause != null) {
             clientFilters.put(configuration.contextConnect(), stageClause);
         } else {
-            references = projectReferences(configuration);
+            references = projectReferences();
             if (references.isEmpty()) {
                 clientFilters.put(configuration.contextConnect(), "");
             } else {
@@ -80,11 +80,11 @@ public abstract class InfoCommand extends StageCommand {
         return new EnumerationFailed();
     }
 
-    private List<Reference> projectReferences(Configuration configuration) throws IOException {
+    private List<Reference> projectReferences() throws IOException {
         Project project;
         List<Reference> result;
 
-        project = Project.lookup(working, configuration);
+        project = Project.lookup(working, globals.configuration());
         result = new ArrayList<>();
         if (project != null) {
             for (App app : project.list()) {

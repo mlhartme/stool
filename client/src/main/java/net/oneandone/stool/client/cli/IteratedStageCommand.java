@@ -20,7 +20,6 @@ import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.Configuration;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
 
@@ -43,7 +42,7 @@ public abstract class IteratedStageCommand extends StageCommand {
         EnumerationFailed failures;
         Worker worker;
 
-        lst = selectedList(globals.configuration());
+        lst = selectedList();
         width = 0;
         for (Reference reference : lst) {
             width = Math.max(width, reference.toString().length());
@@ -65,26 +64,26 @@ public abstract class IteratedStageCommand extends StageCommand {
         return failures;
     }
 
-    private List<Reference> selectedList(Configuration configuration) throws IOException {
+    private List<Reference> selectedList() throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
-                return defaultSelected(configuration);
+                return defaultSelected();
             case 1:
-                return configuration.list(all ? null : stageClause);
+                return globals.configuration().list(all ? null : stageClause);
             default:
                 throw new ArgumentException("too many select options");
         }
     }
 
     /** override this to change the default */
-    private List<Reference> defaultSelected(Configuration configuration) throws IOException {
+    private List<Reference> defaultSelected() throws IOException {
         Project project;
         List<Reference> result;
 
-        project = Project.lookup(working, configuration);
+        project = Project.lookup(working, globals.configuration());
         result = new ArrayList<>();
         if (project != null) {
             for (App app : project.list()) {
