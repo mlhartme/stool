@@ -157,7 +157,6 @@ public class Configuration {
         try (Writer dest = file.newWriter()) {
             SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
             sw.write(obj);
-            System.out.println("wrote " + file.readString());
         }
     }
 }
