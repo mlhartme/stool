@@ -15,18 +15,25 @@
  */
 package net.oneandone.stool.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /** List of Apps. Represents .backstage */
 public class Project {
@@ -57,45 +64,53 @@ public class Project {
         return null;
     }
 
-    /** properties key to store context */
-    private static final String CONTEXT = "_context";
-
     /**
      * The backstage name is legacy - I keep it because applications have it in their .gitignores.
      * I create a directory to store the actual data to co-exist with Stool 5
      */
     private static FileNode backstage(FileNode project) {
-        return project.join(".backstage/project.properties");
+        return project.join(".backstage/project.yaml");
     }
 
     //--
 
+    private final ObjectMapper yaml;
     private final FileNode directory;
     private final FileNode backstage;
     private final List<App> apps;
 
     private Project(FileNode backstage) {
+        this.yaml = new ObjectMapper(new YAMLFactory());
         this.directory = backstage.getParent();
         this.backstage = backstage;
         this.apps = new ArrayList<>();
     }
 
     public void load(Configuration configuration) throws IOException {
-        Properties p;
+        ObjectNode root;
+        ObjectNode stages;
+
         String current;
         String context;
         Reference reference;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
 
-        p = backstage.readProperties();
+        try (Reader src = backstage.newReader()) {
+            root = (ObjectNode) yaml.readTree(src);
+        }
+        context = root.get("context").asText();
         current = configuration.context().name;
-        context = (String) p.remove(CONTEXT);
         if (!context.equals(current)) {
             throw new IOException("context mismatch: project context is " + context + ", but current context is " + current);
         }
+        stages = (ObjectNode) root.get("stages");
         apps.clear();
-        for (Map.Entry<Object, Object> entry : p.entrySet()) {
-            reference = configuration.reference((String) entry.getKey());
-            apps.add(new App(reference, (String) entry.getValue()));
+        iter = stages.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            reference = configuration.reference(entry.getKey());
+            apps.add(new App(reference, entry.getValue().asText()));
         }
     }
 
@@ -134,21 +149,27 @@ public class Project {
     }
 
     public void save() throws IOException {
-        Properties p;
+        ObjectNode root;
+        ObjectNode stages;
 
         if (apps.isEmpty()) {
+            // prune
             backstage.deleteFile();
             backstage.getParent().deleteDirectory();
         } else {
-            p = new Properties();
-            p.put(CONTEXT, apps.iterator().next().reference.client.getContext());
+            root = yaml.createObjectNode();
+            root.put("context", apps.iterator().next().reference.client.getContext());
+            stages = yaml.createObjectNode();
             for (App app : apps) {
-                if (p.put(app.reference.stage, app.path) != null) {
-                    throw new IllegalStateException(p.toString());
-                }
+                stages.put(app.reference.stage, app.path);
             }
+            root.set("stages", stages);
             backstage.getParent().mkdirOpt();
-            backstage.writeProperties(p);
+            try (Writer dest = backstage.newWriter()) {
+                SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
+                sw.write(root);
+                System.out.println("wrote " + backstage.readString());
+            }
         }
     }
 

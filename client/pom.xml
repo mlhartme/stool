@@ -40,6 +40,11 @@
       <version>3.0.1</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>2.11.1</version>
+    </dependency>
 
     <!-- test -->
     <dependency>
@@ -81,7 +86,9 @@
                   META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
                   readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
               </remove>
-              <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+              <concat>META-INF/services/com.fasterxml.jackson.core.ObjectCodec,
+                META-INF/services/com.fasterxml.jackson.core.JsonFactory,
+                META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
               <attach>true</attach>
               <extensions>
                 <extension>if [ -z $JAVA_MODULES ] ; then</extension>
