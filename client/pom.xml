@@ -88,7 +88,7 @@
               </remove>
               <concat>META-INF/services/com.fasterxml.jackson.core.ObjectCodec,
                 META-INF/services/com.fasterxml.jackson.core.JsonFactory,
-                META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+                META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat</concat>
               <attach>true</attach>
               <extensions>
                 <extension>if [ -z $JAVA_MODULES ] ; then</extension>

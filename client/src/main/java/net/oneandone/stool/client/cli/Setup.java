@@ -16,6 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
+import net.oneandone.stool.client.Context;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Configuration;
 import net.oneandone.sushi.fs.ExistsException;
@@ -56,6 +57,10 @@ public class Setup {
         configuration = configuration();
         configuration.save(stoolYaml);
         console.info.println("Done - created " + stoolYaml.getAbsolute() + " for Stool version " + version);
+        console.info.println("Available contexts:");
+        for (Context c : configuration.contexts.values()) {
+            console.info.println(c.name + " " + c.url);
+        }
         console.info.println();
         console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
         console.info.println("  Make sure to run 'eval \"$(sc shell-inc)\"' in your shell profile.");
