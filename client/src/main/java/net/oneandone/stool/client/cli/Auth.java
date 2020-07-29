@@ -41,7 +41,7 @@ public class Auth {
 
         configuration = globals.configuration();
 
-        Context server = configuration.context();
+        Context server = configuration.defaultContext();
         if (!server.hasToken()) {
             console.info.println("Nothing to do, there are no servers that need authentication.");
             return;

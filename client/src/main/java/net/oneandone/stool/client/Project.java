@@ -100,7 +100,7 @@ public class Project {
             root = (ObjectNode) yaml.readTree(src);
         }
         context = root.get("context").asText();
-        current = configuration.context().name;
+        current = configuration.defaultContext().name;
         if (!context.equals(current)) {
             throw new IOException("context mismatch: project context is " + context + ", but current context is " + current);
         }

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -41,6 +42,7 @@ public class Configuration {
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
+    private String defaultContext;
     public final Map<String, Context> contexts;
     private final ObjectMapper yaml;
 
@@ -52,6 +54,7 @@ public class Configuration {
         this.world = world;
         this.version = null;
         this.registryPrefix = "127.0.0.1:31500/";
+        this.defaultContext = null;
         this.contexts = new LinkedHashMap<>();
 
         // transient
@@ -82,33 +85,29 @@ public class Configuration {
 
     //-- contexts
 
-    public Context context() throws IOException {
+    public Context defaultContext() throws IOException {
         Context result;
 
-        result = contextOpt();
+        result = defaultContextOpt();
         if (result == null) {
             throw new IOException("context not set");
         }
         return result;
     }
 
-    public Context contextOpt() {
-        for (Context context : contexts.values()) {
-            if (context.enabled) {
-                return context;
-            }
-        }
-        return null;
+    public Context defaultContextOpt() {
+        return defaultContext == null ? null : contexts.get(defaultContext);
     }
 
     public void setContext(String name) {
-        for (Context context : contexts.values()) {
-            context.enabled = name.equals(context.name);
+        if (contextLookup(name) == null) {
+            throw new ArgumentException("no such context: " + name);
         }
+        defaultContext = name;
     }
 
-    public void addContext(String name, boolean enabled, String url, String token) {
-        contexts.put(name, new Context(name, url, enabled, token, null, clientInvocation, clientCommand));
+    public void addContext(String name, String url, String token) {
+        contexts.put(name, new Context(name, url, token, null, clientInvocation, clientCommand));
     }
 
     public Context contextLookup(String context) {
@@ -116,11 +115,11 @@ public class Configuration {
     }
 
     public Client contextConnect() throws IOException {
-        return context().connect(world);
+        return defaultContext().connect(world);
     }
 
     public Reference reference(String stageName) throws IOException {
-        return new Reference(context().connect(world), stageName);
+        return new Reference(defaultContext().connect(world), stageName);
     }
 
     public List<Reference> list(String filter) throws IOException {

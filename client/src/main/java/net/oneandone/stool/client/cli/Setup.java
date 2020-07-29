@@ -59,7 +59,7 @@ public class Setup {
         console.info.println("Done - created " + stoolYaml.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
         for (Context c : configuration.contexts.values()) {
-            console.info.println(c.name + " " + c.url);
+            console.info.println("  " + c.name + " " + c.url);
         }
         console.info.println();
         console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
@@ -90,7 +90,7 @@ public class Setup {
             url = url.substring(0, idx);
 
             result.contexts.clear();
-            result.addContext(name, true, url, null);
+            result.addContext(name, url, null);
             result.setRegistryPrefix(registryPrefix);
         }
         return result;

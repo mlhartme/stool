@@ -26,21 +26,17 @@ import java.io.IOException;
 public class Context {
     public static Context fromYaml(JsonNode obj, FileNode wirelog, String clientInvocation, String clientCommand) {
         String token;
-        boolean enabled;
 
         if (obj.has("token")) {
             token = obj.get("token").asText();
         } else {
             token = null;
         }
-        enabled = obj.get("enabled").asBoolean();
-        return new Context(obj.get("name").asText(), obj.get("url").asText(), enabled, token,
-                wirelog, clientInvocation, clientCommand);
+        return new Context(obj.get("name").asText(), obj.get("url").asText(), token, wirelog, clientInvocation, clientCommand);
     }
 
     public final String name;
     public final String url;
-    public boolean enabled;
 
     /** null to work anonymously */
     public String token;
@@ -49,10 +45,9 @@ public class Context {
     private volatile String clientInvocation;
     private volatile String clientCommand;
 
-    public Context(String name, String url, boolean enabled, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public Context(String name, String url, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.name = name;
         this.url = url;
-        this.enabled = enabled;
         this.token = token;
 
         this.wirelog = wirelog;
@@ -80,7 +75,6 @@ public class Context {
 
         result = yaml.createObjectNode();
         result.put("name", name);
-        result.put("enabled", enabled);
         result.put("url", url);
         if (token != null) {
             result.put("token", token);
