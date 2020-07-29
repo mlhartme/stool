@@ -3,7 +3,7 @@
 __scProjectDir() {
   local dir="$1"
   while [ "${dir}" != "/" ] ; do
-    if [ -f "${dir}"/.backstage ] ; then
+    if [ -f "${dir}"/.backstage/project.properties ] ; then
       echo -n "${dir}"
       return
     fi
@@ -15,8 +15,8 @@ __scProjectDir() {
 
 __scStageIndicator() {
   local project=$(__scProjectDir $1)
-  if [ -f "${project}/.backstage" ] ; then
-      local id="$(grep = ${project}/.backstage | cut -d = -f 1 | tr '\n' ' ')"
+  if [ -f "${project}/.backstage/project.properties" ] ; then
+      local id="$(grep = ${project}/.backstage/project.properties | cut -d = -f 1 | tr '\n' ' ')"
       id=${id%?}
       echo -n "{${id}} "
       return
@@ -28,7 +28,7 @@ __scStageIndicator() {
 
 if [ -n "${ZSH_VERSION}" ] ; then
     if [ -z "${SC_NO_PROMPT}" ] ; then
-        __stoolPrompt() {
+        __scPrompt() {
             local dir=$(pwd)
             local indicator=$(__scStageIndicator $dir)
             if [ -n "$indicator" ] ; then
@@ -36,7 +36,7 @@ if [ -n "${ZSH_VERSION}" ] ; then
             fi
         }
         autoload -Uz add-zsh-hook
-        add-zsh-hook precmd __stoolPrompt
+        add-zsh-hook precmd __scPrompt
     # else
     #   do nothing, the user does not want stool prompt
     fi
@@ -48,7 +48,7 @@ elif [ -n "${BASH_VERSION}" ] ; then
     if [ -z "${SC_NO_PROMPT}" ] ; then
         if [ -z ${SC_OLD_PROMPT_COMMAND} ] ; then
             export SC_OLD_PROMPT_COMMAND=${PROMPT_COMMAND}
-            __stoolPromptUpdate() {
+            __scPromptUpdate() {
                 eval "${SC_OLD_PROMPT_COMMAND}"
                 local dir=$(pwd)
                 if [ "x${dir}" != "x${__PROJECT_DIR}" ] ; then
@@ -65,11 +65,11 @@ elif [ -n "${BASH_VERSION}" ] ; then
                 #   already initialized, nothing to do
                 fi
             }
-            PROMPT_COMMAND=__stoolPromptUpdate
+            PROMPT_COMMAND=__scPromptUpdate
         # else
         #   Already initialized, do nothing
         #   CAUTION:
-        #   Initializing again would cause an infinite loop because __stoolPromptCommand calls itself ::stoolPromptCommand from $SC_OLD_PROMPT_COMMAND
+        #   Initializing again would cause an infinite loop because __scPromptCommand calls itself ::scPromptCommand from $SC_OLD_PROMPT_COMMAND
         fi
     # else
     #   do nothing, the user does not want stool prompt

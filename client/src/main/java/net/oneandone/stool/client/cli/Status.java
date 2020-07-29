@@ -46,7 +46,7 @@ public class Status extends InfoCommand {
             if (withPrefix) {
                 name = stage.getKey();
                 prefix = Strings.times(' ', prefixWidth - name.length());
-                prefix = prefix + "{" + name + "@" + client.getName() + "} ";
+                prefix = prefix + "{" + name + "} ";
             } else {
                 prefix = "";
             }

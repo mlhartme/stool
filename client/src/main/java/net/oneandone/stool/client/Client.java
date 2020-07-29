@@ -45,19 +45,19 @@ import java.util.Map;
 
 public class Client {
     /** @param token null to work anonymously */
-    public static Client token(World world, String name, String url, FileNode wireLog, String clientInvocation, String clientCommand,
+    public static Client token(World world, String context, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String token) throws NodeInstantiationException {
-        return doCreate(world, name, url, wireLog, clientInvocation, clientCommand, token, null, null);
+        return doCreate(world, context, url, wireLog, clientInvocation, clientCommand, token, null, null);
 
     }
 
-    public static Client basicAuth(World world, String name, String url, FileNode wireLog, String clientInvocation, String clientCommand,
+    public static Client basicAuth(World world, String context, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String username, String password) throws NodeInstantiationException {
-        return doCreate(world, name, url, wireLog, clientInvocation, clientCommand, null, username, password);
+        return doCreate(world, context, url, wireLog, clientInvocation, clientCommand, null, username, password);
 
     }
 
-    private static Client doCreate(World world, String name, String url, FileNode wireLog, String clientInvocation, String clientCommand,
+    private static Client doCreate(World world, String context, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String token, String username, String password) throws NodeInstantiationException {
         HttpNode node;
 
@@ -73,32 +73,32 @@ public class Client {
         if (username != null) {
             node.getRoot().setCredentials(username, password);
         }
-        return new Client(name, node);
+        return new Client(context, node);
     }
 
-    private final String name;
+    private final String context;
     private final HttpNode root;
     private final JsonParser parser;
 
-    public Client(String name, HttpNode root) {
-        this.name = name;
+    public Client(String context, HttpNode root) {
+        this.context = context;
         this.root = root;
         this.parser = new JsonParser();
     }
 
     public boolean equals(Object object) {
         if (object instanceof Client) {
-            return name.equals(((Client) object).name);
+            return context.equals(((Client) object).context);
         }
         return false;
     }
 
     public int hashCode() {
-        return name.hashCode();
+        return context.hashCode();
     }
 
-    public String getName() {
-        return name;
+    public String getContext() {
+        return context;
     }
 
     public String getServer() {

@@ -125,7 +125,7 @@ public class Build extends ProjectCommand {
 
         started = System.currentTimeMillis();
         console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
-        registryPrefix = globals.configuration().registryPrefix() + reference.client.getName() + "/";
+        registryPrefix = globals.configuration().registryPrefix() + reference.client.getContext() + "/";
         template = template(arguments);
         tag = wipeOldImages(engine, registryPrefix, reference.stage);
         context = createContext(reference.stage, war);  // this is where concurrent builds are blocked

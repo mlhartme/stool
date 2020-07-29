@@ -57,6 +57,9 @@ public class Project {
         return null;
     }
 
+    /** properties key to store context */
+    private static final String CONTEXT = "_context";
+
     /**
      * The backstage name is legacy - I keep it because applications have it in their .gitignores.
      * I create a directory to store the actual data to co-exist with Stool 5
@@ -79,9 +82,16 @@ public class Project {
 
     public void load(Configuration configuration) throws IOException {
         Properties p;
+        String current;
+        String context;
         Reference reference;
 
         p = backstage.readProperties();
+        current = configuration.context().name;
+        context = (String) p.remove(CONTEXT);
+        if (!context.equals(current)) {
+            throw new IOException("context mismatch: project context is " + context + ", but current context is " + current);
+        }
         apps.clear();
         for (Map.Entry<Object, Object> entry : p.entrySet()) {
             reference = configuration.reference((String) entry.getKey());
@@ -131,6 +141,7 @@ public class Project {
             backstage.getParent().deleteDirectory();
         } else {
             p = new Properties();
+            p.put(CONTEXT, apps.iterator().next().reference.client.getContext());
             for (App app : apps) {
                 if (p.put(app.reference.stage, app.path) != null) {
                     throw new IllegalStateException(p.toString());
