@@ -35,7 +35,7 @@ public class Detach extends ProjectCommand {
     public void doRun(FileNode directory) throws IOException {
         Project project;
 
-        project = Project.lookup(directory, globals.configuration());
+        project = lookupProject(directory);
         if (project == null) {
             throw new ArgumentException("project is not attached");
         }

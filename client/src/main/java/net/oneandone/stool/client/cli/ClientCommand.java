@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -54,6 +55,10 @@ public abstract class ClientCommand {
         if (workingOpt != null) {
             this.working = workingOpt;
         }
+    }
+
+    public Project lookupProject(FileNode directory) throws IOException {
+        return Project.lookup(directory, globals.configuration());
     }
 
     public abstract void run() throws Exception;

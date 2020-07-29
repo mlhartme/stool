@@ -76,7 +76,7 @@ public class Build extends ProjectCommand {
         List<App> apps;
         FileNode war;
 
-        project = Project.lookup(directory, globals.configuration());
+        project = lookupProject(directory);
         if (project == null) {
             throw new ArgumentException("unknown project");
         }

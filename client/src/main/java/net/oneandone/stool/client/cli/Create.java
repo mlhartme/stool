@@ -72,7 +72,7 @@ public class Create extends ProjectCommand {
         Map<FileNode, FileNode> wars;
         Map<FileNode, String> map;
 
-        projectOpt = Project.lookup(directory, globals.configuration());
+        projectOpt = lookupProject(directory);
         if (projectOpt != null) { // TODO: feels weired
             throw new ArgumentException("project already has a stage; detach it first");
         }
