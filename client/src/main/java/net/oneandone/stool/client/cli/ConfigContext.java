@@ -39,7 +39,7 @@ public class ConfigContext {
         Context found;
 
         configuration = new Configuration(globals.getWorld());
-        configuration.load(globals.getStoolJson());
+        configuration.load(globals.getStoolYaml());
         if (setOpt == null) {
             console.info.println(configuration.context().name);
         } else {
@@ -52,7 +52,7 @@ public class ConfigContext {
                 console.info.println("not changed: " + old);
             } else {
                 configuration.setContext(setOpt);
-                configuration.save(globals.getGson(), globals.getStoolJson());
+                configuration.save(globals.getStoolYaml());
                 console.info.println("changed " + old + " -> " + setOpt);
             }
         }

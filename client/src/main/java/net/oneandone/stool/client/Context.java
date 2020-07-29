@@ -15,24 +15,26 @@
  */
 package net.oneandone.stool.client;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
 public class Context {
-    public static Context fromJson(JsonObject obj, FileNode wirelog, String clientInvocation, String clientCommand) {
-        JsonElement token;
-        JsonElement enabled;
+    public static Context fromYaml(JsonNode obj, FileNode wirelog, String clientInvocation, String clientCommand) {
+        String token;
+        boolean enabled;
 
-        token = obj.get("token");
-        enabled = obj.get("enabled");
-        return new Context(obj.get("name").getAsString(), obj.get("url").getAsString(),
-                enabled == null || "true".equals(enabled.getAsString()),
-                token == null ? null : token.getAsString(),
+        if (obj.has("token")) {
+            token = obj.get("token").asText();
+        } else {
+            token = null;
+        }
+        enabled = obj.get("enabled").asBoolean();
+        return new Context(obj.get("name").asText(), obj.get("url").asText(), enabled, token,
                 wirelog, clientInvocation, clientCommand);
     }
 
@@ -73,15 +75,15 @@ public class Context {
         return Client.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
     }
 
-    public JsonObject toJson() {
-        JsonObject result;
+    public ObjectNode toYaml(ObjectMapper yaml) {
+        ObjectNode result;
 
-        result = new JsonObject();
-        result.add("name", new JsonPrimitive(name));
-        result.add("enabled", new JsonPrimitive(enabled));
-        result.add("url", new JsonPrimitive(url));
+        result = yaml.createObjectNode();
+        result.put("name", name);
+        result.put("enabled", enabled);
+        result.put("url", url);
         if (token != null) {
-            result.add("token", new JsonPrimitive(token));
+            result.put("token", token);
         }
         return result;
     }

@@ -15,18 +15,20 @@
  */
 package net.oneandone.stool.client;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,7 @@ public class Configuration {
     public final String clientInvocation;
     public final String clientCommand;
     public final Map<String, Context> contexts;
+    private final ObjectMapper yaml;
 
     public Configuration(World world) {
         this(world, null, null, null);
@@ -55,6 +58,8 @@ public class Configuration {
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
+
+        this.yaml = new ObjectMapper(new YAMLFactory());
     }
 
     public void setVersion(String version) {
@@ -119,34 +124,40 @@ public class Configuration {
     }
 
     public void load(FileNode file) throws IOException {
-        JsonObject all;
-        JsonArray array;
+        ObjectNode all;
         Context context;
+        Iterator<JsonNode> iter;
+        JsonNode one;
+
+        try (Reader src = file.newReader()) {
+            all = (ObjectNode) yaml.readTree(src);
+        }
 
         contexts.clear();
+        registryPrefix = all.get("registryPrefix").asText();
 
-        all = JsonParser.parseString(file.readString()).getAsJsonObject();
-        registryPrefix = all.get("registryPrefix").getAsString();
-        array = all.get("servers").getAsJsonArray();
-        for (JsonElement element : array) {
-            context = Context.fromJson(element.getAsJsonObject(), wirelog, clientInvocation, clientCommand);
+        iter = all.get("contexts").iterator();
+        while (iter.hasNext()) {
+            one = iter.next();
+            context = Context.fromYaml(one, wirelog, clientInvocation, clientCommand);
             contexts.put(context.name, context);
         }
     }
 
-    public void save(Gson gson, FileNode file) throws IOException {
-        JsonArray array;
-        JsonObject obj;
+    public void save(FileNode file) throws IOException {
+        ObjectNode obj;
+        ArrayNode array;
 
-        array = new JsonArray();
+        obj = yaml.createObjectNode();
+        obj.put("registryPrefix", registryPrefix);
+        array = obj.putArray("contexts");
         for (Context server : contexts.values()) {
-            array.add(server.toJson());
+            array.add(server.toYaml(yaml));
         }
-        obj = new JsonObject();
-        obj.add("registryPrefix", new JsonPrimitive(registryPrefix));
-        obj.add("servers", array);
-        try (Writer writer = file.newWriter()) {
-            gson.toJson(obj, writer);
+        try (Writer dest = file.newWriter()) {
+            SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
+            sw.write(obj);
+            System.out.println("wrote " + file.readString());
         }
     }
 }

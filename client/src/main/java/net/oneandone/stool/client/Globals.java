@@ -28,43 +28,43 @@ import java.util.UUID;
 
 /** Global client stuff */
 public class Globals {
-    public static Globals create(Console console, World world, FileNode stoolJsonOpt, String command) {
-        FileNode stoolJson;
+    public static Globals create(Console console, World world, FileNode stoolYamlOpt, String command) {
+        FileNode stoolYaml;
         String str;
 
-        if (stoolJsonOpt != null) {
-            stoolJson = stoolJsonOpt;
+        if (stoolYamlOpt != null) {
+            stoolYaml = stoolYamlOpt;
         } else {
-            str = System.getenv("STOOL_JSON");
+            str = System.getenv("STOOL_YAML");
             if (str != null) {
-                stoolJson = world.file(str);
+                stoolYaml = world.file(str);
             } else {
-                stoolJson = world.getHome().join(".stool.json");
+                stoolYaml = world.getHome().join(".stool.json");
             }
         }
-        return new Globals(console, world, stoolJson, UUID.randomUUID().toString(), command);
+        return new Globals(console, world, stoolYaml, UUID.randomUUID().toString(), command);
     }
 
     private final Console console;
     private final World world;
     private final Gson gson;
-    private final FileNode stoolJson;
+    private final FileNode stoolYaml;
     private final String invocation;
     private final String command;
     private FileNode wirelog;
 
-    public Globals(Console console, World world, FileNode stoolJson, String invocation, String command) {
+    public Globals(Console console, World world, FileNode stoolYaml, String invocation, String command) {
         this.console = console;
         this.world = world;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        this.stoolJson = stoolJson;
+        this.stoolYaml = stoolYaml;
         this.invocation = invocation;
         this.command = command;
         this.wirelog = null;
     }
 
-    public FileNode getStoolJson() {
-        return stoolJson;
+    public FileNode getStoolYaml() {
+        return stoolYaml;
     }
 
     public FileNode templates() throws ExistsException, DirectoryNotFoundException {
@@ -97,7 +97,7 @@ public class Globals {
         Configuration result;
 
         result = new Configuration(world, wirelog, invocation, command);
-        result.load(getStoolJson());
+        result.load(getStoolYaml());
         return result;
     }
 }

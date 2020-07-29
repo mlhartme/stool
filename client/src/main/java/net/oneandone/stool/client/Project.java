@@ -168,7 +168,6 @@ public class Project {
             try (Writer dest = backstage.newWriter()) {
                 SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
                 sw.write(root);
-                System.out.println("wrote " + backstage.readString());
             }
         }
     }
