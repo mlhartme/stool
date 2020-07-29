@@ -51,6 +51,7 @@ public class Globals {
     private final FileNode stoolYaml;
     private final String invocation;
     private final String command;
+    private String context;
     private FileNode wirelog;
 
     public Globals(Console console, World world, FileNode stoolYaml, String invocation, String command) {
@@ -60,6 +61,7 @@ public class Globals {
         this.stoolYaml = stoolYaml;
         this.invocation = invocation;
         this.command = command;
+        this.context = context;
         this.wirelog = null;
     }
 
@@ -73,6 +75,10 @@ public class Globals {
 
     public void setWirelog(String wirelog) {
         this.wirelog = wirelog == null ? null : world.file(wirelog);
+    }
+
+    public void setContext(String context) {
+        this.context = context;
     }
 
     public void setException(boolean exception) {
@@ -98,6 +104,9 @@ public class Globals {
 
         result = new Configuration(world, wirelog, invocation, command);
         result.load(getStoolYaml());
+        if (context != null) {
+            result.setContext(context);
+        }
         return result;
     }
 }

@@ -90,13 +90,23 @@ public class Configuration {
 
         result = defaultContextOpt();
         if (result == null) {
-            throw new IOException("context not set");
+            throw new IOException("no default context");
         }
         return result;
     }
 
     public Context defaultContextOpt() {
-        return defaultContext == null ? null : contexts.get(defaultContext);
+        Context result;
+
+        if (defaultContext == null) {
+            result = null;
+        } else {
+            result = contexts.get(defaultContext);
+            if (result == null) {
+                throw new ArgumentException("default context not found: " + defaultContext);
+            }
+        }
+        return result;
     }
 
     public void setContext(String name) {
