@@ -34,17 +34,17 @@ public abstract class ProjectCommand extends ClientCommand {
 
     public abstract void doRun(FileNode currentProject) throws Exception;
 
-    protected Reference reference(String nameAndServer) throws IOException {
+    protected Reference reference(String name) throws IOException {
         List<Reference> found;
 
-        found = globals.configuration().list(nameAndServer);
+        found = globals.configuration().list(name);
         switch (found.size()) {
             case 0:
-                throw new IOException("no such stage: " + nameAndServer);
+                throw new IOException("no such stage: " + name);
             case 1:
                 return found.get(0);
             default:
-                throw new IOException("stage ambiguous: " + nameAndServer);
+                throw new IOException("stage ambiguous: " + name);
         }
 
     }

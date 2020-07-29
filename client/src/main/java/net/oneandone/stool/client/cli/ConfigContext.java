@@ -42,18 +42,18 @@ public class ConfigContext {
         configuration = new Configuration(globals.getWorld());
         configuration.load(globals.getStoolYaml());
         if (setOpt == null) {
-            console.info.println(configuration.defaultContext().name);
+            console.info.println(configuration.currentContext().name);
         } else {
             found = configuration.contextLookup(setOpt);
             if (found == null) {
                 throw new IOException(setOpt + ": context not found, available contexts: " + configuration.contexts.keySet());
             }
-            old = configuration.defaultContextOpt();
+            old = configuration.currentContextOpt();
             oldName = old == null ? "(none)" : old.name;
             if (oldName.equals(setOpt)) {
                 console.info.println("not changed: " + oldName);
             } else {
-                configuration.setContext(setOpt);
+                configuration.setCurrentContext(setOpt);
                 configuration.save(globals.getStoolYaml());
                 console.info.println("changed " + oldName + " -> " + setOpt);
             }

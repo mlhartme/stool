@@ -78,6 +78,7 @@ public class MainIT {
 
         sc("server", "localhost", "localhost" /* TODO */, SERVER_YAML.getAbsolute());
         sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
+        sc("context", "localhost");
 
         kubectl("delete", "--ignore-not-found", "-f", SERVER_YAML.getAbsolute());
         kubectl("apply", "-f", SERVER_YAML.getAbsolute());

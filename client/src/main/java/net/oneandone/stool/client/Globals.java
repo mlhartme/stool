@@ -105,7 +105,7 @@ public class Globals {
         result = new Configuration(world, wirelog, invocation, command);
         result.load(getStoolYaml());
         if (context != null) {
-            result.setContext(context);
+            result.setCurrentContext(context);
         }
         return result;
     }

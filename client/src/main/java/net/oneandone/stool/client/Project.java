@@ -89,20 +89,12 @@ public class Project {
     public void load(Configuration configuration) throws IOException {
         ObjectNode root;
         ObjectNode stages;
-
-        String current;
-        String context;
         Reference reference;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
 
         try (Reader src = backstage.newReader()) {
             root = (ObjectNode) yaml.readTree(src);
-        }
-        context = root.get("context").asText();
-        current = configuration.defaultContext().name;
-        if (!context.equals(current)) {
-            throw new IOException("context mismatch: project context is " + context + ", but current context is " + current);
         }
         stages = (ObjectNode) root.get("stages");
         apps.clear();
@@ -158,10 +150,9 @@ public class Project {
             backstage.getParent().deleteDirectory();
         } else {
             root = yaml.createObjectNode();
-            root.put("context", apps.iterator().next().reference.client.getContext());
             stages = yaml.createObjectNode();
             for (App app : apps) {
-                stages.put(app.reference.stage, app.path);
+                stages.put(app.reference.toString(), app.path);
             }
             root.set("stages", stages);
             backstage.getParent().mkdirOpt();

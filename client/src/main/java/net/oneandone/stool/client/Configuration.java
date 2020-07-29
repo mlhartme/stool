@@ -42,7 +42,7 @@ public class Configuration {
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
-    private String defaultContext;
+    private String currentContext;
     public final Map<String, Context> contexts;
     private final ObjectMapper yaml;
 
@@ -54,7 +54,7 @@ public class Configuration {
         this.world = world;
         this.version = null;
         this.registryPrefix = "127.0.0.1:31500/";
-        this.defaultContext = null;
+        this.currentContext = null;
         this.contexts = new LinkedHashMap<>();
 
         // transient
@@ -85,35 +85,35 @@ public class Configuration {
 
     //-- contexts
 
-    public Context defaultContext() throws IOException {
+    public Context currentContext() throws IOException {
         Context result;
 
-        result = defaultContextOpt();
+        result = currentContextOpt();
         if (result == null) {
-            throw new IOException("no default context");
+            throw new IOException("no current context");
         }
         return result;
     }
 
-    public Context defaultContextOpt() {
+    public Context currentContextOpt() {
         Context result;
 
-        if (defaultContext == null) {
+        if (currentContext == null) {
             result = null;
         } else {
-            result = contexts.get(defaultContext);
+            result = contexts.get(currentContext);
             if (result == null) {
-                throw new ArgumentException("default context not found: " + defaultContext);
+                throw new ArgumentException("current context not found: " + currentContext);
             }
         }
         return result;
     }
 
-    public void setContext(String name) {
+    public void setCurrentContext(String name) {
         if (contextLookup(name) == null) {
             throw new ArgumentException("no such context: " + name);
         }
-        defaultContext = name;
+        currentContext = name;
     }
 
     public void addContext(String name, String url, String token) {
@@ -124,19 +124,32 @@ public class Configuration {
         return contexts.get(context);
     }
 
-    public Client contextConnect() throws IOException {
-        return defaultContext().connect(world);
+    public Client currentContextConnect() throws IOException {
+        return currentContext().connect(world);
     }
 
-    public Reference reference(String stageName) throws IOException {
-        return new Reference(defaultContext().connect(world), stageName);
+    public Reference reference(String str) throws IOException {
+        int idx;
+        String contextName;
+        Context context;
+
+        idx = str.indexOf('@');
+        if (idx == -1) {
+            throw new ArgumentException("invalid reference: " + str);
+        }
+        contextName = str.substring(idx + 1);
+        context = contextLookup(contextName);
+        if (context == null) {
+            throw new ArgumentException("context not found: " + str);
+        }
+        return new Reference(context.connect(world), str.substring(0, idx));
     }
 
     public List<Reference> list(String filter) throws IOException {
         Client client;
         List<Reference> result;
 
-        client = contextConnect();
+        client = currentContextConnect();
         result = new ArrayList<>();
         result.addAll(Reference.list(client, client.list(filter)));
         return result;
@@ -154,6 +167,7 @@ public class Configuration {
 
         contexts.clear();
         registryPrefix = all.get("registryPrefix").asText();
+        currentContext = all.has("currentContext") ? all.get("currentContext").asText() : null;
 
         iter = all.get("contexts").iterator();
         while (iter.hasNext()) {
@@ -169,6 +183,10 @@ public class Configuration {
 
         obj = yaml.createObjectNode();
         obj.put("registryPrefix", registryPrefix);
+
+        if (currentContext != null) {
+            obj.put("currentContext", currentContext);
+        }
         array = obj.putArray("contexts");
         for (Context server : contexts.values()) {
             array.add(server.toYaml(yaml));

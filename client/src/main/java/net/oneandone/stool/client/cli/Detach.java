@@ -37,7 +37,7 @@ public class Detach extends ProjectCommand {
 
         project = lookupProject(directory);
         if (project == null) {
-            throw new ArgumentException("project is not attached");
+            throw new ArgumentException("no project to detach from");
         }
         for (String stage : stages) {
             project.remove(stage);

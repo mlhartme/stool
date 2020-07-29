@@ -37,7 +37,7 @@ public class Attach extends ProjectCommand {
     public void doRun(FileNode directory) throws Exception {
         Project project;
         Map<FileNode, FileNode> wars; // maps directories to war files
-        String nameAndServer;
+        String name;
 
         project = lookupProject(directory);
         if (project == null) {
@@ -46,8 +46,8 @@ public class Attach extends ProjectCommand {
 
         wars = Project.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
         for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
-            nameAndServer = Project.subst(stage, entry.getValue());
-            project.add(new App(reference(nameAndServer), entry.getKey().getRelative(directory)));
+            name = Project.subst(stage, entry.getValue());
+            project.add(new App(reference(name), entry.getKey().getRelative(directory)));
         }
         project.save();
     }

@@ -52,6 +52,6 @@ public class Reference {
     }
 
     public String toString() {
-        return stage + "@" + client.getContext(); // TODO: without context
+        return stage + "@" + client.getContext();
     }
 }
