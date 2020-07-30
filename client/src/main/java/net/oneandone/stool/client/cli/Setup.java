@@ -62,7 +62,10 @@ public class Setup {
             console.info.println("  " + c.name + " " + c.url);
         }
         console.info.println();
-        console.info.println("If you want command completion and a stage indicator in your shell prompt: ");
+        console.info.println("Use 'stool context <name>' to choose a current context.");
+        console.info.println();
+        console.info.println();
+        console.info.println("If you want shell completion and a stage indicator in prompt: ");
         console.info.println("  Make sure to run 'eval \"$(sc shell-inc)\"' in your shell profile.");
         console.info.println("  Don't forget to restart your terminal.");
     }
