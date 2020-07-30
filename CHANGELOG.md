@@ -15,6 +15,7 @@
 * renamed 'remove' to 'delete'
 
 * client
+  * promp with angle brackets to distinguish from stool 5
   * `auth` now applied to current context, explicit server argument is gone
   * `context` command instead of update-setup
   * split `setup` into `setup` and `server`
