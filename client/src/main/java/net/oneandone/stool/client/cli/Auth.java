@@ -38,16 +38,16 @@ public class Auth {
         Configuration configuration;
         String username;
         String password;
+        Context context;
 
         configuration = globals.configuration();
-
-        Context server = configuration.currentContext();
-        if (!server.hasToken()) {
+        context = configuration.currentContext();
+        if (!context.hasToken()) {
             console.info.println("Nothing to do, there are no servers that need authentication.");
             return;
         }
 
-        console.info.println(server.name + " " + server.url);
+        console.info.println(context.name + " " + context.url);
         if (batch) {
             username = env("STOOL_USERNAME");
             password = env("STOOL_PASSWORD");
@@ -59,16 +59,16 @@ public class Auth {
         }
 
         try {
-            server.auth(globals.getWorld(), username, password);
+            context.auth(globals.getWorld(), username, password);
         } catch (StatusException e) {
             if (e.getStatusLine().code == 401) {
-                throw new IOException(server.url + ": " + e.getMessage(), e);
+                throw new IOException(context.url + ": " + e.getMessage(), e);
             } else {
                 throw e;
             }
         }
         configuration.save(globals.getStoolYaml());
-        console.info.println("Successfully updated token for " + server.name);
+        console.info.println("Successfully updated token for " + context.name);
     }
 
     private static String env(String name) throws IOException {

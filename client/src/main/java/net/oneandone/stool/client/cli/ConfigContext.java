@@ -16,6 +16,8 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
+import net.oneandone.stool.client.AuthenticationException;
+import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Configuration;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Context;
@@ -25,22 +27,23 @@ import java.io.IOException;
 public class ConfigContext {
     private final Globals globals;
     private final Console console;
+    private final boolean offline;
     private final String setOpt;
 
-    public ConfigContext(Globals globals, String setOpt) {
+    public ConfigContext(Globals globals, boolean offline, String setOpt) {
         this.globals = globals;
         this.console = globals.getConsole();
+        this.offline = offline;
         this.setOpt = setOpt;
     }
 
-    public void run() throws IOException {
+    public void run() throws Exception {
         Configuration configuration;
         Context old;
         String oldName;
         Context found;
 
-        configuration = new Configuration(globals.getWorld());
-        configuration.load(globals.getStoolYaml());
+        configuration = globals.configuration();
         if (setOpt == null) {
             console.info.println(configuration.currentContext().name);
         } else {
@@ -56,7 +59,24 @@ public class ConfigContext {
                 configuration.setCurrentContext(setOpt);
                 configuration.save(globals.getStoolYaml());
                 console.info.println("changed " + oldName + " -> " + setOpt);
+                if (!offline) {
+                    check(found);
+                }
             }
+        }
+    }
+
+    private void check(Context context) throws Exception {
+        Client client;
+
+        client = context.connect(globals.getWorld());
+        try {
+            console.verbose.println("server info: " + client.info());
+        } catch (AuthenticationException e) {
+            console.verbose.println("authentication needed: " + e);
+            e.printStackTrace(console.verbose);
+            new Auth(globals, false).run();
+            console.verbose.println("server info: " + context.connect(globals.getWorld()).info());
         }
     }
 }

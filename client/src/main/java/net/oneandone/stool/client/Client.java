@@ -265,6 +265,12 @@ public class Client {
         return result.isEmpty() ? null : result;
     }
 
+    public String info() throws IOException {
+        String result;
+
+        return getJson(node("info")).toString();
+    }
+
     //-- validate
 
     public List<String> validate(String stage, boolean email, boolean repair) throws IOException {
@@ -350,7 +356,7 @@ public class Client {
                 case 400:
                     throw new ArgumentException(string(src));
                 case 401:
-                    throw new IOException("unauthenticated: " + node.getUri());
+                    throw new AuthenticationException(node.getUri());
                 case 404:
                     throw new FileNotFoundException(node, "not found");
                 case 409:
