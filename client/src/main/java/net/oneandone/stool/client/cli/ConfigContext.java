@@ -76,7 +76,7 @@ public class ConfigContext {
             console.verbose.println("authentication needed: " + e);
             e.printStackTrace(console.verbose);
             new Auth(globals, false).run();
-            console.verbose.println("server info: " + context.connect(globals.getWorld()).info());
+            console.verbose.println("server info: " + globals.configuration().currentContext().connect(globals.getWorld()).info());
         }
     }
 }
