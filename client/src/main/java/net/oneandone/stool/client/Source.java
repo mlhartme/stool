@@ -19,21 +19,11 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /** List of Apps. Represents .backstage */
 public class Source {
-    public final FileNode directory;
-
-    public Source(FileNode directory) {
-        this.directory = directory;
-    }
-
-    //--
-
-
     public static final String SUBST = "_";
 
     public static boolean hasSubst(String name) {
@@ -44,8 +34,8 @@ public class Source {
         return name.replace(SUBST, App.app(war));
     }
 
-    public static Map<FileNode, FileNode> findWarsAndCheck(FileNode directory, String stage) throws IOException {
-        Map<FileNode, FileNode> wars;
+    public static List<Source> findWarsAndCheck(FileNode directory, String stage) throws IOException {
+        List<Source> wars;
 
         directory.checkDirectory();
         wars = findWars(directory);
@@ -59,22 +49,20 @@ public class Source {
         return wars;
     }
 
-    public static Map<FileNode, FileNode> findWars(FileNode directory) throws IOException {
-        Map<FileNode, FileNode> result;
+    public static List<Source> findWars(FileNode directory) throws IOException {
+        List<Source> result;
 
-        result = new HashMap<>();
+        result = new ArrayList<>();
         addWars(directory, result);
         return result;
     }
 
-    private static void addWars(FileNode directory, Map<FileNode, FileNode> result) throws IOException {
+    private static void addWars(FileNode directory, List<Source> result) throws IOException {
         FileNode war;
 
         war = warMatcher(directory);
         if (war != null) {
-            if (result.put(directory, war) != null) {
-                throw new IllegalStateException(result.toString());
-            }
+            result.add(new Source(directory, war));
         } else {
             for (FileNode child : directory.list()) {
                 if (child.isDirectory()) {
@@ -99,5 +87,15 @@ public class Source {
             default:
                 throw new IOException("ambiguous: " + directory + " " + lst);
         }
+    }
+
+    //--
+
+    public final FileNode directory;
+    public final FileNode war;
+
+    public Source(FileNode directory, FileNode war) {
+        this.directory = directory;
+        this.war = war;
     }
 }

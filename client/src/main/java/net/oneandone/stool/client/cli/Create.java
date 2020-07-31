@@ -70,7 +70,7 @@ public class Create extends ProjectCommand {
     @Override
     public void doRun(FileNode directory) throws IOException {
         Project projectOpt;
-        Map<FileNode, FileNode> wars;
+        List<Source> wars;
         Map<FileNode, String> map;
 
         projectOpt = lookupProject(directory);
@@ -86,8 +86,8 @@ public class Create extends ProjectCommand {
             map = new HashMap<>();
             if (Source.hasSubst(stage)) {
                 wars = Source.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
-                for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
-                    map.put(entry.getKey(), Source.subst(stage, entry.getValue()));
+                for (Source war : wars) {
+                    map.put(war.directory, Source.subst(stage, war.war));
                 }
             } else {
                 map.put(pathOpt != null ? pathOpt : directory, stage);

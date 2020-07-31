@@ -21,7 +21,7 @@ import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Source;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.util.Map;
+import java.util.List;
 
 public class Attach extends ProjectCommand {
     private final FileNode pathOpt;
@@ -37,7 +37,7 @@ public class Attach extends ProjectCommand {
     @Override
     public void doRun(FileNode directory) throws Exception {
         Project project;
-        Map<FileNode, FileNode> wars; // maps directories to war files
+        List<Source> wars; // maps directories to war files
         String name;
 
         project = lookupProject(directory);
@@ -46,9 +46,9 @@ public class Attach extends ProjectCommand {
         }
 
         wars = Source.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
-        for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
-            name = Source.subst(stage, entry.getValue());
-            project.add(new App(reference(name), entry.getKey().getRelative(directory)));
+        for (Source war : wars) {
+            name = Source.subst(stage, war.war);
+            project.add(new App(reference(name), war.directory.getRelative(directory)));
         }
         project.save();
     }
