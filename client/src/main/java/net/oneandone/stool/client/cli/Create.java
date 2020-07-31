@@ -86,7 +86,7 @@ public class Create extends ProjectCommand {
         try {
             map = new HashMap<>();
             if (Source.hasSubst(stage)) {
-                wars = WarSource.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
+                wars = WarSource.findAndCheck(Source.Type.WAR, pathOpt != null ? pathOpt : directory, stage);
                 for (Source war : wars) {
                     map.put(war.directory, war.subst(stage));
                 }

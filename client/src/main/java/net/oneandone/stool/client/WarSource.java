@@ -46,21 +46,6 @@ public class WarSource extends Source {
 
     public static final String APP_ARGUMENT = "_app";
 
-    public static List<WarSource> findWarsAndCheck(FileNode directory, String stage) throws IOException {
-        List<WarSource> wars;
-
-        directory.checkDirectory();
-        wars = findWars(directory);
-        if (wars.isEmpty()) {
-            throw new ArgumentException(directory.getAbsolute() + ": no wars found - did you build your project?");
-        } else if (wars.size() > 1) {
-            if (!stage.contains(SUBST)) {
-                throw new ArgumentException(stage + ": missing '" + SUBST + "' in stage name to attach " + wars.size() + " stages");
-            }
-        }
-        return wars;
-    }
-
     public static List<WarSource> findWars(FileNode directory) throws IOException {
         List<WarSource> result;
 
