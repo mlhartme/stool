@@ -15,24 +15,8 @@
  */
 package net.oneandone.stool.client;
 
-import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.file.FileNode;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 /** Mapping between stage and how to build it */
 public class App {
-    /* TODO: configurable
-    public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/stool.properties";
-    public static final String PROPERTIES_PREFIX = ""; */
-    public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/pominfo.properties";
-    public static final String PROPERTIES_PREFIX = "stool.";
-
-    public static final String APP_ARGUMENT = "_app";
-
     /** assiciated stage on the server */
     public final Reference reference;
 
@@ -42,32 +26,5 @@ public class App {
     public App(Reference reference, String path) {
         this.reference = reference;
         this.path = path;
-    }
-
-    public static Map<String, String> properties(FileNode war) throws IOException {
-        Node<?> node;
-        Properties all;
-        Map<String, String> result;
-
-        node = war.openZip().join(PROPERTIES_FILE);
-        result = new HashMap<>();
-        if (node.exists()) {
-            all = node.readProperties();
-            for (String property : all.stringPropertyNames()) {
-                if (property.startsWith(PROPERTIES_PREFIX)) {
-                    result.put(property.substring(PROPERTIES_PREFIX.length()), all.getProperty(property));
-                }
-            }
-        }
-        return result;
-    }
-
-    public Map<String, String> arguments(FileNode war, Map<String, String> explicit) throws IOException {
-        Map<String, String> result;
-
-        result = properties(war);
-        result.putAll(explicit);
-        result.remove(APP_ARGUMENT);
-        return result;
     }
 }

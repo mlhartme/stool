@@ -73,7 +73,7 @@ public class Build extends ProjectCommand {
     public void doRun(FileNode directory) throws Exception {
         Project project;
         List<App> apps;
-        FileNode war;
+        Source war;
 
         project = lookupProject(directory);
         if (project == null) {
@@ -89,7 +89,7 @@ public class Build extends ProjectCommand {
                 if (war == null) {
                     throw new IOException(app.reference.stage + ": no war found in " + app.path);
                 }
-                build(engine, app.reference, war, project.getOriginOrUnknown(), createdOn(), app.arguments(war, explicitArguments));
+                build(engine, app.reference, war.war, project.getOriginOrUnknown(), createdOn(), war.arguments(explicitArguments));
                 if (restart) {
                     new Restart(globals, null).doRun(app.reference);
                 }
