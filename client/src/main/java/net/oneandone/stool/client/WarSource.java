@@ -145,42 +145,50 @@ public class WarSource extends Source {
 
     //--
 
-    public String build(Globals globals, String comment, int keep, boolean noCache,
-                        Daemon engine, Reference reference, String originScm, Map<String, String> explicitArguments)
+    public String build(Globals globals, Daemon daemon, Reference reference,
+                        String comment, int keep, boolean noCache, String originScm, Map<String, String> explicitArguments)
             throws Exception {
         Console console;
         long started;
         String registryPrefix;
-        Map<String, String> arguments;
         int tag;
-        String image;
         String repositoryTag;
-        FileNode context;
-        Map<String, String> labels;
-        FileNode template;
-        Map<String, BuildArgument> defaults;
-        Map<String, String> buildArgs;
-        StringWriter output;
-        String str;
 
         started = System.currentTimeMillis();
         console = globals.getConsole();
         console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
         registryPrefix = globals.configuration().registryPrefix() + reference.client.getContext() + "/";
+        tag = wipeOldImages(console, daemon, registryPrefix, reference.stage, keep);
+        repositoryTag = registryPrefix + reference.stage + ":" + tag;
+        doBuild(globals, daemon, repositoryTag, comment, noCache, originScm, explicitArguments);
+        console.verbose.println("pushing ...");
+        console.info.println(daemon.imagePush(repositoryTag));
+        console.verbose.println("done");
+        console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
+        return repositoryTag;
+    }
+
+    private void doBuild(Globals globals, Daemon engine, String repositoryTag,
+                         String comment, boolean noCache, String originScm, Map<String, String> explicitArguments) throws IOException {
+        Console console;
+        FileNode template;
+        String str;
+        Map<String, String> arguments;
+        Map<String, String> buildArgs;
+        Map<String, BuildArgument> defaults;
+        FileNode context;
+        StringWriter output;
+        String image;
+
+        console = globals.getConsole();
         arguments = arguments(explicitArguments);
         template = template(globals, arguments);
-        tag = wipeOldImages(console, engine, registryPrefix, reference.stage, keep);
-
-        repositoryTag = registryPrefix + reference.stage + ":" + tag;
         defaults = BuildArgument.scan(template.join("Dockerfile"));
         buildArgs = buildArgs(defaults, arguments);
         context = createContext(template);
-
-        labels = getLabels(comment, originScm, buildArgs);
-        console.verbose.println("building context " + context.getAbsolute());
         output = new StringWriter();
         try {
-            image = engine.imageBuild(repositoryTag, buildArgs, labels, context, noCache, output);
+            image = engine.imageBuild(repositoryTag, buildArgs, getLabels(comment, originScm, buildArgs), context, noCache, output);
         } catch (BuildError e) {
             console.info.println("build failed: " + e.error);
             console.info.println("build output:");
@@ -192,11 +200,6 @@ public class WarSource extends Source {
         str = output.toString();
         console.verbose.println("successfully built image: " + image);
         console.verbose.println(str);
-        console.verbose.println("pushing ...");
-        console.info.println(engine.imagePush(repositoryTag));
-        console.verbose.println("done");
-        console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
-        return repositoryTag;
     }
 
     private Map<String, String> getLabels(String comment, String originScm, Map<String, String> buildArgs) {

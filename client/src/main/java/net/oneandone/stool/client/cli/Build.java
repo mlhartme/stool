@@ -73,10 +73,10 @@ public class Build extends ProjectCommand {
         if (apps.isEmpty()) {
             throw new IOException("no apps to build in project " + directory);
         }
-        try (Daemon engine = Daemon.create()) {
+        try (Daemon daemon = Daemon.create()) {
             for (App app : apps) {
                 source = app.source(directory);
-                source.build(globals, comment, keep, noCache, engine, app.reference, project.getOriginOrUnknown(), explicitArguments);
+                source.build(globals, daemon, app.reference, comment, keep, noCache, project.getOriginOrUnknown(), explicitArguments);
                 if (restart) {
                     new Restart(globals, null).doRun(app.reference);
                 }

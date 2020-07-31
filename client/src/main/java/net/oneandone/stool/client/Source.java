@@ -73,7 +73,7 @@ public abstract class Source {
 
     public abstract String subst(String name) throws IOException;
 
-    public abstract String build(Globals globals, String comment, int keep, boolean noCache,
-                        Daemon engine, Reference reference, String originScm, Map<String, String> explicitArguments)
+    public abstract String build(Globals globals, Daemon daemon, Reference reference,
+                                 String comment, int keep, boolean noCache, String originScm, Map<String, String> explicitArguments)
             throws Exception;
 }

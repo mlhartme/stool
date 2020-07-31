@@ -63,8 +63,8 @@ public class DockerSource extends Source {
         throw new UnknownHostException("TODO");
     }
 
-    public String build(Globals globals, String comment, int keep, boolean noCache,
-                        Daemon engine, Reference reference, String originScm, Map<String, String> explicitArguments) throws Exception {
+    public String build(Globals globals, Daemon daemon, Reference reference,
+                        String comment, int keep, boolean noCache, String originScm, Map<String, String> explicitArguments) throws Exception {
         throw new UnsupportedOperationException("TODO");
     }
 }
