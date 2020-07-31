@@ -25,11 +25,13 @@ import java.util.List;
 
 public class Attach extends ProjectCommand {
     private final FileNode pathOpt;
+    private final Source.Type type;
     private final String stage;
 
-    public Attach(Globals globals, FileNode pathOpt, String stage) {
+    public Attach(Globals globals, Source.Type type, FileNode pathOpt, String stage) {
         super(globals);
 
+        this.type = type;
         this.pathOpt = pathOpt;
         this.stage = stage;
     }
@@ -45,7 +47,7 @@ public class Attach extends ProjectCommand {
             project = Project.create(directory);
         }
 
-        sources = Source.findAndCheck(Source.Type.WAR, pathOpt != null ? pathOpt : directory, stage);
+        sources = Source.findAndCheck(type, pathOpt != null ? pathOpt : directory, stage);
         for (Source source : sources) {
             name = source.subst(stage);
             project.add(new App(reference(name), source.type, source.directory.getRelative(directory)));

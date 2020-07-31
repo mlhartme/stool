@@ -103,7 +103,7 @@ public class Project {
             entry = iter.next();
             reference = configuration.reference(entry.getKey());
             typeAndPath = entry.getValue().asText();
-            idx = typeAndPath.indexOf(':');
+            idx = typeAndPath.indexOf('@');
             if (idx == -1) {
                 throw new IllegalStateException(typeAndPath);
             }
@@ -157,7 +157,7 @@ public class Project {
             root = yaml.createObjectNode();
             stages = yaml.createObjectNode();
             for (App app : apps) {
-                stages.put(app.reference.toString(), app.type.toString().toLowerCase() + ":" + app.path);
+                stages.put(app.reference.toString(), app.type.toString().toLowerCase() + "@" + app.path);
             }
             root.set("stages", stages);
             backstage.getParent().mkdirOpt();

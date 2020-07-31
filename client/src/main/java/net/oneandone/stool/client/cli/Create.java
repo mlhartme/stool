@@ -35,15 +35,17 @@ import java.util.Map;
 public class Create extends ProjectCommand {
     private final boolean optional;
     private final boolean detached;
+    private final Source.Type type;
     private final FileNode pathOpt;
     private final String stage;
     private final Map<String, String> config;
 
-    public Create(Globals globals, boolean optional, boolean detached, FileNode pathOpt, String stage, List<String> args) {
+    public Create(Globals globals, boolean optional, boolean detached, Source.Type type, FileNode pathOpt, String stage, List<String> args) {
         super(globals);
 
         this.optional = optional;
         this.detached = detached;
+        this.type = type;
         this.pathOpt = pathOpt;
         this.stage = stage;
         this.config = new LinkedHashMap<>();
@@ -73,9 +75,7 @@ public class Create extends ProjectCommand {
         Project projectOpt;
         List<? extends Source> wars;
         Map<FileNode, String> map;
-        Source.Type type;
 
-        type = Source.Type.WAR;
         projectOpt = lookupProject(directory);
         if (projectOpt != null) { // TODO: feels weired
             throw new ArgumentException("project already has a stage; detach it first");
@@ -96,7 +96,7 @@ public class Create extends ProjectCommand {
                 map.put(pathOpt != null ? pathOpt : directory, stage);
             }
             for (Map.Entry<FileNode, String> entry : map.entrySet()) {
-                add(projectOpt, type, entry.getKey().getRelative(directory), entry.getValue());
+                add(projectOpt, entry.getKey().getRelative(directory), entry.getValue());
             }
             if (projectOpt != null) {
                 projectOpt.save();
@@ -113,7 +113,7 @@ public class Create extends ProjectCommand {
         }
     }
 
-    private void add(Project projectOpt, Source.Type type, String appPath, String name) throws IOException {
+    private void add(Project projectOpt, String appPath, String name) throws IOException {
         Client client;
         Reference reference;
 
