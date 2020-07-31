@@ -46,15 +46,15 @@ public class WarSource extends Source {
 
     public static final String APP_ARGUMENT = "_app";
 
-    public static List<WarSource> findWars(FileNode directory) throws IOException {
+    public static List<WarSource> find(FileNode directory) throws IOException {
         List<WarSource> result;
 
         result = new ArrayList<>();
-        addWars(directory, result);
+        doFind(directory, result);
         return result;
     }
 
-    private static void addWars(FileNode directory, List<WarSource> result) throws IOException {
+    private static void doFind(FileNode directory, List<WarSource> result) throws IOException {
         WarSource war;
 
         war = createOpt(directory);
@@ -63,7 +63,7 @@ public class WarSource extends Source {
         } else {
             for (FileNode child : directory.list()) {
                 if (child.isDirectory()) {
-                    addWars(child, result);
+                    doFind(child, result);
                 }
             }
         }

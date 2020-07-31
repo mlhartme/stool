@@ -38,26 +38,27 @@ public abstract class Source {
     //--
 
     public static List<? extends Source> findAndCheck(Type type, FileNode directory, String stage) throws IOException {
-        List<? extends Source> wars;
+        List<? extends Source> sources;
 
         directory.checkDirectory();
         switch (type) {
             case WAR:
-                wars = WarSource.findWars(directory);
+                sources = WarSource.find(directory);
                 break;
             case DOCKER:
-                throw new IllegalStateException("TODO");
+                sources = DockerSource.find(directory);
+                break;
             default:
                 throw new IllegalStateException();
         }
-        if (wars.isEmpty()) {
+        if (sources.isEmpty()) {
             throw new ArgumentException(directory.getAbsolute() + ": no wars found - did you build your project?");
-        } else if (wars.size() > 1) {
+        } else if (sources.size() > 1) {
             if (!stage.contains(SUBST)) {
-                throw new ArgumentException(stage + ": missing '" + SUBST + "' in stage name to attach " + wars.size() + " stages");
+                throw new ArgumentException(stage + ": missing '" + SUBST + "' in stage name to attach " + sources.size() + " stages");
             }
         }
-        return wars;
+        return sources;
     }
 
     //--

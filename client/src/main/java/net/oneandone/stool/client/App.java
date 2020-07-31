@@ -45,6 +45,11 @@ public class App {
                     throw new IOException("no war found in " + path);
                 }
                 break;
+            case DOCKER:
+                result = DockerSource.createOpt(directory.join(path));
+                if (result == null) {
+                    throw new IOException("no Dockerfile found in " + path);
+                }
             default:
                 throw new IllegalStateException(type.toString());
         }
