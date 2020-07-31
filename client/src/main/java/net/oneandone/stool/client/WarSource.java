@@ -170,41 +170,38 @@ public class WarSource extends Source {
         arguments = arguments(explicitArguments);
         template = template(globals, arguments);
         tag = wipeOldImages(console, engine, registryPrefix, reference.stage, keep);
-        context = createContext(reference.stage);  // this is where concurrent builds are blocked
-        try {
-            repositoryTag = registryPrefix + reference.stage + ":" + tag;
-            defaults = BuildArgument.scan(template.join("Dockerfile"));
-            buildArgs = buildArgs(defaults, arguments);
-            populateContext(context, template);
-            labels = new HashMap<>();
-            labels.put(ImageInfo.IMAGE_LABEL_COMMENT, comment);
-            labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_SCM, originScm);
-            labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_USER, originUser());
-            for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
-                labels.put(ImageInfo.IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
-            }
-            console.verbose.println("building context " + context.getAbsolute());
-            output = new StringWriter();
-            try {
-                image = engine.imageBuild(repositoryTag, buildArgs, labels, context, noCache, output);
-            } catch (BuildError e) {
-                console.info.println("build failed: " + e.error);
-                console.info.println("build output:");
-                console.info.println(e.output);
-                throw new ArgumentException("build failed");
-            } finally {
-                output.close();
-            }
-            str = output.toString();
-            console.verbose.println("successfully built image: " + image);
-            console.verbose.println(str);
-            console.verbose.println("pushing ...");
-            console.info.println(engine.imagePush(repositoryTag));
-            console.verbose.println("done");
-            console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
-        } finally {
-            cleanupContext(Integer.toString(tag), keep);
+
+        repositoryTag = registryPrefix + reference.stage + ":" + tag;
+        defaults = BuildArgument.scan(template.join("Dockerfile"));
+        buildArgs = buildArgs(defaults, arguments);
+        context = createContext(template);
+
+        labels = new HashMap<>();
+        labels.put(ImageInfo.IMAGE_LABEL_COMMENT, comment);
+        labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_SCM, originScm);
+        labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_USER, originUser());
+        for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
+            labels.put(ImageInfo.IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
         }
+        console.verbose.println("building context " + context.getAbsolute());
+        output = new StringWriter();
+        try {
+            image = engine.imageBuild(repositoryTag, buildArgs, labels, context, noCache, output);
+        } catch (BuildError e) {
+            console.info.println("build failed: " + e.error);
+            console.info.println("build output:");
+            console.info.println(e.output);
+            throw new ArgumentException("build failed");
+        } finally {
+            output.close();
+        }
+        str = output.toString();
+        console.verbose.println("successfully built image: " + image);
+        console.verbose.println(str);
+        console.verbose.println("pushing ...");
+        console.info.println(engine.imagePush(repositoryTag));
+        console.verbose.println("done");
+        console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
         return repositoryTag;
     }
 
@@ -290,10 +287,13 @@ public class WarSource extends Source {
     }
 
 
-    private void populateContext(FileNode context, FileNode src) throws IOException {
+    private FileNode createContext(FileNode src) throws IOException {
+        FileNode context;
         FileNode destparent;
         FileNode destfile;
 
+        context = war.getWorld().getTemp().createTempDirectory();
+        war.copyFile(context.join("app.war"));
         for (FileNode srcfile : src.find("**/*")) {
             if (srcfile.isDirectory()) {
                 continue;
@@ -303,6 +303,7 @@ public class WarSource extends Source {
             destparent.mkdirsOpt();
             srcfile.copy(destfile);
         }
+        return context;
     }
 
     private FileNode template(Globals globals, Map<String, String> arguments) throws IOException {
@@ -345,65 +346,5 @@ public class WarSource extends Source {
         }
         result.append(")\n");
         return result.toString();
-    }
-
-    //--
-
-    public FileNode createContext(String name) throws IOException {
-        FileNode result;
-
-        /* TODO
-        result = globals.contexts().join("context").mkdirOpt().join("_");
-        try {
-            result.mkdir();
-        } catch (MkdirException e) {
-            throw new ArgumentException("another build for stage " + name + " is in progress, try again later");
-        }
-        */
-        result = war.getWorld().getTemp().createTempDirectory(); // TODO
-        war.copyFile(result.join("app.war"));
-        return result;
-    }
-
-    public void cleanupContext(String tag, int keepNo) throws IOException {
-        FileNode dir;
-        List<FileNode> lst;
-        FileNode dest;
-
-        /* TODO
-        dir = globals.contexts().join("context");
-        dest = dir.join(tag);
-        moveAway(dest);
-        dir.join("_").move(dest);
-        lst = dir.list();
-        Collections.sort(lst, new Comparator<FileNode>() {
-            @Override
-            public int compare(FileNode left, FileNode right) {
-                try {
-                    return (int) (left.getLastModified() - right.getLastModified());
-                } catch (GetLastModifiedException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        });
-        while (lst.size() > keep) {
-            lst.remove(0).deleteTree();
-        }
-         */
-    }
-
-    private void moveAway(FileNode file) throws IOException {
-        int no;
-        FileNode away;
-
-        if (file.exists()) {
-            for (no = 1; true; no++) {
-                away = file.getParent().join(file.getName() + "_" + no);
-                if (!away.exists()) {
-                    file.move(away);
-                    return;
-                }
-            }
-        }
     }
 }
