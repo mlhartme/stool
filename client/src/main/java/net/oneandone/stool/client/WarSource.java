@@ -176,13 +176,7 @@ public class WarSource extends Source {
         buildArgs = buildArgs(defaults, arguments);
         context = createContext(template);
 
-        labels = new HashMap<>();
-        labels.put(ImageInfo.IMAGE_LABEL_COMMENT, comment);
-        labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_SCM, originScm);
-        labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_USER, originUser());
-        for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
-            labels.put(ImageInfo.IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
-        }
+        labels = getLabels(comment, originScm, buildArgs);
         console.verbose.println("building context " + context.getAbsolute());
         output = new StringWriter();
         try {
@@ -203,6 +197,19 @@ public class WarSource extends Source {
         console.verbose.println("done");
         console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
         return repositoryTag;
+    }
+
+    private Map<String, String> getLabels(String comment, String originScm, Map<String, String> buildArgs) {
+        Map<String, String> labels;
+
+        labels = new HashMap<>();
+        labels.put(ImageInfo.IMAGE_LABEL_COMMENT, comment);
+        labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_SCM, originScm);
+        labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_USER, originUser());
+        for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
+            labels.put(ImageInfo.IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
+        }
+        return labels;
     }
 
 
