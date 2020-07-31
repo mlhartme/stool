@@ -15,6 +15,10 @@
  */
 package net.oneandone.stool.client;
 
+import net.oneandone.sushi.fs.file.FileNode;
+
+import java.io.IOException;
+
 /** Mapping between stage and how to build it */
 public class App {
     /** assiciated stage on the server */
@@ -26,5 +30,9 @@ public class App {
     public App(Reference reference, String path) {
         this.reference = reference;
         this.path = path;
+    }
+
+    public Source locate(FileNode directory) throws IOException {
+        return Source.warMatcher(directory.join(path));
     }
 }

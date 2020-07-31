@@ -75,7 +75,7 @@ public class Build extends ProjectCommand {
         }
         try (Daemon engine = Daemon.create()) {
             for (App app : apps) {
-                source = Source.warMatcher(directory.join(app.path));
+                source = app.locate(directory);
                 if (source == null) {
                     throw new IOException(app.reference.stage + ": no war found in " + app.path);
                 }
