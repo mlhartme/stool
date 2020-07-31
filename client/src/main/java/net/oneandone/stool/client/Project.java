@@ -90,6 +90,8 @@ public class Project {
         Reference reference;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
+        String typeAndPath;
+        int idx;
 
         try (Reader src = backstage.newReader()) {
             root = (ObjectNode) yaml.readTree(src);
@@ -100,7 +102,12 @@ public class Project {
         while (iter.hasNext()) {
             entry = iter.next();
             reference = configuration.reference(entry.getKey());
-            apps.add(new App(reference, entry.getValue().asText()));
+            typeAndPath = entry.getValue().asText();
+            idx = typeAndPath.indexOf(':');
+            if (idx == -1) {
+                throw new IllegalStateException(typeAndPath);
+            }
+            apps.add(new App(reference, Source.Type.valueOf(typeAndPath.substring(0, idx).toUpperCase()), typeAndPath.substring(idx + 1)));
         }
     }
 
@@ -150,7 +157,7 @@ public class Project {
             root = yaml.createObjectNode();
             stages = yaml.createObjectNode();
             for (App app : apps) {
-                stages.put(app.reference.toString(), app.path);
+                stages.put(app.reference.toString(), app.type.toString().toLowerCase() + ":" + app.path);
             }
             root.set("stages", stages);
             backstage.getParent().mkdirOpt();

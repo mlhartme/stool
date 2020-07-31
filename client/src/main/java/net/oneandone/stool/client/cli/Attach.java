@@ -37,7 +37,7 @@ public class Attach extends ProjectCommand {
     @Override
     public void doRun(FileNode directory) throws Exception {
         Project project;
-        List<? extends Source> wars; // maps directories to war files
+        List<? extends Source> sources; // maps directories to war files
         String name;
 
         project = lookupProject(directory);
@@ -45,10 +45,10 @@ public class Attach extends ProjectCommand {
             project = Project.create(directory);
         }
 
-        wars = Source.findAndCheck(Source.Type.WAR, pathOpt != null ? pathOpt : directory, stage);
-        for (Source war : wars) {
-            name = war.subst(stage);
-            project.add(new App(reference(name), war.directory.getRelative(directory)));
+        sources = Source.findAndCheck(Source.Type.WAR, pathOpt != null ? pathOpt : directory, stage);
+        for (Source source : sources) {
+            name = source.subst(stage);
+            project.add(new App(reference(name), source.type, source.directory.getRelative(directory)));
         }
         project.save();
     }

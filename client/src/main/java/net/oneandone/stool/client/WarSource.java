@@ -91,7 +91,7 @@ public class WarSource extends Source {
     public final FileNode war;
 
     public WarSource(FileNode directory, FileNode war) {
-        super(directory);
+        super(Type.WAR, directory);
         this.war = war;
     }
 

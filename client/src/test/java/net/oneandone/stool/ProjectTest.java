@@ -19,6 +19,7 @@ import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.Source;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class ProjectTest {
         world = World.createMinimal();
         dir = world.getTemp().createTempDirectory();
         project = Project.create(dir);
-        project.add(new App(new Reference(new Client("ctx", null /* TODO */), "stage"), "."));
+        project.add(new App(new Reference(new Client("ctx", null /* TODO */), "stage"), Source.Type.WAR, "."));
         project.save();
     }
 }

@@ -62,9 +62,11 @@ public abstract class Source {
 
     //--
 
+    public final Type type;
     public final FileNode directory;
 
-    public Source(FileNode directory) {
+    public Source(Type type, FileNode directory) {
+        this.type = type;
         this.directory = directory;
     }
 

@@ -24,11 +24,14 @@ public class App {
     /** assiciated stage on the server */
     public final Reference reference;
 
+    public final Source.Type type;
+
     /** path (possibly with wildcards) that is applied to locate the war file */
     public final String path;
 
-    public App(Reference reference, String path) {
+    public App(Reference reference, Source.Type type, String path) {
         this.reference = reference;
+        this.type = type;
         this.path = path;
     }
 

@@ -73,7 +73,9 @@ public class Create extends ProjectCommand {
         Project projectOpt;
         List<? extends Source> wars;
         Map<FileNode, String> map;
+        Source.Type type;
 
+        type = Source.Type.WAR;
         projectOpt = lookupProject(directory);
         if (projectOpt != null) { // TODO: feels weired
             throw new ArgumentException("project already has a stage; detach it first");
@@ -86,7 +88,7 @@ public class Create extends ProjectCommand {
         try {
             map = new HashMap<>();
             if (Source.hasSubst(stage)) {
-                wars = WarSource.findAndCheck(Source.Type.WAR, pathOpt != null ? pathOpt : directory, stage);
+                wars = WarSource.findAndCheck(type, pathOpt != null ? pathOpt : directory, stage);
                 for (Source war : wars) {
                     map.put(war.directory, war.subst(stage));
                 }
@@ -94,7 +96,7 @@ public class Create extends ProjectCommand {
                 map.put(pathOpt != null ? pathOpt : directory, stage);
             }
             for (Map.Entry<FileNode, String> entry : map.entrySet()) {
-                add(projectOpt, entry.getKey().getRelative(directory), entry.getValue());
+                add(projectOpt, type, entry.getKey().getRelative(directory), entry.getValue());
             }
             if (projectOpt != null) {
                 projectOpt.save();
@@ -111,7 +113,7 @@ public class Create extends ProjectCommand {
         }
     }
 
-    private void add(Project projectOpt, String appPath, String name) throws IOException {
+    private void add(Project projectOpt, Source.Type type, String appPath, String name) throws IOException {
         Client client;
         Reference reference;
 
@@ -131,7 +133,7 @@ public class Create extends ProjectCommand {
         }
         if (projectOpt != null) {
             try {
-                projectOpt.add(new App(reference, appPath));
+                projectOpt.add(new App(reference, type, appPath));
             } catch (IOException e) {
                 throw new IOException("failed to attach stage: " + e.getMessage(), e);
             }
