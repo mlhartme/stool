@@ -57,7 +57,7 @@ public class WarSource extends Source {
     private static void addWars(FileNode directory, List<WarSource> result) throws IOException {
         WarSource war;
 
-        war = warMatcher(directory);
+        war = createOpt(directory);
         if (war != null) {
             result.add(war);
         } else {
@@ -69,7 +69,7 @@ public class WarSource extends Source {
         }
     }
 
-    public static WarSource warMatcher(FileNode directory) throws IOException {
+    public static WarSource createOpt(FileNode directory) throws IOException {
         List<FileNode> lst;
 
         if (!directory.join("pom.xml").isFile()) {

@@ -75,10 +75,7 @@ public class Build extends ProjectCommand {
         }
         try (Daemon engine = Daemon.create()) {
             for (App app : apps) {
-                source = app.locate(directory);
-                if (source == null) {
-                    throw new IOException(app.reference.stage + ": no war found in " + app.path);
-                }
+                source = app.source(directory);
                 source.build(globals, comment, keep, noCache, engine, app.reference, project.getOriginOrUnknown(), explicitArguments);
                 if (restart) {
                     new Restart(globals, null).doRun(app.reference);

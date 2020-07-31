@@ -35,7 +35,19 @@ public class App {
         this.path = path;
     }
 
-    public Source locate(FileNode directory) throws IOException {
-        return WarSource.warMatcher(directory.join(path));
+    public Source source(FileNode directory) throws IOException {
+        Source result;
+
+        switch (type) {
+            case WAR:
+                result = WarSource.createOpt(directory.join(path));
+                if (result == null) {
+                    throw new IOException("no war found in " + path);
+                }
+                break;
+            default:
+                throw new IllegalStateException(type.toString());
+        }
+        return result;
     }
 }
