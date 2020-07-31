@@ -33,6 +33,6 @@ public class App {
     }
 
     public Source locate(FileNode directory) throws IOException {
-        return Source.warMatcher(directory.join(path));
+        return WarSource.warMatcher(directory.join(path));
     }
 }
