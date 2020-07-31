@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Source;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.Map;
@@ -44,9 +45,9 @@ public class Attach extends ProjectCommand {
             project = Project.create(directory);
         }
 
-        wars = Project.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
+        wars = Source.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
         for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
-            name = Project.subst(stage, entry.getValue());
+            name = Source.subst(stage, entry.getValue());
             project.add(new App(reference(name), entry.getKey().getRelative(directory)));
         }
         project.save();

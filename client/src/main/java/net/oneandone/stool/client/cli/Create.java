@@ -21,6 +21,7 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.Source;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -83,10 +84,10 @@ public class Create extends ProjectCommand {
         }
         try {
             map = new HashMap<>();
-            if (Project.hasSubst(stage)) {
-                wars = Project.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
+            if (Source.hasSubst(stage)) {
+                wars = Source.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
                 for (Map.Entry<FileNode, FileNode> entry : wars.entrySet()) {
-                    map.put(entry.getKey(), Project.subst(stage, entry.getValue()));
+                    map.put(entry.getKey(), Source.subst(stage, entry.getValue()));
                 }
             } else {
                 map.put(pathOpt != null ? pathOpt : directory, stage);

@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.Source;
 import net.oneandone.stool.docker.BuildArgument;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Daemon;
@@ -84,7 +85,7 @@ public class Build extends ProjectCommand {
         }
         try (Daemon engine = Daemon.create()) {
             for (App app : apps) {
-                war = Project.warMatcher(directory.join(app.path));
+                war = Source.warMatcher(directory.join(app.path));
                 if (war == null) {
                     throw new IOException(app.reference.stage + ": no war found in " + app.path);
                 }
