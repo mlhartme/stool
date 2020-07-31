@@ -17,23 +17,13 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Source;
-import net.oneandone.stool.docker.BuildArgument;
-import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +63,7 @@ public class Build extends ProjectCommand {
     public void doRun(FileNode directory) throws Exception {
         Project project;
         List<App> apps;
-        Source war;
+        Source source;
 
         project = lookupProject(directory);
         if (project == null) {
@@ -85,280 +75,13 @@ public class Build extends ProjectCommand {
         }
         try (Daemon engine = Daemon.create()) {
             for (App app : apps) {
-                war = Source.warMatcher(directory.join(app.path));
-                if (war == null) {
+                source = Source.warMatcher(directory.join(app.path));
+                if (source == null) {
                     throw new IOException(app.reference.stage + ": no war found in " + app.path);
                 }
-                build(engine, app.reference, war.war, project.getOriginOrUnknown(), createdOn(), war.arguments(explicitArguments));
+                source.build(globals, comment, keep, noCache, engine, app.reference, project.getOriginOrUnknown(), explicitArguments);
                 if (restart) {
                     new Restart(globals, null).doRun(app.reference);
-                }
-            }
-        }
-    }
-
-    private static String createdOn() {
-        try {
-            return System.getProperty("user.name") + '@' + InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            return "unknown host: " + e.getMessage();
-        }
-    }
-
-    //--
-
-    private String build(Daemon engine, Reference reference, FileNode war, String originScm, String originUser, Map<String, String> arguments)
-            throws Exception {
-        long started;
-        String registryPrefix;
-        int tag;
-        String image;
-        String repositoryTag;
-        FileNode context;
-        Map<String, String> labels;
-        FileNode template;
-        Map<String, BuildArgument> defaults;
-        Map<String, String> buildArgs;
-        StringWriter output;
-        String str;
-
-        started = System.currentTimeMillis();
-        console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
-        registryPrefix = globals.configuration().registryPrefix() + reference.client.getContext() + "/";
-        template = template(arguments);
-        tag = wipeOldImages(engine, registryPrefix, reference.stage);
-        context = createContext(reference.stage, war);  // this is where concurrent builds are blocked
-        try {
-            repositoryTag = registryPrefix + reference.stage + ":" + tag;
-            defaults = BuildArgument.scan(template.join("Dockerfile"));
-            buildArgs = buildArgs(defaults, arguments);
-            populateContext(context, template);
-            labels = new HashMap<>();
-            labels.put(ImageInfo.IMAGE_LABEL_COMMENT, comment);
-            labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_SCM, originScm);
-            labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_USER, originUser);
-            for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
-                labels.put(ImageInfo.IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
-            }
-            console.verbose.println("building context " + context.getAbsolute());
-            output = new StringWriter();
-            try {
-                image = engine.imageBuild(repositoryTag, buildArgs, labels, context, noCache, output);
-            } catch (BuildError e) {
-                console.info.println("build failed: " + e.error);
-                console.info.println("build output:");
-                console.info.println(e.output);
-                throw new ArgumentException("build failed");
-            } finally {
-                output.close();
-            }
-            str = output.toString();
-            console.verbose.println("successfully built image: " + image);
-            console.verbose.println(str);
-            console.verbose.println("pushing ...");
-            console.info.println(engine.imagePush(repositoryTag));
-            console.verbose.println("done");
-            console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
-        } finally {
-            cleanupContext(Integer.toString(tag), keep);
-        }
-        return repositoryTag;
-    }
-
-
-    /** @return next version */
-    public int wipeOldImages(Daemon docker, String registryPrefix, String name) throws IOException {
-        Map<String, ImageInfo> images;
-
-        int count;
-        int result;
-        List<String> sorted;
-        String remove;
-
-        images = repositoryTags(registryPrefix, name, docker.imageList());
-        result = nextTag(images.keySet());
-        sorted = new ArrayList<>(images.keySet());
-        Collections.sort(sorted);
-
-        count = sorted.size() - keep;
-        while (count > 0 && !sorted.isEmpty()) {
-            remove = sorted.remove(0);
-            if (!hasContainer(docker, remove)) {
-                console.info.println("remove image: " + remove);
-                docker.imageRemove(remove, false);
-                count--;
-            } else {
-                console.verbose.println("cannot remove image, because it's still in use: " + remove);
-            }
-        }
-        return result;
-    }
-
-    private boolean hasContainer(Daemon engine, String repoTag) throws IOException {
-        return engine.containerListForImage(repoTag).size() > 0;
-    }
-
-    public static String tag(String repositoryTag) {
-        String result;
-        int idx;
-
-        result = repositoryTag;
-        idx = result.lastIndexOf(':');
-        if (idx == -1) {
-            throw new IllegalArgumentException(result);
-        }
-        return result.substring(idx + 1);
-    }
-
-    public static int nextTag(Collection<String> repositoryTags) {
-        String tag;
-        int number;
-        int max;
-
-        max = 0;
-        for (String repoTag : repositoryTags) {
-            tag = tag(repoTag);
-            try {
-                number = Integer.parseInt(tag);
-                if (number > max) {
-                    max = number;
-                }
-            } catch (NumberFormatException e) {
-                // fall through
-            }
-        }
-        return max + 1;
-    }
-
-    public Map<String, ImageInfo> repositoryTags(String registryPrefix, String name, Map<String, ImageInfo> imageMap) {
-        Map<String, ImageInfo> result;
-        ImageInfo info;
-
-        result = new HashMap<>();
-        for (Map.Entry<String, ImageInfo> entry : imageMap.entrySet()) {
-            info = entry.getValue();
-            for (String repositoryTag : info.repositoryTags) {
-                if (repositoryTag.startsWith(registryPrefix + name + ":")) {
-                    result.put(repositoryTag, info);
-                }
-            }
-        }
-        return result;
-    }
-
-
-    private void populateContext(FileNode context, FileNode src) throws IOException {
-        FileNode destparent;
-        FileNode destfile;
-
-        for (FileNode srcfile : src.find("**/*")) {
-            if (srcfile.isDirectory()) {
-                continue;
-            }
-            destfile = context.join(srcfile.getRelative(src));
-            destparent = destfile.getParent();
-            destparent.mkdirsOpt();
-            srcfile.copy(destfile);
-        }
-    }
-
-    private FileNode template(Map<String, String> arguments) throws IOException {
-        return globals.templates().join(eat(arguments, "_template", "war")).checkDirectory();
-    }
-
-    private String eat(Map<String, String> arguments, String key, String dflt) {
-        String explicitValue;
-
-        explicitValue = arguments.remove(key);
-        return explicitValue != null ? explicitValue : dflt;
-    }
-
-    private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Map<String, String> arguments) {
-        Map<String, String> result;
-        String property;
-
-        result = new HashMap<>();
-        for (BuildArgument arg : defaults.values()) {
-            result.put(arg.name, arg.dflt);
-        }
-        for (Map.Entry<String, String> entry : arguments.entrySet()) {
-            property = entry.getKey();
-            if (!result.containsKey(property)) {
-                throw new ArgumentException("unknown explicit build argument: " + property + "\n" + available(defaults.values()));
-            }
-            result.put(property, entry.getValue());
-        }
-        return result;
-    }
-
-    private static String available(Collection<BuildArgument> args) {
-        StringBuilder result;
-
-        result = new StringBuilder();
-        result.append("(available build arguments:");
-        for (BuildArgument arg : args) {
-            result.append(' ');
-            result.append(arg.name);
-        }
-        result.append(")\n");
-        return result.toString();
-    }
-
-    //--
-
-    public FileNode createContext(String name, FileNode war) throws IOException {
-        FileNode result;
-
-        /* TODO
-        result = globals.contexts().join("context").mkdirOpt().join("_");
-        try {
-            result.mkdir();
-        } catch (MkdirException e) {
-            throw new ArgumentException("another build for stage " + name + " is in progress, try again later");
-        }
-        */
-        result = war.getWorld().getTemp().createTempDirectory(); // TODO
-        war.copyFile(result.join("app.war"));
-        return result;
-    }
-
-    public void cleanupContext(String tag, int keepNo) throws IOException {
-        FileNode dir;
-        List<FileNode> lst;
-        FileNode dest;
-
-        /* TODO
-        dir = globals.contexts().join("context");
-        dest = dir.join(tag);
-        moveAway(dest);
-        dir.join("_").move(dest);
-        lst = dir.list();
-        Collections.sort(lst, new Comparator<FileNode>() {
-            @Override
-            public int compare(FileNode left, FileNode right) {
-                try {
-                    return (int) (left.getLastModified() - right.getLastModified());
-                } catch (GetLastModifiedException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        });
-        while (lst.size() > keep) {
-            lst.remove(0).deleteTree();
-        }
-         */
-    }
-
-    private void moveAway(FileNode file) throws IOException {
-        int no;
-        FileNode away;
-
-        if (file.exists()) {
-            for (no = 1; true; no++) {
-                away = file.getParent().join(file.getName() + "_" + no);
-                if (!away.exists()) {
-                    file.move(away);
-                    return;
                 }
             }
         }
