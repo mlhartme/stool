@@ -30,10 +30,6 @@ public class Source {
         return name.contains(SUBST);
     }
 
-    public static String subst(String name, FileNode war) throws IOException {
-        return name.replace(SUBST, App.app(war));
-    }
-
     public static List<Source> findWarsAndCheck(FileNode directory, String stage) throws IOException {
         List<Source> wars;
 
@@ -97,5 +93,16 @@ public class Source {
     public Source(FileNode directory, FileNode war) {
         this.directory = directory;
         this.war = war;
+    }
+
+    public String subst(String name) throws IOException {
+        return name.replace(SUBST, app(war));
+    }
+
+    public static String app(FileNode war) throws IOException {
+        String result;
+
+        result = App.properties(war).get(App.APP_ARGUMENT);
+        return result == null ? "app": result;
     }
 }

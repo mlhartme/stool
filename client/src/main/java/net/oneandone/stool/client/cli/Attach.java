@@ -47,7 +47,7 @@ public class Attach extends ProjectCommand {
 
         wars = Source.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
         for (Source war : wars) {
-            name = Source.subst(stage, war.war);
+            name = war.subst(stage);
             project.add(new App(reference(name), war.directory.getRelative(directory)));
         }
         project.save();

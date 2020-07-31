@@ -31,7 +31,7 @@ public class App {
     public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/pominfo.properties";
     public static final String PROPERTIES_PREFIX = "stool.";
 
-    private static final String APP_ARGUMENT = "_app";
+    public static final String APP_ARGUMENT = "_app";
 
     /** assiciated stage on the server */
     public final Reference reference;
@@ -42,13 +42,6 @@ public class App {
     public App(Reference reference, String path) {
         this.reference = reference;
         this.path = path;
-    }
-
-    public static String app(FileNode war) throws IOException {
-        String result;
-
-        result = properties(war).get(APP_ARGUMENT);
-        return result == null ? "app": result;
     }
 
     public static Map<String, String> properties(FileNode war) throws IOException {

@@ -87,7 +87,7 @@ public class Create extends ProjectCommand {
             if (Source.hasSubst(stage)) {
                 wars = Source.findWarsAndCheck(pathOpt != null ? pathOpt : directory, stage);
                 for (Source war : wars) {
-                    map.put(war.directory, Source.subst(stage, war.war));
+                    map.put(war.directory, war.subst(stage));
                 }
             } else {
                 map.put(pathOpt != null ? pathOpt : directory, stage);
