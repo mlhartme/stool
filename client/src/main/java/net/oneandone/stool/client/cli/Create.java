@@ -33,47 +33,74 @@ import java.util.Map;
 public class Create extends ProjectCommand {
     private final boolean optional;
     private final boolean detached;
-    private final Source.Type type;
-    private final FileNode pathOpt;
+    private final Map<String, Source.Type> paths;
     private final String stage;
     private final Map<String, String> config;
 
-    public Create(Globals globals, boolean optional, boolean detached, Source.Type type, FileNode pathOpt, String stage, List<String> args) {
+    public Create(Globals globals, boolean optional, boolean detached, List<String> args) {
         super(globals);
 
         this.optional = optional;
         this.detached = detached;
-        this.type = type;
-        this.pathOpt = pathOpt;
-        this.stage = stage;
+        this.paths = new LinkedHashMap<>();
         this.config = new LinkedHashMap<>();
-        for (String arg : args) {
-            property(arg);
+        eatProperties(args);
+        if (args.isEmpty()) {
+            throw new ArgumentException("missing name argument");
+        }
+        this.stage = args.remove(args.size() - 1);
+        eatPaths(args);
+    }
+
+    private void eatPaths(List<String> args) {
+        int idx;
+        Source.Type type;
+
+        if (args.isEmpty()) {
+            paths.put("", Source.Type.WAR);
+        } else {
+            for (String arg : args) {
+                idx = arg.indexOf('@');
+                if (idx == -1) {
+                    type = Source.Type.WAR;
+                } else {
+                    type = Source.Type.valueOf(arg.substring(0, idx).toUpperCase());
+                    arg = arg.substring(idx + 1);
+                }
+                if (paths.put(arg, type) != null) {
+                    throw new ArgumentException("duplicate path: " + arg);
+                }
+            }
         }
     }
 
-    private void property(String str) {
+    private void eatProperties(List<String> args) {
         int idx;
+        String arg;
         String key;
         String value;
 
-        idx = str.indexOf('=');
-        if (idx == -1) {
-            throw new ArgumentException("Invalid configuration argument. Expected <key>=<value>, got " + str);
-        }
-        key = str.substring(0, idx);
-        value = str.substring(idx + 1);
-        if (config.put(key, value) != null) {
-            throw new ArgumentException("already configured: " + key);
+        for (int i = args.size() - 1; i >= 0; i++) {
+            arg = args.get(i);
+            idx = arg.indexOf('=');
+            if (idx == -1) {
+                break;
+            }
+            key = arg.substring(0, idx);
+            value = arg.substring(idx + 1);
+            if (config.put(key, value) != null) {
+                throw new ArgumentException("already configured: " + key);
+            }
+            args.remove(i);
         }
     }
 
     @Override
     public void doRun(FileNode directory) throws IOException {
         Project projectOpt;
-        List<? extends Source> sources;
         Map<Source, String> map;
         String name;
+        String path;
 
         projectOpt = lookupProject(directory);
         if (projectOpt != null) { // TODO: feels weired
@@ -86,12 +113,18 @@ public class Create extends ProjectCommand {
         }
         try {
             map = new HashMap<>();
-            for (Source source : Source.findAndCheck(type, pathOpt != null ? pathOpt : directory, stage)) {
-                name = source.subst(stage);
-                if (map.values().contains(name)) {
-                    throw new ArgumentException("duplicate name: " + name);
+            for (Map.Entry<String, Source.Type> entry : paths.entrySet()) {
+                path = entry.getKey();
+                for (Source source : Source.findAndCheck(entry.getValue(), path.isEmpty() ? directory : world.file(path), stage)) {
+                    name = source.subst(stage);
+                    if (map.values().contains(name)) {
+                        throw new ArgumentException("duplicate name: " + name); // TODO: improved message
+                    }
+                    map.put(source, name);
                 }
-                map.put(source, name);
+            }
+            if (map.isEmpty()) {
+                throw new ArgumentException("no sources found");
             }
             for (Map.Entry<Source, String> entry : map.entrySet()) {
                 add(projectOpt, entry.getKey(), entry.getValue());

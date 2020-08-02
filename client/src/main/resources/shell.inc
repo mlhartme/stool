@@ -19,7 +19,7 @@ __scStageIndicator() {
       local ctx="$(grep 'currentContext:' ${HOME}/.stool.yaml | cut -d \" -f 2)"
       local id="$(grep "stages:" -A 100 "${project}/.backstage/project.yaml" | grep "^ " | sed -e "s/^ *//g" -e 's/\(.*\):.*/\1/' -e "s/@${ctx}$//" | tr '\n' ' ')"
       id=${id%?}
-      echo -n "[${id}] "
+      echo -n ">${id}< "
       return
   else
     # no projects at all -> no indicator
