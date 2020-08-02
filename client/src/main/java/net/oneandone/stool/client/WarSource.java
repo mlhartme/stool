@@ -117,7 +117,7 @@ public class WarSource extends Source {
 
     public String toString() {
         try {
-            return war + " (" + (war.size() / (1024 * 1024)) + " mb)";
+            return "war " + war + " (" + (war.size() / (1024 * 1024)) + " mb)";
         } catch (SizeException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }

@@ -71,6 +71,6 @@ public class DockerSource extends Source {
     }
 
     public String toString() {
-        return "Docker " + directory.toString();
+        return "context " + directory.toString();
     }
 }
