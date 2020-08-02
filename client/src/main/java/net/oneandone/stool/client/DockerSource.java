@@ -19,7 +19,6 @@ import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,8 +59,8 @@ public class DockerSource extends Source {
         super(Type.DOCKER, directory);
     }
 
-    public String subst(String name) throws IOException {
-        throw new UnknownHostException("TODO");
+    public String app() {
+        return directory.getName();
     }
 
     public Map<String, String> implicitArguments() {

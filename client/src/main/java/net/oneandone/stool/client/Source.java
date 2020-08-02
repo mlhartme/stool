@@ -71,7 +71,11 @@ public abstract class Source {
         this.directory = directory;
     }
 
-    public abstract String subst(String name) throws IOException;
+    public String subst(String name) throws IOException {
+        return name.replace(SUBST, app());
+    }
+
+    public abstract String app() throws IOException;
 
     /** determin implicit arguments and merge them with explicit ones */
     public abstract Map<String, String> implicitArguments() throws IOException;

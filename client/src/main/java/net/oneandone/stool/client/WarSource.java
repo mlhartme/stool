@@ -95,10 +95,6 @@ public class WarSource extends Source {
         this.war = war;
     }
 
-    public String subst(String name) throws IOException {
-        return name.replace(SUBST, app());
-    }
-
     public String app() throws IOException {
         String result;
 
