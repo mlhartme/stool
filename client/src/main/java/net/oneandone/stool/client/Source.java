@@ -16,10 +16,21 @@
 package net.oneandone.stool.client;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
+import net.oneandone.stool.docker.BuildArgument;
+import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,12 +86,210 @@ public abstract class Source {
         return name.replace(SUBST, app());
     }
 
+    /** @return name of the app */
     public abstract String app() throws IOException;
 
     /** determin implicit arguments and merge them with explicit ones */
     public abstract Map<String, String> implicitArguments() throws IOException;
 
-    public abstract String build(Globals globals, Daemon daemon, Reference reference,
-                                 String comment, int keep, boolean noCache, String originScm, Map<String, String> explicitArguments)
-            throws Exception;
+    public abstract FileNode createContext(Globals globals, Map<String, String> arguments) throws IOException;
+
+    //--
+
+    public String build(Globals globals, Daemon daemon, Reference reference,
+                        String comment, int keep, boolean noCache, String originScm, Map<String, String> explicitArguments)
+            throws Exception {
+        Console console;
+        long started;
+        String registryPrefix;
+        int tag;
+        String repositoryTag;
+
+        started = System.currentTimeMillis();
+        console = globals.getConsole();
+        console.info.println("building image for " + toString());
+        registryPrefix = globals.configuration().registryPrefix() + reference.client.getContext() + "/";
+        tag = wipeOldImages(console, daemon, registryPrefix, reference.stage, keep);
+        repositoryTag = registryPrefix + reference.stage + ":" + tag;
+
+        doBuild(globals, daemon, repositoryTag, comment, noCache, originScm, explicitArguments);
+
+        console.verbose.println("pushing ...");
+        console.info.println(daemon.imagePush(repositoryTag));
+        console.verbose.println("done");
+        console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
+        return repositoryTag;
+    }
+
+    private void doBuild(Globals globals, Daemon engine, String repositoryTag,
+                         String comment, boolean noCache, String originScm, Map<String, String> explicitArguments) throws IOException {
+        Console console;
+        String str;
+        Map<String, String> arguments;
+        Map<String, String> buildArgs;
+        FileNode context;
+        StringWriter output;
+        String image;
+
+        arguments = implicitArguments();
+        arguments.putAll(explicitArguments);
+
+        context = createContext(globals, arguments);
+        buildArgs = buildArgs(BuildArgument.scan(context.join("Dockerfile")), arguments);
+        output = new StringWriter();
+        console = globals.getConsole();
+        try {
+            image = engine.imageBuild(repositoryTag, buildArgs,
+                    getLabels(comment, originScm, buildArgs), context, noCache, output);
+        } catch (BuildError e) {
+            console.info.println("build failed: " + e.error);
+            console.info.println("build output:");
+            console.info.println(e.output);
+            throw new ArgumentException("build failed");
+        } finally {
+            output.close();
+        }
+        str = output.toString();
+        console.verbose.println("successfully built image: " + image);
+        console.verbose.println(str);
+    }
+
+    private Map<String, String> getLabels(String comment, String originScm, Map<String, String> buildArgs) {
+        Map<String, String> labels;
+
+        labels = new HashMap<>();
+        labels.put(ImageInfo.IMAGE_LABEL_COMMENT, comment);
+        labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_SCM, originScm);
+        labels.put(ImageInfo.IMAGE_LABEL_ORIGIN_USER, originUser());
+        for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
+            labels.put(ImageInfo.IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
+        }
+        return labels;
+    }
+
+    private static String originUser() {
+        try {
+            return System.getProperty("user.name") + '@' + InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            return "unknown host: " + e.getMessage();
+        }
+    }
+
+    /** @return next version */
+    public int wipeOldImages(Console console, Daemon docker, String registryPrefix, String name, int keep) throws IOException {
+        Map<String, ImageInfo> images;
+
+        int count;
+        int result;
+        List<String> sorted;
+        String remove;
+
+        images = repositoryTags(registryPrefix, name, docker.imageList());
+        result = nextTag(images.keySet());
+        sorted = new ArrayList<>(images.keySet());
+        Collections.sort(sorted);
+
+        count = sorted.size() - keep;
+        while (count > 0 && !sorted.isEmpty()) {
+            remove = sorted.remove(0);
+            if (!hasContainer(docker, remove)) {
+                console.info.println("remove image: " + remove);
+                docker.imageRemove(remove, false);
+                count--;
+            } else {
+                console.verbose.println("cannot remove image, because it's still in use: " + remove);
+            }
+        }
+        return result;
+    }
+
+    private boolean hasContainer(Daemon engine, String repoTag) throws IOException {
+        return engine.containerListForImage(repoTag).size() > 0;
+    }
+
+    public static String tag(String repositoryTag) {
+        String result;
+        int idx;
+
+        result = repositoryTag;
+        idx = result.lastIndexOf(':');
+        if (idx == -1) {
+            throw new IllegalArgumentException(result);
+        }
+        return result.substring(idx + 1);
+    }
+
+    public static int nextTag(Collection<String> repositoryTags) {
+        String tag;
+        int number;
+        int max;
+
+        max = 0;
+        for (String repoTag : repositoryTags) {
+            tag = tag(repoTag);
+            try {
+                number = Integer.parseInt(tag);
+                if (number > max) {
+                    max = number;
+                }
+            } catch (NumberFormatException e) {
+                // fall through
+            }
+        }
+        return max + 1;
+    }
+
+    public Map<String, ImageInfo> repositoryTags(String registryPrefix, String name, Map<String, ImageInfo> imageMap) {
+        Map<String, ImageInfo> result;
+        ImageInfo info;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, ImageInfo> entry : imageMap.entrySet()) {
+            info = entry.getValue();
+            for (String repositoryTag : info.repositoryTags) {
+                if (repositoryTag.startsWith(registryPrefix + name + ":")) {
+                    result.put(repositoryTag, info);
+                }
+            }
+        }
+        return result;
+    }
+
+    protected String eat(Map<String, String> arguments, String key, String dflt) {
+        String explicitValue;
+
+        explicitValue = arguments.remove(key);
+        return explicitValue != null ? explicitValue : dflt;
+    }
+
+    private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Map<String, String> arguments) {
+        Map<String, String> result;
+        String property;
+
+        result = new HashMap<>();
+        for (BuildArgument arg : defaults.values()) {
+            result.put(arg.name, arg.dflt);
+        }
+        for (Map.Entry<String, String> entry : arguments.entrySet()) {
+            property = entry.getKey();
+            if (!result.containsKey(property)) {
+                throw new ArgumentException("unknown explicit build argument: " + property + "\n" + available(defaults.values()));
+            }
+            result.put(property, entry.getValue());
+        }
+        return result;
+    }
+
+    private static String available(Collection<BuildArgument> args) {
+        StringBuilder result;
+
+        result = new StringBuilder();
+        result.append("(available build arguments:");
+        for (BuildArgument arg : args) {
+            result.append(' ');
+            result.append(arg.name);
+        }
+        result.append(")\n");
+        return result.toString();
+    }
 }

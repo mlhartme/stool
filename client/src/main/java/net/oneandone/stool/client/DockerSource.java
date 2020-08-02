@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.client;
 
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -67,8 +66,11 @@ public class DockerSource extends Source {
         return new HashMap<>();
     }
 
-    public String build(Globals globals, Daemon daemon, Reference reference,
-                        String comment, int keep, boolean noCache, String originScm, Map<String, String> explicitArguments) {
-        throw new UnsupportedOperationException("TODO");
+    public FileNode createContext(Globals globals, Map<String, String> arguments) {
+        return directory;
+    }
+
+    public String toString() {
+        return "Docker " + directory.toString();
     }
 }
