@@ -160,7 +160,9 @@ public class WarSource extends Source {
         registryPrefix = globals.configuration().registryPrefix() + reference.client.getContext() + "/";
         tag = wipeOldImages(console, daemon, registryPrefix, reference.stage, keep);
         repositoryTag = registryPrefix + reference.stage + ":" + tag;
+
         doBuild(globals, daemon, repositoryTag, comment, noCache, originScm, explicitArguments);
+
         console.verbose.println("pushing ...");
         console.info.println(daemon.imagePush(repositoryTag));
         console.verbose.println("done");
@@ -171,24 +173,21 @@ public class WarSource extends Source {
     private void doBuild(Globals globals, Daemon engine, String repositoryTag,
                          String comment, boolean noCache, String originScm, Map<String, String> explicitArguments) throws IOException {
         Console console;
-        FileNode template;
         String str;
         Map<String, String> arguments;
         Map<String, String> buildArgs;
-        Map<String, BuildArgument> defaults;
         FileNode context;
         StringWriter output;
         String image;
 
-        console = globals.getConsole();
         arguments = arguments(explicitArguments);
-        template = template(globals, arguments);
-        defaults = BuildArgument.scan(template.join("Dockerfile"));
-        buildArgs = buildArgs(defaults, arguments);
-        context = createContext(template);
+        context = createContext(template(globals, arguments));
+        buildArgs = buildArgs(BuildArgument.scan(context.join("Dockerfile")), arguments);
         output = new StringWriter();
+        console = globals.getConsole();
         try {
-            image = engine.imageBuild(repositoryTag, buildArgs, getLabels(comment, originScm, buildArgs), context, noCache, output);
+            image = engine.imageBuild(repositoryTag, buildArgs,
+                    getLabels(comment, originScm, buildArgs), context, noCache, output);
         } catch (BuildError e) {
             console.info.println("build failed: " + e.error);
             console.info.println("build output:");

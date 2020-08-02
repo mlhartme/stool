@@ -21,6 +21,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +62,10 @@ public class DockerSource extends Source {
 
     public String subst(String name) throws IOException {
         throw new UnknownHostException("TODO");
+    }
+
+    public Map<String, String> arguments(Map<String, String> explicitArguments) {
+        return new HashMap<>(explicitArguments);
     }
 
     public String build(Globals globals, Daemon daemon, Reference reference,

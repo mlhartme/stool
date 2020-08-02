@@ -73,6 +73,9 @@ public abstract class Source {
 
     public abstract String subst(String name) throws IOException;
 
+    /** determin implicit arguments and merge them with explicit ones */
+    public abstract Map<String, String> arguments(Map<String, String> explicit) throws IOException;
+
     public abstract String build(Globals globals, Daemon daemon, Reference reference,
                                  String comment, int keep, boolean noCache, String originScm, Map<String, String> explicitArguments)
             throws Exception;
