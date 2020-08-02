@@ -36,24 +36,24 @@ import java.util.Map;
 /** List of Apps. Represents .backstage */
 public class Project {
     public static Project create(FileNode project) throws IOException {
-        FileNode backstage;
+        FileNode projectYaml;
         Project result;
 
-        backstage = backstage(project);
-        backstage.getParent().checkNotExists();
-        backstage.checkNotExists();
-        result = new Project(backstage);
+        projectYaml = projectYaml(project);
+        projectYaml.getParent().checkNotExists();
+        projectYaml.checkNotExists();
+        result = new Project(projectYaml);
         return result;
     }
 
     public static Project lookup(FileNode dir, Configuration configuration) throws IOException {
-        FileNode backstage;
+        FileNode projectYaml;
         Project result;
 
         while (dir != null) {
-            backstage = backstage(dir);
-            if (backstage.isFile()) {
-                result = new Project(backstage);
+            projectYaml = projectYaml(dir);
+            if (projectYaml.isFile()) {
+                result = new Project(projectYaml);
                 result.load(configuration);
                 return result;
             }
@@ -66,7 +66,7 @@ public class Project {
      * The backstage name is legacy - I keep it because applications have it in their .gitignores.
      * I create a directory to store the actual data to co-exist with Stool 5
      */
-    private static FileNode backstage(FileNode project) {
+    private static FileNode projectYaml(FileNode project) {
         return project.join(".backstage/project.yaml");
     }
 
@@ -74,13 +74,13 @@ public class Project {
 
     private final ObjectMapper yaml;
     private final FileNode directory;
-    private final FileNode backstage;
+    private final FileNode projectYaml;
     private final List<App> apps;
 
-    private Project(FileNode backstage) {
+    private Project(FileNode projectYaml) {
         this.yaml = new ObjectMapper(new YAMLFactory());
-        this.directory = backstage.getParent();
-        this.backstage = backstage;
+        this.directory = projectYaml.getParent().getParent();
+        this.projectYaml = projectYaml;
         this.apps = new ArrayList<>();
     }
 
@@ -93,7 +93,7 @@ public class Project {
         String typeAndPath;
         int idx;
 
-        try (Reader src = backstage.newReader()) {
+        try (Reader src = projectYaml.newReader()) {
             root = (ObjectNode) yaml.readTree(src);
         }
         stages = (ObjectNode) root.get("stages");
@@ -119,13 +119,17 @@ public class Project {
         return Collections.unmodifiableList(apps);
     }
 
-    public App lookup(String stage) {
+    public App lookup(String stage) { // TODO: different clients ...
         for (App app : apps) {
             if (stage.equals(app.reference.stage)) {
                 return app;
             }
         }
         return null;
+    }
+
+    public void add(Source source, Reference reference) throws IOException {
+        add(new App(reference, source.type, source.directory.getRelative(directory)));
     }
 
     public void add(App app) throws IOException {
@@ -151,8 +155,8 @@ public class Project {
 
         if (apps.isEmpty()) {
             // prune
-            backstage.deleteFile();
-            backstage.getParent().deleteDirectory();
+            projectYaml.deleteFile();
+            projectYaml.getParent().deleteDirectory();
         } else {
             root = yaml.createObjectNode();
             stages = yaml.createObjectNode();
@@ -160,8 +164,8 @@ public class Project {
                 stages.put(app.reference.toString(), app.type.toString().toLowerCase() + "@" + app.path);
             }
             root.set("stages", stages);
-            backstage.getParent().mkdirOpt();
-            try (Writer dest = backstage.newWriter()) {
+            projectYaml.getParent().mkdirOpt();
+            try (Writer dest = projectYaml.newWriter()) {
                 SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
                 sw.write(root);
             }

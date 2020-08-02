@@ -16,13 +16,11 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Source;
-import net.oneandone.stool.client.WarSource;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -73,8 +71,9 @@ public class Create extends ProjectCommand {
     @Override
     public void doRun(FileNode directory) throws IOException {
         Project projectOpt;
-        List<? extends Source> wars;
-        Map<FileNode, String> map;
+        List<? extends Source> sources;
+        Map<Source, String> map;
+        String name;
 
         projectOpt = lookupProject(directory);
         if (projectOpt != null) { // TODO: feels weired
@@ -87,16 +86,15 @@ public class Create extends ProjectCommand {
         }
         try {
             map = new HashMap<>();
-            if (Source.hasSubst(stage)) {
-                wars = WarSource.findAndCheck(type, pathOpt != null ? pathOpt : directory, stage);
-                for (Source war : wars) {
-                    map.put(war.directory, war.subst(stage));
+            for (Source source : Source.findAndCheck(type, pathOpt != null ? pathOpt : directory, stage)) {
+                name = source.subst(stage);
+                if (map.values().contains(name)) {
+                    throw new ArgumentException("duplicate name: " + name);
                 }
-            } else {
-                map.put(pathOpt != null ? pathOpt : directory, stage);
+                map.put(source, name);
             }
-            for (Map.Entry<FileNode, String> entry : map.entrySet()) {
-                add(projectOpt, entry.getKey().getRelative(directory), entry.getValue());
+            for (Map.Entry<Source, String> entry : map.entrySet()) {
+                add(projectOpt, entry.getKey(), entry.getValue());
             }
             if (projectOpt != null) {
                 projectOpt.save();
@@ -113,7 +111,7 @@ public class Create extends ProjectCommand {
         }
     }
 
-    private void add(Project projectOpt, String appPath, String name) throws IOException {
+    private void add(Project projectOpt, Source source, String name) throws IOException {
         Client client;
         Reference reference;
 
@@ -133,7 +131,7 @@ public class Create extends ProjectCommand {
         }
         if (projectOpt != null) {
             try {
-                projectOpt.add(new App(reference, type, appPath));
+                projectOpt.add(source, reference);
             } catch (IOException e) {
                 throw new IOException("failed to attach stage: " + e.getMessage(), e);
             }
