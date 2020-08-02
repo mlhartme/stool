@@ -41,7 +41,7 @@ public class DockerSource extends Source {
             result.add(docker);
         } else {
             for (FileNode child : directory.list()) {
-                if (child.isDirectory()) {
+                if (child.isDirectory() && !"target".equals(directory.getName())) {
                     doFind(child, result);
                 }
             }
