@@ -50,6 +50,7 @@ public class App {
                 if (result == null) {
                     throw new IOException("no Dockerfile found in " + path);
                 }
+                break;
             default:
                 throw new IllegalStateException(type.toString());
         }
