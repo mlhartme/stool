@@ -89,7 +89,6 @@ public abstract class Source {
     /** @return name of the app */
     public abstract String app() throws IOException;
 
-    /** determin implicit arguments and merge them with explicit ones */
     public abstract Map<String, String> implicitArguments() throws IOException;
 
     public abstract FileNode createContext(Globals globals, Map<String, String> arguments) throws IOException;
@@ -133,7 +132,6 @@ public abstract class Source {
 
         arguments = implicitArguments();
         arguments.putAll(explicitArguments);
-
         context = createContext(globals, arguments);
         buildArgs = buildArgs(BuildArgument.scan(context.join("Dockerfile")), arguments);
         output = new StringWriter();

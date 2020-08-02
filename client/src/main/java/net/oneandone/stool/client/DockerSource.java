@@ -49,7 +49,7 @@ public class DockerSource extends Source {
     }
 
     public static DockerSource createOpt(FileNode directory) {
-        return directory.join("pom.xml").isFile() ? new DockerSource(directory) : null;
+        return directory.join("Dockerfile").isFile() ? new DockerSource(directory) : null;
     }
 
     //--

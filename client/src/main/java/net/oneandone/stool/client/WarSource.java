@@ -85,39 +85,13 @@ public class WarSource extends Source {
         this.war = war;
     }
 
-
-    public Map<String, String> implicitArguments() throws IOException {
-        return new HashMap<>(properties());
-    }
-
-    private Map<String, String> lazyProperties = null;
-    private String lazyApp = null;
-
     public String app() throws IOException {
         properties();
         return lazyApp;
     }
-    private Map<String, String> properties() throws IOException {
-        Node<?> node;
-        Properties all;
 
-        if (lazyProperties == null) {
-            node = war.openZip().join(PROPERTIES_FILE);
-            lazyProperties = new HashMap<>();
-            if (node.exists()) {
-                all = node.readProperties();
-                for (String property : all.stringPropertyNames()) {
-                    if (property.startsWith(PROPERTIES_PREFIX)) {
-                        lazyProperties.put(property.substring(PROPERTIES_PREFIX.length()), all.getProperty(property));
-                    }
-                }
-            }
-            lazyApp = lazyProperties.remove(APP_ARGUMENT);
-            if (lazyApp == null) {
-                lazyApp = "app";
-            }
-        }
-        return lazyProperties;
+    public Map<String, String> implicitArguments() throws IOException {
+        return new HashMap<>(properties());
     }
 
     public FileNode createContext(Globals globals, Map<String, String> arguments) throws IOException {
@@ -147,5 +121,32 @@ public class WarSource extends Source {
         } catch (SizeException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
+    }
+
+    //--
+
+    private Map<String, String> lazyProperties = null;
+    private String lazyApp = null;
+    private Map<String, String> properties() throws IOException {
+        Node<?> node;
+        Properties all;
+
+        if (lazyProperties == null) {
+            node = war.openZip().join(PROPERTIES_FILE);
+            lazyProperties = new HashMap<>();
+            if (node.exists()) {
+                all = node.readProperties();
+                for (String property : all.stringPropertyNames()) {
+                    if (property.startsWith(PROPERTIES_PREFIX)) {
+                        lazyProperties.put(property.substring(PROPERTIES_PREFIX.length()), all.getProperty(property));
+                    }
+                }
+            }
+            lazyApp = lazyProperties.remove(APP_ARGUMENT);
+            if (lazyApp == null) {
+                lazyApp = "app";
+            }
+        }
+        return lazyProperties;
     }
 }
