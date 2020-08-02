@@ -106,31 +106,29 @@ public class WarSource extends Source {
         return result == null ? "app": result;
     }
 
+    public Map<String, String> implicitArguments() throws IOException {
+        return new HashMap<>(properties());
+    }
+
+    private Map<String, String> lazyProperties = null;
+
     public Map<String, String> properties() throws IOException {
         Node<?> node;
         Properties all;
-        Map<String, String> result;
 
-        node = war.openZip().join(PROPERTIES_FILE);
-        result = new HashMap<>();
-        if (node.exists()) {
-            all = node.readProperties();
-            for (String property : all.stringPropertyNames()) {
-                if (property.startsWith(PROPERTIES_PREFIX)) {
-                    result.put(property.substring(PROPERTIES_PREFIX.length()), all.getProperty(property));
+        if (lazyProperties == null) {
+            node = war.openZip().join(PROPERTIES_FILE);
+            lazyProperties = new HashMap<>();
+            if (node.exists()) {
+                all = node.readProperties();
+                for (String property : all.stringPropertyNames()) {
+                    if (property.startsWith(PROPERTIES_PREFIX)) {
+                        lazyProperties.put(property.substring(PROPERTIES_PREFIX.length()), all.getProperty(property));
+                    }
                 }
             }
         }
-        return result;
-    }
-
-    public Map<String, String> arguments(Map<String, String> explicit) throws IOException {
-        Map<String, String> result;
-
-        result = properties();
-        result.putAll(explicit);
-        result.remove(APP_ARGUMENT);
-        return result;
+        return lazyProperties;
     }
 
     //--
@@ -180,8 +178,11 @@ public class WarSource extends Source {
         StringWriter output;
         String image;
 
-        arguments = arguments(explicitArguments);
-        context = createContext(template(globals, arguments));
+        arguments = implicitArguments();
+        arguments.putAll(explicitArguments);
+        arguments.remove(APP_ARGUMENT);
+
+        context = createContext(globals, arguments);
         buildArgs = buildArgs(BuildArgument.scan(context.join("Dockerfile")), arguments);
         output = new StringWriter();
         console = globals.getConsole();
@@ -295,28 +296,25 @@ public class WarSource extends Source {
         return result;
     }
 
-
-    private FileNode createContext(FileNode src) throws IOException {
+    private FileNode createContext(Globals globals, Map<String, String> arguments) throws IOException {
+        FileNode template;
         FileNode context;
         FileNode destparent;
         FileNode destfile;
 
+        template = globals.templates().join(eat(arguments, "_template", "war")).checkDirectory();
         context = war.getWorld().getTemp().createTempDirectory();
         war.copyFile(context.join("app.war"));
-        for (FileNode srcfile : src.find("**/*")) {
+        for (FileNode srcfile : template.find("**/*")) {
             if (srcfile.isDirectory()) {
                 continue;
             }
-            destfile = context.join(srcfile.getRelative(src));
+            destfile = context.join(srcfile.getRelative(template));
             destparent = destfile.getParent();
             destparent.mkdirsOpt();
             srcfile.copy(destfile);
         }
         return context;
-    }
-
-    private FileNode template(Globals globals, Map<String, String> arguments) throws IOException {
-        return globals.templates().join(eat(arguments, "_template", "war")).checkDirectory();
     }
 
     private String eat(Map<String, String> arguments, String key, String dflt) {
