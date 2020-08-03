@@ -20,7 +20,6 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Source;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,7 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ProjectAdd extends ProjectCommand {
+public abstract class ProjectAdd extends ClientCommand {
     private final boolean detached;
     private final Map<String, Source.Type> paths;
     private final String stage;
@@ -68,26 +67,26 @@ public abstract class ProjectAdd extends ProjectCommand {
     }
 
     @Override
-    public void doRun(FileNode directory) throws IOException {
+    public void run() throws IOException {
         Project projectOpt;
         Map<Source, String> map;
         String name;
         String path;
 
-        projectOpt = lookupProject(directory);
+        projectOpt = lookupProject(working);
         if (projectOpt != null) { // TODO: feels weired
             throw new ArgumentException("project already has a stage; detach it first");
         }
         if (detached) {
             projectOpt = null;
         } else {
-            projectOpt = Project.create(directory);
+            projectOpt = Project.create(working);
         }
         try {
             map = new HashMap<>();
             for (Map.Entry<String, Source.Type> entry : paths.entrySet()) {
                 path = entry.getKey();
-                for (Source source : Source.findAndCheck(entry.getValue(), path.isEmpty() ? directory : world.file(path), stage)) {
+                for (Source source : Source.findAndCheck(entry.getValue(), path.isEmpty() ? working : world.file(path), stage)) {
                     name = source.subst(stage);
                     if (map.values().contains(name)) {
                         throw new ArgumentException("duplicate name: " + name); // TODO: improved message
