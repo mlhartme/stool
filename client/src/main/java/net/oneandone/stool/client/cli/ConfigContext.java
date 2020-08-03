@@ -45,7 +45,14 @@ public class ConfigContext {
 
         configuration = globals.configuration();
         if (setOpt == null) {
-            console.info.println(configuration.currentContext().name);
+            if (console.getVerbose()) {
+                for (String name : configuration.contexts.keySet()) {
+                    console.info.print(name.equals(configuration.currentContext().name) ? "=> " : "   ");
+                    console.info.println(name);
+                }
+            } else {
+                console.info.println(configuration.currentContext().name);
+            }
         } else {
             found = configuration.contextLookup(setOpt);
             if (found == null) {
