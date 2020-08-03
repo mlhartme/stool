@@ -78,9 +78,9 @@ public class Main {
                 cli.base(ClientCommand.class, "-working { setWorkingOpt(working) }");
                     cli.add(Create.class, "create -optional -detached args+"); // args: path* name (key=value)*
                     cli.add(Attach.class, "attach args"); // args: path* name
-                    cli.add(Detach.class, "detach stage*");
-                    cli.add(Build.class, "build -nocache -keep=3 -restart -m= args*");
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
+                      cli.add(Detach.class, "detach");
+                      cli.add(Build.class, "build -nocache -keep=3 -restart -m= args*");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=false -max=-1");
                       cli.add(Images.class, "images");

@@ -91,7 +91,7 @@ public class MainIT {
         sc(working,"create", "-e", stage);
         sc(working,"list");
         sc(working,"status", "-stage", stage);
-        sc(working, "detach", stage);
+        sc(working, "detach", "-stage", stage);
         sc(working, "attach", stage);
         sc(working, "validate", "-stage", stage);
         sc(working, "config", "-stage", stage, "comment");

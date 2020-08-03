@@ -158,6 +158,16 @@ public class Project {
         return false;
     }
 
+    public boolean remove(Reference reference) {
+        for (App app : apps) {
+            if (reference.equals(app.reference)) {
+                apps.remove(app);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void save() throws IOException {
         ObjectNode root;
         ObjectNode stages;

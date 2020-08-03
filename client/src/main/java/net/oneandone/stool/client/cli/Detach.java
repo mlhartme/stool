@@ -18,29 +18,25 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
-import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.stool.client.Reference;
 
 import java.io.IOException;
-import java.util.List;
 
-public class Detach extends ProjectCommand {
-    private final List<String> stages;
-
-    public Detach(Globals globals, List<String> stages) {
+public class Detach extends IteratedStageCommand {
+    public Detach(Globals globals) {
         super(globals);
-        this.stages = stages;
     }
 
     @Override
-    public void doRun(FileNode directory) throws IOException {
+    public void doMain(Reference reference) throws Exception {
         Project project;
 
-        project = lookupProject(directory);
+        project = lookupProject(working);
         if (project == null) {
             throw new ArgumentException("no project to detach from");
         }
-        for (String stage : stages) {
-            project.remove(stage);
+        if (!project.remove(reference)) {
+            throw new IOException("stage is not attached: " + reference);
         }
         project.save();
     }
