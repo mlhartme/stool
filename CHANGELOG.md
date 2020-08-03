@@ -2,69 +2,72 @@
 
 ### 6.0.0 (pending)
 
+Stool 6 switches from Docker hosts to Kubernetes: Stool server now talks to kubernetes instead of docker to manage stages.
+
+In addition, stages and apps have been merged: every stages runs exactly one app now. To work with multi module projects,
+the client has been extended to easily create multiple stages for one project.
+
+Client changes
+* simplified configuration, it's all in one `~/.stool.yaml` file now; location is infigurable via `STOOL_YAML` variable,
+  `STOOL_HOME` is no longer supported.
+* renamed Stool client from `stool` to `sc` so Stool 5 and 6 can co-exist
+  * `sc` stands for stool client; I've chosen this name because it's similar to `oc` and the `kc` alias I use)
+  * changed `.backstage` from a json to a directory container a `project.yaml` file. 
 * dumped svn support
-* usable in parallel with older versions of stool
-  * meta
-    * `sc` stands for stool client; I've chosen this name because it's similar to `oc` and the `kc` alias I use
-  * client renamed to `sc`
-  * folder renamed to `~/.sc`
-  * STOOL_HOME replaced by STOOL_YAML
-* run server with Java 14
+* renamed  `remove` to `delete` to follow Kubernetes terminology
+* moved stool build to the client
+* changed stage indicator to `> name <` to distinguish it from stool 5
+* `setup`
+  * moved server setup stuff into a separate `server` command
+  * simpliy creates a `.stool.yaml` file with a list of contexts now; 
+    enabling/disabling contexts is no longer possible, instead, you can configure a current context with
+    the new `context` command.
+* added `context` command to manage a current context; you can now referenes stages without a server name, it's 
+  picked from the current context.
+* `auth` now applied to current context, explicit server argument is gone
+* `create`
+  * checks for wars or docker project and adds all matches to the project
+  * name may explicitly specify the war with =
+* `attach` with optional path
+* `build`, `detach` and `delete` are stage commands now, i.e. you can use the respective options to choose the stages you want
+* `build` dumped war argument
+* `start` dumped http(s) arguments
+* renamed `-project` option to `-working` and made it available for all stage commands, too
+
+* `start` replace appIndex arguments by optional image argument; urls are now named with http and https 
+  instead of the app name with an optional SSL.
+* `restart` replaced appIndex arguments by optional image argument 
+* `stop` dumped apps argument
+* `app` command
+  * dumped app argument
+  * moved all none-image fields to status command
+  * renamed to `images`
+* `ssh` dumped app argument
+* `tunnel` dumped app argument
+
+
+Server changes
 * start server with kubectl, not docker-compose
-* move stool build to the client
-* move docker code into separate docker package that's used in clients and server tests
-* renamed 'remove' to 'delete'
-
-* cert.key and cert.chain labels added (along the existing cert.p12)
-
-* client
-  * promp with angle brackets to distinguish from stool 5
-  * `auth` now applied to current context, explicit server argument is gone
-  * `context` command instead of update-setup
-  * split `setup` into `setup` and `server`
-  * renamed servers.json to client.json
-  * setup: removed namespace argument
-  * backstage is a properties file now, it maps stages to paths
-  * `create`
-    * checks for wars and adds all matches to the project
-    * name may explicitly specify the war with =
-  * `build` dumped war argument  
-  * `attach` with optional path
-  * `detach` with list of stages
-  * `start` dumped http(s) arguments
-  * renamed `-project` option to `-working` and made it available for all stage commands, too
-
-* server
-  * condiguration
-    * dumped `vhosts` switch
-    * dumped `portFirst` and `portLast` 
-  * `start` dumped http(s) arguments
-  * stage container replaced by
-    * pod
-    * http+https service
-    * fault secrets
-    * certificate configMap
-  * updated java-8 base image from 1.0.0 to 1.0.2
-  * changed default port range from 9000...9999 to 31000..31999 
-  * moved APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX into client-side configuration; the server no longer looks
-    into the war file
+* dumped port handling, Kubernetes Proxy does the dispatching
+* run server with Java 14
+* added `certificate.key` and `certificate.chain` labels (along the existing cert.p12) to give containers access to
+  the key and certificate chain
+* condiguration
+  * dumped `vhosts` switch
+  * dumped `portFirst` and `portLast` 
+* `start` dumped http(s) arguments
+* stage container replaced by
+  * pod
+  * http+https service
+  * fault secrets
+  * certificate configMap
+* moved APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX into client-side configuration; the server no longer looks
+  into the war file
 
 --
 
 * one app per stage; the _app argument is now ignored, the app is always called `app`;
   app url no longer contains app name
-  
-* client:
-  * `start` replace appIndex arguments by optional image argument; urls are now named with http and https 
-    instead of the app name with an optional SSL.
-  * `restart` replaced appIndex arguments by optional image argument 
-  * `stop` dumped apps argument
-  * `app` command
-    * dumped app argument
-    * moved all none-image fields to status command
-    * renamed to `images`
-  * `ssh` dumped app argument
-  * `tunnel` dumped app argument
   
 * server
   * `app`
