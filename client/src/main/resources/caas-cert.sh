@@ -35,8 +35,8 @@ else
   echo "DNS.2=*.${certname}" >> ${destdir}/config.cnf
 
   openssl req -new -newkey rsa:2048 -nodes -config ${destdir}/config.cnf -keyout ${destdir}/key.pem -out ${destdir}/csr.pem >${destdir}/createreq.log 2>&1
-  curl --silent --show-error -H "Content-Type: text/plain" --data-binary @csr.pem https://api-next.pki.1and1.org/cpstage -o ${destdir}/cert.pem
+  curl --silent --show-error -H "Content-Type: text/plain" --data-binary @${destdir}/csr.pem https://api-next.pki.1and1.org/cpstage -o ${destdir}/cert.pem
   curl --silent --show-error http://pub.pki.1and1.org/pukiautomatedissuingca2.crt -o ${destdir}/intermediate.pem
-  cat cert.pem intermediate.pem > ${destdir}/chain.pem
+  cat ${destdir}/cert.pem ${destdir}/intermediate.pem > ${destdir}/chain.pem
   openssl pkcs12 -export -in ${destdir}/chain.pem -inkey ${destdir}/key.pem -out ${destdir}/keystore.p12 -name tomcat -passout pass:changeit
 fi

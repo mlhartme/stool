@@ -363,6 +363,8 @@ public class Server {
             broken = dir.getParent().join(dir.getName() + ".broken");
             broken.deleteTreeOpt();
             dir.move(broken);
+            broken.join("error.log").writeString(e.getMessage());
+            throw e;
         }
         return dir;
     }
