@@ -27,8 +27,9 @@ import java.util.Map;
 
 public class TagInfo implements Comparable<TagInfo> {
     public static TagInfo create(String id, String repositoryTag, String tag, String author, LocalDateTime created, Map<String, String> labels) {
-        return new TagInfo(id, repositoryTag, tag, author,
-                Ports.fromDeclaredLabels(labels), labels.get(ImageInfo.IMAGE_LABEL_P12),
+        return new TagInfo(id, repositoryTag, tag, author, Ports.fromDeclaredLabels(labels),
+                labels.get(ImageInfo.IMAGE_LABEL_CERTIFICATE_KEY),
+                labels.get(ImageInfo.IMAGE_LABEL_CERTIFICATE_CHAIN), labels.get(ImageInfo.IMAGE_LABEL_CERTIFICATE_P12),
                 disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
@@ -110,7 +111,9 @@ public class TagInfo implements Comparable<TagInfo> {
 
     public final Ports ports;
 
-    public final String p12;
+    public final String certificateKey;
+    public final String certificateChain;
+    public final String certificateP12;
 
     /** in megabytes */
     public final int disk;
@@ -132,8 +135,9 @@ public class TagInfo implements Comparable<TagInfo> {
     public final List<String> faultProjects;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public TagInfo(String id, String repositoryTag, String tag, String author, Ports ports, String p12, int disk, int memory,
-                   String urlContext, List<String> urlSuffixes, String comment, String originScm, String originUser,
+    public TagInfo(String id, String repositoryTag, String tag, String author, Ports ports,
+                   String certifiacteKey, String certifiacateChain, String certificateP12,
+                   int disk, int memory, String urlContext, List<String> urlSuffixes, String comment, String originScm, String originUser,
                    LocalDateTime createdAt, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
@@ -147,7 +151,9 @@ public class TagInfo implements Comparable<TagInfo> {
         this.author = author;
 
         this.ports = ports;
-        this.p12 = p12;
+        this.certificateKey = certifiacteKey;
+        this.certificateChain = certifiacateChain;
+        this.certificateP12 = certificateP12;
         this.disk = disk;
         this.memory = memory;
         this.urlContext = urlContext;

@@ -14,6 +14,8 @@
 * move docker code into separate docker package that's used in clients and server tests
 * renamed 'remove' to 'delete'
 
+* cert.key and cert.chain labels added (along the existing cert.p12)
+
 * client
   * promp with angle brackets to distinguish from stool 5
   * `auth` now applied to current context, explicit server argument is gone

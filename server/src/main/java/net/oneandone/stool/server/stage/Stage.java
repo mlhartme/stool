@@ -760,21 +760,64 @@ public class Stage {
     }
 
     private Data certMountOpt(TagInfo image) throws IOException {
-        FileNode file;
+        String prefix;
+        FileNode dir;
         Data result;
-        int idx;
 
-        if (image.ports.https == -1 || image.p12 == null) {
+        prefix = prefix(image.certificateP12, image.certificateChain, image.certificateKey);
+        if (image.ports.https == -1 || prefix == null) {
             return null;
         }
-        file = server.certificate(stageHost());
-        idx = image.p12.lastIndexOf('/');
-        if (idx == -1) {
-            throw new IllegalArgumentException(image.p12);
+        if (prefix.isEmpty()) {
+            throw new ArgumentException("no common prefix: "
+                    + image.certificateP12 + " " + image.certificateChain + " " + image.certificateKey);
         }
-        result = Data.configMap(certName(), image.p12.substring(0, idx), true);
-        result.add(image.p12.substring(idx + 1), file.readBytes());
+        prefix = Strings.removeRight(prefix, "/");
+        System.out.println("prefix: " + prefix);
+        dir = server.certificate(stageHost());
+        result = Data.configMap(certName(), prefix, true);
+        if (image.certificateKey != null) {
+            result.addRelative(dir.join("key.pem"), image.certificateKey);
+        }
+        if (image.certificateChain != null) {
+            result.addRelative(dir.join("chain.pem"), image.certificateChain);
+        }
+        if (image.certificateP12 != null) {
+            result.addRelative(dir.join("keystore.p12"), image.certificateP12);
+        }
         return result;
+    }
+
+    private static String prefix(String... paths) {
+        String result;
+        int idx;
+
+        result = null;
+        for (String path : paths) {
+            if (path == null) {
+                continue;
+            }
+            if (result == null) {
+                idx = path.lastIndexOf('/');
+                if (idx == -1) {
+                    throw new IllegalArgumentException(path);
+                }
+                result = path.substring(0, idx + 1);
+            } else {
+                result = common(result, path);
+            }
+        }
+        return result;
+    }
+
+    private static String common(String first, String second) {
+        int idx;
+
+        if (second.startsWith(first)) {
+            return first;
+        }
+        idx = first.lastIndexOf('/');
+        return idx == -1 ? "" : common(first.substring(0, idx + 1), second);
     }
 
     private Data faultDataOpt(TagInfo image) throws IOException {

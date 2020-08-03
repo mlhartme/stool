@@ -346,21 +346,25 @@ public class Server {
         return PortusRegistry.create(world, url, null);
     }
 
-    /** @return path to generates certificate */
+    /** @return path to generates directory */
     public FileNode certificate(String certname) throws IOException {
         FileNode script;
-        FileNode file;
-        FileNode tmp;
+        FileNode dir;
+        FileNode broken;
 
         script = home.join("cert.sh");
         if (!script.isFile()) {
             throw new IOException("don't know how to generate certificate: " + script.getAbsolute());
         }
-        file = home.join("certs", certname);
-        tmp = world.getTemp().createTempDirectory();  // fresh tmp directory to use the script for different stages concurrently
-        LOGGER.debug(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
-        tmp.deleteTree();
-        return file;
+        dir = home.join("certs", certname);
+        try {
+            LOGGER.debug(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute()));
+        } catch (IOException e) {
+            broken = dir.getParent().join(dir.getName() + ".broken");
+            broken.deleteTreeOpt();
+            dir.move(broken);
+        }
+        return dir;
     }
 
     //--

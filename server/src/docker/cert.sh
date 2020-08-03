@@ -2,12 +2,19 @@
 set -e
 
 certname=$1
-dest=$2
+destdir=$2
 
-if [ -f $dest ] ; then
-  echo "re-using certificate: $dest"
+if [ -d ${destdir} ] ; then
+  echo "re-using certificate in: ${destdir}"
 else
-  echo "generating ${certname} -> ${dest}"
-  openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj /CN=${certname}
-  openssl pkcs12 -export -in cert.pem -inkey key.pem -out ${dest} -name tomcat -passout pass:changeit
+  # files in destdir
+  #    key.pem
+  #    cert.pem
+  #    chain.pem
+  #    keystore.p12
+  echo "generating ${certname} -> ${destdir}"
+  mkdir ${destdir}
+  openssl req -x509 -newkey rsa:2048 -keyout ${destdir}/key.pem -out ${destdir}/cert.pem -days 365 -nodes -subj /CN=${certname}
+  cp ${destdir}/cert.pem ${destdir}/chain.pem
+  openssl pkcs12 -export -in ${destdir}/cert.pem -inkey ${destdir}/key.pem -out ${destdir}/keystore.p12 -name tomcat -passout pass:changeit
 fi

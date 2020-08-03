@@ -143,4 +143,14 @@ public class Data {
             dest.add(result);
         }
     }
+
+    public void addRelative(FileNode src, String dest) throws IOException {
+        String prefix;
+
+        prefix = mountPath + "/";
+        if (!dest.startsWith(prefix)) {
+            throw new IllegalArgumentException(dest);
+        }
+        add(dest.substring(prefix.length()), src.readBytes());
+    }
 }
