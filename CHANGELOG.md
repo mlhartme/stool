@@ -2,6 +2,7 @@
 
 ### 6.0.0 (pending)
 
+* dumped svn support
 * usable in parallel with older versions of stool
   * meta
     * `sc` stands for stool client; I've chosen this name because it's similar to `oc` and the `kc` alias I use

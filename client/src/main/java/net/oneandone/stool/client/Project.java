@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
@@ -198,49 +197,12 @@ public class Project {
 
         dir = directory;
         do {
-            if (dir.join(".svn").isDirectory()) {
-                return "svn:" + svnCheckoutUrl(dir);
-            }
             if (dir.join(".git").isDirectory()) {
                 return "git:" + git(dir, "config", "--get", "remote.origin.url").exec().trim();
             }
             dir = dir.getParent();
         } while (dir != null);
         return "unknown";
-    }
-
-    private static String svnCheckoutUrl(FileNode dir) throws Failure {
-        Launcher launcher;
-        String str;
-
-        // note: svn info has a "--show-item" switch, but it's available since Subversion 1.9 or newer only,
-        // and it needs multiple invocations to get multiple fields
-        launcher = new Launcher(dir, "svn", "info");
-        launcher.env("LC_ALL", "C");
-        str = launcher.exec();
-        return svnItem(str, "URL") + "@" + svnItem(str, "Revision");
-    }
-
-    private static String svnItem(String str, String item) {
-        int start;
-        int end;
-
-        item = item + ":";
-        if (str.startsWith(item)) {
-            start = item.length();
-        } else {
-            item = "\n" + item;
-            start = str.indexOf(item);
-            if (start < 0) {
-                throw new IllegalStateException(str + " " + item);
-            }
-            start += item.length();
-        }
-        end = str.indexOf("\n", start);
-        if (end < 0) {
-            throw new IllegalStateException(str + " " + item);
-        }
-        return str.substring(start, end).trim();
     }
 
     private static Launcher git(FileNode cwd, String... args) {

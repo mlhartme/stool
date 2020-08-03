@@ -94,9 +94,8 @@ create a stage, you cannot change it later.
 A Docker image with various label. 
 
 * **origin**
-  Specifies where the image came from, e.g. a Subversion URL or a git url, Maven like
+  Specifies where the image came from, e.g. a git url, Maven like
       git:ssh://git@github.com/mlhartme/hellowar.git
-      svn:https://github.com/mlhartme/hellowar/trunk
 
 If you use Stool to build stages, the Docker tag of an image is simply a number, that's incremented with every build.
 
