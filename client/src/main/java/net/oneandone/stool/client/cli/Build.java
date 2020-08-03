@@ -17,18 +17,17 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Source;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
-import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Build extends ProjectCommand {
+public class Build extends IteratedStageCommand {
     private final boolean noCache;
     private final int keep;
     private final boolean restart;
@@ -60,27 +59,22 @@ public class Build extends ProjectCommand {
     }
 
     @Override
-    public void doRun(FileNode directory) throws Exception {
+    public void doMain(Reference reference) throws Exception {
         Project project;
-        List<App> apps;
+        App app;
         Source source;
 
-        project = lookupProject(directory);
+        project = lookupProject(working);
         if (project == null) {
-            throw new ArgumentException("unknown project");
+            throw new ArgumentException("cannot build " + reference + " without a project");
         }
-        apps = project.list();
-        if (apps.isEmpty()) {
-            throw new IOException("no apps to build in project " + directory);
-        }
+        app = project.lookup(reference);
+        source = app.source(project.directory);
         try (Daemon daemon = Daemon.create()) {
-            for (App app : apps) {
-                source = app.source(directory);
-                source.build(globals, daemon, app.reference, comment, keep, noCache, project.getOriginOrUnknown(), explicitArguments);
-                if (restart) {
-                    new Restart(globals, null).doRun(app.reference);
-                }
-            }
+            source.build(globals, daemon, app.reference, comment, keep, noCache, project.getOriginOrUnknown(), explicitArguments);
+        }
+        if (restart) {
+            new Restart(globals, null).doRun(app.reference);
         }
     }
 }

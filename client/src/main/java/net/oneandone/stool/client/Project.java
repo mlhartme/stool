@@ -73,7 +73,7 @@ public class Project {
     //--
 
     private final ObjectMapper yaml;
-    private final FileNode directory;
+    public final FileNode directory;
     private final FileNode projectYaml;
     private final List<App> apps;
 
@@ -122,6 +122,15 @@ public class Project {
     public App lookup(String stage) { // TODO: different clients ...
         for (App app : apps) {
             if (stage.equals(app.reference.stage)) {
+                return app;
+            }
+        }
+        return null;
+    }
+
+    public App lookup(Reference reference) { // TODO: different clients ...
+        for (App app : apps) {
+            if (reference.equals(app.reference)) {
                 return app;
             }
         }
