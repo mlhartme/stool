@@ -18,60 +18,41 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.Source;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Create extends ProjectCommand {
+public class Create extends ProjectAdd {
     private final boolean optional;
-    private final boolean detached;
-    private final Map<String, Source.Type> paths;
-    private final String stage;
     private final Map<String, String> config;
 
     public Create(Globals globals, boolean optional, boolean detached, List<String> args) {
-        super(globals);
-
+        super(globals, detached, withoutProperties(args));
         this.optional = optional;
-        this.detached = detached;
-        this.paths = new LinkedHashMap<>();
         this.config = new LinkedHashMap<>();
         eatProperties(args);
-        if (args.isEmpty()) {
-            throw new ArgumentException("missing name argument");
-        }
-        this.stage = args.remove(args.size() - 1);
-        eatPaths(args);
     }
 
-    private void eatPaths(List<String> args) {
+    private static List<String> withoutProperties(List<String> args) {
+        List<String> result;
         int idx;
-        Source.Type type;
+        String arg;
 
-        if (args.isEmpty()) {
-            paths.put("", Source.Type.WAR);
-        } else {
-            for (String arg : args) {
-                idx = arg.indexOf('@');
-                if (idx == -1) {
-                    type = Source.Type.WAR;
-                } else {
-                    type = Source.Type.valueOf(arg.substring(0, idx).toUpperCase());
-                    arg = arg.substring(idx + 1);
-                }
-                if (paths.put(arg, type) != null) {
-                    throw new ArgumentException("duplicate path: " + arg);
-                }
+        result = new ArrayList<>(args);
+        while (!result.isEmpty()) {
+            arg = args.get(result.size() - 1);
+            idx = arg.indexOf('=');
+            if (idx == -1) {
+                break;
             }
+            args.remove(result.size() - 1);
         }
+        return result;
     }
 
     private void eatProperties(List<String> args) {
@@ -95,56 +76,7 @@ public class Create extends ProjectCommand {
         }
     }
 
-    @Override
-    public void doRun(FileNode directory) throws IOException {
-        Project projectOpt;
-        Map<Source, String> map;
-        String name;
-        String path;
-
-        projectOpt = lookupProject(directory);
-        if (projectOpt != null) { // TODO: feels weired
-            throw new ArgumentException("project already has a stage; detach it first");
-        }
-        if (detached) {
-            projectOpt = null;
-        } else {
-            projectOpt = Project.create(directory);
-        }
-        try {
-            map = new HashMap<>();
-            for (Map.Entry<String, Source.Type> entry : paths.entrySet()) {
-                path = entry.getKey();
-                for (Source source : Source.findAndCheck(entry.getValue(), path.isEmpty() ? directory : world.file(path), stage)) {
-                    name = source.subst(stage);
-                    if (map.values().contains(name)) {
-                        throw new ArgumentException("duplicate name: " + name); // TODO: improved message
-                    }
-                    map.put(source, name);
-                }
-            }
-            if (map.isEmpty()) {
-                throw new ArgumentException("no sources found");
-            }
-            for (Map.Entry<Source, String> entry : map.entrySet()) {
-                add(projectOpt, entry.getKey(), entry.getValue());
-            }
-            if (projectOpt != null) {
-                projectOpt.save();
-            }
-        } catch (IOException e) {
-            try {
-                if (projectOpt != null) {
-                    projectOpt.save();
-                }
-            } catch (IOException e2) {
-                e.addSuppressed(e2);
-            }
-            throw e;
-        }
-    }
-
-    private void add(Project projectOpt, Source source, String name) throws IOException {
+    protected Reference stage(String name) throws IOException {
         Client client;
         Reference reference;
 
@@ -162,15 +94,7 @@ public class Create extends ProjectCommand {
                 throw new IOException("stage already exists: " + reference);
             }
         }
-        if (projectOpt != null) {
-            try {
-                projectOpt.add(source, reference);
-            } catch (IOException e) {
-                throw new IOException("failed to attach stage: " + e.getMessage(), e);
-            }
-        } else {
-            // -detached
-        }
+        return reference;
     }
 
     //-- stage name
@@ -205,6 +129,7 @@ public class Create extends ProjectCommand {
             }
         }
     }
+
     public static boolean isValidStageNameChar(char c) {
         return isLetter(c) || isDigit(c) || c == '-' || c == '.';
     }

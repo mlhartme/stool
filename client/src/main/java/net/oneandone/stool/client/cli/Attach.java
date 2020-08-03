@@ -15,43 +15,28 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.Source;
-import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.stool.client.Reference;
 
+import java.io.IOException;
 import java.util.List;
 
-public class Attach extends ProjectCommand {
-    private final FileNode pathOpt;
-    private final Source.Type type;
-    private final String stage;
-
-    public Attach(Globals globals, Source.Type type, FileNode pathOpt, String stage) {
-        super(globals);
-
-        this.type = type;
-        this.pathOpt = pathOpt;
-        this.stage = stage;
+public class Attach extends ProjectAdd {
+    public Attach(Globals globals, List<String> args) {
+        super(globals, false, args);
     }
 
-    @Override
-    public void doRun(FileNode directory) throws Exception {
-        Project project;
-        List<? extends Source> sources; // maps directories to war files
-        String name;
+    protected Reference stage(String name) throws IOException {
+        List<Reference> found;
 
-        project = lookupProject(directory);
-        if (project == null) {
-            project = Project.create(directory);
+        found = globals.configuration().list(name);
+        switch (found.size()) {
+            case 0:
+                throw new IOException("no such stage: " + name);
+            case 1:
+                return found.get(0);
+            default:
+                throw new IOException("stage ambiguous: " + name);
         }
-
-        sources = Source.findAndCheck(type, pathOpt != null ? pathOpt : directory, stage);
-        for (Source source : sources) {
-            name = source.subst(stage);
-            project.add(new App(reference(name), source.type, source.directory.getRelative(directory)));
-        }
-        project.save();
     }
 }
