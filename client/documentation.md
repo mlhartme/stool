@@ -121,7 +121,7 @@ commands operate on the attached stages.
 The stage indicator `{somestage@server}` is displayed in front of your shell prompt. It shows the attached stages (stage name and server).
 
 If you create a new stage, Stool creates a new project and attaches to the newly created stage(s). If you `cd` into a different project, the
-stage indicator changes accordingly. You can explicitly change the attached stage with `stool attach` and `stool detach`. The stage indicator 
+stage indicator changes accordingly. You can explicitly change the attached stage with `sc attach` and `sc detach`. The stage indicator 
 is invisible if you have no current project.
 
 
@@ -133,18 +133,18 @@ all stages, they are usually adjusted by system administrators (see [server conf
 onfigure the respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
 with [stool config](#stool-config). 
 
-Besides properties, every stage has status fields, you can view them with `stool status`. Status fields are similar to
+Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are similar to
 properties, but they are read-only.
 
-Besides properties, stages have build options and environment variables for every application image. Use `stool app` to see the current
+Besides properties, stages have build options and environment variables for every application image. Use `sc app` to see the current
 values.
  
 
 ### Stage Expiring
 
-Every stage has an `expire` property that specifies how long the stage is needed. You can see the expire date with `stool config expire`. 
+Every stage has an `expire` property that specifies how long the stage is needed. You can see the expire date with `sc config expire`. 
 If this date has passed, the stage is called expired, and it is automatically stopped, a notification email is sent and you cannot start it 
-again unless you specify a new date with `stool config expire=`*yyyy-mm-dd*.
+again unless you specify a new date with `sc config expire=`*yyyy-mm-dd*.
 
 Depending on the `autoRemove` Stool property, an expired stage will automatically be removed after the configured number of days. Stage 
 expiring helps to detect and remove unused stages, which is handy (and sometimes even crucial) if you are not the only user of a server. 
@@ -164,12 +164,12 @@ Stage tool
 
 #### SYNOPSIS
 
-`stool` *global-option*... [*command* *argument*...]
+`sc` *global-option*... [*command* *argument*...]
 
 #### DESCRIPTION
 
-`stool` is a command line tool to manage stages. After creating a stage, you can manage apps in it.
-*command* defaults to `help`. Stages can be hosted on any machine that runs a Stool server daemon. Technically, `stool` is a 
+`sc` is a command line tool to manage stages. A stage runs a web application packaed in a Docker image.
+*command* defaults to `help`. Stages can be hosted on different machines running a Stool server. Technically, `sc` is a 
 rest client for Stool server, and Stool server wraps a Docker Engine.
 
 
@@ -177,77 +177,77 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 
 [//]: # (ALL_SYNOPSIS)
 
-`stool` *global-option*... [*command* *argument*...]
+`sc` *global-option*... [*command* *argument*...]
 
 
-`stool` *global-option*... `help` [*command*]
+`sc` *global-option*... `help` [*command*]
 
 
-`stool` *global-option*... `version`
+`sc` *global-option*... `version`
 
 
-`stool` *global-option*... `auth` [`-batch`] [*server*]
+`sc` *global-option*... `auth` [`-batch`] [*server*]
 
 
-`stool` *global-option*... *project-command* [`-project` *project*] *command-options*... *command-arguments*...
-
-
-
-`stool` *global-option*... `create` *project-option*... [`-optional`] *name*`@`*server* [*key*`=`*value*...]
+`sc` *global-option*... *project-command* [`-project` *project*] *command-options*... *command-arguments*...
 
 
 
-`stool` *global-option*... `attach` *project-option*... *stage*
-
-
-`stool` *global-option*... `detach`
-
-
-`stool` *global-option*... `build` *project-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
+`sc` *global-option*... `create` *project-option*... [`-optional`] *name*`@`*server* [*key*`=`*value*...]
 
 
 
-`stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
+`sc` *global-option*... `attach` *project-option*... *stage*
+
+
+`sc` *global-option*... `detach`
+
+
+`sc` *global-option*... `build` *project-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
 
 
 
-`stool` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
-
-
-`stool` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...][*app*[`:`*tag*] ...]
-
-
-`stool` *global-option*... `stop` *stage-option*... [*app*...]
-
-
-`stool` *global-option*... `restart` *stage-option*... [*app*[`:`*tag*] ...]
+`sc` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
 
 
 
-`stool` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
+`sc` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
 
 
-`stool` *global-option*... `config` *stage-option*... (*key* | *value*)...
+`sc` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...][*app*[`:`*tag*] ...]
 
 
-`stool` *global-option*... `status *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `stop` *stage-option*... [*app*...]
+
+
+`sc` *global-option*... `restart` *stage-option*... [*app*[`:`*tag*] ...]
 
 
 
-`stool` *global-option*... `app` *stage-option*... *app*...
+`sc` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
+
+
+`sc` *global-option*... `config` *stage-option*... (*key* | *value*)...
+
+
+`sc` *global-option*... `status *stage-option*... (*field*|*property*)...
 
 
 
-`stool` *global-option*... `list` *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `app` *stage-option*... *app*...
 
 
-`stool` *global-option*... `tunnel` *stage-option*... *app* *port* [*local*]
+
+`sc` *global-option*... `list` *stage-option*... (*field*|*property*)...
 
 
-`stool` *global-option*... `ssh` *stage-option*... *app*
+`sc` *global-option*... `tunnel` *stage-option*... *app* *port* [*local*]
 
 
-`stool` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
+`sc` *global-option*... `ssh` *stage-option*... *app*
+
+
+`sc` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
 
 [//]: # (-)
 
@@ -306,7 +306,7 @@ The following environment variables can be used to configure Stool server:
 
 #### Environment
 
-`STOOL_OPTS` to configure arguments passed to the underlying JVM.
+`SC_OPTS` to configure arguments passed to the underlying JVM.
  
 
 #### See Also
@@ -315,7 +315,7 @@ Homepage: https://github.com/mlhartme/stool
 
 Documentation: https://github.com/mlhartme/stool/blob/master/client/documentation.md
 
-Invoke `stool help` *command* to get help for the specified command.
+Invoke `sc help` *command* to get help for the specified command.
 
 
 ## General commands
@@ -326,11 +326,11 @@ Display man page
 
 #### SYNOPSIS
 
-`stool` *global-option*... `help` [*command*]
+`sc` *global-option*... `help` [*command*]
 
 #### DESCRIPTION
 
-Display help about the specified *command*. Or, if *command* is not specified, display general `stool` help.
+Display help about the specified *command*. Or, if *command* is not specified, display general `sc` help.
 
 ### stool-version 
 
@@ -338,7 +338,7 @@ Display version info
 
 #### SYNOPSIS
 
-`stool` *global-option*... `version`
+`sc` *global-option*... `version`
 
 #### DESCRIPTION
 
@@ -351,7 +351,7 @@ Authenticate to server(s)
 
 #### SYNOPSIS
 
-`stool` *global-option*... `auth` [`-batch`] [*server*]
+`sc` *global-option*... `auth` [`-batch`] [*server*]
 
 #### DESCRIPTION
 
@@ -372,7 +372,7 @@ Options available for all project commands
 
 #### SYNOPSIS
 
-`stool` *global-option*... *project-command* [`-project` *project*] *command-options*... *command-arguments*...
+`sc` *global-option*... *project-command* [`-project` *project*] *command-options*... *command-arguments*...
 
 
 #### DESCRIPTION
@@ -386,7 +386,7 @@ Create a new stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `create` *project-option*... [`-optional`] *name*`@`*server* [*key*`=`*value*...]
+`sc` *global-option*... `create` *project-option*... [`-optional`] *name*`@`*server* [*key*`=`*value*...]
 
 
 #### DESCRIPTION
@@ -406,11 +406,11 @@ The new stage is configured with the specified *key*/*value* pairs. Specifying a
 
 #### Examples
 
-Create a stage `hello` on server `localhost`: `stool create hello@localhost`
+Create a stage `hello` on server `localhost`: `sc create hello@localhost`
 
 [//]: # (include projectOptions.md)
 
-Note: This is a project command, use `stool help project-options` to see available [project options](#stool-project-options)
+Note: This is a project command, use `sc help project-options` to see available [project options](#stool-project-options)
 [//]: # (-)
 
 ### stool-attach
@@ -420,7 +420,7 @@ Attach stage to a project
 
 #### SYNOPSIS
 
-`stool` *global-option*... `attach` *project-option*... *stage*
+`sc` *global-option*... `attach` *project-option*... *stage*
 
 #### DESCRIPTION
 
@@ -430,7 +430,7 @@ Technically, `attach` creates a `.backstage` file that stores the stage. *stage*
 
 [//]: # (include projectOptions.md)
 
-Note: This is a project command, use `stool help project-options` to see available [project options](#stool-project-options)
+Note: This is a project command, use `sc help project-options` to see available [project options](#stool-project-options)
 [//]: # (-)
 
 
@@ -440,7 +440,7 @@ Detach a stage from a project
 
 #### SYNOPSIS
 
-`stool` *global-option*... `detach`
+`sc` *global-option*... `detach`
 
 #### DESCRIPTION
 
@@ -449,7 +449,7 @@ Removes the attached stage from the project without modifying the stage itself. 
 
 [//]: # (include projectOptions.md)
 
-Note: This is a project command, use `stool help project-options` to see available [project options](#stool-project-options)
+Note: This is a project command, use `sc help project-options` to see available [project options](#stool-project-options)
 [//]: # (-)
 
 
@@ -459,7 +459,7 @@ Build a project
 
 #### SYNOPSIS
 
-`stool` *global-option*... `build` *project-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
+`sc` *global-option*... `build` *project-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
 
 
 #### DESCRIPTION
@@ -469,24 +469,24 @@ and a Docker build is run with appropriate build arguments. Available build argu
 in the error message if you specify an unknown build argument. Build arguments are loaded from a properties file in the war. 
 You can add additional argument or overwrite values by passing *key*`=`*value* arguments to the command.
 
-You can see the build argument actually used for an image with `stool app`.
+You can see the build argument actually used for an image with `sc app`.
 
 You can build a stage while it's running. In this case, specify `-restart` to stop the currently running image and that the newly build one.
-Or use `stool restart` after the build.  
+Or use `sc restart` after the build.  
 
 *keep* specifies the number of images that will not be exceeded for this application, default is 3. I.e. if you already have 3 images 
 and run `build`, the oldest unreferenced image the will be removed. Unreferenced means it's not currently running in a container.
 
 [//]: # (include projectOptions.md)
 
-Note: This is a project command, use `stool help project-options` to see available [project options](#stool-project-options)
+Note: This is a project command, use `sc help project-options` to see available [project options](#stool-project-options)
 [//]: # (-)
 
 
 ## Stage Commands
 
 Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical stage commands are `status`, `start`, 
-and `stop`. All stage commands support the same stage options, see `stool help stage-options` for documentation.
+and `stop`. All stage commands support the same stage options, see `sc help stage-options` for documentation.
 
 
 ### stool-stage-options
@@ -495,7 +495,7 @@ Options available for all stage commands
 
 #### SYNOPSIS
 
-`stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
+`sc` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
 
 
 #### Selection options
@@ -540,12 +540,12 @@ on remaining matching stages. This is the default.
 
 #### Examples
 
-`stool status -stage foo` prints the status of stage `foo`.
+`sc status -stage foo` prints the status of stage `foo`.
 
-`stool start -all -fail after` starts all stages. Without `-fail after`, the command would abort
+`sc start -all -fail after` starts all stages. Without `-fail after`, the command would abort
 after the first stage that cannot be started (e.g. because it's already running).
 
-`stool stop -stage up=true` stops all stages currently up, but aborts immediately if one stage fails to stop.
+`sc stop -stage up=true` stops all stages currently up, but aborts immediately if one stage fails to stop.
 
 
 ### stool-remove
@@ -554,7 +554,7 @@ Remove a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
+`sc` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
 
 #### Description
 
@@ -568,7 +568,7 @@ with the `-batch` option.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -578,13 +578,13 @@ Start a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...][*app*[`:`*tag*] ...]
+`sc` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...][*app*[`:`*tag*] ...]
 
 #### Description
 
 Starts the specified *app*s (if not specified: all that are not running yet) with the environment arguments specified
 by *key*=*value* arguments. *app* can be specified with a tag to determine the actual image to be started; if not specified, the latest
-tag is used. Use `stool app` to see available images.
+tag is used. Use `sc app` to see available images.
 
 If you specify http or https options, the respective port will be used for the application. Otherwise, those ports are chosen automatically.
 
@@ -592,7 +592,7 @@ Before starting an app, Stool checks if it has previously been started. If so, t
 
 Startup is refused if the user who built the image does not have access to all fault projects of the image.
 
-Startup is refused if your stage has expired. In this case, use `stool config expire=`*newdate* to configure a new `expire` date.
+Startup is refused if your stage has expired. In this case, use `sc config expire=`*newdate* to configure a new `expire` date.
 
 Startup is also refused if the disk or memory quota exceeded. In this case, stop some other stages.
 
@@ -606,7 +606,7 @@ TODO: how to define additional environment variables?
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -616,7 +616,7 @@ Stop a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `stop` *stage-option*... [*app*...]
+`sc` *global-option*... `stop` *stage-option*... [*app*...]
 
 #### DESCRIPTION
 
@@ -629,7 +629,7 @@ signal handling.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -639,16 +639,16 @@ Restart a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `restart` *stage-option*... [*app*[`:`*tag*] ...]
+`sc` *global-option*... `restart` *stage-option*... [*app*[`:`*tag*] ...]
 
 
 #### DESCRIPTION
 
-Shorthand for `stool stop *app*... && stool start *app*:*tag*`.
+Shorthand for `sc stop *app*... && stool start *app*:*tag*`.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -658,16 +658,16 @@ Display commands invoked on this stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
+`sc` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
 
 #### DESCRIPTION
 
-Prints the `stool` commands that affected the stage. Specify `-details` to also print command output. Stops after the 
+Prints the `sc` commands that affected the stage. Specify `-details` to also print command output. Stops after the 
 specified *max* number of commands (defauls is 50).
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -677,14 +677,14 @@ Manage stage properties
 
 #### SYNOPSIS
 
-`stool` *global-option*... `config` *stage-option*... (*key* | *value*)...
+`sc` *global-option*... `config` *stage-option*... (*key* | *value*)...
 
 #### DESCRIPTION
 
 This command gets or sets stage [properties](#properties). 
 
-Caution: `config` does not deal with build argumetn, see `stool build` for that. And: it does not deal with environment variables,
-see `stool start` for that. And finally: it does not deal with Stool properties, see `stool help` for that.
+Caution: `config` does not deal with build argumetn, see `sc build` for that. And: it does not deal with environment variables,
+see `sc start` for that. And finally: it does not deal with Stool properties, see `sc help` for that.
 
 When invoked without arguments, all stage properties are printed.
 
@@ -693,13 +693,13 @@ When invoked with one or more *key*s, the respective properties are printed.
 When invoked with one or more assignments, the respective properties are changed.
 
 Property values may contain `{}` to refer to the previous value. You can use this, e.g., to append to a property:
-`stool config "comment={} append this"`.
+`sc config "comment={} append this"`.
 
 If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
 Otherwise, the Stool does not see what belongs to your value.
 
 If you change a property, you have to run the necessary re-builds or re-starts to make the changes
-effective. E.g. if you change `memory`, you have to run `stool restart` to make the change effective.
+effective. E.g. if you change `memory`, you have to run `sc restart` to make the change effective.
 
 Properties have a type: boolean, number, date, string, list of strings, or map of strings to strings.
 
@@ -715,7 +715,7 @@ Each entry separates key and value by a colon. Example `foo:bar, key:value`
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -734,9 +734,9 @@ Note: This is a stage command, use `stool help stage-options` to see available [
 
 #### Examples
 
-`stool config comment` prints the current `comment` value.
+`sc config comment` prints the current `comment` value.
 
-`stool config comment=42` sets the comment to 42.
+`sc config comment=42` sets the comment to 42.
 
 
 ### stool-status
@@ -745,7 +745,7 @@ Display stage status
 
 #### SYNOPSIS
 
-`stool` *global-option*... `status *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `status *stage-option*... (*field*|*property*)...
 
 
 #### DESCRIPTION
@@ -774,7 +774,7 @@ Available fields:
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -784,7 +784,7 @@ Display app status
 
 #### SYNOPSIS
 
-`stool` *global-option*... `app` *stage-option*... *app*...
+`sc` *global-option*... `app` *stage-option*... *app*...
 
 
 #### DESCRIPTION
@@ -837,7 +837,7 @@ Per-image fields:
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -847,7 +847,7 @@ List stages
 
 #### SYNOPSIS
 
-`stool` *global-option*... `list` *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `list` *stage-option*... (*field*|*property*)...
 
 #### DESCRIPTION
 
@@ -856,7 +856,7 @@ command for a list of available fields. Default fields/properties are `name stat
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -866,7 +866,7 @@ Start an ssh tunnel
 
 #### SYNOPSIS
 
-`stool` *global-option*... `tunnel` *stage-option*... *app* *port* [*local*]
+`sc` *global-option*... `tunnel` *stage-option*... *app* *port* [*local*]
 
 #### DESCRIPTION
 
@@ -884,7 +884,7 @@ Ssh into the running app
 
 #### SYNOPSIS
 
-`stool` *global-option*... `ssh` *stage-option*... *app*
+`sc` *global-option*... `ssh` *stage-option*... *app*
 
 #### DESCRIPTION
 
@@ -898,7 +898,7 @@ Validate the stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
+`sc` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
 
 #### DESCRIPTION
 
@@ -908,7 +908,7 @@ if `-email` is specified, a notification mail is sent as configured by the notif
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -926,7 +926,7 @@ Prerequisites:
 
 Install steps
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
-* Make it executable, rename it to `stool` and add it to your $PATH.
+* Make it executable, rename it to `sc` and add it to your $PATH.
 * run `sc setup`
 
 

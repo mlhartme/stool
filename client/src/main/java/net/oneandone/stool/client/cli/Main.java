@@ -70,14 +70,14 @@ public class Main {
               cli.addDefault(Help.class, "help command?");
               cli.begin("globals.getWorld", "");
                        cli.begin("globals.getConsole", "");
-                cli.add(Auth.class, "auth -batch");
                 cli.add(Setup.class, "setup nameAndHost?");
+                cli.add(Auth.class, "auth -batch");
                 cli.add(ConfigContext.class, "context -offline name?");
                 cli.add(ShellInc.class, "shell-inc");
                 cli.add(Server.class, "server -overwrite -resolve hostname args*");
                 cli.base(ClientCommand.class, "-working { setWorkingOpt(working) }");
                     cli.add(Create.class, "create -optional -detached args+"); // args: path* name (key=value)*
-                    cli.add(Attach.class, "attach args"); // args: path* name
+                    cli.add(Attach.class, "attach args+"); // args: path* name
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Detach.class, "detach");
                       cli.add(Build.class, "build -nocache -keep=3 -restart -m= args*");
