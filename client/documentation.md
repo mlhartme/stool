@@ -168,9 +168,9 @@ Stage tool
 
 #### DESCRIPTION
 
-`sc` is a command line tool to manage stages. A stage runs a web application packaed in a Docker image.
-*command* defaults to `help`. Stages can be hosted on different machines running a Stool server. Technically, `sc` is a 
-rest client for Stool server, and Stool server wraps a Docker Engine.
+`sc` is a command line tool to manage stages. A stage is a web application running in a container.
+*command* defaults to `help`. Stages can be hosted on arbitrary machines that run a Stool server. `sc` stands for stage control. 
+Technically, `sc` is a rest client for Stool server, and Stool server talks to Kuberntes to manage stages.
 
 
 #### Commands
@@ -193,17 +193,12 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 
 
 
-`sc` *global-option*... `create` *project-option*... [`-optional`] *name*`@`*server* [*key*`=`*value*...]
+`sc` *global-option*... `create` *project-option*... [`-optional`][`-detached`] [[*type*'@'][*path*] ...] *name* [*key*`=`*value*...]
 
 
 
-`sc` *global-option*... `attach` *project-option*... *stage*
 
-
-`sc` *global-option*... `detach`
-
-
-`sc` *global-option*... `build` *project-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
+`sc` *global-option*... `attach` *project-option*... [[*type*'@'][*path*] ...] *name*
 
 
 
@@ -211,10 +206,17 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 
 
 
-`sc` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
+`sc` *global-option*... `build` *stage-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
 
 
-`sc` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...][*app*[`:`*tag*] ...]
+
+`sc` *global-option*... `detach` *stage-option*... 
+
+
+`sc` *global-option*... `delete` *stage-option*... [`-stop`] [`-batch`]
+
+
+`sc` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...] [`*tag*]
 
 
 `sc` *global-option*... `stop` *stage-option*... [*app*...]
@@ -347,7 +349,7 @@ Prints version info. Use the global `-v` option to get additional diagnostic inf
 
 ### stool-auth
 
-Authenticate to server(s)
+Authenticate a context
 
 #### SYNOPSIS
 
@@ -355,10 +357,11 @@ Authenticate to server(s)
 
 #### DESCRIPTION
 
-Asks for username/password to authenticate against ldap. If authentication succeeds, the respective *server* (if not specified: all servers
-that need authentication) is asked for an api token that will be stored in `~/.stool/server.json` and used for future access to this server.
+Asks for username/password to authenticate against ldap. If authentication succeeds, the respective *server* is asked for an api token 
+that will be stored in `~/.stool.yaml` and used for future access to this server.
 
-Use the `-batch` option to omit asking for username/password and instead pick them from the environment variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
+Use the `-batch` option to omit asking for username/password and instead pick them from the environment 
+variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
 
 
 ## Project commands
@@ -386,27 +389,25 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` *project-option*... [`-optional`] *name*`@`*server* [*key*`=`*value*...]
+`sc` *global-option*... `create` *project-option*... [`-optional`][`-detached`] [[*type*'@'][*path*] ...] *name* [*key*`=`*value*...]
+
 
 
 #### DESCRIPTION
 
-Creates a new stage with the specified *name* one the specified *server* and attaches it to the project. 
-Reports an error if the server already hosts a stage with this name. 
+Searches the specified *path*s (default: `.`) for apps of the specified type (either `war` or `docker`, default is `war`) and creates one 
+stage for each of them. *name* specifies the name for new stages. It must contain only lower case ascii characters or digit. Otherwise it's 
+rejected because it would cause problems with urls or docker tags that contain the name. *name* may include an underscore `_`, which will 
+be subsituted by the respective app name.
 
-The name must contain only lower case ascii characters or digit. Otherwise it's rejected because it would cause problems with
-urls or docker tags that contain the name.
+Reports an error if a stage already exists. You can disable this with the `-optional` option.
 
-Specify `-optional` if you don't want the command to report an error if the stage already exists.
-
-The new stage is configured with the specified *key*/*value* pairs. Specifying a *key*/*value* pair is equivalent to running 
+New stages are configured with the specified *key*/*value* pairs. Specifying a *key*/*value* pair is equivalent to running 
 [stool config](#stool-config) with these arguments.
-
-
 
 #### Examples
 
-Create a stage `hello` on server `localhost`: `sc create hello@localhost`
+Create stages for all wars in a multi-module Maven Project: `sc create _.foo`
 
 [//]: # (include projectOptions.md)
 
@@ -417,65 +418,14 @@ Note: This is a project command, use `sc help project-options` to see available 
 
 Attach stage to a project
 
-
 #### SYNOPSIS
 
-`sc` *global-option*... `attach` *project-option*... *stage*
-
-#### DESCRIPTION
-
-Attaches the specified *stage* to the project. If the project already has a stage attached, this old attachment is overwritten. 
-
-Technically, `attach` creates a `.backstage` file that stores the stage. *stage* has the form *name*`@`*server*.
-
-[//]: # (include projectOptions.md)
-
-Note: This is a project command, use `sc help project-options` to see available [project options](#stool-project-options)
-[//]: # (-)
-
-
-### stool-detach
-
-Detach a stage from a project
-
-#### SYNOPSIS
-
-`sc` *global-option*... `detach`
-
-#### DESCRIPTION
-
-Removes the attached stage from the project without modifying the stage itself. Technically, `detach` simplify removes the `.backstage` file.
-
-
-[//]: # (include projectOptions.md)
-
-Note: This is a project command, use `sc help project-options` to see available [project options](#stool-project-options)
-[//]: # (-)
-
-
-### stool-build
-
-Build a project
-
-#### SYNOPSIS
-
-`sc` *global-option*... `build` *project-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
+`sc` *global-option*... `attach` *project-option*... [[*type*'@'][*path*] ...] *name*
 
 
 #### DESCRIPTION
 
-Builds the specified war (if not specified: all wars of the project) on the attached stage. The war is uploaded to the respective server 
-and a Docker build is run with appropriate build arguments. Available build argument depend on the template being used, you can see them 
-in the error message if you specify an unknown build argument. Build arguments are loaded from a properties file in the war. 
-You can add additional argument or overwrite values by passing *key*`=`*value* arguments to the command.
-
-You can see the build argument actually used for an image with `sc app`.
-
-You can build a stage while it's running. In this case, specify `-restart` to stop the currently running image and that the newly build one.
-Or use `sc restart` after the build.  
-
-*keep* specifies the number of images that will not be exceeded for this application, default is 3. I.e. if you already have 3 images 
-and run `build`, the oldest unreferenced image the will be removed. Unreferenced means it's not currently running in a container.
+Similar to `create`, but stages have to exist, they are not created. 
 
 [//]: # (include projectOptions.md)
 
@@ -487,7 +437,6 @@ Note: This is a project command, use `sc help project-options` to see available 
 
 Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical stage commands are `status`, `start`, 
 and `stop`. All stage commands support the same stage options, see `sc help stage-options` for documentation.
-
 
 ### stool-stage-options
 
@@ -548,22 +497,74 @@ after the first stage that cannot be started (e.g. because it's already running)
 `sc stop -stage up=true` stops all stages currently up, but aborts immediately if one stage fails to stop.
 
 
-### stool-remove
+### stool-build
 
-Remove a stage
+Build a project
 
 #### SYNOPSIS
 
-`sc` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
+`sc` *global-option*... `build` *stage-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
+
+
+#### DESCRIPTION
+
+Builds the specified stages by running docker on the associates sources. The resulting image is pushed to the registry. 
+Docker build is run with appropriate build arguments. 
+
+For war sources, available build argument depend on the template being used, you can see them in the error message if you specify an 
+unknown build argument. Build arguments are loaded from a properties file in the war. You can add additional argument or overwrite values 
+by passing *key*`=`*value* arguments to the command.
+
+You can see the build argument actually used for an image with `sc images`.
+
+You can build a stage while it's running. In this case, specify `-restart` to stop the currently running image and start the newly build one.
+Otherwise, use `sc restart` after the build to get the latest image running.
+
+*keep* specifies the number of images that will not be exceeded for this stage, default is 3. I.e. if you already have 3 images 
+and run `build`, the oldest unreferenced image the will be removed. Unreferenced means it's not currently running.
+
+[//]: # (include stageOptions.md)
+
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
+[//]: # (-)
+
+
+### stool-detach
+
+Detach a stage from a project
+
+#### SYNOPSIS
+
+`sc` *global-option*... `detach` *stage-option*... 
+
+#### DESCRIPTION
+
+Removes stages from the current project without modifying the stage itself. Technically, `detach` simplify removes stage entries 
+from`.backstage/project.yaml` file.
+
+
+[//]: # (include stageOptions.md)
+
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
+[//]: # (-)
+
+
+### stool-delete
+
+Deletes a stage
+
+#### SYNOPSIS
+
+`sc` *global-option*... `delete` *stage-option*... [`-stop`] [`-batch`]
 
 #### Description
 
-Removes the stage, i.e. deletes it from the respective server. This includes images, containers and log files.
-If the current project it attached to this stage, the attachment is removed as well.
+Deletes the stage, i.e. deletes it from the respective server. This includes images, containers and log files.
+If the current project it attached to this stage, this attachment is removed as well.
 
 Reports an error if the stage is up. In this case, stop the stage first or invoke the command with `-stop`. 
 
-Before actually removing anything, this command asks if you really want to remove the stage. You can suppress this interaction 
+Before actually touching anything, this command asks if you really want to delete the stage. You can suppress this interaction 
 with the `-batch` option.
 
 [//]: # (include stageOptions.md)
@@ -578,12 +579,11 @@ Start a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...][*app*[`:`*tag*] ...]
+`sc` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...] [`*tag*]
 
 #### Description
 
-Starts the specified *app*s (if not specified: all that are not running yet) with the environment arguments specified
-by *key*=*value* arguments. *app* can be specified with a tag to determine the actual image to be started; if not specified, the latest
+Starts the stage with the environment arguments specified by *key*=*value* arguments. *app* can be specified with a tag to determine the actual image to be started; if not specified, the latest
 tag is used. Use `sc app` to see available images.
 
 If you specify http or https options, the respective port will be used for the application. Otherwise, those ports are chosen automatically.
