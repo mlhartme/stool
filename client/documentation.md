@@ -257,6 +257,7 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 
 * **-v** enables verbose output
 * **-e** prints stacktrace for all errors
+* **-context** sets the current context for this invocation
 
 
 #### Stool Server Configuration

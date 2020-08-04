@@ -61,7 +61,7 @@ public class Globals {
         this.stoolYaml = stoolYaml;
         this.invocation = invocation;
         this.command = command;
-        this.context = context;
+        this.context = null;
         this.wirelog = null;
     }
 
@@ -77,18 +77,14 @@ public class Globals {
         this.wirelog = wirelog == null ? null : world.file(wirelog);
     }
 
-    public void setContext(String context) {
-        this.context = context;
-    }
-
     public void setException(boolean exception) {
         if (exception) {
             throw new RuntimeException("intentional exception");
         }
     }
 
-    public Gson getGson() {
-        return gson;
+    public void setContext(String context) {
+        this.context = context;
     }
 
     public World getWorld() {
