@@ -38,7 +38,7 @@ public class StageConfiguration {
         String str;
         StringReader reader;
 
-        str = engine.configMapRead(configName(stageName)).get(CONFIG_MAP_KEY);
+        str = engine.configMapRead(stageName).get(CONFIG_MAP_KEY);
         reader = new StringReader(str);
         return gson.fromJson(reader, StageConfiguration.class);
     }
@@ -47,31 +47,12 @@ public class StageConfiguration {
         List<String> result;
 
         result = new ArrayList<>();
-        for (DataInfo info : engine.configMapList().values()) {
+        for (DataInfo info : engine.configMapList().values()) { // TODO: use special label to mark stage configs
             if (engine.hasImplicit(info.labels)) {
-                result.add(stageName(info.name));
+                result.add(info.name);
             }
         }
         return result;
-    }
-
-    // TODO
-    /*private static final String PREFIX = "xxx-";
-
-    private static String configName(String name) {
-        return PREFIX + name.replace('.', '-');
-    }
-
-    private static String stageName(String name) {
-        return Strings.removeLeft(name, PREFIX).replace('-', '.');
-    }
-    */
-    private static String configName(String name) {
-        return name;
-    }
-
-    private static String stageName(String name) {
-        return name;
     }
 
     //--
@@ -98,23 +79,21 @@ public class StageConfiguration {
     }
 
     public void save(Gson gson, Engine engine, String stageName, boolean overwrite) throws IOException {
-        String configName;
         StringWriter writer;
         Map<String, String> map;
 
         if (overwrite) {
             delete(engine, stageName);
         }
-        configName = configName(stageName);
         writer = new StringWriter();
         gson.toJson(this, writer);
         map = new HashMap<>();
         map.put(CONFIG_MAP_KEY, writer.toString());
-        engine.configMapCreate(configName, map);
+        engine.configMapCreate(stageName, map);
     }
 
     public static void delete(Engine engine, String stageName) throws IOException {
-        engine.configMapDelete(configName(stageName));
+        engine.configMapDelete(stageName);
     }
 
     //--
