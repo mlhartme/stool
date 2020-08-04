@@ -2,67 +2,68 @@
 
 ## Introduction
 
-Stool is a tool to manage stages: create, build, start, stop, remove. A stage is a set of docker images containing Web applications.
+Stool is a tool to manage stages: create, build, start, stop, remove. A stage is a Web application defined by Docker images and executed in a container.
 
 ### Quick Tour
 
-For setup instructions, please read the respective section below. The following assumes that Stool is properly set up.
+For setup instructions, please read the respective section below. The following assumes that Stool is properly set up, you have set the 
+current context and you are authenticated.
 
 Here's an example what you can do with Stool. 
 
 Enter a source directory with a readily built Web application of yours - or get a sample application with
 
-    git clone ssh://git@github.com/mlhartme/hellowar.git hellowar
+    git clone ssh://git@github.com/mlhartme/hellowar.git
     cd hellowar
     mvn clean package
     
 Create a new stage with
 
-    stool create hello@localhost
+    sc create hello
 
 and build an image with
 
-    stool build
+    sc build
     
 Start it:
 
-    stool start
+    sc start
 
 To see the running application, point your browser to the url printed by the `start` command.
 
 You can run
 
-    stool status
+    sc status
 
 to see if your stage is running and to see the stage urls.
 
 To remove the stage, stop the application with
 
-    stool stop
+    sc stop
 
 and wipe the stage with
 
-    stool remove
+    sc delete
 
 You can create an arbitrary number of stages. Invoke
 
-    stool list
+    sc list
 
 to see what you have created and not yet removed. 
 
 Use 
 
-    stool history
+    sc history
     
 to see the Stool commands executed for the current stage.
 
 You can get help with
 
-    stool help
+    sc help
 
 to see a list of available commands. You can append a command to get more help on that, e.g.
 
-    stool help create
+    sc help create
     
 prints help about `create`.
 
@@ -79,15 +80,32 @@ prints help about `create`.
 
 ## Concepts
 
+### Stool
+
+This term is overloaded, depending on the context it may refer to the command line client `sc`, the server running in Kubernetes, 
+or the whole project. 
+
+
+### Context
+
+A context specifies a place that can host stages. It has a name, an optional token, and a URL pointing to a Stool server. 
+`sc` manages a list of contexts in `~/.stool.yaml`. `sc` also manages a current context, you can change it permanently with `sc context` 
+or per-invocation with the `-context` global option.
+
+Advanced note: The concept of a context is similar to `kubectl`s context.
+
+
 ### Stage
 
-A stage is a set of Docker images, where each image holds a Web Application, something you can point your browser to. Typically, that's a 
-Tomcat servlet container (http://tomcat.apache.org) with a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). Different 
-images can hold different versions of your Web Application. Starting starting a stage creates the respective Docker container.
+A stage is a set of Docker images, where each image holds a Web Application, i.e. something you can point your browser to. Typically, that's 
+a Tomcat servlet container (http://tomcat.apache.org) with a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). Different 
+images hold different versions of your Web Application. Starting a stage creates a Docker container for one of the images.
 
-A stage is hosted on a server. Every stage has a unique name on that server. A stage is referenced by *name*`@`*server*. The stages attached 
-to a project are shown in your shell prompt. The stage name is part of the application url(s). Stage name and server are defined when you 
-create a stage, you cannot change it later.
+A stage is hosted in a Kubernetes namespace, which is identified by a context. Every stage has a unique name in that context. A stage is 
+referenced by *name*`@`*context* or just the *name* if it's in the current context. The stages attached to a project are shown in your shell 
+prompt. The stage name is part of the application url(s). Stage name and context are defined when you create a stage, you cannot change it 
+later.
+
 
 ### Image
 
@@ -101,24 +119,24 @@ If you use Stool to build stages, the Docker tag of an image is simply a number,
 
 ### Project
 
-A project is a directory (tree) holding source code you can build. In addition, the project has a list of applications, whhere each application
-map a stage to a war file. Various Stool commands are project command that operate on project. E.g., `build` builds images for all applications
-in the current project.
+A project is a mapping sources to stages. Source can be a Java War file or a Dockerfile.
 
-Technically, a project is a directory containing a `.backstage` file. This file lists the contained applications. The backstage file is 
-created by `create` or `attach`, it is removed by `detach` or `remove`. 
+You'll typically work with projects like this: you have a checkout of one or multiple applications of yours. If they are Java Applications,
+you build the war(s) with something like `mvn clean package`. You create a Stool project with `sc create` or `sc attach`, work with your 
+stage (e.g. build it with `sc build`), and when you're done, you clean up with `sc detach` or `sc delete`
 
-The current project used by a project command is specified either explicitly by the `-project` *directory* command line option. If not 
-specified, the current project is located by searching the current directory and its parent directories for a `.backstage` directory. 
-If successful, that's the current project; otherwise, there's no current project.
+Technically, the project is stored in `.backstage/project.yaml`
+
+The current project used by a Stool command is determined by searching the working directory and it parents for a project file. 
 
 
 ### Attached stages and stage indicator
 
-The attached stages of the current project are the stages referenced in the projects applications. Unless otherwise specified, stage 
-commands operate on the attached stages.
+The current stages are the stages refenenced by the current project. Unless otherwise specified, stage commands operate on the current 
+stages.
 
-The stage indicator `{somestage@server}` is displayed in front of your shell prompt. It shows the attached stages (stage name and server).
+The stage indicator `> somestage@context <` is displayed in front of your shell prompt, it lists the current stages. The context is omitted 
+if it's the current context.
 
 If you create a new stage, Stool creates a new project and attaches to the newly created stage(s). If you `cd` into a different project, the
 stage indicator changes accordingly. You can explicitly change the attached stage with `sc attach` and `sc detach`. The stage indicator 
@@ -158,9 +176,9 @@ The dashboard is the UI for Stool server.
 
 ## Commands
 
-### stool
+### sc
 
-Stage tool
+Stool client
 
 #### SYNOPSIS
 
@@ -169,7 +187,7 @@ Stage tool
 #### DESCRIPTION
 
 `sc` is a command line tool to manage stages. A stage is a web application running in a container.
-*command* defaults to `help`. Stages can be hosted on arbitrary machines that run a Stool server. `sc` stands for stool client or stage control. 
+*command* defaults to `help`. Stages can be hosted on arbitrary machines that run a Stool server. `sc` stands for Stool client. 
 Technically, `sc` is a rest client for Stool server, and Stool server talks to Kubernetes to manage stages.
 
 
@@ -189,7 +207,16 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 `sc` *global-option*... `version`
 
 
-`sc` *global-option*... `auth` [`-batch`] [*server*]
+`sc` *global-option*... `setup` 
+
+
+`sc` *global-option*... `server` *name*
+
+
+`sc` *global-option*... `context` [`-offline`][*context*]
+
+
+`sc` *global-option*... `auth` [`-batch`]
 
 
 `sc` *global-option*... `create` *project-option*... [`-optional`][`-detached`] [[*type*'@'][*path*] ...] *name* [*key*`=`*value*...]
@@ -356,7 +383,7 @@ Display version info
 
 #### DESCRIPTION
 
-Prints version info. Use the global `-v` option to get additional diagnostic info.
+Prints version info. Use the global `-v` global option to get additional diagnostic info.
 
 [//]: # (include globalOptions.md)
 
@@ -364,18 +391,61 @@ See `sc help global-options` for available [global options](#stool-global-option
 
 [//]: # (-)
 
-### stool-auth
 
-Authenticate a context
+### stool-setup
+
+Setup Stool client
 
 #### SYNOPSIS
 
-`sc` *global-option*... `auth` [`-batch`] [*server*]
+`sc` *global-option*... `setup` 
 
 #### DESCRIPTION
 
-Asks for username/password to authenticate against ldap. If authentication succeeds, the respective *server* is asked for an api token 
-that will be stored in `~/.stool.yaml` and used for future access to this server.
+Creates a fresh client configuration file `~/.stool.yaml` or reports an error if it already exists.
+
+
+### stool-server
+
+Generate server configuration
+
+#### SYNOPSIS
+
+`sc` *global-option*... `server` *name*
+
+#### DESCRIPTION
+
+Generates a server configuration file, which is a yaml file for Kubernetes.
+
+
+### stool-context
+
+Manage current context
+
+#### SYNOPSIS
+
+`sc` *global-option*... `context` [`-offline`][*context*]
+
+#### DESCRIPTION
+
+Displays the current context when called without argument. Also prints the known contexts when called with `-v`.
+
+Changes the current context when invoked with a *context* argument. If the new context requires authentication, this command implicitly 
+runs `sc auth` to get the respective token. This can be disabled by specifying `-offline`.
+
+
+### stool-auth
+
+Authenticate to current context
+
+#### SYNOPSIS
+
+`sc` *global-option*... `auth` [`-batch`]
+
+#### DESCRIPTION
+
+Asks for username/password to authenticate against ldap. If authentication succeeds, the referenced Stool server returns an api token 
+that will be stored in `~/.stool.yaml` and used for future access to this context/token.
 
 Use the `-batch` option to omit asking for username/password and instead pick them from the environment 
 variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
@@ -385,6 +455,7 @@ variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
 See `sc help global-options` for available [global options](#stool-global-options)
 
 [//]: # (-)
+
 
 ### stool-create
 
@@ -951,28 +1022,20 @@ Prerequisites:
 * Linux or Mac
 * Java 8 or higher. This is prerequisite because Stool is implemented in Java 8, you need it to run Stool itself. 
   However, you can build and run your stages with any Java version you choose.
+* Docker (used by `sc build`)
 
 Install steps
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
 * Make it executable, rename it to `sc` and add it to your $PATH.
-* run `sc setup`
+* run `sc setup` and follow the instructions
 
 
 ### Server setup
 
-Prerequisites:
-* Docker 18.03 or newer
-
-
-TODO
-
-Old logs are removed after 90 days or if they exceed 1 GB.
-
-### Upgrading 
-
-There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all stages.
-
+TODO 
+* `sc server name`
+* `kubectl apply -f name.yaml`
 
 ### Building Stool
 
-See https://github.com/mlhartme/stool/blob/master/DEVELOPMENT.md
+See https://github.com/mlhartme/stool/blob/stool-6.0/DEVELOPMENT.md

@@ -11,7 +11,7 @@
   <name>Stool Server</name>
   <artifactId>server</artifactId>
   <packaging>jar</packaging>
-  <description>Stool's server component.</description>
+  <description>Stool server, running in Kubernetes do manage stages in kubernetes. Also implements the dashboard.</description>
 
   <properties>
     <springboot.version>2.2.2.RELEASE</springboot.version>

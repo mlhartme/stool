@@ -12,6 +12,8 @@ users need a local Docker setup.
 
 Client changes
 * setup (many of them to make Stool 6 usable next to Stool 5)
+  * client configuration is about contexts now - contexts have replaced servers, they point to a Kubernetes namespace,
+    and not to a single machine
   * renamed Stool client from `stool` to `sc`
     * `sc` stands for stool client or stage control; 
       I've chosen this name because it's similar to `oc` and the `kc` alias I use)
