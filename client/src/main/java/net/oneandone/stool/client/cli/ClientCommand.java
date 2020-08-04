@@ -45,7 +45,7 @@ public abstract class ClientCommand {
 
         stoolYaml = globals.getStoolYaml();
         if (!stoolYaml.exists()) {
-            throw new ArgumentException("Stool configuration not found: " + stoolYaml + "\nRun 'sc setup' to create it.");
+            throw new ArgumentException("client configuration not found: " + stoolYaml + "\nRun 'sc setup' to create it.");
         }
     }
 

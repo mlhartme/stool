@@ -44,7 +44,7 @@ public class MainIT {
             WORLD = Main.world();
             PROJECT_ROOT = WORLD.guessProjectHome(MainIT.class);
             IT_ROOT = PROJECT_ROOT.join("target/it").mkdirOpt();
-            CLIENT_YAML = IT_ROOT.join("stool.yaml");
+            CLIENT_YAML = IT_ROOT.join("sc.yaml");
             SERVER_YAML = IT_ROOT.join("server.yaml");
         } catch (IOException e) {
             throw new IllegalStateException(e);

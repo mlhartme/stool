@@ -35,11 +35,11 @@ public class Globals {
         if (stoolYamlOpt != null) {
             stoolYaml = stoolYamlOpt;
         } else {
-            str = System.getenv("STOOL_YAML");
+            str = System.getenv("SC_YAML");
             if (str != null) {
                 stoolYaml = world.file(str);
             } else {
-                stoolYaml = world.getHome().join(".stool.yaml");
+                stoolYaml = world.getHome().join(".sc.yaml");
             }
         }
         return new Globals(console, world, stoolYaml, UUID.randomUUID().toString(), command);

@@ -89,7 +89,7 @@ or the whole project.
 ### Context
 
 A context specifies a place that can host stages. It has a name, an optional token, and a URL pointing to a Stool server. 
-`sc` manages a list of contexts in `~/.stool.yaml`. `sc` also manages a current context, you can change it permanently with `sc context` 
+`sc` manages a list of contexts in it client configuration file. `sc` also manages a current context, you can change it permanently with `sc context` 
 or per-invocation with the `-context` global option.
 
 Advanced note: The concept of a context is similar to `kubectl`s context.
@@ -147,7 +147,7 @@ is invisible if you have no current project.
 
 Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
 or map (string to string)). Stool distinguishes server properties and stage properties. Server properties are global settings that apply to 
-all stages, they are usually adjusted by system administrators (see [server configuration](#stool-server-configuration)). Stage properties 
+all stages, they are usually adjusted by system administrators (see [server configuration](#stool-server)). Stage properties 
 onfigure the respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
 with [stool config](#stool-config). 
 
@@ -172,7 +172,7 @@ Otherwise, remove the stage.
 
 ### Dashboard
 
-The dashboard is the UI for Stool server. 
+The dashboard is the UI that's part of Stool server. 
 
 ## Commands
 
@@ -278,57 +278,11 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 
 [//]: # (-)
 
-#### Stool Server Configuration
-
-The following environment variables can be used to configure Stool server:
-
-* **ADMIN** 
-  Email of the person to receive validation failures and exception mails. Empty to disable these emails.
-  Type string, default empty. Example: `Max Mustermann <max@mustermann.org>`.
-* **AUTO_REMOVE**
-  Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1. 
-* **DISK_QUOTA**
-  Mb of disk spaces available for the read/write layer of all running apps. The sum of all disk space reserved for all apps of all stages
-  cannot exceed this number. 0 disables this feature. Type number, default 0.
-* **DEFAULT_EXPIRE**
-  Defines the number of days to expire new stages (0 for never). Type number, default 0.
-* **HOST**
-  Fully qualified hostname of this machine. Used in application urls and emails. Type string.
-* **ENGINE_LOG**
-  to log all traffic between server and docker daemon. CAUTION: enabling writes huge amounts of data if you have large war files.
-  Type boolean, default value is false.
-* **ENVIRONMENT** 
-  Default environment variables set automatically when starting apps, can be overwritten by the `start` command. Type map, default empty.
-* **JMX_USAGE**
-  How to invoke a jmx client in your environment. Type string, default "jconsole localhost:%i".  
-* **LDAP_CREDENTIALS**
-  Password for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
-* **LDAP_PRINCIPAL**
-  User for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
-* **LDAP_UNIT**
-  Specifies the "organizational unit" to search for users. Ignored if ldap is disabled. Type string, default empty.
-* **LDAP_URL**
-  Ldap url for user information. Empty string to disable ldap. Type string, default empty.
-* **LDAP_SSO**
-  Url for ui single sign on. Type string, default empty.
-* **LOGLEVEL**
-  for server logging. Type string, default INFO. Example value: DEBUG.
-* **MAIL_HOST**
-  Smtp Host name to deliver emails. Empty to disable. Type string, default empty.
-* **MAIL_USERNAME**
-  Username for MAIL_HOST. Type string, default empty;
-* **MAIL_PASSWORD**
-  Password for mailHost. Type string, default empty.
-* **MEMORY_QUOTA**
-  Max memory that all apps may reserve. 0 to disable. Type number, default 0.
-* **REGISTRY_URL**
-  Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
-
-
 #### Environment
 
-`SC_OPTS` to configure arguments passed to the underlying JVM.
- 
+`SC_OPTS` to configure arguments passed to the underlying JVM. 
+`SC_YAML` to configure the location of the client configuration file. Defaults to `$HOME/.sc.yaml
+
 
 #### See Also
 
@@ -383,7 +337,7 @@ Display version info
 
 #### DESCRIPTION
 
-Prints version info. Use the global `-v` global option to get additional diagnostic info.
+Prints client version info. Use the global `-v` global option to get additional diagnostic info.
 
 [//]: # (include globalOptions.md)
 
@@ -402,7 +356,8 @@ Setup Stool client
 
 #### DESCRIPTION
 
-Creates a fresh client configuration file `~/.stool.yaml` or reports an error if it already exists.
+Creates a fresh client configuration file or reports an error if it already exists.
+The client configuration file is configured with the `SC_YAML` environment variable, it defaults to `~/.sc.yaml`
 
 
 ### stool-server
@@ -415,7 +370,53 @@ Generate server configuration
 
 #### DESCRIPTION
 
-Generates a server configuration file, which is a yaml file for Kubernetes.
+Generates a Kubernetes yaml manifest to configure a server.
+
+#### Server Environment
+
+The following environment variables can be used to configure the server:
+
+* **ADMIN** 
+  Email of the person to receive validation failures and exception mails. Empty to disable these emails.
+  Type string, default empty. Example: `Max Mustermann <max@mustermann.org>`.
+* **AUTO_REMOVE**
+  Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1. 
+* **DISK_QUOTA**
+  Mb of disk spaces available for the read/write layer of all running apps. The sum of all disk space reserved for all apps of all stages
+  cannot exceed this number. 0 disables this feature. Type number, default 0.
+* **DEFAULT_EXPIRE**
+  Defines the number of days to expire new stages (0 for never). Type number, default 0.
+* **HOST**
+  Fully qualified hostname of this machine. Used in application urls and emails. Type string.
+* **ENGINE_LOG**
+  to log all traffic between server and docker daemon. CAUTION: enabling writes huge amounts of data if you have large war files.
+  Type boolean, default value is false.
+* **ENVIRONMENT** 
+  Default environment variables set automatically when starting apps, can be overwritten by the `start` command. Type map, default empty.
+* **JMX_USAGE**
+  How to invoke a jmx client in your environment. Type string, default "jconsole localhost:%i".  
+* **LDAP_CREDENTIALS**
+  Password for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
+* **LDAP_PRINCIPAL**
+  User for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
+* **LDAP_UNIT**
+  Specifies the "organizational unit" to search for users. Ignored if ldap is disabled. Type string, default empty.
+* **LDAP_URL**
+  Ldap url for user information. Empty string to disable ldap. Type string, default empty.
+* **LDAP_SSO**
+  Url for ui single sign on. Type string, default empty.
+* **LOGLEVEL**
+  for server logging. Type string, default INFO. Example value: DEBUG.
+* **MAIL_HOST**
+  Smtp Host name to deliver emails. Empty to disable. Type string, default empty.
+* **MAIL_USERNAME**
+  Username for MAIL_HOST. Type string, default empty;
+* **MAIL_PASSWORD**
+  Password for mailHost. Type string, default empty.
+* **MEMORY_QUOTA**
+  Max memory that all apps may reserve. 0 to disable. Type number, default 0.
+* **REGISTRY_URL**
+  Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
 
 
 ### stool-context
@@ -445,7 +446,7 @@ Authenticate to current context
 #### DESCRIPTION
 
 Asks for username/password to authenticate against ldap. If authentication succeeds, the referenced Stool server returns an api token 
-that will be stored in `~/.stool.yaml` and used for future access to this context/token.
+that will be stored in the client configuration file and used for future access to this context/token.
 
 Use the `-batch` option to omit asking for username/password and instead pick them from the environment 
 variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
