@@ -16,8 +16,8 @@
 package net.oneandone.stool.server.configuration;
 
 import com.google.gson.Gson;
+import net.oneandone.stool.kubernetes.DataInfo;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -47,15 +47,16 @@ public class StageConfiguration {
         List<String> result;
 
         result = new ArrayList<>();
-        for (String name : engine.configMapList().keySet()) {
-            if (name.startsWith(PREFIX)) {
-                result.add(stageName(name));
+        for (DataInfo info : engine.configMapList().values()) {
+            if (engine.hasImplicit(info.labels)) {
+                result.add(stageName(info.name));
             }
         }
         return result;
     }
 
-    private static final String PREFIX = "xxx-";
+    // TODO
+    /*private static final String PREFIX = "xxx-";
 
     private static String configName(String name) {
         return PREFIX + name.replace('.', '-');
@@ -63,6 +64,14 @@ public class StageConfiguration {
 
     private static String stageName(String name) {
         return Strings.removeLeft(name, PREFIX).replace('-', '.');
+    }
+    */
+    private static String configName(String name) {
+        return name;
+    }
+
+    private static String stageName(String name) {
+        return name;
     }
 
     //--

@@ -243,13 +243,13 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 `sc` *global-option*... `delete` *stage-option*... [`-stop`] [`-batch`]
 
 
-`sc` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...] [`*tag*]
+`sc` *global-option*... `start` *stage-option*... [*key*`=`*value*...] [`*image*]
 
 
-`sc` *global-option*... `stop` *stage-option*... [*app*...]
+`sc` *global-option*... `stop` *stage-option*...
 
 
-`sc` *global-option*... `restart` *stage-option*... [*app*[`:`*tag*] ...]
+`sc` *global-option*... `restart` *stage-option*... [*image*]
 
 
 
@@ -263,7 +263,7 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 
 
 
-`sc` *global-option*... `app` *stage-option*... *app*...
+`sc` *global-option*... `images` *stage-option*...
 
 
 

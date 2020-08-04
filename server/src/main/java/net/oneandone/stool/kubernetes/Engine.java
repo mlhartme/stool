@@ -569,7 +569,7 @@ public class Engine implements AutoCloseable {
                 .endSpec().build();
     }
 
-    private boolean hasImplicit(Map<String, String> labels) {
+    public boolean hasImplicit(Map<String, String> labels) {
         return labels.entrySet().containsAll(implicitLabels.entrySet());
     }
 
