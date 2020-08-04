@@ -38,12 +38,14 @@ Client changes
   instead of the app name with an optional SSL.
 * `restart` replaced appIndex arguments by optional image argument 
 * `stop` dumped apps argument
-* `app` command
+* renamed `app` command to `images`
   * dumped app argument
-  * moved all none-image fields to status command
-  * renamed to `images`
-* `ssh` dumped app argument
-* `tunnel` dumped app argument
+  * moved all none-image fields to status command:
+    `container`, `uptime`, `disk-used`, `jmx-port`, `debug-port`, `environment`, `origin-scm`, `heap`
+
+* TODO: not adjusted yet
+  * `ssh` dumped app argument
+  * `tunnel` dumped app argument
 
 
 Server changes
@@ -70,9 +72,6 @@ Server changes
   app url no longer contains app name
   
 * server
-  * `app`
-    * moved fields from `app` to `status`: `container`, `uptime`, `disk-used`, `jmx-port`, `debug-port`, `environment`, `origin-scm`, `heap`
-    * renamed to `images`
   * `start` replaced apps argument by optional image arguments; returns a single image now
   * `stop` dumped apps argument, returns an optional String now
   * `appInfo` dumped app argument
@@ -83,17 +82,6 @@ Server changes
   * naming scheme for context directories changed from app:tag to tag (current build is now _)
   * build now creates a repository tag without app name
   * dumped container label `app`
-
---
-
-* server
-  * dumped awaitStartup legacy
-
-### 5.1.1 (pending)
-
-client 
-* added -network argument to make the server network configurable
-* fixed integration tests to automatically create and remove a network (thanks to Stephan M)
 
 
 ### 5.1.0 (2020-02-04)
