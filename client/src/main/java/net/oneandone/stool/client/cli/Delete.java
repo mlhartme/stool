@@ -51,7 +51,7 @@ public class Delete extends IteratedStageCommand {
 
         reference.client.delete(reference.stage);
 
-        project = lookupProject(working);
+        project = lookupProject();
         if (project != null) {
             if (project.remove(reference.stage)) {
                 console.info.println("detaching stage: " + reference);

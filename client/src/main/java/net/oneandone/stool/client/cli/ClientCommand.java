@@ -35,7 +35,6 @@ public abstract class ClientCommand {
     protected final Globals globals;
     protected final World world;
     protected final Console console;
-    protected FileNode working;
 
     public ClientCommand(Globals globals) {
         FileNode stoolYaml;
@@ -43,7 +42,6 @@ public abstract class ClientCommand {
         this.globals = globals;
         this.world = globals.getWorld();
         this.console = globals.getConsole();
-        this.working = globals.getWorld().getWorking();
 
         stoolYaml = globals.getStoolYaml();
         if (!stoolYaml.exists()) {
@@ -51,10 +49,8 @@ public abstract class ClientCommand {
         }
     }
 
-    public void setWorkingOpt(FileNode workingOpt) { // TODO: why does inline call this method?
-        if (workingOpt != null) {
-            this.working = workingOpt;
-        }
+    public Project lookupProject() throws IOException {
+        return lookupProject(world.getWorking());
     }
 
     public Project lookupProject(FileNode directory) throws IOException {

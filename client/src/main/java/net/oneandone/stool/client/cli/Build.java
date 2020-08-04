@@ -64,7 +64,7 @@ public class Build extends IteratedStageCommand {
         App app;
         Source source;
 
-        project = lookupProject(working);
+        project = lookupProject();
         if (project == null) {
             throw new ArgumentException("cannot build " + reference + " without a project");
         }

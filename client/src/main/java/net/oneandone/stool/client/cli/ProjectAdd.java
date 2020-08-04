@@ -73,20 +73,20 @@ public abstract class ProjectAdd extends ClientCommand {
         String name;
         String path;
 
-        projectOpt = lookupProject(working);
+        projectOpt = lookupProject();
         if (projectOpt != null) { // TODO: feels weired
             throw new ArgumentException("project already has a stage; detach it first");
         }
         if (detached) {
             projectOpt = null;
         } else {
-            projectOpt = Project.create(working);
+            projectOpt = Project.create(world.getWorking());
         }
         try {
             map = new HashMap<>();
             for (Map.Entry<String, Source.Type> entry : paths.entrySet()) {
                 path = entry.getKey();
-                for (Source source : Source.findAndCheck(entry.getValue(), path.isEmpty() ? working : world.file(path), stage)) {
+                for (Source source : Source.findAndCheck(entry.getValue(), path.isEmpty() ? world.getWorking() : world.file(path), stage)) {
                     name = source.subst(stage);
                     if (map.values().contains(name)) {
                         throw new ArgumentException("duplicate name: " + name); // TODO: improved message

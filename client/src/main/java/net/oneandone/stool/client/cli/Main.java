@@ -66,34 +66,32 @@ public class Main {
         cli.primitive(FileNode.class, "file name", null, world::file);
         cli.begin(globals.getConsole(), "-v -e  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
-           cli.begin("globals", globals,  "-context -wirelog -exception { setContext(context) setWirelog(wirelog) setException(exception) }");
+           cli.begin("globals", globals,  "-context -wirelog -exception -working { setContext(context) setWirelog(wirelog) setException(exception) setWorking(working) }");
               cli.addDefault(Help.class, "help command?");
-              cli.begin("globals.getWorld", "");
-                       cli.begin("globals.getConsole", "");
-                cli.add(Setup.class, "setup nameAndHost?");
-                cli.add(Auth.class, "auth -batch");
-                cli.add(ConfigContext.class, "context -offline name?");
-                cli.add(ShellInc.class, "shell-inc");
-                cli.add(Server.class, "server -overwrite -resolve hostname args*");
-                cli.base(ClientCommand.class, "-working { setWorkingOpt(working) }");
-                    cli.add(Create.class, "create -optional -detached args+"); // args: path* name (key=value)*
-                    cli.add(Attach.class, "attach args+"); // args: path* name
-                    cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
-                      cli.add(Detach.class, "detach");
-                      cli.add(Build.class, "build -nocache -keep=3 -restart -m= args*");
-                      cli.add(Config.class, "config property* { property*(property) }");
-                      cli.add(History.class, "history -details=false -max=-1");
-                      cli.add(Images.class, "images");
-                      cli.add(Ls.class, "list info* { select*(info) }");
-                      cli.add(Delete.class, "delete -batch -stop");
-                      cli.add(Remove.class, "remove");
-                      cli.add(Restart.class, "restart image?");
-                      cli.add(Start.class, "start -http=-1 -https=-1 envAppIndex*");
-                      cli.add(Status.class, "status info* { select*(info) }");
-                      cli.add(Stop.class, "stop");
-                      cli.add(Tunnel.class, "tunnel port local?");
-                      cli.add(Ssh.class, "ssh");
-                      cli.add(Validate.class, "validate -email -repair");
+              cli.begin("globals.getWorld", ""); cli.begin("globals.getConsole", "");
+                 cli.add(Setup.class, "setup nameAndHost?");
+                 cli.add(Auth.class, "auth -batch");
+                 cli.add(ConfigContext.class, "context -offline name?");
+                 cli.add(ShellInc.class, "shell-inc");
+                 cli.add(Server.class, "server -overwrite -resolve hostname args*");
+                 cli.add(Create.class, "create -optional -detached args+"); // args: path* name (key=value)*
+                 cli.add(Attach.class, "attach args+"); // args: path* name
+                 cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
+                    cli.add(Detach.class, "detach");
+                    cli.add(Build.class, "build -nocache -keep=3 -restart -m= args*");
+                    cli.add(Config.class, "config property* { property*(property) }");
+                    cli.add(History.class, "history -details=false -max=-1");
+                    cli.add(Images.class, "images");
+                    cli.add(Ls.class, "list info* { select*(info) }");
+                    cli.add(Delete.class, "delete -batch -stop");
+                    cli.add(Remove.class, "remove");
+                    cli.add(Restart.class, "restart image?");
+                    cli.add(Start.class, "start -http=-1 -https=-1 envAppIndex*");
+                    cli.add(Status.class, "status info* { select*(info) }");
+                    cli.add(Stop.class, "stop");
+                    cli.add(Tunnel.class, "tunnel port local?");
+                    cli.add(Ssh.class, "ssh");
+                    cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);
     }

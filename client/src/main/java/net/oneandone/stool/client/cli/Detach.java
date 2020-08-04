@@ -31,7 +31,7 @@ public class Detach extends IteratedStageCommand {
     public void doMain(Reference reference) throws Exception {
         Project project;
 
-        project = lookupProject(working);
+        project = lookupProject();
         if (project == null) {
             throw new ArgumentException("no project to detach from");
         }
