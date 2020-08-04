@@ -16,13 +16,14 @@
 package net.oneandone.stool.server.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.kubernetes.DataInfo;
 import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,16 +45,10 @@ public class StageConfiguration {
     }
 
     public static final List<String> list(Engine engine) throws IOException {
-        List<String> result;
-
-        result = new ArrayList<>();
-        for (DataInfo info : engine.configMapList().values()) { // TODO: use special label to mark stage configs
-            if (engine.hasImplicit(info.labels)) {
-                result.add(info.name);
-            }
-        }
-        return result;
+        return new ArrayList<>(engine.configMapList(CONFIG_MARKER).keySet());
     }
+
+    private static final Map<String, String> CONFIG_MARKER = Collections.unmodifiableMap(Strings.toMap("type", "stage-config"));
 
     //--
 
@@ -89,7 +84,7 @@ public class StageConfiguration {
         gson.toJson(this, writer);
         map = new HashMap<>();
         map.put(CONFIG_MAP_KEY, writer.toString());
-        engine.configMapCreate(stageName, map);
+        engine.configMapCreate(stageName, map, CONFIG_MARKER);
     }
 
     public static void delete(Engine engine, String stageName) throws IOException {

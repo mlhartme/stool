@@ -928,13 +928,21 @@ public class Engine implements AutoCloseable {
 
     //-- config maps
 
-    /** @return name- to phase mapping */
     public Map<String, DataInfo> configMapList() throws IOException {
+        return doConfigMapList(null);
+    }
+
+    public Map<String, DataInfo> configMapList(Map<String, String> labelSelector) throws IOException {
+        return doConfigMapList(labelSelector(labelSelector));
+    }
+
+    public Map<String, DataInfo> doConfigMapList(String labelSelector) throws IOException {
         V1ConfigMapList lst;
         Map<String, DataInfo> result;
 
         try {
-            lst = core.listNamespacedConfigMap(namespace, null, null, null, null, null, null, null, null, null);
+            lst = core.listNamespacedConfigMap(namespace, null, null, null, null, labelSelector,
+                    null, null, null, null);
             result = new HashMap();
             for (V1ConfigMap m : lst.getItems()) {
                 result.put(m.getMetadata().getName(), DataInfo.create(m.getMetadata()));
@@ -946,9 +954,14 @@ public class Engine implements AutoCloseable {
     }
 
     public void configMapCreate(String name, Map<String, String> data) throws IOException {
+        configMapCreate(name, data, Collections.emptyMap());
+    }
+
+    public void configMapCreate(String name, Map<String, String> data, Map<String, String> labels) throws IOException {
         V1ConfigMap map;
 
-        map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).withLabels(implicitLabels).endMetadata()
+        map = new V1ConfigMapBuilder()
+                .withNewMetadata().withName(name).withNamespace(namespace).withLabels(withImplicit(labels)).endMetadata()
                 .withData(data).build();
         // TODO: System.out.println("create with implicit: " + implicitLabels + " " + map.getMetadata().getLabels());
         try {
