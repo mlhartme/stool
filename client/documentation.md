@@ -310,7 +310,9 @@ Homepage: https://github.com/mlhartme/stool
 Invoke `sc help` *command* to get help for the specified command.
 
 [//]: # (include globalOptions.md)
+
 See `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 ### stool-global-options
@@ -357,7 +359,9 @@ Display version info
 Prints version info. Use the global `-v` option to get additional diagnostic info.
 
 [//]: # (include globalOptions.md)
+
 See `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 ### stool-auth
@@ -377,7 +381,9 @@ Use the `-batch` option to omit asking for username/password and instead pick th
 variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
 
 [//]: # (include globalOptions.md)
+
 See `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 ### stool-create
@@ -403,7 +409,9 @@ New stages are configured with the specified *key*/*value* pairs. Specifying a *
 [stool config](#stool-config) with these arguments.
 
 [//]: # (include globalOptions.md)
+
 See `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 #### Examples
@@ -423,7 +431,9 @@ Attach stage to a project
 Similar to `create`, but stages have to exist, they are not created. 
 
 [//]: # (include globalOptions.md)
+
 See `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -521,6 +531,7 @@ and run `build`, the oldest unreferenced image the will be removed. Unreferenced
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -542,6 +553,7 @@ from`.backstage/project.yaml` file.
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -567,6 +579,7 @@ with the `-batch` option.
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -605,6 +618,7 @@ TODO: how to define additional environment variables?
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -629,6 +643,7 @@ signal handling.
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -649,6 +664,7 @@ Shorthand for `sc stop *app*... && stool start *app*:*tag*`.
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -669,6 +685,7 @@ specified *max* number of commands (defauls is 50).
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -718,6 +735,7 @@ Each entry separates key and value by a colon. Example `foo:bar, key:value`
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -778,6 +796,7 @@ Available fields:
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -842,6 +861,7 @@ Per-image fields:
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -862,6 +882,7 @@ command for a list of available fields. Default fields/properties are `name stat
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
@@ -915,6 +936,7 @@ if `-email` is specified, a notification mail is sent as configured by the notif
 
 Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
 Use `sc help global-options` for available [global options](#stool-global-options)
+
 [//]: # (-)
 
 
