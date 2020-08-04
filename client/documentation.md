@@ -109,13 +109,15 @@ later.
 
 ### Image
 
-A Docker image with various label. 
+A Docker image with various labels. An image can be identified by a repository tag. However, since a stage implies the repository, Stool 
+can usually refer to an image by its tag. When building images with Stool, this tag is a number, that's incremented with every build.
+
+Labels: TODO
 
 * **origin**
   Specifies where the image came from, e.g. a git url, Maven like
       git:ssh://git@github.com/mlhartme/hellowar.git
 
-If you use Stool to build stages, the Docker tag of an image is simply a number, that's incremented with every build.
 
 ### Project
 
@@ -154,7 +156,7 @@ with [stool config](#stool-config).
 Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are similar to
 properties, but they are read-only.
 
-Besides properties, stages have build options and environment variables for every application image. Use `sc app` to see the current
+Besides properties, stages have build options and environment variables for every application image. Use `sc images` to see the current
 values.
  
 
@@ -382,8 +384,7 @@ The following environment variables can be used to configure the server:
 * **AUTO_REMOVE**
   Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1. 
 * **DISK_QUOTA**
-  Mb of disk spaces available for the read/write layer of all running apps. The sum of all disk space reserved for all apps of all stages
-  cannot exceed this number. 0 disables this feature. Type number, default 0.
+  Mb of disk spaces available for the read/write layer of the running stages. 0 disables this feature. Type number, default 0.
 * **DEFAULT_EXPIRE**
   Defines the number of days to expire new stages (0 for never). Type number, default 0.
 * **HOST**
@@ -392,7 +393,7 @@ The following environment variables can be used to configure the server:
   to log all traffic between server and docker daemon. CAUTION: enabling writes huge amounts of data if you have large war files.
   Type boolean, default value is false.
 * **ENVIRONMENT** 
-  Default environment variables set automatically when starting apps, can be overwritten by the `start` command. Type map, default empty.
+  Default environment variables set automatically when starting stages, can be overwritten by the `start` command. Type map, default empty.
 * **JMX_USAGE**
   How to invoke a jmx client in your environment. Type string, default "jconsole localhost:%i".  
 * **LDAP_CREDENTIALS**
@@ -414,7 +415,7 @@ The following environment variables can be used to configure the server:
 * **MAIL_PASSWORD**
   Password for mailHost. Type string, default empty.
 * **MEMORY_QUOTA**
-  Max memory that all apps may reserve. 0 to disable. Type number, default 0.
+  Max memory that all stages may reserve. 0 to disable. Type number, default 0.
 * **REGISTRY_URL**
   Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
 
@@ -661,16 +662,12 @@ Start a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...] [`*tag*]
+`sc` *global-option*... `start` *stage-option*... [*key*`=`*value*...] [`*image*]
 
 #### Description
 
-Starts the stage with the environment arguments specified by *key*=*value* arguments. *app* can be specified with a tag to determine the actual image to be started; if not specified, the latest
-tag is used. Use `sc app` to see available images.
-
-If you specify http or https options, the respective port will be used for the application. Otherwise, those ports are chosen automatically.
-
-Before starting an app, Stool checks if it has previously been started. If so, the respective container is removed.
+Starts the stage with the environment arguments specified by *key*=*value* arguments. *image* specifies that image to actually start,
+it defaults to the latest. Use `sc images` to see available images.
 
 Startup is refused if the user who built the image does not have access to all fault projects of the image.
 
@@ -678,7 +675,7 @@ Startup is refused if your stage has expired. In this case, use `sc config expir
 
 Startup is also refused if the disk or memory quota exceeded. In this case, stop some other stages.
 
-The hostname of the container is set to <id>.<servername>, where id is a hash of stage name and application name. This hash
+TODO: The hostname of the container is set to <id>.<servername>, where id is a hash of stage name and application name. This hash
 serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names. 
 And the hash makes it impossible to derived stage or application name from the hostname -- applications are strongly discouraged to 
 check the hostname to configure themselves, use environment variables defined for that purpose instead. Future versions of Stool will 
@@ -700,15 +697,14 @@ Stop a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `stop` *stage-option*... [*app*...]
+`sc` *global-option*... `stop` *stage-option*...
 
 #### DESCRIPTION
 
-Stops the specified apps (if none is specified: all running apps). 
+Stops the specified stage. 
 
 This command sends a "kill 15" to the root process of the container. If that's not successful within 300 seconds, the process is forcibly 
-terminated with "kill 9". If shutdown is slow, try to debug the apps running in this stage and find out what's slow in their kill 15 
-signal handling. 
+terminated with "kill 9". If shutdown is slow, try to debug and find out what's slow in their kill 15 signal handling. 
 
 
 [//]: # (include stageOptions.md)
@@ -725,12 +721,12 @@ Restart a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `restart` *stage-option*... [*app*[`:`*tag*] ...]
+`sc` *global-option*... `restart` *stage-option*... [*image*]
 
 
 #### DESCRIPTION
 
-Shorthand for `sc stop *app*... && stool start *app*:*tag*`.
+Shorthand for `sc stop && stool start`.
 
 [//]: # (include stageOptions.md)
 
@@ -848,12 +844,10 @@ Available fields:
 
 * **name**
   Name of the stage.
-* **apps**
-  App names of this stage. 
 * **running**
   Currently running images of this stage.
 * **urls**
-  Urls for all apps of this stage. Point your browser to one of them to access your app(s).
+  Urls for this stage. Point your browser to one of them to access your stage.
 * **created-by**
   User who created this stage.
 * **created-at**
@@ -863,29 +857,7 @@ Available fields:
 * **last-modified-at**
   Last modified date of this stage.
 
-
-[//]: # (include stageOptions.md)
-
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
-
-[//]: # (-)
-
-
-### stool-app
-
-Display app status
-
-#### SYNOPSIS
-
-`sc` *global-option*... `app` *stage-option*... *app*...
-
-
-#### DESCRIPTION
-
-Display status info about the specified app(s), default is all apps.
-
-Per-app fields:
+TODO:
 * **container**
   container id if the stage is running.
 * **uptime**
@@ -904,16 +876,34 @@ Per-app fields:
   Port for jmx.
 
 
-Per-image fields:
+
+[//]: # (include stageOptions.md)
+
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
+Use `sc help global-options` for available [global options](#stool-global-options)
+
+[//]: # (-)
+
+
+### stool-images
+
+Display image status
+
+#### SYNOPSIS
+
+`sc` *global-option*... `images` *stage-option*...
+
+
+#### DESCRIPTION
+
+Display info about the images of the stage.
 
 * **disk**
   Read/write disk space that has to be reserved for this image. Type number (mb).
 * **memory**
   Memory that has to be reserved for this image. Type number (mb).
 * **build args*
-  Docker build arguments actually used to build this image.
-* **secrets*
-  Fault projects needed to run this image. Type String.
+  Docker build arguments actually used to build this image. This includes `faultProjects`
 * **comment**
   comment attached to the image
 * **created-at**

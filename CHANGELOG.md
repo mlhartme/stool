@@ -10,6 +10,8 @@ the client has been extended to easily create multiple stages for one project.
 And Docker builds execute on the client now, the server just consumes images from a registry. Consequently, 
 users need a local Docker setup.
 
+User-visible ports are gone (alogin with port options), dispatching to stages is now based on vhosts.
+
 Client changes
 * setup (many of them to make Stool 6 usable next to Stool 5)
   * client configuration is about contexts now - contexts have replaced servers, they point to a Kubernetes namespace,
