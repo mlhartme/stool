@@ -35,14 +35,14 @@ public class Setup {
     }
 
     private final World world;
-    private final FileNode stoolYaml;
+    private final FileNode scYaml;
     private final Console console;
     private final String version;
     private final String spec;
 
     public Setup(Globals globals, String spec) {
         this.world = globals.getWorld();
-        this.stoolYaml = globals.getStoolYaml();
+        this.scYaml = globals.scYaml();
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.spec = spec;
@@ -51,12 +51,12 @@ public class Setup {
     public void run() throws IOException {
         Configuration configuration;
 
-        if (stoolYaml.exists()) {
-            throw new IOException("Stool is already set up in " + stoolYaml.getAbsolute());
+        if (scYaml.exists()) {
+            throw new IOException("Stool is already set up in " + scYaml.getAbsolute());
         }
         configuration = configuration();
-        configuration.save(stoolYaml);
-        console.info.println("Done - created " + stoolYaml.getAbsolute() + " for Stool version " + version);
+        configuration.save(scYaml);
+        console.info.println("Done - created " + scYaml.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
         for (Context c : configuration.contexts.values()) {
             console.info.println("  " + c.name + " " + c.url);

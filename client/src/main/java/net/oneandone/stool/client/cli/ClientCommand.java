@@ -37,15 +37,15 @@ public abstract class ClientCommand {
     protected final Console console;
 
     public ClientCommand(Globals globals) {
-        FileNode stoolYaml;
+        FileNode scYaml;
 
         this.globals = globals;
         this.world = globals.getWorld();
         this.console = globals.getConsole();
 
-        stoolYaml = globals.getStoolYaml();
-        if (!stoolYaml.exists()) {
-            throw new ArgumentException("client configuration not found: " + stoolYaml + "\nRun 'sc setup' to create it.");
+        scYaml = globals.scYaml();
+        if (!scYaml.exists()) {
+            throw new ArgumentException("client configuration not found: " + scYaml + "\nRun 'sc setup' to create it.");
         }
     }
 

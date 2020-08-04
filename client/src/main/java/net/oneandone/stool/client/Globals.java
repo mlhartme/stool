@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.DirectoryNotFoundException;
 import net.oneandone.sushi.fs.ExistsException;
@@ -29,44 +27,42 @@ import java.util.UUID;
 /** Global client stuff */
 public class Globals {
     public static Globals create(Console console, World world, FileNode stoolYamlOpt, String command) {
-        FileNode stoolYaml;
+        FileNode scYaml;
         String str;
 
         if (stoolYamlOpt != null) {
-            stoolYaml = stoolYamlOpt;
+            scYaml = stoolYamlOpt;
         } else {
             str = System.getenv("SC_YAML");
             if (str != null) {
-                stoolYaml = world.file(str);
+                scYaml = world.file(str);
             } else {
-                stoolYaml = world.getHome().join(".sc.yaml");
+                scYaml = world.getHome().join(".sc.yaml");
             }
         }
-        return new Globals(console, world, stoolYaml, UUID.randomUUID().toString(), command);
+        return new Globals(console, world, scYaml, UUID.randomUUID().toString(), command);
     }
 
     private final Console console;
     private final World world;
-    private final Gson gson;
-    private final FileNode stoolYaml;
+    private final FileNode scYaml;
     private final String invocation;
     private final String command;
     private String context;
     private FileNode wirelog;
 
-    public Globals(Console console, World world, FileNode stoolYaml, String invocation, String command) {
+    public Globals(Console console, World world, FileNode scYaml, String invocation, String command) {
         this.console = console;
         this.world = world;
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
-        this.stoolYaml = stoolYaml;
+        this.scYaml = scYaml;
         this.invocation = invocation;
         this.command = command;
         this.context = null;
         this.wirelog = null;
     }
 
-    public FileNode getStoolYaml() {
-        return stoolYaml;
+    public FileNode scYaml() {
+        return scYaml;
     }
 
     public FileNode templates() throws ExistsException, DirectoryNotFoundException {
@@ -105,7 +101,7 @@ public class Globals {
         Configuration result;
 
         result = new Configuration(world, wirelog, invocation, command);
-        result.load(getStoolYaml());
+        result.load(scYaml());
         if (context != null) {
             result.setCurrentContext(context);
         }

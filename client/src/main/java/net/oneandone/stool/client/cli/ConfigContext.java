@@ -64,7 +64,7 @@ public class ConfigContext {
                 console.info.println("not changed: " + oldName);
             } else {
                 configuration.setCurrentContext(setOpt);
-                configuration.save(globals.getStoolYaml());
+                configuration.save(globals.scYaml());
                 console.info.println("changed " + oldName + " -> " + setOpt);
                 if (!offline) {
                     check(found);
