@@ -212,7 +212,7 @@ public class EngineIT {
         Data data;
 
         try (Engine engine = create()) {
-            data = Data.secrets(name, "/etc/secrets");
+            data = Data.secrets(name, "/etc/secrets", false);
             data.addUtf8("sub/renamed.txt", "blablub");
             data.define(engine);
 

@@ -38,8 +38,8 @@ public class Data {
     public static Data configMap(String name, String mountPath, boolean subPaths) {
         return new Data(false, name, mountPath, subPaths);
     }
-    public static Data secrets(String name, String mountPath) {
-        return new Data(true, name, mountPath, false);
+    public static Data secrets(String name, String mountPath, boolean subPaths) {
+        return new Data(true, name, mountPath, subPaths);
     }
 
     public final boolean secret;

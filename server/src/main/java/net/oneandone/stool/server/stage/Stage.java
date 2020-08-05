@@ -110,7 +110,7 @@ public class Stage {
     private String faultSecretName() {
         return name + "-fault";
     }
-    private String certConfigMapName() {
+    private String certSecretName() {
         return name + "-cert";
     }
     public String httpRouteName() {
@@ -582,7 +582,7 @@ public class Stage {
                 // ok
             }
             try {
-                engine.configMapDelete(certConfigMapName());
+                engine.secretDelete(certSecretName());
             } catch (FileNotFoundException e) {
                 // ok
             }
@@ -789,8 +789,8 @@ public class Stage {
         prefix = Strings.removeRight(prefix, "/");
         System.out.println("prefix: " + prefix);
         dir = server.certificate(stageHost());
-        // TODO: why configMap, and not secret?
-        result = Data.configMap(certConfigMapName(), prefix, true);
+        // CAUTION: that's a config map, and not a secret, because I use sub paths
+        result = Data.secrets(certSecretName(), prefix, true);
         if (image.certificateKey != null) {
             result.addRelative(dir.join("key.pem"), image.certificateKey);
         }
@@ -846,7 +846,7 @@ public class Stage {
         }
 
         // same as hostLogRoot, but the path as needed inside the server:
-        result = Data.secrets(faultSecretName(), "/root/.fault");
+        result = Data.secrets(faultSecretName(), "/root/.fault", false);
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.author, image.faultProjects);
