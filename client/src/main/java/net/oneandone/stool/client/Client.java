@@ -39,6 +39,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,22 +115,12 @@ public class Client {
         return postJson(node, "").getAsString();
     }
 
-    /** @param filter null to return all stages */
+    /**
+     * @param filter null to return all stages
+     * @return stage names
+     */
     public List<String> list(String filter) throws IOException {
-        HttpNode node;
-        JsonArray references;
-        List<String> result;
-
-        node = node("stages");
-        if (filter != null) {
-            node = node.withParameter("filter", filter);
-        }
-        references = getJson(node).getAsJsonArray();
-        result = new ArrayList<>(references.size());
-        for (JsonElement element : references) {
-            result.add(element.getAsString());
-        }
-        return result;
+        return new ArrayList<>(list(filter, Collections.emptyList()).keySet());
     }
 
     /** @param filter null to return all stages */

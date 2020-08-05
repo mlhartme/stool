@@ -121,29 +121,7 @@ public class ApiController {
 
     @GetMapping("/stages")
     public String list(@RequestParam(value = "filter", required = false, defaultValue = "") String filter,
-                       @RequestParam(value = "select", required = false, defaultValue = "") String select) throws IOException {
-        try (Engine engine = engine()) {
-            return select.isEmpty() ? legacyList(engine, filter) : newList(filter, select);
-        }
-    }
-
-    private String legacyList(Engine engine, String filter) throws IOException {
-        JsonArray result;
-        Map<String, IOException> problems;
-        Context context;
-
-        result = new JsonArray();
-        problems = new HashMap<>();
-        context = new Context(engine, server.createRegistry());
-        for (Stage stage : server.list(engine, new PredicateParser(context).parse(filter), problems)) {
-            result.add(new JsonPrimitive(stage.getName()));
-        }
-        if (!problems.isEmpty()) {
-            throw new IOException("nested problems: " + problems);
-        }
-        return result.toString();
-    }
-    private String newList(String filter, String selectStr) throws IOException {
+                       @RequestParam(value = "select", required = false, defaultValue = "") String selectStr) throws IOException {
         JsonObject result;
         Context context;
         Map<String, IOException> problems;
