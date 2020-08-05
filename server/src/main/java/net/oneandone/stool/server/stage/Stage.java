@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
+import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.Registry;
@@ -103,7 +104,7 @@ public class Stage {
 
     //-- kubernetes names
 
-    private String deploymentName() {
+    public String deploymentName() {
         // is not allowed to contain dots
         return name.replace(".", "--");
     }
@@ -381,15 +382,12 @@ public class Stage {
         fields.add(new Field("environment") {
             @Override
             public Object get(Context context) throws IOException {
-                Current current;
-
-                current = context.currentOpt(Stage.this);
-                return current == null ? null : env(current.pod);
+                return env(context.deploymentOpt(Stage.this));
             }
         });
     }
 
-    private Map<String, String> env(PodInfo info) {
+    private Map<String, String> env(DeploymentInfo info) {
         Map<String, String> result;
         String key;
 
@@ -398,7 +396,8 @@ public class Stage {
             for (Map.Entry<String, String> entry : info.labels.entrySet()) {
                 key = entry.getKey();
                 if (key.startsWith(Stage.DEPLOYMENT_LABEL_ENV_PREFIX)) {
-                    result.put(key.substring(Stage.DEPLOYMENT_LABEL_ENV_PREFIX.length()), entry.getValue());
+                    result.put(Engine.decodeLabel(key.substring(Stage.DEPLOYMENT_LABEL_ENV_PREFIX.length())),
+                            Engine.decodeLabel(entry.getValue()));
                 }
             }
         }
@@ -635,7 +634,7 @@ public class Stage {
         deploymentLabels = new HashMap<>();
         deploymentLabels.put(DEPLOYMENT_LABEL_STAGE, name);
         for (Map.Entry<String, String> entry : environment.entrySet()) {
-            deploymentLabels.put(DEPLOYMENT_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
+            deploymentLabels.put(DEPLOYMENT_LABEL_ENV_PREFIX + Engine.encodeLabel(entry.getKey()), Engine.encodeLabel(entry.getValue()));
         }
 
         podLabels = new HashMap<>();

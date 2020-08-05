@@ -84,30 +84,30 @@ import java.util.Map;
 public class Engine implements AutoCloseable {
     private static final String UTF_8 = "utf8";
 
-    public static String encodeLabel(String value) {
+    public static String encodeLabel(String str) {
         String result;
 
-        result = encodeLabelRaw(value);
+        result = encodeLabelRaw(str);
         if (result.length() > 63) {
-            throw new IllegalStateException("value too long: " + value);
+            throw new IllegalStateException("value too long: " + str);
         }
         return result;
     }
 
-    public static String encodeLabelRaw(String value) {
+    public static String encodeLabelRaw(String str) {
         try {
-            return "a-" + Base64.getEncoder().encodeToString(value.getBytes(UTF_8)).replace('=', '-') + "-z";
+            return "a-" + Base64.getEncoder().encodeToString(str.getBytes(UTF_8)).replace('=', '-') + "-z";
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    public static String decodeLabel(String value) {
-        value = Strings.removeLeft(value, "a-");
-        value = Strings.removeRight(value, "-z");
-        value = value.replace('-', '=');
+    public static String decodeLabel(String str) {
+        str = Strings.removeLeft(str, "a-");
+        str = Strings.removeRight(str, "-z");
+        str = str.replace('-', '=');
         try {
-            return new String(Base64.getDecoder().decode(value), UTF_8);
+            return new String(Base64.getDecoder().decode(str), UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
