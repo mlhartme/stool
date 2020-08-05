@@ -85,7 +85,7 @@ public class MainIT {
 
         Thread.sleep(30000); // TODO
 
-        stage = "it";
+        stage = "de.wq-ta";
 
         sc(working, "list");
         sc(working,"create", "-e", stage);

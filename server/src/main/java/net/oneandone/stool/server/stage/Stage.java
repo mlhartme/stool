@@ -80,6 +80,13 @@ public class Stage {
     //--
 
     public final Server server;
+
+    /**
+     * Has a very strict syntax, it's used:
+     * * in Kubernetes resource names
+     * * Docker repository tags
+     * * label values
+     */
     private final String name;
 
     public final StageConfiguration configuration;
@@ -93,6 +100,34 @@ public class Stage {
     public String getName() {
         return name;
     }
+
+    //-- kubernetes names
+
+    private String deploymentName() {
+        // is not allowed to contain dots
+        return name.replace(".", "--");
+    }
+    private String faultSecretName() {
+        return name + "-fault";
+    }
+    private String certConfigMapName() {
+        return name + "-cert";
+    }
+    public String httpRouteName() {
+        return name + "-http";
+    }
+    public String httpsRouteName() {
+        return name + "-https";
+    }
+    public String appIngressName() {
+        return name + "ingress";
+    }
+    public String appServiceName() {
+        // is not allowed to contain dots: https://kubernetes.io/docs/concepts/services-networking/service/
+        return name.replace(".", "--");
+    }
+
+
 
     public FileNode getLogs() {
         return server.getLogs(); // TODO: that's not the application logs
@@ -513,21 +548,14 @@ public class Stage {
         }
     }
 
-    private String deploymentName() {
-        return name.replace('.', '-');
-    }
-    private String certName() {
-        return deploymentName() + "cert";
-    }
-
     private void wipeStartedResources(Engine engine) throws IOException {
         String deploymentName;
         String serviceName;
 
-        deploymentName = deploymentName();
         serviceName = appServiceName();
         if (engine.serviceGetOpt(serviceName) != null) {
             Server.LOGGER.debug("wipe kubernetes resources");
+            deploymentName = deploymentName();
             if (engine.deploymentProbe(deploymentName) != null) {
                 engine.deploymentDelete(deploymentName);
             }
@@ -549,12 +577,12 @@ public class Stage {
                 engine.ingressDelete(appIngressName());
             }
             try {
-                engine.secretDelete(deploymentName);
+                engine.secretDelete(faultSecretName());
             } catch (FileNotFoundException e) {
                 // ok
             }
             try {
-                engine.configMapDelete(certName());
+                engine.configMapDelete(certConfigMapName());
             } catch (FileNotFoundException e) {
                 // ok
             }
@@ -563,8 +591,7 @@ public class Stage {
 
     /** @return image actually started, null if this image is actually running
      *  @throws IOException if a different image is already running */
-    public String start(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment)
-            throws IOException {
+    public String start(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
         String deploymentName;
         PodInfo running;
         Map<String, String> environment;
@@ -680,19 +707,6 @@ public class Stage {
                 Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), Strings.toMap(DEPLOYMENT_LABEL_STAGE, name));
     }
 
-    public String httpRouteName() {
-        return deploymentName() + "http";
-    }
-    public String httpsRouteName() {
-        return deploymentName() + "https";
-    }
-    public String appIngressName() {
-        return deploymentName() + "ingress";
-    }
-    public String appServiceName() {
-        return deploymentName() + "app";
-    }
-
     private static String md5(String str) {
         MessageDigest md;
         byte[] bytes;
@@ -775,7 +789,8 @@ public class Stage {
         prefix = Strings.removeRight(prefix, "/");
         System.out.println("prefix: " + prefix);
         dir = server.certificate(stageHost());
-        result = Data.configMap(certName(), prefix, true);
+        // TODO: why configMap, and not secret?
+        result = Data.configMap(certConfigMapName(), prefix, true);
         if (image.certificateKey != null) {
             result.addRelative(dir.join("key.pem"), image.certificateKey);
         }
@@ -831,7 +846,7 @@ public class Stage {
         }
 
         // same as hostLogRoot, but the path as needed inside the server:
-        result = Data.secrets(deploymentName(), "/root/.fault");
+        result = Data.secrets(faultSecretName(), "/root/.fault");
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.author, image.faultProjects);
