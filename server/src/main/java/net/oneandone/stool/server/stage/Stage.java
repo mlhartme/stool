@@ -917,7 +917,7 @@ public class Stage {
     }
 
     public String stageHost() {
-        return getName() + "." + server.configuration.host;
+        return name + "." + server.configuration.host;
     }
 
     private List<String> url(TagInfo tag, String protocol) {
