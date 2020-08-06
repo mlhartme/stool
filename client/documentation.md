@@ -202,7 +202,7 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 `sc` *global-option*... [*command* *argument*...]
 
 
-`sc` [`-v`][`-e`][`-context` *context*][`-working` *working*] *command* *command-options*... *command-arguments*...
+`sc` [`-v`][`-e`][`-context` *context*] *command* *command-options*... *command-arguments*...
 
 
 `sc` *global-option*... `help` [*command*]
