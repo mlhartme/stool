@@ -34,25 +34,25 @@ import java.util.Map;
 
 /** List of Apps. Represents .backstage */
 public class Workspace {
-    public static Workspace create(FileNode project) throws IOException {
-        FileNode projectYaml;
+    public static Workspace create(FileNode directory) throws IOException {
+        FileNode workspaceYaml;
         Workspace result;
 
-        projectYaml = projectYaml(project);
-        projectYaml.getParent().checkNotExists();
-        projectYaml.checkNotExists();
-        result = new Workspace(projectYaml);
+        workspaceYaml = workspaceYaml(directory);
+        workspaceYaml.getParent().checkNotExists();
+        workspaceYaml.checkNotExists();
+        result = new Workspace(workspaceYaml);
         return result;
     }
 
     public static Workspace lookup(FileNode dir, Configuration configuration) throws IOException {
-        FileNode projectYaml;
+        FileNode workspaceYaml;
         Workspace result;
 
         while (dir != null) {
-            projectYaml = projectYaml(dir);
-            if (projectYaml.isFile()) {
-                result = new Workspace(projectYaml);
+            workspaceYaml = workspaceYaml(dir);
+            if (workspaceYaml.isFile()) {
+                result = new Workspace(workspaceYaml);
                 result.load(configuration);
                 return result;
             }
@@ -65,21 +65,21 @@ public class Workspace {
      * The name backstage is legacy - I keep it because applications have it in their .gitignores.
      * I create a directory to store the actual data to co-exist with Stool 5
      */
-    private static FileNode projectYaml(FileNode project) {
-        return project.join(".backstage/workspace.yaml");
+    private static FileNode workspaceYaml(FileNode directory) {
+        return directory.join(".backstage/workspace.yaml");
     }
 
     //--
 
     private final ObjectMapper yaml;
     public final FileNode directory;
-    private final FileNode projectYaml;
+    private final FileNode workspaceYaml;
     private final List<App> apps;
 
-    private Workspace(FileNode projectYaml) {
+    private Workspace(FileNode workspaceYaml) {
         this.yaml = new ObjectMapper(new YAMLFactory());
-        this.directory = projectYaml.getParent().getParent();
-        this.projectYaml = projectYaml;
+        this.directory = workspaceYaml.getParent().getParent();
+        this.workspaceYaml = workspaceYaml;
         this.apps = new ArrayList<>();
     }
 
@@ -92,7 +92,7 @@ public class Workspace {
         String typeAndPath;
         int idx;
 
-        try (Reader src = projectYaml.newReader()) {
+        try (Reader src = workspaceYaml.newReader()) {
             root = (ObjectNode) yaml.readTree(src);
         }
         stages = (ObjectNode) root.get("stages");
@@ -173,8 +173,8 @@ public class Workspace {
 
         if (apps.isEmpty()) {
             // prune
-            projectYaml.deleteFile();
-            projectYaml.getParent().deleteDirectory();
+            workspaceYaml.deleteFile();
+            workspaceYaml.getParent().deleteDirectory();
         } else {
             root = yaml.createObjectNode();
             stages = yaml.createObjectNode();
@@ -182,8 +182,8 @@ public class Workspace {
                 stages.put(app.reference.toString(), app.type.toString().toLowerCase() + "@" + app.path);
             }
             root.set("stages", stages);
-            projectYaml.getParent().mkdirOpt();
-            try (Writer dest = projectYaml.newWriter()) {
+            workspaceYaml.getParent().mkdirOpt();
+            try (Writer dest = workspaceYaml.newWriter()) {
                 SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
                 sw.write(root);
             }
