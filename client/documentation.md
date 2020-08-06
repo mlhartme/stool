@@ -2,12 +2,12 @@
 
 ## Introduction
 
-Stool is a tool to manage stages: create, build, start, stop, remove. A stage is a Web application defined by Docker images and executed in a container.
+Stool is a tool to manage stages: create, build, start, stop, delete. A stage is a Web application defined by Docker images and executed in a container.
 
 ### Quick Tour
 
-For setup instructions, please read the respective section below. The following assumes that Stool is properly set up, you have set the 
-current context and you are authenticated.
+For setup instructions, please read the respective section below. The following assumes that Stool is properly set up, 
+you have set the current context and you are authenticated.
 
 Here's an example what you can do with Stool. 
 
@@ -37,7 +37,7 @@ You can run
 
 to see if your stage is running and to see the stage urls.
 
-To remove the stage, stop the application with
+To delete the stage, stop it with
 
     sc stop
 
@@ -89,7 +89,7 @@ or the whole Github project.
 ### Context
 
 A context specifies a place that can host stages. It has a name, an optional token, and a URL pointing to a Stool server. 
-`sc` manages a list of contexts in it client configuration file. `sc` also manages a current context, you can change it permanently with `sc context` 
+`sc` manages a list of contexts in its client configuration file. `sc` also manages a current context, you can change it permanently with `sc context` 
 or per-invocation with the `-context` global option.
 
 Advanced note: The concept of a context is similar to `kubectl`s context.
@@ -97,20 +97,20 @@ Advanced note: The concept of a context is similar to `kubectl`s context.
 
 ### Stage
 
-A stage is a set of Docker images, where each image holds a Web Application, i.e. something you can point your browser to. Typically, that's 
-a Tomcat servlet container (http://tomcat.apache.org) with a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). Different 
-images hold different versions of your Web Application. Starting a stage creates a Docker container for one of the images.
+A stage is a set of Docker images, where each image holds a Web Application, i.e. something you can point your browser to. Typically, 
+that's a Tomcat servlet container (http://tomcat.apache.org) with a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). 
+Different images hold different versions of your Web Application. Starting a stage creates a container for one of the images.
 
 A stage is hosted in a Kubernetes namespace, which is identified by a context. Every stage has a unique name in that context. A stage is 
-referenced by *name*`@`*context* or just the *name* if it's in the current context. The stages attached to a workspace are shown in your shell 
-prompt. The stage name is part of the application url(s). Stage name and context are defined when you create a stage, you cannot change it 
-later.
+referenced by *name*`@`*context* or just the *name* if it's in the current context. The stages attached to a workspace are shown in your 
+shell prompt. The stage name is part of the application url(s). You define the stage name and context when you create the stage, neither
+can be changed later.
 
 
 ### Image
 
 A Docker image with various labels. An image can be identified by a repository tag. However, since a stage implies the repository, Stool 
-can usually refer to an image by its tag. When building images with Stool, this tag is a number, that's incremented with every build.
+usually refers to an image by its tag. When building images with Stool, this tag is a number, that's incremented with every build.
 
 Labels: TODO
 
@@ -123,9 +123,11 @@ Labels: TODO
 
 A workspace maps sources to stages. A source can be a Java War file or a Dockerfile.
 
-You'll typically work with workspaces like this: you have a checkout of one or multiple applications of yours. If they are Java Applications,
-you build the war(s) with something like `mvn clean package`. You create a workspace with `sc create` or `sc attach`, work with your 
-stage (e.g. build it with `sc build`), and when you're done, you clean up with `sc detach` or `sc delete`
+You'll typically work with workspaces like this: you have a checkout of one or multiple applications of yours. If they are 
+Java Applications, you build the war(s) with something like `mvn clean package`. To get a stage with that application, 
+you create a workspace with `sc create`, work with your stage (e.g. build it with `sc build`), and when you're done, you clean 
+up with `sc delete`. You can also use `sc attach` to connect with existing stages, and `sc detach` to remove stages from a workspace
+without deleting them.
 
 Technically, the workspace is stored in `.backstage/workspace.yaml`
 
@@ -140,9 +142,9 @@ stages.
 The stage indicator `> somestage@context <` is displayed in front of your shell prompt, it lists the current stages. The context is omitted 
 if it's the current context.
 
-If you create a new stage, Stool creates a new workspace and attaches to the newly created stage(s). If you `cd` into a different workspace, 
-the stage indicator changes accordingly. You can explicitly change the attached stage with `sc attach` and `sc detach`. The stage indicator 
-is invisible if you have no current workspace.
+If you create a new stage, Stool creates a new workspace and attaches it to the newly created stage(s). If you `cd` into a different 
+workspace, the stage indicator changes accordingly. You can explicitly change the attached stage with `sc attach` and `sc detach`. The 
+stage indicator is invisible if you have no current workspace.
 
 
 ### Properties
@@ -150,7 +152,7 @@ is invisible if you have no current workspace.
 Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
 or map (string to string)). Stool distinguishes server properties and stage properties. Server properties are global settings that apply to 
 all stages, they are usually adjusted by system administrators (see [server configuration](#stool-server)). Stage properties 
-onfigure the respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
+configure the respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
 with [stool config](#stool-config). 
 
 Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are similar to
@@ -189,7 +191,7 @@ Stool client
 #### DESCRIPTION
 
 `sc` is a command line tool to manage stages. A stage is a web application running in a container.
-*command* defaults to `help`. Stages can be hosted on arbitrary machines that run a Stool server. `sc` stands for Stool client. 
+*command* defaults to `help`. Stages can be hosted on Kubernetes clusters that a Stool server. `sc` stands for Stool client. 
 Technically, `sc` is a rest client for Stool server, and Stool server talks to Kubernetes to manage stages.
 
 
@@ -283,7 +285,7 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 #### Environment
 
 `SC_OPTS` to configure arguments passed to the underlying JVM. 
-`SC_YAML` to configure the location of the client configuration file. Defaults to `$HOME/.sc.yaml
+`SC_YAML` to configure the location of the client configuration file. Defaults to `$HOME/.sc.yaml`
 
 
 #### See Also
@@ -329,6 +331,7 @@ Display man page
 
 Display help about the specified *command*. Or, if *command* is not specified, display general `sc` help.
 
+
 ### stool-version 
 
 Display version info
@@ -359,7 +362,8 @@ Setup Stool client
 #### DESCRIPTION
 
 Creates a fresh client configuration file or reports an error if it already exists.
-The client configuration file is configured with the `SC_YAML` environment variable, it defaults to `~/.sc.yaml`
+The location of the client configuration file is configured with the `SC_YAML` environment variable, 
+defaults is `~/.sc.yaml`.
 
 
 ### stool-server
@@ -430,7 +434,7 @@ Manage current context
 
 #### DESCRIPTION
 
-Displays the current context when called without argument. Also prints the known contexts when called with `-v`.
+Displays the current context when called without argument. Prints all known contexts and (marks the current) when called with `-v`.
 
 Changes the current context when invoked with a *context* argument. If the new context requires authentication, this command implicitly 
 runs `sc auth` to get the respective token. This can be disabled by specifying `-offline`.

@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -179,29 +178,6 @@ public class Workspace {
                 sw.write(root);
             }
         }
-    }
-
-    //--
-
-    public String getOriginOrUnknown() throws IOException {
-        FileNode dir;
-
-        dir = directory;
-        do {
-            if (dir.join(".git").isDirectory()) {
-                return "git:" + git(dir, "config", "--get", "remote.origin.url").exec().trim();
-            }
-            dir = dir.getParent();
-        } while (dir != null);
-        return "unknown";
-    }
-
-    private static Launcher git(FileNode cwd, String... args) {
-        Launcher launcher;
-
-        launcher = new Launcher(cwd, "git");
-        launcher.arg(args);
-        return launcher;
     }
 
     //--

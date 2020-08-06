@@ -22,6 +22,7 @@ import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.apis.ExtensionsV1beta1Api;
@@ -153,6 +154,7 @@ public class Engine implements AutoCloseable {
     private Engine(ApiClient client, String namespace) {
         this.client = client;
         // client.setDebugging(true);
+        Configuration.setDefaultApiClient(client);
         this.core = new CoreV1Api();
         this.apps = new AppsV1Api();
         this.extensions = new ExtensionsV1beta1Api();

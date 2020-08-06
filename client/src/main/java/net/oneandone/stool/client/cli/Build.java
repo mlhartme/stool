@@ -28,14 +28,16 @@ import java.util.List;
 import java.util.Map;
 
 public class Build extends IteratedStageCommand {
+    private final String explicitSource;
     private final boolean noCache;
     private final int keep;
     private final boolean restart;
     private final String comment;
     private final Map<String, String> explicitArguments;
 
-    public Build(Globals globals, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
+    public Build(Globals globals, String explicitSource, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
         super(globals);
+        this.explicitSource = explicitSource;
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
@@ -60,18 +62,34 @@ public class Build extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
+        int idx;
         Workspace workspace;
         App app;
         Source source;
+        Source.Type type;
+        String path;
 
-        workspace = lookupWorkspace();
-        if (workspace == null) {
-            throw new ArgumentException("cannot build " + reference + " without a workspace");
+        if (explicitSource != null) {
+            idx = explicitSource.indexOf('@');
+            if (idx == -1) {
+                type = Source.Type.WAR;
+                path = explicitSource;
+            } else {
+                type = Source.Type.valueOf(explicitSource.substring(0, idx).toUpperCase());
+                path = explicitSource.substring(idx + 1);
+            }
+            app = new App(reference, type, path);
+            source = app.source(world.getWorking());
+        } else {
+            workspace = lookupWorkspace();
+            if (workspace == null) {
+                throw new ArgumentException("cannot build " + reference + " without a workspace");
+            }
+            app = workspace.lookup(reference);
+            source = app.source(workspace.directory);
         }
-        app = workspace.lookup(reference);
-        source = app.source(workspace.directory);
         try (Daemon daemon = Daemon.create()) {
-            source.build(globals, daemon, app.reference, comment, keep, noCache, workspace.getOriginOrUnknown(), explicitArguments);
+            source.build(globals, daemon, app.reference, comment, keep, noCache, explicitArguments);
         }
         if (restart) {
             new Restart(globals, null).doRun(app.reference);

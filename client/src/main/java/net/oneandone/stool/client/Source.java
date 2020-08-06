@@ -22,6 +22,7 @@ import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -86,6 +87,30 @@ public abstract class Source {
         return name.replace(SUBST, app());
     }
 
+    public String getOriginOrUnknown() throws IOException {
+        FileNode dir;
+
+        dir = directory;
+        do {
+            if (dir.join(".git").isDirectory()) {
+                return "git:" + git(dir, "config", "--get", "remote.origin.url").exec().trim();
+            }
+            dir = dir.getParent();
+        } while (dir != null);
+        return "unknown";
+    }
+
+    private static Launcher git(FileNode cwd, String... args) {
+        Launcher launcher;
+
+        launcher = new Launcher(cwd, "git");
+        launcher.arg(args);
+        return launcher;
+    }
+
+    //--
+
+
     /** @return name of the app */
     public abstract String app() throws IOException;
 
@@ -96,7 +121,7 @@ public abstract class Source {
     //--
 
     public String build(Globals globals, Daemon daemon, Reference reference,
-                        String comment, int keep, boolean noCache, String originScm, Map<String, String> explicitArguments)
+                        String comment, int keep, boolean noCache, Map<String, String> explicitArguments)
             throws Exception {
         Console console;
         long started;
@@ -111,7 +136,7 @@ public abstract class Source {
         tag = wipeOldImages(console, daemon, registryPrefix, reference.stage, keep);
         repositoryTag = registryPrefix + reference.stage + ":" + tag;
 
-        doBuild(globals, daemon, repositoryTag, comment, noCache, originScm, explicitArguments);
+        doBuild(globals, daemon, repositoryTag, comment, noCache, getOriginOrUnknown(), explicitArguments);
 
         console.verbose.println("pushing ...");
         console.info.println(daemon.imagePush(repositoryTag));
