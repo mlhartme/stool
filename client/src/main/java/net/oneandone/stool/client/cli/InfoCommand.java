@@ -21,7 +21,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Configuration;
 
@@ -81,7 +81,7 @@ public abstract class InfoCommand extends StageCommand {
     }
 
     private List<Reference> projectReferences() throws IOException {
-        Project project;
+        Workspace project;
         List<Reference> result;
 
         project = lookupProject();

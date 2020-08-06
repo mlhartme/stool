@@ -16,7 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class Delete extends IteratedStageCommand {
     @Override
     public void doMain(Reference reference) throws Exception {
         boolean up;
-        Project project;
+        Workspace project;
 
         up = up(reference);
         if (stop && up) {

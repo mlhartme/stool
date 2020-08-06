@@ -17,7 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class Detach extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Project project;
+        Workspace project;
 
         project = lookupProject();
         if (project == null) {

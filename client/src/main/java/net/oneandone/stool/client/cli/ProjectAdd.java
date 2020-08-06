@@ -17,7 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Source;
 
@@ -68,7 +68,7 @@ public abstract class ProjectAdd extends ClientCommand {
 
     @Override
     public void run() throws IOException {
-        Project projectOpt;
+        Workspace projectOpt;
         Map<Source, String> map;
         String name;
         String path;
@@ -80,7 +80,7 @@ public abstract class ProjectAdd extends ClientCommand {
         if (detached) {
             projectOpt = null;
         } else {
-            projectOpt = Project.create(world.getWorking());
+            projectOpt = Workspace.create(world.getWorking());
         }
         try {
             map = new HashMap<>();
@@ -115,7 +115,7 @@ public abstract class ProjectAdd extends ClientCommand {
         }
     }
 
-    private void add(Project projectOpt, Source source, String name) throws IOException {
+    private void add(Workspace projectOpt, Source source, String name) throws IOException {
         Reference reference;
 
         reference = stage(name);

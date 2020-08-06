@@ -21,7 +21,7 @@ import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Source;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Workspace;
 
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +60,7 @@ public class Build extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Project project;
+        Workspace project;
         App app;
         Source source;
 

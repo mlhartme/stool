@@ -18,7 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -49,12 +49,12 @@ public abstract class ClientCommand {
         }
     }
 
-    public Project lookupProject() throws IOException {
+    public Workspace lookupProject() throws IOException {
         return lookupProject(world.getWorking());
     }
 
-    public Project lookupProject(FileNode directory) throws IOException {
-        return Project.lookup(directory, globals.configuration());
+    public Workspace lookupProject(FileNode directory) throws IOException {
+        return Workspace.lookup(directory, globals.configuration());
     }
 
     public abstract void run() throws Exception;

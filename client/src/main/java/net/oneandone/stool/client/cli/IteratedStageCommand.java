@@ -18,7 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
@@ -80,7 +80,7 @@ public abstract class IteratedStageCommand extends StageCommand {
 
     /** override this to change the default */
     private List<Reference> defaultSelected() throws IOException {
-        Project project;
+        Workspace project;
         List<Reference> result;
 
         project = lookupProject();

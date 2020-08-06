@@ -17,7 +17,7 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Client;
-import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Source;
 import net.oneandone.sushi.fs.World;
@@ -26,16 +26,16 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class ProjectTest {
+public class WorkspaceTest {
     @Test
     public void yaml() throws IOException {
         World world;
         FileNode dir;
-        Project project;
+        Workspace project;
 
         world = World.createMinimal();
         dir = world.getTemp().createTempDirectory();
-        project = Project.create(dir);
+        project = Workspace.create(dir);
         project.add(new App(new Reference(new Client("ctx", null /* TODO */), "stage"), Source.Type.WAR, "."));
         project.save();
     }

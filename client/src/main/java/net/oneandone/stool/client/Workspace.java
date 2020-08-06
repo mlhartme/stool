@@ -33,26 +33,26 @@ import java.util.List;
 import java.util.Map;
 
 /** List of Apps. Represents .backstage */
-public class Project {
-    public static Project create(FileNode project) throws IOException {
+public class Workspace {
+    public static Workspace create(FileNode project) throws IOException {
         FileNode projectYaml;
-        Project result;
+        Workspace result;
 
         projectYaml = projectYaml(project);
         projectYaml.getParent().checkNotExists();
         projectYaml.checkNotExists();
-        result = new Project(projectYaml);
+        result = new Workspace(projectYaml);
         return result;
     }
 
-    public static Project lookup(FileNode dir, Configuration configuration) throws IOException {
+    public static Workspace lookup(FileNode dir, Configuration configuration) throws IOException {
         FileNode projectYaml;
-        Project result;
+        Workspace result;
 
         while (dir != null) {
             projectYaml = projectYaml(dir);
             if (projectYaml.isFile()) {
-                result = new Project(projectYaml);
+                result = new Workspace(projectYaml);
                 result.load(configuration);
                 return result;
             }
@@ -62,11 +62,11 @@ public class Project {
     }
 
     /**
-     * The backstage name is legacy - I keep it because applications have it in their .gitignores.
+     * The name backstage is legacy - I keep it because applications have it in their .gitignores.
      * I create a directory to store the actual data to co-exist with Stool 5
      */
     private static FileNode projectYaml(FileNode project) {
-        return project.join(".backstage/project.yaml");
+        return project.join(".backstage/workspace.yaml");
     }
 
     //--
@@ -76,7 +76,7 @@ public class Project {
     private final FileNode projectYaml;
     private final List<App> apps;
 
-    private Project(FileNode projectYaml) {
+    private Workspace(FileNode projectYaml) {
         this.yaml = new ObjectMapper(new YAMLFactory());
         this.directory = projectYaml.getParent().getParent();
         this.projectYaml = projectYaml;

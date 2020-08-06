@@ -75,7 +75,7 @@ prints help about `create`.
 * *italics* mark text to be replaced by the user
 * bold face highlights term in definition lists
 * synopsis syntax: `[]` for optional, `|` for alternatives, `...` for repeatable, `type writer` for literals, *italics* for replaceables)
-* $PROJECT denotes the project directory currently used 
+* WORKSPACE denotes the workspace currently used 
 
 
 ## Concepts
@@ -102,7 +102,7 @@ a Tomcat servlet container (http://tomcat.apache.org) with a Java web applicatio
 images hold different versions of your Web Application. Starting a stage creates a Docker container for one of the images.
 
 A stage is hosted in a Kubernetes namespace, which is identified by a context. Every stage has a unique name in that context. A stage is 
-referenced by *name*`@`*context* or just the *name* if it's in the current context. The stages attached to a project are shown in your shell 
+referenced by *name*`@`*context* or just the *name* if it's in the current context. The stages attached to a workspace are shown in your shell 
 prompt. The stage name is part of the application url(s). Stage name and context are defined when you create a stage, you cannot change it 
 later.
 
@@ -119,30 +119,30 @@ Labels: TODO
       git:ssh://git@github.com/mlhartme/hellowar.git
 
 
-### Project
+### Workspace
 
-A project maps sources to stages. A source can be a Java War file or a Dockerfile.
+A workspace maps sources to stages. A source can be a Java War file or a Dockerfile.
 
-You'll typically work with projects like this: you have a checkout of one or multiple applications of yours. If they are Java Applications,
-you build the war(s) with something like `mvn clean package`. You create a Stool project with `sc create` or `sc attach`, work with your 
+You'll typically work with workspaces like this: you have a checkout of one or multiple applications of yours. If they are Java Applications,
+you build the war(s) with something like `mvn clean package`. You create a workspace with `sc create` or `sc attach`, work with your 
 stage (e.g. build it with `sc build`), and when you're done, you clean up with `sc detach` or `sc delete`
 
-Technically, the project is stored in `.backstage/project.yaml`
+Technically, the workspace is stored in `.backstage/workspace.yaml`
 
-The current project used by a Stool command is determined by searching the working directory and it parents for a project file. 
+The current workspace used by a Stool command is determined by searching the working directory and it parents for a workspace file. 
 
 
 ### Attached stages and stage indicator
 
-The current stages are the stages refenenced by the current project. Unless otherwise specified, stage commands operate on the current 
+The current stages are the stages referenced by the current workspace. Unless otherwise specified, stage commands operate on the current 
 stages.
 
 The stage indicator `> somestage@context <` is displayed in front of your shell prompt, it lists the current stages. The context is omitted 
 if it's the current context.
 
-If you create a new stage, Stool creates a new project and attaches to the newly created stage(s). If you `cd` into a different project, the
-stage indicator changes accordingly. You can explicitly change the attached stage with `sc attach` and `sc detach`. The stage indicator 
-is invisible if you have no current project.
+If you create a new stage, Stool creates a new workspace and attaches to the newly created stage(s). If you `cd` into a different workspace, 
+the stage indicator changes accordingly. You can explicitly change the attached stage with `sc attach` and `sc detach`. The stage indicator 
+is invisible if you have no current workspace.
 
 
 ### Properties
@@ -221,12 +221,12 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` *project-option*... [`-optional`][`-detached`] [[*type*'@'][*path*] ...] *name* [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`] [[*type*'@'][*path*] ...] *name* [*key*`=`*value*...]
 
 
 
 
-`sc` *global-option*... `attach` *project-option*... [[*type*'@'][*path*] ...] *name*
+`sc` *global-option*... `attach` [[*type*'@'][*path*] ...] *name*
 
 
 `sc` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
@@ -311,7 +311,7 @@ Options available for all commands
 * **-v** enables verbose output
 * **-e** prints stacktrace for all errors
 * **-context** sets the current context for this invocation
-* **-working** specifies the working directory used to locate the current project and for relative path names. 
+* **-working** specifies the working directory used to locate the current workspace and for relative path names. 
   Defaults to the current directory of the shell.
 
 
@@ -465,7 +465,7 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` *project-option*... [`-optional`][`-detached`] [[*type*'@'][*path*] ...] *name* [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`] [[*type*'@'][*path*] ...] *name* [*key*`=`*value*...]
 
 
 
@@ -493,11 +493,11 @@ Create stages for all wars in a multi-module Maven Project: `sc create _.foo`
 
 ### stool-attach
 
-Attach stage to a project
+Attach stage to a workspace
 
 #### SYNOPSIS
 
-`sc` *global-option*... `attach` *project-option*... [[*type*'@'][*path*] ...] *name*
+`sc` *global-option*... `attach` [[*type*'@'][*path*] ...] *name*
 
 #### DESCRIPTION
 
@@ -576,7 +576,7 @@ after the first stage that cannot be started (e.g. because it's already running)
 
 ### stool-build
 
-Build a project
+Build stages
 
 #### SYNOPSIS
 
@@ -585,7 +585,7 @@ Build a project
 
 #### DESCRIPTION
 
-Builds the specified stages by running docker on the associates sources. The resulting image is pushed to the registry. 
+Builds the specified stages by running Docker on the associates sources. The resulting image is pushed to the registry. 
 Docker build is run with appropriate build arguments. 
 
 For war sources, available build argument depend on the template being used, you can see them in the error message if you specify an 
@@ -610,7 +610,7 @@ Use `sc help global-options` for available [global options](#stool-global-option
 
 ### stool-detach
 
-Detach a stage from a project
+Detach a stage from a workspace
 
 #### SYNOPSIS
 
@@ -618,8 +618,8 @@ Detach a stage from a project
 
 #### DESCRIPTION
 
-Removes stages from the current project without modifying the stage itself. Technically, `detach` simplify removes stage entries 
-from`.backstage/project.yaml` file.
+Removes stages from the current workspace without modifying the stage itself. Technically, `detach` simplify removes stage entries 
+from`.backstage/workspace.yaml` file.
 
 
 [//]: # (include stageOptions.md)
@@ -641,7 +641,7 @@ Deletes a stage
 #### Description
 
 Deletes the stage, i.e. deletes it from the respective server. This includes images, containers and log files.
-If the current project it attached to this stage, this attachment is removed as well.
+If the current workspace is attached to this stage, this attachment is removed as well.
 
 Reports an error if the stage is up. In this case, stop the stage first or invoke the command with `-stop`. 
 
@@ -903,7 +903,9 @@ Display info about the images of the stage.
 * **memory**
   Memory that has to be reserved for this image. Type number (mb).
 * **build args*
-  Docker build arguments actually used to build this image. This includes `faultProjects`
+  Docker build arguments actually used to build this image. 
+* **secrets*
+  The fault projects nneded to run this stage.
 * **comment**
   comment attached to the image
 * **created-at**
