@@ -21,7 +21,7 @@ import net.oneandone.stool.client.Reference;
 import java.io.IOException;
 import java.util.List;
 
-public class Attach extends ProjectAdd {
+public class Attach extends WorkspaceAdd {
     public Attach(Globals globals, List<String> args) {
         super(globals, false, args);
     }

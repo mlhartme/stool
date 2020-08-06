@@ -84,7 +84,7 @@ public abstract class InfoCommand extends StageCommand {
         Workspace project;
         List<Reference> result;
 
-        project = lookupProject();
+        project = lookupWorkspace();
         result = new ArrayList<>();
         if (project != null) {
             for (App app : project.list()) {

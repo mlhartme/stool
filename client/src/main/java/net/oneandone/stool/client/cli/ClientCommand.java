@@ -49,11 +49,11 @@ public abstract class ClientCommand {
         }
     }
 
-    public Workspace lookupProject() throws IOException {
-        return lookupProject(world.getWorking());
+    public Workspace lookupWorkspace() throws IOException {
+        return lookupWorkspace(world.getWorking());
     }
 
-    public Workspace lookupProject(FileNode directory) throws IOException {
+    public Workspace lookupWorkspace(FileNode directory) throws IOException {
         return Workspace.lookup(directory, globals.configuration());
     }
 

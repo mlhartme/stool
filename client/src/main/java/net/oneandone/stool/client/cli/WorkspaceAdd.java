@@ -27,12 +27,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ProjectAdd extends ClientCommand {
+public abstract class WorkspaceAdd extends ClientCommand {
     private final boolean detached;
     private final Map<String, Source.Type> paths;
     private final String stage;
 
-    public ProjectAdd(Globals globals, boolean detached, List<String> args) {
+    public WorkspaceAdd(Globals globals, boolean detached, List<String> args) {
         super(globals);
 
         this.detached = detached;
@@ -68,19 +68,19 @@ public abstract class ProjectAdd extends ClientCommand {
 
     @Override
     public void run() throws IOException {
-        Workspace projectOpt;
+        Workspace workspaceOpt;
         Map<Source, String> map;
         String name;
         String path;
 
-        projectOpt = lookupProject();
-        if (projectOpt != null) { // TODO: feels weired
+        workspaceOpt = lookupWorkspace();
+        if (workspaceOpt != null) { // TODO: feels weired
             throw new ArgumentException("project already has a stage; detach it first");
         }
         if (detached) {
-            projectOpt = null;
+            workspaceOpt = null;
         } else {
-            projectOpt = Workspace.create(world.getWorking());
+            workspaceOpt = Workspace.create(world.getWorking());
         }
         try {
             map = new HashMap<>();
@@ -98,15 +98,15 @@ public abstract class ProjectAdd extends ClientCommand {
                 throw new ArgumentException("no sources found");
             }
             for (Map.Entry<Source, String> entry : map.entrySet()) {
-                add(projectOpt, entry.getKey(), entry.getValue());
+                add(workspaceOpt, entry.getKey(), entry.getValue());
             }
-            if (projectOpt != null) {
-                projectOpt.save();
+            if (workspaceOpt != null) {
+                workspaceOpt.save();
             }
         } catch (IOException e) {
             try {
-                if (projectOpt != null) {
-                    projectOpt.save();
+                if (workspaceOpt != null) {
+                    workspaceOpt.save();
                 }
             } catch (IOException e2) {
                 e.addSuppressed(e2);
@@ -115,13 +115,13 @@ public abstract class ProjectAdd extends ClientCommand {
         }
     }
 
-    private void add(Workspace projectOpt, Source source, String name) throws IOException {
+    private void add(Workspace workspaceOpt, Source source, String name) throws IOException {
         Reference reference;
 
         reference = stage(name);
-        if (projectOpt != null) {
+        if (workspaceOpt != null) {
             try {
-                projectOpt.add(source, reference);
+                workspaceOpt.add(source, reference);
             } catch (IOException e) {
                 throw new IOException("failed to attach stage: " + e.getMessage(), e);
             }
