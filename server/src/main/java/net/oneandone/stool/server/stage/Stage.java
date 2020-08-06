@@ -673,11 +673,6 @@ public class Stage {
 
         Server.LOGGER.debug("created deployment " + deploymentName);
 
-        /* TODO: await running?
-        status = engine.podContainerStatus(podName);
-        if (status != Daemon.Status.RUNNING) {
-            throw new IOException("unexpected status: " + status);
-        } */
         return image.tag;
     }
 

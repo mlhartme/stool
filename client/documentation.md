@@ -1015,7 +1015,7 @@ Prerequisites:
 * Linux or Mac
 * Java 8 or higher. This is prerequisite because Stool is implemented in Java 8, you need it to run Stool itself. 
   However, you can build and run your stages with any Java version you choose.
-* Docker (used by `sc build`)
+* Docker 1.26 or newer (used by `sc build`)
 
 Install steps
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)

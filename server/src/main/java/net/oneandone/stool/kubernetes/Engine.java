@@ -22,7 +22,6 @@ import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.apis.ExtensionsV1beta1Api;
@@ -153,7 +152,6 @@ public class Engine implements AutoCloseable {
 
     private Engine(ApiClient client, String namespace) {
         this.client = client;
-        Configuration.setDefaultApiClient(client); // TODO: threading ...
         // client.setDebugging(true);
         this.core = new CoreV1Api();
         this.apps = new AppsV1Api();
@@ -200,7 +198,6 @@ public class Engine implements AutoCloseable {
             }
         }
         for (DataInfo cm : configMapList().values()) {
-            // TODO: System.out.println("configMap: " + cm.name + " " + cm.labels);
             if (hasImplicit(cm.labels)) {
                 System.out.println("delete configMap: " + cm.name);
                 configMapDelete(cm.name);
@@ -963,7 +960,6 @@ public class Engine implements AutoCloseable {
         map = new V1ConfigMapBuilder()
                 .withNewMetadata().withName(name).withNamespace(namespace).withLabels(withImplicit(labels)).endMetadata()
                 .withData(data).build();
-        // TODO: System.out.println("create with implicit: " + implicitLabels + " " + map.getMetadata().getLabels());
         try {
             core.createNamespacedConfigMap(namespace, map, null, null, null);
         } catch (ApiException e) {

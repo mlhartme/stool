@@ -118,16 +118,7 @@ public class Workspace {
         return Collections.unmodifiableList(apps);
     }
 
-    public App lookup(String stage) { // TODO: different clients ...
-        for (App app : apps) {
-            if (stage.equals(app.reference.stage)) {
-                return app;
-            }
-        }
-        return null;
-    }
-
-    public App lookup(Reference reference) { // TODO: different clients ...
+    public App lookup(Reference reference) {
         for (App app : apps) {
             if (reference.equals(app.reference)) {
                 return app;
@@ -141,7 +132,7 @@ public class Workspace {
     }
 
     public void add(App app) throws IOException {
-        if (lookup(app.reference.stage) != null) {
+        if (lookup(app.reference) != null) {
             throw new IOException("duplicate app: " + app.reference.stage);
         }
         apps.add(app);

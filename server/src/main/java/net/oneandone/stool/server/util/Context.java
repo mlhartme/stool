@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Context for info computation. TODO: naming tweaks */
+/** Context for info computation. */
 public class Context {
     public final Engine engine;
     public final Registry registry;
