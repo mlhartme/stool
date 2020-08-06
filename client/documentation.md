@@ -83,7 +83,7 @@ prints help about `create`.
 ### Stool
 
 This term is overloaded, depending on the context it may refer to the command line client `sc`, the server running in Kubernetes, 
-or the whole project. 
+or the whole Github project. 
 
 
 ### Context
@@ -121,7 +121,7 @@ Labels: TODO
 
 ### Project
 
-A project is a mapping sources to stages. Source can be a Java War file or a Dockerfile.
+A project maps sources to stages. A source can be a Java War file or a Dockerfile.
 
 You'll typically work with projects like this: you have a checkout of one or multiple applications of yours. If they are Java Applications,
 you build the war(s) with something like `mvn clean package`. You create a Stool project with `sc create` or `sc attach`, work with your 
