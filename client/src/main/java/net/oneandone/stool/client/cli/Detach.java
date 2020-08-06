@@ -29,15 +29,15 @@ public class Detach extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Workspace project;
+        Workspace workspace;
 
-        project = lookupWorkspace();
-        if (project == null) {
-            throw new ArgumentException("no project to detach from");
+        workspace = lookupWorkspace();
+        if (workspace == null) {
+            throw new ArgumentException("no workspace to detach from");
         }
-        if (!project.remove(reference)) {
+        if (!workspace.remove(reference)) {
             throw new IOException("stage is not attached: " + reference);
         }
-        project.save();
+        workspace.save();
     }
 }

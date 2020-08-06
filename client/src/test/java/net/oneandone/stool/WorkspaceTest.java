@@ -31,12 +31,12 @@ public class WorkspaceTest {
     public void yaml() throws IOException {
         World world;
         FileNode dir;
-        Workspace project;
+        Workspace workspace;
 
         world = World.createMinimal();
         dir = world.getTemp().createTempDirectory();
-        project = Workspace.create(dir);
-        project.add(new App(new Reference(new Client("ctx", null /* TODO */), "stage"), Source.Type.WAR, "."));
-        project.save();
+        workspace = Workspace.create(dir);
+        workspace.add(new App(new Reference(new Client("ctx", null /* TODO */), "stage"), Source.Type.WAR, "."));
+        workspace.save();
     }
 }

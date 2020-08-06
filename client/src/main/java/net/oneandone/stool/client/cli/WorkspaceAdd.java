@@ -75,7 +75,7 @@ public abstract class WorkspaceAdd extends ClientCommand {
 
         workspaceOpt = lookupWorkspace();
         if (workspaceOpt != null) { // TODO: feels weired
-            throw new ArgumentException("project already has a stage; detach it first");
+            throw new ArgumentException("workspace already has a stage; detach it first");
         }
         if (detached) {
             workspaceOpt = null;

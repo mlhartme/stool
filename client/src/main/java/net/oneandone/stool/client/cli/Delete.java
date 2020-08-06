@@ -34,7 +34,7 @@ public class Delete extends IteratedStageCommand {
     @Override
     public void doMain(Reference reference) throws Exception {
         boolean up;
-        Workspace project;
+        Workspace workspace;
 
         up = up(reference);
         if (stop && up) {
@@ -51,12 +51,12 @@ public class Delete extends IteratedStageCommand {
 
         reference.client.delete(reference.stage);
 
-        project = lookupWorkspace();
-        if (project != null) {
-            if (project.remove(reference.stage)) {
+        workspace = lookupWorkspace();
+        if (workspace != null) {
+            if (workspace.remove(reference.stage)) {
                 console.info.println("detaching stage: " + reference);
             }
-            project.save();
+            workspace.save();
         }
     }
 }

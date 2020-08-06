@@ -1,9 +1,9 @@
 # Stool shell code
 
-__scProjectDir() {
+__scWorkspaceDir() {
   local dir="$1"
   while [ "${dir}" != "/" ] ; do
-    if [ -f "${dir}"/.backstage/project.yaml ] ; then
+    if [ -f "${dir}"/.backstage/workspace.yaml ] ; then
       echo -n "${dir}"
       return
     fi
@@ -14,15 +14,15 @@ __scProjectDir() {
 }
 
 __scStageIndicator() {
-  local project=$(__scProjectDir $1)
-  if [ -f "${project}/.backstage/project.yaml" ] ; then
+  local workspace=$(__scWorkspaceDir $1)
+  if [ -f "${workspace}/.backstage/workspace.yaml" ] ; then
       local ctx="$(grep 'currentContext:' ${HOME}/.sc.yaml | cut -d \" -f 2)"
-      local id="$(grep "stages:" -A 100 "${project}/.backstage/project.yaml" | grep "^ " | sed -e "s/^ *//g" -e 's/\(.*\):.*/\1/' -e "s/@${ctx}$//" | tr '\n' ' ')"
+      local id="$(grep "stages:" -A 100 "${workspace}/.backstage/workspace.yaml" | grep "^ " | sed -e "s/^ *//g" -e 's/\(.*\):.*/\1/' -e "s/@${ctx}$//" | tr '\n' ' ')"
       id=${id%?}
       echo -n "> ${id} < "
       return
   else
-    # no projects at all -> no indicator
+    # no workspace found -> no indicator
     return
   fi
 }
@@ -52,16 +52,16 @@ elif [ -n "${BASH_VERSION}" ] ; then
             __scPromptUpdate() {
                 eval "${SC_OLD_PROMPT_COMMAND}"
                 local dir=$(pwd)
-                if [ "x${dir}" != "x${__PROJECT_DIR}" ] ; then
+                if [ "x${dir}" != "x${__WORKSPACE_DIR}" ] ; then
                   # cwd has changed, update stage dir
-                  export __PROJECT_DIR="$dir"
+                  export __WORKSPACE_DIR="$dir"
                 fi
                 if [ "x${SC_PS1}" = "x" ] ; then
                   # We're called for the first time: setup PS1.
                   # Note that we have to delay this setup until the first PROMPT_COMMAND invocation to give users a chance to customize
                   # PS1 settings (e.g. in their ~/.bashrc for interactive shells)
                   export SC_PS1="${PS1}"
-                  PS1="\$(__scStageIndicator \${__PROJECT_DIR})${SC_PS1}"
+                  PS1="\$(__scStageIndicator \${__WORKSPACE_DIR})${SC_PS1}"
                 # else
                 #   already initialized, nothing to do
                 fi

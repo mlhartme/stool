@@ -59,7 +59,7 @@ public abstract class InfoCommand extends StageCommand {
         } else if (stageClause != null) {
             clientFilters.put(configuration.currentContextConnect(), stageClause);
         } else {
-            references = projectReferences();
+            references = workspaceReferences();
             if (references.isEmpty()) {
                 clientFilters.put(configuration.currentContextConnect(), "");
             } else {
@@ -80,14 +80,14 @@ public abstract class InfoCommand extends StageCommand {
         return new EnumerationFailed();
     }
 
-    private List<Reference> projectReferences() throws IOException {
-        Workspace project;
+    private List<Reference> workspaceReferences() throws IOException {
+        Workspace workspace;
         List<Reference> result;
 
-        project = lookupWorkspace();
+        workspace = lookupWorkspace();
         result = new ArrayList<>();
-        if (project != null) {
-            for (App app : project.list()) {
+        if (workspace != null) {
+            for (App app : workspace.list()) {
                 result.add(app.reference);
             }
         }

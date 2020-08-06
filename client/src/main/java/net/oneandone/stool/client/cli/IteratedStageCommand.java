@@ -80,13 +80,13 @@ public abstract class IteratedStageCommand extends StageCommand {
 
     /** override this to change the default */
     private List<Reference> defaultSelected() throws IOException {
-        Workspace project;
+        Workspace workspace;
         List<Reference> result;
 
-        project = lookupWorkspace();
+        workspace = lookupWorkspace();
         result = new ArrayList<>();
-        if (project != null) {
-            for (App app : project.list()) {
+        if (workspace != null) {
+            for (App app : workspace.list()) {
                 result.add(app.reference);
             }
         }

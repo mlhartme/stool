@@ -60,18 +60,18 @@ public class Build extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Workspace project;
+        Workspace workspace;
         App app;
         Source source;
 
-        project = lookupWorkspace();
-        if (project == null) {
-            throw new ArgumentException("cannot build " + reference + " without a project");
+        workspace = lookupWorkspace();
+        if (workspace == null) {
+            throw new ArgumentException("cannot build " + reference + " without a workspace");
         }
-        app = project.lookup(reference);
-        source = app.source(project.directory);
+        app = workspace.lookup(reference);
+        source = app.source(workspace.directory);
         try (Daemon daemon = Daemon.create()) {
-            source.build(globals, daemon, app.reference, comment, keep, noCache, project.getOriginOrUnknown(), explicitArguments);
+            source.build(globals, daemon, app.reference, comment, keep, noCache, workspace.getOriginOrUnknown(), explicitArguments);
         }
         if (restart) {
             new Restart(globals, null).doRun(app.reference);
