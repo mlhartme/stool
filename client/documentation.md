@@ -235,7 +235,7 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 
 
 
-`sc` *global-option*... `build` *stage-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
+`sc` *global-option*... `build` *stage-option*... [`-source`][`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
 
 
 
@@ -306,15 +306,13 @@ Options available for all commands
 
 #### SYNOPSIS
 
-`sc` [`-v`][`-e`][`-context` *context*][`-working` *working*] *command* *command-options*... *command-arguments*...
+`sc` [`-v`][`-e`][`-context` *context*] *command* *command-options*... *command-arguments*...
 
 #### DESCRIPTION
 
 * **-v** enables verbose output
 * **-e** prints stacktrace for all errors
 * **-context** sets the current context for this invocation
-* **-working** specifies the working directory used to locate the current workspace and for relative path names. 
-  Defaults to the current directory of the shell.
 
 
 ## General commands

@@ -83,12 +83,6 @@ public class Globals {
         this.context = context;
     }
 
-    public void setWorking(FileNode working) {
-        if (working != null) {
-            world.setWorking(working);
-        }
-    }
-
     public World getWorld() {
         return world;
     }

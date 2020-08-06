@@ -66,7 +66,7 @@ public class Main {
         cli.primitive(FileNode.class, "file name", null, world::file);
         cli.begin(globals.getConsole(), "-v -e  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
-           cli.begin("globals", globals,  "-context -wirelog -exception -working { setContext(context) setWirelog(wirelog) setException(exception) setWorking(working) }");
+           cli.begin("globals", globals,  "-context -wirelog -exception { setContext(context) setWirelog(wirelog) setException(exception) }");
               cli.addDefault(Help.class, "help command?");
               cli.begin("globals.getWorld", ""); cli.begin("globals.getConsole", "");
                  cli.add(Setup.class, "setup nameAndHost?");

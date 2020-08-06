@@ -124,31 +124,33 @@ public class MainIT {
     }
     private static int id = 0;
 
-    private void sc(FileNode working, String... args) throws IOException {
-        String[] nested;
-
-        nested = new String[2 + args.length];
-        nested[0] = args[0];
-        nested[1] = "-working";
-        nested[2] = working.getAbsolute();
-        System.arraycopy(args, 1, nested, 3, args.length - 1);
-        sc(nested);
-    }
     private void sc(String... args) throws IOException {
+        sc(WORLD.getWorking(), args);
+    }
+
+    private void sc(FileNode working, String... args) throws IOException {
         int result;
         String command;
+        FileNode old;
 
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = Main.run(WORLD, CLIENT_YAML, args);
-        if (result == 0) {
-            System.out.println();
-        } else {
-            System.out.println(" -> failed: " + result + "(id " + id + ")");
-            fail(command + " -> " + result);
+        old = WORLD.getWorking();
+        WORLD.setWorking(working);
+        try {
+            result = Main.run(WORLD, CLIENT_YAML, args);
+            if (result == 0) {
+                System.out.println();
+            } else {
+                System.out.println(" -> failed: " + result + "(id " + id + ")");
+                fail(command + " -> " + result);
+            }
+        } finally {
+            WORLD.setWorking(old);
         }
     }
+
     private String command(String[] args) {
         StringBuilder command;
 
