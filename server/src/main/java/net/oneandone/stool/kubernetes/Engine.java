@@ -82,6 +82,12 @@ import java.util.Map;
  * Not thread-safe because the io buffer is shared.
  */
 public class Engine implements AutoCloseable {
+    static {
+        // default api client doesnt work for multiple thread - i don't want to rely on that, so I set it to null
+        // to find places that use it
+        Configuration.setDefaultApiClient(null);
+
+    }
     private static final String UTF_8 = "utf8";
 
     public static String encodeLabel(String str) {
@@ -154,10 +160,9 @@ public class Engine implements AutoCloseable {
     private Engine(ApiClient client, String namespace) {
         this.client = client;
         // client.setDebugging(true);
-        Configuration.setDefaultApiClient(client);
-        this.core = new CoreV1Api();
-        this.apps = new AppsV1Api();
-        this.extensions = new ExtensionsV1beta1Api();
+        this.core = new CoreV1Api(client);
+        this.apps = new AppsV1Api(client);
+        this.extensions = new ExtensionsV1beta1Api(client);
         this.namespace = namespace;
         this.implicitLabels = new HashMap<>();
     }
