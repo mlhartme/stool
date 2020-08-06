@@ -134,9 +134,9 @@ Technically, the workspace is stored in `.backstage/workspace.yaml`
 The current workspace used by a Stool command is determined by searching the working directory and it parents for a workspace file. 
 
 
-### Attached stages and stage indicator
+### Current stages and stage indicator
 
-The current stages are the stages referenced by the current workspace. Unless otherwise specified, stage commands operate on the current 
+The *current stages* are the stages referenced by the current workspace. Unless otherwise specified, stage commands operate on the current 
 stages.
 
 The stage indicator `> somestage@context <` is displayed in front of your shell prompt, it lists the current stages. The context is omitted 

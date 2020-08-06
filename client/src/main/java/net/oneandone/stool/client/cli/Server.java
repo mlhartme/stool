@@ -136,6 +136,9 @@ public class Server {
             map.put("repositoryTag", repositoryTag());
             map.put("cert", tomcatP12(world, console, hostname));
             map.put("cert-script", certScript(world, hostname));
+            map.put("hostkey", hostkey(world, "test-pearl.key"));
+            map.put("hostkey-pub", hostkey(world, "test-pearl.key"));
+
             result = world.resource("caas.yaml").readString();
             try {
                 return Substitution.ant().apply(result, map);
@@ -143,6 +146,10 @@ public class Server {
                 throw new IllegalStateException(e);
             }
         }
+    }
+
+    private static String waterloo(String hostname) {
+        return hostname.contains("shops") ? "waterloo1.ciso.server.lan" : "cpwaterloo1.ciso.server.lan";
     }
 
     private String repositoryTag() throws IOException {
@@ -166,6 +173,10 @@ public class Server {
         }
     }
 
+    private static String base64(byte[] bytes) {
+        return Base64.getEncoder().encodeToString(bytes);
+    }
+
     private static String certScript(World world, String hostname) throws IOException {
         String str;
 
@@ -175,7 +186,7 @@ public class Server {
         } catch (SubstitutionException e) {
             throw new IllegalStateException(e);
         }
-        return Base64.getEncoder().encodeToString(str.getBytes("utf8"));
+        return base64(str.getBytes("utf8"));
     }
 
     private static String tomcatP12(World world, Console console, String hostname) throws IOException {
@@ -201,7 +212,14 @@ public class Server {
                     "-inkey", key.getAbsolute(),
                     "-out", p12.getAbsolute(), "-name", "tomcat", "-passout", "pass:changeit");
         }
-        return Base64.getEncoder().encodeToString(p12.readBytes());
+        return base64(p12.readBytes());
+    }
+
+    private static String hostkey(World world, String name) throws IOException {
+        FileNode puppet;
+
+        puppet = world.file(System.getenv("PUPPET_FILES_ROOT")).join("todo").checkDirectory();
+        return base64(puppet.join(name).readBytes());
     }
 
     public String env(FileNode cisotools, int port) {

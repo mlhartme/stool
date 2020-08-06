@@ -42,6 +42,14 @@ subjects:
     name: stool-account
 ---
 apiVersion: v1
+data:
+  ssh_host_rsa_key: ${hostkey}
+  ssh_host_rsa_key.pub: ${hostkey-pub}
+kind: Secret
+metadata:
+  name: stool-hostkey
+---
+apiVersion: v1
 binaryData:
   tomcat.p12: ${cert}
 kind: ConfigMap
@@ -94,6 +102,8 @@ spec:
           requests:
             cpu: 200m
         volumeMounts:
+          - mountPath: /etc/ssh
+            name: hostkey-volume
           - mountPath: /usr/local/tomcat/conf/tomcat.p12
             name: cert-volume
             subPath: tomcat.p12
@@ -128,16 +138,19 @@ spec:
         - name: LOGLEVEL
           value: "INFO"
       volumes:
-        - configMap:
+        - name: hostkey-volume
+          secret:
+            secretName: stool-hostkey
+        - name: cert-volume
+          configMap:
             items:
               - key: tomcat.p12
                 path: tomcat.p12
             name: stool-cert
-          name: cert-volume
-        - configMap:
+        - name: cert-script-volume
+          configMap:
             items:
               - key: cert.sh
                 path: cert.sh
                 mode: 0755
             name: stool-cert-script
-          name: cert-script-volume
