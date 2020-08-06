@@ -78,21 +78,23 @@ public class Build extends IteratedStageCommand {
                 type = Source.Type.valueOf(explicitSource.substring(0, idx).toUpperCase());
                 path = explicitSource.substring(idx + 1);
             }
-            app = new App(reference, type, path);
-            source = app.source(world.getWorking());
+            source = new App(reference, type, path).source(world.getWorking());
         } else {
             workspace = lookupWorkspace();
             if (workspace == null) {
                 throw new ArgumentException("cannot build " + reference + " without a workspace");
             }
             app = workspace.lookup(reference);
+            if (app == null) {
+                throw new ArgumentException("don't know how to build " + reference + ", it's not attached to this workspace");
+            }
             source = app.source(workspace.directory);
         }
         try (Daemon daemon = Daemon.create()) {
-            source.build(globals, daemon, app.reference, comment, keep, noCache, explicitArguments);
+            source.build(globals, daemon, reference, comment, keep, noCache, explicitArguments);
         }
         if (restart) {
-            new Restart(globals, null).doRun(app.reference);
+            new Restart(globals, null).doRun(reference);
         }
     }
 }
