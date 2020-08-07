@@ -102,8 +102,8 @@ spec:
           requests:
             cpu: 200m
         volumeMounts:
-          - mountPath: /etc/ssh
-            name: hostkey-volume
+          - mountPath: /etc/fault
+            name: fault
           - mountPath: /usr/local/tomcat/conf/tomcat.p12
             name: cert-volume
             subPath: tomcat.p12
@@ -137,7 +137,24 @@ spec:
           value: "${portus}"
         - name: LOGLEVEL
           value: "INFO"
+      initContainers:
+      - name: fault-setup
+        image: ${repositoryTag}
+        command: ["sh"]
+        args: ["-c", "mkdir /etc/fault/workspace && fault '-user=[public_test_pearl:/etc/ssh/ssh_host_rsa_key]' auth && fault install -dest=/etc/fault/workspace -permissions=/etc/fault/workspace.permissions -batch @"]
+        resources:
+          limits:
+            cpu: 1
+          requests:
+            cpu: 200m
+        volumeMounts:
+          - mountPath: /etc/fault
+            name: fault
+          - mountPath: /etc/ssh
+            name: hostkey-volume
       volumes:
+        - name: fault
+          emptyDir: {}
         - name: hostkey-volume
           secret:
             secretName: stool-hostkey
