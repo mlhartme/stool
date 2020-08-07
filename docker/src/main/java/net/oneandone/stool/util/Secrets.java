@@ -24,29 +24,15 @@ import java.util.Properties;
 
 // TODO: does not work in public
 public class Secrets {
-    public static URI portus(World world, Class<?> clazz) throws IOException {
+    public static URI portus(World world) throws IOException {
         Properties tmp;
 
-        tmp = secrets(world, clazz).join("net.oneandone.stool:stool/secrets.properties").readProperties();
+        tmp = secrets(world).join("secrets.properties").readProperties();
         return URI.create(tmp.getProperty("portus"));
     }
 
-    public static FileNode secrets(World world, Class<?> clazz) throws IOException {
-        FileNode dir;
-        FileNode secrets;
-
-        dir = world.guessProjectHome(clazz);
-        while (true) {
-            secrets = dir.join(".secrets");
-            if (secrets.isDirectory()) {
-                return secrets;
-            }
-            dir = dir.getParent();
-            if (dir == null) {
-                throw new IOException("secrets not found. Go to the checkout root and run \n"
-                        + "  mkdir .secrets && fault install -dest .secrets net.oneandone.stool:stool");
-            }
-        }
+    public static FileNode secrets(World world) throws IOException {
+        return world.getHome().join(".fault/net.oneandone.stool:stool").checkDirectory();
     }
 
     private Secrets() {

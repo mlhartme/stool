@@ -67,7 +67,7 @@ public class Server {
             }
             this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
         }
-        this.portus = Secrets.portus(world, getClass()).resolve(shortname + "/");
+        this.portus = Secrets.portus(world).resolve(shortname + "/");
     }
 
     private static String eat(List<String> args, String dflt) {
@@ -213,10 +213,7 @@ public class Server {
     }
 
     private static String hostkey(World world, String name) throws IOException {
-        FileNode puppet;
-
-        puppet = Secrets.secrets(world, Server.class).join("net.oneandone.stool:stool").checkDirectory();
-        return base64(puppet.join(name).readBytes());
+        return base64(Secrets.secrets(world).join(name).readBytes());
     }
 
     public String env(FileNode cisotools, int port) {

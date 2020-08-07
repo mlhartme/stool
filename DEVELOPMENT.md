@@ -79,7 +79,23 @@ Finally, make sure you have a `stool` network, it's needed for tests and to run 
     docker network create stool
 
 
-   
+## Secrets in .fault/net.oneandone.stool:stool
+
+* tomcat.p12
+
+    puppet.exec("openssl", "pkcs12", "-export", "-in", chain.getAbsolute(),
+                "-inkey", key.getAbsolute(),
+                "-out", p12.getAbsolute(), "-name", "tomcat", "-passout", "pass:changeit");
+
+* generate fault key:
+
+    ssh-keygen -t rsa -b 4096 -N "" -m pem -C "stool@test.pearl.server.lan" -f ./test-pearl.key
+    
+* add hostkey to fault
+
+    fault host-add -fqdn=public_test_pearl -public-key test-pearl.key.pub
+    
+    
 ## Building
 
 Get Stool sources with
