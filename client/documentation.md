@@ -6,8 +6,7 @@ Stool is a tool to manage stages: create, build, start, stop, delete. A stage is
 
 ### Quick Tour
 
-For setup instructions, please read the respective section below. The following assumes that Stool is properly set up, 
-you have set the current context and you are authenticated.
+For setup instructions, please read the respective section below. The following assumes that Stool is properly set up.
 
 Here's an example what you can do with Stool. 
 
@@ -16,6 +15,16 @@ Enter a source directory with a readily built Web application of yours - or get 
     git clone ssh://git@github.com/mlhartme/hellowar.git
     cd hellowar
     mvn clean package
+
+Run 
+
+    sc context
+    
+to see available contexts, i.e. places where you can host stages. Choose one of them by running
+
+    sc context <yourcontext>
+    
+Note that you might have to authenticate.
     
 Create a new stage with
 
@@ -217,7 +226,7 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 `sc` *global-option*... `server` *name*
 
 
-`sc` *global-option*... `context` [`-offline`][*context*]
+`sc` *global-option*... `context` [`q`][`-offline`][*context*]
 
 
 `sc` *global-option*... `auth` [`-batch`]
@@ -428,11 +437,11 @@ Manage current context
 
 #### SYNOPSIS
 
-`sc` *global-option*... `context` [`-offline`][*context*]
+`sc` *global-option*... `context` [`q`][`-offline`][*context*]
 
 #### DESCRIPTION
 
-Displays the current context when called without argument. Prints all known contexts and (marks the current) when called with `-v`.
+When called without argument: Lists all context with the current context marked. Prints just the current context when called with `-q`.
 
 Changes the current context when invoked with a *context* argument. If the new context requires authentication, this command implicitly 
 runs `sc auth` to get the respective token. This can be disabled by specifying `-offline`.

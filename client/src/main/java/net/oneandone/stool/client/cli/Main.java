@@ -71,7 +71,7 @@ public class Main {
               cli.begin("globals.getWorld", ""); cli.begin("globals.getConsole", "");
                  cli.add(Setup.class, "setup nameAndHost?");
                  cli.add(Auth.class, "auth -batch");
-                 cli.add(ConfigContext.class, "context -offline name?");
+                 cli.add(ConfigContext.class, "context -offline -q name?");
                  cli.add(ShellInc.class, "shell-inc");
                  cli.add(Server.class, "server -overwrite -resolve hostname args*");
                  cli.add(Create.class, "create -optional -detached args+"); // args: path* name (key=value)*

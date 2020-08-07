@@ -28,12 +28,14 @@ public class ConfigContext {
     private final Globals globals;
     private final Console console;
     private final boolean offline;
+    private final boolean quiet;
     private final String setOpt;
 
-    public ConfigContext(Globals globals, boolean offline, String setOpt) {
+    public ConfigContext(Globals globals, boolean offline, boolean quiet, String setOpt) {
         this.globals = globals;
         this.console = globals.getConsole();
         this.offline = offline;
+        this.quiet = quiet;
         this.setOpt = setOpt;
     }
 
@@ -45,13 +47,13 @@ public class ConfigContext {
 
         configuration = globals.configuration();
         if (setOpt == null) {
-            if (console.getVerbose()) {
+            if (quiet) {
+                console.info.println(configuration.currentContext().name);
+            } else {
                 for (String name : configuration.contexts.keySet()) {
                     console.info.print(name.equals(configuration.currentContext().name) ? "=> " : "   ");
                     console.info.println(name);
                 }
-            } else {
-                console.info.println(configuration.currentContext().name);
             }
         } else {
             found = configuration.contextLookup(setOpt);
