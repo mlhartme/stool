@@ -24,7 +24,7 @@ to see available contexts, i.e. places where you can host stages. Choose one of 
 
     sc context <yourcontext>
     
-Note that you might have to authenticate.
+Depending on the context you choose you have to authenticate.
     
 Create a new stage with
 

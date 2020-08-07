@@ -187,7 +187,7 @@ public class Server {
     }
 
     private static String tomcatP12(World world, Console console, String hostname) throws IOException {
-        FileNode puppet;
+        FileNode base;
         FileNode key;
         FileNode crt;
         FileNode ca;
@@ -195,17 +195,17 @@ public class Server {
         FileNode chain;
         long p12modified;
 
-        puppet = world.file(System.getenv("PUPPET_FILES_ROOT")).join("otherfiles/certificates").checkDirectory();
-        p12 = puppet.join(hostname + ".p12");
-        crt = puppet.join(hostname + ".crt");
-        key = puppet.join(hostname + ".key");
-        ca = puppet.join("ca/1und1PUKIIssuingCA2.pem");
+        base = Secrets.secrets(world);
+        p12 = base.join(hostname + ".p12");
+        crt = base.join(hostname + ".crt");
+        key = base.join(hostname + ".key");
+        ca = base.join("pukiAutomatedIssuingCA2.pem");
         p12modified = p12.exists() ? p12.getLastModified() : Long.MIN_VALUE;
         if (crt.getLastModified() > p12modified || key.getLastModified() > p12modified || ca.getLastModified() > p12modified) {
             console.info.println("generating " + p12);
             chain = world.getTemp().createTempFile();
             chain.writeString(crt.readString() + ca.readString());
-            puppet.exec("openssl", "pkcs12", "-export", "-in", chain.getAbsolute(),
+            base.exec("openssl", "pkcs12", "-export", "-in", chain.getAbsolute(),
                     "-inkey", key.getAbsolute(),
                     "-out", p12.getAbsolute(), "-name", "tomcat", "-passout", "pass:changeit");
         }
