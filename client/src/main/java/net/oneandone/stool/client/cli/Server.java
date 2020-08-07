@@ -186,6 +186,7 @@ public class Server {
         return base64(str.getBytes("utf8"));
     }
 
+    // TODO: cannot take tomcat.p12 from fault project because it does not support binary files
     private static String tomcatP12(World world, Console console, String hostname) throws IOException {
         FileNode base;
         FileNode key;
