@@ -136,8 +136,8 @@ public class Server {
             map.put("repositoryTag", repositoryTag());
             map.put("cert", tomcatP12(world, console, hostname));
             map.put("cert-script", certScript(world, hostname));
-            map.put("hostkey", hostkey(world, "test-pearl.key"));
-            map.put("hostkey-pub", hostkey(world, "test-pearl.key"));
+            map.put("hostkey", hostkey(world, shortname(hostname) + ".key"));
+            map.put("hostkey-pub", hostkey(world, shortname(hostname) + ".key.pub"));
 
             result = world.resource("caas.yaml").readString();
             try {
@@ -146,10 +146,6 @@ public class Server {
                 throw new IllegalStateException(e);
             }
         }
-    }
-
-    private static String waterloo(String hostname) {
-        return hostname.contains("shops") ? "waterloo1.ciso.server.lan" : "cpwaterloo1.ciso.server.lan";
     }
 
     private String repositoryTag() throws IOException {
@@ -218,7 +214,7 @@ public class Server {
     private static String hostkey(World world, String name) throws IOException {
         FileNode puppet;
 
-        puppet = world.file(System.getenv("PUPPET_FILES_ROOT")).join("todo").checkDirectory();
+        puppet = Secrets.secrets(world, Server.class).join("net.oneandone.stool:stool").checkDirectory();
         return base64(puppet.join(name).readBytes());
     }
 
