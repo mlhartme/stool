@@ -137,6 +137,20 @@ spec:
           value: "${portus}"
         - name: LOGLEVEL
           value: "INFO"
+      - name: fault-update
+        image: ${repositoryTag}
+        command: ["sh"]
+        args: ["-c", "while true; do sleep 7200; fault '-user=[public_test_pearl:/etc/ssh/ssh_host_rsa_key]' auth && fault install -dest=/etc/fault/workspace -permissions=/etc/fault/workspace.permissions -batch @ >/etc/fault/install.log 2>&1; done"]
+        resources:
+          limits:
+            cpu: 1
+          requests:
+            cpu: 200m
+        volumeMounts:
+          - mountPath: /etc/fault
+            name: fault
+          - mountPath: /etc/ssh
+            name: hostkey-volume
       initContainers:
       - name: fault-setup
         image: ${repositoryTag}
