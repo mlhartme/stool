@@ -140,7 +140,7 @@ spec:
       - name: fault-update
         image: ${repositoryTag}
         command: ["sh"]
-        args: ["-c", "while true; do sleep 7200; fault '-user=[public_test_pearl:/etc/ssh/ssh_host_rsa_key]' auth && fault install -dest=/etc/fault/workspace -permissions=/etc/fault/workspace.permissions -batch @ >/etc/fault/install.log 2>&1; done"]
+        args: ["-c", "while true; do sleep 7200; fault '-user=[${faultName}:/etc/ssh/ssh_host_rsa_key]' auth && fault install -dest=/etc/fault/workspace -permissions=/etc/fault/workspace.permissions -batch @ >/etc/fault/install.log 2>&1; done"]
         resources:
           limits:
             cpu: 1
@@ -155,7 +155,7 @@ spec:
       - name: fault-setup
         image: ${repositoryTag}
         command: ["sh"]
-        args: ["-c", "mkdir /etc/fault/workspace && fault '-user=[public_test_pearl:/etc/ssh/ssh_host_rsa_key]' auth && fault install -dest=/etc/fault/workspace -permissions=/etc/fault/workspace.permissions -batch @"]
+        args: ["-c", "mkdir /etc/fault/workspace && fault '-user=[${faultName}:/etc/ssh/ssh_host_rsa_key]' auth && fault install -dest=/etc/fault/workspace -permissions=/etc/fault/workspace.permissions -batch @"]
         resources:
           limits:
             cpu: 1

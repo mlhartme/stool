@@ -133,6 +133,7 @@ public class Server {
             map = new HashMap<>();
             map.put("portus", portus.toString());
             map.put("host", hostname);
+            map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));
             map.put("repositoryTag", repositoryTag());
             map.put("cert", tomcatP12(world, console, hostname));
             map.put("cert-script", certScript(world, hostname));
