@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** List of Apps. Represents .backstage */
+/** Maps apps to stages. Represents .backstage/workspace.yaml */
 public class Workspace {
     public static Workspace create(FileNode directory) throws IOException {
         FileNode workspaceYaml;
@@ -85,11 +85,8 @@ public class Workspace {
     public void load(Configuration configuration) throws IOException {
         ObjectNode root;
         ObjectNode stages;
-        Reference reference;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
-        String typeAndPath;
-        int idx;
 
         try (Reader src = workspaceYaml.newReader()) {
             root = (ObjectNode) yaml.readTree(src);
@@ -99,14 +96,7 @@ public class Workspace {
         iter = stages.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            reference = configuration.reference(entry.getKey());
-            typeAndPath = entry.getValue().asText();
-            idx = typeAndPath.indexOf('@');
-            if (idx == -1) {
-                throw new IllegalStateException(typeAndPath);
-            }
-            map.put(new App(Source.Type.valueOf(typeAndPath.substring(0, idx).toUpperCase()), typeAndPath.substring(idx + 1)),
-                    reference);
+            map.put(App.parse(entry.getKey()), configuration.reference(entry.getValue().asText()));
         }
     }
 
@@ -170,7 +160,7 @@ public class Workspace {
             root = yaml.createObjectNode();
             stages = yaml.createObjectNode();
             for (Map.Entry<App, Reference> entry : map.entrySet()) {
-                stages.put(entry.getValue().toString(), entry.getKey().type.toString().toLowerCase() + "@" + entry.getKey().path);
+                stages.put(entry.getKey().toString(), entry.getValue().toString());
             }
             root.set("stages", stages);
             workspaceYaml.getParent().mkdirOpt();

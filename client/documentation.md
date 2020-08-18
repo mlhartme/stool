@@ -87,7 +87,7 @@ prints help about `create`.
 * WORKSPACE denotes the workspace currently used 
 
 
-## Concepts
+## Terminology
 
 ### Stool
 
@@ -97,18 +97,19 @@ or the whole Github project.
 
 ### Context
 
-A context specifies a place that can host stages. It has a name, an optional token, and a URL pointing to a Stool server. 
-`sc` manages a list of contexts in its client configuration file. `sc` also manages a current context, you can change it permanently with `sc context` 
-or per-invocation with the `-context` global option.
+A *context* specifies a place that can host stages. It has a name, an optional token, and a URL pointing to a Stool server. 
+`sc` manages a list of contexts in its client configuration file. `sc` also manages a current context, you can change it permanently 
+with `sc context` or per-invocation with the `-context` global option.
 
 Advanced note: The concept of a context is similar to `kubectl`s context.
 
 
 ### Stage
 
-A stage is a set of Docker images, where each image holds a Web Application, i.e. something you can point your browser to. Typically, 
-that's a Tomcat servlet container (http://tomcat.apache.org) with a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). 
-Different images hold different versions of your Web Application. Starting a stage creates a container for one of the images.
+A *stage* is a set of Docker images together with some configuration (e.g. a name). Each image holds a Web Application, i.e. something you 
+can point your browser to. Typically, that's a Tomcat servlet container (http://tomcat.apache.org) with a Java web application 
+(https://en.wikipedia.org/wiki/Java_Servlet). Different images hold different versions of your Web Application. Starting a stage creates 
+a container for one of the images.
 
 A stage is hosted in a Kubernetes namespace, which is identified by a context. Every stage has a unique name in that context. A stage is 
 referenced by *name*`@`*context* or just the *name* if it's in the current context. The stages attached to a workspace are shown in your 
@@ -118,8 +119,10 @@ can be changed later.
 
 ### Image
 
-A Docker image with various labels. An image can be identified by a repository tag. However, since a stage implies the repository, Stool 
-usually refers to an image by its tag. When building images with Stool, this tag is a number, that's incremented with every build.
+A Docker image with various labels. An image is uniquely identified by a repository tag. However, since a stage implies the repository, 
+Stool usually refers to an image by its tag. When building images with Stool, this tag is a number, that's incremented with every build.
+
+Image labels configure how to handle this image with Stool. Available labels:0
 
 Labels: TODO
 
@@ -130,13 +133,13 @@ Labels: TODO
 
 ### Workspace
 
-A workspace maps sources to stages. A source can be a Java War file or a Dockerfile.
+A workspace maps apps to stages. An app can be a Java War file or a Dockerfile.
 
-You'll typically work with workspaces like this: you have a checkout of one or multiple applications of yours. If they are 
-Java Applications, you build the war(s) with something like `mvn clean package`. To get a stage with that application, 
-you create a workspace with `sc create`, work with your stage (e.g. build it with `sc build`), and when you're done, you clean 
-up with `sc delete`. You can also use `sc attach` to connect with existing stages, and `sc detach` to remove stages from a workspace
-without deleting them.
+You'll typically work with workspaces like this: you have a checkout of the sources of one or multiple applications of yours. If the source 
+code is Java, you build the war(s) with something like `mvn clean package`. To get a stage with that application, you create a workspace 
+with `sc create`, which also creates a workspace mapping this app to the stages. You work with your stage (e.g. build it with `sc build`), 
+and when you're done, you clean up with `sc delete`. You can also use `sc attach` to work with existing stages, and `sc detach` to remove 
+stages from a workspace without deleting them.
 
 Technically, the workspace is stored in `.backstage/workspace.yaml`
 
@@ -200,8 +203,8 @@ Stool client
 #### DESCRIPTION
 
 `sc` is a command line tool to manage stages. A stage is a web application running in a container.
-*command* defaults to `help`. Stages can be hosted on Kubernetes clusters that a Stool server. `sc` stands for Stool client. 
-Technically, `sc` is a rest client for Stool server, and Stool server talks to Kubernetes to manage stages.
+*command* defaults to `help`. Stages can be hosted on Kubernetes namespaces that run a Stool server. `sc` stands for Stool client. 
+Technically, `sc` is a rest client for Stool servers, and Stool server talks to Kubernetes to manage stages.
 
 
 #### Commands
@@ -226,7 +229,7 @@ Technically, `sc` is a rest client for Stool server, and Stool server talks to K
 `sc` *global-option*... `server` *name*
 
 
-`sc` *global-option*... `context` [`q`][`-offline`][*context*]
+`sc` *global-option*... `context` [`-q`][`-offline`][*context*]
 
 
 `sc` *global-option*... `auth` [`-batch`]
@@ -437,11 +440,11 @@ Manage current context
 
 #### SYNOPSIS
 
-`sc` *global-option*... `context` [`q`][`-offline`][*context*]
+`sc` *global-option*... `context` [`-q`][`-offline`][*context*]
 
 #### DESCRIPTION
 
-When called without argument: Lists all context with the current context marked. Prints just the current context when called with `-q`.
+When called without argument: Lists all contexts with an arrow pointing to the current context. Prints just the current context when called with `-q`.
 
 Changes the current context when invoked with a *context* argument. If the new context requires authentication, this command implicitly 
 runs `sc auth` to get the respective token. This can be disabled by specifying `-offline`.
@@ -483,9 +486,9 @@ Create a new stage
 #### DESCRIPTION
 
 Searches the specified *path*s (default: `.`) for apps of the specified type (either `war` or `docker`, default is `war`) and creates one 
-stage for each of them. *name* specifies the name for new stages. It must contain only lower case ascii characters or digit. Otherwise it's 
-rejected because it would cause problems with urls or docker tags that contain the name. *name* may include an underscore `_`, which will 
-be subsituted by the respective app name.
+stage for each of them. *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes. 
+Otherwise it's rejected because it would cause problems with urls or docker tags that contain the name. *name* may also include an 
+underscore `_`, which will be substituted by the respective app name.
 
 Reports an error if a stage already exists. You can disable this with the `-optional` option.
 
@@ -500,6 +503,7 @@ See `sc help global-options` for available [global options](#stool-global-option
 
 #### Examples
 
+Create one stage `foo` for one war file in the current Maven Project: `sc create foo`
 Create stages for all wars in a multi-module Maven Project: `sc create _.foo`
 
 ### stool-attach

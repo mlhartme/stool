@@ -19,8 +19,18 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
-/** Mapping between stage and how to build it */
+/** Factory for Sources */
 public class App {
+    public static App parse(String typeAndPath) {
+        int idx;
+
+        idx = typeAndPath.indexOf('@');
+        if (idx == -1) {
+            throw new IllegalStateException(typeAndPath);
+        }
+        return new App(Source.Type.valueOf(typeAndPath.substring(0, idx).toUpperCase()), typeAndPath.substring(idx + 1));
+    }
+
     public final Source.Type type;
 
     /** path (possibly with wildcards) that is applied to locate the war file */
@@ -51,5 +61,9 @@ public class App {
                 throw new IllegalStateException(type.toString());
         }
         return result;
+    }
+
+    public String toString() {
+        return type.toString().toLowerCase() + "@" + path;
     }
 }
