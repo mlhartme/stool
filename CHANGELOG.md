@@ -2,12 +2,12 @@
 
 ### 6.0.0 (pending)
 
-Stool 6 switches from Docker hosts to Kubernetes - Stool server now talks to kubernetes instead of docker to manage stages.
+Stool 6 switches from Docker hosts to Kubernetes - Stool server now talks to Kubernetes instead of Docker to manage stages.
 
 In addition, stages and apps have been merged: every stages runs exactly one app now. To work with multi module projects,
-the client has been extended to easily create multiple stages for one project.
+the client has been adjusted: workspaces, that can handle multiple stages, replaced the former projects.
 
-And Docker builds execute on the client now, the server just consumes images from a registry. Consequently, 
+Another client change: Docker builds execute on the client now, the server just consumes images from a registry. Consequently, 
 users need a local Docker setup.
 
 User-visible ports are gone (alogin with port options), dispatching to stages is now based on vhosts.
