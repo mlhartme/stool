@@ -247,7 +247,7 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 
 
 
-`sc` *global-option*... `build` *stage-option*... [`-source`][`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
+`sc` *global-option*... `build` *stage-option*... [`-app` *path*][`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
 
 
 
@@ -595,15 +595,15 @@ Build stages
 
 #### SYNOPSIS
 
-`sc` *global-option*... `build` *stage-option*... [`-source`][`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
+`sc` *global-option*... `build` *stage-option*... [`-app` *path*][`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
 
 
 #### DESCRIPTION
 
-Builds the specified stages by running Docker on the associates sources. The source is located by searchin the stage in the current workspace
-or from the `-source` argument if specified. The resulting image is pushed to the registry. Docker build is run with appropriate build arguments. 
+Builds the specified stages by running Docker on the associates app. The app is located by searching the stage in the current workspace
+or from the `-app` argument if specified. The resulting image is pushed to the registry. Docker build is run with appropriate build arguments. 
 
-For war sources, available build argument depend on the template being used, you can see them in the error message if you specify an 
+For war apps, available build arguments depend on the template being used, you can see them in the error message if you specify an 
 unknown build argument. Build arguments are loaded from a properties file in the war. You can add additional argument or overwrite values 
 by passing *key*`=`*value* arguments to the command.
 

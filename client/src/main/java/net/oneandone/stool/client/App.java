@@ -22,13 +22,12 @@ import java.io.IOException;
 /** Factory for Sources */
 public class App {
     public static App parse(String typeAndPath) {
+        Source.Type type;
         int idx;
 
         idx = typeAndPath.indexOf('@');
-        if (idx == -1) {
-            throw new IllegalStateException(typeAndPath);
-        }
-        return new App(Source.Type.valueOf(typeAndPath.substring(0, idx).toUpperCase()), typeAndPath.substring(idx + 1));
+        type = idx == -1 ? Source.Type.WAR : Source.Type.valueOf(typeAndPath.substring(0, idx).toUpperCase());
+        return new App(type, typeAndPath.substring(idx + 1));
     }
 
     public final Source.Type type;

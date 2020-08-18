@@ -28,16 +28,16 @@ import java.util.List;
 import java.util.Map;
 
 public class Build extends IteratedStageCommand {
-    private final String explicitSource;
+    private final String explicitApp;
     private final boolean noCache;
     private final int keep;
     private final boolean restart;
     private final String comment;
     private final Map<String, String> explicitArguments;
 
-    public Build(Globals globals, String explicitSource, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
+    public Build(Globals globals, String explicitApp, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
         super(globals);
-        this.explicitSource = explicitSource;
+        this.explicitApp = explicitApp;
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
@@ -62,23 +62,12 @@ public class Build extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        int idx;
         Workspace workspace;
         App app;
         Source source;
-        Source.Type type;
-        String path;
 
-        if (explicitSource != null) {
-            idx = explicitSource.indexOf('@');
-            if (idx == -1) {
-                type = Source.Type.WAR;
-                path = explicitSource;
-            } else {
-                type = Source.Type.valueOf(explicitSource.substring(0, idx).toUpperCase());
-                path = explicitSource.substring(idx + 1);
-            }
-            source = new App(type, path).source(world.getWorking());
+        if (explicitApp != null) {
+            source = App.parse(explicitApp).source(world.getWorking());
         } else {
             workspace = lookupWorkspace();
             if (workspace == null) {
