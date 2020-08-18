@@ -600,16 +600,18 @@ Build stages
 
 #### DESCRIPTION
 
-Builds the specified stages by running Docker on the associates app. The app is located by searching the stage in the current workspace
-or from the `-app` argument if specified. The resulting image is pushed to the registry. Docker build is run with appropriate build arguments. 
+Builds the specified stages by running Docker on the app attached to the selected stage. The attached app is picked form the workspace
+or from the `-app` argument if specified. The resulting image is pushed to the registry. 
+
+Docker build is run with appropriate build arguments. 
 
 For war apps, available build arguments depend on the template being used, you can see them in the error message if you specify an 
 unknown build argument. Build arguments are loaded from a properties file in the war. You can add additional argument or overwrite values 
 by passing *key*`=`*value* arguments to the command.
 
-You can see the build argument actually used for an image with `sc images`.
+You can see the build arguments actually used for an image with `sc images`.
 
-You can build a stage while it's running. In this case, specify `-restart` to stop the currently running image and start the newly build one.
+You can build a stage while it's running. In this case, specify `-restart` to stop the currently running image and start the newly built one.
 Otherwise, use `sc restart` after the build to get the latest image running.
 
 *keep* specifies the number of images that will not be exceeded for this stage, default is 3. I.e. if you already have 3 images 
@@ -633,7 +635,7 @@ Detach a stage from a workspace
 
 #### DESCRIPTION
 
-Removes stages from the current workspace without modifying the stage itself. Technically, `detach` simplify removes stage entries 
+Removes stages from the current workspace without modifying the stage itself. Technically, `detach` simplify removes app- to stage mappings 
 from`.backstage/workspace.yaml` file.
 
 
@@ -681,10 +683,10 @@ Start a stage
 
 #### Description
 
-Starts the stage with the environment arguments specified by *key*=*value* arguments. *image* specifies that image to actually start,
+Starts the stage with the environment arguments specified by *key*=*value* arguments. *image* specifies the image to actually start,
 it defaults to the latest. Use `sc images` to see available images.
 
-Startup is refused if the user who built the image does not have access to all fault projects of the image.
+Startup is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
 Startup is refused if your stage has expired. In this case, use `sc config expire=`*newdate* to configure a new `expire` date.
 
