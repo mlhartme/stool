@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,13 +73,13 @@ public class Workspace {
     private final ObjectMapper yaml;
     public final FileNode directory;
     private final FileNode workspaceYaml;
-    private final List<App> apps;
+    private final Map<App, Reference> map;
 
     private Workspace(FileNode workspaceYaml) {
         this.yaml = new ObjectMapper(new YAMLFactory());
         this.directory = workspaceYaml.getParent().getParent();
         this.workspaceYaml = workspaceYaml;
-        this.apps = new ArrayList<>();
+        this.map = new LinkedHashMap<>();
     }
 
     public void load(Configuration configuration) throws IOException {
@@ -95,7 +95,7 @@ public class Workspace {
             root = (ObjectNode) yaml.readTree(src);
         }
         stages = (ObjectNode) root.get("stages");
-        apps.clear();
+        map.clear();
         iter = stages.fields();
         while (iter.hasNext()) {
             entry = iter.next();
@@ -105,42 +105,43 @@ public class Workspace {
             if (idx == -1) {
                 throw new IllegalStateException(typeAndPath);
             }
-            apps.add(new App(reference, Source.Type.valueOf(typeAndPath.substring(0, idx).toUpperCase()), typeAndPath.substring(idx + 1)));
+            map.put(new App(Source.Type.valueOf(typeAndPath.substring(0, idx).toUpperCase()), typeAndPath.substring(idx + 1)),
+                    reference);
         }
     }
 
     public int size() {
-        return apps.size();
+        return map.size();
     }
 
-    public List<App> list() {
-        return Collections.unmodifiableList(apps);
+    public List<Reference> references() {
+        return new ArrayList<>(map.values());
     }
 
     public App lookup(Reference reference) {
-        for (App app : apps) {
-            if (reference.equals(app.reference)) {
-                return app;
+        for (Map.Entry<App, Reference> entry : map.entrySet()) {
+            if (reference.equals(entry.getValue())) {
+                return entry.getKey();
             }
         }
         return null;
     }
 
     public void add(Source source, Reference reference) throws IOException {
-        add(new App(reference, source.type, source.directory.getRelative(directory)));
+        add(new App(source.type, source.directory.getRelative(directory)), reference);
     }
 
-    public void add(App app) throws IOException {
-        if (lookup(app.reference) != null) {
-            throw new IOException("duplicate app: " + app.reference.stage);
+    public void add(App app, Reference reference) throws IOException {
+        if (lookup(reference) != null) {
+            throw new IOException("duplicate app: " + reference);
         }
-        apps.add(app);
+        map.put(app, reference);
     }
 
     public boolean remove(String stage) {
-        for (App app : apps) {
-            if (stage.equals(app.reference.stage)) {
-                apps.remove(app);
+        for (Map.Entry<App, Reference> entry : map.entrySet()) {
+            if (stage.equals(entry.getValue())) {
+                map.remove(entry.getKey());
                 return true;
             }
         }
@@ -148,9 +149,9 @@ public class Workspace {
     }
 
     public boolean remove(Reference reference) {
-        for (App app : apps) {
-            if (reference.equals(app.reference)) {
-                apps.remove(app);
+        for (Map.Entry<App, Reference> entry : map.entrySet()) {
+            if (reference.equals(entry.getValue())) {
+                map.remove(entry.getKey());
                 return true;
             }
         }
@@ -161,15 +162,15 @@ public class Workspace {
         ObjectNode root;
         ObjectNode stages;
 
-        if (apps.isEmpty()) {
+        if (map.isEmpty()) {
             // prune
             workspaceYaml.deleteFile();
             workspaceYaml.getParent().deleteDirectory();
         } else {
             root = yaml.createObjectNode();
             stages = yaml.createObjectNode();
-            for (App app : apps) {
-                stages.put(app.reference.toString(), app.type.toString().toLowerCase() + "@" + app.path);
+            for (Map.Entry<App, Reference> entry : map.entrySet()) {
+                stages.put(entry.getValue().toString(), entry.getKey().type.toString().toLowerCase() + "@" + entry.getKey().path);
             }
             root.set("stages", stages);
             workspaceYaml.getParent().mkdirOpt();

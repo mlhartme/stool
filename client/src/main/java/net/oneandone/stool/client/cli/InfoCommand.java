@@ -18,14 +18,11 @@ package net.oneandone.stool.client.cli;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Configuration;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -78,20 +75,6 @@ public abstract class InfoCommand extends StageCommand {
             doRun(entry.getKey(), entry.getValue());
         }
         return new EnumerationFailed();
-    }
-
-    private List<Reference> workspaceReferences() throws IOException {
-        Workspace workspace;
-        List<Reference> result;
-
-        workspace = lookupWorkspace();
-        result = new ArrayList<>();
-        if (workspace != null) {
-            for (App app : workspace.list()) {
-                result.add(app.reference);
-            }
-        }
-        return result;
     }
 
     public static String infoToString(JsonElement info) {

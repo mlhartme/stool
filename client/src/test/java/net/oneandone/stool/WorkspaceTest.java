@@ -36,7 +36,7 @@ public class WorkspaceTest {
         world = World.createMinimal();
         dir = world.getTemp().createTempDirectory();
         workspace = Workspace.create(dir);
-        workspace.add(new App(new Reference(new Client("ctx", null /* TODO */), "stage"), Source.Type.WAR, "."));
+        workspace.add(new App(Source.Type.WAR, "."), new Reference(new Client("ctx", null /* TODO */), "stage"));
         workspace.save();
     }
 }

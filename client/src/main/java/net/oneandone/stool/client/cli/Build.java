@@ -78,7 +78,7 @@ public class Build extends IteratedStageCommand {
                 type = Source.Type.valueOf(explicitSource.substring(0, idx).toUpperCase());
                 path = explicitSource.substring(idx + 1);
             }
-            source = new App(reference, type, path).source(world.getWorking());
+            source = new App(type, path).source(world.getWorking());
         } else {
             workspace = lookupWorkspace();
             if (workspace == null) {

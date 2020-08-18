@@ -16,15 +16,12 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.client.App;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class IteratedStageCommand extends StageCommand {
@@ -70,27 +67,12 @@ public abstract class IteratedStageCommand extends StageCommand {
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
-                return defaultSelected();
+                return workspaceReferences();
             case 1:
                 return globals.configuration().list(all ? null : stageClause);
             default:
                 throw new ArgumentException("too many select options");
         }
-    }
-
-    /** override this to change the default */
-    private List<Reference> defaultSelected() throws IOException {
-        Workspace workspace;
-        List<Reference> result;
-
-        workspace = lookupWorkspace();
-        result = new ArrayList<>();
-        if (workspace != null) {
-            for (App app : workspace.list()) {
-                result.add(app.reference);
-            }
-        }
-        return result;
     }
 
     //--

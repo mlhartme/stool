@@ -21,16 +21,12 @@ import java.io.IOException;
 
 /** Mapping between stage and how to build it */
 public class App {
-    /** assiciated stage on the server */
-    public final Reference reference;
-
     public final Source.Type type;
 
     /** path (possibly with wildcards) that is applied to locate the war file */
     public final String path;
 
-    public App(Reference reference, Source.Type type, String path) {
-        this.reference = reference;
+    public App(Source.Type type, String path) {
         this.type = type;
         this.path = path;
     }

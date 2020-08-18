@@ -29,6 +29,8 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public abstract class ClientCommand {
@@ -55,6 +57,18 @@ public abstract class ClientCommand {
 
     public Workspace lookupWorkspace(FileNode directory) throws IOException {
         return Workspace.lookup(directory, globals.configuration());
+    }
+
+    public List<Reference> workspaceReferences() throws IOException {
+        Workspace workspace;
+        List<Reference> result;
+
+        workspace = lookupWorkspace();
+        result = new ArrayList<>();
+        if (workspace != null) {
+            result.addAll(workspace.references());
+        }
+        return result;
     }
 
     public abstract void run() throws Exception;
