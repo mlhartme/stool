@@ -24,7 +24,7 @@ to see available contexts, i.e. places where you can host stages. Choose one of 
 
     sc context <yourcontext>
     
-Depending on the context you choose you have to authenticate.
+Depending on the context you choose you'll be asked to authenticate.
     
 Create a new stage with
 
@@ -50,7 +50,7 @@ To delete the stage, stop it with
 
     sc stop
 
-and wipe the stage with
+and wipe it with
 
     sc delete
 
@@ -58,7 +58,7 @@ You can create an arbitrary number of stages. Invoke
 
     sc list
 
-to see what you have created and not yet removed. 
+to see what you have created and not yet deleted. 
 
 Use 
 
