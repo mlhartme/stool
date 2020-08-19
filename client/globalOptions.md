@@ -1,3 +1,3 @@
 
-See `sc help global-options` for available [global options](#stool-global-options)
+See `sc help global-options` for available [global options](#sc-global-options)
 

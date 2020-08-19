@@ -163,9 +163,9 @@ stage indicator is invisible if you have no current workspace.
 
 Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
 or map (string to string)). Stool distinguishes server properties and stage properties. Server properties are global settings that apply to 
-all stages, they are usually adjusted by system administrators (see [server configuration](#stool-server)). Stage properties 
+all stages, they are usually adjusted by system administrators (see [server configuration](#sc-server)). Stage properties 
 configure the respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
-with [stool config](#stool-config). 
+with [stool config](#sc-config). 
 
 Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are similar to
 properties, but they are read-only.
@@ -308,11 +308,11 @@ Invoke `sc help` *command* to get help for the specified command.
 
 [//]: # (include globalOptions.md)
 
-See `sc help global-options` for available [global options](#stool-global-options)
+See `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
-### stool-global-options
+### sc-global-options
 
 Options available for all commands
 
@@ -329,7 +329,7 @@ Options available for all commands
 
 ## General commands
 
-### stool-help 
+### sc-help 
 
 Display man page
 
@@ -342,7 +342,7 @@ Display man page
 Display help about the specified *command*. Or, if *command* is not specified, display general `sc` help.
 
 
-### stool-version 
+### sc-version 
 
 Display version info
 
@@ -356,12 +356,12 @@ Prints client version info. Use the global `-v` global option to get additional 
 
 [//]: # (include globalOptions.md)
 
-See `sc help global-options` for available [global options](#stool-global-options)
+See `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-setup
+### sc-setup
 
 Setup Stool client
 
@@ -376,7 +376,7 @@ The location of the client configuration file is configured with the `SC_YAML` e
 defaults is `~/.sc.yaml`.
 
 
-### stool-server
+### sc-server
 
 Generate server configuration
 
@@ -434,7 +434,7 @@ The following environment variables can be used to configure the server:
   Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
 
 
-### stool-context
+### sc-context
 
 Manage current context
 
@@ -450,7 +450,7 @@ Changes the current context when invoked with a *context* argument. If the new c
 runs `sc auth` to get the respective token. This can be disabled by specifying `-offline`.
 
 
-### stool-auth
+### sc-auth
 
 Authenticate to current context
 
@@ -468,12 +468,12 @@ variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
 
 [//]: # (include globalOptions.md)
 
-See `sc help global-options` for available [global options](#stool-global-options)
+See `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-create
+### sc-create
 
 Create a new stage
 
@@ -493,11 +493,11 @@ underscore `_`, which will be substituted by the respective app name.
 Reports an error if a stage already exists. You can disable this with the `-optional` option.
 
 New stages are configured with the specified *key*/*value* pairs. Specifying a *key*/*value* pair is equivalent to running 
-[stool config](#stool-config) with these arguments.
+[stool config](#sc-config) with these arguments.
 
 [//]: # (include globalOptions.md)
 
-See `sc help global-options` for available [global options](#stool-global-options)
+See `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -506,7 +506,7 @@ See `sc help global-options` for available [global options](#stool-global-option
 Create one stage `foo` for one war file in the current Maven Project: `sc create foo`
 Create stages for all wars in a multi-module Maven Project: `sc create _.foo`
 
-### stool-attach
+### sc-attach
 
 Attach stage to a workspace
 
@@ -520,7 +520,7 @@ Similar to `create`, but stages have to exist, they are not created.
 
 [//]: # (include globalOptions.md)
 
-See `sc help global-options` for available [global options](#stool-global-options)
+See `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -530,7 +530,7 @@ See `sc help global-options` for available [global options](#stool-global-option
 Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical stage commands are `status`, `start`, 
 and `stop`. All stage commands support the same stage options, see `sc help stage-options` for documentation.
 
-### stool-stage-options
+### sc-stage-options
 
 Options available for all stage commands
 
@@ -589,7 +589,7 @@ after the first stage that cannot be started (e.g. because it's already running)
 `sc stop -stage up=true` stops all stages currently up, but aborts immediately if one stage fails to stop.
 
 
-### stool-build
+### sc-build
 
 Build stages
 
@@ -619,13 +619,13 @@ and run `build`, the oldest unreferenced image the will be removed. Unreferenced
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-detach
+### sc-detach
 
 Detach a stage from a workspace
 
@@ -641,13 +641,13 @@ from`.backstage/workspace.yaml` file.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-delete
+### sc-delete
 
 Deletes a stage
 
@@ -667,13 +667,13 @@ with the `-batch` option.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-start
+### sc-start
 
 Start a stage
 
@@ -702,13 +702,13 @@ TODO: how to define additional environment variables?
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-stop
+### sc-stop
 
 Stop a stage
 
@@ -726,13 +726,13 @@ terminated with "kill 9". If shutdown is slow, try to debug and find out what's 
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-restart
+### sc-restart
 
 Restart a stage
 
@@ -747,13 +747,13 @@ Shorthand for `sc stop && stool start`.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-history
+### sc-history
 
 Display commands invoked on this stage
 
@@ -768,13 +768,13 @@ specified *max* number of commands (defauls is 50).
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-config
+### sc-config
 
 Manage stage properties
 
@@ -818,8 +818,8 @@ Each entry separates key and value by a colon. Example `foo:bar, key:value`
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -844,7 +844,7 @@ Use `sc help global-options` for available [global options](#stool-global-option
 `sc config comment=42` sets the comment to 42.
 
 
-### stool-status
+### sc-status
 
 Display stage status
 
@@ -896,13 +896,13 @@ TODO:
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-images
+### sc-images
 
 Display image status
 
@@ -940,13 +940,13 @@ Display info about the images of the stage.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-list
+### sc-list
 
 List stages
 
@@ -961,13 +961,13 @@ command for a list of available fields. Default fields/properties are `name stat
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
 
-### stool-tunnel
+### sc-tunnel
 
 Start an ssh tunnel
 
@@ -985,7 +985,7 @@ The tunnel is refused if the current user does not have access to all fault proj
 Use *local* to specify the port to bind locally (defaults to the remote port).
 
 
-### stool-ssh
+### sc-ssh
 
 Ssh into the running app
 
@@ -999,7 +999,7 @@ Starts an ssh shell in the specified app. Reports an error if the app is not run
 
 The shell is refused if the current user does not have access to all fault projects of the image.
 
-### stool-validate
+### sc-validate
 
 Validate the stage
 
@@ -1015,8 +1015,8 @@ if `-email` is specified, a notification mail is sent as configured by the notif
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#stool-stage-options)
-Use `sc help global-options` for available [global options](#stool-global-options)
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
