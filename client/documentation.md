@@ -1046,6 +1046,9 @@ TODO
 * `sc server name`
 * `kubectl apply -f name.yaml`
 
+Technically, Stool server is a proxy for Kubernetes, it uses a services account to access Kubernetes API. Users authenticate against Stool
+server, they do not have access to Kubernetes.
+
 ### Building Stool
 
 See https://github.com/mlhartme/stool/blob/stool-6.0/DEVELOPMENT.md

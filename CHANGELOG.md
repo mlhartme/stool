@@ -2,11 +2,10 @@
 
 ### 6.0.0 (pending)
 
-Stool 6 switches from Docker hosts to Kubernetes: Stool server itself executes in Kubernetes, and to manage stages, it now talks to 
-Kubernetes instead of Docker.
+Stool 6 switches from Docker hosts to Kubernetes: Stool server itself executes in Kubernetes, and it talks to Kubernetes to manage stages.
 
-A *stage* in Stool 6 holds exactly one *app*. To deal with multiple apps in multi module projects, you'll create/attach multiple stages
-to a so-called *workspace*. 
+A *stage* in Stool 6 holds exactly one *app*. To deal with multiple apps in multi module projects, it provides *workspaces* to 
+create/attach multiple stages. 
 
 User-visible ports are gone (along with port options), dispatching to stages is now based on vhosts.
 
