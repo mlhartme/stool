@@ -16,17 +16,23 @@
 package net.oneandone.stool.kubernetes;
 
 import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.ContainerMetrics;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.PodMetrics;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.openshift.api.model.PolicyRuleBuilder;
+import io.fabric8.openshift.api.model.RoleBindingBuilder;
+import io.fabric8.openshift.api.model.RoleBuilder;
 import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.api.model.RouteBuilder;
 import io.fabric8.openshift.api.model.RouteSpecBuilder;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +41,17 @@ public class OpenShift implements AutoCloseable {
     private final OpenShiftClient client;
     private final String namespace;
 
-    public static void main(String[] args) {
-        try (OpenShift os = create("stool-engine-it")) {
-            System.out.println("stats: " + os.statsOpt("stool-55cc886d87-grsvq "));
+    public static void main(String[] args) throws IOException {
+        try (OpenShift os = create("test-pearl")) {
+            os.createServiceAccount("mhm");
+            os.createRole("r1");
+            os.createBinding("binder", "mhm", "r1");
+            System.out.println("created");
+            os.deleteBinding("binder");
+            os.deleteRole("r1");
+            os.deleteServiceAccount("mhm");
         }
+        System.out.println("done");
     }
 
     public static OpenShift create(String context) {
@@ -121,5 +134,57 @@ public class OpenShift implements AutoCloseable {
         }
         usage = lst.get(0).getUsage();
         return new Stats(usage.get("cpu").toString(), usage.get("memory").toString());
+    }
+
+    //--
+
+    public void createServiceAccount(String name) {
+        ServiceAccountBuilder sa;
+
+        sa = new ServiceAccountBuilder().withNewMetadata().withNamespace(namespace).withName(name).endMetadata();
+        client.serviceAccounts().create(sa.build());
+    }
+
+    public void deleteServiceAccount(String name) throws IOException {
+        if (!client.serviceAccounts().inNamespace(namespace).withName(name).delete()) {
+            throw new IOException("delete failed: " + name);
+        }
+    }
+
+    public void createRole(String name, String... pods) {
+        PolicyRuleBuilder ruleBuilder;
+        RoleBuilder rb;
+
+        ruleBuilder = new PolicyRuleBuilder();
+        ruleBuilder.withApiGroups("").withAttributeRestrictions(null).withResources("pods").withResourceNames(pods).withVerbs("get");
+        rb = new RoleBuilder();
+        rb.withNewMetadata().withName(name).endMetadata().withRules(ruleBuilder.build());
+        client.roles().create(rb.build());
+    }
+
+    public void deleteRole(String name) throws IOException {
+        if (!client.roles().inNamespace(namespace).withName(name).delete()) {
+            throw new IOException("delete failed: " + name);
+        }
+    }
+
+    public void createBinding(String name, String serviceAccount, String role) {
+        RoleBindingBuilder rb;
+        ObjectReferenceBuilder s;
+
+        s = new ObjectReferenceBuilder();
+        s.withKind("ServiceAccount");
+        s.withName(serviceAccount);
+        rb = new RoleBindingBuilder();
+        rb.withNewMetadata().withName(name).endMetadata()
+                .withNewRoleRef().withName(role).withNamespace(namespace).endRoleRef()
+                .withSubjects(s.build());
+        client.roleBindings().create(rb.build());
+    }
+
+    public void deleteBinding(String name) throws IOException {
+        if (!client.roleBindings().inNamespace(namespace).withName(name).delete()) {
+            throw new IOException("delete failed: " + name);
+        }
     }
 }
