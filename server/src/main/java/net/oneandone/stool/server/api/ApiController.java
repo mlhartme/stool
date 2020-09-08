@@ -20,6 +20,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.oneandone.stool.kubernetes.OpenShift;
+import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Main;
@@ -35,7 +37,6 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Validation;
@@ -380,27 +381,25 @@ public class ApiController {
         }
     }
 
-    @GetMapping("/stages/{stage}/tunnel")
-    public String tunnel(@PathVariable(value = "stage") String stageName, @RequestParam("port") String port) throws IOException {
-        int mappedPort;
+    @GetMapping("/stages/{stage}/pod-token")
+    public String podToken(@PathVariable(value = "stage") String stageName) throws IOException {
         JsonObject result;
-        String privateKey;
+        PodInfo pod;
 
         currentWithPermissions(stageName);
-        switch (port) {
-            case "jmx":
-                mappedPort = Ports.JMXMP;
-                break;
-            case "debug":
-                mappedPort = Ports.DEBUG;
-                break;
-            default:
-                throw new ArgumentException("unknown port: " + port);
+        try (Engine engine = engine(); OpenShift os = OpenShift.create()) {
+            pod = server.load(engine, stageName).runningPodOpt(engine);
+            if (pod == null) {
+                throw new IOException("stage is not running: " + stageName);
+            }
+
+            // TODO: unique names
+            os.createServiceAccount("mhm");
+            os.createRole("r1", pod.name);
+            os.createBinding("binder", "mhm", "r1");
         }
-        privateKey = server.sshDirectory.addPort(mappedPort);
         result = new JsonObject();
-        result.add("port", new JsonPrimitive(mappedPort));
-        result.add("privateKey", new JsonPrimitive(privateKey));
+        result.add("token", new JsonPrimitive("TODO"));
         return result.toString();
     }
 

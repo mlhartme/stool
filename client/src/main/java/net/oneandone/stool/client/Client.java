@@ -192,13 +192,11 @@ public class Client {
         return stopped.getAsString();
     }
 
-    /** remote port or permission denied */
-    public JsonObject tunnel(String stage, String port) throws IOException {
+    public String podToken(String stage) throws IOException {
         HttpNode node;
 
-        node = node(stage, "tunnel");
-        node = node.withParameter("port", port);
-        return getJson(node).getAsJsonObject();
+        node = node(stage, "pod-token");
+        return getJson(node).getAsString();
     }
 
     /** remote port or permission denied */

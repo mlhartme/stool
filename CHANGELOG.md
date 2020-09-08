@@ -37,12 +37,14 @@ Client changes
   * checks for wars or docker sources and adds all matches to the project
   * name may contain an underscore `_` that will be replaced by the `_app` argument
 * `delete`
-  * replaces the formder `remove` to follow Kubernetes terminology; 
+  * replaces former `remove` command to follow Kubernetes terminology; 
   * it's a stage command now
 * `auth` now applies to the current context, the explicit server argument is gone
 * `attach`
   * with optional path
 * `detach` is a stage command now
+* `port-forward`
+  * replaces former `tunnel` command 
 * `build`
   * invokes Docker one the client now - the server just consumes images from a registry; consequently, users need a local Docker setup.
   * is a stage command now

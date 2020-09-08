@@ -145,6 +145,10 @@ public class OpenShift implements AutoCloseable {
         client.serviceAccounts().create(sa.build());
     }
 
+    public List<String> getServiceAccountSecrets(String name) {
+        return null;
+    }
+
     public void deleteServiceAccount(String name) throws IOException {
         if (!client.serviceAccounts().inNamespace(namespace).withName(name).delete()) {
             throw new IOException("delete failed: " + name);

@@ -200,7 +200,7 @@ public class Server {
         p12 = base.join(hostname + ".p12");
         crt = base.join(hostname + ".crt");
         key = base.join(hostname + ".key");
-        ca = base.join("pukiAutomatedIssuingCA2.pem");
+        ca = base.join("pukiIssuingCA2.pem");
         p12modified = p12.exists() ? p12.getLastModified() : Long.MIN_VALUE;
         if (crt.getLastModified() > p12modified || key.getLastModified() > p12modified || ca.getLastModified() > p12modified) {
             console.info.println("generating " + p12);
