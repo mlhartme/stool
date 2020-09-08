@@ -46,6 +46,12 @@
       <version>2.11.1</version>
     </dependency>
 
+    <dependency><!-- TODO -->
+      <groupId>io.fabric8</groupId>
+      <artifactId>openshift-client</artifactId>
+      <version>4.10.2</version>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>junit</groupId>
@@ -81,6 +87,11 @@
               <name>sc</name>
               <main>net.oneandone.stool.client.cli.Main</main>
               <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
+              <overwrite>manifest.vm, ValidationMessages.properties, META-INF/services/com.fasterxml.jackson.databind.Module, schema/*-schema.json,
+                META-INF/services/io.fabric8.kubernetes.client.*,
+                META-INF/jandex.idx,
+                META-INF/services/io.fabric8.kubernetes.api.KubernetesResourceMappingProvider,
+                META-INF/versions/9/javax/xml/bind/ModuleUtil.class, javax/xml/bind/**/*</overwrite><!-- TODO -->
               <remove>META-INF/maven/**/*,
                   module-info.class, META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
                   META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,

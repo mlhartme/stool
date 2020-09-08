@@ -405,6 +405,8 @@ public class ApiController {
             os.createBinding(bindingName, saName, roleName);
 
             result = new JsonObject();
+            result.add("server", new JsonPrimitive(engine.getServer()));
+            result.add("namespace", new JsonPrimitive(engine.getNamespace()));
             result.add("pod", new JsonPrimitive(pod.name));
             result.add("token", new JsonPrimitive(os.getServiceAccountToken(saName)));
             return result.toString();

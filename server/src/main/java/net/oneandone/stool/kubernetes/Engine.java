@@ -171,6 +171,14 @@ public class Engine implements AutoCloseable {
         implicitLabels.put(key, value);
     }
 
+    public String getServer() {
+        return client.getBasePath();
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
     public void close() {
         // TODO: https://github.com/kubernetes-client/java/issues/865
         client.getHttpClient().connectionPool().evictAll();

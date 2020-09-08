@@ -15,10 +15,15 @@
  */
 package net.oneandone.stool.client.cli;
 
+import com.google.gson.JsonObject;
+import io.fabric8.kubernetes.client.LocalPortForward;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.OpenShift;
 import net.oneandone.stool.client.Reference;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Base64;
 
 public class PortForward extends IteratedStageCommand {
     private final String port;
@@ -32,9 +37,24 @@ public class PortForward extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws IOException {
+        JsonObject json;
+        String server;
+        String namespace;
+        String pod;
         String token;
+        LocalPortForward pf;
 
-        token = reference.client.podToken(reference.stage);
-        System.out.println("token: " + token);
+        json = reference.client.podToken(reference.stage);
+        server = json.get("server").getAsString();
+        namespace = json.get("namespace").getAsString();
+        pod = json.get("pod").getAsString();
+        token = new String(Base64.getDecoder().decode(json.get("token").getAsString()), Charset.forName("US-ASCII"));
+
+        console.verbose.println("server: " + server + ", token: " + token);
+        try (OpenShift os = OpenShift.create(server, namespace, token)) {
+            pf = os.portForward(pod, Integer.parseInt(port), local == null ? Integer.parseInt(port) : local);
+            console.info.println("forwarding local port " + local + " to stage port " + port);
+            console.pressReturn();
+        }
     }
 }
