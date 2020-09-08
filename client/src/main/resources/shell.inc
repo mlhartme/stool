@@ -17,7 +17,7 @@ __scStageIndicator() {
   local workspace=$(__scWorkspaceDir $1)
   if [ -f "${workspace}/.backstage/workspace.yaml" ] ; then
       local ctx="$(grep 'currentContext:' ${HOME}/.sc.yaml | cut -d \" -f 2)"
-      local id="$(grep "stages:" -A 100 "${workspace}/.backstage/workspace.yaml" | grep "^ " | sed -e "s/^ *//g" -e 's/\(.*\):.*/\1/' -e "s/@${ctx}$//" | tr '\n' ' ')"
+      local id="$(grep "stages:" -A 100 "${workspace}/.backstage/workspace.yaml" | grep "^  " | sed -e 's/^  .*: \"\(.*\)\"/\1/' -e "s/@${ctx}$//" | tr '\n' ' ')"
       id=${id%?}
       echo -n "> ${id} < "
       return
