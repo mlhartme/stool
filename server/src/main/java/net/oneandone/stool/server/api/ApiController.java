@@ -385,6 +385,9 @@ public class ApiController {
     public String podToken(@PathVariable(value = "stage") String stageName) throws IOException {
         JsonObject result;
         PodInfo pod;
+        String saName;
+        String roleName;
+        String bindingName;
 
         currentWithPermissions(stageName);
         try (Engine engine = engine(); OpenShift os = OpenShift.create()) {
@@ -393,14 +396,19 @@ public class ApiController {
                 throw new IOException("stage is not running: " + stageName);
             }
 
-            // TODO: unique names
-            os.createServiceAccount("mhm");
-            os.createRole("r1", pod.name);
-            os.createBinding("binder", "mhm", "r1");
+            saName = "sa-" + pod.name;
+            roleName = "role-" + pod.name;
+            bindingName = "binding-" + pod.name;
+
+            os.createServiceAccount(saName);
+            os.createRole(roleName, pod.name);
+            os.createBinding(bindingName, saName, roleName);
+
+            result = new JsonObject();
+            result.add("pod", new JsonPrimitive(pod.name));
+            result.add("token", new JsonPrimitive(os.getServiceAccountToken(saName)));
+            return result.toString();
         }
-        result = new JsonObject();
-        result.add("token", new JsonPrimitive("TODO"));
-        return result.toString();
     }
 
     @GetMapping("/stages/{stage}/ssh")

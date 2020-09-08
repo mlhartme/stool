@@ -196,7 +196,7 @@ public class Client {
         HttpNode node;
 
         node = node(stage, "pod-token");
-        return getJson(node).getAsString();
+        return getJson(node).getAsJsonObject().toString();
     }
 
     /** remote port or permission denied */

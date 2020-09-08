@@ -16,8 +16,11 @@
 package net.oneandone.stool.kubernetes;
 
 import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.ContainerMetrics;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.PodMetrics;
@@ -146,7 +149,33 @@ public class OpenShift implements AutoCloseable {
     }
 
     public List<String> getServiceAccountSecrets(String name) {
-        return null;
+        ServiceAccount sa;
+        List<String> result;
+
+        result = new ArrayList<>();
+        sa = client.serviceAccounts().inNamespace(namespace).withName(name).get();
+        for (ObjectReference ref : sa.getSecrets()) {
+            result.add(ref.getName());
+        }
+        return result;
+    }
+
+    /** @return base64 encoded token */
+    public String getServiceAccountToken(String name) {
+        List<String> secrets;
+        String tokenSecret;
+        Secret token;
+
+        secrets = getServiceAccountSecrets(name);
+        if (secrets.isEmpty()) {
+            throw new IllegalStateException("no secrets for sa " + name);
+        }
+        tokenSecret = secrets.get(0);
+        if (!tokenSecret.contains("-token-")) {
+            throw new IllegalStateException("unexpected first secret: " + tokenSecret);
+        }
+        token = client.secrets().inNamespace(namespace).withName(tokenSecret).get();
+        return token.getData().get("token");
     }
 
     public void deleteServiceAccount(String name) throws IOException {
