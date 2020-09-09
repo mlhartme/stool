@@ -171,10 +171,6 @@ public class Engine implements AutoCloseable {
         implicitLabels.put(key, value);
     }
 
-    public String getServer() {
-        return client.getBasePath();
-    }
-
     public String getNamespace() {
         return namespace;
     }

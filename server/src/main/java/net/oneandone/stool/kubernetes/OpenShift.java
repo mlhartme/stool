@@ -162,20 +162,30 @@ public class OpenShift implements AutoCloseable {
 
     /** @return base64 encoded token */
     public String getServiceAccountToken(String name) {
-        List<String> secrets;
         String tokenSecret;
         Secret token;
 
-        secrets = getServiceAccountSecrets(name);
-        if (secrets.isEmpty()) {
-            throw new IllegalStateException("no secrets for sa " + name);
-        }
-        tokenSecret = secrets.get(0);
-        if (!tokenSecret.contains("-token-")) {
-            throw new IllegalStateException("unexpected first secret: " + tokenSecret);
-        }
+        tokenSecret = tokenSecret(getServiceAccountSecrets(name));
         token = client.secrets().inNamespace(namespace).withName(tokenSecret).get();
         return token.getData().get("token");
+    }
+
+    private String tokenSecret(List<String> secrets) {
+        String result;
+
+        result = null;
+        for (String secret : secrets) {
+            if (secret.contains("-token-")) {
+                if (result != null) {
+                    throw new IllegalStateException("token secret ambiguous: " + result + " vs " + secret);
+                }
+                result = secret;
+            }
+        }
+        if (result == null) {
+            throw new IllegalStateException("no token secret: " + secrets);
+        }
+        return result;
     }
 
     public void deleteServiceAccount(String name) throws IOException {
@@ -189,7 +199,10 @@ public class OpenShift implements AutoCloseable {
         RoleBuilder rb;
 
         ruleBuilder = new PolicyRuleBuilder();
-        ruleBuilder.withApiGroups("").withAttributeRestrictions(null).withResources("pods").withResourceNames(pods).withVerbs("get");
+        ruleBuilder.withApiGroups("")
+                .withAttributeRestrictions(null)
+                .withResources("pods", "pods/portforward", "pods/exec")
+                .withResourceNames(pods).withVerbs("get", "create");
         rb = new RoleBuilder();
         rb.withNewMetadata().withName(name).endMetadata().withRules(ruleBuilder.build());
         client.roles().create(rb.build());

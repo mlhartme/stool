@@ -68,6 +68,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
@@ -385,6 +389,7 @@ public class ApiController {
     public String podToken(@PathVariable(value = "stage") String stageName) throws IOException {
         JsonObject result;
         PodInfo pod;
+        String id;
         String saName;
         String roleName;
         String bindingName;
@@ -396,21 +401,40 @@ public class ApiController {
                 throw new IOException("stage is not running: " + stageName);
             }
 
-            saName = "sa-" + pod.name;
-            roleName = "role-" + pod.name;
-            bindingName = "binding-" + pod.name;
+            id = UUID.randomUUID().toString();
+            saName = "sa-" + stageName + "-" + id;
+            roleName = "role-" + stageName + "-" + id;
+            bindingName = "binding-" + stageName + "-" + id;
 
             os.createServiceAccount(saName);
             os.createRole(roleName, pod.name);
             os.createBinding(bindingName, saName, roleName);
 
             result = new JsonObject();
-            result.add("server", new JsonPrimitive(engine.getServer()));
             result.add("namespace", new JsonPrimitive(engine.getNamespace()));
             result.add("pod", new JsonPrimitive(pod.name));
             result.add("token", new JsonPrimitive(os.getServiceAccountToken(saName)));
+
+            schedulePodTokenCleanup(saName, roleName, bindingName);
             return result.toString();
         }
+    }
+
+    private void schedulePodTokenCleanup(String saName, String roleName, String bindingName) {
+        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
+        Runnable cleanup = new Runnable() {
+            public void run() {
+                try (OpenShift os = OpenShift.create()) {
+                    os.deleteServiceAccount(saName);
+                    os.deleteRole(roleName);
+                    os.deleteBinding(bindingName);
+                } catch (IOException e) {
+                    e.printStackTrace(); // TODO: proper logging ...
+                }
+                System.out.println("cleanup done: " + saName);
+            }
+        };
+        ex.schedule(cleanup, 30, TimeUnit.MINUTES);
     }
 
     @GetMapping("/stages/{stage}/ssh")

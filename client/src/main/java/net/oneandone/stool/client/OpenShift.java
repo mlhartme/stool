@@ -50,7 +50,7 @@ public class OpenShift implements AutoCloseable {
         client.close();
     }
 
-    public LocalPortForward portForward(String pod, int podPort, int localPorts) {
-        return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPorts);
+    public LocalPortForward portForward(String pod, int podPort, int localPort) {
+        return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
     }
 }

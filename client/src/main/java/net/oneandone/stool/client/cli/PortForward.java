@@ -42,19 +42,24 @@ public class PortForward extends IteratedStageCommand {
         String namespace;
         String pod;
         String token;
-        LocalPortForward pf;
 
         json = reference.client.podToken(reference.stage);
-        server = json.get("server").getAsString();
+        server = "https://openshift-cluster-v2.qacaas.bs.kae.de.iplatform.1and1.org:8443"; // TODO
         namespace = json.get("namespace").getAsString();
         pod = json.get("pod").getAsString();
         token = new String(Base64.getDecoder().decode(json.get("token").getAsString()), Charset.forName("US-ASCII"));
 
         console.verbose.println("server: " + server + ", token: " + token);
         try (OpenShift os = OpenShift.create(server, namespace, token)) {
-            pf = os.portForward(pod, Integer.parseInt(port), local == null ? Integer.parseInt(port) : local);
-            console.info.println("forwarding local port " + local + " to stage port " + port);
-            console.pressReturn();
+            try (LocalPortForward pf = os.portForward(pod, Integer.parseInt(port), local == null ? Integer.parseInt(port) : local)) {
+                console.info.println("forwarding local port " + pf.getLocalAddress() + " -> pod " + pod + " port " + port);
+                console.info.println("Press ctrl-c to stop forwarding.");
+                try {
+                    Thread.sleep(3600 * 1000);
+                } catch (InterruptedException e) {
+                    // fall through
+                }
+            }
         }
     }
 }
