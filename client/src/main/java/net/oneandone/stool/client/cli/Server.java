@@ -44,11 +44,12 @@ public class Server {
     private final boolean overwrite;
     private final boolean resolve;
     private final String hostname;
+    private final String api;
     private final Map<String, String> opts;
 
     private final URI portus;
 
-    public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, List<String> args) throws IOException {
+    public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, String api, List<String> args) throws IOException {
         int idx;
         String shortname;
 
@@ -57,6 +58,7 @@ public class Server {
         this.overwrite = overwrite;
         this.resolve = resolve;
         this.hostname = hostname;
+        this.api = api;
         this.opts = new HashMap<>();
         shortname = eat(args, shortname(hostname));
         this.dest = world.file(eat(args, shortname + ".yaml"));
@@ -133,12 +135,13 @@ public class Server {
             map = new HashMap<>();
             map.put("portus", portus.toString());
             map.put("host", hostname);
+            map.put("api", api);
+            map.put("hostkey", hostkey(world, shortname(hostname) + ".key"));
+            map.put("hostkey-pub", hostkey(world, shortname(hostname) + ".key.pub"));
             map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));
             map.put("repositoryTag", repositoryTag());
             map.put("cert", tomcatP12(world, console, hostname));
             map.put("cert-script", certScript(world, hostname));
-            map.put("hostkey", hostkey(world, shortname(hostname) + ".key"));
-            map.put("hostkey-pub", hostkey(world, shortname(hostname) + ".key.pub"));
 
             result = world.resource("caas.yaml").readString();
             try {
@@ -225,6 +228,7 @@ public class Server {
 
         env = new LinkedHashMap<>();
         debugPort = Integer.toString(port + 1);
+        addIfNew(env, "API", api);
         addIfNew(env, "HOST", LOCALHOST);
 
         modules = "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny";

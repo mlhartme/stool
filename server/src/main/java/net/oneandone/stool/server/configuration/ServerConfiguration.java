@@ -56,6 +56,11 @@ public class ServerConfiguration {
     public String host;
 
     /**
+     * public url for kubernetes api -- reported to clients to use temporary service accounts
+     */
+    public String api;
+
+    /**
      * Name + email. Used for problem reports, feedback emails,
      */
     public String admin;
@@ -96,6 +101,7 @@ public class ServerConfiguration {
 
     public ServerConfiguration() {
         host = "localhost";
+        api = "localhost";
         loglevel = "INFO";
         registryUrl = "http://localhost:31500/";
         admin = "";

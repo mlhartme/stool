@@ -76,7 +76,7 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        sc("server", "localhost", "localhost", SERVER_YAML.getAbsolute());
+        sc("server", "localhost", "TODO-api", "localhost", SERVER_YAML.getAbsolute());
         sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
         sc("context", "localhost");
 
