@@ -24,6 +24,9 @@ import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import okhttp3.Response;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class OpenShift implements AutoCloseable {
     private final OpenShiftClient client;
@@ -35,8 +38,18 @@ public class OpenShift implements AutoCloseable {
 
     public static OpenShift create(String masterUrl, String namespace, String token) {
         Config config;
+        String old;
 
+        // TODO: not thread safe ...
+        old = System.getProperty(Config.KUBERNETES_DISABLE_AUTO_CONFIG_SYSTEM_PROPERTY);
+        System.setProperty(Config.KUBERNETES_DISABLE_AUTO_CONFIG_SYSTEM_PROPERTY, "true");
         config = new ConfigBuilder().withMasterUrl(masterUrl).withTrustCerts(true).withNamespace(namespace).withOauthToken(token).build();
+        if (old == null) {
+            System.getProperties().remove(Config.KUBERNETES_DISABLE_AUTO_CONFIG_SYSTEM_PROPERTY);
+        } else {
+            System.setProperty(Config.KUBERNETES_DISABLE_AUTO_CONFIG_SYSTEM_PROPERTY, old);
+        }
+
         return new OpenShift(new DefaultOpenShiftClient(config));
     }
 
@@ -58,28 +71,50 @@ public class OpenShift implements AutoCloseable {
         return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
     }
 
-    public ExecWatch ssh(String pod) {
+    public ExecWatch ssh(String pod, ExecListener listener) {
         return client.pods().inNamespace(namespace).withName(pod)
                 .readingInput(System.in)
                 .writingOutput(System.out)
                 .writingError(System.err)
                 .withTTY()
-                .usingListener(new SimpleListener())
+                .usingListener(listener)
                 .exec("bash");
     }
 
-    private static class SimpleListener implements ExecListener {
+    public static class StoolExecListener implements ExecListener {
+        public Response openResponse;
+        public List<Throwable> failures;
+        public Integer closeCode;
+        public String closeReason;
+
+        public StoolExecListener() {
+            this.openResponse = null;
+            this.failures = new ArrayList<>();
+            this.closeCode = null;
+            this.closeReason = null;
+        }
+
         @Override
         public void onOpen(Response response) {
+            if (openResponse != null) {
+                throw new IllegalStateException(response + " vs " + openResponse);
+            }
+            openResponse = response;
         }
 
         @Override
         public void onFailure(Throwable t, Response response) {
-            t.printStackTrace();
+            failures.add(t);
         }
 
         @Override
         public void onClose(int code, String reason) {
+            if (closeCode != null) {
+                throw new IllegalStateException(code + " vs " + closeCode);
+            }
+            closeCode = code;
+            closeReason = reason;
         }
     }
 }
+

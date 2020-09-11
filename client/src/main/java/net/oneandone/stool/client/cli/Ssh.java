@@ -34,13 +34,17 @@ public class Ssh extends IteratedStageCommand {
     @Override
     public void doMain(Reference reference) throws IOException, InterruptedException {
         PodConfig config;
+        OpenShift.StoolExecListener listener;
 
         config = reference.client.podToken(reference.stage, timeout);
         console.verbose.println(config.toString());
         try (OpenShift os = OpenShift.create(config)) {
-            try (ExecWatch watch = os.ssh(config.pod)) {
-                Thread.sleep(timeout * 60 * 1000);
-                console.info.println("timed out - terminating");
+            listener = new OpenShift.StoolExecListener();
+            try (ExecWatch watch = os.ssh(config.pod, listener)) {
+                while (listener.closeReason == null) { // TODO: budy wait
+                    Thread.sleep(100);
+                }
+                console.verbose.println("closed, code=" + listener.closeCode + ", reason=" + listener.closeReason);
             }
         }
     }
