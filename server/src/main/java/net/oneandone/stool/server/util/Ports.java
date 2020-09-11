@@ -23,11 +23,9 @@ import java.util.Map;
 public class Ports {
     public static final int HTTP = 80;
     public static final int HTTPS = 443;
-    public static final int JMXMP = 505;
-    public static final int DEBUG = 506;
 
     public enum Port {
-        HTTP, HTTPS, JMXMP, DEBUG;
+        HTTP, HTTPS, JMXMP;
 
         public String label() {
             return ImageInfo.IMAGE_LABEL_PORT_PREFIX + toString().toLowerCase();
@@ -42,7 +40,7 @@ public class Ports {
     }
 
     public static Ports fromDeclaredLabels(Map<String, String> labels) {
-        return new Ports(Port.HTTP.get(labels), Port.HTTPS.get(labels), Port.JMXMP.get(labels), Port.DEBUG.get(labels));
+        return new Ports(Port.HTTP.get(labels), Port.HTTPS.get(labels), Port.JMXMP.get(labels));
     }
 
     //--
@@ -50,25 +48,23 @@ public class Ports {
     public final int http;
     public final int https;
     public final int jmxmp;
-    public final int debug;
 
-    public Ports(int http, int https, int jmxmp, int debug) {
+    public Ports(int http, int https, int jmxmp) {
         this.http = http;
         this.https = https;
         this.jmxmp = jmxmp;
-        this.debug = debug;
     }
 
     public boolean contains(int port) {
-        return http == port || https == port || jmxmp == port || debug == port;
+        return http == port || https == port || jmxmp == port;
     }
 
     public String toString() {
-        return "Ports(http=" + http + ", https=" + https + ", jmxmp=" + jmxmp + ", debug=" + debug + ")";
+        return "Ports(http=" + http + ", https=" + https + ", jmxmp=" + jmxmp + ")";
     }
 
     public int hashCode() {
-        return http ^ https ^ jmxmp ^ debug;
+        return http ^ https ^ jmxmp;
     }
 
     public boolean equals(Object obj) {
@@ -76,7 +72,7 @@ public class Ports {
 
         if (obj instanceof Ports) {
             ports = (Ports) obj;
-            return http == ports.http && https == ports.https && jmxmp == ports.jmxmp && debug == ports.debug;
+            return http == ports.http && https == ports.https && jmxmp == ports.jmxmp;
         }
         return false;
     }
