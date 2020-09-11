@@ -37,8 +37,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -193,11 +195,25 @@ public class Client {
     }
 
     /** @return json with pod and token fields */
-    public JsonObject podToken(String stage, int timeout) throws IOException {
+    public PodConfig podToken(String stage, int timeout) throws IOException {
         HttpNode node;
+        JsonObject json;
 
         node = node(stage, "pod-token").withParameter("timeout", timeout);
-        return getJson(node).getAsJsonObject();
+        json = getJson(node).getAsJsonObject();
+        return new PodConfig(str(json, "server"), str(json, "namespace"),
+                new String(Base64.getDecoder().decode(str(json, "token")), Charset.forName("US-ASCII")),
+                str(json, "pod"));
+    }
+
+    private static String str(JsonObject obj, String field) {
+        JsonElement element;
+
+        element = obj.get(field);
+        if (element == null) {
+            throw new IllegalStateException(obj + ": field not found: " + field);
+        }
+        return element.getAsString();
     }
 
     /** remote port or permission denied */

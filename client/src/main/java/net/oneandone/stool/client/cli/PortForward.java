@@ -15,15 +15,13 @@
  */
 package net.oneandone.stool.client.cli;
 
-import com.google.gson.JsonObject;
 import io.fabric8.kubernetes.client.LocalPortForward;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.OpenShift;
+import net.oneandone.stool.client.PodConfig;
 import net.oneandone.stool.client.Reference;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Base64;
 
 public class PortForward extends IteratedStageCommand {
     /** minutes */
@@ -40,22 +38,13 @@ public class PortForward extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws IOException {
-        JsonObject json;
-        String server;
-        String namespace;
-        String pod;
-        String token;
+        PodConfig config;
 
-        json = reference.client.podToken(reference.stage, timeout);
-        server = json.get("server").getAsString();
-        namespace = json.get("namespace").getAsString();
-        pod = json.get("pod").getAsString();
-        token = new String(Base64.getDecoder().decode(json.get("token").getAsString()), Charset.forName("US-ASCII"));
-
-        console.verbose.println("server: " + server + ", token: " + token);
-        try (OpenShift os = OpenShift.create(server, namespace, token)) {
-            try (LocalPortForward pf = os.portForward(pod, localPort, podPort)) {
-                console.info.println("forwarding local port " + pf.getLocalPort() + " -> pod " + pod + " port " + podPort);
+        config = reference.client.podToken(reference.stage, timeout);
+        console.verbose.println(config.toString());
+        try (OpenShift os = OpenShift.create(config)) {
+            try (LocalPortForward pf = os.portForward(config.pod, localPort, podPort)) {
+                console.info.println("forwarding local port " + pf.getLocalPort() + " -> pod " + config.pod + " port " + podPort);
                 console.info.println("for " + timeout + " minutes");
                 console.info.println("Press ctrl-c abort.");
                 try {

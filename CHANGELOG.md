@@ -45,6 +45,9 @@ Client changes
 * `detach` is a stage command now
 * `port-forward`
   * replaces former `tunnel` command
+  * added `-timeout` argument
+* `ssh`
+  * added `-timeout` argument
 * `build`
   * invokes Docker one the client now - the server just consumes images from a registry; consequently, users need a local Docker setup.
   * is a stage command now

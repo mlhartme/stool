@@ -17,13 +17,20 @@ package net.oneandone.stool.client;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.LocalPortForward;
+import io.fabric8.kubernetes.client.dsl.ExecListener;
+import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
+import okhttp3.Response;
 
 
 public class OpenShift implements AutoCloseable {
     private final OpenShiftClient client;
     private final String namespace;
+
+    public static OpenShift create(PodConfig config) {
+        return create(config.server, config.namespace, config.token);
+    }
 
     public static OpenShift create(String masterUrl, String namespace, String token) {
         Config config;
@@ -52,5 +59,30 @@ public class OpenShift implements AutoCloseable {
 
     public LocalPortForward portForward(String pod, int localPort, int podPort) {
         return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
+    }
+
+    public ExecWatch ssh(String pod) {
+        return client.pods().inNamespace(namespace).withName(pod)
+                .readingInput(System.in)
+                .writingOutput(System.out)
+                .writingError(System.err)
+                .withTTY()
+                .usingListener(new SimpleListener())
+                .exec("bash");
+    }
+
+    private static class SimpleListener implements ExecListener {
+        @Override
+        public void onOpen(Response response) {
+        }
+
+        @Override
+        public void onFailure(Throwable t, Response response) {
+            t.printStackTrace();
+        }
+
+        @Override
+        public void onClose(int code, String reason) {
+        }
     }
 }
