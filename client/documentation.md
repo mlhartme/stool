@@ -287,7 +287,7 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `port-forward` *stage-option*... [*local-port*] *remote-port*
 
 
-`sc` *global-option*... `ssh` *stage-option*... *app*
+`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*...
 
 
 `sc` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
@@ -984,15 +984,15 @@ Forwarding is terminated manually by pressing ctrl-c or automatically after *tim
 
 ### sc-ssh
 
-Ssh into the running app
+Ssh into the running stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `ssh` *stage-option*... *app*
+`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*...
 
 #### DESCRIPTION
 
-Starts an ssh shell in the specified app. Reports an error if the app is not running.
+Starts an ssh shell in the specified app. Reports an error if the stage is not running.
 
 The shell is refused if the current user does not have access to all fault projects of the image.
 
