@@ -440,16 +440,6 @@ public class ApiController {
         ex.schedule(cleanup, timeout, TimeUnit.MINUTES);
     }
 
-    @GetMapping("/stages/{stage}/ssh")
-    public String ssh(@PathVariable(value = "stage") String stageName) throws IOException {
-        Stage.Current current;
-        String privateKey;
-
-        current = currentWithPermissions(stageName);
-        privateKey = server.sshDirectory.addExec(current.pod.containerId);
-        return new JsonPrimitive(privateKey).toString();
-    }
-
     private Stage.Current currentWithPermissions(String stageName) throws IOException {
         Stage stage;
         Stage.Current current;

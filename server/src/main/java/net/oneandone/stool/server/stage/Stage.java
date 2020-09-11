@@ -592,7 +592,6 @@ public class Stage {
         TagInfo image;
 
         deploymentName = deploymentName();
-        server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         memoryReserved = server.memoryReservedContainers(engine, registry);
         memoryQuota = server.configuration.memoryQuota;
         image = resolve(registry, imageOpt);
@@ -740,7 +739,6 @@ public class Stage {
         Current current;
         PodInfo pod;
 
-        server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         current = currentOpt(engine, registry);
         if (current == null) {
             return null;

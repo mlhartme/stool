@@ -36,7 +36,6 @@ import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.util.Predicate;
-import net.oneandone.stool.server.util.SshDirectory;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -123,8 +122,6 @@ public class Server {
 
     public final Map<String, Accessor> accessors;
 
-    public final SshDirectory sshDirectory;
-
     public Server(Gson gson, String version, World world, boolean openShift, String localhostIp, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.version = version;
@@ -136,7 +133,6 @@ public class Server {
         this.configuration = configuration;
         this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
-        this.sshDirectory = SshDirectory.create(world.file("/home/stool/.ssh"));
     }
 
     public FileNode getLogs() {
