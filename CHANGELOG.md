@@ -44,7 +44,7 @@ Client changes
   * with optional path
 * `detach` is a stage command now
 * `port-forward`
-  * replaces former `tunnel` command 
+  * replaces former `tunnel` command
 * `build`
   * invokes Docker one the client now - the server just consumes images from a registry; consequently, users need a local Docker setup.
   * is a stage command now
@@ -57,8 +57,9 @@ Client changes
 * `stop` dumped apps argument
 * renamed `app` command to `images`
   * dumped app argument
+  * remove status fields `jmx-port` and `debug-port`
   * moved all none-image fields to status command:
-    `container`, `uptime`, `disk-used`, `jmx-port`, `debug-port`, `environment`, `origin-scm`, `heap`
+    `container`, `uptime`, `disk-used`, `environment`, `origin-scm`, `heap`
 
 * TODO: not adjusted yet
   * `ssh` dumped app argument

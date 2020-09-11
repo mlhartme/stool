@@ -278,7 +278,7 @@ public class Stage {
     }
 
     private void appFields(List<Field> fields) {
-        fields.add(new Field("container") {
+        fields.add(new Field("container") { // TODO: change to pod
             @Override
             public Object get(Context context) throws IOException {
                 PodInfo info;
@@ -365,18 +365,6 @@ public class Stage {
 
                 current = context.currentOpt(Stage.this);
                 return current == null ? null : current.image.originScm;
-            }
-        });
-        fields.add(new Field("debug-port") {
-            @Override
-            public Object get(Context context) {
-                return Ports.DEBUG;
-            }
-        });
-        fields.add(new Field("jmx-port") {
-            @Override
-            public Object get(Context context) {
-                return Ports.JMXMP;
             }
         });
         fields.add(new Field("environment") {

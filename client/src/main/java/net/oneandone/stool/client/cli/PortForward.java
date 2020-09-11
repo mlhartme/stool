@@ -28,14 +28,14 @@ import java.util.Base64;
 public class PortForward extends IteratedStageCommand {
     /** minutes */
     private final int timeout;
-    private final String port;
-    private final Integer local;
+    private final int localPort;
+    private final int podPort;
 
-    public PortForward(Globals globals, int timeout, String port, Integer local) {
+    public PortForward(Globals globals, int timeout, int port, Integer toPort) {
         super(globals);
         this.timeout = timeout;
-        this.port = port;
-        this.local = local;
+        this.localPort = port;
+        this.podPort = toPort == null ? port : toPort.intValue();
     }
 
     @Override
@@ -54,8 +54,8 @@ public class PortForward extends IteratedStageCommand {
 
         console.verbose.println("server: " + server + ", token: " + token);
         try (OpenShift os = OpenShift.create(server, namespace, token)) {
-            try (LocalPortForward pf = os.portForward(pod, Integer.parseInt(port), local == null ? Integer.parseInt(port) : local)) {
-                console.info.println("forwarding local port " + pf.getLocalPort() + " -> pod " + pod + " port " + port);
+            try (LocalPortForward pf = os.portForward(pod, localPort, podPort)) {
+                console.info.println("forwarding local port " + pf.getLocalPort() + " -> pod " + pod + " port " + podPort);
                 console.info.println("for " + timeout + " minutes");
                 console.info.println("Press ctrl-c abort.");
                 try {

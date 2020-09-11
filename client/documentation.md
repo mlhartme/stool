@@ -284,7 +284,7 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `list` *stage-option*... (*field*|*property*)...
 
 
-`sc` *global-option*... `tunnel` *stage-option*... *app* *port* [*local*]
+`sc` *global-option*... `port-forward` *stage-option*... [*local-port*] *remote-port*
 
 
 `sc` *global-option*... `ssh` *stage-option*... *app*
@@ -967,23 +967,20 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 [//]: # (-)
 
 
-### sc-tunnel
+### sc-port-forward
 
-Start an ssh tunnel
+Start port forwarding
 
 #### SYNOPSIS
 
-`sc` *global-option*... `tunnel` *stage-option*... *app* *port* [*local*]
+`sc` *global-option*... `port-forward` *stage-option*... [*local-port*] *remote-port*
 
 #### DESCRIPTION
 
-Starts an ssh tunnel to the specified *port* of the specified *app*. *port* can be `debug` or `jmx`. Reports an error if you have no
-permission to access this port. TODO: currently, only the user who built the app is permitted. Press Ctrl-C to forcibly close the tunnel.
-
-The tunnel is refused if the current user does not have access to all fault projects of the image.
-
-Use *local* to specify the port to bind locally (defaults to the remote port).
-
+Starts port-forwarding of port *local-port* on localhost (default: remote port) to *remote-port* on the currently
+running port of the stage. Reports an error, if the stage is not running. 
+Forwarding is refused if the current user does not have access to all fault projects of the image.
+Forwarding is terminated manually by pressing ctrl-c or automatically after *timeout* minutes (default: 30).
 
 ### sc-ssh
 
