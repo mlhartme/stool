@@ -386,7 +386,7 @@ public class ApiController {
     }
 
     @GetMapping("/stages/{stage}/pod-token")
-    public String podToken(@PathVariable(value = "stage") String stageName) throws IOException {
+    public String podToken(@PathVariable(value = "stage") String stageName, int timeout) throws IOException {
         JsonObject result;
         PodInfo pod;
         String id;
@@ -394,6 +394,9 @@ public class ApiController {
         String roleName;
         String bindingName;
 
+        if (timeout > 240) {
+            throw new IOException("timeout to big: " + timeout);
+        }
         currentWithPermissions(stageName);
         try (Engine engine = engine(); OpenShift os = OpenShift.create()) {
             pod = server.load(engine, stageName).runningPodOpt(engine);
@@ -416,12 +419,12 @@ public class ApiController {
             result.add("pod", new JsonPrimitive(pod.name));
             result.add("token", new JsonPrimitive(os.getServiceAccountToken(saName)));
 
-            schedulePodTokenCleanup(saName, roleName, bindingName);
+            schedulePodTokenCleanup(saName, roleName, bindingName, timeout);
             return result.toString();
         }
     }
 
-    private void schedulePodTokenCleanup(String saName, String roleName, String bindingName) {
+    private void schedulePodTokenCleanup(String saName, String roleName, String bindingName, int timeout) {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable cleanup = new Runnable() {
             public void run() {
@@ -432,10 +435,9 @@ public class ApiController {
                 } catch (IOException e) {
                     e.printStackTrace(); // TODO: proper logging ...
                 }
-                System.out.println("cleanup done: " + saName);
             }
         };
-        ex.schedule(cleanup, 30, TimeUnit.MINUTES);
+        ex.schedule(cleanup, timeout, TimeUnit.MINUTES);
     }
 
     @GetMapping("/stages/{stage}/ssh")

@@ -26,11 +26,14 @@ import java.nio.charset.Charset;
 import java.util.Base64;
 
 public class PortForward extends IteratedStageCommand {
+    /** minutes */
+    private final int timeout;
     private final String port;
     private final Integer local;
 
-    public PortForward(Globals globals, String port, Integer local) {
+    public PortForward(Globals globals, int timeout, String port, Integer local) {
         super(globals);
+        this.timeout = timeout;
         this.port = port;
         this.local = local;
     }
@@ -43,7 +46,7 @@ public class PortForward extends IteratedStageCommand {
         String pod;
         String token;
 
-        json = reference.client.podToken(reference.stage);
+        json = reference.client.podToken(reference.stage, timeout);
         server = json.get("server").getAsString();
         namespace = json.get("namespace").getAsString();
         pod = json.get("pod").getAsString();

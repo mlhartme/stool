@@ -89,7 +89,7 @@ public class Main {
                     cli.add(Start.class, "start -http=-1 -https=-1 envAppIndex*");
                     cli.add(Status.class, "status info* { select*(info) }");
                     cli.add(Stop.class, "stop");
-                    cli.add(PortForward.class, "port-forward port local?");
+                    cli.add(PortForward.class, "port-forward -timeout=30 port local?");
                     cli.add(Ssh.class, "ssh");
                     cli.add(Validate.class, "validate -email -repair");
 

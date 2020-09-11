@@ -193,10 +193,10 @@ public class Client {
     }
 
     /** @return json with pod and token fields */
-    public JsonObject podToken(String stage) throws IOException {
+    public JsonObject podToken(String stage, int timeout) throws IOException {
         HttpNode node;
 
-        node = node(stage, "pod-token");
+        node = node(stage, "pod-token").withParameter("timeout", timeout);
         return getJson(node).getAsJsonObject();
     }
 
