@@ -55,11 +55,13 @@ public class PortForward extends IteratedStageCommand {
         console.verbose.println("server: " + server + ", token: " + token);
         try (OpenShift os = OpenShift.create(server, namespace, token)) {
             try (LocalPortForward pf = os.portForward(pod, Integer.parseInt(port), local == null ? Integer.parseInt(port) : local)) {
-                console.info.println("forwarding local port " + pf.getLocalAddress() + " -> pod " + pod + " port " + port);
-                console.info.println("Press ctrl-c to stop forwarding.");
+                console.info.println("forwarding local port " + pf.getLocalPort() + " -> pod " + pod + " port " + port);
+                console.info.println("for " + timeout + " minutes");
+                console.info.println("Press ctrl-c abort.");
                 try {
-                    Thread.sleep(1800 * 1000);
+                    Thread.sleep(timeout * 60 * 1000);
                 } catch (InterruptedException e) {
+                    console.info.println("aborted");
                     // fall through
                 }
             }
