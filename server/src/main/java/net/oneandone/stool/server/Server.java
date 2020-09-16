@@ -110,8 +110,8 @@ public class Server {
     /** CAUTION: not thread safe! */
     private final FileNode home;
 
-    /** CAUTION: not thread safe! */
-    private final FileNode logRoot;
+    /** Logs of the server. CAUTION: not thread safe! */
+    private final FileNode serverLogs;
 
     public final String localhostIp;
 
@@ -128,15 +128,15 @@ public class Server {
         this.world = world;
         this.openShift = openShift;
         this.home = world.file("/var/lib/stool").checkDirectory();
-        this.logRoot = home.join("logs");
+        this.serverLogs = world.file("/var/log/stool");
         this.localhostIp = localhostIp;
         this.configuration = configuration;
         this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
     }
 
-    public FileNode getLogs() {
-        return logRoot;
+    public FileNode getServerLogs() {
+        return serverLogs;
     }
 
     /** @return last entry first; list may be empty because old log files are removed. */
@@ -147,7 +147,7 @@ public class Server {
         String previousInvocation;
 
         entries = new ArrayList<>();
-        reader = LogReader.accessLog(logRoot);
+        reader = LogReader.accessLog(serverLogs);
         while (true) {
             entry = reader.prev();
             if (entry == null) {
@@ -174,7 +174,7 @@ public class Server {
         LogReader<DetailsLogEntry> reader;
 
         entries = new ArrayList<>();
-        reader = LogReader.detailsLog(logRoot);
+        reader = LogReader.detailsLog(serverLogs);
         while (true) {
             entry = reader.prev();
             if (entry == null) {

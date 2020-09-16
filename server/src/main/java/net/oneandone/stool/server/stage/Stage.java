@@ -131,7 +131,7 @@ public class Stage {
 
 
     public FileNode getLogs() {
-        return server.getLogs(); // TODO: that's not the application logs
+        return server.getServerLogs(); // TODO: that's not the application logs
     }
 
     public String getRepository() {
@@ -831,7 +831,7 @@ public class Stage {
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.author, image.faultProjects);
         }
-        innerRoot = server.getLogs().getWorld().file("/etc/fault/workspace");
+        innerRoot = server.getServerLogs().getWorld().file("/etc/fault/workspace");
         for (String project : image.faultProjects) {
             innerFile = innerRoot.join(project);
             if (innerFile.isDirectory()) {

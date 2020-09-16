@@ -64,6 +64,33 @@ metadata:
   name: stool-cert-script
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stool-log-collector
+data:
+  fluent.conf: |
+    <source>
+      @type forward
+      port 24224
+      bind 0.0.0.0
+    </source>
+
+    <match stage.format>
+      @type file
+      path /fluentd/log/\${stage}/\${source_path}
+      <buffer stage,source_path>
+        @type memory
+        flush_mode interval
+        flush_interval 10s
+      </buffer>
+      <format>
+        @type single_value
+      </format>
+      append true
+      add_path_suffix false
+    </match>
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: stool-service
@@ -72,6 +99,14 @@ spec:
     - name: https
       port: 443
       targetPort: 8080
+    - name: fluentd-tcp
+      port: 24224
+      protocol: TCP
+      targetPort: 24224
+    - name: fluentd-udp
+      port: 24224
+      protocol: UDP
+      targetPort: 24224
   selector:
     app: stool
   type: ClusterIP
@@ -104,6 +139,8 @@ spec:
         volumeMounts:
           - mountPath: /etc/fault
             name: fault
+          - mountPath: /var/log/stool
+            name: fluentd-logs
           - mountPath: /usr/local/tomcat/conf/tomcat.p12
             name: cert-volume
             subPath: tomcat.p12
@@ -153,6 +190,13 @@ spec:
             name: fault
           - mountPath: /etc/ssh
             name: hostkey-volume
+      - name: collector
+        image: fluent/fluentd:v1.11.2-1.0
+        volumeMounts:
+          - name: fluentd-config
+            mountPath: /fluentd/etc
+          - name: fluentd-logs
+            mountPath: /fluentd/log
       initContainers:
       - name: fault-setup
         image: ${repositoryTag}
@@ -170,6 +214,11 @@ spec:
             name: hostkey-volume
       volumes:
         - name: fault
+          emptyDir: {}
+        - name: fluentd-config
+          configMap:
+            name: stool-log-collector
+        - name: fluentd-logs
           emptyDir: {}
         - name: hostkey-volume
           secret:

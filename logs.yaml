@@ -30,7 +30,7 @@ data:
       hard_timeout 60s
       <server>
         name myserver1
-        host collector
+        host stool-service
         port 24224
         weight 60
       </server>
