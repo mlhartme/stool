@@ -50,6 +50,8 @@ data:
       path /fluentd/log/${stage}/${source_path}
       <buffer stage,source_path>
         @type memory
+        flush_mode interval
+        flush_interval 10s
       </buffer>
       <format>
         @type single_value
