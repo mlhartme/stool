@@ -111,9 +111,13 @@ spec:
     - name: collector
       image: fluent/fluentd:v1.11.2-1.0
       volumeMounts:
+        - name: fluentdlog
+          mountPath: /fluentd/log
         - name: config-volume
           mountPath: /fluentd/etc
   volumes:
+    - name: fluentdlog
+      emptyDir: {}
     - name: config-volume
       configMap:
         name: fluentd-collector
