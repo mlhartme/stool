@@ -69,7 +69,7 @@ metadata:
   name: logging
 spec:
   containers:
-  - name: count
+  - name: demo
     image: busybox
     args:
     - /bin/sh
@@ -86,7 +86,7 @@ spec:
     volumeMounts:
     - name: varlog
       mountPath: /var/log
-  - name: count-agent
+  - name: fluentd
     image: fluent/fluentd:v1.11.2-1.0
     volumeMounts:
     - name: varlog
