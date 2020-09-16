@@ -12,6 +12,9 @@ data:
       pos_file /fluentd/log.pos
       read_from_head true
       tag stage.format
+      <parse>
+        @type none
+      </parse>
     </source>
 
     <filter stage.format>
