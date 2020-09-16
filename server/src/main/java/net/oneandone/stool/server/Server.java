@@ -113,6 +113,9 @@ public class Server {
     /** Logs of the server. CAUTION: not thread safe! */
     private final FileNode serverLogs;
 
+    /** Logs of stages. CAUTION: not thread safe! */
+    private final FileNode stageLogs;
+
     public final String localhostIp;
 
     /** used read-only */
@@ -129,6 +132,7 @@ public class Server {
         this.openShift = openShift;
         this.home = world.file("/var/lib/stool").checkDirectory();
         this.serverLogs = world.file("/var/log/stool");
+        this.stageLogs = world.file("/var/log/stages");
         this.localhostIp = localhostIp;
         this.configuration = configuration;
         this.userManager = UserManager.loadOpt(home.join("users.json"));
@@ -137,6 +141,10 @@ public class Server {
 
     public FileNode getServerLogs() {
         return serverLogs;
+    }
+
+    public FileNode getStageLogs(String name) {
+        return stageLogs.join(name);
     }
 
     /** @return last entry first; list may be empty because old log files are removed. */

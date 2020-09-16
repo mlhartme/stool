@@ -114,6 +114,9 @@ public class Stage {
     private String certSecretName() {
         return name + "-cert";
     }
+    private String fluentdConfigName() {
+        return name + "-fluentd";
+    }
     public String httpRouteName() {
         return name + "-http";
     }
@@ -131,7 +134,7 @@ public class Stage {
 
 
     public FileNode getLogs() {
-        return server.getServerLogs(); // TODO: that's not the application logs
+        return server.getStageLogs(name);
     }
 
     public String getRepository() {

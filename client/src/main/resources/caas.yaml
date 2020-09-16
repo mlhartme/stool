@@ -139,7 +139,7 @@ spec:
         volumeMounts:
           - mountPath: /etc/fault
             name: fault
-          - mountPath: /var/log/stool
+          - mountPath: /var/log/stages
             name: fluentd-logs
           - mountPath: /usr/local/tomcat/conf/tomcat.p12
             name: cert-volume
