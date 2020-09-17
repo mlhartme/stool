@@ -816,8 +816,8 @@ public class Engine implements AutoCloseable {
         public final boolean imagePull;
         public final String[] command;
 
-        public Container(String image) {
-            this(image, false, null);
+        public Container(String image, String... command) {
+            this(image, false, command);
         }
 
         public Container(String image, boolean imagePull, String[] command) {
