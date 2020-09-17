@@ -660,13 +660,13 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, String image, boolean imagePull, String[] command, Map<String, String> labels, Map<String, String> env) throws IOException {
-        return podCreate(name, image, imagePull, command, null, false, null, null, labels, env, Collections.emptyList());
+        return podCreate(name, image, imagePull, command, null, false, null, null, labels, env, Collections.emptyMap());
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public boolean podCreate(String name, String image, boolean imagePull, String[] command,
                              String hostname, boolean healing, Integer cpu, Integer memory, Map<String, String> labels, Map<String, String> env,
-                             List<Data> dataVolumes) throws IOException {
+                             Map<String, Data> dataVolumes) throws IOException {
         String phase;
 
         try {
@@ -813,7 +813,7 @@ public class Engine implements AutoCloseable {
     @SuppressWarnings("checkstyle:ParameterNumber")
     private V1Pod pod(String name, String image, boolean imagePull, String[] command,
                              String hostname, boolean healing, Integer cpu, Integer memory,
-                             Map<String, String> labels, Map<String, String> env, List<Data> dataVolumes) {
+                             Map<String, String> labels, Map<String, String> env, Map<String, Data> dataVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -834,7 +834,7 @@ public class Engine implements AutoCloseable {
         vl = new ArrayList<>();
         ml = new ArrayList<>();
         volumeCount = 0;
-        for (Data data : dataVolumes) {
+        for (Data data : dataVolumes.values()) {
             vname = "volume" + ++volumeCount;
             vl.add(data.volume(vname));
             data.mounts(vname, ml);
