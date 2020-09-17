@@ -585,8 +585,8 @@ public class Stage {
         String deploymentName;
         PodInfo running;
         Map<String, String> environment;
-        Map<String, Data> dataMap;
-        Data fault;
+        List<Data> datas;
+        Map<String, Data> mounts;
         Map<String, String> deploymentLabels;
         Map<String, String> podLabels;
         int memoryQuota;
@@ -632,9 +632,10 @@ public class Stage {
             podLabels.put(Ports.Port.JMXMP.label(), "x" + image.ports.jmxmp);
         }
 
-        dataMap = new HashMap<>();
-        certMount(image, engine, dataMap);
-        faultMount(image, engine, dataMap);
+        datas = new ArrayList<>();
+        mounts = new HashMap<>();
+        certMount(image, engine, datas, mounts);
+        faultMount(image, engine, datas, mounts);
 
         appService(engine, image);
         if (server.openShift) {
@@ -649,9 +650,9 @@ public class Stage {
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
         }
         engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels,
-                new Engine.Container("main", image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory),
+                new Engine.Container("main", image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, mounts),
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
-                podLabels, dataMap);
+                podLabels, datas);
 
         Server.LOGGER.debug("created deployment " + deploymentName);
 
@@ -748,7 +749,7 @@ public class Stage {
         return current.image.tag;
     }
 
-    private void certMount(TagInfo image, Engine engine, Map<String, Data> dataMap) throws IOException {
+    private void certMount(TagInfo image, Engine engine, List<Data> dataList, Map<String, Data> mounts) throws IOException {
         Data cert;
         String mountPath;
         FileNode dir;
@@ -775,8 +776,9 @@ public class Stage {
         if (image.certificateP12 != null) {
             cert.addRelative(dir.join("keystore.p12"), mountPath, image.certificateP12);
         }
-        dataMap.put(mountPath, cert);
+        dataList.add(cert);
         cert.define(engine);
+        mounts.put(mountPath, cert);
     }
 
     private static String prefix(String... paths) {
@@ -811,7 +813,7 @@ public class Stage {
         return idx == -1 ? "" : common(first.substring(0, idx + 1), second);
     }
 
-    private void faultMount(TagInfo image, Engine engine, Map<String, Data> dataMap) throws IOException {
+    private void faultMount(TagInfo image, Engine engine, List<Data> datas, Map<String, Data> mounts) throws IOException {
         Data fault;
         List<String> missing;
         FileNode innerRoot;
@@ -839,7 +841,8 @@ public class Stage {
         if (!missing.isEmpty()) {
             throw new ArgumentException("missing secret directories: " + missing);
         }
-        dataMap.put("/root/.fault", fault);
+        datas.add(fault);
+        mounts.put("/root/.fault", fault);
         fault.define(engine);
     }
 

@@ -481,9 +481,9 @@ public class Engine implements AutoCloseable {
     @SuppressWarnings("checkstyle:ParameterNumber")
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                                     Container container, String hostname, Map<String, String> podLabels,
-                                    Map<String, Data> dataVolumes) throws IOException {
+                                    List<Data> dataVolumes) throws IOException {
         try {
-            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, container, hostname, podLabels, dataVolumes),
+            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, container, hostname, podLabels),
                     null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
@@ -510,23 +510,13 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
     private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                           Container container, String hostname, Map<String, String> podLabels, Map<String, Data> dataVolumes) {
+                           Container container, String hostname, Map<String, String> podLabels) {
         List<V1Volume> vl;
-        String vname;
-        List<V1VolumeMount> ml;
-        Data data;
 
         vl = new ArrayList<>();
-        ml = new ArrayList<>();
-        for (Map.Entry<String, Data> entry : dataVolumes.entrySet()) {
-            data = entry.getValue();
-            vname = data.name;
-            vl.add(data.volume(vname));
-            data.mounts(vname, entry.getKey(), ml);
-        }
+        container.volumes(vl);
         return new V1DeploymentBuilder()
                 .withNewMetadata()
                   .withName(name)
@@ -540,7 +530,7 @@ public class Engine implements AutoCloseable {
                     .withNewSpec()
                       .withHostname(hostname)
                       .addAllToVolumes(vl)
-                      .addToContainers(container.build(ml))
+                      .addToContainers(container.build())
                     .endSpec()
                   .endTemplate()
                 .endSpec().build();
@@ -625,17 +615,15 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, Container container, Map<String, String> labels) throws IOException {
-        return podCreate(name, container, null, false, labels, Collections.emptyMap());
+        return podCreate(name, container, null, false, labels);
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public boolean podCreate(String name, Container container,
-                             String hostname, boolean healing, Map<String, String> labels,
-                             Map<String, Data> dataVolumes) throws IOException {
+    public boolean podCreate(String name, Container container, String hostname, boolean healing, Map<String, String> labels) throws IOException {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, container, hostname, healing, labels, dataVolumes), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, container, hostname, healing, labels), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -781,12 +769,14 @@ public class Engine implements AutoCloseable {
         public final Map<String, String> env;
         public final Integer cpu;
         public final Integer memory;
+        public final Map<String, Data> mounts; // maps volume names to mount paths
 
         public Container(String image, String... command) {
-            this("noname", image, command, false, Collections.emptyMap(), null, null);
+            this("noname", image, command, false, Collections.emptyMap(), null, null,
+                    Collections.emptyMap());
         }
 
-        public Container(String name, String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory) {
+        public Container(String name, String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory, Map<String, Data> mounts) {
             this.name = name;
             this.image = image;
             this.command = command;
@@ -794,9 +784,16 @@ public class Engine implements AutoCloseable {
             this.env = env;
             this.cpu = cpu;
             this.memory = memory;
+            this.mounts = mounts;
         }
 
-        public V1Container build(List<V1VolumeMount> ml) {
+        public void volumes(List<V1Volume> result) {
+            for (Data data : mounts.values()) {
+                result.add(data.volume());
+            }
+        }
+
+        public V1Container build() {
             Map<String, Quantity> limits;
             V1ContainerBuilder container;
             List<V1EnvVar> lst;
@@ -817,7 +814,7 @@ public class Engine implements AutoCloseable {
                 lst.add(var);
             }
             container = new V1ContainerBuilder();
-            container.addAllToVolumeMounts(ml)
+            container.addAllToVolumeMounts(mountList())
                     .withNewResources().withLimits(limits).endResources()
                     .withName(name + "-container")
                     .withImage(image)
@@ -829,32 +826,32 @@ public class Engine implements AutoCloseable {
             }
             return container.build();
         }
+
+        private List<V1VolumeMount> mountList() {
+            List<V1VolumeMount> result;
+
+            result = new ArrayList<>();
+            for (Map.Entry<String, Data> entry : mounts.entrySet()) {
+                entry.getValue().mounts(entry.getKey(), result);
+            }
+            return result;
+        }
     }
 
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private V1Pod pod(String name, Container container, String hostname, boolean healing,
-                      Map<String, String> labels, Map<String, Data> dataVolumes) {
+    private V1Pod pod(String name, Container container, String hostname, boolean healing, Map<String, String> labels) {
         List<V1Volume> vl;
-        String vname;
-        List<V1VolumeMount> ml;
-        Data data;
 
         vl = new ArrayList<>();
-        ml = new ArrayList<>();
-        for (Map.Entry<String, Data> entry : dataVolumes.entrySet()) {
-            data = entry.getValue();
-            vname = data.name;
-            vl.add(data.volume(vname));
-            data.mounts(vname, entry.getKey(), ml);
-        }
+        container.volumes(vl);
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(withImplicit(labels)).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy(healing ? "Always" : "Never")
                 .withHostname(hostname)
                 .addAllToVolumes(vl)
-                .addToContainers(container.build(ml))
+                .addToContainers(container.build())
                 .endSpec().build();
     }
 

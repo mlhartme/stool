@@ -101,7 +101,7 @@ public class Data {
         }
     }
 
-    public V1Volume volume(String volumeName) {
+    public V1Volume volume() {
         V1SecretVolumeSource ss;
         V1ConfigMapVolumeSource cs;
         List<V1KeyToPath> items;
@@ -116,27 +116,27 @@ public class Data {
         }
         if (secret) {
             ss = new V1SecretVolumeSourceBuilder().withSecretName(name).withItems(items).build();
-            return new V1VolumeBuilder().withName(volumeName).withSecret(ss).build();
+            return new V1VolumeBuilder().withName(name).withSecret(ss).build();
         } else {
             cs = new V1ConfigMapVolumeSourceBuilder().withName(name).withItems(items).build();
-            return new V1VolumeBuilder().withName(volumeName).withConfigMap(cs).build();
+            return new V1VolumeBuilder().withName(name).withConfigMap(cs).build();
         }
     }
 
-    public void mounts(String volumeName, String mountPath, List<V1VolumeMount> dest) {
+    public void mounts(String mountPath, List<V1VolumeMount> dest) {
         V1VolumeMount result;
 
         if (subPaths) {
             for (String path : keyToPaths.values()) {
                 result = new V1VolumeMount();
-                result.setName(volumeName);
+                result.setName(name);
                 result.setMountPath(mountPath + "/" + path);
                 result.setSubPath(path);
                 dest.add(result);
             }
         } else {
             result = new V1VolumeMount();
-            result.setName(volumeName);
+            result.setName(name);
             result.setMountPath(mountPath);
             dest.add(result);
         }
