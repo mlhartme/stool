@@ -870,7 +870,6 @@ public class Engine implements AutoCloseable {
         int volumeCount;
         String vname;
         List<V1VolumeMount> ml;
-        Map<String, Quantity> limits;
         V1ContainerBuilder container;
         Data data;
 
