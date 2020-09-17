@@ -132,7 +132,8 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             assertFalse(engine.podCreate(pod,
-                    new Engine.Container("debian:stretch-slim", new String[] { "sh", "-c", "echo $foo $notfound $xxx" }, false, Strings.toMap("foo", "bar", "xxx", "after"), null, null
+                    new Engine.Container("env", "debian:stretch-slim", new String[] { "sh", "-c", "echo $foo $notfound $xxx" },
+                            false, Strings.toMap("foo", "bar", "xxx", "after"), null, null
                     ), Strings.toMap()));
             output = engine.podLogs(pod);
             assertEquals("bar after\n", output);
@@ -166,7 +167,8 @@ public class EngineIT {
         String pod = "limit";
 
         try (Engine engine = create()) {
-            engine.podCreate(pod, new Engine.Container("debian:stretch-slim", new String[] { "sleep", "3" }, false, Collections.emptyMap(), null, limit),
+            engine.podCreate(pod, new Engine.Container("limit",
+                            "debian:stretch-slim", new String[] { "sleep", "3" }, false, Collections.emptyMap(), null, limit),
                     null, false, Collections.emptyMap(), Collections.emptyMap());
 
             // TODO: only available when stats server is installed
@@ -272,7 +274,7 @@ public class EngineIT {
 
             assertEquals(0, engine.deploymentList().size());
             engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(),
-                    new Engine.Container("debian:stretch-slim", new String[] { "sleep", "1000" }, true, Strings.toMap(), null, null),
+                    new Engine.Container("main", "debian:stretch-slim", new String[] { "sleep", "1000" }, true, Strings.toMap(), null, null),
                     null, Strings.toMap("app", "foo"),
                     Collections.emptyMap());
 

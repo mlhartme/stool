@@ -649,7 +649,7 @@ public class Stage {
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
         }
         engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels,
-                new Engine.Container(image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory),
+                new Engine.Container("main", image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory),
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 podLabels, dataMap);
 

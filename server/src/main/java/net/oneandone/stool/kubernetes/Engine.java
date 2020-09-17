@@ -542,7 +542,7 @@ public class Engine implements AutoCloseable {
                     .withNewSpec()
                       .withHostname(hostname)
                       .addAllToVolumes(vl)
-                      .addToContainers(container.build(name, ml))
+                      .addToContainers(container.build(ml))
                     .endSpec()
                   .endTemplate()
                 .endSpec().build();
@@ -776,6 +776,7 @@ public class Engine implements AutoCloseable {
     }
 
     public static class Container {
+        public final String name;
         public final String image;
         public final String[] command;
         public final boolean imagePull;
@@ -784,10 +785,11 @@ public class Engine implements AutoCloseable {
         public final Integer memory;
 
         public Container(String image, String... command) {
-            this(image, command, false, Collections.emptyMap(), null, null);
+            this("noname", image, command, false, Collections.emptyMap(), null, null);
         }
 
-        public Container(String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory) {
+        public Container(String name, String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory) {
+            this.name = name;
             this.image = image;
             this.command = command;
             this.imagePull = imagePull;
@@ -796,7 +798,7 @@ public class Engine implements AutoCloseable {
             this.memory = memory;
         }
 
-        public V1Container build(String name, List<V1VolumeMount> ml) {
+        public V1Container build(List<V1VolumeMount> ml) {
             Map<String, Quantity> limits;
             V1ContainerBuilder container;
             List<V1EnvVar> lst;
@@ -856,7 +858,7 @@ public class Engine implements AutoCloseable {
                 .withRestartPolicy(healing ? "Always" : "Never")
                 .withHostname(hostname)
                 .addAllToVolumes(vl)
-                .addToContainers(container.build(name, ml))
+                .addToContainers(container.build(ml))
                 .endSpec().build();
     }
 
