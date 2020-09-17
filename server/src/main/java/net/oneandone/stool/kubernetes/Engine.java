@@ -515,7 +515,7 @@ public class Engine implements AutoCloseable {
     private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                            String image, boolean imagePull, String[] command,
                            String hostname, Integer cpu, Integer memory,
-                           Map<String, String> containerLabels, Map<String, String> env, Map<String, Data> dataVolumes) {
+                           Map<String, String> podLabels, Map<String, String> env, Map<String, Data> dataVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -569,7 +569,7 @@ public class Engine implements AutoCloseable {
                   .withReplicas(1)
                   .withNewSelector().withMatchLabels(selector).endSelector()
                   .withNewTemplate()
-                    .withNewMetadata().withLabels(withImplicit(containerLabels)).endMetadata()
+                    .withNewMetadata().withLabels(withImplicit(podLabels)).endMetadata()
                     .withNewSpec()
                       .withHostname(hostname)
                       .addAllToVolumes(vl)
