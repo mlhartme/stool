@@ -749,42 +749,33 @@ public class Stage {
 
     private void certMount(TagInfo image, Engine engine, Map<String, Data> dataMap) throws IOException {
         Data cert;
-
-        cert = certMountOpt(image);
-        if (cert != null) {
-            dataMap.put(cert.mountPath, cert);
-            cert.define(engine);
-        }
-    }
-
-    private Data certMountOpt(TagInfo image) throws IOException {
-        String prefix;
+        String mountPath;
         FileNode dir;
-        Data result;
 
-        prefix = prefix(image.certificateP12, image.certificateChain, image.certificateKey);
-        if (image.ports.https == -1 || prefix == null) {
-            return null;
+        mountPath = prefix(image.certificateP12, image.certificateChain, image.certificateKey);
+        if (image.ports.https == -1 || mountPath == null) {
+            return;
         }
-        if (prefix.isEmpty()) {
+        if (mountPath.isEmpty()) {
             throw new ArgumentException("no common prefix: "
                     + image.certificateP12 + " " + image.certificateChain + " " + image.certificateKey);
         }
-        prefix = Strings.removeRight(prefix, "/");
-        System.out.println("prefix: " + prefix);
+        mountPath = Strings.removeRight(mountPath, "/");
+        System.out.println("prefix: " + mountPath);
         dir = server.certificate(stageHost());
         // CAUTION: that's a config map, and not a secret, because I use sub paths
-        result = Data.secrets(certSecretName(), prefix, true);
+        cert = Data.secrets(certSecretName(), mountPath, true);
         if (image.certificateKey != null) {
-            result.addRelative(dir.join("key.pem"), prefix, image.certificateKey);
+            cert.addRelative(dir.join("key.pem"), mountPath, image.certificateKey);
         }
         if (image.certificateChain != null) {
-            result.addRelative(dir.join("chain.pem"), prefix, image.certificateChain);
+            cert.addRelative(dir.join("chain.pem"), mountPath, image.certificateChain);
         }
         if (image.certificateP12 != null) {
-            result.addRelative(dir.join("keystore.p12"), prefix, image.certificateP12);
+            cert.addRelative(dir.join("keystore.p12"), mountPath, image.certificateP12);
         }
-        return result;
+        dataMap.put(mountPath, cert);
+        cert.define(engine);
     }
 
     private static String prefix(String... paths) {
