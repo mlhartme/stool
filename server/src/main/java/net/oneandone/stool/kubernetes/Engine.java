@@ -524,6 +524,7 @@ public class Engine implements AutoCloseable {
         List<V1VolumeMount> ml;
         Map<String, Quantity> limits;
         V1ContainerBuilder container;
+        Data data;
 
         lst = new ArrayList<>();
         for (Map.Entry<String, String> entry : env.entrySet()) {
@@ -535,10 +536,11 @@ public class Engine implements AutoCloseable {
         vl = new ArrayList<>();
         ml = new ArrayList<>();
         volumeCount = 0;
-        for (Data data : dataVolumes.values()) {
+        for (Map.Entry<String, Data> entry : dataVolumes.entrySet()) {
+            data = entry.getValue();
             vname = "volume" + ++volumeCount;
             vl.add(data.volume(vname));
-            data.mounts(vname, ml);
+            data.mounts(vname, entry.getKey(), ml);
         }
         limits = new HashMap<>();
         if (memory != null) {
@@ -823,6 +825,7 @@ public class Engine implements AutoCloseable {
         List<V1VolumeMount> ml;
         Map<String, Quantity> limits;
         V1ContainerBuilder container;
+        Data data;
 
         lst = new ArrayList<>();
         for (Map.Entry<String, String> entry : env.entrySet()) {
@@ -834,10 +837,11 @@ public class Engine implements AutoCloseable {
         vl = new ArrayList<>();
         ml = new ArrayList<>();
         volumeCount = 0;
-        for (Data data : dataVolumes.values()) {
+        for (Map.Entry<String, Data> entry : dataVolumes.entrySet()) {
             vname = "volume" + ++volumeCount;
+            data = entry.getValue();
             vl.add(data.volume(vname));
-            data.mounts(vname, ml);
+            data.mounts(vname, entry.getKey(), ml);
         }
         limits = new HashMap<>();
         if (cpu != null) {

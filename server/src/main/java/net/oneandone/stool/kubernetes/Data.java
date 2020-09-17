@@ -125,21 +125,24 @@ public class Data {
         }
     }
 
-    public void mounts(String volumeName, List<V1VolumeMount> dest) {
+    public void mounts(String volumeName, String extMountPath, List<V1VolumeMount> dest) {
         V1VolumeMount result;
 
+        if (!extMountPath.equals(mountPath)) {
+            throw new IllegalStateException(extMountPath + " vs " + mountPath);
+        }
         if (subPaths) {
             for (String path : keyToPaths.values()) {
                 result = new V1VolumeMount();
                 result.setName(volumeName);
-                result.setMountPath(mountPath + "/" + path);
+                result.setMountPath(extMountPath + "/" + path);
                 result.setSubPath(path);
                 dest.add(result);
             }
         } else {
             result = new V1VolumeMount();
             result.setName(volumeName);
-            result.setMountPath(mountPath);
+            result.setMountPath(extMountPath);
             dest.add(result);
         }
     }
