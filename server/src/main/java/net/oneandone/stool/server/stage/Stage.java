@@ -586,7 +586,6 @@ public class Stage {
         PodInfo running;
         Map<String, String> environment;
         Map<String, Data> dataMap;
-        Data cert;
         Data fault;
         Map<String, String> deploymentLabels;
         Map<String, String> podLabels;
@@ -634,14 +633,10 @@ public class Stage {
         }
 
         dataMap = new HashMap<>();
-        cert = certMountOpt(image);
-        if (cert != null) {
-            dataMap.put(cert.mountPath, cert);
-            cert.define(engine);
-        }
+        certMount(image, engine, dataMap);
         fault = faultDataOpt(image);
         if (fault != null) {
-            dataMap.put(cert.mountPath, fault);
+            dataMap.put(fault.mountPath, fault);
             fault.define(engine);
         }
 
@@ -754,6 +749,16 @@ public class Stage {
         engine.deploymentDelete(deploymentName());
         engine.podAwait(pod.name, null);
         return current.image.tag;
+    }
+
+    private void certMount(TagInfo image, Engine engine, Map<String, Data> dataMap) throws IOException {
+        Data cert;
+
+        cert = certMountOpt(image);
+        if (cert != null) {
+            dataMap.put(cert.mountPath, cert);
+            cert.define(engine);
+        }
     }
 
     private Data certMountOpt(TagInfo image) throws IOException {
