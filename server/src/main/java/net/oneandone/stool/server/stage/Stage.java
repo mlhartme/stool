@@ -586,7 +586,7 @@ public class Stage {
         PodInfo running;
         Map<String, String> environment;
         List<Data> datas;
-        Map<String, Data> mounts;
+        Map<Data.Mount, Data> mounts;
         Map<String, String> deploymentLabels;
         Map<String, String> podLabels;
         int memoryQuota;
@@ -749,7 +749,7 @@ public class Stage {
         return current.image.tag;
     }
 
-    private void certMount(TagInfo image, Engine engine, List<Data> dataList, Map<String, Data> mounts) throws IOException {
+    private void certMount(TagInfo image, Engine engine, List<Data> dataList, Map<Data.Mount, Data> mounts) throws IOException {
         Data cert;
         String mountPath;
         FileNode dir;
@@ -766,7 +766,7 @@ public class Stage {
         System.out.println("prefix: " + mountPath);
         dir = server.certificate(stageHost());
         // CAUTION: that's a config map, and not a secret, because I use sub paths
-        cert = Data.secrets(certSecretName(), true);
+        cert = Data.secrets(certSecretName());
         if (image.certificateKey != null) {
             cert.addRelative(dir.join("key.pem"), mountPath, image.certificateKey);
         }
@@ -778,7 +778,7 @@ public class Stage {
         }
         dataList.add(cert);
         cert.define(engine);
-        mounts.put(mountPath, cert);
+        mounts.put(new Data.Mount(mountPath, true), cert);
     }
 
     private static String prefix(String... paths) {
@@ -813,7 +813,7 @@ public class Stage {
         return idx == -1 ? "" : common(first.substring(0, idx + 1), second);
     }
 
-    private void faultMount(TagInfo image, Engine engine, List<Data> datas, Map<String, Data> mounts) throws IOException {
+    private void faultMount(TagInfo image, Engine engine, List<Data> datas, Map<Data.Mount, Data> mounts) throws IOException {
         Data fault;
         List<String> missing;
         FileNode innerRoot;
@@ -824,7 +824,7 @@ public class Stage {
         }
 
         // same as hostLogRoot, but the path as needed inside the server:
-        fault = Data.secrets(faultSecretName(), false);
+        fault = Data.secrets(faultSecretName());
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.author, image.faultProjects);
@@ -842,7 +842,7 @@ public class Stage {
             throw new ArgumentException("missing secret directories: " + missing);
         }
         datas.add(fault);
-        mounts.put("/root/.fault", fault);
+        mounts.put(new Data.Mount("/root/.fault", false), fault);
         fault.define(engine);
     }
 

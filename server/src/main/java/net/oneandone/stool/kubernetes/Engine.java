@@ -769,14 +769,14 @@ public class Engine implements AutoCloseable {
         public final Map<String, String> env;
         public final Integer cpu;
         public final Integer memory;
-        public final Map<String, Data> mounts; // maps volume names to mount paths
+        public final Map<Data.Mount, Data> mounts; // maps volume names to mount paths
 
         public Container(String image, String... command) {
             this("noname", image, command, false, Collections.emptyMap(), null, null,
                     Collections.emptyMap());
         }
 
-        public Container(String name, String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory, Map<String, Data> mounts) {
+        public Container(String name, String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory, Map<Data.Mount, Data> mounts) {
             this.name = name;
             this.image = image;
             this.command = command;
@@ -831,14 +831,13 @@ public class Engine implements AutoCloseable {
             List<V1VolumeMount> result;
 
             result = new ArrayList<>();
-            for (Map.Entry<String, Data> entry : mounts.entrySet()) {
+            for (Map.Entry<Data.Mount, Data> entry : mounts.entrySet()) {
                 entry.getValue().mounts(entry.getKey(), result);
             }
             return result;
         }
     }
 
-    /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
     private V1Pod pod(String name, Container container, String hostname, boolean healing, Map<String, String> labels) {
         List<V1Volume> vl;
