@@ -32,6 +32,7 @@ import io.kubernetes.client.openapi.models.ExtensionsV1beta1IngressBuilder;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ConfigMapBuilder;
 import io.kubernetes.client.openapi.models.V1ConfigMapList;
+import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1ContainerBuilder;
 import io.kubernetes.client.openapi.models.V1ContainerState;
 import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
@@ -827,7 +828,7 @@ public class Engine implements AutoCloseable {
             this.memory = memory;
         }
 
-        public V1ContainerBuilder builder(String name, List<V1VolumeMount> ml) {
+        public V1Container build(String name, List<V1VolumeMount> ml) {
             Map<String, Quantity> limits;
             V1ContainerBuilder container;
             List<V1EnvVar> lst;
@@ -858,19 +859,18 @@ public class Engine implements AutoCloseable {
             if (command != null) {
                 container.withCommand(command);
             }
-            return container;
+            return container.build();
         }
     }
 
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private V1Pod pod(String name, Container c, String hostname, boolean healing,
+    private V1Pod pod(String name, Container container, String hostname, boolean healing,
                       Map<String, String> labels, Map<String, Data> dataVolumes) {
         List<V1Volume> vl;
         int volumeCount;
         String vname;
         List<V1VolumeMount> ml;
-        V1ContainerBuilder container;
         Data data;
 
         vl = new ArrayList<>();
@@ -882,14 +882,13 @@ public class Engine implements AutoCloseable {
             vl.add(data.volume(vname));
             data.mounts(vname, entry.getKey(), ml);
         }
-        container = c.builder(name, ml);
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(withImplicit(labels)).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy(healing ? "Always" : "Never")
                 .withHostname(hostname)
                 .addAllToVolumes(vl)
-                .addToContainers(container.build())
+                .addToContainers(container.build(name, ml))
                 .endSpec().build();
     }
 
