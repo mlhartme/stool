@@ -276,7 +276,7 @@ public class EngineIT {
             assertEquals(0, engine.deploymentList().size());
             engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(), "debian:stretch-slim", true,
                     new String[] { "sleep", "1000" }, null, null, null, Strings.toMap("app", "foo"), Strings.toMap(),
-                    Collections.emptyList());
+                    Collections.emptyMap());
 
             map = engine.deploymentList();
 

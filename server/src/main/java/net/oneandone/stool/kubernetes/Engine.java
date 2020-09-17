@@ -481,7 +481,7 @@ public class Engine implements AutoCloseable {
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                                     String image, boolean imagePull, String[] command,
                                     String hostname, Integer cpu, Integer memory, Map<String, String> containerLabels,
-                                    Map<String, String> env, List<Data> dataVolumes) throws IOException {
+                                    Map<String, String> env, Map<String, Data> dataVolumes) throws IOException {
         try {
             apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, image, imagePull, command,
                     hostname, cpu, memory, containerLabels, env, dataVolumes), null, null, null);
@@ -515,7 +515,7 @@ public class Engine implements AutoCloseable {
     private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                            String image, boolean imagePull, String[] command,
                            String hostname, Integer cpu, Integer memory,
-                           Map<String, String> containerLabels, Map<String, String> env, List<Data> dataVolumes) {
+                           Map<String, String> containerLabels, Map<String, String> env, Map<String, Data> dataVolumes) {
         List<V1EnvVar> lst;
         V1EnvVar var;
         List<V1Volume> vl;
@@ -535,7 +535,7 @@ public class Engine implements AutoCloseable {
         vl = new ArrayList<>();
         ml = new ArrayList<>();
         volumeCount = 0;
-        for (Data data : dataVolumes) {
+        for (Data data : dataVolumes.values()) {
             vname = "volume" + ++volumeCount;
             vl.add(data.volume(vname));
             data.mounts(vname, ml);

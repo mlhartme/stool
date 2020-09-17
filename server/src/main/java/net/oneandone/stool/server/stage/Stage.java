@@ -585,7 +585,7 @@ public class Stage {
         String deploymentName;
         PodInfo running;
         Map<String, String> environment;
-        List<Data> dataList;
+        Map<String, Data> dataMap;
         Data cert;
         Data fault;
         Map<String, String> deploymentLabels;
@@ -633,15 +633,15 @@ public class Stage {
             podLabels.put(Ports.Port.JMXMP.label(), "x" + image.ports.jmxmp);
         }
 
-        dataList = new ArrayList<>();
+        dataMap = new HashMap<>();
         cert = certMountOpt(image);
         if (cert != null) {
-            dataList.add(cert);
+            dataMap.put(cert.mountPath, cert);
             cert.define(engine);
         }
         fault = faultDataOpt(image);
         if (fault != null) {
-            dataList.add(fault);
+            dataMap.put(cert.mountPath, fault);
             fault.define(engine);
         }
 
@@ -659,7 +659,7 @@ public class Stage {
         }
         engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels, image.repositoryTag, true, null,
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
-                1 /* TODO */, 1024 * 1024 * image.memory, podLabels, environment, dataList);
+                1 /* TODO */, 1024 * 1024 * image.memory, podLabels, environment, dataMap);
 
         Server.LOGGER.debug("created deployment " + deploymentName);
 
