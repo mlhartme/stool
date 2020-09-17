@@ -35,16 +35,15 @@ import java.util.Map;
 
 /** Specifies ConfigMap or Secrets (with volumes and mounts). */
 public class Data {
-    public static Data configMap(String name, String mountPath, boolean subPaths) {
-        return new Data(false, name, mountPath, subPaths);
+    public static Data configMap(String name, boolean subPaths) {
+        return new Data(false, name, subPaths);
     }
-    public static Data secrets(String name, String mountPath, boolean subPaths) {
-        return new Data(true, name, mountPath, subPaths);
+    public static Data secrets(String name, boolean subPaths) {
+        return new Data(true, name, subPaths);
     }
 
     public final boolean secret;
     public final String name;
-    public final String mountPath;
     public final boolean subPaths;
 
     /** key to path */
@@ -53,10 +52,9 @@ public class Data {
     /** key to data */
     private final Map<String, byte[]> data;
 
-    private Data(boolean secret, String name, String mountPath, boolean subPaths) {
+    private Data(boolean secret, String name, boolean subPaths) {
         this.secret = secret;
         this.name = name;
-        this.mountPath = mountPath;
         this.keyToPaths = new HashMap<>();
         this.data = new HashMap<>();
         this.subPaths = subPaths;
@@ -125,35 +123,29 @@ public class Data {
         }
     }
 
-    public void mounts(String volumeName, String extMountPath, List<V1VolumeMount> dest) {
+    public void mounts(String volumeName, String mountPath, List<V1VolumeMount> dest) {
         V1VolumeMount result;
 
-        if (!extMountPath.equals(mountPath)) {
-            throw new IllegalStateException(extMountPath + " vs " + mountPath);
-        }
         if (subPaths) {
             for (String path : keyToPaths.values()) {
                 result = new V1VolumeMount();
                 result.setName(volumeName);
-                result.setMountPath(extMountPath + "/" + path);
+                result.setMountPath(mountPath + "/" + path);
                 result.setSubPath(path);
                 dest.add(result);
             }
         } else {
             result = new V1VolumeMount();
             result.setName(volumeName);
-            result.setMountPath(extMountPath);
+            result.setMountPath(mountPath);
             dest.add(result);
         }
     }
 
-    public void addRelative(FileNode src, String extMountPath, String dest) throws IOException {
+    public void addRelative(FileNode src, String mountPath, String dest) throws IOException {
         String prefix;
 
-        if (!extMountPath.equals(mountPath)) {
-            throw new IllegalStateException(extMountPath + " vs " + mountPath);
-        }
-        prefix = extMountPath + "/";
+        prefix = mountPath + "/";
         if (!dest.startsWith(prefix)) {
             throw new IllegalArgumentException(dest);
         }

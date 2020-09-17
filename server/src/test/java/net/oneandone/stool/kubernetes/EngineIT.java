@@ -212,7 +212,7 @@ public class EngineIT {
         Data data;
 
         try (Engine engine = create()) {
-            data = Data.secrets(name, "/etc/secrets", false);
+            data = Data.secrets(name, false);
             data.addUtf8("sub/renamed.txt", "blablub");
             data.define(engine);
 
@@ -245,7 +245,7 @@ public class EngineIT {
         Data data;
 
         try (Engine engine = create()) {
-            data = Data.configMap(name, "/etc", true);
+            data = Data.configMap(name, true);
             data.addUtf8("test.yaml", "123");
             data.addUtf8("sub/file", "foo");
             data.define(engine);

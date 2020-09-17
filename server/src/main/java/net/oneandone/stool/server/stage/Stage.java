@@ -764,7 +764,7 @@ public class Stage {
         System.out.println("prefix: " + mountPath);
         dir = server.certificate(stageHost());
         // CAUTION: that's a config map, and not a secret, because I use sub paths
-        cert = Data.secrets(certSecretName(), mountPath, true);
+        cert = Data.secrets(certSecretName(), true);
         if (image.certificateKey != null) {
             cert.addRelative(dir.join("key.pem"), mountPath, image.certificateKey);
         }
@@ -821,7 +821,7 @@ public class Stage {
         }
 
         // same as hostLogRoot, but the path as needed inside the server:
-        fault = Data.secrets(faultSecretName(), "/root/.fault", false);
+        fault = Data.secrets(faultSecretName(), false);
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.author, image.faultProjects);
