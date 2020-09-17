@@ -515,17 +515,15 @@ public class Engine implements AutoCloseable {
     private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                            Container container, String hostname, Map<String, String> podLabels, Map<String, Data> dataVolumes) {
         List<V1Volume> vl;
-        int volumeCount;
         String vname;
         List<V1VolumeMount> ml;
         Data data;
 
         vl = new ArrayList<>();
         ml = new ArrayList<>();
-        volumeCount = 0;
         for (Map.Entry<String, Data> entry : dataVolumes.entrySet()) {
             data = entry.getValue();
-            vname = "volume" + ++volumeCount;
+            vname = data.name;
             vl.add(data.volume(vname));
             data.mounts(vname, entry.getKey(), ml);
         }
@@ -838,17 +836,15 @@ public class Engine implements AutoCloseable {
     private V1Pod pod(String name, Container container, String hostname, boolean healing,
                       Map<String, String> labels, Map<String, Data> dataVolumes) {
         List<V1Volume> vl;
-        int volumeCount;
         String vname;
         List<V1VolumeMount> ml;
         Data data;
 
         vl = new ArrayList<>();
         ml = new ArrayList<>();
-        volumeCount = 0;
         for (Map.Entry<String, Data> entry : dataVolumes.entrySet()) {
-            vname = "volume" + ++volumeCount;
             data = entry.getValue();
+            vname = data.name;
             vl.add(data.volume(vname));
             data.mounts(vname, entry.getKey(), ml);
         }
