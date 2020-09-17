@@ -219,7 +219,7 @@ public class EngineIT {
             assertTrue(engine.secretList().containsKey(name));
             assertFalse(engine.podCreate(name, "debian:stretch-slim", false,
                     new String[] { "cat", "/etc/secrets/sub/renamed.txt" },"somehost", false, null, null,
-                    Collections.emptyMap(), Collections.emptyMap(), Collections.singletonMap(data.mountPath, data)));
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.singletonMap("/etc/secrets", data)));
             assertEquals("blablub", engine.podLogs(name));
             engine.podDelete(name);
             engine.secretDelete(name);
@@ -254,7 +254,7 @@ public class EngineIT {
 
             assertFalse(engine.podCreate(name, "debian:stretch-slim", false,
                     new String[] { "cat", "/etc/test.yaml", "/etc/sub/file"}, "somehost", false, null, null,
-                    Collections.emptyMap(), Collections.emptyMap(), Collections.singletonMap(data.mountPath, data)));
+                    Collections.emptyMap(), Collections.emptyMap(), Collections.singletonMap("/etc", data)));
             assertEquals("123foo", engine.podLogs(name));
 
             engine.podDelete(name);

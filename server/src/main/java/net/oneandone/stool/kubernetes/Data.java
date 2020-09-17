@@ -147,10 +147,13 @@ public class Data {
         }
     }
 
-    public void addRelative(FileNode src, String dest) throws IOException {
+    public void addRelative(FileNode src, String extMountPath, String dest) throws IOException {
         String prefix;
 
-        prefix = mountPath + "/";
+        if (!extMountPath.equals(mountPath)) {
+            throw new IllegalStateException(extMountPath + " vs " + mountPath);
+        }
+        prefix = extMountPath + "/";
         if (!dest.startsWith(prefix)) {
             throw new IllegalArgumentException(dest);
         }

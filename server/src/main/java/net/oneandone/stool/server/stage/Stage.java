@@ -775,13 +775,13 @@ public class Stage {
         // CAUTION: that's a config map, and not a secret, because I use sub paths
         result = Data.secrets(certSecretName(), prefix, true);
         if (image.certificateKey != null) {
-            result.addRelative(dir.join("key.pem"), image.certificateKey);
+            result.addRelative(dir.join("key.pem"), prefix, image.certificateKey);
         }
         if (image.certificateChain != null) {
-            result.addRelative(dir.join("chain.pem"), image.certificateChain);
+            result.addRelative(dir.join("chain.pem"), prefix, image.certificateChain);
         }
         if (image.certificateP12 != null) {
-            result.addRelative(dir.join("keystore.p12"), image.certificateP12);
+            result.addRelative(dir.join("keystore.p12"), prefix, image.certificateP12);
         }
         return result;
     }
