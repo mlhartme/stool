@@ -821,26 +821,16 @@ public class Stage {
 
     private void faultMount(TagInfo image, Engine engine, Map<String, Data> dataMap) throws IOException {
         Data fault;
-
-        fault = faultDataOpt(image);
-        if (fault != null) {
-            dataMap.put(fault.mountPath, fault);
-            fault.define(engine);
-        }
-    }
-
-    private Data faultDataOpt(TagInfo image) throws IOException {
-        Data result;
         List<String> missing;
         FileNode innerRoot;
         FileNode innerFile;
 
         if (image.faultProjects.isEmpty()) {
-            return null;
+            return;
         }
 
         // same as hostLogRoot, but the path as needed inside the server:
-        result = Data.secrets(faultSecretName(), "/root/.fault", false);
+        fault = Data.secrets(faultSecretName(), "/root/.fault", false);
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
             server.checkFaultPermissions(image.author, image.faultProjects);
@@ -849,7 +839,7 @@ public class Stage {
         for (String project : image.faultProjects) {
             innerFile = innerRoot.join(project);
             if (innerFile.isDirectory()) {
-                result.addDirectory(innerRoot, innerFile);
+                fault.addDirectory(innerRoot, innerFile);
             } else {
                 missing.add(innerFile.getAbsolute());
             }
@@ -857,7 +847,8 @@ public class Stage {
         if (!missing.isEmpty()) {
             throw new ArgumentException("missing secret directories: " + missing);
         }
-        return result;
+        dataMap.put("/root/.fault", fault);
+        fault.define(engine);
     }
 
     //--
