@@ -82,8 +82,8 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             image = "debian:stretch-slim";
-            engine.podCreate(pod, new Engine.Container(image, "sleep", "2"),null, true, null,
-                    null, Strings.toMap("containerLabel", "bla"), Collections.emptyMap());
+            engine.podCreate(pod, new Engine.Container(image, "sleep", "2"),null, true,
+                    Strings.toMap("containerLabel", "bla"), Collections.emptyMap());
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
 
             containerOrig = engine.podProbe(pod).containerId;
@@ -132,8 +132,8 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             assertFalse(engine.podCreate(pod,
-                    new Engine.Container("debian:stretch-slim", false, Strings.toMap("foo", "bar", "xxx", "after"),
-                            new String[] { "sh", "-c", "echo $foo $notfound $xxx" }), Strings.toMap()));
+                    new Engine.Container("debian:stretch-slim", new String[] { "sh", "-c", "echo $foo $notfound $xxx" }, false, Strings.toMap("foo", "bar", "xxx", "after"), null, null
+                    ), Strings.toMap()));
             output = engine.podLogs(pod);
             assertEquals("bar after\n", output);
             engine.podDelete(pod);
@@ -153,7 +153,7 @@ public class EngineIT {
     private void doHostnameTest(String pod, String hostname, String expected) throws IOException {
         try (Engine engine = create()) {
             assertFalse(engine.podCreate(pod, new Engine.Container("debian:stretch-slim", "hostname"),
-                    hostname, false, null, null, Strings.toMap(), Collections.emptyMap()));
+                    hostname, false, Strings.toMap(), Collections.emptyMap()));
             assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod));
             assertEquals(expected + "\n", engine.podLogs(pod));
             engine.podDelete(pod);
@@ -166,8 +166,8 @@ public class EngineIT {
         String pod = "limit";
 
         try (Engine engine = create()) {
-            engine.podCreate(pod, new Engine.Container("debian:stretch-slim", "sleep", "3"),
-                    null, false, null, limit, Collections.emptyMap(), Collections.emptyMap());
+            engine.podCreate(pod, new Engine.Container("debian:stretch-slim", new String[] { "sleep", "3" }, false, Collections.emptyMap(), null, limit),
+                    null, false, Collections.emptyMap(), Collections.emptyMap());
 
             // TODO: only available when stats server is installed
             // assert on openshift.stats(pod)
@@ -217,8 +217,7 @@ public class EngineIT {
 
             assertTrue(engine.secretList().containsKey(name));
             assertFalse(engine.podCreate(name, new Engine.Container("debian:stretch-slim", "cat", "/etc/secrets/sub/renamed.txt"),
-                    "somehost", false, null, null,
-                    Collections.emptyMap(), Collections.singletonMap("/etc/secrets", data)));
+                    "somehost", false, Collections.emptyMap(), Collections.singletonMap("/etc/secrets", data)));
             assertEquals("blablub", engine.podLogs(name));
             engine.podDelete(name);
             engine.secretDelete(name);
@@ -252,8 +251,7 @@ public class EngineIT {
             assertTrue(engine.configMapList().containsKey(name));
 
             assertFalse(engine.podCreate(name, new Engine.Container("debian:stretch-slim", "cat", "/etc/test.yaml", "/etc/sub/file"),
-                    "somehost", false, null, null,
-                    Collections.emptyMap(), Collections.singletonMap("/etc", data)));
+                    "somehost", false, Collections.emptyMap(), Collections.singletonMap("/etc", data)));
             assertEquals("123foo", engine.podLogs(name));
 
             engine.podDelete(name);

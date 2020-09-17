@@ -658,18 +658,17 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, Container container, Map<String, String> labels) throws IOException {
-        return podCreate(name, container, null, false, null, null, labels, Collections.emptyMap());
+        return podCreate(name, container, null, false, labels, Collections.emptyMap());
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public boolean podCreate(String name, Container container,
-                             String hostname, boolean healing, Integer cpu, Integer memory, Map<String, String> labels,
+                             String hostname, boolean healing, Map<String, String> labels,
                              Map<String, Data> dataVolumes) throws IOException {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, container,
-                    hostname, healing, cpu, memory, labels, dataVolumes), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, container, hostname, healing, labels, dataVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -809,26 +808,38 @@ public class Engine implements AutoCloseable {
 
     public static class Container {
         public final String image;
+        public final String[] command;
         public final boolean imagePull;
         public final Map<String, String> env;
-        public final String[] command;
+        public final Integer cpu;
+        public final Integer memory;
 
         public Container(String image, String... command) {
-            this(image, false, Collections.emptyMap(), command);
+            this(image, command, false, Collections.emptyMap(), null, null);
         }
 
-        public Container(String image, boolean imagePull, Map<String, String> env, String[] command) {
+        public Container(String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory) {
             this.image = image;
+            this.command = command;
             this.imagePull = imagePull;
             this.env = env;
-            this.command = command;
+            this.cpu = cpu;
+            this.memory = memory;
         }
 
-        public V1ContainerBuilder builder(String name, List<V1VolumeMount> ml, Map<String, Quantity> limits) {
+        public V1ContainerBuilder builder(String name, List<V1VolumeMount> ml) {
+            Map<String, Quantity> limits;
             V1ContainerBuilder container;
             List<V1EnvVar> lst;
             V1EnvVar var;
 
+            limits = new HashMap<>();
+            if (cpu != null) {
+                limits.put("cpu", new Quantity(cpu.toString()));
+            }
+            if (memory != null) {
+                limits.put("memory", new Quantity(memory.toString()));
+            }
             lst = new ArrayList<>();
             for (Map.Entry<String, String> entry : env.entrySet()) {
                 var = new V1EnvVar();
@@ -853,7 +864,7 @@ public class Engine implements AutoCloseable {
 
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private V1Pod pod(String name, Container c, String hostname, boolean healing, Integer cpu, Integer memory,
+    private V1Pod pod(String name, Container c, String hostname, boolean healing,
                       Map<String, String> labels, Map<String, Data> dataVolumes) {
         List<V1Volume> vl;
         int volumeCount;
@@ -872,14 +883,7 @@ public class Engine implements AutoCloseable {
             vl.add(data.volume(vname));
             data.mounts(vname, entry.getKey(), ml);
         }
-        limits = new HashMap<>();
-        if (cpu != null) {
-            limits.put("cpu", new Quantity(cpu.toString()));
-        }
-        if (memory != null) {
-            limits.put("memory", new Quantity(memory.toString()));
-        }
-        container = c.builder(name, ml, limits);
+        container = c.builder(name, ml);
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(withImplicit(labels)).endMetadata()
                 .withNewSpec()
