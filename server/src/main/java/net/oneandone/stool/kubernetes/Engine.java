@@ -480,12 +480,11 @@ public class Engine implements AutoCloseable {
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                                    String image, boolean imagePull, String[] command,
-                                    String hostname, Integer cpu, Integer memory, Map<String, String> containerLabels,
-                                    Map<String, String> env, Map<String, Data> dataVolumes) throws IOException {
+                                    Container container, String hostname, Map<String, String> podLabels,
+                                    Map<String, Data> dataVolumes) throws IOException {
         try {
-            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, image, imagePull, command,
-                    hostname, cpu, memory, containerLabels, env, dataVolumes), null, null, null);
+            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, container, hostname, podLabels, dataVolumes),
+                    null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -514,26 +513,13 @@ public class Engine implements AutoCloseable {
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
     private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                           String image, boolean imagePull, String[] command,
-                           String hostname, Integer cpu, Integer memory,
-                           Map<String, String> podLabels, Map<String, String> env, Map<String, Data> dataVolumes) {
-        List<V1EnvVar> lst;
-        V1EnvVar var;
+                           Container container, String hostname, Map<String, String> podLabels, Map<String, Data> dataVolumes) {
         List<V1Volume> vl;
         int volumeCount;
         String vname;
         List<V1VolumeMount> ml;
-        Map<String, Quantity> limits;
-        V1ContainerBuilder container;
         Data data;
 
-        lst = new ArrayList<>();
-        for (Map.Entry<String, String> entry : env.entrySet()) {
-            var = new V1EnvVar();
-            var.setName(entry.getKey());
-            var.setValue(entry.getValue());
-            lst.add(var);
-        }
         vl = new ArrayList<>();
         ml = new ArrayList<>();
         volumeCount = 0;
@@ -542,24 +528,6 @@ public class Engine implements AutoCloseable {
             vname = "volume" + ++volumeCount;
             vl.add(data.volume(vname));
             data.mounts(vname, entry.getKey(), ml);
-        }
-        limits = new HashMap<>();
-        if (memory != null) {
-            limits.put("memory", new Quantity(memory.toString()));
-        }
-        if (cpu != null) {
-            limits.put("cpu", new Quantity(cpu.toString()));
-        }
-        container = new V1ContainerBuilder();
-        container.addAllToVolumeMounts(ml)
-                .withNewResources().withLimits(limits).endResources()
-                .withName(name + "-container")
-                .withImage(image)
-                .withEnv(lst)
-                .withImagePullPolicy(imagePull ? "IfNotPresent" : "Never");
-
-        if (command != null) {
-            container.withCommand(command);
         }
         return new V1DeploymentBuilder()
                 .withNewMetadata()
@@ -574,7 +542,7 @@ public class Engine implements AutoCloseable {
                     .withNewSpec()
                       .withHostname(hostname)
                       .addAllToVolumes(vl)
-                      .addToContainers(container.build())
+                      .addToContainers(container.build(name, ml))
                     .endSpec()
                   .endTemplate()
                 .endSpec().build();

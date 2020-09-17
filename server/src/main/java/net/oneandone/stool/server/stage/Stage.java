@@ -648,9 +648,10 @@ public class Stage {
             // TODO: does not map both ports ...
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
         }
-        engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels, image.repositoryTag, true, null,
+        engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels,
+                new Engine.Container(image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory),
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
-                1 /* TODO */, 1024 * 1024 * image.memory, podLabels, environment, dataMap);
+                podLabels, dataMap);
 
         Server.LOGGER.debug("created deployment " + deploymentName);
 
