@@ -634,11 +634,7 @@ public class Stage {
 
         dataMap = new HashMap<>();
         certMount(image, engine, dataMap);
-        fault = faultDataOpt(image);
-        if (fault != null) {
-            dataMap.put(fault.mountPath, fault);
-            fault.define(engine);
-        }
+        faultMount(image, engine, dataMap);
 
         appService(engine, image);
         if (server.openShift) {
@@ -821,6 +817,16 @@ public class Stage {
         }
         idx = first.lastIndexOf('/');
         return idx == -1 ? "" : common(first.substring(0, idx + 1), second);
+    }
+
+    private void faultMount(TagInfo image, Engine engine, Map<String, Data> dataMap) throws IOException {
+        Data fault;
+
+        fault = faultDataOpt(image);
+        if (fault != null) {
+            dataMap.put(fault.mountPath, fault);
+            fault.define(engine);
+        }
     }
 
     private Data faultDataOpt(TagInfo image) throws IOException {
