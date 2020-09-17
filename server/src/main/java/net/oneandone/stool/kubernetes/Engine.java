@@ -658,22 +658,18 @@ public class Engine implements AutoCloseable {
     }
 
     public boolean podCreate(String name, Container container, Map<String, String> labels) throws IOException {
-        return podCreate(name, container, labels, Strings.toMap());
-    }
-
-    public boolean podCreate(String name, Container container, Map<String, String> labels, Map<String, String> env) throws IOException {
-        return podCreate(name, container, null, false, null, null, labels, env, Collections.emptyMap());
+        return podCreate(name, container, null, false, null, null, labels, Collections.emptyMap());
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public boolean podCreate(String name, Container container,
-                             String hostname, boolean healing, Integer cpu, Integer memory, Map<String, String> labels, Map<String, String> env,
+                             String hostname, boolean healing, Integer cpu, Integer memory, Map<String, String> labels,
                              Map<String, Data> dataVolumes) throws IOException {
         String phase;
 
         try {
             core.createNamespacedPod(namespace, pod(name, container,
-                    hostname, healing, cpu, memory, labels, env, dataVolumes), null, null, null);
+                    hostname, healing, cpu, memory, labels, dataVolumes), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -814,21 +810,32 @@ public class Engine implements AutoCloseable {
     public static class Container {
         public final String image;
         public final boolean imagePull;
+        public final Map<String, String> env;
         public final String[] command;
 
         public Container(String image, String... command) {
-            this(image, false, command);
+            this(image, false, Collections.emptyMap(), command);
         }
 
-        public Container(String image, boolean imagePull, String[] command) {
+        public Container(String image, boolean imagePull, Map<String, String> env, String[] command) {
             this.image = image;
             this.imagePull = imagePull;
+            this.env = env;
             this.command = command;
         }
 
-        public V1ContainerBuilder builder(String name, List<V1VolumeMount> ml, Map<String, Quantity> limits, List<V1EnvVar> lst) {
+        public V1ContainerBuilder builder(String name, List<V1VolumeMount> ml, Map<String, Quantity> limits) {
             V1ContainerBuilder container;
+            List<V1EnvVar> lst;
+            V1EnvVar var;
 
+            lst = new ArrayList<>();
+            for (Map.Entry<String, String> entry : env.entrySet()) {
+                var = new V1EnvVar();
+                var.setName(entry.getKey());
+                var.setValue(entry.getValue());
+                lst.add(var);
+            }
             container = new V1ContainerBuilder();
             container.addAllToVolumeMounts(ml)
                     .withNewResources().withLimits(limits).endResources()
@@ -847,9 +854,7 @@ public class Engine implements AutoCloseable {
     /** @param dataVolumes  ([Boolean secrets, String secret name, String dest path], (key, path)*)* */
     @SuppressWarnings("checkstyle:ParameterNumber")
     private V1Pod pod(String name, Container c, String hostname, boolean healing, Integer cpu, Integer memory,
-                      Map<String, String> labels, Map<String, String> env, Map<String, Data> dataVolumes) {
-        List<V1EnvVar> lst;
-        V1EnvVar var;
+                      Map<String, String> labels, Map<String, Data> dataVolumes) {
         List<V1Volume> vl;
         int volumeCount;
         String vname;
@@ -858,13 +863,6 @@ public class Engine implements AutoCloseable {
         V1ContainerBuilder container;
         Data data;
 
-        lst = new ArrayList<>();
-        for (Map.Entry<String, String> entry : env.entrySet()) {
-            var = new V1EnvVar();
-            var.setName(entry.getKey());
-            var.setValue(entry.getValue());
-            lst.add(var);
-        }
         vl = new ArrayList<>();
         ml = new ArrayList<>();
         volumeCount = 0;
@@ -881,7 +879,7 @@ public class Engine implements AutoCloseable {
         if (memory != null) {
             limits.put("memory", new Quantity(memory.toString()));
         }
-        container = c.builder(name, ml, limits, lst);
+        container = c.builder(name, ml, limits);
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(withImplicit(labels)).endMetadata()
                 .withNewSpec()
