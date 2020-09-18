@@ -480,8 +480,7 @@ public class Engine implements AutoCloseable {
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                                    Container container, String hostname, Map<String, String> podLabels,
-                                    List<Data> dataVolumes) throws IOException {
+                                    Container container, String hostname, Map<String, String> podLabels) throws IOException {
         try {
             apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, container, hostname, podLabels),
                     null, null, null);

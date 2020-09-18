@@ -280,8 +280,7 @@ public class EngineIT {
             engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(),
                     new Engine.Container("main", "debian:stretch-slim", new String[] { "sleep", "1000" }, true,
                             Strings.toMap(), null, null, Collections.emptyMap()),
-                    null, Strings.toMap("app", "foo"),
-                    Collections.emptyList());
+                    null, Strings.toMap("app", "foo"));
 
             map = engine.deploymentList();
 

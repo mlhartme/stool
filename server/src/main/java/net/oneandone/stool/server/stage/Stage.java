@@ -585,7 +585,6 @@ public class Stage {
         String deploymentName;
         PodInfo running;
         Map<String, String> environment;
-        List<Data> datas;
         Map<Data.Mount, Data> mounts;
         Map<String, String> deploymentLabels;
         Map<String, String> podLabels;
@@ -632,10 +631,9 @@ public class Stage {
             podLabels.put(Ports.Port.JMXMP.label(), "x" + image.ports.jmxmp);
         }
 
-        datas = new ArrayList<>();
         mounts = new HashMap<>();
-        certMount(image, engine, datas, mounts);
-        faultMount(image, engine, datas, mounts);
+        certMount(image, engine, mounts);
+        faultMount(image, engine, mounts);
 
         appService(engine, image);
         if (server.openShift) {
@@ -652,7 +650,7 @@ public class Stage {
         engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels,
                 new Engine.Container("main", image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, mounts),
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
-                podLabels, datas);
+                podLabels);
 
         Server.LOGGER.debug("created deployment " + deploymentName);
 
@@ -749,7 +747,7 @@ public class Stage {
         return current.image.tag;
     }
 
-    private void certMount(TagInfo image, Engine engine, List<Data> dataList, Map<Data.Mount, Data> mounts) throws IOException {
+    private void certMount(TagInfo image, Engine engine, Map<Data.Mount, Data> mounts) throws IOException {
         Data cert;
         String mountPath;
         FileNode dir;
@@ -776,7 +774,6 @@ public class Stage {
         if (image.certificateP12 != null) {
             cert.addRelative(dir.join("keystore.p12"), mountPath, image.certificateP12);
         }
-        dataList.add(cert);
         cert.define(engine);
         mounts.put(new Data.Mount(mountPath, true), cert);
     }
@@ -813,7 +810,7 @@ public class Stage {
         return idx == -1 ? "" : common(first.substring(0, idx + 1), second);
     }
 
-    private void faultMount(TagInfo image, Engine engine, List<Data> datas, Map<Data.Mount, Data> mounts) throws IOException {
+    private void faultMount(TagInfo image, Engine engine, Map<Data.Mount, Data> mounts) throws IOException {
         Data fault;
         List<String> missing;
         FileNode innerRoot;
@@ -841,7 +838,6 @@ public class Stage {
         if (!missing.isEmpty()) {
             throw new ArgumentException("missing secret directories: " + missing);
         }
-        datas.add(fault);
         mounts.put(new Data.Mount("/root/.fault", false), fault);
         fault.define(engine);
     }
