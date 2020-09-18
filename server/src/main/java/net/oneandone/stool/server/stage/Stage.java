@@ -109,10 +109,10 @@ public class Stage {
         return name.replace(".", "--");
     }
     private String faultSecretName() {
-        return name + "-fault";
+        return deploymentName() + "-fault";
     }
     private String certSecretName() {
-        return name + "-cert";
+        return deploymentName() + "-cert";
     }
     private String fluentdConfigName() {
         return name + "-fluentd";
