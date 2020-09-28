@@ -38,7 +38,6 @@ public class ContainerInfo {
                 result.put(name, new ContainerInfo(name, status.getImage(), pruneDocker(status.getContainerID())));
             }
         }
-        System.out.println("containerinfo: " + result);
         return result;
     }
 

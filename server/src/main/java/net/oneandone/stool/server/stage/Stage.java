@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
+import net.oneandone.stool.kubernetes.DataBase;
 import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
@@ -597,8 +598,8 @@ public class Stage {
         String deploymentName;
         PodInfo running;
         Map<String, String> environment;
-        Map<Data.Mount, Data> mainMounts;
-        Map<Data.Mount, Data> fluentdMounts;
+        Map<Data.Mount, DataBase> mainMounts;
+        Map<Data.Mount, DataBase> fluentdMounts;
         Map<String, String> deploymentLabels;
         Map<String, String> podLabels;
         int memoryQuota;
@@ -765,7 +766,7 @@ public class Stage {
         return current.image.tag;
     }
 
-    private void fluentdMount(Engine engine, Map<Data.Mount, Data> mounts) throws IOException {
+    private void fluentdMount(Engine engine, Map<Data.Mount, DataBase> mounts) throws IOException {
         World world;
         Data config;
 
@@ -776,7 +777,7 @@ public class Stage {
         mounts.put(new Data.Mount("/fluentd/etc", false), config);
     }
 
-    private void certMount(TagInfo image, Engine engine, Map<Data.Mount, Data> mounts) throws IOException {
+    private void certMount(TagInfo image, Engine engine, Map<Data.Mount, DataBase> mounts) throws IOException {
         Data cert;
         String mountPath;
         FileNode dir;
@@ -839,7 +840,7 @@ public class Stage {
         return idx == -1 ? "" : common(first.substring(0, idx + 1), second);
     }
 
-    private void faultMount(TagInfo image, Engine engine, Map<Data.Mount, Data> mounts) throws IOException {
+    private void faultMount(TagInfo image, Engine engine, Map<Data.Mount, DataBase> mounts) throws IOException {
         Data fault;
         List<String> missing;
         FileNode innerRoot;

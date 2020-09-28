@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Specifies ConfigMap or Secrets (with volumes and mounts). */
-public class Data {
+public class Data extends DataBase {
     public static Data configMap(String name) {
         return new Data(false, name);
     }
@@ -98,6 +98,8 @@ public class Data {
             engine.configMapCreateBinary(name, data);
         }
     }
+
+    //--
 
     public V1Volume volume() {
         V1SecretVolumeSource ss;

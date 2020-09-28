@@ -58,7 +58,6 @@ public class RegistryIT {
         try (Daemon docker = Daemon.create(/* "target/registry-wire.log" */ null)) {
             final int registryPort = 5000;
             final String registryPrefix = docker.getHost() + ":" + registryPort;
-            System.out.println("prefix: " + registryPrefix);
 
             ports = new HashMap<>();
             ports.put(registryPort, "" + registryPort);

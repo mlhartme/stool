@@ -773,14 +773,14 @@ public class Engine implements AutoCloseable {
         public final Map<String, String> env;
         public final Integer cpu;
         public final Integer memory;
-        public final Map<Data.Mount, Data> mounts; // maps volume names to mount paths
+        public final Map<Data.Mount, DataBase> mounts; // maps volume names to mount paths
 
         public Container(String image, String... command) {
             this("noname", image, command, false, Collections.emptyMap(), null, null,
                     Collections.emptyMap());
         }
 
-        public Container(String name, String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory, Map<Data.Mount, Data> mounts) {
+        public Container(String name, String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory, Map<Data.Mount, DataBase> mounts) {
             this.name = name;
             this.image = image;
             this.command = command;
@@ -792,7 +792,7 @@ public class Engine implements AutoCloseable {
         }
 
         public void volumes(List<V1Volume> result) {
-            for (Data data : mounts.values()) {
+            for (DataBase data : mounts.values()) {
                 result.add(data.volume());
             }
         }
@@ -835,7 +835,7 @@ public class Engine implements AutoCloseable {
             List<V1VolumeMount> result;
 
             result = new ArrayList<>();
-            for (Map.Entry<Data.Mount, Data> entry : mounts.entrySet()) {
+            for (Map.Entry<Data.Mount, DataBase> entry : mounts.entrySet()) {
                 entry.getValue().mounts(entry.getKey(), result);
             }
             return result;
