@@ -292,7 +292,7 @@ public class Server {
         for (Stage stage : listAll(engine)) {
             pod = stage.runningPodOpt(engine);
             if (pod != null) {
-                reserved += registry.info(pod).memory;
+                reserved += registry.info(pod, Stage.MAIN_CONTAINER).memory;
             }
         }
         return reserved;
@@ -333,7 +333,7 @@ public class Server {
             stage = load(engine, name);
             current = stage.currentOpt(engine, registry);
             if (current != null) {
-                if (current.pod.containerId != null) {
+                if (current.pod.isRunning()) {
                     reserved += current.image.disk;
                 }
             }

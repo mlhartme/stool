@@ -147,12 +147,12 @@ public class PortusRegistry extends Registry {
         return node.withHeaders(hl);
     }
 
-    public TagInfo info(PodInfo pod) throws IOException {
+    public TagInfo info(PodInfo pod, String containerName) throws IOException {
         String repository;
         int idx;
         String tag;
 
-        repository = Strings.removeLeft(pod.repositoryTag, host + "/");
+        repository = Strings.removeLeft(pod.repositoryTag(containerName), host + "/");
         idx = repository.indexOf(':');
         if (idx == -1) {
             throw new IllegalStateException(repository);

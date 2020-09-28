@@ -84,12 +84,12 @@ public class DockerRegistry extends Registry {
         return tags.isJsonNull() ? new ArrayList<>() : toList(tags.getAsJsonArray());
     }
 
-    public TagInfo info(PodInfo pod) throws IOException {
+    public TagInfo info(PodInfo pod, String containerName) throws IOException {
         String repository;
         int idx;
         String tag;
 
-        repository = Strings.removeLeft(pod.repositoryTag, host + "/");
+        repository = Strings.removeLeft(pod.repositoryTag(containerName), host + "/");
         idx = repository.indexOf(':');
         if (idx == -1) {
             throw new IllegalStateException(repository);

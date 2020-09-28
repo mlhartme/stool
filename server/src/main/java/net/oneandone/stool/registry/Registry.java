@@ -36,7 +36,7 @@ public abstract class Registry {
     public abstract void delete(String repository) throws IOException;
     public abstract List<String> tags(String repository) throws IOException;
 
-    public abstract TagInfo info(PodInfo pod) throws IOException;
+    public abstract TagInfo info(PodInfo pod, String containerName) throws IOException;
     public abstract TagInfo info(String repository, String tag) throws IOException;
 
     //--

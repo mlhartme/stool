@@ -448,7 +448,7 @@ public class ApiController {
             stage = server.load(engine, stageName);
             current = stage.currentOpt(engine, server.createRegistry());
         }
-        if (current == null || current.pod.containerId == null) {
+        if (current == null || !current.pod.isRunning()) {
             throw new ArgumentException("stage is not running: " + stageName);
         }
         server.checkFaultPermissions(User.authenticatedOrAnonymous().login, current.image.faultProjects);

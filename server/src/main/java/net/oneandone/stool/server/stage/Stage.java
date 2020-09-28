@@ -79,6 +79,9 @@ public class Stage {
     public static final String DEPLOYMENT_LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String DEPLOYMENT_LABEL_ENV_PREFIX = LABEL_PREFIX  + "env.";
 
+    public static final String MAIN_CONTAINER = "main";
+    public static final String FLUENTD_CONTAINER = "fluentd";
+
     //--
 
     public final Server server;
@@ -282,13 +285,13 @@ public class Stage {
     }
 
     private void appFields(List<Field> fields) {
-        fields.add(new Field("container") { // TODO: change to pod
+        fields.add(new Field("pod") {
             @Override
             public Object get(Context context) throws IOException {
                 PodInfo info;
 
                 info = context.runningPodOpt(Stage.this);
-                return info == null ? null : info.containerId;
+                return info == null ? null : info.name;
             }
         });
         fields.add(new Field("uptime") {
@@ -314,7 +317,7 @@ public class Stage {
                 Current current;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : context.sizeRw(current.pod.containerId);
+                return current == null ? null : context.sizeRw(current.pod.containerId(MAIN_CONTAINER));
             }
         });
         fields.add(new Field("cpu") {
@@ -404,7 +407,7 @@ public class Stage {
         long used;
         long max;
 
-        if (current.pod.containerId == null) {
+        if (!current.pod.isRunning()) {
             return "";
         }
         if (current.image.ports.jmxmp == -1) {
@@ -528,7 +531,7 @@ public class Stage {
 
         current = currentOpt(engine, registry);
         if (current != null) {
-            containerId = current.pod.containerId;
+            containerId = current.pod.containerId(MAIN_CONTAINER);
             if (containerId != null) {
                 used = new Context(engine, registry).sizeRw(containerId);
                 quota = current.image.disk;
@@ -568,14 +571,22 @@ public class Stage {
                 engine.ingressDelete(appIngressName());
             }
             try {
+                engine.configMapDelete(fluentdConfigMapName());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                // TODO
+            }
+            try {
                 engine.secretDelete(faultSecretName());
             } catch (FileNotFoundException e) {
-                // ok
+                e.printStackTrace();
+                // TODO
             }
             try {
                 engine.secretDelete(certSecretName());
             } catch (FileNotFoundException e) {
-                // ok
+                e.printStackTrace();
+                // TODO
             }
         }
     }
@@ -600,11 +611,11 @@ public class Stage {
         image = resolve(registry, imageOpt);
         running = runningPodOpt(engine);
         if (running != null) {
-            if (image.repositoryTag.equals(running.repositoryTag)) {
+            if (image.repositoryTag.equals(running.repositoryTag(MAIN_CONTAINER))) {
                 return null;
             } else {
                 throw new IOException("conflict: cannot start image " + image.tag
-                        + " because a different image id " + image.repositoryTag + " " + running.repositoryTag + " is already running");
+                        + " because a different image id " + image.repositoryTag + " " + running.repositoryTag(MAIN_CONTAINER) + " is already running");
             }
         }
         if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
@@ -653,8 +664,8 @@ public class Stage {
         }
         engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels,
                 new Engine.Container[] {
-                        new Engine.Container("main", image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, mainMounts),
-                        new Engine.Container("fluentd", "fluent/fluentd:v1.11.2-1.0", null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, fluentdMounts),
+                        new Engine.Container(MAIN_CONTAINER, image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, mainMounts),
+                        new Engine.Container(FLUENTD_CONTAINER, "fluent/fluentd:v1.11.2-1.0", null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, fluentdMounts),
                 },
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 podLabels);
@@ -884,7 +895,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         pod = runningPodOpt(engine);
         if (pod != null) {
-            tag = registry.info(pod);
+            tag = registry.info(pod, MAIN_CONTAINER);
         } else {
             lst = images(registry);
             tag = lst.isEmpty() ? null : lst.get(lst.size() - 1);
@@ -976,10 +987,10 @@ public class Stage {
         TagInfo image;
 
         if (runningPodOpt != null) {
-            if (runningPodOpt.containerId == null) {
+            if (!runningPodOpt.isRunning()) {
                 throw new IllegalStateException("TODO");
             }
-            image = registry.info(runningPodOpt);
+            image = registry.info(runningPodOpt, MAIN_CONTAINER);
             return new Current(image, runningPodOpt);
         } else {
             return null;
@@ -1108,7 +1119,7 @@ public class Stage {
         if (running == null) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
-            engine.podLogsFollow(running.containerId, new OutputStream() {
+            engine.podLogsFollow(running.containerId(MAIN_CONTAINER), new OutputStream() {
                 @Override
                 public void write(int b) {
                     dest.write(b);

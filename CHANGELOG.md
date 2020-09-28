@@ -63,6 +63,7 @@ Client changes
   * remove status fields `jmx-port` and `debug-port`
   * moved all none-image fields to status command:
     `container`, `uptime`, `disk-used`, `environment`, `origin-scm`, `heap`
+  * changed `container` to `pod`  
 
 * TODO: not adjusted yet
   * `ssh` dumped app argument

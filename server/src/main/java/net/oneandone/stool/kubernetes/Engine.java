@@ -644,11 +644,7 @@ public class Engine implements AutoCloseable {
         return "Running".equals(phase);
     }
 
-    /** @return containerId or null */
-    public String podDelete(String name) throws IOException {
-        PodInfo info;
-
-        info = podProbe(name);
+    public void podDelete(String name) throws IOException {
         try {
             core.deleteNamespacedPod(name, namespace, null,
                     null, null, null, null,  null);
@@ -665,7 +661,6 @@ public class Engine implements AutoCloseable {
             throw wrap(e);
         }
         podAwait(name, null);
-        return info == null ? null : info.containerId;
     }
 
     public Daemon.Status podContainerStatus(String name) throws IOException {
@@ -825,7 +820,7 @@ public class Engine implements AutoCloseable {
             container = new V1ContainerBuilder();
             container.addAllToVolumeMounts(mountList())
                     .withNewResources().withLimits(limits).endResources()
-                    .withName(name + "-container")
+                    .withName(name)
                     .withImage(image)
                     .withEnv(lst)
                     .withImagePullPolicy(imagePull ? "IfNotPresent" : "Never");

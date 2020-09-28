@@ -86,12 +86,12 @@ public class EngineIT {
                     Strings.toMap("containerLabel", "bla"));
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
 
-            containerOrig = engine.podProbe(pod).containerId;
+            containerOrig = engine.podProbe(pod).containerId("noname");
             containerHealed = containerOrig;
             for (int i = 0; i < 100; i++) {
                 info = engine.podProbe(pod);
                 if (info != null) {
-                    containerHealed = info.containerId;
+                    containerHealed = info.containerId("noname");
                     if (!containerOrig.equals(containerHealed)) {
                         break;
                     }
@@ -101,7 +101,7 @@ public class EngineIT {
             assertNotEquals(containerHealed, containerOrig);
 
             assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
-            containerHealed = engine.podProbe(pod).containerId;
+            containerHealed = engine.podProbe(pod).containerId("noname");
             assertNotEquals(containerOrig, containerHealed);
 
             engine.podDelete(pod);

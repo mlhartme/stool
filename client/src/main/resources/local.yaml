@@ -30,19 +30,6 @@ spec:
     app: stool
   type: NodePort
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: stool-server-debug
-  namespace: stool
-spec:
-  ports:
-    - nodePort: 31001
-      port: 31001
-  selector:
-    app: stool
-  type: NodePort
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
