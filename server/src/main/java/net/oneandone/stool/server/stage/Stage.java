@@ -34,6 +34,7 @@ import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
@@ -114,8 +115,8 @@ public class Stage {
     private String certSecretName() {
         return deploymentName() + "-cert";
     }
-    private String fluentdConfigName() {
-        return name + "-fluentd";
+    private String fluentdConfigMapName() {
+        return deploymentName() + "-fluentd";
     }
     public String httpRouteName() {
         return name + "-http";
@@ -579,13 +580,14 @@ public class Stage {
         }
     }
 
-    /** @return image actually started, null if this image is actually running
+    /** @return image actually started, null if this image is already running
      *  @throws IOException if a different image is already running */
     public String start(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
         String deploymentName;
         PodInfo running;
         Map<String, String> environment;
-        Map<Data.Mount, Data> mounts;
+        Map<Data.Mount, Data> mainMounts;
+        Map<Data.Mount, Data> fluentdMounts;
         Map<String, String> deploymentLabels;
         Map<String, String> podLabels;
         int memoryQuota;
@@ -631,9 +633,11 @@ public class Stage {
             podLabels.put(Ports.Port.JMXMP.label(), "x" + image.ports.jmxmp);
         }
 
-        mounts = new HashMap<>();
-        certMount(image, engine, mounts);
-        faultMount(image, engine, mounts);
+        mainMounts = new HashMap<>();
+        certMount(image, engine, mainMounts);
+        faultMount(image, engine, mainMounts);
+        fluentdMounts = new HashMap<>();
+        fluentdMount(engine, fluentdMounts);
 
         appService(engine, image);
         if (server.openShift) {
@@ -648,7 +652,10 @@ public class Stage {
             engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
         }
         engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels,
-                new Engine.Container("main", image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, mounts),
+                new Engine.Container[] {
+                        new Engine.Container("main", image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, mainMounts),
+                        new Engine.Container("fluentd", "fluent/fluentd:v1.11.2-1.0", null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, fluentdMounts),
+                },
                 "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
                 podLabels);
 
@@ -745,6 +752,17 @@ public class Stage {
         engine.deploymentDelete(deploymentName());
         engine.podAwait(pod.name, null);
         return current.image.tag;
+    }
+
+    private void fluentdMount(Engine engine, Map<Data.Mount, Data> mounts) throws IOException {
+        World world;
+        Data config;
+
+        world = World.create(); // TODO  CAUTION: minimal cannot read jar: scheme
+        config = Data.configMap(fluentdConfigMapName());
+        config.add("fluent.conf", world.resource("data/fluent.conf").readBytes());
+        config.define(engine);
+        mounts.put(new Data.Mount("/fluentd/etc", false), config);
     }
 
     private void certMount(TagInfo image, Engine engine, Map<Data.Mount, Data> mounts) throws IOException {

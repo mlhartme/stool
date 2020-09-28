@@ -478,11 +478,16 @@ public class Engine implements AutoCloseable {
         }
     }
 
+    public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
+                                 Container container, String hostname, Map<String, String> podLabels) throws IOException {
+        deploymentCreate(name, selector, deploymentLabels, new Container[] { container }, hostname, podLabels);
+    }
+
     @SuppressWarnings("checkstyle:ParameterNumber")
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                                    Container container, String hostname, Map<String, String> podLabels) throws IOException {
+                                    Container[] containers, String hostname, Map<String, String> podLabels) throws IOException {
         try {
-            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, container, hostname, podLabels),
+            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, containers, hostname, podLabels),
                     null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
@@ -511,11 +516,16 @@ public class Engine implements AutoCloseable {
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                           Container container, String hostname, Map<String, String> podLabels) {
+                           Container[] containers, String hostname, Map<String, String> podLabels) {
         List<V1Volume> vl;
+        List<V1Container> cl;
 
         vl = new ArrayList<>();
-        container.volumes(vl);
+        cl = new ArrayList<>();
+        for (Container c : containers) {
+            c.volumes(vl);
+            cl.add(c.build());
+        }
         return new V1DeploymentBuilder()
                 .withNewMetadata()
                   .withName(name)
@@ -529,7 +539,7 @@ public class Engine implements AutoCloseable {
                     .withNewSpec()
                       .withHostname(hostname)
                       .addAllToVolumes(vl)
-                      .addToContainers(container.build())
+                      .withContainers(cl)
                     .endSpec()
                   .endTemplate()
                 .endSpec().build();
