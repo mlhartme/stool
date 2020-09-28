@@ -43,7 +43,6 @@ public class Data extends Volume {
     }
 
     public final boolean secret;
-    public final String name;
 
     /** key to path */
     private final Map<String, String> keyToPaths;
@@ -52,8 +51,8 @@ public class Data extends Volume {
     private final Map<String, byte[]> data;
 
     private Data(boolean secret, String name) {
+        super(name);
         this.secret = secret;
-        this.name = name;
         this.keyToPaths = new HashMap<>();
         this.data = new HashMap<>();
     }

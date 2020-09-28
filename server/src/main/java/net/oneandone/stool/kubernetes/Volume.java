@@ -21,7 +21,10 @@ import io.kubernetes.client.openapi.models.V1VolumeMount;
 import java.util.List;
 
 public abstract class Volume {
-    protected Volume() {
+    public final String name;
+
+    protected Volume(String name) {
+        this.name = name;
     }
 
     public abstract V1Volume volume();

@@ -792,9 +792,22 @@ public class Engine implements AutoCloseable {
         }
 
         public void volumes(List<V1Volume> result) {
-            for (Volume data : mounts.values()) {
-                result.add(data.volume());
+            for (Volume volume : mounts.values()) {
+                if (contains(result, volume.name)) {
+                    System.out.println("skipped: " + volume.name);
+                } else {
+                    result.add(volume.volume());
+                }
             }
+        }
+
+        private static boolean contains(List<V1Volume> lst, String name) {
+            for (V1Volume v : lst) {
+                if (v.getName().equals(name)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public V1Container build() {
