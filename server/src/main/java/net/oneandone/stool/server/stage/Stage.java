@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
+import net.oneandone.stool.kubernetes.EmptyDir;
 import net.oneandone.stool.kubernetes.Volume;
 import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
@@ -600,6 +601,7 @@ public class Stage {
         Map<String, String> environment;
         Map<Volume.Mount, Volume> mainMounts;
         Map<Volume.Mount, Volume> fluentdMounts;
+        EmptyDir varLogStool;
         Map<String, String> deploymentLabels;
         Map<String, String> podLabels;
         int memoryQuota;
@@ -650,6 +652,10 @@ public class Stage {
         faultMount(image, engine, mainMounts);
         fluentdMounts = new HashMap<>();
         fluentdMount(engine, fluentdMounts);
+
+        varLogStool = new EmptyDir("var-log-stool");
+        mainMounts.put(new Volume.Mount("/var/log/stool"), varLogStool);
+        fluentdMounts.put(new Volume.Mount("/var/log/stool"), varLogStool);
 
         appService(engine, image);
         if (server.openShift) {

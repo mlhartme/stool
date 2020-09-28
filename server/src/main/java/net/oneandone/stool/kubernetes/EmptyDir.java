@@ -15,32 +15,28 @@
  */
 package net.oneandone.stool.kubernetes;
 
+import io.kubernetes.client.openapi.models.V1EmptyDirVolumeSource;
 import io.kubernetes.client.openapi.models.V1Volume;
+import io.kubernetes.client.openapi.models.V1VolumeBuilder;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 
 import java.util.List;
 
-public abstract class Volume {
-    public final String name;
-
-    protected Volume(String name) {
-        this.name = name;
+public class EmptyDir extends Volume {
+    public EmptyDir(String name) {
+        super(name);
     }
 
-    public abstract V1Volume volume();
-    public abstract void mounts(Mount mount, List<V1VolumeMount> dest);
+    public V1Volume volume() {
+        return new V1VolumeBuilder().withName(name).withEmptyDir(new V1EmptyDirVolumeSource()).build();
+    }
 
-    public static class Mount {
-        public final String path;
-        public final boolean subPaths;
+    public void mounts(Mount mount, List<V1VolumeMount> dest) {
+        V1VolumeMount result;
 
-        public Mount(String path) {
-            this(path, false);
-        }
-
-        public Mount(String path, boolean subPaths) {
-            this.path = path;
-            this.subPaths = subPaths;
-        }
+        result = new V1VolumeMount();
+        result.setName(name);
+        result.setMountPath(mount.path);
+        dest.add(result);
     }
 }
