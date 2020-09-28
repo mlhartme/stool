@@ -33,8 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Specifies ConfigMap or Secrets (with volumes and mounts). */
-public class Data extends DataBase {
+/** Specifies ConfigMap or Secrets. Also implements volume, so you can easily use it in pods. */
+public class Data extends Volume {
     public static Data configMap(String name) {
         return new Data(false, name);
     }
@@ -120,16 +120,6 @@ public class Data extends DataBase {
         } else {
             cs = new V1ConfigMapVolumeSourceBuilder().withName(name).withItems(items).build();
             return new V1VolumeBuilder().withName(name).withConfigMap(cs).build();
-        }
-    }
-
-    public static class Mount {
-        public final String path;
-        public final boolean subPaths;
-
-        public Mount(String path, boolean subPaths) {
-            this.path = path;
-            this.subPaths = subPaths;
         }
     }
 

@@ -20,10 +20,20 @@ import io.kubernetes.client.openapi.models.V1VolumeMount;
 
 import java.util.List;
 
-public abstract class DataBase {
-    protected DataBase() {
+public abstract class Volume {
+    protected Volume() {
     }
 
     public abstract V1Volume volume();
-    public abstract void mounts(Data.Mount mount, List<V1VolumeMount> dest);
+    public abstract void mounts(Mount mount, List<V1VolumeMount> dest);
+
+    public static class Mount {
+        public final String path;
+        public final boolean subPaths;
+
+        public Mount(String path, boolean subPaths) {
+            this.path = path;
+            this.subPaths = subPaths;
+        }
+    }
 }

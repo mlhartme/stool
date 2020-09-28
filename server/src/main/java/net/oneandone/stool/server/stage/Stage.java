@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
-import net.oneandone.stool.kubernetes.DataBase;
+import net.oneandone.stool.kubernetes.Volume;
 import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
@@ -598,8 +598,8 @@ public class Stage {
         String deploymentName;
         PodInfo running;
         Map<String, String> environment;
-        Map<Data.Mount, DataBase> mainMounts;
-        Map<Data.Mount, DataBase> fluentdMounts;
+        Map<Volume.Mount, Volume> mainMounts;
+        Map<Volume.Mount, Volume> fluentdMounts;
         Map<String, String> deploymentLabels;
         Map<String, String> podLabels;
         int memoryQuota;
@@ -766,7 +766,7 @@ public class Stage {
         return current.image.tag;
     }
 
-    private void fluentdMount(Engine engine, Map<Data.Mount, DataBase> mounts) throws IOException {
+    private void fluentdMount(Engine engine, Map<Volume.Mount, Volume> mounts) throws IOException {
         World world;
         Data config;
 
@@ -774,10 +774,10 @@ public class Stage {
         config = Data.configMap(fluentdConfigMapName());
         config.add("fluent.conf", world.resource("data/fluent.conf").readBytes());
         config.define(engine);
-        mounts.put(new Data.Mount("/fluentd/etc", false), config);
+        mounts.put(new Volume.Mount("/fluentd/etc", false), config);
     }
 
-    private void certMount(TagInfo image, Engine engine, Map<Data.Mount, DataBase> mounts) throws IOException {
+    private void certMount(TagInfo image, Engine engine, Map<Volume.Mount, Volume> mounts) throws IOException {
         Data cert;
         String mountPath;
         FileNode dir;
@@ -805,7 +805,7 @@ public class Stage {
             cert.addRelative(dir.join("keystore.p12"), mountPath, image.certificateP12);
         }
         cert.define(engine);
-        mounts.put(new Data.Mount(mountPath, true), cert);
+        mounts.put(new Volume.Mount(mountPath, true), cert);
     }
 
     private static String prefix(String... paths) {
@@ -840,7 +840,7 @@ public class Stage {
         return idx == -1 ? "" : common(first.substring(0, idx + 1), second);
     }
 
-    private void faultMount(TagInfo image, Engine engine, Map<Data.Mount, DataBase> mounts) throws IOException {
+    private void faultMount(TagInfo image, Engine engine, Map<Volume.Mount, Volume> mounts) throws IOException {
         Data fault;
         List<String> missing;
         FileNode innerRoot;
@@ -868,7 +868,7 @@ public class Stage {
         if (!missing.isEmpty()) {
             throw new ArgumentException("missing secret directories: " + missing);
         }
-        mounts.put(new Data.Mount("/root/.fault", false), fault);
+        mounts.put(new Volume.Mount("/root/.fault", false), fault);
         fault.define(engine);
     }
 
