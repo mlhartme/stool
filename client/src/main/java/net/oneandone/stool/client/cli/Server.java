@@ -117,6 +117,11 @@ public class Server {
         map = new HashMap<>();
         map.put("portus", portusWithShortName.toString());
         map.put("api", api);
+        map.put("ldapUnit", secrets.ldapUnit);
+        map.put("ldapUrl", secrets.ldapUrl);
+        map.put("ldapPrincipal", secrets.ldapPrincipal);
+        map.put("ldapCredentials", secrets.ldapCredentials);
+        map.put("ldapSso", secrets.ldapSso);
         if (isLocalhost()) {
             map.put("host", LOCALHOST);
             result = world.resource("local.yaml").readString();

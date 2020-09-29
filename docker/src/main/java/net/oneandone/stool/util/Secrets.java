@@ -28,7 +28,12 @@ public class Secrets {
         Properties p;
 
         p = secrets(world).join("secrets.properties").readProperties();
-        return new Secrets(URI.create(get(p, "portus")), get(p, "ldapSecrets"));
+        return new Secrets(URI.create(get(p, "portus")),
+                get(p, "ldapUnit"),
+                get(p, "ldapUrl"),
+                get(p, "ldapPrincipal"),
+                get(p, "ldapCredentials"),
+                get(p, "ldapSso"));
     }
 
     private static String get(Properties p, String name) throws IOException {
@@ -46,10 +51,18 @@ public class Secrets {
     }
 
     public final URI portus;
-    public final String ldapSecrets;
+    public final String ldapUnit;
+    public final String ldapUrl;
+    public final String ldapPrincipal;
+    public final String ldapCredentials;
+    public final String ldapSso;
 
-    private Secrets(URI portus, String ldapSecrets) {
+    private Secrets(URI portus, String ldapUnit, String ldapUrl, String ldapPrincipal, String ldapCredentials, String ldapSso) {
         this.portus = portus;
-        this.ldapSecrets = ldapSecrets;
+        this.ldapUnit = ldapUnit;
+        this.ldapUrl = ldapUrl;
+        this.ldapPrincipal = ldapPrincipal;
+        this.ldapCredentials = ldapCredentials;
+        this.ldapSso = ldapSso;
     }
 }
