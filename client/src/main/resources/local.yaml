@@ -4,6 +4,33 @@ metadata:
   name: stool
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stool-log-collector
+data:
+  fluent.conf: |
+    <source>
+      @type forward
+      port 24224
+      bind 0.0.0.0
+    </source>
+
+    <match stage.format>
+      @type file
+      path /fluentd/log/\${stage}/\${source_path}
+      <buffer stage,source_path>
+        @type memory
+        flush_mode interval
+        flush_interval 10s
+      </buffer>
+      <format>
+        @type single_value
+      </format>
+      append true
+      add_path_suffix false
+    </match>
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: stool-server-http
@@ -60,6 +87,12 @@ spec:
       - name: stool
         image: contargo.server.lan/cisoops-public/stool-server:latest
         imagePullPolicy: Never
+        volumeMounts:
+          - mountPath: /etc/fault
+            name: fault
+            readOnly: true
+          - mountPath: /var/log/stages
+            name: fluentd-logs
         env:
           - name: HOST
             value: "${host}"
@@ -89,8 +122,19 @@ spec:
             value: "${portus}"
           - name: LOGLEVEL
             value: "INFO"
-
-
-volumeMounts:
-${mounts}      volumes:
-${volumes}
+      - name: collector
+        image: fluent/fluentd:v1.11.2-1.0
+        volumeMounts:
+          - name: fluentd-config
+            mountPath: /fluentd/etc
+          - name: fluentd-logs
+            mountPath: /fluentd/log
+      volumes:
+      - name: fault
+        hostPath: ${home}/.fault
+        type: Directory
+      - name: fluentd-config
+        configMap:
+          name: stool-log-collector
+      - name: fluentd-logs
+        emptyDir: {}

@@ -124,13 +124,11 @@ public class Server {
         map.put("ldapSso", secrets.ldapSso);
         if (isLocalhost()) {
             map.put("host", LOCALHOST);
+            map.put("home", world.getHome().getAbsolute());
             result = world.resource("local.yaml").readString();
-            cisotools = Setup.cisotools(world);
             if (!opts.isEmpty()) {
                 throw new IllegalStateException(opts.toString());
             }
-            map.put("mounts", mounts(cisotools));
-            map.put("volumes", volumes(cisotools));
             try {
                 return Substitution.ant().apply(result, map);
             } catch (SubstitutionException e) {
@@ -220,38 +218,5 @@ public class Server {
 
     private static String hostkey(World world, String name) throws IOException {
         return base64(Secrets.secrets(world).join(name).readBytes());
-    }
-
-    public String mounts(FileNode cisotools) {
-        StringBuilder builder;
-
-        builder = new StringBuilder();
-        if (cisotools != null) {
-            addMount(builder, "fault-workspace", "/etc/fault/workspace", true);
-        }
-        return builder.toString();
-    }
-
-    public String volumes(FileNode cisotools) {
-        StringBuilder builder;
-
-        builder = new StringBuilder();
-        if (cisotools != null) {
-            addVolume(builder, "fault-workspace", world.getHome().join(".fault").getAbsolute(), "Directory");
-        }
-        return builder.toString();
-    }
-
-    private static void addMount(StringBuilder dest, String name, String path, boolean readOnly) {
-         dest.append("          - name: " + name + "\n");
-         dest.append("            mountPath: \"" + path + "\"\n");
-         dest.append("            readOnly: " + readOnly + "\n");
-    }
-
-    private static void addVolume(StringBuilder dest, String name, String path, String type) {
-        dest.append("        - name: " + name + "\n");
-        dest.append("          hostPath:\n");
-        dest.append("            path: \"" + path + "\"\n");
-        dest.append("            type: " + type + "\n");
     }
 }

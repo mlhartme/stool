@@ -213,26 +213,26 @@ spec:
           - mountPath: /etc/ssh
             name: hostkey-volume
       volumes:
-        - name: fault
-          emptyDir: {}
-        - name: fluentd-config
-          configMap:
-            name: stool-log-collector
-        - name: fluentd-logs
-          emptyDir: {}
-        - name: hostkey-volume
-          secret:
-            secretName: stool-hostkey
-        - name: cert-volume
-          configMap:
-            items:
-              - key: tomcat.p12
-                path: tomcat.p12
-            name: stool-cert
-        - name: cert-script-volume
-          configMap:
-            items:
-              - key: cert.sh
-                path: cert.sh
-                mode: 0755
-            name: stool-cert-script
+      - name: fault
+        emptyDir: {}
+      - name: fluentd-config
+        configMap:
+          name: stool-log-collector
+      - name: fluentd-logs
+        emptyDir: {}
+      - name: hostkey-volume
+        secret:
+          secretName: stool-hostkey
+      - name: cert-volume
+        configMap:
+          items:
+            - key: tomcat.p12
+              path: tomcat.p12
+          name: stool-cert
+      - name: cert-script-volume
+        configMap:
+          items:
+            - key: cert.sh
+              path: cert.sh
+              mode: 0755
+          name: stool-cert-script
