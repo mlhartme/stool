@@ -24,17 +24,32 @@ import java.util.Properties;
 
 // TODO: does not work in public
 public class Secrets {
-    public static URI portus(World world) throws IOException {
-        Properties tmp;
+    public static Secrets load(World world) throws IOException {
+        Properties p;
 
-        tmp = secrets(world).join("secrets.properties").readProperties();
-        return URI.create(tmp.getProperty("portus"));
+        p = secrets(world).join("secrets.properties").readProperties();
+        return new Secrets(URI.create(get(p, "portus")), get(p, "ldapSecrets"));
+    }
+
+    private static String get(Properties p, String name) throws IOException {
+        String value;
+
+        value = p.getProperty(name);
+        if (value == null) {
+            throw new IOException("property not found: " + name);
+        }
+        return value;
     }
 
     public static FileNode secrets(World world) throws IOException {
         return world.getHome().join(".fault/net.oneandone.stool:stool").checkDirectory();
     }
 
-    private Secrets() {
+    public final URI portus;
+    public final String ldapSecrets;
+
+    private Secrets(URI portus, String ldapSecrets) {
+        this.portus = portus;
+        this.ldapSecrets = ldapSecrets;
     }
 }

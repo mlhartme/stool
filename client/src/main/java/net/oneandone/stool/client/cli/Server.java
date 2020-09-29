@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +46,8 @@ public class Server {
     private final String api;
     private final Map<String, String> opts;
 
-    private final URI portus;
+    private final Secrets secrets;
+    private final URI portusWithShortName;
 
     public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, String api, List<String> args) throws IOException {
         int idx;
@@ -69,7 +69,8 @@ public class Server {
             }
             this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
         }
-        this.portus = Secrets.portus(world).resolve(shortname + "/");
+        this.secrets = Secrets.load(world);
+        this.portusWithShortName = secrets.portus.resolve(shortname + "/");
     }
 
     private static String eat(List<String> args, String dflt) {
@@ -106,25 +107,20 @@ public class Server {
         }
     }
 
-    private int serverPort() {
-        return 31000;
-    }
-
     private static final Substitution DUBBLE = new Substitution("${{", "}}", '\\');
 
     public String serverYaml() throws IOException {
         String result;
         FileNode cisotools;
-        int port;
         Map<String, String> map;
 
+        map = new HashMap<>();
+        map.put("portus", portusWithShortName.toString());
+        map.put("api", api);
         if (isLocalhost()) {
+            map.put("host", LOCALHOST);
             result = world.resource("local.yaml").readString();
             cisotools = Setup.cisotools(world);
-            port = serverPort();
-            map = new HashMap<>();
-            map.put("debugPort", Integer.toString(port + 1);
-            map.put("host", LOCALHOST);
             if (!opts.isEmpty()) {
                 throw new IllegalStateException(opts.toString());
             }
@@ -136,10 +132,7 @@ public class Server {
                 throw new IllegalStateException(e);
             }
         } else {
-            map = new HashMap<>();
-            map.put("portus", portus.toString());
             map.put("host", hostname);
-            map.put("api", api);
             map.put("hostkey", hostkey(world, shortname(hostname) + ".key"));
             map.put("hostkey-pub", hostkey(world, shortname(hostname) + ".key.pub"));
             map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));

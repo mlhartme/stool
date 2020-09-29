@@ -84,7 +84,7 @@ public class RegistryIT {
         String registryPrefix;
         String repository;
 
-        registryUri = Secrets.portus(WORLD).resolve("it-todo"); // TODO: include hostname in prefix
+        registryUri = Secrets.load(WORLD).portus.resolve("it-todo"); // TODO: include hostname in prefix
         registryPrefix = registryUri.getHost() + registryUri.getPath();
         repository = registryPrefix.substring(registryPrefix.indexOf('/') + 1) + "/registrytest";
         registry = PortusRegistry.create(WORLD, registryUri.toString(), "target/portus-wire.log");
