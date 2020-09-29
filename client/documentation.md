@@ -223,10 +223,20 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `version`
 
 
-`sc` *global-option*... `setup` 
+`sc` *global-option*... `setup` [*spec*]
 
 
-`sc` *global-option*... `server` *name*
+`sc` *global-option*... `server` *hostname* *api* [*shortname*] [*dest*]
+
+*hostname* is the fqdn pointing to this server; this is used to build stage url. 
+
+*api* the Kubernetes API url to be used by clients if they need to talk to the same 
+Kubernetes Stool server talks to (e.g. for `sc port-forward`). 
+
+*shortname* is appended to the Docker Repository Tag.
+ 
+*dest* specifies the file to generate; default is *shortname*.yaml
+
 
 
 `sc` *global-option*... `context` [`-q`][`-offline`][*context*]
@@ -367,13 +377,16 @@ Setup Stool client
 
 #### SYNOPSIS
 
-`sc` *global-option*... `setup` 
+`sc` *global-option*... `setup` [*spec*]
 
 #### DESCRIPTION
 
 Creates a fresh client configuration file or reports an error if it already exists.
 The location of the client configuration file is configured with the `SC_YAML` environment variable, 
 defaults is `~/.sc.yaml`.
+
+Use *spec* to specify a context name and a api url to configure. If not specified, this is guessed from the
+local machine (TODO: cisotools).
 
 
 ### sc-server
@@ -382,7 +395,17 @@ Generate server configuration
 
 #### SYNOPSIS
 
-`sc` *global-option*... `server` *name*
+`sc` *global-option*... `server` *hostname* *api* [*shortname*] [*dest*]
+
+*hostname* is the fqdn pointing to this server; this is used to build stage url. 
+
+*api* the Kubernetes API url to be used by clients if they need to talk to the same 
+Kubernetes Stool server talks to (e.g. for `sc port-forward`). 
+
+*shortname* is appended to the Docker Repository Tag.
+ 
+*dest* specifies the file to generate; default is *shortname*.yaml
+
 
 #### DESCRIPTION
 

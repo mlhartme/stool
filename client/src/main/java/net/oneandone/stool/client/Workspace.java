@@ -128,16 +128,6 @@ public class Workspace {
         map.put(app, reference);
     }
 
-    public boolean remove(String stage) {
-        for (Map.Entry<App, Reference> entry : map.entrySet()) {
-            if (stage.equals(entry.getValue())) {
-                map.remove(entry.getKey());
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean remove(Reference reference) {
         for (Map.Entry<App, Reference> entry : map.entrySet()) {
             if (reference.equals(entry.getValue())) {

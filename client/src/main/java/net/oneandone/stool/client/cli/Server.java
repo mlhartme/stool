@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Server {
-    private static final String LOCALHOST = "localhost"; // TODO
-
     private final World world;
     private final FileNode dest;
     private final Console console;
@@ -44,13 +42,11 @@ public class Server {
     private final boolean resolve;
     private final String hostname;
     private final String api;
-    private final Map<String, String> opts;
 
     private final Secrets secrets;
     private final URI portusWithShortName;
 
     public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, String api, List<String> args) throws IOException {
-        int idx;
         String shortname;
 
         this.world = globals.getWorld();
@@ -59,22 +55,17 @@ public class Server {
         this.resolve = resolve;
         this.hostname = hostname;
         this.api = api;
-        this.opts = new HashMap<>();
         shortname = eat(args, shortname(hostname));
         this.dest = world.file(eat(args, shortname + ".yaml"));
-        for (String opt : args) {
-            idx = opt.indexOf('=');
-            if (idx == -1) {
-                throw new ArgumentException("invalid option: " + opt);
-            }
-            this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
+        if (!args.isEmpty()) {
+            throw new ArgumentException("unknown arguments: " + args);
         }
         this.secrets = Secrets.load(world);
         this.portusWithShortName = secrets.portus.resolve(shortname + "/");
     }
 
     private static String eat(List<String> args, String dflt) {
-        if (args.isEmpty()) {
+        if (args.isEmpty() || args.get(0).contains("=")) {
             return dflt;
         } else {
             return args.remove(0);
@@ -90,7 +81,7 @@ public class Server {
     }
 
     private boolean isLocalhost() {
-        return LOCALHOST.equals(hostname);
+        return "localhost".equals(hostname);
     }
 
     public void run() throws IOException {
@@ -101,17 +92,10 @@ public class Server {
         console.info.println("done: " + dest);
     }
 
-    public static void addIfNew(Map<String, String> env, String name, String value) {
-        if (!env.containsKey(name)) {
-            env.put(name, value);
-        }
-    }
-
     private static final Substitution DUBBLE = new Substitution("${{", "}}", '\\');
 
     public String serverYaml() throws IOException {
         String result;
-        FileNode cisotools;
         Map<String, String> map;
 
         map = new HashMap<>();
@@ -122,20 +106,16 @@ public class Server {
         map.put("ldapPrincipal", secrets.ldapPrincipal);
         map.put("ldapCredentials", secrets.ldapCredentials);
         map.put("ldapSso", secrets.ldapSso);
+        map.put("host", hostname);
         if (isLocalhost()) {
-            map.put("host", LOCALHOST);
             map.put("home", world.getHome().getAbsolute());
             result = world.resource("local.yaml").readString();
-            if (!opts.isEmpty()) {
-                throw new IllegalStateException(opts.toString());
-            }
             try {
                 return Substitution.ant().apply(result, map);
             } catch (SubstitutionException e) {
                 throw new IllegalStateException(e);
             }
         } else {
-            map.put("host", hostname);
             map.put("hostkey", hostkey(world, shortname(hostname) + ".key"));
             map.put("hostkey-pub", hostkey(world, shortname(hostname) + ".key.pub"));
             map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));

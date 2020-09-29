@@ -53,7 +53,7 @@ public class Delete extends IteratedStageCommand {
 
         workspace = lookupWorkspace();
         if (workspace != null) {
-            if (workspace.remove(reference.stage)) {
+            if (workspace.remove(reference)) {
                 console.info.println("detaching stage: " + reference);
             }
             workspace.save();
