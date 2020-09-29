@@ -123,7 +123,11 @@ public class Server {
             cisotools = Setup.cisotools(world);
             port = serverPort();
             map = new HashMap<>();
-            map.put("env", env(cisotools, port));
+            map.put("debugPort", Integer.toString(port + 1);
+            map.put("host", LOCALHOST);
+            if (!opts.isEmpty()) {
+                throw new IllegalStateException(opts.toString());
+            }
             map.put("mounts", mounts(cisotools));
             map.put("volumes", volumes(cisotools));
             try {
@@ -218,39 +222,6 @@ public class Server {
 
     private static String hostkey(World world, String name) throws IOException {
         return base64(Secrets.secrets(world).join(name).readBytes());
-    }
-
-    public String env(FileNode cisotools, int port) {
-        Map<String, String> env;
-        String modules;
-        StringBuilder builder;
-        String debugPort;
-
-        env = new LinkedHashMap<>();
-        debugPort = Integer.toString(port + 1);
-        addIfNew(env, "API", api);
-        addIfNew(env, "HOST", LOCALHOST);
-
-        modules = "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny";
-        addIfNew(env, "OPTS", modules + " -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:" + debugPort);
-
-        for (Map.Entry<String, String> entry : opts.entrySet()) {
-            addIfNew(env, entry.getKey(), entry.getValue());
-        }
-        addIfNew(env, "ENGINE_LOG", "false"); // for engine wire logs
-        if (cisotools != null) {
-            addIfNew(env, "LDAP_UNIT", "cisostages");
-            addIfNew(env, "JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d");
-            addIfNew(env, "ADMIN", "michael.hartmeier@ionos.com");
-            addIfNew(env, "REGISTRY_URL", portus.toString());
-        }
-        addIfNew(env, "LOGLEVEL", "INFO"); // for documentation purpose
-        builder = new StringBuilder();
-        for (Map.Entry<String, String> entry : env.entrySet()) {
-            builder.append("          - name: " + entry.getKey() + "\n");
-            builder.append("            value: \"" + entry.getValue() + "\"\n");
-        }
-        return builder.toString();
     }
 
     public String mounts(FileNode cisotools) {
