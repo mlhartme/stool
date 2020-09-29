@@ -298,13 +298,15 @@ public class ApiController {
             for (TagInfo image : all) {
                 marker = current != null && image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";
                 result.add(image.tag + "  " + marker);
-                result.add("   comment:     " + image.comment);
-                result.add("   origin-scm:  " + image.originScm);
-                result.add("   origin-user: " + image.originUser);
-                result.add("   created-at:  " + image.createdAt);
-                result.add("   created-by:  " + image.author);
-                result.add("   memory:      " + image.memory);
-                result.add("   disk:        " + image.disk);
+                result.add("   id:            " + image.id);
+                result.add("   repositoryTag: " + image.repositoryTag);
+                result.add("   comment:       " + image.comment);
+                result.add("   origin-scm:    " + image.originScm);
+                result.add("   origin-user:   " + image.originUser);
+                result.add("   created-at:    " + image.createdAt);
+                result.add("   created-by:    " + image.author);
+                result.add("   memory:        " + image.memory);
+                result.add("   disk:          " + image.disk);
                 result.add("   build args:");
                 args = new ArrayList<>(image.args.keySet());
                 Collections.sort(args);
