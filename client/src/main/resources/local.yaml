@@ -6,6 +6,29 @@ metadata:
 apiVersion: v1
 kind: Service
 metadata:
+  name: stool-server-http
+  namespace: stool
+spec:
+  ports:
+    - name: http
+      nodePort: 31000
+      port: 80
+      targetPort: 8080
+    - name: fluentd-tcp
+      port: 24224
+      protocol: TCP
+      targetPort: 24224
+    - name: fluentd-udp
+      port: 24224
+      protocol: UDP
+      targetPort: 24224
+  selector:
+    app: stool
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: stool-registry
   namespace: stool
 spec:
@@ -14,20 +37,6 @@ spec:
     port: 5000
   selector:
     app: stool-registry
-  type: NodePort
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: stool-server-http
-  namespace: stool
-spec:
-  ports:
-    - nodePort: 31000
-      port: 80
-      targetPort: 8080
-  selector:
-    app: stool
   type: NodePort
 ---
 apiVersion: apps/v1
