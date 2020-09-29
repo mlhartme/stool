@@ -335,7 +335,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = OpenShift.create().statsOpt(current.pod.name);
+                stats = OpenShift.create().statsOpt(current.pod.name, MAIN_CONTAINER);
                 if (stats != null) {
                     return stats.cpu;
                 } else {
@@ -353,7 +353,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = OpenShift.create().statsOpt(current.pod.name);
+                stats = OpenShift.create().statsOpt(current.pod.name, MAIN_CONTAINER);
                 if (stats != null) {
                     return stats.memory;
                 } else {

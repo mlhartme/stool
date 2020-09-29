@@ -116,9 +116,8 @@ public class OpenShift implements AutoCloseable {
         return result;
     }
 
-    public Stats statsOpt(String pod) {
+    public Stats statsOpt(String pod, String container) {
         PodMetrics p;
-        List<ContainerMetrics> lst;
         Map<String, Quantity> usage;
 
         try {
@@ -131,12 +130,17 @@ public class OpenShift implements AutoCloseable {
                 throw e;
             }
         }
-        lst = p.getContainers();
-        if (lst.size() != 1) {
-            throw new IllegalStateException();
-        }
-        usage = lst.get(0).getUsage();
+        usage = container(p, container).getUsage();
         return new Stats(usage.get("cpu").toString(), usage.get("memory").toString());
+    }
+
+    private ContainerMetrics container(PodMetrics p, String container) {
+        for (ContainerMetrics cm : p.getContainers()) {
+            if (cm.getName().equals(container)) {
+                return cm;
+            }
+        }
+        throw new IllegalStateException(p.getMetadata().getName() + " container not found: " + container);
     }
 
     //--
