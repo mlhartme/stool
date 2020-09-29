@@ -40,6 +40,8 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
+import net.oneandone.sushi.util.Substitution;
+import net.oneandone.sushi.util.SubstitutionException;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -57,6 +59,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -306,7 +309,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                started = context.engine.podStartedAt(current.pod.name);
+                started = context.engine.podStartedAt(current.pod.name, MAIN_CONTAINER);
                 if (started == null) {
                     return null;
                 }
@@ -775,10 +778,17 @@ public class Stage {
     private void fluentdMount(Engine engine, Map<Volume.Mount, Volume> mounts) throws IOException {
         World world;
         Data config;
+        String str;
 
         world = World.create(); // TODO  CAUTION: minimal cannot read jar: scheme
         config = Data.configMap(fluentdConfigMapName());
-        config.add("fluent.conf", world.resource("data/fluent.conf").readBytes());
+        str = world.resource("data/fluent.conf").readString();
+        try {
+            str = Substitution.ant().apply(str, Strings.toMap("stage", getName()));
+        } catch (SubstitutionException e) {
+            throw new IllegalStateException(e);
+        }
+        config.add("fluent.conf", str.getBytes(Charset.forName("UTF-8")));
         config.define(engine);
         mounts.put(new Volume.Mount("/fluentd/etc", false), config);
     }

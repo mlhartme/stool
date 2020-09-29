@@ -663,11 +663,11 @@ public class Engine implements AutoCloseable {
         podAwait(name, null);
     }
 
-    public Daemon.Status podContainerStatus(String name) throws IOException {
+    public Daemon.Status podContainerStatus(String podName, String containerName) throws IOException {
         V1ContainerStatus status;
         V1ContainerState state;
 
-        status = getPodContainerStatus(name);
+        status = getPodContainerStatus(podName, containerName);
         state = status.getState();
         if (state.getTerminated() != null) {
             return Daemon.Status.EXITED;
@@ -678,20 +678,22 @@ public class Engine implements AutoCloseable {
         throw new IOException("unknown state: " + state);
     }
 
-    private V1ContainerStatus getPodContainerStatus(String name) throws IOException {
+    private V1ContainerStatus getPodContainerStatus(String podName, String containerName) throws IOException {
         V1Pod pod;
         List<V1ContainerStatus> lst;
 
         try {
-            pod = core.readNamespacedPod(name, namespace, null, null, null);
+            pod = core.readNamespacedPod(podName, namespace, null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
         lst = pod.getStatus().getContainerStatuses();
-        if (lst.size() != 1) {
-            throw new IllegalStateException(lst.toString());
+        for (V1ContainerStatus status : lst) {
+            if (status.getName().equals(containerName)) {
+                return status;
+            }
         }
-        return lst.get(0);
+        throw new IllegalStateException(lst.toString());
     }
 
     public String podAwait(String name, String... expectedPhases) throws IOException {
@@ -740,11 +742,11 @@ public class Engine implements AutoCloseable {
     }
 
 
-    public Long podStartedAt(String pod) throws IOException {
+    public Long podStartedAt(String pod, String containerName) throws IOException {
         V1ContainerStatus status;
         V1ContainerStateRunning running;
 
-        status = getPodContainerStatus(pod);
+        status = getPodContainerStatus(pod, containerName);
         running = status.getState().getRunning();
         if (running == null) {
             return null;

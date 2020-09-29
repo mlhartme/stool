@@ -58,7 +58,7 @@ public class EngineIT {
         try (Engine engine = create()) {
             assertEquals(Collections.emptyMap(), engine.podList());
             assertFalse(engine.podCreate(name, new Engine.Container("debian:stretch-slim", "sh", "-c", "echo ho"), "foo", "bar"));
-            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name));
+            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name, "noname"));
             assertEquals("ho\n", engine.podLogs(name));
             lst = engine.podList().values();
             assertEquals(1, lst.size());
@@ -66,7 +66,7 @@ public class EngineIT {
             assertEquals(name, info.name);
             assertEquals("Succeeded", info.phase);
             assertTrue(info.labels.entrySet().containsAll(Strings.toMap("foo", "bar").entrySet()));
-            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name));
+            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name, "noname"));
             engine.podDelete(name);
             assertEquals(0, engine.podList().size());
         }
@@ -84,7 +84,7 @@ public class EngineIT {
             image = "debian:stretch-slim";
             engine.podCreate(pod, new Engine.Container(image, "sleep", "2"), null, true,
                     Strings.toMap("containerLabel", "bla"));
-            assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
+            assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod, "noname"));
 
             containerOrig = engine.podProbe(pod).containerId("noname");
             containerHealed = containerOrig;
@@ -100,7 +100,7 @@ public class EngineIT {
             }
             assertNotEquals(containerHealed, containerOrig);
 
-            assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod));
+            assertEquals(Daemon.Status.RUNNING, engine.podContainerStatus(pod, "noname"));
             containerHealed = engine.podProbe(pod).containerId("noname");
             assertNotEquals(containerOrig, containerHealed);
 
@@ -155,7 +155,7 @@ public class EngineIT {
         try (Engine engine = create()) {
             assertFalse(engine.podCreate(pod, new Engine.Container("debian:stretch-slim", "hostname"),
                     hostname, false, Strings.toMap()));
-            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod));
+            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod, "noname"));
             assertEquals(expected + "\n", engine.podLogs(pod));
             engine.podDelete(pod);
         }
