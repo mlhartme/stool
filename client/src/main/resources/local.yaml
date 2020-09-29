@@ -72,15 +72,15 @@ spec:
           - name: VHOSTS
             value: "false"
           - name: LDAP_UNIT
-            value: "cisostages"
+            value: "${ldapUnit}"
           - name: LDAP_URL
-            value: "ldaps://ldap.1and1.org:636/ou=ims_service,o=1und1,c=DE"
+            value: "${ldapUrl}"
           - name: LDAP_PRINCIPAL
-            value: "uid=cisostages,ou=accounts,ou=ims_service,o=1und1,c=DE"
+            value: "${ldapPrincipal}"
           - name: LDAP_CREDENTIALS
             value: "${ldapCredentials}"
           - name: LDAP_SSO
-            value: "https://login.1and1.org/ims-sso"
+            value: "${ldapSso}"
           - name: JMX_USAGE
             value: "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d"
           - name: ADMIN
