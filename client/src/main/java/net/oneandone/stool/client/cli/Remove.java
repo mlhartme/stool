@@ -27,6 +27,6 @@ public class Remove extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        throw new IOException("this command has been renamed to 'delete'");
+        throw new IOException("error: 'remove' has been renamed to 'delete'");
     }
 }
