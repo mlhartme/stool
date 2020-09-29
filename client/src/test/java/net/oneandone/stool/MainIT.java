@@ -56,7 +56,7 @@ public class MainIT {
 
     @After
     public void after() throws IOException {
-        kubectl("logs", "--namespace=stool", "--selector=app=stool");
+        kubectl("logs", "--namespace=stool", "--selector=app=stool", "-c", "stool");
     }
 
     private static String portusPrefix() throws IOException {
@@ -78,15 +78,15 @@ public class MainIT {
 
         sc("server", "localhost", "TODO-api", "localhost", SERVER_YAML.getAbsolute());
         sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
-        sc("context", "localhost");
 
         kubectl("delete", "--ignore-not-found", "-f", SERVER_YAML.getAbsolute());
         kubectl("apply", "-f", SERVER_YAML.getAbsolute());
 
         Thread.sleep(30000); // TODO
 
-        stage = "de.wq-ta";
+        stage = "de.wq-ta"; // with some special characters
 
+        sc(working, "context", "localhost");
         sc(working, "list");
         sc(working,"create", "-e", stage);
         sc(working,"list");

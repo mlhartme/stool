@@ -86,6 +86,11 @@ spec:
       containers:
       - name: stool
         image: contargo.server.lan/cisoops-public/stool-server:latest
+        resources:
+          limits:
+            cpu: 2
+          requests:
+            cpu: 200m
         imagePullPolicy: Never
         volumeMounts:
           - mountPath: /etc/fault
@@ -99,21 +104,13 @@ spec:
           - name: API
             value: "${api}"
           - name: OPTS
-            value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005 -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true"
+            value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005"
           - name: ENGINE_LOG
             value: "false"
           - name: VHOSTS
             value: "false"
-          - name: LDAP_UNIT
-            value: "${ldapUnit}"
           - name: LDAP_URL
-            value: "${ldapUrl}"
-          - name: LDAP_PRINCIPAL
-            value: "${ldapPrincipal}"
-          - name: LDAP_CREDENTIALS
-            value: "${ldapCredentials}"
-          - name: LDAP_SSO
-            value: "${ldapSso}"
+            value: ""
           - name: JMX_USAGE
             value: "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d"
           - name: ADMIN
@@ -131,8 +128,9 @@ spec:
             mountPath: /fluentd/log
       volumes:
       - name: fault
-        hostPath: ${home}/.fault
-        type: Directory
+        hostPath:
+          path: ${home}/.fault
+          type: Directory
       - name: fluentd-config
         configMap:
           name: stool-log-collector
