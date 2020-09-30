@@ -44,14 +44,17 @@ public class ConfigContext {
         Context old;
         String oldName;
         Context found;
+        String current;
 
         configuration = globals.configuration();
         if (setOpt == null) {
             if (quiet) {
                 console.info.println(configuration.currentContext().name);
             } else {
+                found = configuration.currentContextOpt();
+                current = found == null ? null : found.name;
                 for (String name : configuration.contexts.keySet()) {
-                    console.info.print(name.equals(configuration.currentContext().name) ? "=> " : "   ");
+                    console.info.print(name.equals(current) ? "=> " : "   ");
                     console.info.println(name);
                 }
             }
