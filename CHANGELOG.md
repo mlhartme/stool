@@ -61,11 +61,11 @@ Client changes
 * `stop` dumped apps argument
 * renamed `app` command to `images`
   * dumped app argument
+  * dumped jmxUsage, it's an example in the documentation now
   * remove status fields `jmx-port` and `debug-port`
   * moved all none-image fields to status command:
     `container`, `uptime`, `disk-used`, `environment`, `origin-scm`, `heap`
   * changed `container` to `pod`  
-
 * TODO: not adjusted yet
   * `ssh` dumped app argument
   * `tunnel` dumped app argument
@@ -79,7 +79,8 @@ Server changes
   the key and certificate chain
 * configuration
   * dumped `vhosts` switch
-  * dumped `portFirst` and `portLast` 
+  * dumped `portFirst` and `portLast`
+  * dumped `jmxUsage` template
 * one app per stage
 * `start` dumped http(s) arguments
 * stage container replaced by

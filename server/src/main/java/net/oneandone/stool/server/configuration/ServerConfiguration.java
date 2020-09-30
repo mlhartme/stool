@@ -90,8 +90,6 @@ public class ServerConfiguration {
 
     public int diskQuota;
 
-    public String jmxUsage;
-
     public boolean engineLog;
 
     public int defaultExpire;
@@ -116,7 +114,6 @@ public class ServerConfiguration {
         mailPassword = "";
         memoryQuota = 0;
         diskQuota = 0;
-        jmxUsage = "jconsole localhost:%i";
         engineLog = false;
         defaultExpire = 0;
         environment = new HashMap<>();

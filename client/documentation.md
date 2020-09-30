@@ -437,8 +437,6 @@ The following environment variables can be used to configure the server:
   Type boolean, default value is false.
 * **ENVIRONMENT** 
   Default environment variables set automatically when starting stages, can be overwritten by the `start` command. Type map, default empty.
-* **JMX_USAGE**
-  How to invoke a jmx client in your environment. Type string, default "jconsole localhost:%i".  
 * **LDAP_CREDENTIALS**
   Password for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
 * **LDAP_PRINCIPAL**
@@ -1010,6 +1008,10 @@ Starts port-forwarding of port *local-port* on localhost (default: remote port) 
 running port of the stage. Reports an error, if the stage is not running. 
 Forwarding is refused if the current user does not have access to all fault projects of the image.
 Forwarding is terminated manually by pressing ctrl-c or automatically after *timeout* minutes (default: 30).
+
+Examples: attach to a JMX console via jmxmp: `ssh port-forwarding 5555` and 
+`jconsole -J-Djava.class.path=${CISOTOOLS_HOME}/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:5555"`
+
 
 ### sc-ssh
 

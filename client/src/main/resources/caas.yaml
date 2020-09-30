@@ -168,8 +168,6 @@ spec:
           value: "${ldapCredentials}"
         - name: LDAP_SSO
           value: "${ldapSso}"
-        - name: JMX_USAGE
-          value: "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:%d"
         - name: ADMIN
           value: "michael.hartmeier@ionos.com"
         - name: REGISTRY_URL
