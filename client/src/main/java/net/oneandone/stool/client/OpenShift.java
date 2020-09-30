@@ -71,14 +71,14 @@ public class OpenShift implements AutoCloseable {
         return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
     }
 
-    public ExecWatch ssh(String pod, String container, ExecListener listener) {
+    public ExecWatch ssh(String pod, String container, String[] command, ExecListener listener) {
         return client.pods().inNamespace(namespace).withName(pod).inContainer(container)
                 .readingInput(System.in)
                 .writingOutput(System.out)
                 .writingError(System.err)
                 .withTTY()
                 .usingListener(listener)
-                .exec("bash");
+                .exec(command);
     }
 
     public static class StoolExecListener implements ExecListener {
