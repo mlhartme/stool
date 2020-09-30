@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.inline.Console;
 import net.oneandone.stool.client.AuthenticationException;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Configuration;
@@ -24,16 +23,13 @@ import net.oneandone.stool.client.Context;
 
 import java.io.IOException;
 
-public class ConfigContext {
-    private final Globals globals;
-    private final Console console;
+public class ConfigContext extends ClientCommand {
     private final boolean offline;
     private final boolean quiet;
     private final String setOpt;
 
     public ConfigContext(Globals globals, boolean offline, boolean quiet, String setOpt) {
-        this.globals = globals;
-        this.console = globals.getConsole();
+        super(globals);
         this.offline = offline;
         this.quiet = quiet;
         this.setOpt = setOpt;
