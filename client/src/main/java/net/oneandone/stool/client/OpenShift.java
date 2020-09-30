@@ -71,8 +71,8 @@ public class OpenShift implements AutoCloseable {
         return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
     }
 
-    public ExecWatch ssh(String pod, ExecListener listener) {
-        return client.pods().inNamespace(namespace).withName(pod)
+    public ExecWatch ssh(String pod, String container, ExecListener listener) {
+        return client.pods().inNamespace(namespace).withName(pod).inContainer(container)
                 .readingInput(System.in)
                 .writingOutput(System.out)
                 .writingError(System.err)

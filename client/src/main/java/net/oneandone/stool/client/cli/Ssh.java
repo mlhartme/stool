@@ -40,8 +40,8 @@ public class Ssh extends IteratedStageCommand {
         console.verbose.println(config.toString());
         try (OpenShift os = OpenShift.create(config)) {
             listener = new OpenShift.StoolExecListener();
-            try (ExecWatch watch = os.ssh(config.pod, listener)) {
-                while (listener.closeReason == null) { // TODO: budy wait
+            try (ExecWatch watch = os.ssh(config.pod, "main", listener)) {
+                while (listener.closeReason == null) { // TODO: busy wait
                     Thread.sleep(100);
                 }
                 console.verbose.println("closed, code=" + listener.closeCode + ", reason=" + listener.closeReason);
