@@ -651,8 +651,8 @@ public class Stage {
         }
 
         mainMounts = new HashMap<>();
+        faultMount(image, engine, mainMounts);  // CAUTION: run this before creating any other k8s resources because permission checks might fail ...
         certMount(image, engine, mainMounts);
-        faultMount(image, engine, mainMounts);
         fluentdMounts = new HashMap<>();
         fluentdMount(engine, fluentdMounts);
 
