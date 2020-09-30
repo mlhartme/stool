@@ -303,7 +303,7 @@ Kubernetes Stool server talks to (e.g. for `sc port-forward`).
 `sc` *global-option*... `port-forward` *stage-option*... [*local-port*] *remote-port*
 
 
-`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*...
+`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*... *shell*
 
 
 `sc` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
@@ -1017,11 +1017,12 @@ Ssh into the running stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*...
+`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*... *shell*
 
 #### DESCRIPTION
 
-Starts an ssh shell in the specified app. Reports an error if the stage is not running.
+Executes an interactive shell in the main container (i.e. the container running the web app) of this stage.
+The default shell is `/bin/sh`. Reports an error if the stage is not running.
 
 The shell is refused if the current user does not have access to all fault projects of the image.
 

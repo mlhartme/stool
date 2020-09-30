@@ -25,12 +25,12 @@ import java.io.IOException;
 
 public class Ssh extends IteratedStageCommand {
     private final int timeout;
-    private final String command;
+    private final String shell;
 
-    public Ssh(Globals globals, int timeout, String command) {
+    public Ssh(Globals globals, int timeout, String shell) {
         super(globals);
         this.timeout = timeout;
-        this.command = command == null ? "/bin/sh" : command;
+        this.shell = shell == null ? "/bin/sh" : shell;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Ssh extends IteratedStageCommand {
         console.verbose.println(config.toString());
         try (OpenShift os = OpenShift.create(config)) {
             listener = new OpenShift.StoolExecListener();
-            try (ExecWatch watch = os.ssh(config.pod, "main", new String[] { command }, listener)) {
+            try (ExecWatch watch = os.ssh(config.pod, "main", new String[] { shell }, listener)) {
                 while (listener.closeReason == null) { // TODO: busy wait
                     Thread.sleep(100);
                 }

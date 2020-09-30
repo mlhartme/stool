@@ -90,7 +90,7 @@ public class Main {
                     cli.add(Status.class, "status info* { select*(info) }");
                     cli.add(Stop.class, "stop");
                     cli.add(PortForward.class, "port-forward -timeout=30 port toPort?");
-                    cli.add(Ssh.class, "ssh -timeout=30 command?");
+                    cli.add(Ssh.class, "ssh -timeout=30 shell?");
                     cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);
