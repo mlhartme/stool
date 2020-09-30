@@ -5,14 +5,15 @@
 Stool 6 switches from Docker hosts to Kubernetes: Stool server itself executes in Kubernetes, and it talks to Kubernetes to manage stages.
 
 A *stage* in Stool 6 holds exactly one *app*. To deal with multiple apps in multi module projects, it provides *workspaces* to 
-create/attach multiple stages. 
+create/attach multiple stages with a singlle command. 
 
 User-visible ports are gone (along with port options), dispatching to stages is now based on vhosts.
 
 Client changes
-* general note: many changes are meant to make Stool 5 and 6 usable in parallel
-* renamed Stool client from `stool` to `sc`
+* general note: many user-visible changes make Stool 5 and 6 usable in parallel
+* renamed `stool` to `sc`
   * `sc` stands for stool client (I chose this name because it's similar to `oc` and the `kc` alias I use)
+  * raised minimal Java version from 8 to 11
   * global options
     * added `-context` to override the current context for this invocation
     * dumped `-project`; to configure the current project/workspace, invoke Stool with the respective current working directory.
