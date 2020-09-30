@@ -6,25 +6,31 @@ Stool is a tool to manage stages: create, build, start, stop, delete. A stage is
 
 ### Quick Tour
 
-For setup instructions, please read the respective section below. The following assumes that Stool is properly set up.
-
 Here's an example what you can do with Stool. 
 
-Enter a source directory with a readily built Web application of yours - or get a sample application with
+You generally invoke Stool from the command `sc` followed by a Stool command and arguments for the respective command. 
+
+Open a terminal and run 
+
+    sc context
+    
+to see available contexts, i.e. places where you can host stages. Notes:
+*  if you get an `command not found: sc` error message: Stool is not installed on your machine. 
+   Please refer to the install section below. 
+*  if you get an `client configuration not found` error message: Stool is properly installed on your machine,
+   but it's not yet set-up (i.e. configured). Please run `sc setup` and follow the instructions.
+
+Choose one of the available contexts by running
+
+    sc context <yourcontext>
+    
+Depending on your context you'll be asked to authenticate.
+
+Enter a source directory with a readily built Web application of yours (i.e. `cd` into the directory) - or get a sample application with
 
     git clone ssh://git@github.com/mlhartme/hellowar.git
     cd hellowar
     mvn clean package
-
-Run 
-
-    sc context
-    
-to see available contexts, i.e. places where you can host stages. Choose one of them by running
-
-    sc context <yourcontext>
-    
-Depending on the context you choose you'll be asked to authenticate.
     
 Create a new stage with
 
@@ -1041,12 +1047,12 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 [//]: # (-)
 
 
-## Setup
+## Installing
 
-Stool is split into a client and a server part; `dashboard` as is part of the server. 
-The server part is optional, it's fine to just install the client on your machine and configure it to talk to remote servers.
+Stool is split into a client and a server part; `dashboard` as is part of the server. You'll normally install just the client part, and
+the server uses a server set up by your operating team.
 
-### Client setup
+### Client installation
 
 Prerequisites:
 * Linux or Mac
@@ -1060,7 +1066,7 @@ Install steps
 * run `sc setup` and follow the instructions
 
 
-### Server setup
+### Server installation
 
 TODO 
 * `sc server name`
