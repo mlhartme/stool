@@ -368,7 +368,7 @@ Display version info
 
 #### DESCRIPTION
 
-Prints client version info. Use the global `-v` global option to get additional diagnostic info.
+Prints client version and, if there's a current context, the server version.
 
 [//]: # (include globalOptions.md)
 

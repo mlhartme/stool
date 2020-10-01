@@ -271,10 +271,8 @@ public class Client {
         return result.isEmpty() ? null : result;
     }
 
-    public String info() throws IOException {
-        String result;
-
-        return getJson(node("info")).toString();
+    public JsonObject info() throws IOException {
+        return getJson(node("info")).getAsJsonObject();
     }
 
     //-- validate

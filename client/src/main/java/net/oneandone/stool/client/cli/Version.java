@@ -15,26 +15,29 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.inline.Console;
-import net.oneandone.inline.commands.PackageVersion;
+import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.Configuration;
+import net.oneandone.stool.client.Context;
 import net.oneandone.stool.client.Globals;
 
-public class Version extends PackageVersion {
-    private final Globals globals;
+import java.io.IOException;
 
+public class Version extends ClientCommand {
     public Version(Globals globals) {
-        super(globals.getConsole());
-        this.globals = globals;
+        super(globals);
     }
 
-    public void run() {
-        Console console;
+    public void run() throws IOException {
+        Configuration configuration;
+        Context context;
+        Client client;
 
-        console = globals.getConsole();
-        if (console.getVerbose()) {
-            super.run();
-        } else {
-            console.info.println("client version: " + clientVersion());
+        console.info.println("client version: " + clientVersion());
+        configuration = globals.configuration();
+        context = configuration.currentContextOpt();
+        if (context != null) {
+            client = context.connect(world);
+            console.info.println("server " + client.getServer() + " version " + client.info().get("version").getAsString());
         }
     }
 
