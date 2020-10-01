@@ -28,7 +28,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-/** Thread safe */
+/**
+ * Thread safe.
+ * TODO: doesn't work with replicas
+ * TODO: saving to a file doesn't make sense in a container ...
+ */
 public class UserManager {
     public static final User ANONYMOUS = new User("anonymous", "Anonymous", null);
 
