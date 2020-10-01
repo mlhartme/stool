@@ -59,6 +59,7 @@ Client changes
     instead of the app name with an optional SSL.
 * `restart` replaced appIndex arguments by optional image argument 
 * `stop` dumped apps argument
+* `version` now reports client build data and the server version if available
 * renamed `app` command to `images`
   * dumped app argument
   * dumped jmxUsage, it's an example in the documentation now

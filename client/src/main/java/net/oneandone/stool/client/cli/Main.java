@@ -17,7 +17,6 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
-import net.oneandone.inline.commands.PackageVersion;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -65,8 +64,8 @@ public class Main {
         cli = new Cli(globals.getConsole()::handleException);
         cli.primitive(FileNode.class, "file name", null, world::file);
         cli.begin(globals.getConsole(), "-v -e  { setVerbose(v) setStacktraces(e) }");
-           cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-context -wirelog -exception { setContext(context) setWirelog(wirelog) setException(exception) }");
+              cli.add(Version.class, "version");
               cli.addDefault(Help.class, "help command?");
               cli.begin("globals.getWorld", ""); cli.begin("globals.getConsole", "");
                  cli.add(Setup.class, "setup nameAndHost?");
