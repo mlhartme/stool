@@ -914,10 +914,6 @@ TODO:
   Memory usage reported by Docker
 * **heap**
   Java Heap usage reported by Jmx.
-* **debug port**
-  Port for debugging.
-* **jmx port **
-  Port for jmx.
 
 
 
