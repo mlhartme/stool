@@ -87,7 +87,7 @@ public class UserManager {
         found = tokens.get(token);
         if (found == null) {
             return null;
-        } else if (found.token.created.plusMinutes(5).isBefore(LocalDateTime.now())) {
+        } else if (found.token.created.plusDays(7).isBefore(LocalDateTime.now())) {
             Server.LOGGER.info("token expired: " + found.token + " " + found.user);
             tokens.remove(token);
             save();
