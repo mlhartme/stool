@@ -119,7 +119,6 @@ public class ApiController {
             throw new IllegalStateException();
         }
         result = server.userManager.generateToken(user);
-        server.userManager.save();
         return new JsonPrimitive(result).toString();
     }
 

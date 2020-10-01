@@ -18,11 +18,13 @@ package net.oneandone.stool.server.users;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -49,7 +51,7 @@ public class UserManager {
     private final FileNode file;
 
     /** maps token to user */
-    private final Map<String, User> tokens;
+    private final Map<String, Pair> tokens;
 
     private final Random random;
 
@@ -63,9 +65,9 @@ public class UserManager {
         if (login.equals(ANONYMOUS.login)) {
             return ANONYMOUS;
         }
-        for (User user : tokens.values()) {
-            if (login.equals(user.login)) {
-                return user;
+        for (Pair pair : tokens.values()) {
+            if (login.equals(pair.user.login)) {
+                return pair.user;
             }
         }
         throw new UserNotFound(login);
@@ -79,29 +81,43 @@ public class UserManager {
         }
     }
 
-    public synchronized User authentication(String token) {
-        return tokens.get(token);
+    public synchronized User authentication(String token) throws IOException {
+        Pair found;
+
+        found = tokens.get(token);
+        if (found == null) {
+            return null;
+        } else if (found.token.created.plusMinutes(5).isBefore(LocalDateTime.now())) {
+            Server.LOGGER.info("token expired: " + found.token + " " + found.user);
+            tokens.remove(token);
+            save();
+            return null;
+        } else {
+            return found.user;
+        }
     }
 
-    public synchronized String generateToken(User user) {
-        String token;
+    public synchronized String generateToken(User user) throws IOException {
+        Token token;
 
         remove(user.login);
-        do {
-            token = generateToken();
-        } while (tokens.containsKey(token));
-        tokens.put(token, user);
-        return token;
+        token = Token.generate(random);
+        if (tokens.containsKey(token.value)) {
+            throw new IllegalStateException("duplicate token: " + token);
+        }
+        tokens.put(token.value, new Pair(token, user));
+        save();
+        return token.value;
     }
 
     public synchronized boolean remove(String login) {
-        Iterator<Map.Entry<String, User>> iter;
-        Map.Entry<String, User> entry;
+        Iterator<Map.Entry<String, Pair>> iter;
+        Map.Entry<String, Pair> entry;
 
         iter = tokens.entrySet().iterator();
         while (iter.hasNext()) {
             entry = iter.next();
-            if (login.equals(entry.getValue().login)) {
+            if (login.equals(entry.getValue().user.login)) {
                 iter.remove();
                 return true;
             }
@@ -110,32 +126,28 @@ public class UserManager {
     }
 
 
-    public synchronized void save() throws IOException {
+    private synchronized void save() throws IOException {
         JsonObject json;
 
         json = new JsonObject();
-        for (Map.Entry<String, User> entry : tokens.entrySet()) {
-            json.add(entry.getKey(), entry.getValue().toJson());
+        for (Pair pair : tokens.values()) {
+            json.add(pair.token.toString(), pair.user.toJson());
         }
         file.writeString(json.toString());
     }
 
-    public synchronized void load() throws IOException {
+    private synchronized void load() throws IOException {
         JsonObject obj;
+        Token token;
 
         tokens.clear();
 
         try (Reader in = file.newReader()) {
-            obj = new JsonParser().parse(in).getAsJsonObject();
+            obj = JsonParser.parseReader(in).getAsJsonObject();
         }
         for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-            tokens.put(entry.getKey(), User.fromJson(entry.getValue().getAsJsonObject()));
+            token = Token.fromString(entry.getKey());
+            tokens.put(token.value, new Pair(token, User.fromJson(entry.getValue().getAsJsonObject())));
         }
-    }
-
-    //--
-
-    private String generateToken() {
-        return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
     }
 }

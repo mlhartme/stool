@@ -72,6 +72,7 @@ Client changes
 
 
 Server changes
+* user tokens expire after 7 days
 * start server with kubectl, not docker-compose
 * dumped port handling, Kubernetes Proxy does the dispatching; thus, stage urls no longer contain ports
 * run server with Java 14
