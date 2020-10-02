@@ -28,7 +28,6 @@ import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.net.URI;
 import java.util.Base64;
 import java.util.HashMap;
@@ -88,52 +87,41 @@ public class Server {
     }
 
     public void run() throws IOException {
-        if (helm) {
-            helm();
-        } else {
-            if (!overwrite) {
-                dest.checkNotExists();
-            }
-            dest.writeString(serverYaml());
+        if (!overwrite) {
+            dest.checkNotExists();
         }
+        dest.writeString(helm ? helm() : serverYaml());
         console.info.println("done: " + dest);
     }
 
     private static final Substitution DUBBLE = new Substitution("${{", "}}", '\\');
 
-    public void helm() throws IOException {
+    public String helm() throws IOException {
         Map<String, String> map;
+        StringBuilder result;
 
-        if (isLocalhost()) {
-            throw new UnsupportedOperationException(hostname);
+        map = values();
+        result = new StringBuilder();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            result.append(entry.getKey() + ": \"" + entry.getValue() + "\"\n");
         }
-
-        map = new HashMap<>();
-        map.put("portus", portusWithShortName.toString());
-        map.put("api", api);
-        map.put("ldapUnit", secrets.ldapUnit);
-        map.put("ldapUrl", secrets.ldapUrl);
-        map.put("ldapPrincipal", secrets.ldapPrincipal);
-        map.put("ldapCredentials", secrets.ldapCredentials);
-        map.put("ldapSso", secrets.ldapSso);
-        map.put("host", hostname);
-
-        map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));
-        map.put("repositoryTag", repositoryTag());
-
-        try (Writer values = dest.join("values.yaml").newWriter()) {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                values.write(entry.getKey() + ": \"" + entry.getValue() + "\"\n");
-            }
-        }
-        dest.join("cert.sh").writeBytes(certScript(world, hostname));
-        dest.join("tomcat.p12").writeBytes(tomcatP12(world, console, hostname));
-        dest.join("hostkey").writeBytes(secret(world, shortname(hostname) + ".key"));
-        dest.join("hostkey.pub").writeBytes(secret(world, shortname(hostname) + ".key.pub"));
+        return result.toString();
     }
 
     public String serverYaml() throws IOException {
         String result;
+        Map<String, String> map;
+
+        map = values();
+        result = world.resource(isLocalhost() ? "local.yaml" : "caas.yaml").readString();
+        try {
+            return Substitution.ant().apply(result, map);
+        } catch (SubstitutionException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public Map<String, String> values() throws IOException {
         Map<String, String> map;
 
         map = new HashMap<>();
@@ -147,12 +135,6 @@ public class Server {
         map.put("host", hostname);
         if (isLocalhost()) {
             map.put("home", world.getHome().getAbsolute());
-            result = world.resource("local.yaml").readString();
-            try {
-                return Substitution.ant().apply(result, map);
-            } catch (SubstitutionException e) {
-                throw new IllegalStateException(e);
-            }
         } else {
             map.put("hostkey", base64(secret(world, shortname(hostname) + ".key")));
             map.put("hostkey-pub", base64(secret(world, shortname(hostname) + ".key.pub")));
@@ -160,14 +142,8 @@ public class Server {
             map.put("repositoryTag", repositoryTag());
             map.put("cert", base64(tomcatP12(world, console, hostname)));
             map.put("cert-script", base64(certScript(world, hostname)));
-
-            result = world.resource("caas.yaml").readString();
-            try {
-                return Substitution.ant().apply(result, map);
-            } catch (SubstitutionException e) {
-                throw new IllegalStateException(e);
-            }
         }
+        return map;
     }
 
     private String repositoryTag() throws IOException {
