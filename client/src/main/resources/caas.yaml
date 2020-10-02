@@ -44,7 +44,7 @@ subjects:
 apiVersion: v1
 data:
   ssh_host_rsa_key: ${hostkey}
-  ssh_host_rsa_key.pub: ${hostkey-pub}
+  ssh_host_rsa_key.pub: ${hostkeyPub}
 kind: Secret
 metadata:
   name: stool-hostkey
@@ -58,7 +58,7 @@ metadata:
 ---
 apiVersion: v1
 binaryData:
-  cert.sh: ${cert-script}
+  cert.sh: ${certScript}
 kind: ConfigMap
 metadata:
   name: stool-cert-script

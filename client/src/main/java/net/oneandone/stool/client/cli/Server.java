@@ -137,11 +137,11 @@ public class Server {
             map.put("home", world.getHome().getAbsolute());
         } else {
             map.put("hostkey", base64(secret(world, shortname(hostname) + ".key")));
-            map.put("hostkey-pub", base64(secret(world, shortname(hostname) + ".key.pub")));
+            map.put("hostkeyPub", base64(secret(world, shortname(hostname) + ".key.pub")));
             map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));
             map.put("repositoryTag", repositoryTag());
             map.put("cert", base64(tomcatP12(world, console, hostname)));
-            map.put("cert-script", base64(certScript(world, hostname)));
+            map.put("certScript", base64(certScript(world, hostname)));
         }
         return map;
     }
