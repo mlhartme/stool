@@ -28,6 +28,7 @@ import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.net.URI;
 import java.util.Base64;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ public class Server {
     private final World world;
     private final FileNode dest;
     private final Console console;
+    private final boolean helm;
     private final boolean overwrite;
     private final boolean resolve;
     private final String hostname;
@@ -46,11 +48,12 @@ public class Server {
     private final Secrets secrets;
     private final URI portusWithShortName;
 
-    public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, String api, List<String> args) throws IOException {
+    public Server(Globals globals, boolean helm, boolean overwrite, boolean resolve, String hostname, String api, List<String> args) throws IOException {
         String shortname;
 
         this.world = globals.getWorld();
         this.console = globals.getConsole();
+        this.helm = helm;
         this.overwrite = overwrite;
         this.resolve = resolve;
         this.hostname = hostname;
@@ -85,14 +88,49 @@ public class Server {
     }
 
     public void run() throws IOException {
-        if (!overwrite) {
-            dest.checkNotExists();
+        if (helm) {
+            helm();
+        } else {
+            if (!overwrite) {
+                dest.checkNotExists();
+            }
+            dest.writeString(serverYaml());
         }
-        dest.writeString(serverYaml());
         console.info.println("done: " + dest);
     }
 
     private static final Substitution DUBBLE = new Substitution("${{", "}}", '\\');
+
+    public void helm() throws IOException {
+        Map<String, String> map;
+
+        if (isLocalhost()) {
+            throw new UnsupportedOperationException(hostname);
+        }
+
+        map = new HashMap<>();
+        map.put("portus", portusWithShortName.toString());
+        map.put("api", api);
+        map.put("ldapUnit", secrets.ldapUnit);
+        map.put("ldapUrl", secrets.ldapUrl);
+        map.put("ldapPrincipal", secrets.ldapPrincipal);
+        map.put("ldapCredentials", secrets.ldapCredentials);
+        map.put("ldapSso", secrets.ldapSso);
+        map.put("host", hostname);
+
+        map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));
+        map.put("repositoryTag", repositoryTag());
+
+        try (Writer values = dest.join("values.yaml").newWriter()) {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                values.write(entry.getKey() + ": \"" + entry.getValue() + "\"\n");
+            }
+        }
+        dest.join("cert.sh").writeBytes(certScript(world, hostname));
+        dest.join("tomcat.p12").writeBytes(tomcatP12(world, console, hostname));
+        dest.join("hostkey").writeBytes(secret(world, shortname(hostname) + ".key"));
+        dest.join("hostkey.pub").writeBytes(secret(world, shortname(hostname) + ".key.pub"));
+    }
 
     public String serverYaml() throws IOException {
         String result;
@@ -116,12 +154,12 @@ public class Server {
                 throw new IllegalStateException(e);
             }
         } else {
-            map.put("hostkey", hostkey(world, shortname(hostname) + ".key"));
-            map.put("hostkey-pub", hostkey(world, shortname(hostname) + ".key.pub"));
+            map.put("hostkey", base64(secret(world, shortname(hostname) + ".key")));
+            map.put("hostkey-pub", base64(secret(world, shortname(hostname) + ".key.pub")));
             map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));
             map.put("repositoryTag", repositoryTag());
-            map.put("cert", tomcatP12(world, console, hostname));
-            map.put("cert-script", certScript(world, hostname));
+            map.put("cert", base64(tomcatP12(world, console, hostname)));
+            map.put("cert-script", base64(certScript(world, hostname)));
 
             result = world.resource("caas.yaml").readString();
             try {
@@ -157,7 +195,7 @@ public class Server {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
-    private static String certScript(World world, String hostname) throws IOException {
+    private static byte[] certScript(World world, String hostname) throws IOException {
         String str;
 
         str = world.resource("caas-cert.sh").readString();
@@ -166,11 +204,11 @@ public class Server {
         } catch (SubstitutionException e) {
             throw new IllegalStateException(e);
         }
-        return base64(str.getBytes("utf8"));
+        return str.getBytes("utf8");
     }
 
     // TODO: cannot take tomcat.p12 from fault project because it does not support binary files
-    private static String tomcatP12(World world, Console console, String hostname) throws IOException {
+    private static byte[] tomcatP12(World world, Console console, String hostname) throws IOException {
         FileNode base;
         FileNode key;
         FileNode crt;
@@ -193,10 +231,10 @@ public class Server {
                     "-inkey", key.getAbsolute(),
                     "-out", p12.getAbsolute(), "-name", "tomcat", "-passout", "pass:changeit");
         }
-        return base64(p12.readBytes());
+        return p12.readBytes();
     }
 
-    private static String hostkey(World world, String name) throws IOException {
-        return base64(Secrets.secrets(world).join(name).readBytes());
+    private static byte[] secret(World world, String name) throws IOException {
+        return Secrets.secrets(world).join(name).readBytes();
     }
 }
