@@ -1,9 +1,4 @@
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: stool
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
   name: stool-log-collector
