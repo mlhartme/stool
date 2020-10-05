@@ -17,6 +17,8 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.client.cli.Main;
 import net.oneandone.stool.util.Secrets;
+import net.oneandone.sushi.fs.DirectoryNotFoundException;
+import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -53,6 +55,10 @@ public class MainIT {
         }
     }
 
+    private static FileNode server() throws IOException { // TODO: ugly reference to the outside
+        return PROJECT_ROOT.join("../server").checkDirectory();
+    }
+
     public MainIT() {
     }
 
@@ -81,12 +87,12 @@ public class MainIT {
         sc("server", "localhost", "TODO-not-used-because-port-forwarding-not-tested", "localhost", SERVER_YAML.getAbsolute());
         sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
 
-        helm("delete", "stool");
+        helmDeleteOpt("stool");
         helm("install",
-                "--values=" + "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/local-values.yaml",
+                "--values=" + server().join("local-values.yaml").getAbsolute(),
                 "stool",
-                "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/src/helm");
-        Thread.sleep(30000); // TODO
+                server().join("src/helm").getAbsolute());
+        Thread.sleep(30000); // TODO - probes
 
         stage = "de.wq-ta"; // with some special characters
 
@@ -125,6 +131,16 @@ public class MainIT {
             log.write(server.toString() + "\n");
             server.exec(log);
         }
+    }
+
+    public void helmDeleteOpt(String release) throws IOException {
+        try {
+            helm("history", release);
+        } catch (IOException e) {
+            System.out.println("no history: " + e.getMessage());
+            return;
+        }
+        helm("delete", release);
     }
 
     public void helm(String ... cmd) throws IOException {
