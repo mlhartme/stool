@@ -56,7 +56,7 @@ public class Server {
         this.hostname = hostname;
         this.api = api;
         shortname = eat(args, shortname(hostname));
-        this.dest = world.file(eat(args, shortname + ".yaml"));
+        this.dest = world.file(eat(args, shortname + "-values.yaml"));
         if (!args.isEmpty()) {
             throw new ArgumentException("unknown arguments: " + args);
         }

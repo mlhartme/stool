@@ -241,7 +241,7 @@ Kubernetes Stool server talks to (e.g. for `sc port-forward`).
 
 *shortname* is appended to the Docker Repository Tag.
  
-*dest* specifies the file to generate; default is *shortname*.yaml
+*dest* specifies the file to generate; default is *shortname*-values.yaml
 
 
 
@@ -410,7 +410,7 @@ Kubernetes Stool server talks to (e.g. for `sc port-forward`).
 
 *shortname* is appended to the Docker Repository Tag.
  
-*dest* specifies the file to generate; default is *shortname*.yaml
+*dest* specifies the file to generate; default is *shortname*-values.yaml
 
 
 #### DESCRIPTION

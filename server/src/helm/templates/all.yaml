@@ -232,6 +232,7 @@ spec:
         volumeMounts:
           - mountPath: /etc/fault
             name: fault
+            readOnly: true
           - mountPath: /etc/ssh
             name: hostkey-volume
 {{- end }}
@@ -256,7 +257,6 @@ spec:
         volumeMounts:
           - mountPath: /etc/fault
             name: fault
-            readOnly: true
           - mountPath: /etc/ssh
             name: hostkey-volume
 {{- end }}
