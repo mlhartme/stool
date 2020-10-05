@@ -94,8 +94,7 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        helmDeleteOpt("stool");
-        helm("install", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
+        helm("upgrade", "--install", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
         Thread.sleep(30000); // TODO - probes
 
         stage = "de.wq-ta"; // with some special characters
@@ -137,16 +136,6 @@ public class MainIT {
             log.write(server.toString() + "\n");
             server.exec(log);
         }
-    }
-
-    public void helmDeleteOpt(String release) throws IOException {
-        try {
-            helm("history", release);
-        } catch (IOException e) {
-            System.out.println("no history: " + e.getMessage());
-            return;
-        }
-        helm("delete", release);
     }
 
     public void helm(String ... cmd) throws IOException {
