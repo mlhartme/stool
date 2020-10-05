@@ -33,6 +33,8 @@ import static org.junit.Assert.fail;
  * Integration tests for the command line.
  */
 public class MainIT {
+    private static final String CONTEXT = "local";
+
     private static final World WORLD;
     private static final FileNode PROJECT_ROOT;
     private static final FileNode IT_ROOT;
@@ -79,8 +81,6 @@ public class MainIT {
         sc("server", "localhost", "TODO-not-used-because-port-forwarding-not-tested", "localhost", SERVER_YAML.getAbsolute());
         sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
 
-        // TODO: kubectl("delete", "--ignore-not-found", "-f", SERVER_YAML.getAbsolute());
-        // TODO: kubectl("apply", "-f", SERVER_YAML.getAbsolute());
         helm("delete", "stool");
         helm("install",
                 "--values=" + "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/local-values.yaml",
@@ -120,7 +120,7 @@ public class MainIT {
 
         try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
             server = IT_ROOT.launcher("kubectl");
-            server.arg("--context=local");
+            server.arg("--context=" + CONTEXT);
             server.arg(cmd);
             log.write(server.toString() + "\n");
             server.exec(log);
@@ -132,7 +132,7 @@ public class MainIT {
 
         try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
             server = IT_ROOT.launcher("helm");
-            server.arg("--kube-context=local");
+            server.arg("--kube-context=" + CONTEXT);
             server.arg(cmd);
             log.write(server.toString() + "\n");
             server.exec(log);

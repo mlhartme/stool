@@ -1,4 +1,4 @@
-{{ if .Values.localhost }}
+{{ if eq .Values.host "localhost" }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -153,7 +153,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: stool
-  {{- if .Values.localhost }}
+  {{- if eq .Values.host "localhost" }}
   namespace: stool
   {{- end }}
   labels:
@@ -168,7 +168,7 @@ spec:
       labels:
         app: stool
     spec:
-      {{- if not .Values.localhost }}
+      {{- if ne .Values.host "localhost" }}
       serviceAccountName: stool-account
       {{- end }}
       containers:
@@ -184,7 +184,7 @@ spec:
             name: fault
           - mountPath: /var/log/stages
             name: fluentd-logs
-      {{- if not .Values.localhost }}
+      {{- if ne .Values.host "localhost" }}
           - mountPath: /usr/local/tomcat/conf/tomcat.p12
             name: cert-volume
             subPath: tomcat.p12
@@ -198,7 +198,7 @@ spec:
         - name: API
           value: "{{ .Values.api }}"
         - name: OPTS
-          value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005{{ if not .Values.localhost }} -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true{{ end }}"
+          value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005{{ if ne .Values.host "localhost" }} -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true{{ end }}"
         - name: ENGINE_LOG
           value: "false"
         - name: VHOSTS
@@ -219,7 +219,7 @@ spec:
           value: "{{ .Values.portus }}"
         - name: LOGLEVEL
           value: "INFO"
-{{- if not .Values.localhost }}
+{{- if ne .Values.host "localhost" }}
       - name: fault-update
         image: {{ .Values.repositoryTag }}
         command: ["sh"]
@@ -242,7 +242,7 @@ spec:
             mountPath: /fluentd/etc
           - name: fluentd-logs
             mountPath: /fluentd/log
-{{- if not .Values.localhost }}
+{{- if ne .Values.host "localhost" }}
       initContainers:
       - name: fault-setup
         image: {{ .Values.repositoryTag }}
@@ -266,7 +266,7 @@ spec:
           name: stool-log-collector
       - name: fluentd-logs
         emptyDir: {}
-{{- if .Values.localhost }}
+{{- if eq .Values.host "localhost" }}
       - name: fault
         hostPath:
           path: /Users/mhm/.fault
