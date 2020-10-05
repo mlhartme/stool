@@ -28,6 +28,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.Properties;
 
 import static org.junit.Assert.fail;
 
@@ -41,7 +42,6 @@ public class MainIT {
     private static final FileNode PROJECT_ROOT;
     private static final FileNode IT_ROOT;
     private static final FileNode CLIENT_YAML;
-    private static final FileNode SERVER_YAML;
 
     static {
         try {
@@ -49,14 +49,25 @@ public class MainIT {
             PROJECT_ROOT = WORLD.guessProjectHome(MainIT.class);
             IT_ROOT = PROJECT_ROOT.join("target/it").mkdirOpt();
             CLIENT_YAML = IT_ROOT.join("sc.yaml");
-            SERVER_YAML = IT_ROOT.join("server.yaml");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private static FileNode server() throws IOException { // TODO: ugly reference to the outside
-        return PROJECT_ROOT.join("../server").checkDirectory();
+    private static FileNode serverValues() throws IOException {
+        FileNode file;
+
+        file = IT_ROOT.join("values.yaml");
+        file.writeLines(
+                "host: localhost",
+                "repositoryTag: contargo.server.lan/cisoops-public/stool-server:latest",
+                "registryUrl: " + Secrets.load(WORLD).portus.resolve("localhost/").toString(),
+                "portus: " + Secrets.load(WORLD).portus.resolve("localhost/").toString());
+        return file;
+    }
+
+    private static FileNode helmChart() throws IOException { // TODO: ugly reference to the outside
+        return PROJECT_ROOT.join("../server/src/helm").checkDirectory();
     }
 
     public MainIT() {
@@ -84,14 +95,10 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        sc("server", "localhost", "TODO-not-used-because-port-forwarding-not-tested", "localhost", SERVER_YAML.getAbsolute());
         sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
 
         helmDeleteOpt("stool");
-        helm("install",
-                "--values=" + server().join("local-values.yaml").getAbsolute(),
-                "stool",
-                server().join("src/helm").getAbsolute());
+        helm("install", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
         Thread.sleep(30000); // TODO - probes
 
         stage = "de.wq-ta"; // with some special characters
