@@ -1,3 +1,40 @@
+{{ if .Values.localhost }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: stool
+  namespace: stool
+spec:
+  ports:
+    - name: http
+      nodePort: 31000
+      port: 80
+      targetPort: 8080
+    - name: fluentd-tcp
+      port: 24224
+      protocol: TCP
+      targetPort: 24224
+    - name: fluentd-udp
+      port: 24224
+      protocol: UDP
+      targetPort: 24224
+  selector:
+    app: stool
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stool-registry
+  namespace: stool
+spec:
+  ports:
+    - nodePort: 31500
+      port: 5000
+  selector:
+    app: stool-registry
+  type: NodePort
+{{ else }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -64,6 +101,28 @@ metadata:
   name: stool-cert-script
 ---
 apiVersion: v1
+kind: Service
+metadata:
+  name: stool
+spec:
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8080
+    - name: fluentd-tcp
+      port: 24224
+      protocol: TCP
+      targetPort: 24224
+    - name: fluentd-udp
+      port: 24224
+      protocol: UDP
+      targetPort: 24224
+  selector:
+    app: stool
+  type: ClusterIP
+{{ end }}
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: stool-log-collector
@@ -90,31 +149,13 @@ data:
       add_path_suffix false
     </match>
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: stool
-spec:
-  ports:
-    - name: https
-      port: 443
-      targetPort: 8080
-    - name: fluentd-tcp
-      port: 24224
-      protocol: TCP
-      targetPort: 24224
-    - name: fluentd-udp
-      port: 24224
-      protocol: UDP
-      targetPort: 24224
-  selector:
-    app: stool
-  type: ClusterIP
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: stool
+  {{- if .Values.localhost }}
+  namespace: stool
+  {{- end }}
   labels:
     app: stool
 spec:
@@ -127,7 +168,9 @@ spec:
       labels:
         app: stool
     spec:
+      {{- if not .Values.localhost }}
       serviceAccountName: stool-account
+      {{- end }}
       containers:
       - name: stool
         image: {{ .Values.repositoryTag }}
@@ -141,27 +184,29 @@ spec:
             name: fault
           - mountPath: /var/log/stages
             name: fluentd-logs
+      {{- if not .Values.localhost }}
           - mountPath: /usr/local/tomcat/conf/tomcat.p12
             name: cert-volume
             subPath: tomcat.p12
           - mountPath: /var/lib/stool/cert.sh
             name: cert-script-volume
             subPath: cert.sh
+      {{- end }}
         env:
         - name: HOST
-          value: {{ .Values.host }}
+          value: "{{ .Values.host }}"
         - name: API
           value: "{{ .Values.api }}"
         - name: OPTS
-          value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005 -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true"
+          value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005{{ if not .Values.localhost }} -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true{{ end }}"
         - name: ENGINE_LOG
           value: "false"
         - name: VHOSTS
           value: "false"
-        - name: LDAP_UNIT
-          value: "{{ .Values.ldapUnit }}"
         - name: LDAP_URL
           value: "{{ .Values.ldapUrl }}"
+        - name: LDAP_UNIT
+          value: "{{ .Values.ldapUnit }}"
         - name: LDAP_PRINCIPAL
           value: "{{ .Values.ldapPrincipal }}"
         - name: LDAP_CREDENTIALS
@@ -174,6 +219,7 @@ spec:
           value: "{{ .Values.portus }}"
         - name: LOGLEVEL
           value: "INFO"
+{{- if not .Values.localhost }}
       - name: fault-update
         image: {{ .Values.repositoryTag }}
         command: ["sh"]
@@ -188,6 +234,7 @@ spec:
             name: fault
           - mountPath: /etc/ssh
             name: hostkey-volume
+{{- end }}
       - name: collector
         image: fluent/fluentd:v1.11.2-1.0
         volumeMounts:
@@ -195,6 +242,7 @@ spec:
             mountPath: /fluentd/etc
           - name: fluentd-logs
             mountPath: /fluentd/log
+{{- if not .Values.localhost }}
       initContainers:
       - name: fault-setup
         image: {{ .Values.repositoryTag }}
@@ -208,15 +256,23 @@ spec:
         volumeMounts:
           - mountPath: /etc/fault
             name: fault
+            readOnly: true
           - mountPath: /etc/ssh
             name: hostkey-volume
+{{- end }}
       volumes:
-      - name: fault
-        emptyDir: {}
       - name: fluentd-config
         configMap:
           name: stool-log-collector
       - name: fluentd-logs
+        emptyDir: {}
+{{- if .Values.localhost }}
+      - name: fault
+        hostPath:
+          path: /Users/mhm/.fault
+          type: Directory
+{{- else }}
+      - name: fault
         emptyDir: {}
       - name: hostkey-volume
         secret:
@@ -234,3 +290,4 @@ spec:
               path: cert.sh
               mode: 0755
           name: stool-cert-script
+{{- end }}

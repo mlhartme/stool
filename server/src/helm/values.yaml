@@ -1,3 +1,5 @@
+localhost: false
+
 # hostname for stool dashboard, api. Also used as prefix in stages url
 host: ""
 

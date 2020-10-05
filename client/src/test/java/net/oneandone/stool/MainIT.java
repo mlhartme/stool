@@ -79,9 +79,13 @@ public class MainIT {
         sc("server", "localhost", "TODO-not-used-because-port-forwarding-not-tested", "localhost", SERVER_YAML.getAbsolute());
         sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
 
-        kubectl("delete", "--ignore-not-found", "-f", SERVER_YAML.getAbsolute());
-        kubectl("apply", "-f", SERVER_YAML.getAbsolute());
-
+        // TODO: kubectl("delete", "--ignore-not-found", "-f", SERVER_YAML.getAbsolute());
+        // TODO: kubectl("apply", "-f", SERVER_YAML.getAbsolute());
+        helm("delete", "stool");
+        helm("install",
+                "--values=" + "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/local-values.yaml",
+                "stool",
+                "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/src/helm");
         Thread.sleep(30000); // TODO
 
         stage = "de.wq-ta"; // with some special characters
@@ -117,6 +121,18 @@ public class MainIT {
         try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
             server = IT_ROOT.launcher("kubectl");
             server.arg("--context=local");
+            server.arg(cmd);
+            log.write(server.toString() + "\n");
+            server.exec(log);
+        }
+    }
+
+    public void helm(String ... cmd) throws IOException {
+        Launcher server;
+
+        try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
+            server = IT_ROOT.launcher("helm");
+            server.arg("--kube-context=local");
             server.arg(cmd);
             log.write(server.toString() + "\n");
             server.exec(log);
