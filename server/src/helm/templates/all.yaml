@@ -216,7 +216,7 @@ spec:
         - name: ADMIN
           value: "michael.hartmeier@ionos.com"
         - name: REGISTRY_URL
-          value: "{{ .Values.portus }}"
+          value: "{{ .Values.registryUrl }}"
         - name: LOGLEVEL
           value: "INFO"
 {{- if ne .Values.host "localhost" }}

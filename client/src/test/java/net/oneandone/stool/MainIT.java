@@ -61,8 +61,7 @@ public class MainIT {
         file.writeLines(
                 "host: localhost",
                 "repositoryTag: contargo.server.lan/cisoops-public/stool-server:latest",
-                "registryUrl: " + Secrets.load(WORLD).portus.resolve("localhost/").toString(),
-                "portus: " + Secrets.load(WORLD).portus.resolve("localhost/").toString());
+                "registryUrl: " + Secrets.load(WORLD).portus.resolve("localhost/").toString());
         return file;
     }
 
