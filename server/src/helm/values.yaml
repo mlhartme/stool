@@ -1,0 +1,25 @@
+# hostname for stool dashboard, api. Also used as prefix in stages url
+host: ""
+
+# empty to disable authentication
+ldapUrl: ""
+ldapUnit: ""
+ldapCredentials: ""
+ldapPrincipal: ""
+ldapSso: ""
+
+certScript: ""
+cert: ""
+
+# registry url prefix to look for stages images
+portus: ""
+
+repositoryTag: ""
+
+api: ""
+
+faultName: ""
+
+# for fault authentication
+hostkey: ""
+hostkeyPub: ""
