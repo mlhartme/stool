@@ -94,13 +94,13 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
-
         helmDeleteOpt("stool");
         helm("install", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
         Thread.sleep(30000); // TODO - probes
 
         stage = "de.wq-ta"; // with some special characters
+
+        sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
 
         sc(working, "context", "localhost");
         sc(working, "list");

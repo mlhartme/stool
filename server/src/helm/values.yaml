@@ -1,24 +1,23 @@
-localhost: false
-
 # hostname for stool dashboard, api. Also used as prefix in stages url
 host: ""
+
+# points to stool server image
+repositoryTag: ""
+
+# registry url prefix to look for stages images
+registryUrl: ""
+
+api: "http://TODO-needed-for-port-forwarding-not-tested"
 
 # empty to disable authentication
 ldapUrl: ""
 ldapUnit: ""
-ldapCredentials: ""
 ldapPrincipal: ""
+ldapCredentials: ""
 ldapSso: ""
 
-certScript: ""
 cert: ""
-
-# registry url prefix to look for stages images
-portus: ""
-
-repositoryTag: ""
-
-api: "http://TODO-needed-for-port-forwarding-not-tested"
+certScript: ""
 
 faultName: ""
 

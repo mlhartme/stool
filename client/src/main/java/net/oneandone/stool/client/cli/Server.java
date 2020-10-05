@@ -38,7 +38,6 @@ public class Server {
     private final World world;
     private final FileNode dest;
     private final Console console;
-    private final boolean helm;
     private final boolean overwrite;
     private final boolean resolve;
     private final String hostname;
@@ -47,12 +46,11 @@ public class Server {
     private final Secrets secrets;
     private final URI portusWithShortName;
 
-    public Server(Globals globals, boolean helm, boolean overwrite, boolean resolve, String hostname, String api, List<String> args) throws IOException {
+    public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, String api, List<String> args) throws IOException {
         String shortname;
 
         this.world = globals.getWorld();
         this.console = globals.getConsole();
-        this.helm = helm;
         this.overwrite = overwrite;
         this.resolve = resolve;
         this.hostname = hostname;
@@ -90,7 +88,7 @@ public class Server {
         if (!overwrite) {
             dest.checkNotExists();
         }
-        dest.writeString(helm ? helm() : serverYaml());
+        dest.writeString(helm());
         console.info.println("done: " + dest);
     }
 
@@ -108,41 +106,24 @@ public class Server {
         return result.toString();
     }
 
-    public String serverYaml() throws IOException {
-        String result;
-        Map<String, String> map;
-
-        map = values();
-        result = world.resource(isLocalhost() ? "local.yaml" : "caas.yaml").readString();
-        try {
-            return Substitution.ant().apply(result, map);
-        } catch (SubstitutionException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     public Map<String, String> values() throws IOException {
         Map<String, String> map;
 
         map = new HashMap<>();
-        map.put("portus", portusWithShortName.toString());
+        map.put("host", hostname);
+        map.put("repositoryTag", repositoryTag());
+        map.put("registryUrl", portusWithShortName.toString());
         map.put("api", api);
-        map.put("ldapUnit", secrets.ldapUnit);
         map.put("ldapUrl", secrets.ldapUrl);
+        map.put("ldapUnit", secrets.ldapUnit);
         map.put("ldapPrincipal", secrets.ldapPrincipal);
         map.put("ldapCredentials", secrets.ldapCredentials);
         map.put("ldapSso", secrets.ldapSso);
-        map.put("host", hostname);
-        if (isLocalhost()) {
-            map.put("home", world.getHome().getAbsolute());
-        } else {
-            map.put("hostkey", base64(secret(world, shortname(hostname) + ".key")));
-            map.put("hostkeyPub", base64(secret(world, shortname(hostname) + ".key.pub")));
-            map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));
-            map.put("repositoryTag", repositoryTag());
-            map.put("cert", base64(tomcatP12(world, console, hostname)));
-            map.put("certScript", base64(certScript(world, hostname)));
-        }
+        map.put("cert", base64(tomcatP12(world, console, hostname)));
+        map.put("certScript", base64(certScript(world, hostname)));
+        map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));
+        map.put("hostkey", base64(secret(world, shortname(hostname) + ".key")));
+        map.put("hostkeyPub", base64(secret(world, shortname(hostname) + ".key.pub")));
         return map;
     }
 
