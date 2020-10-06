@@ -97,7 +97,7 @@ prints help about `create`.
 
 ### Stool
 
-This term is overloaded, depending on the context it may refer to the command line client `sc`, the server running in Kubernetes, 
+This term is overloaded, depending on the context it may refer to the command line client `sc`, the server application running in Kubernetes, 
 or the whole Github project. 
 
 
@@ -415,7 +415,7 @@ Kubernetes Stool server talks to (e.g. for `sc port-forward`).
 
 #### DESCRIPTION
 
-Generates a Kubernetes yaml manifest to configure a server.
+Generates a Helm values yaml file to configure a server.
 
 #### Server Environment
 
@@ -684,7 +684,7 @@ Deletes a stage
 
 #### Description
 
-Deletes the stage, i.e. deletes it from the respective server. This includes images, containers and log files.
+Deletes the stage, i.e. deletes it from the respective cluster. This includes images, containers and log files.
 If the current workspace is attached to this stage, this attachment is removed as well.
 
 Reports an error if the stage is up. In this case, stop the stage first or invoke the command with `-stop`. 
