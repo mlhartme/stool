@@ -430,8 +430,8 @@ The following environment variables can be used to configure the server:
   Mb of disk spaces available for the read/write layer of the running stages. 0 disables this feature. Type number, default 0.
 * **DEFAULT_EXPIRE**
   Defines the number of days to expire new stages (0 for never). Type number, default 0.
-* **HOST**
-  Fully qualified hostname of this machine. Used in application urls and emails. Type string.
+* **FQDN**
+  Fully qualified domain name of this server. Used in application urls and emails. Type string.
 * **ENGINE_LOG**
   to log all traffic between server and docker daemon. CAUTION: enabling writes huge amounts of data if you have large war files.
   Type boolean, default value is false.

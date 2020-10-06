@@ -663,14 +663,14 @@ public class Stage {
         appService(engine, image);
         if (server.openShift) {
             if (image.ports.http != -1) {
-                OpenShift.create().routeCreate(httpRouteName(), stageHost(), appServiceName(), false, "http");
+                OpenShift.create().routeCreate(httpRouteName(), stageFqdn(), appServiceName(), false, "http");
             }
             if (image.ports.https != -1) {
-                OpenShift.create().routeCreate(httpsRouteName(), stageHost(), appServiceName(), true, "https");
+                OpenShift.create().routeCreate(httpsRouteName(), stageFqdn(), appServiceName(), true, "https");
             }
         } else {
             // TODO: does not map both ports ...
-            engine.ingressCreate(appIngressName(), stageHost(), appServiceName(), Ports.HTTP);
+            engine.ingressCreate(appIngressName(), stageFqdn(), appServiceName(), Ports.HTTP);
         }
         engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels,
                 new Engine.Container[] {
@@ -808,7 +808,7 @@ public class Stage {
         }
         mountPath = Strings.removeRight(mountPath, "/");
         System.out.println("prefix: " + mountPath);
-        dir = server.certificate(stageHost());
+        dir = server.certificate(stageFqdn());
         // CAUTION: that's a config map, and not a secret, because I use sub paths
         cert = Data.secrets(certSecretName());
         if (image.certificateKey != null) {
@@ -938,17 +938,17 @@ public class Stage {
         }
     }
 
-    public String stageHost() {
-        return name + "." + server.configuration.host;
+    public String stageFqdn() {
+        return name + "." + server.configuration.fqdn;
     }
 
     private List<String> url(TagInfo tag, String protocol) {
-        String hostname;
+        String fqdn;
         String url;
         List<String> result;
 
-        hostname = stageHost();
-        url = protocol + "://" + hostname + "/" + tag.urlContext;
+        fqdn = stageFqdn();
+        url = protocol + "://" + fqdn + "/" + tag.urlContext;
         if (!url.endsWith("/")) {
             url = url + "/";
         }

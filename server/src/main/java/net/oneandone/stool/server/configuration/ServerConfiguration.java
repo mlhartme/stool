@@ -53,7 +53,7 @@ public class ServerConfiguration {
     /**
      * used for output and application urls
      */
-    public String host;
+    public String fqdn;
 
     /**
      * public url for kubernetes api -- reported to clients to use temporary service accounts
@@ -98,7 +98,7 @@ public class ServerConfiguration {
     public Map<String, String> environment;
 
     public ServerConfiguration() {
-        host = "localhost";
+        fqdn = "localhost";
         api = "localhost";
         loglevel = "INFO";
         registryUrl = "http://localhost:31500/";

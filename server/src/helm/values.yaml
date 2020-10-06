@@ -1,5 +1,5 @@
 # hostname for stool dashboard, api. Also used as prefix in stages url
-host: ""
+fqdn: "localhost"
 
 # points to stool server image
 repositoryTag: ""

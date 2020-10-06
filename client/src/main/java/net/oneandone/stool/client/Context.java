@@ -36,6 +36,7 @@ public class Context {
     }
 
     public final String name;
+    /** url pointing to cubernetes cluster */
     public final String url;
 
     /** null to work anonymously */

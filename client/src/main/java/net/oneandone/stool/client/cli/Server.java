@@ -40,22 +40,22 @@ public class Server {
     private final Console console;
     private final boolean overwrite;
     private final boolean resolve;
-    private final String hostname;
+    private final String fqdn;
     private final String api;
 
     private final Secrets secrets;
     private final URI portusWithShortName;
 
-    public Server(Globals globals, boolean overwrite, boolean resolve, String hostname, String api, List<String> args) throws IOException {
+    public Server(Globals globals, boolean overwrite, boolean resolve, String fqdn, String api, List<String> args) throws IOException {
         String shortname;
 
         this.world = globals.getWorld();
         this.console = globals.getConsole();
         this.overwrite = overwrite;
         this.resolve = resolve;
-        this.hostname = hostname;
+        this.fqdn = fqdn;
         this.api = api;
-        shortname = eat(args, shortname(hostname));
+        shortname = eat(args, shortname(fqdn));
         this.dest = world.file(eat(args, shortname + "-values.yaml"));
         if (!args.isEmpty()) {
             throw new ArgumentException("unknown arguments: " + args);
@@ -72,16 +72,12 @@ public class Server {
         }
     }
 
-    private static String shortname(String hostname) {
+    private static String shortname(String fqdn) {
         String result;
 
-        result = Strings.removeRightOpt(hostname, ".server.lan");
+        result = Strings.removeRightOpt(fqdn, ".server.lan");
         result = result.replace('.', '-');
         return result;
-    }
-
-    private boolean isLocalhost() {
-        return "localhost".equals(hostname);
     }
 
     public void run() throws IOException {
@@ -110,7 +106,7 @@ public class Server {
         Map<String, String> map;
 
         map = new HashMap<>();
-        map.put("host", hostname);
+        map.put("fqdn", fqdn);
         map.put("repositoryTag", repositoryTag());
         map.put("registryUrl", portusWithShortName.toString());
         map.put("api", api);
@@ -119,11 +115,11 @@ public class Server {
         map.put("ldapPrincipal", secrets.ldapPrincipal);
         map.put("ldapCredentials", secrets.ldapCredentials);
         map.put("ldapSso", secrets.ldapSso);
-        map.put("cert", base64(tomcatP12(world, console, hostname)));
-        map.put("certScript", base64(certScript(world, hostname)));
-        map.put("faultName", "public_" + shortname(hostname).replace('-', '_'));
-        map.put("hostkey", base64(secret(world, shortname(hostname) + ".key")));
-        map.put("hostkeyPub", base64(secret(world, shortname(hostname) + ".key.pub")));
+        map.put("cert", base64(tomcatP12(world, console, fqdn)));
+        map.put("certScript", base64(certScript(world, fqdn)));
+        map.put("faultName", "public_" + shortname(fqdn).replace('-', '_'));
+        map.put("hostkey", base64(secret(world, shortname(fqdn) + ".key")));
+        map.put("hostkeyPub", base64(secret(world, shortname(fqdn) + ".key.pub")));
         return map;
     }
 

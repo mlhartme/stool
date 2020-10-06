@@ -1,7 +1,7 @@
 FROM contargo.server.lan/cisoops-public/java-14:1.0.2
 
 ENV LOGLEVEL=INFO
-ENV HOST=host.docker.internal
+ENV FQDN=host.docker.internal
 ENV ADMIN=
 ENV AUTO_REMOVE=-1
 ENV LDAP_URL=

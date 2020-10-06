@@ -90,12 +90,12 @@ public class Validation {
     }
 
     private void email(String name, Set<String> users, List<String> report) throws MessagingException {
-        String hostname;
+        String fqdn;
         Mailer mailer;
         String email;
         String body;
 
-        hostname = server.configuration.host;
+        fqdn = server.configuration.fqdn;
         mailer = server.configuration.mailer();
         for (String user : users) {
             body = Separator.RAW_LINE.join(report);
@@ -104,8 +104,8 @@ public class Validation {
                 Server.LOGGER.error("cannot send email, there's nobody to send it to.");
             } else {
                 Server.LOGGER.info("sending email to " + email);
-                mailer.send("stool@" + hostname, new String[] { email },
-                        "stage validation failed: " + name + "@" + hostname, body);
+                mailer.send("stool@" + fqdn, new String[] { email },
+                        "stage validation failed: " + name + "@" + fqdn, body);
             }
         }
     }
