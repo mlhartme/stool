@@ -195,14 +195,12 @@ spec:
         env:
         - name: FQDN
           value: "{{ .Values.fqdn }}"
+        - name: REGISTRY_URL
+          value: "{{ .Values.registryUrl }}"
         - name: API
           value: "{{ .Values.api }}"
         - name: OPTS
           value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005{{ if ne .Values.fqdn "localhost" }} -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true{{ end }}"
-        - name: ENGINE_LOG
-          value: "false"
-        - name: VHOSTS
-          value: "false"
         - name: LDAP_URL
           value: "{{ .Values.ldapUrl }}"
         - name: LDAP_UNIT
@@ -214,11 +212,28 @@ spec:
         - name: LDAP_SSO
           value: "{{ .Values.ldapSso }}"
         - name: ADMIN
-          value: "michael.hartmeier@ionos.com"
-        - name: REGISTRY_URL
-          value: "{{ .Values.registryUrl }}"
+          value: "{{ .Values.admin }}"
+        - name: AUTO_REMOVE
+          value: "{{ .Values.autoRemove }}"
+        - name: DEFAULT_EXPIRE
+          value: "{{ .Values.defaultExpire }}"
+        - name: ENGINE_LOG
+          value: "{{ .Values.engineLog }}"
+        - name: ENVIRONMENT
+          value: "{{ .Values.environment }}"
         - name: LOGLEVEL
-          value: "INFO"
+          value: "{{ .Values.loglevel }}"
+        - name: MAIL_HOST
+          value: "{{ .Values.mailHost }}"
+        - name: MAIL_USERNAME
+          value: "{{ .Values.username }}"
+        - name: MAIL_PASSWORD
+          value: "{{ .Values.password }}"
+        - name: DISK_QUOTA
+          value: "{{ .Values.diskQuota }}"
+        - name: MEMORY_QUOTA
+          value: "{{ .Values.memoryQuota }}"
+
 {{- if ne .Values.fqdn "localhost" }}
       - name: fault-update
         image: {{ .Values.repositoryTag }}

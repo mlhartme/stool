@@ -415,50 +415,8 @@ Kubernetes Stool server talks to (e.g. for `sc port-forward`).
 
 #### DESCRIPTION
 
-Generates a Helm values yaml file to configure a server.
-
-#### Server Environment
-
-The following environment variables can be used to configure the server:
-
-* **ADMIN** 
-  Email of the person to receive validation failures and exception mails. Empty to disable these emails.
-  Type string, default empty. Example: `Max Mustermann <max@mustermann.org>`.
-* **AUTO_REMOVE**
-  Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1. 
-* **DISK_QUOTA**
-  Mb of disk spaces available for the read/write layer of the running stages. 0 disables this feature. Type number, default 0.
-* **DEFAULT_EXPIRE**
-  Defines the number of days to expire new stages (0 for never). Type number, default 0.
-* **FQDN**
-  Fully qualified domain name of this server. Used in application urls and emails. Type string.
-* **ENGINE_LOG**
-  to log all traffic between server and docker daemon. CAUTION: enabling writes huge amounts of data if you have large war files.
-  Type boolean, default value is false.
-* **ENVIRONMENT** 
-  Default environment variables set automatically when starting stages, can be overwritten by the `start` command. Type map, default empty.
-* **LDAP_CREDENTIALS**
-  Password for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
-* **LDAP_PRINCIPAL**
-  User for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
-* **LDAP_UNIT**
-  Specifies the "organizational unit" to search for users. Ignored if ldap is disabled. Type string, default empty.
-* **LDAP_URL**
-  Ldap url for user information. Empty string to disable ldap. Type string, default empty.
-* **LDAP_SSO**
-  Url for ui single sign on. Type string, default empty.
-* **LOGLEVEL**
-  for server logging. Type string, default INFO. Example value: DEBUG.
-* **MAIL_HOST**
-  Smtp Host name to deliver emails. Empty to disable. Type string, default empty.
-* **MAIL_USERNAME**
-  Username for MAIL_HOST. Type string, default empty;
-* **MAIL_PASSWORD**
-  Password for mailHost. Type string, default empty.
-* **MEMORY_QUOTA**
-  Max memory that all stages may reserve. 0 to disable. Type number, default 0.
-* **REGISTRY_URL**
-  Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
+Generates a Helm values yaml file to configure a server. See https://github.com/mlhartme/stool/blob/stool-6.0/server/src/helm/values.yaml 
+for available values.
 
 
 ### sc-context

@@ -86,35 +86,39 @@ public class ReflectAccessor extends Accessor {
         int idx;
         Map<String, String> map;
 
-        type = field.getType();
-        if (type.equals(String.class)) {
-            value = str;
-        } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
-            value = Boolean.valueOf(str);
-        } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
-            value = Integer.valueOf(str);
-        } else if (Enum.class.isAssignableFrom(type)) {
-            value = Enum.valueOf(type, str);
-        } else if (type.equals(List.class)) {
-            value = asList(str);
-        } else if (type.equals(Map.class)) {
-            map = new HashMap<>();
-            for (String item : asList(str)) {
-                idx = item.indexOf(':');
-                if (idx == -1) {
-                    throw new ArgumentException("cannot set property '" + name + "': expected key:value, got " + item);
+        try {
+            type = field.getType();
+            if (type.equals(String.class)) {
+                value = str;
+            } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
+                value = Boolean.valueOf(str);
+            } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
+                value = Integer.valueOf(str);
+            } else if (Enum.class.isAssignableFrom(type)) {
+                value = Enum.valueOf(type, str);
+            } else if (type.equals(List.class)) {
+                value = asList(str);
+            } else if (type.equals(Map.class)) {
+                map = new HashMap<>();
+                for (String item : asList(str)) {
+                    idx = item.indexOf(':');
+                    if (idx == -1) {
+                        throw new ArgumentException("cannot set property '" + name + "': expected key:value, got " + item);
+                    }
+                    map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
                 }
-                map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
+                value = map;
+            } else if (type.equals(Expire.class)) {
+                value = Expire.fromHuman(str);
+            } else if (type.equals(FileNode.class)) {
+                value = str.isEmpty() ? null : World.createMinimal().file(str);
+            } else if (Map.class.isAssignableFrom(type)) {
+                value = str;
+            } else {
+                throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
             }
-            value = map;
-        } else if (type.equals(Expire.class)) {
-            value = Expire.fromHuman(str);
-        } else if (type.equals(FileNode.class)) {
-            value = str.isEmpty() ? null : World.createMinimal().file(str);
-        } else if (Map.class.isAssignableFrom(type)) {
-            value = str;
-        } else {
-            throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
+        } catch (RuntimeException e) {
+            throw new ArgumentException(field.getName() + ": invalid value: '" + str + "': " + e.getMessage());
         }
         try {
             field.set(configuration, value);

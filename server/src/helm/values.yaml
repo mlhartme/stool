@@ -1,19 +1,28 @@
-# hostname for stool dashboard, api. Also used as prefix in stages url
+# Fully qualified domain name of this server. Points to the dashboard; used in stage urls and emails. Type string.
 fqdn: "localhost"
 
 # points to stool server image
 repositoryTag: ""
 
-# registry url prefix to look for stages images
+# Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
 registryUrl: ""
 
+# publicly reachable kubernetes api url
 api: "http://TODO-needed-for-port-forwarding-not-tested"
 
-# empty to disable authentication
+# Ldap url for user information. Empty string to disable ldap. Type string, default empty.
 ldapUrl: ""
+
+# Specifies the "organizational unit" to search for users. Ignored if ldap is disabled. Type string, default empty.
 ldapUnit: ""
+
+# User for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
 ldapPrincipal: ""
+
+# Password for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
 ldapCredentials: ""
+
+# Url for dashboard single sign on. Type string, default empty.
 ldapSso: ""
 
 cert: ""
@@ -24,3 +33,37 @@ faultName: ""
 # for fault authentication
 hostkey: ""
 hostkeyPub: ""
+
+# Email of the person to receive validation failures and exception mails. Empty to disable these emails.
+admin: ""
+
+# Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1.
+autoRemove: -1
+
+# Defines the number of days to expire new stages (0 for never). Type number, default 0.
+defaultExpire: 0
+
+# Default environment variables set automatically when starting stages, can be overwritten by the `start` command. Type map, default empty.
+environment: ""
+
+# For server logging. Type string, default INFO. Example value: DEBUG.
+loglevel: "INFO"
+
+# Enable to log all traffic between server and docker daemon. CAUTION: enabling writes huge amounts of data if you have large war files.
+engineLog: false
+
+# Smtp Host name to deliver emails. Empty to disable. Type string, default empty.
+mailHost: ""
+
+# Username for MAIL_HOST. Type string, default empty;
+mailUsername: ""
+
+# Password for mailHost. Type string, default empty.
+mailPassword: ""
+
+
+# Mb of disk spaces available for the read/write layer of the running stages. 0 disables this feature. Type number, default 0.
+diskQuota: 0
+
+# Max memory that all stages may reserve. 0 to disable. Type number, default 0.
+memoryQuota: 0

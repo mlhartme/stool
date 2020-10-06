@@ -81,7 +81,7 @@ Server changes
   the key and certificate chain
 * configuration
   * dumped `vhosts` switch
-  * renamed `host` to fqdn
+  * renamed `host` to `fqdn`
   * dumped `portFirst` and `portLast`
   * dumped `jmxUsage` template
 * one app per stage
