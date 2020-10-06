@@ -81,6 +81,7 @@ Server changes
   the key and certificate chain
 * configuration
   * dumped `vhosts` switch
+  * dumped `engineLog` switch
   * renamed `host` to `fqdn`
   * dumped `portFirst` and `portLast`
   * dumped `jmxUsage` template

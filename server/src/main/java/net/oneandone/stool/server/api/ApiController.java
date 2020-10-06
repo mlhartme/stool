@@ -77,12 +77,10 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api")
 public class ApiController {
     private final Server server;
-    private final String engineLogFile;
 
     @Autowired
     public ApiController(Server server) {
         this.server = server;
-        this.engineLogFile = server.configuration.engineLogFile();
     }
 
     private Engine engine() throws IOException {

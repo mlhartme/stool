@@ -90,8 +90,6 @@ public class ServerConfiguration {
 
     public int diskQuota;
 
-    public boolean engineLog;
-
     public int defaultExpire;
 
     // default environment for every stage
@@ -114,7 +112,6 @@ public class ServerConfiguration {
         mailPassword = "";
         memoryQuota = 0;
         diskQuota = 0;
-        engineLog = false;
         defaultExpire = 0;
         environment = new HashMap<>();
     }
@@ -201,10 +198,5 @@ public class ServerConfiguration {
 
     public boolean auth() {
         return !ldapUrl.isEmpty();
-    }
-
-    // TODO: currently has no wire log -- use for docker ...
-    public String engineLogFile() {
-        return engineLog ? "/var/log/stool/engine.log" : null;
     }
 }

@@ -49,9 +49,6 @@ environment: ""
 # For server logging. Type string, default INFO. Example value: DEBUG.
 loglevel: "INFO"
 
-# Enable to log all traffic between server and docker daemon. CAUTION: enabling writes huge amounts of data if you have large war files.
-engineLog: false
-
 # Smtp Host name to deliver emails. Empty to disable. Type string, default empty.
 mailHost: ""
 

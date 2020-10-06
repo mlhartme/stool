@@ -109,6 +109,7 @@ public class Server {
         map.put("fqdn", fqdn);
         map.put("repositoryTag", repositoryTag());
         map.put("registryUrl", portusWithShortName.toString());
+        map.put("admin", "michael.hartmeier@ionos.com");
         map.put("api", api);
         map.put("ldapUrl", secrets.ldapUrl);
         map.put("ldapUnit", secrets.ldapUnit);
