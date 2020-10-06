@@ -85,6 +85,7 @@ Server changes
   * renamed `host` to `fqdn`
   * dumped `portFirst` and `portLast`
   * dumped `jmxUsage` template
+  * added `kubernetes` api url
 * one app per stage
 * `start` dumped http(s) arguments
 * stage container replaced by
