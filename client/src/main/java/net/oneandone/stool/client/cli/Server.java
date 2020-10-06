@@ -41,12 +41,12 @@ public class Server {
     private final boolean overwrite;
     private final boolean resolve;
     private final String fqdn;
-    private final String api;
+    private final String kubernetes;
 
     private final Secrets secrets;
     private final URI portusWithShortName;
 
-    public Server(Globals globals, boolean overwrite, boolean resolve, String fqdn, String api, List<String> args) throws IOException {
+    public Server(Globals globals, boolean overwrite, boolean resolve, String fqdn, String kubernetes, List<String> args) throws IOException {
         String shortname;
 
         this.world = globals.getWorld();
@@ -54,7 +54,7 @@ public class Server {
         this.overwrite = overwrite;
         this.resolve = resolve;
         this.fqdn = fqdn;
-        this.api = api;
+        this.kubernetes = kubernetes;
         shortname = eat(args, shortname(fqdn));
         this.dest = world.file(eat(args, shortname + "-values.yaml"));
         if (!args.isEmpty()) {
@@ -110,7 +110,7 @@ public class Server {
         map.put("repositoryTag", repositoryTag());
         map.put("registryUrl", portusWithShortName.toString());
         map.put("admin", "michael.hartmeier@ionos.com");
-        map.put("api", api);
+        map.put("kubernetes", kubernetes);
         map.put("ldapUrl", secrets.ldapUrl);
         map.put("ldapUnit", secrets.ldapUnit);
         map.put("ldapPrincipal", secrets.ldapPrincipal);

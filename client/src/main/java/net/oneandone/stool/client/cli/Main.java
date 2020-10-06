@@ -72,7 +72,7 @@ public class Main {
                  cli.add(Auth.class, "auth -batch");
                  cli.add(ConfigContext.class, "context -offline -q name?");
                  cli.add(ShellInc.class, "shell-inc");
-                 cli.add(Server.class, "server -overwrite -resolve fqdn api args*");
+                 cli.add(Server.class, "server -overwrite -resolve fqdn kubernetes args*");
                  cli.add(Create.class, "create -optional -detached args+"); // args: path* name (key=value)*
                  cli.add(Attach.class, "attach args+"); // args: path* name
                  cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
