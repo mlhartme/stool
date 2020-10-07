@@ -87,13 +87,6 @@ metadata:
   name: stool-hostkey
 ---
 apiVersion: v1
-binaryData:
-  cert.sh: {{ .Values.certScript }}
-kind: ConfigMap
-metadata:
-  name: stool-cert-script
----
-apiVersion: v1
 kind: Service
 metadata:
   name: stool
@@ -122,6 +115,15 @@ binaryData:
 kind: ConfigMap
 metadata:
   name: stool-cert
+{{ end }}
+{{ if .Values.certScript }}
+---
+apiVersion: v1
+binaryData:
+  cert.sh: {{ .Values.certScript }}
+kind: ConfigMap
+metadata:
+  name: stool-cert-script
 {{ end }}
 ---
 apiVersion: v1
@@ -191,7 +193,7 @@ spec:
             name: cert-volume
             subPath: tomcat.p12
       {{- end }}
-      {{- if ne .Values.fqdn "localhost" }}
+      {{- if .Values.certScript }}
           - mountPath: /var/lib/stool/cert.sh
             name: cert-script-volume
             subPath: cert.sh
@@ -296,13 +298,6 @@ spec:
       - name: hostkey-volume
         secret:
           secretName: stool-hostkey
-      - name: cert-script-volume
-        configMap:
-          items:
-            - key: cert.sh
-              path: cert.sh
-              mode: 0755
-          name: stool-cert-script
 {{- end }}
 {{- if .Values.cert }}
       - name: cert-volume
@@ -311,4 +306,13 @@ spec:
             - key: tomcat.p12
               path: tomcat.p12
           name: stool-cert
+{{- end}}
+{{- if .Values.certScript }}
+      - name: cert-script-volume
+        configMap:
+          items:
+            - key: cert.sh
+              path: cert.sh
+              mode: 0755
+          name: stool-cert-script
 {{- end}}
