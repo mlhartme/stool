@@ -68,6 +68,7 @@ kind: ServiceAccount
 metadata:
   name: stool-account
 ---
+# caution: RoleBinding is not available in kubernetes
 apiVersion: authorization.openshift.io/v1
 kind: RoleBinding
 metadata:
