@@ -80,14 +80,6 @@ subjects:
     name: stool-account
 ---
 apiVersion: v1
-data:
-  ssh_host_rsa_key: {{ .Values.hostkey }}
-  ssh_host_rsa_key.pub: {{ .Values.hostkeyPub }}
-kind: Secret
-metadata:
-  name: stool-hostkey
----
-apiVersion: v1
 kind: Service
 metadata:
   name: stool
@@ -126,6 +118,16 @@ kind: ConfigMap
 metadata:
   name: stool-cert-script
 {{ end }}
+{{ if .Values.faultName }}
+---
+apiVersion: v1
+data:
+  ssh_host_rsa_key: {{ .Values.faultHostkey }}
+  ssh_host_rsa_key.pub: {{ .Values.faultHostkeyPub }}
+kind: Secret
+metadata:
+  name: stool-hostkey
+{{ end}}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -238,7 +240,7 @@ spec:
         - name: MEMORY_QUOTA
           value: "{{ .Values.memoryQuota }}"
 
-{{- if ne .Values.fqdn "localhost" }}
+{{- if .Values.faultName }}
       - name: fault-update
         image: {{ .Values.repositoryTag }}
         command: ["sh"]
@@ -262,7 +264,7 @@ spec:
             mountPath: /fluentd/etc
           - name: fluentd-logs
             mountPath: /fluentd/log
-{{- if ne .Values.fqdn "localhost" }}
+{{- if .Values.faultName }}
       initContainers:
       - name: fault-setup
         image: {{ .Values.repositoryTag }}
@@ -293,10 +295,12 @@ spec:
 {{- else }}
       - name: fault
         emptyDir: {}
+{{- end }}
+{{- if .Values.faultName }}
       - name: hostkey-volume
         secret:
           secretName: stool-hostkey
-{{- end }}
+{{ end }}
 {{- if .Values.cert }}
       - name: cert-volume
         configMap:
