@@ -14,6 +14,7 @@
   <description>Stool server, running in Kubernetes do manage stages in kubernetes. Also implements the dashboard.</description>
 
   <properties>
+    <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
     <springboot.version>2.2.2.RELEASE</springboot.version>
     <spring.version>5.2.3.RELEASE</spring.version>
     <spring.security.version>5.2.1.RELEASE</spring.security.version>
@@ -187,6 +188,26 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>regex-property</id>
+            <goals>
+              <goal>regex-property</goal>
+            </goals>
+            <configuration>
+              <name>image.version</name>
+              <value>${project.version}</value>
+              <regex>-SNAPSHOT</regex>
+              <replacement>-${maven.build.timestamp}</replacement>
+              <failIfNoMatch>false</failIfNoMatch>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>${springboot.version}</version>
@@ -210,9 +231,8 @@
         <configuration>
           <images>
             <image>
-              <name>contargo.server.lan/cisoops-public/stool-server:%t</name>
+              <name>contargo.server.lan/cisoops-public/stool-server:${image.version}</name>
               <build>
-                <tags><tag>latest</tag></tags>
                 <dockerFile>${basedir}/src/docker/Dockerfile</dockerFile>
                 <assembly>
                   <descriptor>${basedir}/src/docker/assembly.xml</descriptor>
@@ -238,6 +258,30 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- helm chart -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/helm</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/helm</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 
