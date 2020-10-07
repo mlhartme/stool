@@ -1,17 +1,4 @@
-{{ if eq .Values.fqdn "localhost" }}
-apiVersion: v1
-kind: Service
-metadata:
-  name: stool-registry
-  namespace: stool
-spec:
-  ports:
-    - nodePort: 31500
-      port: 5000
-  selector:
-    app: stool-registry
-  type: NodePort
-{{ else }}
+{{ if ne .Values.fqdn "localhost" }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
