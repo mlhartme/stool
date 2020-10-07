@@ -169,9 +169,8 @@ stage indicator is invisible if you have no current workspace.
 
 Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
 or map (string to string)). Stool distinguishes server properties and stage properties. Server properties are global settings that apply to 
-all stages, they are usually adjusted by system administrators (see [server configuration](#sc-server)). Stage properties 
-configure the respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
-with [stool config](#sc-config). 
+all stages, they are usually adjusted by system administrators. Stage properties configure the respective stage only, every stage has 
+its own set of stage properties. You can adjust stage properties with [stool config](#sc-config). 
 
 Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are similar to
 properties, but they are read-only.
@@ -230,19 +229,6 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 
 
 `sc` *global-option*... `setup` [*spec*]
-
-
-`sc` *global-option*... `server` *hostname* *api* [*shortname*] [*dest*]
-
-*hostname* is the fqdn pointing to this server; this is used to build stage url. 
-
-*api* the Kubernetes API url to be used by clients if they need to talk to the same 
-Kubernetes Stool server talks to (e.g. for `sc port-forward`). 
-
-*shortname* is appended to the Docker Repository Tag.
- 
-*dest* specifies the file to generate; default is *shortname*-values.yaml
-
 
 
 `sc` *global-option*... `context` [`-q`][`-offline`][*context*]
@@ -393,30 +379,6 @@ defaults is `~/.sc.yaml`.
 
 Use *spec* to specify a context name and a api url to configure. If not specified, this is guessed from the
 local machine (TODO: cisotools).
-
-
-### sc-server
-
-Generate server configuration
-
-#### SYNOPSIS
-
-`sc` *global-option*... `server` *hostname* *api* [*shortname*] [*dest*]
-
-*hostname* is the fqdn pointing to this server; this is used to build stage url. 
-
-*api* the Kubernetes API url to be used by clients if they need to talk to the same 
-Kubernetes Stool server talks to (e.g. for `sc port-forward`). 
-
-*shortname* is appended to the Docker Repository Tag.
- 
-*dest* specifies the file to generate; default is *shortname*-values.yaml
-
-
-#### DESCRIPTION
-
-Generates a Helm values yaml file to configure a server. See https://github.com/mlhartme/stool/blob/stool-6.0/server/src/helm/values.yaml 
-for available values.
 
 
 ### sc-context
@@ -1028,8 +990,8 @@ Install steps
 ### Server installation
 
 TODO 
-* `sc server name`
-* `kubectl apply -f name.yaml`
+* see https://github.com/mlhartme/stool/blob/stool-6.0/server/src/helm/values.yaml for available values
+* helm install ...
 
 Technically, Stool server is a proxy for Kubernetes, it uses a services account to access Kubernetes API. Users authenticate against Stool
 server, they do not have access to Kubernetes.
