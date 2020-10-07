@@ -58,9 +58,7 @@ public class MainIT {
         FileNode file;
 
         file = IT_ROOT.join("values.yaml");
-        file.writeLines(
-                "repositoryTag: contargo.server.lan/cisoops-public/stool-server:latest",
-                "registryUrl: " + Secrets.load(WORLD).portus.resolve("localhost/").toString());
+        file.writeLines("registryUrl: " + Secrets.load(WORLD).portus.resolve("localhost/").toString());
         return file;
     }
 

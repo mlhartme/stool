@@ -5,7 +5,7 @@ fqdn: "localhost"
 cert: ""
 
 # points to stool server image
-repositoryTag: ""
+repositoryTag: "contargo.server.lan/cisoops-public/stool-server:latest"
 
 # Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
 registryUrl: ""
