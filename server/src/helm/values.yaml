@@ -1,5 +1,8 @@
-# Fully qualified domain name of this server. Points to the dashboard; used in stage urls and emails. Type string.
+# Fully qualified domain name of this server. Points to api and dashboard; used in stage urls and emails. Type string.
 fqdn: "localhost"
+
+# certificate for fqdn; empty for none; base64 encoded p12 keystore file
+cert: ""
 
 # points to stool server image
 repositoryTag: ""
@@ -25,7 +28,7 @@ ldapCredentials: ""
 # Url for dashboard single sign on. Type string, default empty.
 ldapSso: ""
 
-cert: ""
+# script to generate stage certificate; empty generates a self-signed certificate
 certScript: ""
 
 faultName: ""

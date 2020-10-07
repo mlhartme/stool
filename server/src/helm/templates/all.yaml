@@ -88,13 +88,6 @@ metadata:
 ---
 apiVersion: v1
 binaryData:
-  tomcat.p12: {{ .Values.cert }}
-kind: ConfigMap
-metadata:
-  name: stool-cert
----
-apiVersion: v1
-binaryData:
   cert.sh: {{ .Values.certScript }}
 kind: ConfigMap
 metadata:
@@ -120,6 +113,15 @@ spec:
   selector:
     app: stool
   type: ClusterIP
+{{ end }}
+{{ if .Values.cert }}
+---
+apiVersion: v1
+binaryData:
+  tomcat.p12: {{ .Values.cert }}
+kind: ConfigMap
+metadata:
+  name: stool-cert
 {{ end }}
 ---
 apiVersion: v1
@@ -184,10 +186,12 @@ spec:
             name: fault
           - mountPath: /var/log/stages
             name: fluentd-logs
-      {{- if ne .Values.fqdn "localhost" }}
+      {{- if .Values.cert }}
           - mountPath: /usr/local/tomcat/conf/tomcat.p12
             name: cert-volume
             subPath: tomcat.p12
+      {{- end }}
+      {{- if ne .Values.fqdn "localhost" }}
           - mountPath: /var/lib/stool/cert.sh
             name: cert-script-volume
             subPath: cert.sh
@@ -292,12 +296,6 @@ spec:
       - name: hostkey-volume
         secret:
           secretName: stool-hostkey
-      - name: cert-volume
-        configMap:
-          items:
-            - key: tomcat.p12
-              path: tomcat.p12
-          name: stool-cert
       - name: cert-script-volume
         configMap:
           items:
@@ -306,3 +304,11 @@ spec:
               mode: 0755
           name: stool-cert-script
 {{- end }}
+{{- if .Values.cert }}
+      - name: cert-volume
+        configMap:
+          items:
+            - key: tomcat.p12
+              path: tomcat.p12
+          name: stool-cert
+{{- end}}
