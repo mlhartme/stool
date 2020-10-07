@@ -56,27 +56,3 @@ subjects:
   - kind: ServiceAccount
     name: stool-account
 {{ end }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: stool
-spec:
-  ports:
-    - name: https
-      {{- if eq .Values.fqdn "localhost" }}
-      nodePort: 31000
-      {{- end }}
-      port: 443
-      targetPort: 8080
-    - name: fluentd-tcp
-      port: 24224
-      protocol: TCP
-      targetPort: 24224
-    - name: fluentd-udp
-      port: 24224
-      protocol: UDP
-      targetPort: 24224
-  selector:
-    app: stool
-  type: {{ if eq .Values.fqdn "localhost" }}NodePort{{ else }}ClusterIP{{ end }}
