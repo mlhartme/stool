@@ -67,6 +67,9 @@ spec:
       app: stool
   template:
     metadata:
+      # https://helm.sh/docs/howto/charts_tips_and_tricks/#automatically-roll-deployments
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
       labels:
         app: stool
     spec:
