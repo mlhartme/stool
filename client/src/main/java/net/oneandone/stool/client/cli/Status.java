@@ -18,7 +18,7 @@ package net.oneandone.stool.client.cli;
 import com.google.gson.JsonElement;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.sushi.util.Separator;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.Collection;
@@ -29,10 +29,8 @@ public class Status extends InfoCommand {
         super(globals);
     }
 
-    private static final Separator TAB = Separator.on('\t');
-
     @Override
-    public void doRun(Client client, String clientFilter) throws Exception {
+    public void doRun(Client client, String clientFilter, CompoundResult result) throws Exception {
         Map<String, Map<String, JsonElement>> response;
         boolean withPrefix;
         int prefixWidth;
@@ -43,14 +41,15 @@ public class Status extends InfoCommand {
         withPrefix = response.size() != 1;
         prefixWidth = maxWidth(response.keySet());
         for (Map.Entry<String, Map<String, JsonElement>> stage : response.entrySet()) {
+            name = stage.getKey();
             if (withPrefix) {
-                name = stage.getKey();
                 prefix = Strings.times(' ', prefixWidth - name.length());
                 prefix = prefix + "{" + name + "} ";
             } else {
                 prefix = "";
             }
             output(prefix, stage.getValue());
+            result.success(new Reference(client, name));
         }
     }
 

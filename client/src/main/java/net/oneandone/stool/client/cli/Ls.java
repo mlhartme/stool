@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import com.google.gson.JsonElement;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -36,8 +37,8 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public EnumerationFailed runAll() throws Exception {
-        EnumerationFailed result;
+    public CompoundResult runAll() throws Exception {
+        CompoundResult result;
 
         if (stageClause == null) { // list command has an implicit -all switch
             all = true;
@@ -86,7 +87,7 @@ public class Ls extends InfoCommand {
 
 
     @Override
-    public void doRun(Client client, String clientFilter) throws Exception {
+    public void doRun(Client client, String clientFilter, CompoundResult result) throws Exception {
         List<String> line;
         Map<String, Map<String, JsonElement>> response;
 
@@ -97,6 +98,7 @@ public class Ls extends InfoCommand {
             for (Map.Entry<String, JsonElement> entry : stage.getValue().entrySet()) {
                 line.add(infoToString(entry.getValue()));
             }
+            result.success(new Reference(client, stage.getKey()));
         }
     }
 

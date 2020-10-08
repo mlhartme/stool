@@ -67,6 +67,7 @@ Client changes
   * moved all none-image fields to status command:
     `container`, `uptime`, `disk-used`, `environment`, `origin-scm`, `heap`
   * changed `container` to `pod`  
+* stage command now print a message if not stages was matched
 * TODO: not adjusted yet
   * `ssh` dumped app argument
   * `tunnel` dumped app argument

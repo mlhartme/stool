@@ -21,19 +21,23 @@ import net.oneandone.stool.client.Reference;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EnumerationFailed extends Exception {
-    public final Map<String, Exception> problems;
+public class CompoundResult extends Exception {
+    public final Map<Reference, Exception> results;
 
-    public EnumerationFailed() {
-        problems = new HashMap<>();
+    public CompoundResult() {
+        results = new HashMap<>();
     }
 
-    public boolean empty() {
-        return problems.isEmpty();
+    public int size() {
+        return results.size();
     }
 
-    public void add(Reference reference, Exception cause) {
-        problems.put(reference.toString(), cause);
+    public void success(Reference reference) {
+        results.put(reference, null);
+    }
+
+    public void failure(Reference reference, Exception cause) {
+        results.put(reference, cause);
         addSuppressed(cause);
     }
 
@@ -42,14 +46,16 @@ public class EnumerationFailed extends Exception {
     public String getMessage() {
         StringBuilder result;
 
-        if (problems.isEmpty()) {
+        if (getSuppressed().length == 0) {
             return null;
+        } else {
+            result = new StringBuilder("stage command failed for the following stage(s):\n");
+            for (Map.Entry<Reference, Exception> entry : results.entrySet()) {
+                if (entry.getValue() != null) {
+                    result.append("  ").append(entry.getKey()).append(": ").append(entry.getValue().getMessage()).append('\n');
+                }
+            }
+            return result.toString();
         }
-
-        result = new StringBuilder("stage command failed for the following stage(s):\n");
-        for (Map.Entry<String, Exception> entry : problems.entrySet()) {
-            result.append("  ").append(entry.getKey()).append(": ").append(entry.getValue().getMessage()).append('\n');
-        }
-        return result.toString();
     }
 }

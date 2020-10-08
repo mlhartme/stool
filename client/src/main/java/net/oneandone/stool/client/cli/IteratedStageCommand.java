@@ -32,11 +32,11 @@ public abstract class IteratedStageCommand extends StageCommand {
     //--
 
     @Override
-    public EnumerationFailed runAll() throws Exception {
+    public CompoundResult runAll() throws Exception {
         List<Reference> lst;
         int width;
         boolean withPrefix;
-        EnumerationFailed failures;
+        CompoundResult failures;
         Worker worker;
 
         lst = selectedList();
@@ -46,7 +46,7 @@ public abstract class IteratedStageCommand extends StageCommand {
         }
         width += 5;
         withPrefix = lst.size() != 1;
-        failures = new EnumerationFailed();
+        failures = new CompoundResult();
         worker = new Worker(width, failures, withPrefix);
         for (Reference reference : lst) {
             worker.main(reference);
@@ -94,10 +94,10 @@ public abstract class IteratedStageCommand extends StageCommand {
     /** executes a stage command with proper locking */
     public class Worker {
         private final int width;
-        private final EnumerationFailed failures;
+        private final CompoundResult failures;
         private final boolean withPrefix;
 
-        public Worker(int width, EnumerationFailed failures, boolean withPrefix) {
+        public Worker(int width, CompoundResult failures, boolean withPrefix) {
             this.width = width;
             this.failures = failures;
             this.withPrefix = withPrefix;
@@ -121,11 +121,12 @@ public abstract class IteratedStageCommand extends StageCommand {
                 } else {
                     runFinish(referece);
                 }
+                failures.success(referece);
             } catch (ArgumentException e) {
                 if (fail == Fail.NORMAL) {
                     throw new ArgumentException(referece + ": " + e.getMessage(), e);
                 }
-                failures.add(referece, e);
+                failures.failure(referece, e);
             } catch (Error | RuntimeException e) {
                 console.error.println(referece + ": " + e.getMessage());
                 throw e;
@@ -133,7 +134,7 @@ public abstract class IteratedStageCommand extends StageCommand {
                 if (fail == Fail.NORMAL) {
                     throw e;
                 }
-                failures.add(referece, e);
+                failures.failure(referece, e);
             } finally {
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");

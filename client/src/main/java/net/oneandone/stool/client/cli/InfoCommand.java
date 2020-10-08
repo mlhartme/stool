@@ -40,11 +40,12 @@ public abstract class InfoCommand extends StageCommand {
     }
 
     @Override
-    public EnumerationFailed runAll() throws Exception {
+    public CompoundResult runAll() throws Exception {
         Map<Client, String> clientFilters;
         Configuration configuration;
         List<Reference> references;
         String clientFilter;
+        CompoundResult result;
 
         if (stageClause != null && all) {
             throw new ArgumentException("too many select options");
@@ -71,10 +72,11 @@ public abstract class InfoCommand extends StageCommand {
                 }
             }
         }
+        result = new CompoundResult();
         for (Map.Entry<Client, String> entry : clientFilters.entrySet()) {
-            doRun(entry.getKey(), entry.getValue());
+            doRun(entry.getKey(), entry.getValue(), result);
         }
-        return new EnumerationFailed();
+        return result;
     }
 
     public static String infoToString(JsonElement info) {
@@ -111,5 +113,5 @@ public abstract class InfoCommand extends StageCommand {
         }
     }
 
-    public abstract void doRun(Client client, String clientFilter) throws Exception;
+    public abstract void doRun(Client client, String clientFilter, CompoundResult result) throws Exception;
 }

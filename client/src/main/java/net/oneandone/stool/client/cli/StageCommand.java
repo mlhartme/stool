@@ -45,17 +45,24 @@ public abstract class StageCommand extends ClientCommand {
 
     @Override
     public void run() throws Exception {
-        EnumerationFailed failures;
-        String failureMessage;
+        CompoundResult result;
+        String failure;
+        int size;
 
-        failures = runAll();
-        failureMessage = failures.getMessage();
-        if (failureMessage != null) {
+        result = runAll();
+        size = result.size();
+        if (size == 0) {
+            console.info.println("no stage(s)");
+        } else {
+            console.verbose.println("processed stage: " + size);
+        }
+        failure = result.getMessage();
+        if (failure != null) {
             switch (fail) {
                 case AFTER:
-                    throw failures;
+                    throw result;
                 case NEVER:
-                    console.info.println("WARNING: " + failureMessage);
+                    console.info.println("WARNING: " + failure);
                     break;
                 default:
                     throw new IllegalStateException("unknown fail mode: " + fail.toString());
@@ -63,7 +70,7 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    public abstract EnumerationFailed runAll() throws Exception;
+    public abstract CompoundResult runAll() throws Exception;
 
     public enum Fail {
         NORMAL, AFTER, NEVER
