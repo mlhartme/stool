@@ -362,7 +362,7 @@ public class Server {
         }
         dir = home.join("certs", certname);
         try {
-            LOGGER.debug(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute()));
+            LOGGER.debug(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), configuration.fqdn));
         } catch (IOException e) {
             broken = dir.getParent().join(dir.getName() + ".broken");
             broken.deleteTreeOpt();

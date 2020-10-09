@@ -3,6 +3,7 @@ set -e
 
 certname=$1
 destdir=$2
+fqdn=$3
 
 if [ -d ${destdir} ] ; then
   echo "re-using certificate in: ${destdir}"
