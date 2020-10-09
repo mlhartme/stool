@@ -97,7 +97,10 @@ Server changes
   * certificate configMap
 * dumped APP_PROPERTIES_FILE and APP_PROPERTIES_PREFIX configuration; the server no longer looks into the war file
   instead, they are currently hard-wired into the client-side configuration; 
-
+* dependency updates: 
+  * spring 5.2.3 to to 5.2.9
+  * spring security 5.2.1 to 5.3.5
+  * spring boot 2.2.2 to 2.3.4
 * rest
   * `start` replaced apps argument by optional image arguments; returns a single image now
   * `stop` dumped apps argument, returns an optional String now
