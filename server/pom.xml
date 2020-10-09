@@ -15,9 +15,9 @@
 
   <properties>
     <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
-    <springboot.version>2.2.2.RELEASE</springboot.version>
-    <spring.version>5.2.3.RELEASE</spring.version>
-    <spring.security.version>5.2.1.RELEASE</spring.security.version>
+    <springboot.version>2.3.4.RELEASE</springboot.version>
+    <spring.version>5.2.9.RELEASE</spring.version>
+    <spring.security.version>5.3.5.RELEASE</spring.security.version>
   </properties>
 
   <dependencies>
