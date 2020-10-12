@@ -88,7 +88,7 @@ public class MainIT {
 
         working = IT_ROOT.join("projects").mkdirsOpt().join("it");
         System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
-        System.out.println(working.exec("mvn", "clean", "package"));
+        System.out.println(working.exec("mvn", "clean", "package", "-Dmaven.javadoc.skip=true")); // junit.org for javadocs is offline every now and then ...
         System.out.println("git");
 
         helm("upgrade", "--install", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
