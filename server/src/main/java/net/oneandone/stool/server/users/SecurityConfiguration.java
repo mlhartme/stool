@@ -134,7 +134,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultSpringSecurityContextSource contextSource;
         String url;
 
-        url = enabled() ? server.configuration.ldapUrl : "ldap://will-no-be-used";
+        url = enabled() ? server.configuration.ldapUrl : "ldap://will-not-be-used";
         contextSource = new DefaultSpringSecurityContextSource(url);
         contextSource.setUserDn(server.configuration.ldapPrincipal);
         contextSource.setPassword(server.configuration.ldapCredentials);
