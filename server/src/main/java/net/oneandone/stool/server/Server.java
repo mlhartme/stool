@@ -72,6 +72,8 @@ public class Server {
         boolean openShift;
 
         config = ServerConfiguration.load();
+        LOGGER.info("server version: " + Main.versionString(world));
+        LOGGER.info("server auth: " + config.auth());
         LOGGER.info("server configuration: " + config);
         try (Engine engine = Engine.createFromCluster(STOOL_LABELS)) {
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
@@ -388,9 +390,9 @@ public class Server {
             }
         }
         try {
-            LOGGER.info("docker info: " + engine.version());
+            LOGGER.info("kubernetes info: " + engine.version());
         } catch (IOException e) {
-            LOGGER.error("cannot access docker", e);
+            LOGGER.error("cannot access kubernetes", e);
             throw e;
         }
         LOGGER.info("server validation ok");
