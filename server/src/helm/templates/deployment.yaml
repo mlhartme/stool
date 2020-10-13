@@ -79,6 +79,15 @@ spec:
       containers:
       - name: stool
         image: {{ .Values.repositoryTag }}
+        readinessProbe:
+          httpGet:
+            {{- if .Values.cert }}
+            scheme: HTTPS
+            {{- end }}
+            path: /api/info
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
         resources:
           limits:
             cpu: 2

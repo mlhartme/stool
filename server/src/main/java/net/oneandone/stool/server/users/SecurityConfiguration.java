@@ -74,7 +74,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        if (server.configuration.auth()) {
+        if (enabled()) {
             /* To allow Pre-flight [OPTIONS] request from browser */
             web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
         } else {
@@ -99,7 +99,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .and()
 
                 .authorizeRequests()
-                    .antMatchers("/webjars/**").permitAll()
+                    .antMatchers("/api/info", "/webjars/**").permitAll()
                     .anyRequest().authenticated();
         } else {
             http.authorizeRequests().antMatchers("/**").anonymous();

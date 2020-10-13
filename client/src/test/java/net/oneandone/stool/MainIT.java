@@ -91,8 +91,8 @@ public class MainIT {
         System.out.println(working.exec("mvn", "clean", "package", "-Dmaven.javadoc.skip=true")); // junit.org for javadocs is offline every now and then ...
         System.out.println("git");
 
-        helm("upgrade", "--install", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
-        Thread.sleep(30000); // TODO - probes
+        helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
+        System.out.println("helm upgrade done");
 
         stage = "de.wq-ta"; // with some special characters
 

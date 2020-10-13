@@ -48,6 +48,8 @@ public class User implements UserDetails {
         principal = authentication.getPrincipal();
         if (principal instanceof User) {
             return (User) principal;
+        } else if ("anonymousUser".equals(principal)) {
+            return null;
         } else {
             throw new IllegalStateException(principal + " " + principal.getClass());
         }

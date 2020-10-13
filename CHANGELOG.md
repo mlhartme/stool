@@ -1,5 +1,11 @@
 ## Changelog 
 
+### 6.0.1 (pending)
+
+* server startup output with image version
+* readiness probe for stool server
+
+
 ### 6.0.0 (2020-10-12)
 
 Stool 6 switches from Docker hosts to Kubernetes: Stool server itself executes in Kubernetes, and it talks to Kubernetes to manage stages.

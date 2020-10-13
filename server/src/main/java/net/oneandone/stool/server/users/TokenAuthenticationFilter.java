@@ -31,7 +31,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
-/** Make sure there's always a user set - */
+/**
+ * Make sure there's always a user set -
+ */
+// TODO: watch https://www.youtube.com/watch?v=EeXFwR21J1A&list=PLEocw3gLFc8XRaRBZkhBEZ_R3tmvfkWZz&index=5
 public class TokenAuthenticationFilter extends GenericFilterBean {
     private final UserManager manager;
 
