@@ -87,6 +87,7 @@ public class ApiController {
         return Engine.createFromCluster(Server.STOOL_LABELS);
     }
 
+    // TODO: used for readiness probes - becomes expensive if I used quotas ...
     @GetMapping("/info")
     public String info() throws IOException {
         JsonObject result;
