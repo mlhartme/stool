@@ -4,7 +4,7 @@
 
 * server startup output with image version
 * readiness probe for stool server
-* update to junit 4.13.1
+* update to junit 5.7.0
 
 
 ### 6.0.0 (2020-10-12)

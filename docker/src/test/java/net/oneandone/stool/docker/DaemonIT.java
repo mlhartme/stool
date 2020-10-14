@@ -20,17 +20,18 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class DaemonIT {
     private static final World WORLD = World.createMinimal();
@@ -41,11 +42,13 @@ public class DaemonIT {
 
     //-- images
 
-    @Test(expected = ArgumentException.class)
+    @Test()
     public void rejectBuildWithUppercaseTag() throws IOException {
-        try (Daemon docker = create()) {
-            docker.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
-        }
+        assertThrows(ArgumentException.class, () -> {
+            try (Daemon docker = create()) {
+                docker.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
+            }
+        });
     }
 
     @Test
@@ -82,7 +85,7 @@ public class DaemonIT {
             fail();
         } catch (BuildError e) {
             // ok
-            assertTrue(e.error, e.error.contains("nosuchfile"));
+            assertTrue(e.error.contains("nosuchfile"));
             assertNotNull("", e.output);
         }
     }
