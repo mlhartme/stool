@@ -22,7 +22,7 @@ import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Source;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 

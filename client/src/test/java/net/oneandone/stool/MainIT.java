@@ -22,15 +22,16 @@ import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Properties;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Integration tests for the command line.
@@ -69,8 +70,8 @@ public class MainIT {
     public MainIT() {
     }
 
-    @After
-    public void after() throws IOException {
+    @AfterAll
+    public static void afterAll() throws IOException {
         kubectl("logs", "--namespace=stool", "--selector=app=stool", "-c", "stool");
     }
 
@@ -123,7 +124,7 @@ public class MainIT {
         working.deleteTree();
     }
 
-    public void kubectl(String ... cmd) throws IOException {
+    public static void kubectl(String ... cmd) throws IOException {
         Launcher server;
 
         try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
