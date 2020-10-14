@@ -929,7 +929,8 @@ Examples: debug your application: `ssh port-forwarding 5005` and start your debu
 
 Examples: attach to a JMX console via jmxmp: `ssh port-forwarding 5555` and 
 `jconsole -J-Djava.class.path=${CISOTOOLS_HOME}/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://localhost:5555`
-(Note: if the connections crashes and jconsole asks to reconnect: make sure you jconsole java version matches the application's Java version.)
+(Note: if the connections crashes and jconsole asks to reconnect: make sure your jconsole java version matches the application's Java version;
+and make sure the jar file is referenced properly)
 
 ### sc-ssh
 
