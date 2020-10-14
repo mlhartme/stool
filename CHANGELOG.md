@@ -2,6 +2,8 @@
 
 ### 5.1.1 (pending)
 
+* update junit 4.12 to 4.13.1
+
 client 
 * added -network argument to make the server network configurable
 * fixed integration tests to automatically create and remove a network (thanks to Stephan M)
