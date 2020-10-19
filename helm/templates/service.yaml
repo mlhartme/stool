@@ -3,7 +3,6 @@ kind: Service
 metadata:
   labels:
     net.oneandone.stool-stage: {{ .Values.name }}
-    origin: net.oneandone.stool.server
   name: {{ .Values.name }}
 spec:
   clusterIP: 100.69.72.77

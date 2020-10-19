@@ -3,7 +3,5 @@ data:
   tomcat.p12: {{ .Values.cert }}
 kind: Secret
 metadata:
-  labels:
-    origin: net.oneandone.stool.server
   name: {{ .Values.name }}-cert
 type: Opaque

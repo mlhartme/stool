@@ -3,7 +3,5 @@ data:
   fault.tar: {{ .Values.fault }}
 kind: Secret
 metadata:
-  labels:
-    origin: net.oneandone.stool.server
   name: {{ .Values.name }}-fault
 type: Opaque

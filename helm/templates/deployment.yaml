@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     net.oneandone.stool-stage: {{ .Values.name }}
-    origin: net.oneandone.stool.server
   name: {{ .Values.name }}
 spec:
   replicas: 1
@@ -15,7 +14,6 @@ spec:
       labels:
         net.oneandone.stool-port.jmxmp: x5555
         net.oneandone.stool-stage: {{ .Values.name }}
-        origin: net.oneandone.stool.server
     spec:
       containers:
       - image: contargo.server.lan/cisoops-public/stool/cp-pearl/{{ .Values.name }}:{{ .Values:version }}
