@@ -12,11 +12,11 @@ spec:
   template:
     metadata:
       labels:
-        net.oneandone.stool-port.jmxmp: x5555
+        net.oneandone.stool-port.jmxmp: x{{ .Values.jmxmp }}
         net.oneandone.stool-stage: {{ .Values.name }}
     spec:
       containers:
-      - image: contargo.server.lan/cisoops-public/stool/cp-pearl/{{ .Values.name }}:{{ .Values:version }}
+      - image: {{ .Values:image }}
         imagePullPolicy: IfNotPresent
         name: main
         resources:

@@ -1,5 +1,7 @@
 name: mhm
+image: contargo.server.lan/cisoops-public/stool/cp-pearl/hellowar:3
 cpu: 1
 memory: 1073741824
 cert: ""
 fault: ""
+jmxmp: 5555
