@@ -25,10 +25,12 @@ spec:
             memory: {{ .Values.memory }}
         volumeMounts:
         - mountPath: /usr/local/tomcat/conf/tomcat.p12
-          name: {{ .Values.name }}-cert
+          name: cert
           subPath: tomcat.p12
         - mountPath: /var/log/stool
           name: var-log-stool
+        - mountPath: /root/.fault
+          name: fault-workspace
       - image: fluent/fluentd:v1.11.2-1.0
         imagePullPolicy: IfNotPresent
         name: fluentd
@@ -41,20 +43,41 @@ spec:
           name: {{ .Values.name }}-fluentd
         - mountPath: /var/log/stool
           name: var-log-stool
+      initContainers:
+      - image: {{ .Values.image }}
+        name: fault-init
+        command: ["sh"]
+        args: ["-c", "cd /root/.fault && tar zxf /var/lib/fault/workspace.tgz"]
+        volumeMounts:
+        - mountPath: /var/lib/fault
+          name: fault-tar
+        - mountPath: /root/.fault
+          name: fault-workspace
       volumes:
-      - name: {{ .Values.name }}-cert
+      - name: cert
         secret:
           defaultMode: 420
           items:
           - key: tomcat.p12
             path: tomcat.p12
           secretName: {{ .Values.name }}-cert
-      - emptyDir: {}
-        name: var-log-stool
-      - configMap:
+      - name: var-log-stool
+        emptyDir: {}
+      - name: {{ .Values.name }}-fluentd
+        configMap:
           defaultMode: 420
           items:
           - key: fluent.conf
             path: fluent.conf
           name: {{ .Values.name }}-fluentd
-        name: {{ .Values.name }}-fluentd
+      - name: cert-volume
+        configMap:
+          items:
+          - key: tomcat.p12
+            path: tomcat.p12
+          name: {{ .Values.app }}-cert
+      - name: fault-tar
+        secret:
+          secretName: {{ .Values.app }}-fault
+      - name: fault-workspace
+        emptyDir: {}
