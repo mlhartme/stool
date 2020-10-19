@@ -3,5 +3,5 @@ image: contargo.server.lan/cisoops-public/stool/cp-pearl/hellowar:3
 cpu: 1
 memory: 1073741824
 cert: ""
-fault: ""
+fault: "H4sIAChpiV8AA9PTZ6A5MDAwMDc1VQDTZhDawMgEQkOBgqGxuYmRkZmJibGRgoGhoaGJGYOCKe2dxsBQWlySWAR0Sm5GLl51QGVpaXjkof6A06NgFIyCUTDIAQDOb/vdAAYAAA=="
 jmxmp: 5555
