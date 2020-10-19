@@ -3,7 +3,7 @@ kind: Route
 metadata:
   name: {{ .Values.name }}-https
 spec:
-  host: {{ .Values.name }}.cp.pearl.server.lan
+  host: {{ .Values.name }}.{{ .Values.fqdn }}
   port:
     targetPort: https
   tls:

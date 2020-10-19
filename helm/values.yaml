@@ -1,4 +1,5 @@
 name: helm
+fqdn: cp.pearl.server.lan
 image: contargo.server.lan/cisoops-public/hellowar:1.0.0
 cpu: 1
 memory: 1073741824
