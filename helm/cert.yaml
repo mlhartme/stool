@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  tomcat.p12: TODO-hidden
+kind: Secret
+metadata:
+  creationTimestamp: "2020-10-01T10:32:32Z"
+  labels:
+    origin: net.oneandone.stool.server
+  name: mhm-cert
+  namespace: cp-pearl
+  resourceVersion: "145949888"
+  selfLink: /api/v1/namespaces/cp-pearl/secrets/mhm-cert
+  uid: 69f77235-03d1-11eb-9392-566fb25c0144
+type: Opaque

@@ -1,0 +1,28 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  creationTimestamp: "2020-10-01T10:32:32Z"
+  name: mhm-http
+  namespace: cp-pearl
+  resourceVersion: "145949897"
+  selfLink: /apis/route.openshift.io/v1/namespaces/cp-pearl/routes/mhm-http
+  uid: 6a108890-03d1-11eb-9392-566fb25c0144
+spec:
+  host: mhm.cp.pearl.server.lan
+  path: /
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: mhm
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+  - conditions:
+    - lastTransitionTime: "2020-10-01T10:32:32Z"
+      status: "True"
+      type: Admitted
+    host: mhm.cp.pearl.server.lan
+    routerName: router
+    wildcardPolicy: None
