@@ -2,9 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    net.oneandone.stool-stage: mhm
+    net.oneandone.stool-stage: {{ .Values.name }}
     origin: net.oneandone.stool.server
-  name: mhm
+  name: {{ .Values.name }}
 spec:
   clusterIP: 100.69.72.77
   ports:
@@ -17,5 +17,5 @@ spec:
     protocol: TCP
     targetPort: 8443
   selector:
-    net.oneandone.stool-stage: mhm
+    net.oneandone.stool-stage: {{ .Values.name }}
   type: ClusterIP

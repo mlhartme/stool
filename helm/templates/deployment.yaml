@@ -2,32 +2,32 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    net.oneandone.stool-stage: mhm
+    net.oneandone.stool-stage: {{ .Values.name }}
     origin: net.oneandone.stool.server
-  name: mhm
+  name: {{ .Values.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      net.oneandone.stool-stage: mhm
+      net.oneandone.stool-stage: {{ .Values.name }}
   template:
     metadata:
       labels:
         net.oneandone.stool-port.jmxmp: x5555
-        net.oneandone.stool-stage: mhm
+        net.oneandone.stool-stage: {{ .Values.name }}
         origin: net.oneandone.stool.server
     spec:
       containers:
-      - image: contargo.server.lan/cisoops-public/stool/cp-pearl/mhm:3
+      - image: contargo.server.lan/cisoops-public/stool/cp-pearl/{{ .Values.name }}:{{ .Values:version }}
         imagePullPolicy: IfNotPresent
         name: main
         resources:
           limits:
-            cpu: "1"
-            memory: "1073741824"
+            cpu: {{ .Values.cpu }}
+            memory: {{ .Values.memory }}
         volumeMounts:
         - mountPath: /usr/local/tomcat/conf/tomcat.p12
-          name: mhm-cert
+          name: {{ .Values.name }}-cert
           subPath: tomcat.p12
         - mountPath: /var/log/stool
           name: var-log-stool
@@ -36,21 +36,21 @@ spec:
         name: fluentd
         resources:
           limits:
-            cpu: "1"
-            memory: "1073741824"
+            cpu: {{ .Values.cpu }}
+            memory: {{ .Values.memory }}
         volumeMounts:
         - mountPath: /fluentd/etc
-          name: mhm-fluentd
+          name: {{ .Values.name }}-fluentd
         - mountPath: /var/log/stool
           name: var-log-stool
       volumes:
-      - name: mhm-cert
+      - name: {{ .Values.name }}-cert
         secret:
           defaultMode: 420
           items:
           - key: tomcat.p12
             path: tomcat.p12
-          secretName: mhm-cert
+          secretName: {{ .Values.name }}-cert
       - emptyDir: {}
         name: var-log-stool
       - configMap:
@@ -58,5 +58,5 @@ spec:
           items:
           - key: fluent.conf
             path: fluent.conf
-          name: mhm-fluentd
-        name: mhm-fluentd
+          name: {{ .Values.name }}-fluentd
+        name: {{ .Values.name }}-fluentd

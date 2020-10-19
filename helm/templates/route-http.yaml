@@ -1,14 +1,14 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: mhm-http
+  name: {{ .Values.name }}-http
 spec:
-  host: mhm.cp.pearl.server.lan
+  host: {{ .Values.name }}.cp.pearl.server.lan
   path: /
   port:
     targetPort: http
   to:
     kind: Service
-    name: mhm
+    name: {{ .Values.name }}
     weight: 100
   wildcardPolicy: None
