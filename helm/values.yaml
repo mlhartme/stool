@@ -1,4 +1,4 @@
-name: mhm
+name: helm
 image: contargo.server.lan/cisoops-public/hellowar:1.0.0
 cpu: 1
 memory: 1073741824
