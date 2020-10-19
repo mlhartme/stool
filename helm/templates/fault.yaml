@@ -1,7 +1,6 @@
 apiVersion: v1
+data:
+  workspace.tgz: {{ .Values.fault }}
 kind: Secret
 metadata:
   name: {{ .Values.name }}-fault
-type: Opaque
-data:
-  fault.tar: {{ .Values.fault }}

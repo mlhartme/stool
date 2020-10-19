@@ -16,7 +16,7 @@ spec:
         net.oneandone.stool-stage: {{ .Values.name }}
     spec:
       containers:
-      - image: {{ .Values:image }}
+      - image: {{ .Values.image }}
         imagePullPolicy: IfNotPresent
         name: main
         resources:
@@ -54,13 +54,6 @@ spec:
         - mountPath: /root/.fault
           name: fault-workspace
       volumes:
-      - name: cert
-        secret:
-          defaultMode: 420
-          items:
-          - key: tomcat.p12
-            path: tomcat.p12
-          secretName: {{ .Values.name }}-cert
       - name: var-log-stool
         emptyDir: {}
       - name: {{ .Values.name }}-fluentd
@@ -70,14 +63,14 @@ spec:
           - key: fluent.conf
             path: fluent.conf
           name: {{ .Values.name }}-fluentd
-      - name: cert-volume
+      - name: cert
         configMap:
           items:
           - key: tomcat.p12
             path: tomcat.p12
-          name: {{ .Values.app }}-cert
+          name: {{ .Values.name }}-cert
       - name: fault-tar
         secret:
-          secretName: {{ .Values.app }}-fault
+          secretName: {{ .Values.name }}-fault
       - name: fault-workspace
         emptyDir: {}

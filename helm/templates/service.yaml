@@ -5,7 +5,6 @@ metadata:
     net.oneandone.stool-stage: {{ .Values.name }}
   name: {{ .Values.name }}
 spec:
-  clusterIP: 100.69.72.77
   ports:
   - name: http
     port: 80
