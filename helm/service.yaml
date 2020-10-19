@@ -1,15 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: "2020-10-01T10:32:32Z"
   labels:
     net.oneandone.stool-stage: mhm
     origin: net.oneandone.stool.server
   name: mhm
-  namespace: cp-pearl
-  resourceVersion: "145949893"
-  selfLink: /api/v1/namespaces/cp-pearl/services/mhm
-  uid: 69febb47-03d1-11eb-9392-566fb25c0144
 spec:
   clusterIP: 100.69.72.77
   ports:
@@ -23,7 +18,4 @@ spec:
     targetPort: 8443
   selector:
     net.oneandone.stool-stage: mhm
-  sessionAffinity: None
   type: ClusterIP
-status:
-  loadBalancer: {}
