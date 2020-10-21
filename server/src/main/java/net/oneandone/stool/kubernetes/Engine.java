@@ -456,7 +456,7 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    private DeploymentInfo deploymentAwait(String name) throws IOException {
+    public DeploymentInfo deploymentAwait(String name) throws IOException {
         DeploymentInfo info;
         int count;
 

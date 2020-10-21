@@ -54,7 +54,6 @@ import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -547,55 +546,6 @@ public class Stage {
         }
     }
 
-    private void wipeStartedResources(Engine engine) throws IOException {
-        String deploymentName;
-        String serviceName;
-
-        serviceName = appServiceName();
-        if (engine.serviceGetOpt(serviceName) != null) {
-            Server.LOGGER.debug("wipe kubernetes resources");
-            deploymentName = deploymentName();
-            if (engine.deploymentProbe(deploymentName) != null) {
-                engine.deploymentDelete(deploymentName);
-            }
-            engine.serviceDelete(serviceName);
-            if (server.openShift) {
-                try {
-                    OpenShift.create().routeDelete(httpRouteName());
-                } catch (Exception e) {
-                    // TODO
-                    System.out.println("todo: http route delete failed: " + e.getMessage());
-                }
-                try {
-                    OpenShift.create().routeDelete(httpsRouteName());
-                } catch (Exception e) {
-                    // TODO
-                    System.out.println("todo: https route delete failed: " + e.getMessage());
-                }
-            } else {
-                engine.ingressDelete(appIngressName());
-            }
-            try {
-                engine.configMapDelete(fluentdConfigMapName());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                // TODO
-            }
-            try {
-                engine.secretDelete(faultSecretName());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                // TODO
-            }
-            try {
-                engine.secretDelete(certSecretName());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                // TODO
-            }
-        }
-    }
-
     public String start(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
         World world;
         FileNode tmp;
@@ -615,14 +565,10 @@ public class Stage {
              */
             Server.LOGGER.info(tmp.exec("helm", "install", stageName, tmp.getAbsolute(),
                     "--debug", "--set", "name=" + stageName + ",dnsLabel=" + appServiceName() + ",image=" + image.repositoryTag + ",fqdn=" + stageFqdn()));
-            try {
-                Thread.sleep(5000); // TODO
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         } finally {
             tmp.deleteTree();
         }
+        engine.deploymentAwait(deploymentName());
         return image.repositoryTag;
     }
 
@@ -662,7 +608,6 @@ public class Stage {
         }
 
         memoryReserved += image.memory; // TODO
-        wipeStartedResources(engine);
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(configuration.environment);
         environment.putAll(clientEnvironment);
@@ -983,7 +928,6 @@ public class Stage {
 
     public void delete(Engine engine, Registry registry) throws IOException {
         StageConfiguration.delete(engine, name);
-        wipeStartedResources(engine);
         wipeImages(registry);
     }
 
