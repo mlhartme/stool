@@ -72,7 +72,7 @@ public class MainIT {
 
     @AfterAll
     public static void afterAll() throws IOException {
-        kubectl("logs", "--namespace=stool", "--selector=app=stool", "-c", "stool");
+        kubectl("logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
     }
 
     private static String portusPrefix() throws IOException {
