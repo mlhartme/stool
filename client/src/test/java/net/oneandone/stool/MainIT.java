@@ -95,7 +95,7 @@ public class MainIT {
         helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
         System.out.println("helm upgrade done");
 
-        stage = "de.wq-ta"; // with some special characters
+        stage = "xyz"; // TODO "de.wq-ta"; // with some special characters
 
         sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
 

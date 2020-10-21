@@ -596,9 +596,39 @@ public class Stage {
         }
     }
 
+    public String start(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
+        World world;
+        FileNode tmp;
+        TagInfo image;
+        String stageName;
+
+        stageName = getName();
+        world = World.create(); // TODO
+        tmp = world.getTemp().createTempDirectory();
+        world.resource("helm").copyDirectory(tmp);
+        Server.LOGGER.info("ls: " + tmp.list());
+        image = resolve(registry, imageOpt);
+        try {
+            /*
+            Server.LOGGER.info(tmp.exec("helm", "template", stageName, tmp.getAbsolute(),
+                    "--set", "name=" + stageName + ",image=" + image.repositoryTag + ",fqdn=" + stageFqdn()));
+             */
+            Server.LOGGER.info(tmp.exec("helm", "install", stageName, tmp.getAbsolute(),
+                    "--debug", "--set", "name=" + stageName + ",dnsLabel=" + appServiceName() + ",image=" + image.repositoryTag + ",fqdn=" + stageFqdn()));
+            try {
+                Thread.sleep(5000); // TODO
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } finally {
+            tmp.deleteTree();
+        }
+        return image.repositoryTag;
+    }
+
     /** @return image actually started, null if this image is already running
      *  @throws IOException if a different image is already running */
-    public String start(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
+    public String oldStart(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
         String deploymentName;
         PodInfo running;
         Map<String, String> environment;
@@ -756,22 +786,14 @@ public class Stage {
         return null;
     }
 
-    /** @return tag actually stopped, or null if already stopped */
     public String stop(Engine engine, Registry registry) throws IOException {
         Current current;
-        PodInfo pod;
 
         current = currentOpt(engine, registry);
         if (current == null) {
             return null;
         }
-        Server.LOGGER.info(current.image.tag + ": deleting deployment ...");
-        pod = runningPodOpt(engine);
-        if (pod == null) {
-            throw new IllegalStateException();
-        }
-        engine.deploymentDelete(deploymentName());
-        engine.podAwait(pod.name, null);
+        Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "delete", getName()));
         return current.image.tag;
     }
 

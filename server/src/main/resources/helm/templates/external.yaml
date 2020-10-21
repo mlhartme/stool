@@ -1,0 +1,32 @@
+{{ if .Values.openshift }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Values.name }}-http
+spec:
+  host: {{ .Values.name }}.{{ .Values.fqdn }}
+  path: /
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: {{ .Values.dnsLabel }}
+    weight: 100
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Values.name }}-https
+spec:
+  host: {{ .Values.name }}.{{ .Values.fqdn }}
+  port:
+    targetPort: https
+  tls:
+    termination: passthrough
+  to:
+    kind: Service
+    name: {{ .Values.dnsLabel }}
+    weight: 100
+  wildcardPolicy: None
+{{ end }}

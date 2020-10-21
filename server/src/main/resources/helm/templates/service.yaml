@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     net.oneandone.stool-stage: {{ .Values.name }}
-  name: {{ .Values.name }}
+  name: {{ .Values.dnsLabel }}
 spec:
   ports:
   - name: http
