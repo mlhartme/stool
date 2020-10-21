@@ -3,4 +3,4 @@ kind: ConfigMap
 data:
   tomcat.p12: {{ .Values.cert }}
 metadata:
-  name: {{ .Values.name }}-cert
+  name: {{ .Values.dnsLabel }}-cert

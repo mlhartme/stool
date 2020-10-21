@@ -3,4 +3,4 @@ data:
   workspace.tgz: {{ .Values.fault }}
 kind: Secret
 metadata:
-  name: {{ .Values.name }}-fault
+  name: {{ .Values.dnsLabel }}-fault

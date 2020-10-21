@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     net.oneandone.stool-stage: {{ .Values.name }}
-  name: {{ .Values.name }}
+  name: {{ .Values.dnsLabel }}
 spec:
   replicas: 1
   selector:
@@ -40,7 +40,7 @@ spec:
             memory: {{ .Values.memory }}
         volumeMounts:
         - mountPath: /fluentd/etc
-          name: {{ .Values.name }}-fluentd
+          name: {{ .Values.dnsLabel }}-fluentd
         - mountPath: /var/log/stool
           name: var-log-stool
       initContainers:
@@ -56,21 +56,21 @@ spec:
       volumes:
       - name: var-log-stool
         emptyDir: {}
-      - name: {{ .Values.name }}-fluentd
+      - name: {{ .Values.dnsLabel }}-fluentd
         configMap:
           defaultMode: 420
           items:
           - key: fluent.conf
             path: fluent.conf
-          name: {{ .Values.name }}-fluentd
+          name: {{ .Values.dnsLabel }}-fluentd
       - name: cert
         configMap:
           items:
           - key: tomcat.p12
             path: tomcat.p12
-          name: {{ .Values.name }}-cert
+          name: {{ .Values.dnsLabel }}-cert
       - name: fault-tar
         secret:
-          secretName: {{ .Values.name }}-fault
+          secretName: {{ .Values.dnsLabel }}-fault
       - name: fault-workspace
         emptyDir: {}

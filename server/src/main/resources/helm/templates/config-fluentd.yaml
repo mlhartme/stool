@@ -34,4 +34,4 @@ data:
     </match>
 kind: ConfigMap
 metadata:
-  name: {{ .Values.name }}-fluentd
+  name: {{ .Values.dnsLabel }}-fluentd
