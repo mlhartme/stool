@@ -21,7 +21,6 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.util.Strings;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -99,18 +98,6 @@ public class Ls extends InfoCommand {
                 line.add(infoToString(entry.getValue()));
             }
             result.success(new Reference(client, stage.getKey()));
-        }
-    }
-
-    // TODO
-    private void quota(Client client) throws IOException {
-        String quota;
-
-        quota = client.quota();
-        if (quota == null) {
-            message(" disk: quota disabled");
-        } else {
-            message(" disk: " + quota + " mb reserved");
         }
     }
 

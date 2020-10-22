@@ -147,8 +147,6 @@ spec:
           value: "{{ .Values.password }}"
         - name: DISK_QUOTA
           value: "{{ .Values.diskQuota }}"
-        - name: MEMORY_QUOTA
-          value: "{{ .Values.memoryQuota }}"
 
 {{- if .Values.faultName }}
       - name: fault-update

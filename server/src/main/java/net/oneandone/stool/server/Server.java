@@ -29,7 +29,6 @@ import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
@@ -281,23 +280,6 @@ public class Server {
                 LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
-    }
-
-    //--
-
-    /** used for running containers */
-    public int memoryReservedContainers(Engine engine, Registry registry) throws IOException {
-        int reserved;
-        PodInfo pod;
-
-        reserved = 0;
-        for (Stage stage : listAll(engine)) {
-            pod = stage.runningPodOpt(engine);
-            if (pod != null) {
-                reserved += registry.info(pod, Stage.MAIN_CONTAINER).memory;
-            }
-        }
-        return reserved;
     }
 
     //-- stool properties

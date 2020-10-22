@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.stage;
 
-import net.oneandone.stool.kubernetes.EmptyDir;
 import net.oneandone.stool.kubernetes.Volume;
 import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
@@ -551,46 +550,18 @@ public class Stage {
         FileNode tmp;
         TagInfo image;
         String stageName;
+        FileNode values;
+        PodInfo running;
+        Map<String, String> environment;
 
         stageName = getName();
         world = World.create(); // TODO
         tmp = world.getTemp().createTempDirectory();
+        values = world.getTemp().createTempFile();
+
         world.resource("helm").copyDirectory(tmp);
-        Server.LOGGER.info("ls: " + tmp.list());
         image = resolve(registry, imageOpt);
-        try {
-            /*
-            Server.LOGGER.info(tmp.exec("helm", "template", stageName, tmp.getAbsolute(),
-                    "--set", "name=" + stageName + ",image=" + image.repositoryTag + ",fqdn=" + stageFqdn()));
-             */
-            Server.LOGGER.info(tmp.exec("helm", "install", stageName, tmp.getAbsolute(),
-                    "--debug", "--set", "name=" + stageName + ",dnsLabel=" + appServiceName() + ",image=" + image.repositoryTag + ",fqdn=" + stageFqdn()));
-        } finally {
-            tmp.deleteTree();
-        }
-        engine.deploymentAwait(deploymentName());
-        return image.repositoryTag;
-    }
 
-    /** @return image actually started, null if this image is already running
-     *  @throws IOException if a different image is already running */
-    public String oldStart(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
-        String deploymentName;
-        PodInfo running;
-        Map<String, String> environment;
-        Map<Volume.Mount, Volume> mainMounts;
-        Map<Volume.Mount, Volume> fluentdMounts;
-        EmptyDir varLogStool;
-        Map<String, String> deploymentLabels;
-        Map<String, String> podLabels;
-        int memoryQuota;
-        int memoryReserved;
-        TagInfo image;
-
-        deploymentName = deploymentName();
-        memoryReserved = server.memoryReservedContainers(engine, registry);
-        memoryQuota = server.configuration.memoryQuota;
-        image = resolve(registry, imageOpt);
         running = runningPodOpt(engine);
         if (running != null) {
             if (image.repositoryTag.equals(running.repositoryTag(MAIN_CONTAINER))) {
@@ -600,89 +571,37 @@ public class Stage {
                         + " because a different image id " + image.repositoryTag + " " + running.repositoryTag(MAIN_CONTAINER) + " is already running");
             }
         }
-        if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
-            throw new ArgumentException("Cannot reserve memory for stage " + name + " :\n"
-                    + "  unreserved: " + (memoryQuota - memoryReserved) + "\n"
-                    + "  requested: " + image.memory + "\n"
-                    + "Consider stopping stages.");
-        }
 
-        memoryReserved += image.memory; // TODO
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(configuration.environment);
         environment.putAll(clientEnvironment);
         Server.LOGGER.debug("environment: " + environment);
-        Server.LOGGER.info(name + ": starting container ... ");
-        deploymentLabels = new HashMap<>();
-        deploymentLabels.put(DEPLOYMENT_LABEL_STAGE, name);
-        for (Map.Entry<String, String> entry : environment.entrySet()) {
-            deploymentLabels.put(DEPLOYMENT_LABEL_ENV_PREFIX + Engine.encodeLabel(entry.getKey()), Engine.encodeLabel(entry.getValue()));
-        }
 
-        podLabels = new HashMap<>();
-        podLabels.put(DEPLOYMENT_LABEL_STAGE, name);
-        if (image.ports.jmxmp != -1) {
-            podLabels.put(Ports.Port.JMXMP.label(), "x" + image.ports.jmxmp);
-        }
-
-        mainMounts = new HashMap<>();
-        faultMount(image, engine, mainMounts);  // CAUTION: run this before creating any other k8s resources because permission checks might fail ...
-        certMount(image, engine, mainMounts);
-        fluentdMounts = new HashMap<>();
-        fluentdMount(engine, fluentdMounts);
-
-        varLogStool = new EmptyDir("var-log-stool");
-        mainMounts.put(new Volume.Mount("/var/log/stool"), varLogStool);
-        fluentdMounts.put(new Volume.Mount("/var/log/stool"), varLogStool);
-
-        appService(engine, image);
-        if (server.openShift) {
-            if (image.ports.http != -1) {
-                OpenShift.create().routeCreate(httpRouteName(), stageFqdn(), appServiceName(), false, "http");
+        try (PrintWriter v = new PrintWriter(values.newWriter())) {
+            if (server.openShift) {
+                v.println("openshift: true");
             }
-            if (image.ports.https != -1) {
-                OpenShift.create().routeCreate(httpsRouteName(), stageFqdn(), appServiceName(), true, "https");
+            v.println("name: " + stageName);
+            v.println("dnsLabel: " + appServiceName());
+            v.println("image: " + image.repositoryTag);
+            v.println("fqdn: " + stageFqdn());
+            v.println("memory: " + 1024 * 1024 * image.memory);
+            v.println("http: " + image.ports.http);
+            v.println("https: " + image.ports.https);
+            v.println("jmxmp: " + image.ports.jmxmp);
+            v.println("environment:");
+            for (Map.Entry<String, String> entry : environment.entrySet()) {
+                v.println("  " + entry.getKey() + ": " + entry.getValue());
             }
-        } else {
-            // TODO: does not map both ports ...
-            engine.ingressCreate(appIngressName(), stageFqdn(), appServiceName(), Ports.HTTP);
         }
-        engine.deploymentCreate(deploymentName, Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), deploymentLabels,
-                new Engine.Container[] {
-                        new Engine.Container(MAIN_CONTAINER, image.repositoryTag, null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, mainMounts),
-                        new Engine.Container(FLUENTD_CONTAINER, "fluent/fluentd:v1.11.2-1.0", null, true, environment, 1 /* TODO */, 1024 * 1024 * image.memory, fluentdMounts),
-                },
-                "h" /* TODO */ + md5(getName()) /* TODO + "." + server.configuration.host */,
-                podLabels);
-
-        Server.LOGGER.debug("created deployment " + deploymentName);
-
-        return image.tag;
-    }
-
-    private void appService(Engine engine, TagInfo image) throws IOException {
-        List<String> names;
-        List<Integer> src;
-        List<Integer> dest;
-
-        names = new ArrayList<>();
-        src = new ArrayList<>();
-        dest = new ArrayList<>();
-        if (image.ports.http != -1) {
-            names.add("http");
-            src.add(Ports.HTTP);
-            dest.add(image.ports.http);
+        try {
+            Server.LOGGER.info(tmp.exec("helm", "template", stageName, tmp.getAbsolute(), "--values", values.getAbsolute()));
+            Server.LOGGER.info(tmp.exec("helm", "install", stageName, tmp.getAbsolute(), "--values", values.getAbsolute()));
+        } finally {
+            tmp.deleteTree();
         }
-        if (image.ports.https != -1) {
-            names.add("https");
-            src.add(Ports.HTTPS);
-            dest.add(image.ports.https);
-        }
-        if (names.isEmpty()) {
-            throw new IOException("neither http nor https specified");
-        }
-        engine.serviceCreate(appServiceName(), names, src, dest,
-                Strings.toMap(DEPLOYMENT_LABEL_STAGE, name), Strings.toMap(DEPLOYMENT_LABEL_STAGE, name));
+        engine.deploymentAwait(deploymentName());
+        return image.repositoryTag;
     }
 
     private static String md5(String str) {

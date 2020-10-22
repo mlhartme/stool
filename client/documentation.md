@@ -637,7 +637,7 @@ Startup is refused if the user who built the image does not have access to all f
 
 Startup is refused if your stage has expired. In this case, use `sc config expire=`*newdate* to configure a new `expire` date.
 
-Startup is also refused if the disk or memory quota exceeded. In this case, stop some other stages.
+Startup is also refused if the disk quota exceeded. In this case, stop some other stages.
 
 TODO: The hostname of the container is set to <id>.<servername>, where id is a hash of stage name and application name. This hash
 serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names. 

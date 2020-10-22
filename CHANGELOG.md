@@ -2,6 +2,7 @@
 
 ### 6.0.1 (pending)
 
+* dumped memory quota handling, kubernetes is responsible for that
 * server startup output with image version
 * readiness probe for stool server
 * update to junit 5.7.0

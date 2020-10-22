@@ -86,8 +86,6 @@ public class ServerConfiguration {
      */
     public int autoRemove;
 
-    public int memoryQuota;
-
     public int diskQuota;
 
     public int defaultExpire;
@@ -110,7 +108,6 @@ public class ServerConfiguration {
         mailHost = "";
         mailUsername = "";
         mailPassword = "";
-        memoryQuota = 0;
         diskQuota = 0;
         defaultExpire = 0;
         environment = new HashMap<>();

@@ -264,13 +264,6 @@ public class Client {
         return result;
     }
 
-    public String quota() throws IOException {
-        String result;
-
-        result = getJson(node("quota")).getAsString();
-        return result.isEmpty() ? null : result;
-    }
-
     public JsonObject info() throws IOException {
         return getJson(node("info")).getAsJsonObject();
     }
