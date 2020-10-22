@@ -56,13 +56,11 @@ import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -589,6 +587,7 @@ public class Stage {
             v.println("http: " + image.ports.http);
             v.println("https: " + image.ports.https);
             v.println("jmxmp: " + image.ports.jmxmp);
+            v.println("cert: " + cert());
             v.println("environment:");
             for (Map.Entry<String, String> entry : environment.entrySet()) {
                 v.println("  " + entry.getKey() + ": " + entry.getValue());
@@ -602,24 +601,6 @@ public class Stage {
         }
         engine.deploymentAwait(deploymentName());
         return image.repositoryTag;
-    }
-
-    private static String md5(String str) {
-        MessageDigest md;
-        byte[] bytes;
-        String result;
-
-        try {
-            md = MessageDigest.getInstance("MD5");
-            bytes = md.digest(str.getBytes("UTF-8")); //converting byte array to Hexadecimal
-            result = Strings.toHex(bytes);
-            if (result.length() != 32) {
-                throw new IllegalStateException(str + " " + result);
-            }
-            return result;
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
-            throw new IllegalStateException();
-        }
     }
 
     private TagInfo resolve(Registry registry, String imageOpt) throws IOException {
@@ -679,67 +660,11 @@ public class Stage {
         mounts.put(new Volume.Mount("/fluentd/etc", false), config);
     }
 
-    private void certMount(TagInfo image, Engine engine, Map<Volume.Mount, Volume> mounts) throws IOException {
-        Data cert;
-        String mountPath;
+    private String cert() throws IOException {
         FileNode dir;
 
-        mountPath = prefix(image.certificateP12, image.certificateChain, image.certificateKey);
-        if (image.ports.https == -1 || mountPath == null) {
-            return;
-        }
-        if (mountPath.isEmpty()) {
-            throw new ArgumentException("no common prefix: "
-                    + image.certificateP12 + " " + image.certificateChain + " " + image.certificateKey);
-        }
-        mountPath = Strings.removeRight(mountPath, "/");
-        System.out.println("prefix: " + mountPath);
         dir = server.certificate(stageFqdn());
-        // CAUTION: that's a config map, and not a secret, because I use sub paths
-        cert = Data.secrets(certSecretName());
-        if (image.certificateKey != null) {
-            cert.addRelative(dir.join("key.pem"), mountPath, image.certificateKey);
-        }
-        if (image.certificateChain != null) {
-            cert.addRelative(dir.join("chain.pem"), mountPath, image.certificateChain);
-        }
-        if (image.certificateP12 != null) {
-            cert.addRelative(dir.join("keystore.p12"), mountPath, image.certificateP12);
-        }
-        cert.define(engine);
-        mounts.put(new Volume.Mount(mountPath, true), cert);
-    }
-
-    private static String prefix(String... paths) {
-        String result;
-        int idx;
-
-        result = null;
-        for (String path : paths) {
-            if (path == null) {
-                continue;
-            }
-            if (result == null) {
-                idx = path.lastIndexOf('/');
-                if (idx == -1) {
-                    throw new IllegalArgumentException(path);
-                }
-                result = path.substring(0, idx + 1);
-            } else {
-                result = common(result, path);
-            }
-        }
-        return result;
-    }
-
-    private static String common(String first, String second) {
-        int idx;
-
-        if (second.startsWith(first)) {
-            return first;
-        }
-        idx = first.lastIndexOf('/');
-        return idx == -1 ? "" : common(first.substring(0, idx + 1), second);
+        return Base64.getEncoder().encodeToString(dir.join("keystore.p12").readBytes());
     }
 
     private void faultMount(TagInfo image, Engine engine, Map<Volume.Mount, Volume> mounts) throws IOException {
