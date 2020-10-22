@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.stage;
 
-import net.oneandone.stool.kubernetes.Volume;
 import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
@@ -26,7 +25,6 @@ import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.StageExistsException;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
-import net.oneandone.stool.kubernetes.Data;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
@@ -39,6 +37,9 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarHeader;
+import org.kamranzafar.jtar.TarOutputStream;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -51,7 +52,9 @@ import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
@@ -62,10 +65,12 @@ import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * A collection of images. From a Docker perspective, a stage roughly represents a Repository.
@@ -585,6 +590,7 @@ public class Stage {
             v.println("https: " + image.ports.https);
             v.println("jmxmp: " + image.ports.jmxmp);
             v.println("cert: " + cert());
+            v.println("fault: " + fault(world, image));
             v.println("environment:");
             for (Map.Entry<String, String> entry : environment.entrySet()) {
                 v.println("  " + entry.getKey() + ": " + entry.getValue());
@@ -598,6 +604,74 @@ public class Stage {
         }
         engine.deploymentAwait(deploymentName());
         return image.repositoryTag;
+    }
+
+    /** tar directory into byte array */
+    public String fault(World world, TagInfo image) throws IOException {
+        List<String> missing;
+        FileNode workspace;
+        FileNode project;
+        TarOutputStream tar;
+        byte[] buffer;
+        long now;
+        String result;
+
+        missing = new ArrayList<>();
+        if (server.configuration.auth()) {
+            server.checkFaultPermissions(image.author, image.faultProjects);
+        }
+        workspace = world.file("/etc/fault/workspace");
+        buffer = new byte[64 * 1024];
+        try (ByteArrayOutputStream dest = new ByteArrayOutputStream()) {
+            tar = new TarOutputStream(new GZIPOutputStream(dest));
+            now = System.currentTimeMillis();
+            for (String projectName : image.faultProjects) {
+                project = workspace.join(projectName);
+                if (project.isDirectory()) {
+                    faultTarAdd(now, buffer, workspace, project, tar);
+                } else {
+                    missing.add(projectName);
+                }
+            }
+            tar.close();
+            result = Base64.getEncoder().encodeToString(dest.toByteArray());
+        }
+        if (!missing.isEmpty()) {
+            throw new ArgumentException("missing secret directories: " + missing);
+        }
+        return result;
+    }
+
+    /** tar directory into byte array */
+    private void faultTarAdd(long now, byte[] buffer, FileNode workspace, FileNode project, TarOutputStream tar) throws IOException {
+        List<FileNode> all;
+        Iterator<FileNode> iter;
+        FileNode file;
+        int count;
+
+        all = project.find("**/*");
+        iter = all.iterator();
+        while (iter.hasNext()) {
+            file = iter.next();
+            if (file.isDirectory()) {
+                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(workspace), 0, now, true, 0700)));
+                iter.remove();
+            }
+        }
+        iter = all.iterator();
+        while (iter.hasNext()) {
+            file = iter.next();
+            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(workspace), file.size(), now, false, 0700)));
+            try (InputStream src = file.newInputStream()) {
+                while (true) {
+                    count = src.read(buffer);
+                    if (count == -1) {
+                        break;
+                    }
+                    tar.write(buffer, 0, count);
+                }
+            }
+        }
     }
 
     private TagInfo resolve(Registry registry, String imageOpt) throws IOException {
@@ -643,38 +717,6 @@ public class Stage {
 
         dir = server.certificate(stageFqdn());
         return Base64.getEncoder().encodeToString(dir.join("keystore.p12").readBytes());
-    }
-
-    private void faultMount(TagInfo image, Engine engine, Map<Volume.Mount, Volume> mounts) throws IOException {
-        Data fault;
-        List<String> missing;
-        FileNode innerRoot;
-        FileNode innerFile;
-
-        if (image.faultProjects.isEmpty()) {
-            return;
-        }
-
-        // same as hostLogRoot, but the path as needed inside the server:
-        fault = Data.secrets(faultSecretName());
-        missing = new ArrayList<>();
-        if (server.configuration.auth()) {
-            server.checkFaultPermissions(image.author, image.faultProjects);
-        }
-        innerRoot = server.getServerLogs().getWorld().file("/etc/fault/workspace");
-        for (String project : image.faultProjects) {
-            innerFile = innerRoot.join(project);
-            if (innerFile.isDirectory()) {
-                fault.addDirectory(innerRoot, innerFile);
-            } else {
-                missing.add(innerFile.getAbsolute());
-            }
-        }
-        if (!missing.isEmpty()) {
-            throw new ArgumentException("missing secret directories: " + missing);
-        }
-        mounts.put(new Volume.Mount("/root/.fault", false), fault);
-        fault.define(engine);
     }
 
     //--
