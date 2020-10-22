@@ -4,7 +4,7 @@ kind: Route
 metadata:
   name: {{ .Values.name }}-http
 spec:
-  host: {{ .Values.name }}.{{ .Values.fqdn }}
+  host: {{ .Values.fqdn }}
   path: /
   port:
     targetPort: http
@@ -19,7 +19,7 @@ kind: Route
 metadata:
   name: {{ .Values.name }}-https
 spec:
-  host: {{ .Values.name }}.{{ .Values.fqdn }}
+  host: {{ .Values.fqdn }}
   port:
     targetPort: https
   tls:
