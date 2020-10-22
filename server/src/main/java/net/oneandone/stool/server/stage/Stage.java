@@ -39,8 +39,6 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
-import net.oneandone.sushi.util.Substitution;
-import net.oneandone.sushi.util.SubstitutionException;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -56,7 +54,6 @@ import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -641,25 +638,6 @@ public class Stage {
         Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "delete", getName()));
         return current.image.tag;
     }
-
-    private void fluentdMount(Engine engine, Map<Volume.Mount, Volume> mounts) throws IOException {
-        World world;
-        Data config;
-        String str;
-
-        world = World.create(); // TODO  CAUTION: minimal cannot read jar: scheme
-        config = Data.configMap(fluentdConfigMapName());
-        str = world.resource("data/fluent.conf").readString();
-        try {
-            str = Substitution.ant().apply(str, Strings.toMap("stage", getName()));
-        } catch (SubstitutionException e) {
-            throw new IllegalStateException(e);
-        }
-        config.add("fluent.conf", str.getBytes(Charset.forName("UTF-8")));
-        config.define(engine);
-        mounts.put(new Volume.Mount("/fluentd/etc", false), config);
-    }
-
     private String cert() throws IOException {
         FileNode dir;
 
