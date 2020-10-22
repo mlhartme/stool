@@ -47,7 +47,7 @@ public class Context {
     }
 
     public DeploymentInfo deploymentOpt(Stage stage) throws IOException {
-        return engine.deploymentProbe(stage.deploymentName());
+        return engine.deploymentProbe(stage.dnsLabel());
     }
 
     public List<TagInfo> images(Stage stage) throws IOException {

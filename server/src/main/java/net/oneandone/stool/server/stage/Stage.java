@@ -109,35 +109,10 @@ public class Stage {
         return name;
     }
 
-    //-- kubernetes names
-
-    public String deploymentName() {
+    public String dnsLabel() {
         // is not allowed to contain dots
         return name.replace(".", "--");
     }
-    private String faultSecretName() {
-        return deploymentName() + "-fault";
-    }
-    private String certSecretName() {
-        return deploymentName() + "-cert";
-    }
-    private String fluentdConfigMapName() {
-        return deploymentName() + "-fluentd";
-    }
-    public String httpRouteName() {
-        return name + "-http";
-    }
-    public String httpsRouteName() {
-        return name + "-https";
-    }
-    public String appIngressName() {
-        return name + "ingress";
-    }
-    public String appServiceName() {
-        // is not allowed to contain dots: https://kubernetes.io/docs/concepts/services-networking/service/
-        return name.replace(".", "--");
-    }
-
 
 
     public FileNode getLogs() {
@@ -582,7 +557,7 @@ public class Stage {
                 v.println("openshift: true");
             }
             v.println("name: " + stageName);
-            v.println("dnsLabel: " + appServiceName());
+            v.println("dnsLabel: " + dnsLabel());
             v.println("image: " + image.repositoryTag);
             v.println("fqdn: " + stageFqdn());
             v.println("memory: " + 1024 * 1024 * image.memory);
@@ -602,12 +577,12 @@ public class Stage {
         } finally {
             tmp.deleteTree();
         }
-        engine.deploymentAwait(deploymentName());
+        engine.deploymentAwait(dnsLabel());
         return image.repositoryTag;
     }
 
     /** tar directory into byte array */
-    public String fault(World world, TagInfo image) throws IOException {
+    private String fault(World world, TagInfo image) throws IOException {
         List<String> missing;
         FileNode workspace;
         FileNode project;
@@ -712,6 +687,7 @@ public class Stage {
         Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "delete", getName()));
         return current.image.tag;
     }
+
     private String cert() throws IOException {
         FileNode dir;
 
@@ -791,6 +767,8 @@ public class Stage {
     }
 
     public void delete(Engine engine, Registry registry) throws IOException {
+        stop(engine, registry); // usually returns true for already stopped
+
         StageConfiguration.delete(engine, name);
         wipeImages(registry);
     }
