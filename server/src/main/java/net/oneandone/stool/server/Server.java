@@ -317,7 +317,7 @@ public class Server {
             stage = load(engine, name);
             current = stage.currentOpt(engine, registry);
             if (current != null) {
-                if (current.pod.isRunning()) {
+                if (current.first.isRunning()) {
                     reserved += current.image.disk;
                 }
             }

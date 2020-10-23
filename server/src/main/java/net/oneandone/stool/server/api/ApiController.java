@@ -398,7 +398,7 @@ public class ApiController {
         }
         currentWithPermissions(stageName);
         try (Engine engine = engine(); OpenShift os = OpenShift.create()) {
-            pod = server.load(engine, stageName).runningPodOpt(engine);
+            pod = server.load(engine, stageName).runningPodFirst(engine); // TODO: how to choose different pod?
             if (pod == null) {
                 throw new IOException("stage is not running: " + stageName);
             }
@@ -447,7 +447,7 @@ public class ApiController {
             stage = server.load(engine, stageName);
             current = stage.currentOpt(engine, server.createRegistry());
         }
-        if (current == null || !current.pod.isRunning()) {
+        if (current == null || !current.first.isRunning()) {
             throw new ArgumentException("stage is not running: " + stageName);
         }
         server.checkFaultPermissions(User.authenticatedOrAnonymous().login, current.image.faultProjects);

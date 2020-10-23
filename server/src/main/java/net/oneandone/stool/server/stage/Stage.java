@@ -267,7 +267,7 @@ public class Stage {
             public Object get(Context context) throws IOException {
                 PodInfo info;
 
-                info = context.runningPodOpt(Stage.this);
+                info = context.runningPodFirst(Stage.this);
                 return info == null ? null : info.name;
             }
         });
@@ -281,7 +281,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                started = context.engine.podStartedAt(current.pod.name, MAIN_CONTAINER);
+                started = context.engine.podStartedAt(current.first.name /* TODO */, MAIN_CONTAINER);
                 if (started == null) {
                     return null;
                 }
@@ -294,7 +294,7 @@ public class Stage {
                 Current current;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : context.sizeRw(current.pod.containerId(MAIN_CONTAINER));
+                return current == null ? null : context.sizeRw(current.first /* TODO */.containerId(MAIN_CONTAINER));
             }
         });
         fields.add(new Field("cpu") {
@@ -307,7 +307,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = OpenShift.create().statsOpt(current.pod.name, MAIN_CONTAINER);
+                stats = OpenShift.create().statsOpt(current.first /* TODO */.name, MAIN_CONTAINER);
                 if (stats != null) {
                     return stats.cpu;
                 } else {
@@ -325,7 +325,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = OpenShift.create().statsOpt(current.pod.name, MAIN_CONTAINER);
+                stats = OpenShift.create().statsOpt(current.first /* TODO */.name, MAIN_CONTAINER);
                 if (stats != null) {
                     return stats.memory;
                 } else {
@@ -384,7 +384,7 @@ public class Stage {
         long used;
         long max;
 
-        if (!current.pod.isRunning()) {
+        if (!current.first /* TODO */.isRunning()) {
             return "";
         }
         if (current.image.jmxmp == -1) {
@@ -508,7 +508,7 @@ public class Stage {
 
         current = currentOpt(engine, registry);
         if (current != null) {
-            containerId = current.pod.containerId(MAIN_CONTAINER);
+            containerId = current.first /* TODO */.containerId(MAIN_CONTAINER);
             if (containerId != null) {
                 used = new Context(engine, registry).sizeRw(containerId);
                 quota = current.image.disk;
@@ -525,7 +525,8 @@ public class Stage {
         TagInfo image;
         String stageName;
         FileNode values;
-        PodInfo running;
+        Map<String, PodInfo> running;
+        PodInfo first;
         Map<String, String> environment;
 
         stageName = getName();
@@ -535,13 +536,13 @@ public class Stage {
 
         image = resolve(registry, imageOpt);
         world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
-        running = runningPodOpt(engine);
-        if (running != null) {
-            if (image.repositoryTag.equals(running.repositoryTag(MAIN_CONTAINER))) {
+        first = runningPodFirst(engine);
+        if (first != null) {  // all pods are assumed to run the same image
+            if (image.repositoryTag.equals(first.repositoryTag(MAIN_CONTAINER))) {
                 return null;
             } else {
                 throw new IOException("conflict: cannot start image " + image.tag
-                        + " because a different image id " + image.repositoryTag + " " + running.repositoryTag(MAIN_CONTAINER) + " is already running");
+                        + " because a different image id " + image.repositoryTag + " " + first.repositoryTag(MAIN_CONTAINER) + " is already running");
             }
         }
 
@@ -681,7 +682,7 @@ public class Stage {
             return null;
         }
         Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "delete", getName()));
-        engine.podAwait(current.pod.name, null);
+        engine.podAwait(current.first /* TODO */.name, null);
         return current.image.tag;
     }
 
@@ -714,7 +715,7 @@ public class Stage {
         List<TagInfo> lst;
 
         result = new LinkedHashMap<>();
-        pod = runningPodOpt(engine);
+        pod = runningPodFirst(engine); // first pod is picked as a representative
         if (pod != null) {
             tag = registry.info(pod, MAIN_CONTAINER);
         } else {
@@ -774,48 +775,51 @@ public class Stage {
 
     public static class Current {
         public final TagInfo image;
-        public final PodInfo pod;
+        public final PodInfo first;
 
-        public Current(TagInfo image, PodInfo pod) {
+        public Current(TagInfo image, PodInfo first) {
             this.image = image;
-            this.pod = pod;
+            this.first = first;
         }
     }
 
+    /** @return empty list if not running */
+    public Map<String, PodInfo> runningPods(Engine engine) throws IOException {
+        return engine.podList(Strings.toMap(DEPLOYMENT_LABEL_STAGE, name));
+    }
+
     /** @return null if not running */
-    public PodInfo runningPodOpt(Engine engine) throws IOException {
+    public PodInfo runningPodFirst(Engine engine) throws IOException {
         Map<String, PodInfo> lst;
 
-        lst = engine.podList(Strings.toMap(DEPLOYMENT_LABEL_STAGE, name));
-        switch (lst.size()) {
-            case 0:
-                return null;
-            case 1:
-                PodInfo result;
-
-                result = lst.values().iterator().next();
-                return result.isRunning() ? result : null;
-            default:
-                throw new IOException(lst.toString());
-        }
+        lst = runningPods(engine);
+        return lst.isEmpty() ? null : lst.values().iterator().next();
     }
 
     /** @return null if not running */
     public Current currentOpt(Engine engine, Registry registry) throws IOException {
-        return currentOpt(registry, runningPodOpt(engine));
+        return currentOpt(registry, runningPods(engine));
     }
 
-    public Current currentOpt(Registry registry, PodInfo runningPodOpt) throws IOException {
+    public Current currentOpt(Registry registry, Map<String, PodInfo> runningPods) throws IOException {
         TagInfo image;
+        PodInfo first;
 
-        if (runningPodOpt != null) {
-            if (!runningPodOpt.isRunning()) {
-                throw new IllegalStateException("TODO");
-            }
-            image = registry.info(runningPodOpt, MAIN_CONTAINER);
-            return new Current(image, runningPodOpt);
-        } else {
+        if (runningPods.isEmpty()) {
             return null;
+        } else {
+            image = null;
+            first = null;
+            for (PodInfo pod : runningPods.values()) {
+                if (image == null) {
+                    first = pod;
+                    image = registry.info(pod, MAIN_CONTAINER);
+                }
+                if (!pod.isRunning()) {
+                    throw new IllegalStateException("TODO");
+                }
+            }
+            return new Current(image, first);
         }
     }
 
@@ -902,7 +906,7 @@ public class Stage {
         int port;
         String str;
 
-        running = context.runningPodOpt(this);
+        running = context.runningPodFirst(this);
         if (running == null) {
             return null;
         } else {
@@ -937,7 +941,7 @@ public class Stage {
     public void tailF(Engine engine, PrintWriter dest) throws IOException {
         PodInfo running;
 
-        running = runningPodOpt(engine);
+        running = runningPodFirst(engine); // TODO: choose different pod
         if (running == null) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {

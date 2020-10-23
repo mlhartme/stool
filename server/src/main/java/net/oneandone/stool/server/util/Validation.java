@@ -63,7 +63,7 @@ public class Validation {
             report.add(e.getMessage());
         }
         if (repair) {
-            if (stage.runningPodOpt(engine) != null) {
+            if (stage.runningPodFirst(engine) != null) {
                 try {
                     stage.stop(engine, registry);
                     report.add("stage has been stopped");

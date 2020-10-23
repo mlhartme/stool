@@ -63,12 +63,16 @@ public class Context {
 
     //--
 
-    public PodInfo runningPodOpt(Stage stage) throws IOException {
+    public Map<String, PodInfo> runningPods(Stage stage) throws IOException { // TODO: caching
+        return stage.runningPods(engine);
+    }
+
+    public PodInfo runningPodFirst(Stage stage) throws IOException {
         PodInfo result;
 
         result = runningPodOpts.get(stage.getName());
         if (result == null) {
-            result = stage.runningPodOpt(engine);
+            result = stage.runningPodFirst(engine);
             runningPodOpts.put(stage.getName(), result);
         }
         return result;
@@ -79,7 +83,7 @@ public class Context {
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.currentOpt(registry, runningPodOpt(stage));
+            result = stage.currentOpt(registry, runningPods(stage));
             currentOpts.put(stage.getName(), result);
         }
         return result;
