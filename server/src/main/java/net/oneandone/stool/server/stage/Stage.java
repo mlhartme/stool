@@ -267,7 +267,7 @@ public class Stage {
             public Object get(Context context) throws IOException {
                 PodInfo info;
 
-                info = context.runningPodFirst(Stage.this);
+                info = context.runningPodsFirst(Stage.this);
                 return info == null ? null : info.name;
             }
         });
@@ -906,7 +906,7 @@ public class Stage {
         int port;
         String str;
 
-        running = context.runningPodFirst(this);
+        running = context.runningPodsFirst(this);
         if (running == null) {
             return null;
         } else {

@@ -33,7 +33,7 @@ public class Context {
     public final Engine engine;
     public final Registry registry;
     private final Map<String, List<TagInfo>> stageImages;
-    private final Map<String, PodInfo> runningPodOpts;
+    private final Map<String, Map<String, PodInfo>> runningPods;
     private final Map<String, Stage.Current> currentOpts;
     private final Map<String, Map<String, String>> urlMaps;
 
@@ -41,7 +41,7 @@ public class Context {
         this.engine = engine;
         this.registry = registry;
         this.stageImages = new HashMap<>();
-        this.runningPodOpts = new HashMap<>();
+        this.runningPods = new HashMap<>();
         this.currentOpts = new HashMap<>();
         this.urlMaps = new HashMap<>();
     }
@@ -63,17 +63,20 @@ public class Context {
 
     //--
 
-    public Map<String, PodInfo> runningPods(Stage stage) throws IOException { // TODO: caching
-        return stage.runningPods(engine);
+    public PodInfo runningPodsFirst(Stage stage) throws IOException {
+        Map<String, PodInfo> all;
+
+        all = runningPods(stage);
+        return all.isEmpty() ? null : all.values().iterator().next();
     }
 
-    public PodInfo runningPodFirst(Stage stage) throws IOException {
-        PodInfo result;
+    public Map<String, PodInfo> runningPods(Stage stage) throws IOException {
+        Map<String, PodInfo> result;
 
-        result = runningPodOpts.get(stage.getName());
+        result = runningPods.get(stage.getName());
         if (result == null) {
-            result = stage.runningPodFirst(engine);
-            runningPodOpts.put(stage.getName(), result);
+            result = stage.runningPods(engine);
+            runningPods.put(stage.getName(), result);
         }
         return result;
     }
