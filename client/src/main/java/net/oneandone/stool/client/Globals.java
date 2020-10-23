@@ -66,7 +66,7 @@ public class Globals {
     }
 
     public FileNode templates() throws ExistsException, DirectoryNotFoundException {
-        return world.file(System.getenv("CISOTOOLS_HOME")).join("stool/templates-5").checkDirectory(); // TODO
+        return world.file(System.getenv("CISOTOOLS_HOME")).join("stool/templates-6").checkDirectory(); // TODO
     }
 
     public void setWirelog(String wirelog) {

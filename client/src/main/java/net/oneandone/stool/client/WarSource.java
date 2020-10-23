@@ -100,7 +100,7 @@ public class WarSource extends Source {
         FileNode destparent;
         FileNode destfile;
 
-        template = globals.templates().join(eat(arguments, "_template", "war")).checkDirectory();
+        template = globals.templates().join(eat(arguments, "_template", "vanilla-war")).checkDirectory();
         context = war.getWorld().getTemp().createTempDirectory();
         war.copyFile(context.join("app.war"));
         for (FileNode srcfile : template.find("**/*")) {

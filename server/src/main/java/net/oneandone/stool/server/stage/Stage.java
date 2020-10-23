@@ -696,7 +696,7 @@ public class Stage {
 
     //--
 
-    /** @return login name or null if unkonwn */
+    /** @return login name or null if unknown */
     public String createdBy() throws IOException {
         AccessLogEntry entry;
 

@@ -29,7 +29,7 @@ public class TagInfo implements Comparable<TagInfo> {
     public static TagInfo create(String id, String repositoryTag, String tag, String author, LocalDateTime created, Map<String, String> labels) {
         return new TagInfo(id, repositoryTag, tag, author, Ports.fromDeclaredLabels(labels),
                 labels.get(ImageInfo.IMAGE_LABEL_CERTIFICATE_KEY),
-                labels.get(ImageInfo.IMAGE_LABEL_CERTIFICATE_CHAIN), labels.get(ImageInfo.IMAGE_LABEL_CERTIFICATE_P12),
+                labels.get(ImageInfo.IMAGE_LABEL_CERTIFICATE_CHAIN),
                 disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
@@ -113,7 +113,6 @@ public class TagInfo implements Comparable<TagInfo> {
 
     public final String certificateKey;
     public final String certificateChain;
-    public final String certificateP12;
 
     /** in megabytes */
     public final int disk;
@@ -136,7 +135,7 @@ public class TagInfo implements Comparable<TagInfo> {
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public TagInfo(String id, String repositoryTag, String tag, String author, Ports ports,
-                   String certifiacteKey, String certifiacateChain, String certificateP12,
+                   String certifiacteKey, String certifiacateChain,
                    int disk, int memory, String urlContext, List<String> urlSuffixes, String comment, String originScm, String originUser,
                    LocalDateTime createdAt, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
@@ -153,7 +152,7 @@ public class TagInfo implements Comparable<TagInfo> {
         this.ports = ports;
         this.certificateKey = certifiacteKey;
         this.certificateChain = certifiacateChain;
-        this.certificateP12 = certificateP12;
+
         this.disk = disk;
         this.memory = memory;
         this.urlContext = urlContext;
