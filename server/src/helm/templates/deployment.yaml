@@ -28,6 +28,13 @@ metadata:
 {{ end }}
 ---
 apiVersion: v1
+binaryData:
+  charts.tgz: {{ .Values.charts }}
+kind: ConfigMap
+metadata:
+  name: stool-charts
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: stool-log-collector
@@ -96,6 +103,8 @@ spec:
         volumeMounts:
           - mountPath: /etc/fault
             name: fault
+          - mountPath: /etc/charts
+            name: charts
           - mountPath: /var/log/stages
             name: fluentd-logs
       {{- if .Values.cert }}
@@ -147,7 +156,6 @@ spec:
           value: "{{ .Values.password }}"
         - name: DISK_QUOTA
           value: "{{ .Values.diskQuota }}"
-
 {{- if .Values.faultName }}
       - name: fault-update
         image: {{ .Values.repositoryTag }}
@@ -172,9 +180,23 @@ spec:
             mountPath: /fluentd/etc
           - name: fluentd-logs
             mountPath: /fluentd/log
-{{- if .Values.faultName }}
       initContainers:
-      - name: fault-setup
+      - name: init-charts
+        image: {{ .Values.repositoryTag }}
+        command: ["sh"]
+        args: ["-c", "cd /etc/charts && tar zxf /var/lib/stool/charts.tgz"]
+        resources:
+          limits:
+            cpu: 1
+          requests:
+            cpu: 200m
+        volumeMounts:
+        - mountPath: /etc/charts
+          name: charts
+        - mountPath: /var/lib/stool
+          name: charts-tgz
+{{- if .Values.faultName }}
+      - name: init-fault
         image: {{ .Values.repositoryTag }}
         command: ["sh"]
         args: ["-c", "mkdir /etc/fault/workspace && fault '-user=[{{ .Values.faultName }}:/etc/ssh/ssh_host_rsa_key]' auth && fault install -dest=/etc/fault/workspace -permissions=/etc/fault/workspace.permissions -batch @"]
@@ -190,6 +212,14 @@ spec:
             name: hostkey-volume
 {{- end }}
       volumes:
+      - name: charts
+        emptyDir: {}
+      - name: charts-tgz
+        configMap:
+          name: stool-charts
+          items:
+            - key: charts.tgz
+              path: charts.tgz
       - name: fluentd-config
         configMap:
           name: stool-log-collector

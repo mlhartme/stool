@@ -1,5 +1,5 @@
 apiVersion: v2
 name: stage
-description: Stool Stage
+description: War Stage
 type: application
 version: 1.0.0

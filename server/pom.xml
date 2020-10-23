@@ -274,6 +274,28 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>package-charts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <executable>sh</executable>
+          <workingDirectory>${basedir}/src/charts</workingDirectory>
+          <arguments>
+            <argument>-c</argument>
+            <argument>echo "charts: \"$(tar zcf - . | base64)\"" >> ${basedir}/target/helm/values.yaml</argument>
+          </arguments>
+        </configuration>
+      </plugin>
 
     </plugins>
   </build>

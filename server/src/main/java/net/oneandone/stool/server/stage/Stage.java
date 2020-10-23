@@ -82,8 +82,7 @@ public class Stage {
     public static final String DEPLOYMENT_LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String DEPLOYMENT_LABEL_ENV_PREFIX = LABEL_PREFIX  + "env.";
 
-    public static final String MAIN_CONTAINER = "main";
-    public static final String FLUENTD_CONTAINER = "fluentd";
+    public static final String MAIN_CONTAINER = "main"; // TODO ...
 
     //--
 
@@ -534,7 +533,7 @@ public class Stage {
         tmp = world.getTemp().createTempDirectory();
         values = world.getTemp().createTempFile();
 
-        world.resource("helm").copyDirectory(tmp);
+        world.file("/etc/charts/war").copyDirectory(tmp);
         image = resolve(registry, imageOpt);
 
         running = runningPodOpt(engine);
