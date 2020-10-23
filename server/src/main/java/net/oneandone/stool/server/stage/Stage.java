@@ -684,6 +684,7 @@ public class Stage {
             return null;
         }
         Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "delete", getName()));
+        engine.podAwait(current.pod.name, null);
         return current.image.tag;
     }
 
