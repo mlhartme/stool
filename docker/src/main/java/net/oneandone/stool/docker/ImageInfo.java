@@ -22,6 +22,7 @@ import java.util.Map;
 public class ImageInfo {
     private static final String IMAGE_PREFIX = "net.oneandone.stool-";
 
+    public static final String IMAGE_LABEL_CHART = IMAGE_PREFIX + "chart";
     public static final String IMAGE_LABEL_PORT_JMXMP = IMAGE_PREFIX + "port.jmxmp";
 
     public static final String IMAGE_LABEL_DISK = IMAGE_PREFIX + "disk";

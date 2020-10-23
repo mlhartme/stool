@@ -533,9 +533,8 @@ public class Stage {
         tmp = world.getTemp().createTempDirectory();
         values = world.getTemp().createTempFile();
 
-        world.file("/etc/charts/war").copyDirectory(tmp);
         image = resolve(registry, imageOpt);
-
+        world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
         running = runningPodOpt(engine);
         if (running != null) {
             if (image.repositoryTag.equals(running.repositoryTag(MAIN_CONTAINER))) {
