@@ -16,7 +16,6 @@
 package net.oneandone.stool.registry;
 
 import net.oneandone.stool.docker.ImageInfo;
-import net.oneandone.stool.server.util.Ports;
 import net.oneandone.sushi.util.Separator;
 
 import java.time.LocalDateTime;
@@ -27,7 +26,7 @@ import java.util.Map;
 
 public class TagInfo implements Comparable<TagInfo> {
     public static TagInfo create(String id, String repositoryTag, String tag, String author, LocalDateTime created, Map<String, String> labels) {
-        return new TagInfo(id, repositoryTag, tag, author, Ports.fromDeclaredLabels(labels),
+        return new TagInfo(id, repositoryTag, tag, author, Integer.parseInt(labels.get(ImageInfo.IMAGE_LABEL_PORT_JMXMP)),
                 disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
@@ -107,7 +106,7 @@ public class TagInfo implements Comparable<TagInfo> {
 
     //-- meta data
 
-    public final Ports ports;
+    public final int jmxmp;
 
     /** in megabytes */
     public final int disk;
@@ -129,7 +128,7 @@ public class TagInfo implements Comparable<TagInfo> {
     public final List<String> faultProjects;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public TagInfo(String id, String repositoryTag, String tag, String author, Ports ports,
+    public TagInfo(String id, String repositoryTag, String tag, String author, int jmxmp,
                    int disk, int memory, String urlContext, List<String> urlSuffixes, String comment, String originScm, String originUser,
                    LocalDateTime createdAt, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
@@ -143,7 +142,7 @@ public class TagInfo implements Comparable<TagInfo> {
         this.tagNumber = parseOpt(tag);
         this.author = author;
 
-        this.ports = ports;
+        this.jmxmp = jmxmp;
         this.disk = disk;
         this.memory = memory;
         this.urlContext = urlContext;

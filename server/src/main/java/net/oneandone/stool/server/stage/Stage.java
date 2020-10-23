@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
+import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
@@ -31,7 +32,6 @@ import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -387,7 +387,7 @@ public class Stage {
         if (!current.pod.isRunning()) {
             return "";
         }
-        if (current.image.ports.jmxmp == -1) {
+        if (current.image.jmxmp == -1) {
             return "[no jmx port]";
         }
 
@@ -560,7 +560,7 @@ public class Stage {
             v.println("image: " + image.repositoryTag);
             v.println("fqdn: " + stageFqdn());
             v.println("memory: " + 1024 * 1024 * image.memory);
-            v.println("jmxmp: " + image.ports.jmxmp);
+            v.println("jmxmp: " + image.jmxmp);
             v.println("cert: " + cert());
             v.println("fault: " + fault(world, image));
             v.println("environment:");
@@ -907,7 +907,7 @@ public class Stage {
         if (running == null) {
             return null;
         } else {
-            str = running.labels.get(Ports.Port.JMXMP.label());
+            str = running.labels.get(ImageInfo.IMAGE_LABEL_PORT_JMXMP);
             if (str == null) {
                 return null;
             } else {
