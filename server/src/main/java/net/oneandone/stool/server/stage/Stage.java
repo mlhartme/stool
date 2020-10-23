@@ -560,8 +560,6 @@ public class Stage {
             v.println("image: " + image.repositoryTag);
             v.println("fqdn: " + stageFqdn());
             v.println("memory: " + 1024 * 1024 * image.memory);
-            v.println("http: " + image.ports.http);
-            v.println("https: " + image.ports.https);
             v.println("jmxmp: " + image.ports.jmxmp);
             v.println("cert: " + cert());
             v.println("fault: " + fault(world, image));

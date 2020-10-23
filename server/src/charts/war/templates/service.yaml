@@ -9,11 +9,11 @@ spec:
   - name: http
     port: 80
     protocol: TCP
-    targetPort: {{ .Values.http }}
+    targetPort: 8080
   - name: https
     port: 443
     protocol: TCP
-    targetPort: {{ .Values.https }}
+    targetPort: 8443
   selector:
     net.oneandone.stool-stage: {{ .Values.name }}
   type: ClusterIP
