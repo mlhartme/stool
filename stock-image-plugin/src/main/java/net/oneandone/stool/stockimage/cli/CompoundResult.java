@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.client.cli;
+package net.oneandone.stool.stockimage.cli;
 
 
-import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.stockimage.Reference;
 
 import java.util.HashMap;
 import java.util.Map;

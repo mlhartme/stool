@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.client.cli;
+package net.oneandone.stool.stockimage.cli;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.client.Client;
-import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.Configuration;
+import net.oneandone.stool.stockimage.Client;
+import net.oneandone.stool.stockimage.Globals;
+import net.oneandone.stool.stockimage.Reference;
+import net.oneandone.stool.stockimage.Configuration;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

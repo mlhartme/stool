@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.client;
+package net.oneandone.stool.stockimage;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -353,7 +353,6 @@ public class Client {
                 case 400:
                     throw new ArgumentException(string(src));
                 case 401:
-                    throw new AuthenticationException(node.getUri());
                 case 404:
                     throw new FileNotFoundException(node, "not found");
                 case 409:
