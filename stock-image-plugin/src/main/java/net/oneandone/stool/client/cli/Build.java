@@ -31,16 +31,14 @@ public class Build extends IteratedStageCommand {
     private final String explicitApp;
     private final boolean noCache;
     private final int keep;
-    private final boolean restart;
     private final String comment;
     private final Map<String, String> explicitArguments;
 
-    public Build(Globals globals, String explicitApp, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
+    public Build(Globals globals, String explicitApp, boolean noCache, int keep, String comment, List<String> args) {
         super(globals);
         this.explicitApp = explicitApp;
         this.noCache = noCache;
         this.keep = keep;
-        this.restart = restart;
         this.comment = comment;
         this.explicitArguments = argument(args);
     }
@@ -81,9 +79,6 @@ public class Build extends IteratedStageCommand {
         }
         try (Daemon daemon = Daemon.create()) {
             source.build(globals, daemon, reference, comment, keep, noCache, explicitArguments);
-        }
-        if (restart) {
-            new Restart(globals, null).doRun(reference);
         }
     }
 }
