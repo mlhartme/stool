@@ -58,12 +58,12 @@ public class Build {
     public void build() throws Exception {
         Source source;
 
-        source = Source.createOpt(globals.getWorld().getWorking().join(explicitApp));
+        source = Source.createOpt(globals.getConsole(), globals.getWorld().getWorking().join(explicitApp));
         if (source == null) {
             throw new IOException("no war found");
         }
         try (Daemon daemon = Daemon.create()) {
-            source.build(globals, daemon, "todo:registryprefix", "todo:stage",
+            source.build(daemon, "todo:registryprefix", "todo:stage",
                     comment, keep, noCache, explicitArguments);
         }
     }

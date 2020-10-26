@@ -21,6 +21,8 @@ import net.oneandone.stool.docker.BuildArgument;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
+import net.oneandone.sushi.fs.DirectoryNotFoundException;
+import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.SizeException;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -40,13 +42,40 @@ import java.util.Properties;
 
 /** List of Apps. Represents .backstage */
 public class Source {
+    public static Source createOpt(Console console, FileNode directory) throws IOException {
+        List<FileNode> lst;
+
+        if (!directory.join("pom.xml").isFile()) {
+            return null;
+        }
+        lst = directory.find("target/*.war");
+        switch (lst.size()) {
+            case 0:
+                return null;
+            case 1:
+                return new Source(console, directory, lst.get(0));
+            default:
+                throw new IOException("ambiguous: " + directory + " " + lst);
+        }
+    }
+
+
+    private final Console console;
+
     public final FileNode directory;
     public final FileNode war;
 
-    public Source(FileNode directory, FileNode war) {
+    public Source(Console console, FileNode directory, FileNode war) {
+        this.console = console;
         this.directory = directory;
         this.war = war;
     }
+
+    // TODO
+    public FileNode templates() throws ExistsException, DirectoryNotFoundException {
+        return directory.getWorld().file(System.getenv("CISOTOOLS_HOME")).join("stool/templates-6").checkDirectory(); // TODO
+    }
+
 
     public String getOriginOrUnknown() throws IOException {
         FileNode dir;
@@ -71,25 +100,17 @@ public class Source {
 
     //--
 
-
-    /** @return name of the app */
-    public String app() throws IOException {
-        properties();
-        return lazyApp;
-    }
-
-
     public Map<String, String> implicitArguments() throws IOException {
         return new HashMap<>(properties());
     }
 
-    public FileNode createContext(Globals globals, Map<String, String> arguments) throws IOException {
+    public FileNode createContext(Map<String, String> arguments) throws IOException {
         FileNode template;
         FileNode context;
         FileNode destparent;
         FileNode destfile;
 
-        template = globals.templates().join(eat(arguments, "_template", "vanilla-war")).checkDirectory();
+        template = templates().join(eat(arguments, "_template", "vanilla-war")).checkDirectory();
         context = war.getWorld().getTemp().createTempDirectory();
         war.copyFile(context.join("app.war"));
         for (FileNode srcfile : template.find("**/*")) {
@@ -106,21 +127,19 @@ public class Source {
 
     //--
 
-    public String build(Globals globals, Daemon daemon, String registryPrefix, String stage,
+    public String build(Daemon daemon, String registryPrefix, String stage,
                         String comment, int keep, boolean noCache, Map<String, String> explicitArguments)
             throws Exception {
-        Console console;
         long started;
         int tag;
         String repositoryTag;
 
         started = System.currentTimeMillis();
-        console = globals.getConsole();
         console.info.println("building image for " + toString());
-        tag = wipeOldImages(console, daemon, registryPrefix, stage, keep);
+        tag = wipeOldImages(daemon, registryPrefix, stage, keep);
         repositoryTag = registryPrefix + stage + ":" + tag;
 
-        doBuild(globals, daemon, repositoryTag, comment, noCache, getOriginOrUnknown(), explicitArguments);
+        doBuild(daemon, repositoryTag, comment, noCache, getOriginOrUnknown(), explicitArguments);
 
         console.verbose.println("pushing ...");
         console.info.println(daemon.imagePush(repositoryTag));
@@ -129,9 +148,8 @@ public class Source {
         return repositoryTag;
     }
 
-    private void doBuild(Globals globals, Daemon engine, String repositoryTag,
+    private void doBuild(Daemon engine, String repositoryTag,
                          String comment, boolean noCache, String originScm, Map<String, String> explicitArguments) throws IOException {
-        Console console;
         String str;
         Map<String, String> arguments;
         Map<String, String> buildArgs;
@@ -141,10 +159,9 @@ public class Source {
 
         arguments = implicitArguments();
         arguments.putAll(explicitArguments);
-        context = createContext(globals, arguments);
+        context = createContext(arguments);
         buildArgs = buildArgs(BuildArgument.scan(context.join("Dockerfile")), arguments);
         output = new StringWriter();
-        console = globals.getConsole();
         try {
             image = engine.imageBuild(repositoryTag, buildArgs,
                     getLabels(comment, originScm, buildArgs), context, noCache, output);
@@ -183,7 +200,7 @@ public class Source {
     }
 
     /** @return next version */
-    public int wipeOldImages(Console console, Daemon docker, String registryPrefix, String name, int keep) throws IOException {
+    public int wipeOldImages(Daemon docker, String registryPrefix, String name, int keep) throws IOException {
         Map<String, ImageInfo> images;
 
         int count;
@@ -307,43 +324,26 @@ public class Source {
 
     public static final String APP_ARGUMENT = "_app";
 
-    public static List<Source> find(FileNode directory) throws IOException {
+    public static List<Source> find(Console console, FileNode directory) throws IOException {
         List<Source> result;
 
         result = new ArrayList<>();
-        doFind(directory, result);
+        doFind(console, directory, result);
         return result;
     }
 
-    private static void doFind(FileNode directory, List<Source> result) throws IOException {
+    private static void doFind(Console console, FileNode directory, List<Source> result) throws IOException {
         Source war;
 
-        war = createOpt(directory);
+        war = createOpt(console, directory);
         if (war != null) {
             result.add(war);
         } else {
             for (FileNode child : directory.list()) {
                 if (child.isDirectory()) {
-                    doFind(child, result);
+                    doFind(console, child, result);
                 }
             }
-        }
-    }
-
-    public static Source createOpt(FileNode directory) throws IOException {
-        List<FileNode> lst;
-
-        if (!directory.join("pom.xml").isFile()) {
-            return null;
-        }
-        lst = directory.find("target/*.war");
-        switch (lst.size()) {
-            case 0:
-                return null;
-            case 1:
-                return new Source(directory, lst.get(0));
-            default:
-                throw new IOException("ambiguous: " + directory + " " + lst);
         }
     }
 

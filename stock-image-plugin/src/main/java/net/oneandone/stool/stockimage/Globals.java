@@ -16,10 +16,7 @@
 package net.oneandone.stool.stockimage;
 
 import net.oneandone.inline.Console;
-import net.oneandone.sushi.fs.DirectoryNotFoundException;
-import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 
 /** Global client stuff */
 public class Globals {
@@ -29,10 +26,6 @@ public class Globals {
     public Globals(Console console, World world) {
         this.console = console;
         this.world = world;
-    }
-
-    public FileNode templates() throws ExistsException, DirectoryNotFoundException {
-        return world.file(System.getenv("CISOTOOLS_HOME")).join("stool/templates-6").checkDirectory(); // TODO
     }
 
     public World getWorld() {
