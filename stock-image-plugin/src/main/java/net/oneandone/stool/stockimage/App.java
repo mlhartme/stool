@@ -43,21 +43,9 @@ public class App {
     public Source source(FileNode directory) throws IOException {
         Source result;
 
-        switch (type) {
-            case WAR:
-                result = WarSource.createOpt(directory.join(path));
-                if (result == null) {
-                    throw new IOException("no war found in " + path);
-                }
-                break;
-            case DOCKER:
-                result = DockerSource.createOpt(directory.join(path));
-                if (result == null) {
-                    throw new IOException("no Dockerfile found in " + path);
-                }
-                break;
-            default:
-                throw new IllegalStateException(type.toString());
+        result = Source.createOpt(directory.join(path));
+        if (result == null) {
+            throw new IOException("no war found in " + path);
         }
         return result;
     }

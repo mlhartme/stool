@@ -21,6 +21,8 @@ import net.oneandone.stool.docker.BuildArgument;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.docker.ImageInfo;
+import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.SizeException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 
@@ -34,57 +36,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /** List of Apps. Represents .backstage */
-public abstract class Source {
+public class Source {
     public enum Type {
         WAR, DOCKER
     }
 
-    public static final String SUBST = "_";
-
-    public static boolean hasSubst(String name) {
-        return name.contains(SUBST);
-    }
-
-    //--
-
-    public static List<? extends Source> findAndCheck(Type type, FileNode directory, String stage) throws IOException {
-        List<? extends Source> sources;
-
-        directory.checkDirectory();
-        switch (type) {
-            case WAR:
-                sources = WarSource.find(directory);
-                break;
-            case DOCKER:
-                sources = DockerSource.find(directory);
-                break;
-            default:
-                throw new IllegalStateException();
-        }
-        if (sources.isEmpty()) {
-            throw new ArgumentException(directory.getAbsolute() + ": no wars found - did you build your project?");
-        } else if (sources.size() > 1) {
-            if (!stage.contains(SUBST)) {
-                throw new ArgumentException(stage + ": missing '" + SUBST + "' in stage name to attach " + sources.size() + " stages");
-            }
-        }
-        return sources;
-    }
-
-    //--
-
     public final Type type;
     public final FileNode directory;
+    public final FileNode war;
 
-    public Source(Type type, FileNode directory) {
-        this.type = type;
+    public Source(FileNode directory, FileNode war) {
+        this.type = Type.WAR;
         this.directory = directory;
-    }
-
-    public String subst(String name) throws IOException {
-        return name.replace(SUBST, app());
+        this.war = war;
     }
 
     public String getOriginOrUnknown() throws IOException {
@@ -112,11 +79,36 @@ public abstract class Source {
 
 
     /** @return name of the app */
-    public abstract String app() throws IOException;
+    public String app() throws IOException {
+        properties();
+        return lazyApp;
+    }
 
-    public abstract Map<String, String> implicitArguments() throws IOException;
 
-    public abstract FileNode createContext(Globals globals, Map<String, String> arguments) throws IOException;
+    public Map<String, String> implicitArguments() throws IOException {
+        return new HashMap<>(properties());
+    }
+
+    public FileNode createContext(Globals globals, Map<String, String> arguments) throws IOException {
+        FileNode template;
+        FileNode context;
+        FileNode destparent;
+        FileNode destfile;
+
+        template = globals.templates().join(eat(arguments, "_template", "vanilla-war")).checkDirectory();
+        context = war.getWorld().getTemp().createTempDirectory();
+        war.copyFile(context.join("app.war"));
+        for (FileNode srcfile : template.find("**/*")) {
+            if (srcfile.isDirectory()) {
+                continue;
+            }
+            destfile = context.join(srcfile.getRelative(template));
+            destparent = destfile.getParent();
+            destparent.mkdirsOpt();
+            srcfile.copy(destfile);
+        }
+        return context;
+    }
 
     //--
 
@@ -312,5 +304,88 @@ public abstract class Source {
         }
         result.append(")\n");
         return result.toString();
+    }
+
+    //--
+
+    public static final String PROPERTIES_FILE = "WEB-INF/classes/META-INF/pominfo.properties";
+    public static final String PROPERTIES_PREFIX = "stool.";
+
+    public static final String APP_ARGUMENT = "_app";
+
+    public static List<Source> find(FileNode directory) throws IOException {
+        List<Source> result;
+
+        result = new ArrayList<>();
+        doFind(directory, result);
+        return result;
+    }
+
+    private static void doFind(FileNode directory, List<Source> result) throws IOException {
+        Source war;
+
+        war = createOpt(directory);
+        if (war != null) {
+            result.add(war);
+        } else {
+            for (FileNode child : directory.list()) {
+                if (child.isDirectory()) {
+                    doFind(child, result);
+                }
+            }
+        }
+    }
+
+    public static Source createOpt(FileNode directory) throws IOException {
+        List<FileNode> lst;
+
+        if (!directory.join("pom.xml").isFile()) {
+            return null;
+        }
+        lst = directory.find("target/*.war");
+        switch (lst.size()) {
+            case 0:
+                return null;
+            case 1:
+                return new Source(directory, lst.get(0));
+            default:
+                throw new IOException("ambiguous: " + directory + " " + lst);
+        }
+    }
+
+
+    public String toString() {
+        try {
+            return "war " + war + " (" + (war.size() / (1024 * 1024)) + " mb)";
+        } catch (SizeException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+    }
+
+    //--
+
+    private Map<String, String> lazyProperties = null;
+    private String lazyApp = null;
+    private Map<String, String> properties() throws IOException {
+        Node<?> node;
+        Properties all;
+
+        if (lazyProperties == null) {
+            node = war.openZip().join(PROPERTIES_FILE);
+            lazyProperties = new HashMap<>();
+            if (node.exists()) {
+                all = node.readProperties();
+                for (String property : all.stringPropertyNames()) {
+                    if (property.startsWith(PROPERTIES_PREFIX)) {
+                        lazyProperties.put(property.substring(PROPERTIES_PREFIX.length()), all.getProperty(property));
+                    }
+                }
+            }
+            lazyApp = lazyProperties.remove(APP_ARGUMENT);
+            if (lazyApp == null) {
+                lazyApp = "app";
+            }
+        }
+        return lazyProperties;
     }
 }
