@@ -129,7 +129,7 @@ public class Source {
 
     public String build(Daemon daemon, String registryPrefix, String stage,
                         String comment, int keep, boolean noCache, Map<String, String> explicitArguments)
-            throws Exception {
+            throws IOException {
         long started;
         int tag;
         String repositoryTag;

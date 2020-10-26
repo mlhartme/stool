@@ -19,13 +19,22 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Build {
+/**
+ * Builds a Docker image and pushes it.
+ */
+@Mojo(name = "build", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.NONE, threadSafe = true)
+public class Build extends AbstractMojo {
     private final World world;
     private final Console console;
     private final String explicitApp;
@@ -59,7 +68,15 @@ public class Build {
         return result;
     }
 
-    public void build() throws Exception {
+    @Override
+    public void execute() throws MojoExecutionException {
+        try {
+            build();
+        } catch (Exception e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+    public void build() throws IOException {
         Source source;
 
         source = Source.createOpt(console, world.getWorking().join(explicitApp));
@@ -71,4 +88,5 @@ public class Build {
                     comment, keep, noCache, explicitArguments);
         }
     }
+
 }
