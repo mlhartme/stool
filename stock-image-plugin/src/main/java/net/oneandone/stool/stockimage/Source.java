@@ -40,16 +40,10 @@ import java.util.Properties;
 
 /** List of Apps. Represents .backstage */
 public class Source {
-    public enum Type {
-        WAR, DOCKER
-    }
-
-    public final Type type;
     public final FileNode directory;
     public final FileNode war;
 
     public Source(FileNode directory, FileNode war) {
-        this.type = Type.WAR;
         this.directory = directory;
         this.war = war;
     }
