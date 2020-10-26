@@ -120,19 +120,17 @@ public abstract class Source {
 
     //--
 
-    public String build(Globals globals, Daemon daemon, String context, String stage,
+    public String build(Globals globals, Daemon daemon, String registryPrefix, String stage,
                         String comment, int keep, boolean noCache, Map<String, String> explicitArguments)
             throws Exception {
         Console console;
         long started;
-        String registryPrefix;
         int tag;
         String repositoryTag;
 
         started = System.currentTimeMillis();
         console = globals.getConsole();
         console.info.println("building image for " + toString());
-        registryPrefix = globals.configuration().registryPrefix() + context + "/";
         tag = wipeOldImages(console, daemon, registryPrefix, stage, keep);
         repositoryTag = registryPrefix + stage + ":" + tag;
 

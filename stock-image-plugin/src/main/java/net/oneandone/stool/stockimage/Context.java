@@ -18,11 +18,10 @@ package net.oneandone.stool.stockimage;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.oneandone.sushi.fs.file.FileNode;
 
 
 public class Context {
-    public static Context fromYaml(JsonNode obj, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public static Context fromYaml(JsonNode obj) {
         String token;
 
         if (obj.has("token")) {
@@ -30,7 +29,7 @@ public class Context {
         } else {
             token = null;
         }
-        return new Context(obj.get("name").asText(), obj.get("url").asText(), token, wirelog, clientInvocation, clientCommand);
+        return new Context(obj.get("name").asText(), obj.get("url").asText(), token);
     }
 
     public final String name;
@@ -40,18 +39,10 @@ public class Context {
     /** null to work anonymously */
     public String token;
 
-    private volatile FileNode wirelog;
-    private volatile String clientInvocation;
-    private volatile String clientCommand;
-
-    public Context(String name, String url, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public Context(String name, String url, String token) {
         this.name = name;
         this.url = url;
         this.token = token;
-
-        this.wirelog = wirelog;
-        this.clientInvocation = clientInvocation;
-        this.clientCommand = clientCommand;
     }
 
     public ObjectNode toYaml(ObjectMapper yaml) {

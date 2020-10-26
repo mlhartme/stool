@@ -62,7 +62,7 @@ public class Build {
 
         source = App.parse(explicitApp).source(globals.getWorld().getWorking());
         try (Daemon daemon = Daemon.create()) {
-            source.build(globals, daemon, "todo:context", "todo:stage",
+            source.build(globals, daemon, "todo:registryprefix", "todo:stage",
                     comment, keep, noCache, explicitArguments);
         }
     }

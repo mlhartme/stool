@@ -21,7 +21,6 @@ import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
 import java.util.UUID;
 
 /** Global client stuff */
@@ -89,16 +88,5 @@ public class Globals {
 
     public Console getConsole() {
         return console;
-    }
-
-    public Configuration configuration() throws IOException {
-        Configuration result;
-
-        result = new Configuration(world, wirelog, invocation, command);
-        result.load(scYaml());
-        if (context != null) {
-            result.setCurrentContext(context);
-        }
-        return result;
     }
 }
