@@ -16,7 +16,6 @@
 package net.oneandone.stool.server.stage;
 
 import net.oneandone.stool.docker.ImageInfo;
-import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.Registry;
@@ -80,7 +79,6 @@ public class Stage {
     private static final String LABEL_PREFIX = "net.oneandone.stool-";
 
     public static final String DEPLOYMENT_LABEL_STAGE = LABEL_PREFIX + "stage";
-    public static final String DEPLOYMENT_LABEL_ENV_PREFIX = LABEL_PREFIX  + "env.";
 
     public static final String MAIN_CONTAINER = "main"; // TODO ...
 
@@ -351,29 +349,6 @@ public class Stage {
                 return current == null ? null : current.image.originScm;
             }
         });
-        fields.add(new Field("environment") {
-            @Override
-            public Object get(Context context) throws IOException {
-                return env(context.deploymentOpt(Stage.this));
-            }
-        });
-    }
-
-    private Map<String, String> env(DeploymentInfo info) {
-        Map<String, String> result;
-        String key;
-
-        result = new HashMap<>();
-        if (info != null) {
-            for (Map.Entry<String, String> entry : info.labels.entrySet()) {
-                key = entry.getKey();
-                if (key.startsWith(Stage.DEPLOYMENT_LABEL_ENV_PREFIX)) {
-                    result.put(Engine.decodeLabel(key.substring(Stage.DEPLOYMENT_LABEL_ENV_PREFIX.length())),
-                            Engine.decodeLabel(entry.getValue()));
-                }
-            }
-        }
-        return result;
     }
 
     public String heap(Context context, Stage.Current current) throws IOException {
