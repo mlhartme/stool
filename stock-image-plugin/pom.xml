@@ -41,12 +41,6 @@
       <version>2.11.1</version>
     </dependency>
 
-    <dependency><!-- TODO -->
-      <groupId>io.fabric8</groupId>
-      <artifactId>openshift-client</artifactId>
-      <version>4.10.2</version>
-    </dependency>
-
     <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
