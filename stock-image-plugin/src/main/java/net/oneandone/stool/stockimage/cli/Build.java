@@ -18,16 +18,15 @@ package net.oneandone.stool.stockimage.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.stockimage.App;
-import net.oneandone.stool.stockimage.Reference;
 import net.oneandone.stool.stockimage.Source;
 import net.oneandone.stool.stockimage.Globals;
-import net.oneandone.stool.stockimage.Workspace;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Build extends IteratedStageCommand {
+public class Build {
+    private final Globals globals;
     private final String explicitApp;
     private final boolean noCache;
     private final int keep;
@@ -35,7 +34,7 @@ public class Build extends IteratedStageCommand {
     private final Map<String, String> explicitArguments;
 
     public Build(Globals globals, String explicitApp, boolean noCache, int keep, String comment, List<String> args) {
-        super(globals);
+        this.globals = globals;
         this.explicitApp = explicitApp;
         this.noCache = noCache;
         this.keep = keep;
@@ -58,27 +57,13 @@ public class Build extends IteratedStageCommand {
         return result;
     }
 
-    @Override
-    public void doMain(Reference reference) throws Exception {
-        Workspace workspace;
-        App app;
+    public void build() throws Exception {
         Source source;
 
-        if (explicitApp != null) {
-            source = App.parse(explicitApp).source(world.getWorking());
-        } else {
-            workspace = lookupWorkspace();
-            if (workspace == null) {
-                throw new ArgumentException("cannot build " + reference + " without a workspace");
-            }
-            app = workspace.lookup(reference);
-            if (app == null) {
-                throw new ArgumentException("don't know how to build " + reference + ", it's not attached to this workspace");
-            }
-            source = app.source(workspace.directory);
-        }
+        source = App.parse(explicitApp).source(globals.getWorld().getWorking());
         try (Daemon daemon = Daemon.create()) {
-            source.build(globals, daemon, reference, comment, keep, noCache, explicitArguments);
+            source.build(globals, daemon, "todo:context", "todo:stage",
+                    comment, keep, noCache, explicitArguments);
         }
     }
 }

@@ -18,10 +18,8 @@ package net.oneandone.stool.stockimage;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
 
 public class Context {
     public static Context fromYaml(JsonNode obj, FileNode wirelog, String clientInvocation, String clientCommand) {
@@ -54,21 +52,6 @@ public class Context {
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
-    }
-
-    public boolean hasToken() {
-        return token != null;
-    }
-
-    public void auth(World world, String username, String password) throws IOException {
-        Client client;
-
-        client = Client.basicAuth(world, name, url, wirelog, clientInvocation, clientCommand, username, password);
-        this.token = client.auth();
-    }
-
-    public Client connect(World world) throws IOException {
-        return Client.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
     }
 
     public ObjectNode toYaml(ObjectMapper yaml) {

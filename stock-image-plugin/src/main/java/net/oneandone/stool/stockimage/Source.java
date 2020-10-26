@@ -120,7 +120,7 @@ public abstract class Source {
 
     //--
 
-    public String build(Globals globals, Daemon daemon, Reference reference,
+    public String build(Globals globals, Daemon daemon, String context, String stage,
                         String comment, int keep, boolean noCache, Map<String, String> explicitArguments)
             throws Exception {
         Console console;
@@ -132,9 +132,9 @@ public abstract class Source {
         started = System.currentTimeMillis();
         console = globals.getConsole();
         console.info.println("building image for " + toString());
-        registryPrefix = globals.configuration().registryPrefix() + reference.client.getContext() + "/";
-        tag = wipeOldImages(console, daemon, registryPrefix, reference.stage, keep);
-        repositoryTag = registryPrefix + reference.stage + ":" + tag;
+        registryPrefix = globals.configuration().registryPrefix() + context + "/";
+        tag = wipeOldImages(console, daemon, registryPrefix, stage, keep);
+        repositoryTag = registryPrefix + stage + ":" + tag;
 
         doBuild(globals, daemon, repositoryTag, comment, noCache, getOriginOrUnknown(), explicitArguments);
 

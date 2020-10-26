@@ -28,10 +28,8 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /** client configuration */
@@ -122,37 +120,6 @@ public class Configuration {
 
     public Context contextLookup(String context) {
         return contexts.get(context);
-    }
-
-    public Client currentContextConnect() throws IOException {
-        return currentContext().connect(world);
-    }
-
-    public Reference reference(String str) throws IOException {
-        int idx;
-        String contextName;
-        Context context;
-
-        idx = str.indexOf('@');
-        if (idx == -1) {
-            throw new ArgumentException("invalid reference: " + str);
-        }
-        contextName = str.substring(idx + 1);
-        context = contextLookup(contextName);
-        if (context == null) {
-            throw new ArgumentException("context not found: " + str);
-        }
-        return new Reference(context.connect(world), str.substring(0, idx));
-    }
-
-    public List<Reference> list(String filter) throws IOException {
-        Client client;
-        List<Reference> result;
-
-        client = currentContextConnect();
-        result = new ArrayList<>();
-        result.addAll(Reference.list(client, client.list(filter)));
-        return result;
     }
 
     public void load(FileNode file) throws IOException {
