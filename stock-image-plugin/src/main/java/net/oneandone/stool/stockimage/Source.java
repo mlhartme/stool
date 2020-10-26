@@ -324,30 +324,6 @@ public class Source {
 
     public static final String APP_ARGUMENT = "_app";
 
-    public static List<Source> find(Console console, FileNode directory) throws IOException {
-        List<Source> result;
-
-        result = new ArrayList<>();
-        doFind(console, directory, result);
-        return result;
-    }
-
-    private static void doFind(Console console, FileNode directory, List<Source> result) throws IOException {
-        Source war;
-
-        war = createOpt(console, directory);
-        if (war != null) {
-            result.add(war);
-        } else {
-            for (FileNode child : directory.list()) {
-                if (child.isDirectory()) {
-                    doFind(console, child, result);
-                }
-            }
-        }
-    }
-
-
     public String toString() {
         try {
             return "war " + war + " (" + (war.size() / (1024 * 1024)) + " mb)";

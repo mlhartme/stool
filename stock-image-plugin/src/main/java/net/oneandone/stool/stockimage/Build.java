@@ -16,7 +16,9 @@
 package net.oneandone.stool.stockimage;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,15 +26,17 @@ import java.util.List;
 import java.util.Map;
 
 public class Build {
-    private final Globals globals;
+    private final World world;
+    private final Console console;
     private final String explicitApp;
     private final boolean noCache;
     private final int keep;
     private final String comment;
     private final Map<String, String> explicitArguments;
 
-    public Build(Globals globals, String explicitApp, boolean noCache, int keep, String comment, List<String> args) {
-        this.globals = globals;
+    public Build(World world, String explicitApp, boolean noCache, int keep, String comment, List<String> args) {
+        this.world = world;
+        this.console = Console.create();
         this.explicitApp = explicitApp;
         this.noCache = noCache;
         this.keep = keep;
@@ -58,7 +62,7 @@ public class Build {
     public void build() throws Exception {
         Source source;
 
-        source = Source.createOpt(globals.getConsole(), globals.getWorld().getWorking().join(explicitApp));
+        source = Source.createOpt(console, world.getWorking().join(explicitApp));
         if (source == null) {
             throw new IOException("no war found");
         }
