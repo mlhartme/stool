@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class Attach extends WorkspaceAdd {
-    public Attach(Globals globals, List<String> args) {
-        super(globals, false, args);
+    public Attach(Globals globals, String name) {
+        super(globals, false, name);
     }
 
     protected Reference stage(String name) throws IOException {

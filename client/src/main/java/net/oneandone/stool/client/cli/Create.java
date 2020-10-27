@@ -22,37 +22,24 @@ import net.oneandone.stool.client.Reference;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Create extends WorkspaceAdd {
     private final boolean optional;
+    private final String repository;
     private final Map<String, String> config;
 
-    public Create(Globals globals, boolean optional, boolean detached, List<String> args) {
-        super(globals, detached, withoutProperties(args));
+    public Create(Globals globals, boolean optional, boolean detached, String name, String repository, List<String> args) {
+        super(globals, detached, name);
         this.optional = optional;
+        this.repository = repository;
         this.config = new LinkedHashMap<>();
         eatProperties(args);
-    }
-
-    private static List<String> withoutProperties(List<String> args) {
-        List<String> result;
-        int idx;
-        String arg;
-
-        result = new ArrayList<>(args);
-        while (!result.isEmpty()) {
-            arg = args.get(result.size() - 1);
-            idx = arg.indexOf('=');
-            if (idx == -1) {
-                break;
-            }
-            args.remove(result.size() - 1);
+        if (!args.isEmpty()) {
+            throw new ArgumentException("malformed properties: " + args);
         }
-        return result;
     }
 
     private void eatProperties(List<String> args) {
@@ -84,7 +71,7 @@ public class Create extends WorkspaceAdd {
         client = globals.configuration().currentContext().connect(world);
         reference = new Reference(client, name);
         try {
-            client.create(name, config);
+            client.create(name, repository, config);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {

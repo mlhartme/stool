@@ -147,10 +147,11 @@ public class Client {
     //-- create, start, stop, remove
 
     /** @throws FileAlreadyExistsException if the stage already exists */
-    public void create(String stage, Map<String, String> config) throws IOException {
+    public void create(String stage, String repository, Map<String, String> config) throws IOException {
         HttpNode node;
 
         node = node("stages/" + stage);
+        node = node.withParameter("repository", repository);
         node = node.withParameters(config);
         postEmpty(node, "");
     }

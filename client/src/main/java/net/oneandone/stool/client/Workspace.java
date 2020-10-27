@@ -18,6 +18,7 @@ package net.oneandone.stool.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -26,10 +27,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /** Maps apps to stages. Represents .backstage/workspace.yaml */
 public class Workspace {
@@ -73,86 +71,67 @@ public class Workspace {
     private final ObjectMapper yaml;
     public final FileNode directory;
     private final FileNode workspaceYaml;
-    private final Map<App, Reference> map;
+    private final List<Reference> stages;
 
     private Workspace(FileNode workspaceYaml) {
         this.yaml = new ObjectMapper(new YAMLFactory());
         this.directory = workspaceYaml.getParent().getParent();
         this.workspaceYaml = workspaceYaml;
-        this.map = new LinkedHashMap<>();
+        this.stages = new ArrayList<>();
     }
 
     public void load(Configuration configuration) throws IOException {
         ObjectNode root;
-        ObjectNode stages;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Map.Entry<String, JsonNode> entry;
+        ArrayNode array;
 
         try (Reader src = workspaceYaml.newReader()) {
             root = (ObjectNode) yaml.readTree(src);
         }
-        stages = (ObjectNode) root.get("stages");
-        map.clear();
-        iter = stages.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            map.put(App.parse(entry.getKey()), configuration.reference(entry.getValue().asText()));
+        array = (ArrayNode) root.get("stages");
+        stages.clear();
+        for (JsonNode node : array) {
+            stages.add(configuration.reference(node.asText()));
         }
     }
 
     public int size() {
-        return map.size();
+        return stages.size();
     }
 
     public List<Reference> references() {
-        return new ArrayList<>(map.values());
+        return new ArrayList<>(stages);
     }
 
-    public App lookup(Reference reference) {
-        for (Map.Entry<App, Reference> entry : map.entrySet()) {
-            if (reference.equals(entry.getValue())) {
-                return entry.getKey();
-            }
+    public boolean contains(Reference reference) {
+        return stages.contains(reference);
+    }
+
+    public void add(Reference reference) throws IOException {
+        if (contains(reference)) {
+            throw new IOException("duplicate stage: " + reference);
         }
-        return null;
-    }
-
-    public void add(Source source, Reference reference) throws IOException {
-        add(new App(source.type, source.directory.getRelative(directory)), reference);
-    }
-
-    public void add(App app, Reference reference) throws IOException {
-        if (lookup(reference) != null) {
-            throw new IOException("duplicate app: " + reference);
-        }
-        map.put(app, reference);
+        stages.add(reference);
     }
 
     public boolean remove(Reference reference) {
-        for (Map.Entry<App, Reference> entry : map.entrySet()) {
-            if (reference.equals(entry.getValue())) {
-                map.remove(entry.getKey());
-                return true;
-            }
-        }
-        return false;
+        return stages.remove(reference);
     }
 
     public void save() throws IOException {
         ObjectNode root;
-        ObjectNode stages;
+        ArrayNode array;
 
-        if (map.isEmpty()) {
+        if (stages.isEmpty()) {
             // prune
             workspaceYaml.deleteFile();
             workspaceYaml.getParent().deleteDirectory();
         } else {
             root = yaml.createObjectNode();
-            stages = yaml.createObjectNode();
-            for (Map.Entry<App, Reference> entry : map.entrySet()) {
-                stages.put(entry.getKey().toString(), entry.getValue().toString());
+            array = yaml.createArrayNode();
+            for (Reference reference : stages) {
+                array.add(reference.toString());
             }
-            root.set("stages", stages);
+            root.set("stages", array);
             workspaceYaml.getParent().mkdirOpt();
             try (Writer dest = workspaceYaml.newWriter()) {
                 SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);

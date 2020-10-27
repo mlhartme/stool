@@ -19,59 +19,23 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.Source;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class WorkspaceAdd extends ClientCommand {
     private final boolean detached;
-    private final Map<String, Source.Type> paths;
     private final String stage;
 
-    public WorkspaceAdd(Globals globals, boolean detached, List<String> args) {
+    public WorkspaceAdd(Globals globals, boolean detached, String stage) {
         super(globals);
 
         this.detached = detached;
-        this.paths = new LinkedHashMap<>();
-        if (args.isEmpty()) {
-            throw new ArgumentException("missing name argument");
-        }
-        this.stage = args.remove(args.size() - 1);
-        eatPaths(args);
-    }
-
-    private void eatPaths(List<String> args) {
-        int idx;
-        Source.Type type;
-
-        if (args.isEmpty()) {
-            paths.put("", Source.Type.WAR);
-        } else {
-            for (String arg : args) {
-                idx = arg.indexOf('@');
-                if (idx == -1) {
-                    type = Source.Type.WAR;
-                } else {
-                    type = Source.Type.valueOf(arg.substring(0, idx).toUpperCase());
-                    arg = arg.substring(idx + 1);
-                }
-                if (paths.put(arg, type) != null) {
-                    throw new ArgumentException("duplicate path: " + arg);
-                }
-            }
-        }
+        this.stage = stage;
     }
 
     @Override
     public void run() throws IOException {
         Workspace workspaceOpt;
-        Map<Source, String> map;
-        String name;
-        String path;
 
         workspaceOpt = lookupWorkspace();
         if (workspaceOpt != null) { // TODO: feels weired
@@ -83,23 +47,7 @@ public abstract class WorkspaceAdd extends ClientCommand {
             workspaceOpt = Workspace.create(world.getWorking());
         }
         try {
-            map = new HashMap<>();
-            for (Map.Entry<String, Source.Type> entry : paths.entrySet()) {
-                path = entry.getKey();
-                for (Source source : Source.findAndCheck(entry.getValue(), path.isEmpty() ? world.getWorking() : world.file(path), stage)) {
-                    name = source.subst(stage);
-                    if (map.values().contains(name)) {
-                        throw new ArgumentException("duplicate name: " + name); // TODO: improved message
-                    }
-                    map.put(source, name);
-                }
-            }
-            if (map.isEmpty()) {
-                throw new ArgumentException("no sources found");
-            }
-            for (Map.Entry<Source, String> entry : map.entrySet()) {
-                add(workspaceOpt, entry.getKey(), entry.getValue());
-            }
+            add(workspaceOpt, stage);
             if (workspaceOpt != null) {
                 workspaceOpt.save();
             }
@@ -115,13 +63,13 @@ public abstract class WorkspaceAdd extends ClientCommand {
         }
     }
 
-    private void add(Workspace workspaceOpt, Source source, String name) throws IOException {
+    private void add(Workspace workspaceOpt, String name) throws IOException {
         Reference reference;
 
         reference = stage(name);
         if (workspaceOpt != null) {
             try {
-                workspaceOpt.add(source, reference);
+                workspaceOpt.add(reference);
             } catch (IOException e) {
                 throw new IOException("failed to attach stage: " + e.getMessage(), e);
             }
