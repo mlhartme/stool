@@ -16,16 +16,18 @@
 package net.oneandone.stool.stockimage;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,21 +38,32 @@ import java.util.Map;
 @Mojo(name = "build", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.NONE, threadSafe = true)
 public class Build extends AbstractMojo {
     private final World world;
-    private final Console console;
-    private final String explicitApp;
+
+    /** Don't use Docker cache */
+    @Parameter(defaultValue = "false")
     private final boolean noCache;
+
+    /** Number of images to keep */
+    @Parameter(defaultValue = "5")
     private final int keep;
+
+    /** Explicit comment to add to image */
+    @Parameter(defaultValue = "")
     private final String comment;
+
+    // TODO
     private final Map<String, String> explicitArguments;
 
-    public Build(World world, String explicitApp, boolean noCache, int keep, String comment, List<String> args) {
+    public Build() throws IOException {
+        this(World.create());
+    }
+
+    public Build(World world) {
         this.world = world;
-        this.console = Console.create();
-        this.explicitApp = explicitApp;
-        this.noCache = noCache;
-        this.keep = keep;
-        this.comment = comment;
-        this.explicitArguments = argument(args);
+        this.noCache = false;
+        this.keep = 5;
+        this.comment = "";
+        this.explicitArguments = argument(new ArrayList()); // TODO
     }
 
     private static Map<String, String> argument(List<String> args) {
@@ -69,22 +82,23 @@ public class Build extends AbstractMojo {
     }
 
     @Override
-    public void execute() throws MojoExecutionException {
+    public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             build();
-        } catch (Exception e) {
-            throw new MojoExecutionException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new MojoExecutionException("io error: " + e.getMessage(), e);
         }
     }
-    public void build() throws IOException {
+    public void build() throws IOException, MojoFailureException {
         Source source;
 
-        source = Source.createOpt(console, world.getWorking().join(explicitApp));
+        // TODO: pick from Maven metadata
+        source = Source.createOpt(getLog(), world.getWorking());
         if (source == null) {
             throw new IOException("no war found");
         }
         try (Daemon daemon = Daemon.create()) {
-            source.build(daemon, "todo:registryprefix", "todo:stage",
+            source.build(daemon, "contargo.server.lan/cisoops-plublic/foo", "todo:stage",
                     comment, keep, noCache, explicitArguments);
         }
     }

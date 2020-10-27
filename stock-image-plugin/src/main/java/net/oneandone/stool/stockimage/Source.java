@@ -16,7 +16,6 @@
 package net.oneandone.stool.stockimage;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.docker.BuildArgument;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Daemon;
@@ -27,6 +26,8 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.SizeException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -42,7 +43,7 @@ import java.util.Properties;
 
 /** List of Apps. Represents .backstage */
 public class Source {
-    public static Source createOpt(Console console, FileNode directory) throws IOException {
+    public static Source createOpt(Log log, FileNode directory) throws IOException {
         List<FileNode> lst;
 
         if (!directory.join("pom.xml").isFile()) {
@@ -53,20 +54,20 @@ public class Source {
             case 0:
                 return null;
             case 1:
-                return new Source(console, directory, lst.get(0));
+                return new Source(log, directory, lst.get(0));
             default:
                 throw new IOException("ambiguous: " + directory + " " + lst);
         }
     }
 
 
-    private final Console console;
+    private final Log log;
 
     public final FileNode directory;
     public final FileNode war;
 
-    public Source(Console console, FileNode directory, FileNode war) {
-        this.console = console;
+    public Source(Log log, FileNode directory, FileNode war) {
+        this.log = log;
         this.directory = directory;
         this.war = war;
     }
@@ -129,28 +130,27 @@ public class Source {
 
     public String build(Daemon daemon, String registryPrefix, String stage,
                         String comment, int keep, boolean noCache, Map<String, String> explicitArguments)
-            throws IOException {
+            throws IOException, MojoFailureException {
         long started;
         int tag;
         String repositoryTag;
 
         started = System.currentTimeMillis();
-        console.info.println("building image for " + toString());
+        log.info("building image for " + toString());
         tag = wipeOldImages(daemon, registryPrefix, stage, keep);
         repositoryTag = registryPrefix + stage + ":" + tag;
 
         doBuild(daemon, repositoryTag, comment, noCache, getOriginOrUnknown(), explicitArguments);
 
-        console.verbose.println("pushing ...");
-        console.info.println(daemon.imagePush(repositoryTag));
-        console.verbose.println("done");
-        console.info.println("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
+        log.info("pushing ...");
+        log.info(daemon.imagePush(repositoryTag));
+        log.info("done: image " + tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
         return repositoryTag;
     }
 
     private void doBuild(Daemon engine, String repositoryTag,
-                         String comment, boolean noCache, String originScm, Map<String, String> explicitArguments) throws IOException {
-        String str;
+                         String comment, boolean noCache, String originScm, Map<String, String> explicitArguments)
+            throws MojoFailureException, IOException {
         Map<String, String> arguments;
         Map<String, String> buildArgs;
         FileNode context;
@@ -166,16 +166,15 @@ public class Source {
             image = engine.imageBuild(repositoryTag, buildArgs,
                     getLabels(comment, originScm, buildArgs), context, noCache, output);
         } catch (BuildError e) {
-            console.info.println("build failed: " + e.error);
-            console.info.println("build output:");
-            console.info.println(e.output);
-            throw new ArgumentException("build failed");
+            log.error("build failed: " + e.error);
+            log.error("build output:");
+            log.error(e.output);
+            throw new MojoFailureException("build failed");
         } finally {
             output.close();
         }
-        str = output.toString();
-        console.verbose.println("successfully built image: " + image);
-        console.verbose.println(str);
+        log.debug("successfully built image: " + image);
+        log.debug(output.toString());
     }
 
     private Map<String, String> getLabels(String comment, String originScm, Map<String, String> buildArgs) {
@@ -217,11 +216,11 @@ public class Source {
         while (count > 0 && !sorted.isEmpty()) {
             remove = sorted.remove(0);
             if (!hasContainer(docker, remove)) {
-                console.info.println("remove image: " + remove);
+                log.info("remove image: " + remove);
                 docker.imageRemove(remove, false);
                 count--;
             } else {
-                console.verbose.println("cannot remove image, because it's still in use: " + remove);
+                log.warn("cannot remove image, because it's still in use: " + remove);
             }
         }
         return result;
