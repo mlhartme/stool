@@ -17,11 +17,14 @@ package net.oneandone.stool.server.configuration;
 
 import com.google.gson.Gson;
 import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,6 +55,9 @@ public class StageConfiguration {
 
     //--
 
+    @Option(key = "repository")
+    public String repository;
+
     /** login names or email addresses, or "@last-modified-by" or "@created-by" */
     @Option(key = "notify")
     public List<String> notify;
@@ -65,7 +71,8 @@ public class StageConfiguration {
     @Option(key = "environment")
     public Map<String, String> environment;
 
-    public StageConfiguration() {
+    public StageConfiguration(String repository) {
+        this.repository = repository;
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
         this.expire = Expire.never();
@@ -73,6 +80,39 @@ public class StageConfiguration {
         this.environment = new HashMap<>();
     }
 
+    //--
+
+    /** @return full repository url, i.e. with server and path */
+    public String repository() {
+        return repository;
+    }
+
+    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
+    public static void validateRepository(String repository) {
+        URI uri;
+
+        if (repository.endsWith("/")) {
+            throw new ArgumentException("invalid repository: " + repository);
+        }
+        try {
+            uri = new URI(repository);
+        } catch (URISyntaxException e) {
+            throw new ArgumentException("invalid repository: " + repository);
+        }
+        checkLowercase(uri.getHost());
+        checkLowercase(uri.getPath());
+    }
+
+    private static void checkLowercase(String str) {
+        for (int i = 0, length = str.length(); i < length; i++) {
+            if (Character.isUpperCase(str.charAt(i))) {
+                throw new ArgumentException("invalid registry prefix: " + str);
+            }
+        }
+    }
+
+
+    //--
     public void save(Gson gson, Engine engine, String stageName, boolean overwrite) throws IOException {
         StringWriter writer;
         Map<String, String> map;

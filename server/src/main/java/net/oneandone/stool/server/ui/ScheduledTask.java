@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.ui;
 
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.stage.Stage;
@@ -41,14 +40,12 @@ public class ScheduledTask {
     @Scheduled(cron = "0 4 2 * * *")
     public void validateAll() throws IOException, MessagingException {
         List<String> output;
-        Registry registry;
 
         Server.LOGGER.info("scheduled stage validation");
         try (Engine engine = Engine.createFromCluster(Server.STOOL_LABELS)) {
-            registry = server.createRegistry();
             for (Stage stage : server.listAll(engine)) {
                 Server.LOGGER.info("validate " + stage.getName() + ":");
-                output = new Validation(server, engine, registry).run(stage.getName(), !server.configuration.mailHost.isEmpty(), true);
+                output = new Validation(server, engine).run(stage.getName(), !server.configuration.mailHost.isEmpty(), true);
                 for (String line : output) {
                     Server.LOGGER.info("  " + line);
                 }

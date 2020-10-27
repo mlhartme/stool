@@ -94,12 +94,12 @@ public class ApiController {
         Registry registry;
 
         try (Engine engine = engine()) {
-            registry = server.createRegistry();
             result = new JsonObject();
             result.addProperty("version", Main.versionString(World.create() /* TODO */));
             result.addProperty("memory-quota", ""); // TODO: dump
-            result.addProperty("disk-quota", server.configuration.diskQuota == 0
-                    ? "" : server.diskQuotaReserved(engine, registry) + "/" + server.configuration.diskQuota);
+            result.addProperty("disk-quota", "");
+            /* TODO server.configuration.diskQuota == 0
+                    ? "" : server.diskQuotaReserved(engine, registry) + "/" + server.configuration.diskQuota); */
             return result.toString();
         }
     }
@@ -133,7 +133,7 @@ public class ApiController {
         result = new JsonObject();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            context = new Context(engine, server.createRegistry());
+            context = new Context(engine);
             for (Stage stage : server.list(engine, new PredicateParser(context).parse(filter), problems)) {
                 select = "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr);
                 obj = new JsonObject();
@@ -160,13 +160,15 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}")
-    public void create(@PathVariable("stage") String name, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void create(@PathVariable("stage") String name, @RequestParam(value = "repository", required = true) String repository,
+                       HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> config;
         Stage stage;
         Property property;
 
+        StageConfiguration.validateRepository(repository);
         try (Engine engine = engine()) {
-            stage = new Stage(server, name, new StageConfiguration());
+            stage = new Stage(server, name, new StageConfiguration(repository));
             config = map(request, "");
             stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
             for (Map.Entry<String, String> entry : config.entrySet()) {
@@ -191,7 +193,7 @@ public class ApiController {
 
         result = new JsonObject();
         try (Engine engine = engine()) {
-            context = new Context(engine, server.createRegistry());
+            context = new Context(engine);
             for (Property property : server.load(engine, stage).properties()) {
                 result.add(property.name(), new JsonPrimitive(property.get(context)));
             }
@@ -212,7 +214,7 @@ public class ApiController {
             stage = server.load(engine, stageName);
             arguments = map(request, "");
             result = new JsonObject();
-            context = new Context(engine, server.createRegistry());
+            context = new Context(engine);
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
                 prop = stage.propertyOpt(entry.getKey());
                 if (prop == null) {
@@ -251,7 +253,7 @@ public class ApiController {
         }
         result = new JsonObject();
         try (Engine engine = engine()) {
-            context = new Context(engine, server.createRegistry());
+            context = new Context(engine);
             for (Info info : server.load(engine, stage).fields()) {
                 if (selection == null || selection.remove(info.name())) {
                     result.add(info.name(), new JsonPrimitive(info.getAsString(context)));
@@ -269,7 +271,7 @@ public class ApiController {
         List<String> output;
 
         try (Engine engine = engine()) {
-            output = new Validation(server, engine, server.createRegistry()).run(stage, email, repair);
+            output = new Validation(server, engine).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }
@@ -287,9 +289,9 @@ public class ApiController {
         Registry registry;
 
         try (Engine engine = engine()) {
-            registry = server.createRegistry();
             result = new ArrayList<>();
             stage = server.load(engine, name);
+            registry = stage.createRegistry(World.create() /* TODO */);
             all = stage.images(registry);
             current = stage.currentOpt(engine, registry);
             for (TagInfo image : all) {
@@ -329,7 +331,8 @@ public class ApiController {
         environment = map(request, "env.");
         global = server.configuration.diskQuota;
         try (Engine engine = engine()) {
-            registry = server.createRegistry();
+            stage = server.load(engine, stageName);
+            registry = stage.createRegistry(World.create() /* TODO */);
             if (global != 0) {
                 reserved = server.diskQuotaReserved(engine, registry);
                 if (reserved > global) {
@@ -337,7 +340,6 @@ public class ApiController {
                 }
             }
 
-            stage = server.load(engine, stageName);
             stage.checkExpired();
             stage.checkDiskQuota(engine, registry);
             return json(stage.start(engine, registry,
@@ -352,18 +354,18 @@ public class ApiController {
 
     @GetMapping("/stages//{stage}/await-startup")
     public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
-        Registry registry;
         Stage stage;
+        Context context;
 
         try (Engine engine = engine()) {
-            registry = server.createRegistry();
             stage = server.load(engine, stageName);
-            stage.awaitStartup(new Context(engine, registry));
+            context = new Context(engine);
+            stage.awaitStartup(context);
 
-            if (stage.currentOpt(engine, registry) == null) {
+            if (stage.currentOpt(engine, context.registry(stage)) == null) {
                 throw new IllegalStateException();
             }
-            return Engine.obj(stage.urlMap(engine, registry)).toString();
+            return Engine.obj(stage.urlMap(engine, context.registry(stage))).toString();
         }
     }
 
@@ -378,9 +380,12 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/stop")
-    public String stop(@PathVariable(value = "stage") String stage) throws IOException {
+    public String stop(@PathVariable(value = "stage") String stageName) throws IOException {
+        Stage stage;
+
         try (Engine engine = engine()) {
-            return json(server.load(engine, stage).stop(engine, server.createRegistry())).toString();
+            stage = server.load(engine, stageName);
+            return json(stage.stop(engine, stage.createRegistry(World.create()))).toString();
         }
     }
 
@@ -445,7 +450,7 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            current = stage.currentOpt(engine, server.createRegistry());
+            current = stage.currentOpt(engine, stage.createRegistry(World.create() /* TODO */));
         }
         if (current == null || !current.first.isRunning()) {
             throw new ArgumentException("stage is not running: " + stageName);
@@ -493,9 +498,12 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/delete")
-    public void delete(@PathVariable(value = "stage") String stage) throws IOException {
+    public void delete(@PathVariable(value = "stage") String stageName) throws IOException {
+        Stage stage;
+
         try (Engine engine = engine()) {
-            server.load(engine, stage).delete(engine, server.createRegistry());
+            stage = server.load(engine, stageName);
+            stage.delete(engine, stage.createRegistry(World.create()));
         }
     }
 

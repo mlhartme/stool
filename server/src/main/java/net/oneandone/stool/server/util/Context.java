@@ -22,6 +22,7 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,15 +32,15 @@ import java.util.Map;
 /** Context for info computation. */
 public class Context {
     public final Engine engine;
-    public final Registry registry;
+    private final Map<String, Registry> registries;
     private final Map<String, List<TagInfo>> stageImages;
     private final Map<String, Map<String, PodInfo>> runningPods;
     private final Map<String, Stage.Current> currentOpts;
     private final Map<String, Map<String, String>> urlMaps;
 
-    public Context(Engine engine, Registry registry) {
+    public Context(Engine engine) {
         this.engine = engine;
-        this.registry = registry;
+        this.registries = new HashMap<>();
         this.stageImages = new HashMap<>();
         this.runningPods = new HashMap<>();
         this.currentOpts = new HashMap<>();
@@ -50,12 +51,23 @@ public class Context {
         return engine.deploymentProbe(stage.dnsLabel());
     }
 
+    public Registry registry(Stage stage) throws IOException {
+        Registry result;
+
+        result = registries.get(stage.getName());
+        if (result == null) {
+            result = stage.createRegistry(World.create() /* TODO */);
+            registries.put(stage.getName(), result);
+        }
+        return result;
+    }
+
     public List<TagInfo> images(Stage stage) throws IOException {
         List<TagInfo> result;
 
         result = stageImages.get(stage.getName());
         if (result == null) {
-            result = stage.images(registry);
+            result = stage.images(registry(stage));
             stageImages.put(stage.getName(), result);
         }
         return result;
@@ -86,13 +98,13 @@ public class Context {
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.currentOpt(registry, runningPods(stage));
+            result = stage.currentOpt(registry(stage), runningPods(stage));
             currentOpts.put(stage.getName(), result);
         }
         return result;
     }
 
-    public Map<String, String> urlMap(Stage stage) throws IOException {
+    public Map<String, String> urlMap(Stage stage, Registry registry) throws IOException {
         Map<String, String> result;
 
         result = urlMaps.get(stage.getName());

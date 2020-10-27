@@ -18,6 +18,7 @@ package net.oneandone.stool.server.stage;
 import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
+import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.ArgumentException;
@@ -56,6 +57,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -117,8 +119,19 @@ public class Stage {
     }
 
     public String getRepository() {
-        return server.configuration.registryPath() + name;
+        return configuration.repository();
     }
+
+    public String getRepositoryPath() {
+        String path = URI.create(configuration.repository).getPath();
+        System.out.println("TODO: path " + path);
+        return path;
+    }
+
+    public Registry createRegistry(World world) throws IOException {
+        return PortusRegistry.create(world, getRepository(), null);
+    }
+
 
     //-- fields and properties
 
@@ -253,7 +266,7 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get(Context context) throws IOException {
-                return context.urlMap(Stage.this);
+                return context.urlMap(Stage.this, context.registry(Stage.this));
             }
         });
         return fields;
@@ -446,7 +459,7 @@ public class Stage {
     //-- docker
 
     public void wipeImages(Registry registry) throws IOException {
-        registry.delete(getRepository());
+        registry.delete(getRepositoryPath());
     }
 
     /** @return sorted list, oldest first */
@@ -456,13 +469,12 @@ public class Stage {
 
         result = new ArrayList<>();
         try {
-            tags = registry.tags(getRepository());
+            tags = registry.tags(getRepositoryPath());
         } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
             return result;
         }
-        System.out.println(getRepository() + " tags: " + tags);
         for (String tag : tags) {
-            result.add(registry.info(getRepository(), tag));
+            result.add(registry.info(getRepositoryPath(), tag));
         }
         Collections.sort(result);
         return result;
@@ -485,7 +497,7 @@ public class Stage {
         if (current != null) {
             containerId = current.first /* TODO */.containerId(MAIN_CONTAINER);
             if (containerId != null) {
-                used = new Context(engine, registry).sizeRw(containerId);
+                used = new Context(engine).sizeRw(containerId);
                 quota = current.image.disk;
                 if (used > quota) {
                     throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");

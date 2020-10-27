@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import net.oneandone.stool.kubernetes.OpenShift;
-import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Accessor;
@@ -327,13 +326,6 @@ public class Server {
 
     //--
 
-    public Registry createRegistry() throws IOException {
-        String url;
-
-        url = Strings.removeRight(configuration.registryUrl(), "/");
-        return PortusRegistry.create(world, url, null);
-    }
-
     /** @return path to generates directory */
     public FileNode certificate(String certname) throws IOException {
         FileNode script;
@@ -360,7 +352,6 @@ public class Server {
     //--
 
     public void validate(Engine engine) throws IOException {
-        configuration.validateRegistryUrl();
         if (configuration.auth()) {
             if (configuration.ldapSso.isEmpty()) {
                 LOGGER.error("ldapSso cannot be empty because security is enabled");

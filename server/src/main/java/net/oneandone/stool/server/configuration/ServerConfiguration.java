@@ -15,12 +15,9 @@
  */
 package net.oneandone.stool.server.configuration;
 
-import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.util.Mailer;
-import net.oneandone.sushi.util.Strings;
 
 import java.lang.reflect.Field;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,8 +44,6 @@ public class ServerConfiguration {
     //--
 
     public String loglevel;
-
-    public String registryUrl;
 
     /**
      * used for output and application urls
@@ -97,7 +92,6 @@ public class ServerConfiguration {
         fqdn = "localhost";
         kubernetes = "http://localhost";
         loglevel = "INFO";
-        registryUrl = "http://localhost:31500/";
         admin = "";
         autoRemove = -1;
         ldapUrl = "";
@@ -111,41 +105,6 @@ public class ServerConfiguration {
         diskQuota = 0;
         defaultExpire = 0;
         environment = new HashMap<>();
-    }
-
-    public String registryUrl() {
-        return registryUrl;
-    }
-
-    public String registryPath() {
-        String path;
-
-        path = URI.create(registryUrl).getPath();
-        path = Strings.removeLeft(path, "/");
-        if (!path.isEmpty() && !path.endsWith("/")) {
-            path = path + "/";
-        }
-        return path;
-    }
-
-    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public void validateRegistryUrl() {
-        if (!registryUrl.endsWith("/")) {
-            throw new ArgumentException("invalid registry prefix: " + registryUrl);
-        }
-        URI uri;
-
-        uri = URI.create(registryUrl);
-        checkLowercase(uri.getHost());
-        checkLowercase(uri.getPath());
-    }
-
-    private static void checkLowercase(String str) {
-        for (int i = 0, length = str.length(); i < length; i++) {
-            if (Character.isUpperCase(str.charAt(i))) {
-                throw new ArgumentException("invalid registry prefix: " + str);
-            }
-        }
     }
 
     private void loadEnv() {
