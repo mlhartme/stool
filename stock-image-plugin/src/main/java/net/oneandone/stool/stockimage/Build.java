@@ -17,6 +17,7 @@ package net.oneandone.stool.stockimage;
 
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.http.StatusException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -46,6 +47,12 @@ public class Build extends AbstractMojo {
     @Parameter(defaultValue = "5")
     private final int keep;
 
+    /**
+     * Specifies the artifact to add to the Docker context.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/${project.build.finalName}.war")
+    private final String artifact;
+
     /** Explicit comment to add to image */
     @Parameter(defaultValue = "")
     private final String comment;
@@ -61,6 +68,7 @@ public class Build extends AbstractMojo {
         this.world = world;
         this.noCache = false;
         this.keep = 5;
+        this.artifact = null;
         this.comment = "";
         this.explicitArguments = argument(new ArrayList()); // TODO
     }
@@ -91,14 +99,12 @@ public class Build extends AbstractMojo {
     public void build() throws IOException, MojoFailureException {
         Source source;
 
-        // TODO: pick from Maven metadata
-        source = Source.createOpt(getLog(), world.getWorking());
-        if (source == null) {
-            throw new IOException("no war found");
-        }
+        source = new Source(getLog(), world.file(artifact).checkFile());
         try (Daemon daemon = Daemon.create()) {
-            source.build(daemon, "contargo.server.lan/cisoops-plublic/foo", "todo:stage",
+            source.build(daemon, "contargo.server.lan/cisoops-public/todo", "todo-stage",
                     comment, keep, noCache, explicitArguments);
+        } catch (StatusException e) {
+            throw new IOException(e.getResource() + ": " + e.getStatusLine(), e);
         }
     }
 

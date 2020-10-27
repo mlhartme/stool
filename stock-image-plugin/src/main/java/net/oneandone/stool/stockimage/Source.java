@@ -42,45 +42,25 @@ import java.util.Properties;
 
 /** List of Apps. Represents .backstage */
 public class Source {
-    public static Source createOpt(Log log, FileNode directory) throws IOException {
-        List<FileNode> lst;
-
-        if (!directory.join("pom.xml").isFile()) {
-            return null;
-        }
-        lst = directory.find("target/*.war");
-        switch (lst.size()) {
-            case 0:
-                return null;
-            case 1:
-                return new Source(log, directory, lst.get(0));
-            default:
-                throw new IOException("ambiguous: " + directory + " " + lst);
-        }
-    }
-
-
     private final Log log;
 
-    public final FileNode directory;
     public final FileNode war;
 
-    public Source(Log log, FileNode directory, FileNode war) {
+    public Source(Log log, FileNode war) {
         this.log = log;
-        this.directory = directory;
         this.war = war;
     }
 
     // TODO
     public FileNode templates() throws ExistsException, DirectoryNotFoundException {
-        return directory.getWorld().file(System.getenv("CISOTOOLS_HOME")).join("stool/templates-6").checkDirectory(); // TODO
+        return war.getWorld().file(System.getenv("CISOTOOLS_HOME")).join("stool/templates-6").checkDirectory(); // TODO
     }
 
 
     public String getOriginOrUnknown() throws IOException {
         FileNode dir;
 
-        dir = directory;
+        dir = war;
         do {
             if (dir.join(".git").isDirectory()) {
                 return "git:" + git(dir, "config", "--get", "remote.origin.url").exec().trim();
