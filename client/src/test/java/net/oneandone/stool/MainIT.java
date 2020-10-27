@@ -17,19 +17,15 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.client.cli.Main;
 import net.oneandone.stool.util.Secrets;
-import net.oneandone.sushi.fs.DirectoryNotFoundException;
-import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
