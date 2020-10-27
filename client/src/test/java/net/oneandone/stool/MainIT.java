@@ -80,12 +80,14 @@ public class MainIT {
 
     @Test
     public void turnaround() throws IOException, InterruptedException {
+        final String repository = "contargo.server.lan/cisoops-public/it-hellowar";
         FileNode working;
         String stage;
 
         working = IT_ROOT.join("projects").mkdirsOpt().join("it");
         System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
         System.out.println(working.exec("mvn", "clean", "package", "-Dmaven.javadoc.skip=true")); // junit.org for javadocs is offline every now and then ...
+        System.out.println(working.exec("mvn", "net.oneandone.stool:stock-image-plugin:build", "-Ddocker.repository=" + repository));
         System.out.println("git");
 
         helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
@@ -97,7 +99,7 @@ public class MainIT {
 
         sc(working, "context", "localhost");
         sc(working, "list");
-        sc(working,"create", "-e", stage);
+        sc(working,"create", "-e", stage, repository);
         sc(working,"list");
         sc(working,"status", "-stage", stage);
         sc(working, "detach", "-stage", stage);

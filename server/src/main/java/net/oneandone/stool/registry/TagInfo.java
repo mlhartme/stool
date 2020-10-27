@@ -26,13 +26,17 @@ import java.util.Map;
 
 public class TagInfo implements Comparable<TagInfo> {
     public static TagInfo create(String id, String repositoryTag, String tag, String author, LocalDateTime created, Map<String, String> labels) {
-        return new TagInfo(id, repositoryTag, tag, author, labels.get(ImageInfo.IMAGE_LABEL_CHART),
-                Integer.parseInt(labels.get(ImageInfo.IMAGE_LABEL_PORT_JMXMP)),
+        return new TagInfo(id, repositoryTag, tag, author,
+                labels.get(ImageInfo.IMAGE_LABEL_CHART), jmxmp(labels.get(ImageInfo.IMAGE_LABEL_PORT_JMXMP)),
                 disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
                 labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
                 created, args(labels), fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)));
+    }
+
+    private static int jmxmp(String value) {
+        return value == null ? -1 : Integer.parseInt(value);
     }
 
     private static Map<String, String> args(Map<String, String> labels) {
@@ -109,6 +113,7 @@ public class TagInfo implements Comparable<TagInfo> {
 
     public final String chart;
 
+    /** -1 if not specified */
     public final int jmxmp;
 
     /** in megabytes */

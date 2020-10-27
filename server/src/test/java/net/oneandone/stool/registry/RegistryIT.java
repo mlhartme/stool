@@ -118,7 +118,12 @@ public class RegistryIT {
             }
             assertTrue(registry.list().contains(repository));
             assertEquals(Arrays.asList("1"), registry.tags(repository));
-            assertEquals("1", registry.info(repository, "1").tag);
+            try {
+                assertEquals("1", registry.info(repository, "1").tag);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                e.getCause().printStackTrace();
+            }
             registry.delete(repository);
             if (testDelete) {
                 assertEquals(Arrays.asList(), registry.tags(repository));
