@@ -93,7 +93,7 @@
       <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
-        <version>1.6.3</version>
+        <version>1.7.0-SNAPSHOT</version>
         <executions>
           <execution>
             <id>stool-client</id>
