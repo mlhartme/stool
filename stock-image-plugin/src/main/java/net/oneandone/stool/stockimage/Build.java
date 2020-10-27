@@ -47,6 +47,9 @@ public class Build extends AbstractMojo {
     @Parameter(defaultValue = "5")
     private final int keep;
 
+    @Parameter(defaultValue = "contargo.server.lan/cisoops-public/${project.groupId}-${project.artifactId}") // TODO
+    private final String image;
+
     /**
      * Specifies the artifact to add to the Docker context.
      */
@@ -68,6 +71,7 @@ public class Build extends AbstractMojo {
         this.world = world;
         this.noCache = false;
         this.keep = 5;
+        this.image = "";
         this.artifact = null;
         this.comment = "";
         this.explicitArguments = argument(new ArrayList()); // TODO
@@ -101,8 +105,7 @@ public class Build extends AbstractMojo {
 
         source = new Source(getLog(), world.file(artifact).checkFile());
         try (Daemon daemon = Daemon.create()) {
-            source.build(daemon, "contargo.server.lan/cisoops-public/todo", "todo-stage",
-                    comment, keep, noCache, explicitArguments);
+            source.build(daemon, image, comment, keep, noCache, explicitArguments);
         } catch (StatusException e) {
             throw new IOException(e.getResource() + ": " + e.getStatusLine(), e);
         }

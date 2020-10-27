@@ -107,8 +107,7 @@ public class Source {
 
     //--
 
-    public String build(Daemon daemon, String registryPrefix, String stage,
-                        String comment, int keep, boolean noCache, Map<String, String> explicitArguments)
+    public String build(Daemon daemon, String registryImage, String comment, int keep, boolean noCache, Map<String, String> explicitArguments)
             throws IOException, MojoFailureException {
         long started;
         int tag;
@@ -116,8 +115,8 @@ public class Source {
 
         started = System.currentTimeMillis();
         log.info("building image for " + toString());
-        tag = wipeOldImages(daemon, registryPrefix, stage, keep);
-        repositoryTag = registryPrefix + stage + ":" + tag;
+        tag = wipeOldImages(daemon, registryImage, keep);
+        repositoryTag = registryImage + ":" + tag;
 
         doBuild(daemon, repositoryTag, comment, noCache, getOriginOrUnknown(), explicitArguments);
 
@@ -178,7 +177,7 @@ public class Source {
     }
 
     /** @return next version */
-    public int wipeOldImages(Daemon docker, String registryPrefix, String name, int keep) throws IOException {
+    public int wipeOldImages(Daemon docker, String registryImage, int keep) throws IOException {
         Map<String, ImageInfo> images;
 
         int count;
@@ -186,7 +185,7 @@ public class Source {
         List<String> sorted;
         String remove;
 
-        images = repositoryTags(registryPrefix, name, docker.imageList());
+        images = repositoryTags(registryImage, docker.imageList());
         result = nextTag(images.keySet());
         sorted = new ArrayList<>(images.keySet());
         Collections.sort(sorted);
@@ -241,7 +240,7 @@ public class Source {
         return max + 1;
     }
 
-    public Map<String, ImageInfo> repositoryTags(String registryPrefix, String name, Map<String, ImageInfo> imageMap) {
+    public Map<String, ImageInfo> repositoryTags(String registryImage, Map<String, ImageInfo> imageMap) {
         Map<String, ImageInfo> result;
         ImageInfo info;
 
@@ -249,7 +248,7 @@ public class Source {
         for (Map.Entry<String, ImageInfo> entry : imageMap.entrySet()) {
             info = entry.getValue();
             for (String repositoryTag : info.repositoryTags) {
-                if (repositoryTag.startsWith(registryPrefix + name + ":")) {
+                if (repositoryTag.startsWith(registryImage + ":")) {
                     result.put(repositoryTag, info);
                 }
             }
