@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Integration tests for the command line.
  */
 public class MainIT {
+    private static final String REPOSITORY = "contargo.server.lan/cisoops-public/it-hellowar";
     private static final String CONTEXT = "local";
 
     private static final World WORLD;
@@ -49,6 +50,16 @@ public class MainIT {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    // run this to get a sample image deployed
+    public static void main(String[] args) throws IOException {
+        FileNode working;
+
+        working = IT_ROOT.join("projects").mkdirsOpt().join("it");
+        System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
+        System.out.println(working.exec("mvn", "clean", "package", "-Dmaven.javadoc.skip=true")); // junit.org for javadocs is offline every now and then ...
+        System.out.println(working.exec("mvn", "net.oneandone.stool:stock-image-plugin:build", "-Ddocker.repository=" + REPOSITORY));
     }
 
     private static FileNode serverValues() throws IOException {
@@ -80,18 +91,15 @@ public class MainIT {
 
     @Test
     public void turnaround() throws IOException, InterruptedException {
-        final String repository = "contargo.server.lan/cisoops-public/it-hellowar";
         FileNode working;
         String stage;
 
         working = IT_ROOT.join("projects").mkdirsOpt().join("it");
+
+        // TODO
         System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
-        System.out.println(working.exec("mvn", "clean", "package", "-Dmaven.javadoc.skip=true")); // junit.org for javadocs is offline every now and then ...
-        System.out.println(working.exec("mvn", "net.oneandone.stool:stock-image-plugin:build", "-Ddocker.repository=" + repository));
-        System.out.println("git");
 
         helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
-        System.out.println("helm upgrade done");
 
         stage = "de.wq-ta"; // with some special characters
 
@@ -99,7 +107,7 @@ public class MainIT {
 
         sc(working, "context", "localhost");
         sc(working, "list");
-        sc(working,"create", "-e", stage, repository);
+        sc(working,"create", "-e", stage, REPOSITORY);
         sc(working,"list");
         sc(working,"status", "-stage", stage);
         sc(working, "detach", "-stage", stage);

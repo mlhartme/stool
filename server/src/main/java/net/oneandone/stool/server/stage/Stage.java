@@ -125,11 +125,22 @@ public class Stage {
     public String getRepositoryPath() {
         String path = URI.create(configuration.repository).getPath();
         System.out.println("TODO: path " + path);
+        path = Strings.removeLeft(path, "/");
         return path;
     }
 
     public Registry createRegistry(World world) throws IOException {
-        return PortusRegistry.create(world, getRepository(), null);
+        String registry;
+        URI url;
+        String repository;
+
+        registry = server.configuration.registryUrl();
+        url = URI.create(registry);
+        repository = getRepository();
+        if (!repository.startsWith(url.getHost() + "/")) {
+            throw new IllegalStateException(url.getHost() + " vs " + repository);
+        }
+        return PortusRegistry.create(world, registry, null);
     }
 
 

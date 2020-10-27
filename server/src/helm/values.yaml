@@ -7,6 +7,9 @@ cert: ""
 # points to stool server image
 repositoryTag: "contargo.server.lan/cisoops-public/stool-server:${image.version}"
 
+# Prefix for all stage repository tags. Has to be all lower case (because it's used for Docker tags which have to be lower case). Type string.
+registryUrl: ""
+
 # publicly reachable url pointing to kubernetes api
 kubernetes: "http://TODO-needed-for-port-forwarding-not-tested"
 

@@ -45,6 +45,8 @@ public class ServerConfiguration {
 
     public String loglevel;
 
+    public String registryUrl;
+
     /**
      * used for output and application urls
      */
@@ -92,6 +94,7 @@ public class ServerConfiguration {
         fqdn = "localhost";
         kubernetes = "http://localhost";
         loglevel = "INFO";
+        registryUrl = "http://localhost:31500/";
         admin = "";
         autoRemove = -1;
         ldapUrl = "";
@@ -105,6 +108,10 @@ public class ServerConfiguration {
         diskQuota = 0;
         defaultExpire = 0;
         environment = new HashMap<>();
+    }
+
+    public String registryUrl() {
+        return registryUrl;
     }
 
     private void loadEnv() {

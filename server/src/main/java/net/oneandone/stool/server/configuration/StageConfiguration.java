@@ -99,7 +99,9 @@ public class StageConfiguration {
         } catch (URISyntaxException e) {
             throw new ArgumentException("invalid repository: " + repository);
         }
-        checkLowercase(uri.getHost());
+        if (uri.getHost() != null) {
+            checkLowercase(uri.getHost());
+        }
         checkLowercase(uri.getPath());
     }
 
