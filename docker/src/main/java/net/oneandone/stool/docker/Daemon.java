@@ -21,7 +21,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -734,7 +733,7 @@ public class Daemon implements AutoCloseable {
 
         for (int i = 0, length = reference.length(); i < length; i++) {
             if (Character.isUpperCase(reference.charAt(i))) {
-                throw new ArgumentException("invalid reference: " + reference);
+                throw new IllegalArgumentException("invalid reference: " + reference);
             }
         }
     }

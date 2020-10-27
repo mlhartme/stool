@@ -15,10 +15,8 @@
  */
 package net.oneandone.stool.docker;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +42,7 @@ public class DaemonIT {
 
     @Test()
     public void rejectBuildWithUppercaseTag() throws IOException {
-        assertThrows(ArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             try (Daemon docker = create()) {
                 docker.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
             }
