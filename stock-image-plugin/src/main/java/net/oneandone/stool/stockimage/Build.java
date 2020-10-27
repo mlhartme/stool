@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.stockimage;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
 import org.apache.maven.plugin.AbstractMojo;
@@ -54,11 +53,11 @@ public class Build extends AbstractMojo {
     // TODO
     private final Map<String, String> explicitArguments;
 
-    public Build() throws IOException {
+    public Build() throws IOException, MojoFailureException {
         this(World.create());
     }
 
-    public Build(World world) {
+    public Build(World world) throws MojoFailureException {
         this.world = world;
         this.noCache = false;
         this.keep = 5;
@@ -66,7 +65,7 @@ public class Build extends AbstractMojo {
         this.explicitArguments = argument(new ArrayList()); // TODO
     }
 
-    private static Map<String, String> argument(List<String> args) {
+    private static Map<String, String> argument(List<String> args) throws MojoFailureException {
         int idx;
         Map<String, String> result;
 
@@ -74,7 +73,7 @@ public class Build extends AbstractMojo {
         for (String arg : args) {
             idx = arg.indexOf('=');
             if (idx == -1) {
-                throw new ArgumentException("invalid argument: <key>=<value> expected, got " + arg);
+                throw new MojoFailureException("invalid argument: <key>=<value> expected, got " + arg);
             }
             result.put(arg.substring(0, idx), arg.substring(idx + 1));
         }

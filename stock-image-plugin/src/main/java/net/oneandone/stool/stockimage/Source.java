@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.stockimage;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.docker.BuildArgument;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Daemon;
@@ -285,7 +284,7 @@ public class Source {
         return explicitValue != null ? explicitValue : dflt;
     }
 
-    private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Map<String, String> arguments) {
+    private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Map<String, String> arguments) throws MojoFailureException {
         Map<String, String> result;
         String property;
 
@@ -296,7 +295,7 @@ public class Source {
         for (Map.Entry<String, String> entry : arguments.entrySet()) {
             property = entry.getKey();
             if (!result.containsKey(property)) {
-                throw new ArgumentException("unknown explicit build argument: " + property + "\n" + available(defaults.values()));
+                throw new MojoFailureException("unknown explicit build argument: " + property + "\n" + available(defaults.values()));
             }
             result.put(property, entry.getValue());
         }
