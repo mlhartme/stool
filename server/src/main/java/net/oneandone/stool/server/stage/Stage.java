@@ -125,7 +125,7 @@ public class Stage {
     public String getRepositoryPath() {
         String path = URI.create(configuration.repository).getPath();
         System.out.println("TODO: path " + path);
-        path = Strings.removeLeft(path, "/");
+        path = Strings.removeLeftOpt(path, "/");
         return path;
     }
 
@@ -140,7 +140,7 @@ public class Stage {
         if (!repository.startsWith(url.getHost() + "/")) {
             throw new IllegalStateException(url.getHost() + " vs " + repository);
         }
-        return PortusRegistry.create(world, registry, null);
+        return PortusRegistry.create(world, Strings.removeRightOpt(registry, "/"), null);
     }
 
 
