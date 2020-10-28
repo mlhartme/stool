@@ -65,6 +65,7 @@ public class Validation {
             if (!stage.runningContainerMap(engine).isEmpty()) {
                 try {
                     stage.stop(engine, new ArrayList<>());
+                    Server.LOGGER.info("validation stopped stage " + stage.getName());
                     report.add("stage has been stopped");
                 } catch (Exception e) {
                     report.add("stage failed to stop: " + e.getMessage());
@@ -76,6 +77,7 @@ public class Validation {
                     try {
                         report.add("removing expired stage");
                         stage.remove(engine);
+                        Server.LOGGER.info("validation removed stage " + stage.getName());
                     } catch (Exception e) {
                         report.add("failed to remove expired stage: " + e.getMessage());
                         Server.LOGGER.debug(e.getMessage(), e);

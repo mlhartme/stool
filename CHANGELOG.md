@@ -2,6 +2,10 @@
 
 ### 5.1.1 (pending)
 
+server
+* improved logging when stage expires
+* remove port-in-use check - it doesnt make sense in a container (thanks to Kanan)
+
 client 
 * added -network argument to make the server network configurable
 * fixed integration tests to automatically create and remove a network (thanks to Stephan M)

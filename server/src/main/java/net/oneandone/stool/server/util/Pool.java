@@ -20,7 +20,6 @@ import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.stage.Stage;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -181,7 +180,6 @@ public class Pool {
         current = start;
         do {
             if (!ignores.contains(current) && !isAllocated(current)) {
-                checkFree(current);
                 return current;
             }
             current = current < last ? current + 1 : first;
@@ -211,35 +209,4 @@ public class Pool {
         return ((result % (last - first + 1)) + first) & 0xfffffffe;
     }
 
-    //--
-
-    /**
-     * See http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
-     */
-    private static void checkFree(int port) throws IOException {
-        boolean available;
-        ServerSocket socket;
-
-        socket = null;
-        available = false;
-        try {
-            socket = new ServerSocket(port);
-            available = true;
-        } catch (IOException e) {
-            // fall-through
-        } finally {
-            // Clean up
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    /* should not be thrown */
-                    e.printStackTrace();
-                }
-            }
-        }
-        if (!available) {
-            throw new IOException("port already in use: " + port);
-        }
-    }
 }
