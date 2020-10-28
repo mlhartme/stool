@@ -95,11 +95,7 @@ public class MainIT {
         FileNode working;
         String stage;
 
-        working = IT_ROOT.join("projects").mkdirsOpt().join("it");
-
-        // TODO
-        System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
-
+        working = IT_ROOT.join("projects/it").mkdirsOpt();
         helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
 
         stage = "de.wq-ta"; // with some special characters
