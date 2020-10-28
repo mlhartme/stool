@@ -220,7 +220,7 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public void delete(@PathVariable(value = "stage") String stageName, String imageOpt) throws IOException {
+    public void publish(@PathVariable(value = "stage") String stageName, String imageOpt) throws IOException {
         Registry registry;
         Stage stage;
 
