@@ -3,6 +3,8 @@
 ### 6.1.0 (pending)
 
 * moved stool build into separate Maven plugin
+* sc create now takes an reposittory argument
+* stool no longer wipes stages
 
 * server
   * log validation report

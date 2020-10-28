@@ -470,10 +470,6 @@ public class Stage {
 
     //-- docker
 
-    public void wipeImages(Registry registry) throws IOException {
-        registry.delete(getRepositoryPath());
-    }
-
     /** @return sorted list, oldest first */
     public List<TagInfo> images(Registry registry) throws IOException {
         List<String> tags;
@@ -767,7 +763,6 @@ public class Stage {
         stop(engine, registry); // usually returns true for already stopped
 
         StageConfiguration.delete(engine, name);
-        wipeImages(registry);
     }
 
     //--

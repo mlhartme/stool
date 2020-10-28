@@ -43,10 +43,6 @@ public class Build extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private final boolean noCache;
 
-    /** Number of images to keep */
-    @Parameter(defaultValue = "5")
-    private final int keep;
-
     @Parameter(property = "docker.repository",
             defaultValue = "contargo.server.lan/cisoops-public/${project.groupId}-${project.artifactId}") // TODO
     private final String repository;
@@ -71,7 +67,6 @@ public class Build extends AbstractMojo {
     public Build(World world) throws MojoFailureException {
         this.world = world;
         this.noCache = false;
-        this.keep = 5;
         this.repository = "";
         this.artifact = null;
         this.comment = "";
@@ -106,7 +101,7 @@ public class Build extends AbstractMojo {
 
         source = new Source(getLog(), world.file(artifact).checkFile());
         try (Daemon daemon = Daemon.create()) {
-            source.build(daemon, repository, comment, keep, noCache, explicitArguments);
+            source.build(daemon, repository, comment, noCache, explicitArguments);
         } catch (StatusException e) {
             throw new IOException(e.getResource() + ": " + e.getStatusLine(), e);
         }

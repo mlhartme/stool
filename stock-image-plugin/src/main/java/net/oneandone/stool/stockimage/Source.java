@@ -32,11 +32,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -107,7 +104,7 @@ public class Source {
 
     //--
 
-    public String build(Daemon daemon, String repository, String comment, int keep, boolean noCache, Map<String, String> explicitArguments)
+    public String build(Daemon daemon, String repository, String comment, boolean noCache, Map<String, String> explicitArguments)
             throws IOException, MojoFailureException {
         long started;
         int tag;
@@ -115,7 +112,7 @@ public class Source {
 
         started = System.currentTimeMillis();
         log.info("building image for " + toString());
-        tag = wipeOldImages(daemon, repository, keep);
+        tag = nextTag(daemon, repository);
         repositoryTag = repository + ":" + tag;
 
         doBuild(daemon, repositoryTag, comment, noCache, getOriginOrUnknown(), explicitArguments);
@@ -177,31 +174,11 @@ public class Source {
     }
 
     /** @return next version */
-    public int wipeOldImages(Daemon docker, String repository, int keep) throws IOException {
+    public int nextTag(Daemon docker, String repository) throws IOException {
         Map<String, ImageInfo> images;
 
-        int count;
-        int result;
-        List<String> sorted;
-        String remove;
-
         images = repositoryTags(repository, docker.imageList());
-        result = nextTag(images.keySet());
-        sorted = new ArrayList<>(images.keySet());
-        Collections.sort(sorted);
-
-        count = sorted.size() - keep;
-        while (count > 0 && !sorted.isEmpty()) {
-            remove = sorted.remove(0);
-            if (!hasContainer(docker, remove)) {
-                log.info("remove image: " + remove);
-                docker.imageRemove(remove, false);
-                count--;
-            } else {
-                log.warn("cannot remove image, because it's still in use: " + remove);
-            }
-        }
-        return result;
+        return nextTag(images.keySet());
     }
 
     private boolean hasContainer(Daemon engine, String repoTag) throws IOException {
