@@ -2,11 +2,12 @@
 
 ### 6.0.1 (pending)
 
-* log validation report
-* dumped memory quota handling, kubernetes is responsible for that
-* dumped environment field - it's too container centric now that we have kubernetes; use 'sc ssh' instead
-* server startup output with image version
-* readiness probe for stool server
+* server
+  * log validation report
+  * dumped memory quota handling, kubernetes is responsible for that
+  * dumped environment field - it's too container centric now that we have kubernetes; use 'sc ssh' instead
+  * server startup output with image version
+  * readiness probe for stool server
 * update to junit 5.7.0
 
 

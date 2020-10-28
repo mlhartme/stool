@@ -123,9 +123,10 @@ public class Stage {
     }
 
     public String getRepositoryPath() {
-        String path = URI.create(configuration.repository).getPath();
-        System.out.println("TODO: path " + path);
-        path = Strings.removeLeftOpt(path, "/");
+        String path;
+
+        path = URI.create(configuration.repository).getPath();
+        path = path.substring(path.indexOf('/') + 1);   // strip hostname
         return path;
     }
 
