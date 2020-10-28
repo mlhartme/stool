@@ -1,6 +1,8 @@
 ## Changelog 
 
-### 6.0.1 (pending)
+### 6.1.0 (pending)
+
+* moved stool build into separate Maven plugin
 
 * server
   * log validation report
