@@ -51,6 +51,10 @@ public class Validation {
         registry = stage.createRegistry(world);
         report = new ArrayList<>();
         doRun(stage, registry, report, repair);
+        Server.LOGGER.info("Validation done (" + report.size() + " lines report)");
+        for (String line : report) {
+            Server.LOGGER.info("  " + line);
+        }
         if (email && !report.isEmpty()) {
             email(name, stage.notifyLogins(), report);
         }
