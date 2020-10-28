@@ -160,16 +160,37 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}")
-    public void create(@PathVariable("stage") String name, @RequestParam(value = "repository", required = true) String repository,
+    public String create(@PathVariable("stage") String name, @RequestParam(value = "image", required = true) String image,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> config;
+        int idx;
+        String repository;
+        String tag;
         Stage stage;
         Property property;
+        Registry registry;
+        int global;
+        int reserved;
+        Map<String, String> environment;
+
+        idx = image.indexOf(':');
+        if (idx == -1) {
+            repository = image;
+            tag = null;
+        } else {
+            repository = image.substring(0, idx);
+            tag = image.substring(idx + 1);
+        }
 
         StageConfiguration.validateRepository(repository);
+
+        // TODO
+        environment = map(request, "env.");
+        config = map(request, "config.");
+
+        global = server.configuration.diskQuota;
         try (Engine engine = engine()) {
             stage = new Stage(server, name, new StageConfiguration(repository));
-            config = map(request, "");
             stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
             for (Map.Entry<String, String> entry : config.entrySet()) {
                 property = stage.propertyOpt(entry.getKey());
@@ -183,6 +204,49 @@ public class ApiController {
             } catch (StageExistsException e) {
                 response.sendError(409 /* conflict */, "stage exists: " + name);
             }
+
+            registry = stage.createRegistry(World.create() /* TODO */);
+            if (global != 0) {
+                reserved = server.diskQuotaReserved(engine, registry);
+                if (reserved > global) {
+                    throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n");
+                }
+            }
+
+            stage.checkExpired();
+            stage.checkDiskQuota(engine, registry);
+            return json(stage.start(engine, registry, tag, environment)).toString();
+        }
+    }
+
+    @PostMapping("/stages/{stage}/publish")
+    public void delete(@PathVariable(value = "stage") String stageName, String imageOpt) throws IOException {
+        Registry registry;
+        Stage stage;
+
+        try (Engine engine = engine()) {
+            stage = server.load(engine, stageName);
+            registry = stage.createRegistry(World.create());
+            stage.stop(engine, registry);
+            try {
+                Thread.sleep(5000);                // TODO
+            } catch (InterruptedException e) {
+                // TODO
+            }
+            stage.start(engine, registry, imageOpt, new HashMap<>());
+        }
+    }
+
+    @PostMapping("/stages/{stage}/delete")
+    public void delete(@PathVariable(value = "stage") String stageName) throws IOException {
+        Registry registry;
+        Stage stage;
+
+        try (Engine engine = engine()) {
+            stage = server.load(engine, stageName);
+            registry = stage.createRegistry(World.create());
+            stage.stop(engine, registry);
+            stage.delete(engine, registry);
         }
     }
 
@@ -318,35 +382,6 @@ public class ApiController {
         }
     }
 
-    @PostMapping("/stages/{stage}/start")
-    public String start(@PathVariable(value = "stage") String stageName,
-                        @RequestParam(value = "image", required = false, defaultValue = "") String image,
-                        HttpServletRequest request) throws IOException {
-        Stage stage;
-        Registry registry;
-        int global;
-        int reserved;
-        Map<String, String> environment;
-
-        environment = map(request, "env.");
-        global = server.configuration.diskQuota;
-        try (Engine engine = engine()) {
-            stage = server.load(engine, stageName);
-            registry = stage.createRegistry(World.create() /* TODO */);
-            if (global != 0) {
-                reserved = server.diskQuotaReserved(engine, registry);
-                if (reserved > global) {
-                    throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n");
-                }
-            }
-
-            stage.checkExpired();
-            stage.checkDiskQuota(engine, registry);
-            return json(stage.start(engine, registry,
-                    image.isEmpty() ? null : image, environment)).toString();
-        }
-    }
-
 
     private static JsonElement json(String opt) {
         return opt == null ? JsonNull.INSTANCE : new JsonPrimitive(opt);
@@ -377,16 +412,6 @@ public class ApiController {
             result.add(new JsonPrimitive(str));
         }
         return result;
-    }
-
-    @PostMapping("/stages/{stage}/stop")
-    public String stop(@PathVariable(value = "stage") String stageName) throws IOException {
-        Stage stage;
-
-        try (Engine engine = engine()) {
-            stage = server.load(engine, stageName);
-            return json(stage.stop(engine, stage.createRegistry(World.create()))).toString();
-        }
     }
 
     @GetMapping("/stages/{stage}/pod-token")
@@ -495,16 +520,6 @@ public class ApiController {
             }
         }
         return result.toString();
-    }
-
-    @PostMapping("/stages/{stage}/delete")
-    public void delete(@PathVariable(value = "stage") String stageName) throws IOException {
-        Stage stage;
-
-        try (Engine engine = engine()) {
-            stage = server.load(engine, stageName);
-            stage.delete(engine, stage.createRegistry(World.create()));
-        }
     }
 
     @GetMapping("/stages/{name}/logs")

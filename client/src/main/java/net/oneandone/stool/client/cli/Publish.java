@@ -18,30 +18,16 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Restart extends IteratedStageCommand {
+public class Publish extends IteratedStageCommand {
     private final String imageOpt;
 
-    public Restart(Globals globals, String imageOpt) {
+    public Publish(Globals globals, String imageOpt) {
         super(globals);
         this.imageOpt = imageOpt;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        List<String> args;
-
-        if (up(reference)) {
-            new Stop(globals).doRun(reference);
-        } else {
-            console.info.println("Container is not running - starting a new instance.");
-        }
-        args = new ArrayList<>();
-        if (imageOpt != null) {
-            args.add(imageOpt);
-        }
-        new Start(globals, args).doRun(reference);
+        reference.client.publish(reference.stage, imageOpt);
     }
 }

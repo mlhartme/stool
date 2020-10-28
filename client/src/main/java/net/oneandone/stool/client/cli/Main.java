@@ -72,7 +72,7 @@ public class Main {
                  cli.add(Auth.class, "auth -batch");
                  cli.add(ConfigContext.class, "context -offline -q name?");
                  cli.add(ShellInc.class, "shell-inc");
-                 cli.add(Create.class, "create -optional -detached name repository args*");
+                 cli.add(Create.class, "create -optional -detached name image args*");
                  cli.add(Attach.class, "attach name");
                  cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                     cli.add(Detach.class, "detach");
@@ -80,12 +80,10 @@ public class Main {
                     cli.add(History.class, "history -details=false -max=-1");
                     cli.add(Images.class, "images");
                     cli.add(Ls.class, "list info* { select*(info) }");
-                    cli.add(Delete.class, "delete -batch -stop");
+                    cli.add(Delete.class, "delete -batch");
                     cli.add(Remove.class, "remove");
-                    cli.add(Restart.class, "restart image?");
-                    cli.add(Start.class, "start -http=-1 -https=-1 envAppIndex*");
+                    cli.add(Publish.class, "publish image?");
                     cli.add(Status.class, "status info* { select*(info) }");
-                    cli.add(Stop.class, "stop");
                     cli.add(PortForward.class, "port-forward -timeout=30 port toPort?");
                     cli.add(Ssh.class, "ssh -timeout=30 shell?");
                     cli.add(Validate.class, "validate -email -repair");

@@ -66,6 +66,7 @@ public class Create extends WorkspaceAdd {
     protected Reference stage(String name) throws IOException {
         Client client;
         Reference reference;
+        Map<String, String> running;
 
         checkName(name);
         client = globals.configuration().currentContext().connect(world);
@@ -81,6 +82,13 @@ public class Create extends WorkspaceAdd {
                 throw new IOException("stage already exists: " + reference);
             }
         }
+
+        running = reference.client.awaitStartup(reference.stage);
+        console.info.println("Urls available:");
+        for (Map.Entry<String, String> entry : running.entrySet()) {
+            console.info.println("  " + entry.getKey() + " " + entry.getValue());
+        }
+
         return reference;
     }
 

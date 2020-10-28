@@ -19,31 +19,18 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 
-import java.io.IOException;
-
 public class Delete extends IteratedStageCommand {
     private final boolean batch;
-    private final boolean stop;
 
-    public Delete(Globals globals, boolean batch, boolean stop) {
+    public Delete(Globals globals, boolean batch) {
         super(globals);
         this.batch = batch;
-        this.stop = stop;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        boolean up;
         Workspace workspace;
 
-        up = up(reference);
-        if (stop && up) {
-            new Stop(globals).doRun(reference);
-            up = up(reference);
-        }
-        if (up) {
-            throw new IOException("stage is not stopped.");
-        }
         if (!batch) {
             console.info.println("Ready to delete stage " + reference + "?");
             console.pressReturn();

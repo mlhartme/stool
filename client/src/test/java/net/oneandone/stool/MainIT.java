@@ -113,12 +113,7 @@ public class MainIT {
         sc(working, "config", "-stage", stage, "comment");
         sc(working, "config", "-stage", stage, "comment=42");
         sc(working, "images", "-stage", stage);
-        Thread.sleep(2000); // TODO: because portus needs a few cycles to make the new upload available
-        sc(working, "start", "-v", "-stage", stage);
-        sc(working, "validate", "-stage", stage);
-        sc(working, "status", "-stage", stage);
-        sc(working, "restart", "-v", "-stage", stage);
-        sc(working, "stop", "-v", "-stage", stage);
+        sc(working, "publish", "-v", "-stage", stage);
         sc(working, "list", "-stage", stage);
         sc(working, "validate", "-stage", stage);
         sc(working, "history", "-stage", stage);

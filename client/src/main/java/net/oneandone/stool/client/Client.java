@@ -146,32 +146,32 @@ public class Client {
 
     //-- create, start, stop, remove
 
-    /** @throws FileAlreadyExistsException if the stage already exists */
-    public void create(String stage, String repository, Map<String, String> config) throws IOException {
-        HttpNode node;
-
-        node = node("stages/" + stage);
-        node = node.withParameter("repository", repository);
-        node = node.withParameters(config);
-        postEmpty(node, "");
-    }
-
-    /** @return image actually started */
-    public String start(String stage, String imageOpt, int http, int https, Map<String, String> startEnvironment) throws IOException {
+    /**
+     * @return image actually started
+     * @throws FileAlreadyExistsException if the stage already exists */
+    public String create(String stage, String image, Map<String, String> config) throws IOException {
         HttpNode node;
         JsonElement started;
 
-        node = node(stage, "start");
-        node = node.withParameter("http", http);
-        node = node.withParameter("https", https);
+        node = node("stages/" + stage);
+        node = node.withParameter("image", image);
+        // TODO: node = node.withParameters(config);
+        // TODO: node = node.withParameters("env.", startEnvironment);
+
+        started = postJson(node, "");
+        return started.getAsString();
+    }
+
+    /** @return tag actually started */
+    public String publish(String stage, String imageOpt) throws IOException {
+        HttpNode node;
+        JsonElement started;
+
+        node = node(stage, "publish");
         if (imageOpt != null) {
             node = node.withParameters("image", imageOpt);
         }
-        node = node.withParameters("env.", startEnvironment);
         started = postJson(node, "");
-        if (started.isJsonNull()) {
-            throw new IOException("stage is already started");
-        }
         return started.getAsString();
     }
 
@@ -180,19 +180,6 @@ public class Client {
 
         response = getJson(node(stage, "await-startup")).getAsJsonObject();
         return stringMap(response.getAsJsonObject());
-    }
-
-    /** @return image actually stopped */
-    public String stop(String stage) throws IOException {
-        JsonElement stopped;
-        HttpNode node;
-
-        node = node(stage, "stop");
-        stopped = postJson(node, "");
-        if (stopped.isJsonNull()) {
-            throw new IOException("stage is already stopped");
-        }
-        return stopped.getAsString();
     }
 
     /** @return json with pod and token fields */

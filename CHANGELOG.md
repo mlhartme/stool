@@ -3,7 +3,10 @@
 ### 6.1.0 (pending)
 
 * moved stool build into separate Maven plugin
-* sc create now takes an reposittory argument
+* sc create now takes an image argument and starts the stage
+* delete now also stops the stage; the -stop option is gone
+* dumped separate start/stop command
+* changes `restart` to `publish`
 * stool no longer wipes stages
 
 * server

@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public abstract class ClientCommand {
     protected final Globals globals;
@@ -94,22 +93,5 @@ public abstract class ClientCommand {
 
     protected void message(String msg) {
         console.info.println(Strings.indent(msg, "  "));
-    }
-
-
-    //-- utility code to simplify server api
-
-    public boolean up(Reference reference) throws IOException {
-        return !status(reference, "running").isEmpty();
-    }
-
-    private String status(Reference reference, String field) throws IOException {
-        Map<String, String> map;
-
-        map = reference.client.status(reference.stage, Strings.toList(field));
-        if (map.size() != 1) {
-            throw new IllegalStateException("unexpected status: " + map.toString());
-        }
-        return map.values().iterator().next();
     }
 }
