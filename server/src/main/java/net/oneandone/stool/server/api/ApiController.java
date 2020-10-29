@@ -215,25 +215,19 @@ public class ApiController {
 
             stage.checkExpired();
             stage.checkDiskQuota(engine, registry);
-            return json(stage.start(engine, registry, tag, environment)).toString();
+            return json(stage.install(false, engine, registry, tag, environment)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public void publish(@PathVariable(value = "stage") String stageName, String imageOpt) throws IOException {
+    public String publish(@PathVariable(value = "stage") String stageName, String imageOpt) throws IOException {
         Registry registry;
         Stage stage;
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
             registry = stage.createRegistry(World.create());
-            stage.stop(engine, registry);
-            try {
-                Thread.sleep(5000);                // TODO
-            } catch (InterruptedException e) {
-                // TODO
-            }
-            stage.start(engine, registry, imageOpt, new HashMap<>());
+            return json(stage.install(true, engine, registry, imageOpt, new HashMap<>())).toString();
         }
     }
 
@@ -245,7 +239,7 @@ public class ApiController {
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
             registry = stage.createRegistry(World.create());
-            stage.stop(engine, registry);
+            stage.uninstall(engine, registry);
             stage.delete(engine, registry);
         }
     }

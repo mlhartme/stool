@@ -514,13 +514,12 @@ public class Stage {
         }
     }
 
-    public String start(Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
+    public String install(boolean upgrade, Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
         World world;
         FileNode tmp;
         TagInfo image;
         String stageName;
         FileNode values;
-        Map<String, PodInfo> running;
         PodInfo first;
         Map<String, String> environment;
 
@@ -534,7 +533,7 @@ public class Stage {
         first = runningPodFirst(engine);
         if (first != null) {  // all pods are assumed to run the same image
             if (image.repositoryTag.equals(first.repositoryTag(MAIN_CONTAINER))) {
-                return null;
+                return image.repositoryTag;
             } else {
                 throw new IOException("conflict: cannot start image " + image.tag
                         + " because a different image id " + image.repositoryTag + " " + first.repositoryTag(MAIN_CONTAINER) + " is already running");
@@ -565,7 +564,8 @@ public class Stage {
         }
         try {
             Server.LOGGER.info(tmp.exec("helm", "template", stageName, tmp.getAbsolute(), "--values", values.getAbsolute()));
-            Server.LOGGER.info(tmp.exec("helm", "install", stageName, tmp.getAbsolute(), "--values", values.getAbsolute()));
+            Server.LOGGER.info("helm install upgrade=" + upgrade);
+            Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", stageName, tmp.getAbsolute(), "--values", values.getAbsolute()));
         } finally {
             tmp.deleteTree();
         }
@@ -669,14 +669,14 @@ public class Stage {
         return null;
     }
 
-    public String stop(Engine engine, Registry registry) throws IOException {
+    public String uninstall(Engine engine, Registry registry) throws IOException {
         Current current;
 
         current = currentOpt(engine, registry);
         if (current == null) {
             return null;
         }
-        Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "delete", getName()));
+        Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "uninstall", getName()));
         engine.podAwait(current.first /* TODO */.name, null);
         return current.image.tag;
     }
@@ -760,7 +760,7 @@ public class Stage {
     }
 
     public void delete(Engine engine, Registry registry) throws IOException {
-        stop(engine, registry); // usually returns true for already stopped
+        uninstall(engine, registry); // usually returns true for already stopped
 
         StageConfiguration.delete(engine, name);
     }
