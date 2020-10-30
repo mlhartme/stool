@@ -20,10 +20,14 @@ spec:
         imagePullPolicy: IfNotPresent
         name: main
         env:
-          {{- range $key, $val := .Values.environment }}
-          - name: {{ $key }}
-            value: {{ $val | quote }}
-          {{- end }}
+          - name: MODE
+            value: {{ .Values.environmentMode }}
+          - name: STAGE
+            value: {{ .Values.environmentStage }}
+          - name: DEBUG
+            value: {{ .Values.environmentDebug }}
+          - name: SUSPEND
+            value: {{ .Values.environmentSuspend }}
         resources:
           limits:
             cpu: {{ .Values.cpu }}
