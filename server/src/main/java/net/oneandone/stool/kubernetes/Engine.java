@@ -16,6 +16,7 @@
 package net.oneandone.stool.kubernetes;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import io.kubernetes.client.custom.IntOrString;
@@ -62,8 +63,11 @@ import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -77,6 +81,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/
@@ -887,6 +892,25 @@ public class Engine implements AutoCloseable {
         }
     }
 
+    public JsonObject helmRead(String name) throws IOException {
+        V1Secret s;
+        byte[] release;
+
+        s = secretRead(name);
+        release = s.getData().get("release");
+        release = Base64.getDecoder().decode(release);
+        try (Reader src = new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(release)))) {
+            return JsonParser.parseReader(src).getAsJsonObject();
+        }
+    }
+
+    public V1Secret secretRead(String name) throws IOException {
+        try {
+            return core.readNamespacedSecret(name, namespace, null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+    }
     public void secretDelete(String name) throws IOException {
         try {
             core.deleteNamespacedSecret(name, namespace, null, null, null, null, "Foreground", null);

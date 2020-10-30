@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.kubernetes;
 
+import io.kubernetes.client.openapi.models.V1Secret;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
@@ -49,6 +50,21 @@ public class EngineIT {
 
     //-- pods
 
+    @Test
+    public void helm() throws IOException {
+        V1Secret s;
+        byte[] release;
+
+
+        try (Engine engine = Engine.create(WORLD, "local", Strings.toMap())) {
+            for (String name : engine.secretList().keySet()) {
+                if (name.startsWith("sh.helm.release.v1.")) {
+                    System.out.println("name: " + name);
+                    System.out.println("values: " + engine.helmRead(name).get("chart").getAsJsonObject().get("values"));
+                }
+            }
+        }
+    }
     @Test
     public void podTerminating() throws IOException {
         final String name = "pod";
