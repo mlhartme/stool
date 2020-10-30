@@ -21,13 +21,13 @@ spec:
         name: main
         env:
           - name: MODE
-            value: {{ .Values.environmentMode }}
+            value: {{ .Values.environmentMode | quote  }}
           - name: STAGE
-            value: {{ .Values.environmentStage }}
+            value: {{ .Values.environmentStage | quote }}
           - name: DEBUG
-            value: {{ .Values.environmentDebug }}
+            value: {{ .Values.environmentDebug | quote  }}
           - name: SUSPEND
-            value: {{ .Values.environmentSuspend }}
+            value: {{ .Values.environmentSuspend | quote }}
         resources:
           limits:
             cpu: {{ .Values.cpu }}
