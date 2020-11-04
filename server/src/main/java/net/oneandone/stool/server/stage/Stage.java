@@ -528,7 +528,6 @@ public class Stage {
         TagInfo image;
         String stageName;
         FileNode values;
-        PodInfo first;
         Map<String, String> environment;
 
         stageName = getName();
@@ -538,16 +537,6 @@ public class Stage {
 
         image = resolve(registry, imageOpt);
         world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
-        first = runningPodFirst(engine);
-        if (first != null) {  // all pods are assumed to run the same image
-            if (image.repositoryTag.equals(first.repositoryTag(MAIN_CONTAINER))) {
-                return image.repositoryTag;
-            } else {
-                throw new IOException("conflict: cannot start image " + image.tag
-                        + " because a different image id " + image.repositoryTag + " " + first.repositoryTag(MAIN_CONTAINER) + " is already running");
-            }
-        }
-
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(configuration.environment);
         environment.putAll(clientEnvironment);

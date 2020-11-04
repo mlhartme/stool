@@ -219,14 +219,16 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public String publish(@PathVariable(value = "stage") String stageName, String imageOpt) throws IOException {
+    public String publish(@PathVariable(value = "stage") String stageName, String imageOpt, HttpServletRequest request) throws IOException {
+        Map<String, String> environment;
         Registry registry;
         Stage stage;
 
+        environment = map(request, "env.");
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
             registry = stage.createRegistry(World.create());
-            return json(stage.install(true, engine, registry, imageOpt, new HashMap<>())).toString();
+            return json(stage.install(true, engine, registry, imageOpt, environment)).toString();
         }
     }
 

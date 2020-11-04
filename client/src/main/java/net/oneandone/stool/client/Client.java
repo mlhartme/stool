@@ -162,7 +162,7 @@ public class Client {
     }
 
     /** @return tag actually started */
-    public String publish(String stage, String imageOpt) throws IOException {
+    public String publish(String stage, String imageOpt, Map<String, String> environment) throws IOException {
         HttpNode node;
         JsonElement started;
 
@@ -170,6 +170,7 @@ public class Client {
         if (imageOpt != null) {
             node = node.withParameters("image", imageOpt);
         }
+        node = node.withParameters("env.", environment);
         started = postJson(node, "");
         return started.getAsString();
     }

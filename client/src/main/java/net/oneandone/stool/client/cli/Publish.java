@@ -15,19 +15,57 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Publish extends IteratedStageCommand {
     private final String imageOpt;
+    private final Map<String, String> environment;
 
-    public Publish(Globals globals, String imageOpt) {
+    public Publish(Globals globals, List<String> args) {
         super(globals);
-        this.imageOpt = imageOpt;
+        this.environment = new LinkedHashMap<>();
+        eatEnvironment(args);
+        switch (args.size()) {
+            case 0:
+                imageOpt = null;
+                break;
+            case 1:
+                imageOpt = args.get(0);
+                break;
+            default:
+                throw new ArgumentException("unknown arguments: " + args);
+        }
+    }
+
+    private void eatEnvironment(List<String> args) {
+        int idx;
+        String arg;
+        String key;
+        String value;
+
+        for (int i = args.size() - 1; i >= 0; i--) {
+            arg = args.get(i);
+            idx = arg.indexOf('=');
+            if (idx == -1) {
+                break;
+            }
+            key = arg.substring(0, idx);
+            value = arg.substring(idx + 1);
+            if (environment.put(key, value) != null) {
+                throw new ArgumentException("duplicate key: " + key);
+            }
+            args.remove(i);
+        }
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        reference.client.publish(reference.stage, imageOpt);
+        reference.client.publish(reference.stage, imageOpt, environment);
     }
 }
