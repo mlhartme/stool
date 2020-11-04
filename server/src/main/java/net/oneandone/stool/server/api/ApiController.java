@@ -97,9 +97,7 @@ public class ApiController {
             result = new JsonObject();
             result.addProperty("version", Main.versionString(World.create() /* TODO */));
             result.addProperty("memory-quota", ""); // TODO: dump
-            result.addProperty("disk-quota", "");
-            /* TODO server.configuration.diskQuota == 0
-                    ? "" : server.diskQuotaReserved(engine, registry) + "/" + server.configuration.diskQuota); */
+            result.addProperty("disk-quota", ""); // TODO: dump
             return result.toString();
         }
     }
@@ -169,7 +167,6 @@ public class ApiController {
         Stage stage;
         Property property;
         Registry registry;
-        int global;
         int reserved;
         Map<String, String> environment;
 
@@ -187,7 +184,6 @@ public class ApiController {
         environment = map(request, "env.");
         config = map(request, "config.");
 
-        global = server.configuration.diskQuota;
         try (Engine engine = engine()) {
             stage = new Stage(server, name, new StageConfiguration(repository));
             stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
@@ -205,15 +201,7 @@ public class ApiController {
             }
 
             registry = stage.createRegistry(World.create() /* TODO */);
-            if (global != 0) {
-                reserved = server.diskQuotaReserved(engine, registry);
-                if (reserved > global) {
-                    throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n");
-                }
-            }
-
             stage.checkExpired();
-            stage.checkDiskQuota(engine, registry);
             return json(stage.install(false, engine, registry, tag, environment)).toString();
         }
     }
@@ -363,8 +351,6 @@ public class ApiController {
                 result.add("   origin-user:   " + image.originUser);
                 result.add("   created-at:    " + image.createdAt);
                 result.add("   created-by:    " + image.author);
-                result.add("   memory:        " + image.memory);
-                result.add("   disk:          " + image.disk);
                 result.add("   build args:");
                 args = new ArrayList<>(image.args.keySet());
                 Collections.sort(args);

@@ -62,7 +62,3 @@ mailUsername: ""
 
 # Password for mailHost. Type string, default empty.
 mailPassword: ""
-
-
-# Mb of disk spaces available for the read/write layer of the running stages. 0 disables this feature. Type number, default 0.
-diskQuota: 0

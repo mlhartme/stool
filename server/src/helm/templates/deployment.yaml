@@ -154,8 +154,6 @@ spec:
           value: "{{ .Values.username }}"
         - name: MAIL_PASSWORD
           value: "{{ .Values.password }}"
-        - name: DISK_QUOTA
-          value: "{{ .Values.diskQuota }}"
 {{- if .Values.faultName }}
       - name: fault-update
         image: {{ .Values.repositoryTag }}

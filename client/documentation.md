@@ -637,8 +637,6 @@ Startup is refused if the user who built the image does not have access to all f
 
 Startup is refused if your stage has expired. In this case, use `sc config expire=`*newdate* to configure a new `expire` date.
 
-Startup is also refused if the disk quota exceeded. In this case, stop some other stages.
-
 TODO: The hostname of the container is set to <id>.<servername>, where id is a hash of stage name and application name. This hash
 serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names. 
 And the hash makes it impossible to derived stage or application name from the hostname -- applications are strongly discouraged to 
@@ -957,7 +955,7 @@ Validate the stage
 
 #### DESCRIPTION
 
-Checks if the `expire` date of the stage has passes or the disk quota exceeded. If so, and if
+Checks if the `expire` date of the stage has passed. If so, and if
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoRemove days). And
 if `-email` is specified, a notification mail is sent as configured by the notify property.
 

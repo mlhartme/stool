@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import net.oneandone.stool.kubernetes.OpenShift;
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
@@ -304,24 +303,6 @@ public class Server {
             throw new IllegalArgumentException(version);
         }
         return version.substring(0, minor);
-    }
-
-    public int diskQuotaReserved(Engine engine, Registry registry) throws IOException {
-        int reserved;
-        Stage stage;
-        Stage.Current current;
-
-        reserved = 0;
-        for (String name : StageConfiguration.list(engine)) {
-            stage = load(engine, name);
-            current = stage.currentOpt(engine, registry);
-            if (current != null) {
-                if (current.first.isRunning()) {
-                    reserved += current.image.disk;
-                }
-            }
-        }
-        return reserved;
     }
 
     //--

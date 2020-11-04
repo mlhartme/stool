@@ -9,7 +9,8 @@
 * changes `restart` to `publish`
 * stool no longer wipes stages
 * added `values` field to status
-
+* dumped config.environment -- publish automatically preserves previous configuration
+* dumped disk quota
 * server
   * log validation report
   * dumped memory quota handling, kubernetes is responsible for that

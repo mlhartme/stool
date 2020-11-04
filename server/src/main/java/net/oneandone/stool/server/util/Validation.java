@@ -64,7 +64,6 @@ public class Validation {
     private void doRun(Stage stage, Registry registry, List<String> report, boolean repair) throws IOException {
         try {
             stage.checkExpired();
-            stage.checkDiskQuota(engine, registry);
             return;
         } catch (ArgumentException e) {
             report.add(e.getMessage());

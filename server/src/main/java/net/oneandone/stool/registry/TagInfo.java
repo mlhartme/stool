@@ -27,12 +27,28 @@ import java.util.Map;
 public class TagInfo implements Comparable<TagInfo> {
     public static TagInfo create(String id, String repositoryTag, String tag, String author, LocalDateTime created, Map<String, String> labels) {
         return new TagInfo(id, repositoryTag, tag, author,
-                labels.get(ImageInfo.IMAGE_LABEL_CHART), jmxmp(labels.get(ImageInfo.IMAGE_LABEL_PORT_JMXMP)),
-                disk(labels.get(ImageInfo.IMAGE_LABEL_DISK)), memory(labels.get(ImageInfo.IMAGE_LABEL_MEMORY)),
+                labels.get(ImageInfo.IMAGE_LABEL_CHART), map(ImageInfo.IMAGE_LABEL_CHART + ".", labels),
+                jmxmp(labels.get(ImageInfo.IMAGE_LABEL_PORT_JMXMP)),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
                 labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
                 created, args(labels), fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)));
+    }
+
+    private static Map<String, String> map(String prefix, Map<String, String> from) {
+        int length;
+        Map<String, String> result;
+        String key;
+
+        length = prefix.length();
+        result = new HashMap<>();
+        for (Map.Entry<String, String> entry : from.entrySet()) {
+            key = entry.getKey();
+            if (key.startsWith(prefix)) {
+                result.put(key.substring(length), entry.getValue());
+            }
+        }
+        return result;
     }
 
     private static int jmxmp(String value) {
@@ -51,14 +67,6 @@ public class TagInfo implements Comparable<TagInfo> {
             }
         }
         return result;
-    }
-
-    private static int memory(String memory) {
-        return memory == null ? 1024 : Integer.parseInt(memory);
-    }
-
-    private static int disk(String disk) {
-        return disk == null ? 1024 * 42 : Integer.parseInt(disk);
     }
 
     private static String context(String context) {
@@ -112,15 +120,10 @@ public class TagInfo implements Comparable<TagInfo> {
     //-- meta data
 
     public final String chart;
+    public final Map<String, String> chartValues;
 
     /** -1 if not specified */
     public final int jmxmp;
-
-    /** in megabytes */
-    public final int disk;
-
-    /** memory in megabytes */
-    public final int memory;
 
     public final String urlContext;
     public final List<String> urlSuffixes;
@@ -136,8 +139,8 @@ public class TagInfo implements Comparable<TagInfo> {
     public final List<String> faultProjects;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public TagInfo(String id, String repositoryTag, String tag, String author, String chart, int jmxmp,
-                   int disk, int memory, String urlContext, List<String> urlSuffixes, String comment, String originScm, String originUser,
+    public TagInfo(String id, String repositoryTag, String tag, String author, String chart, Map<String, String> chartValues, int jmxmp,
+                   String urlContext, List<String> urlSuffixes, String comment, String originScm, String originUser,
                    LocalDateTime createdAt, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
@@ -151,9 +154,8 @@ public class TagInfo implements Comparable<TagInfo> {
         this.author = author;
 
         this.chart = chart;
+        this.chartValues = chartValues;
         this.jmxmp = jmxmp;
-        this.disk = disk;
-        this.memory = memory;
         this.urlContext = urlContext;
         this.urlSuffixes = urlSuffixes;
         this.comment = comment;

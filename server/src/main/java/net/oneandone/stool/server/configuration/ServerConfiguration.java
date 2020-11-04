@@ -83,8 +83,6 @@ public class ServerConfiguration {
      */
     public int autoRemove;
 
-    public int diskQuota;
-
     public int defaultExpire;
 
     // default environment for every stage
@@ -105,7 +103,6 @@ public class ServerConfiguration {
         mailHost = "";
         mailUsername = "";
         mailPassword = "";
-        diskQuota = 0;
         defaultExpire = 0;
         environment = new HashMap<>();
     }

@@ -498,26 +498,6 @@ public class Stage {
         }
     }
 
-    // --storage-opt size=42m could limit disk space, but it's only available for certain storage drivers (with certain mount options) ...
-    public void checkDiskQuota(Engine engine, Registry registry) throws IOException {
-        int used;
-        int quota;
-        Current current;
-        String containerId;
-
-        current = currentOpt(engine, registry);
-        if (current != null) {
-            containerId = current.first /* TODO */.containerId(MAIN_CONTAINER);
-            if (containerId != null) {
-                used = new Context(engine).sizeRw(containerId);
-                quota = current.image.disk;
-                if (used > quota) {
-                    throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");
-                }
-            }
-        }
-    }
-
     public String install(boolean upgrade, Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
         World world;
         FileNode tmp;
@@ -535,8 +515,11 @@ public class Stage {
         world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
         if (upgrade) {
             map = new HashMap<>(engine.helmReadValues(name));
+            // TODO:
+            // put values frmo image again? it might have changed ...
         } else {
             map = new HashMap<>(server.configuration.environment);
+            map.putAll(image.chartValues);
         }
         map.putAll(clientEnvironment);
         map.put("openshift", Boolean.toString(server.openShift));
@@ -544,7 +527,6 @@ public class Stage {
         map.put("dnsLabel", dnsLabel());
         map.put("image", image.repositoryTag);
         map.put("fqdn", stageFqdn());
-        map.put("memory", Integer.toString(1024 * 1024 * image.memory));
         map.put("jmxmp", Integer.toString(image.jmxmp));
         map.put("cert", cert());
         map.put("fault", fault(world, image));
