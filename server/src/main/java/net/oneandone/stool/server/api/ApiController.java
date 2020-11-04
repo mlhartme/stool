@@ -184,7 +184,6 @@ public class ApiController {
 
         StageConfiguration.validateRepository(repository);
 
-        // TODO
         environment = map(request, "env.");
         config = map(request, "config.");
 

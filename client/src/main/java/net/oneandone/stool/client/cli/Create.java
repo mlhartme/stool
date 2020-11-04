@@ -30,12 +30,14 @@ public class Create extends WorkspaceAdd {
     private final boolean optional;
     private final String repository;
     private final Map<String, String> config;
+    private final Map<String, String> environment;
 
     public Create(Globals globals, boolean optional, boolean detached, String name, String repository, List<String> args) {
         super(globals, detached, name);
         this.optional = optional;
         this.repository = repository;
         this.config = new LinkedHashMap<>();
+        this.environment = new LinkedHashMap<>();
         eatProperties(args);
         if (!args.isEmpty()) {
             throw new ArgumentException("malformed properties: " + args);
@@ -47,8 +49,9 @@ public class Create extends WorkspaceAdd {
         String arg;
         String key;
         String value;
+        Map<String, String> dest;
 
-        for (int i = args.size() - 1; i >= 0; i++) {
+        for (int i = args.size() - 1; i >= 0; i--) {
             arg = args.get(i);
             idx = arg.indexOf('=');
             if (idx == -1) {
@@ -56,8 +59,14 @@ public class Create extends WorkspaceAdd {
             }
             key = arg.substring(0, idx);
             value = arg.substring(idx + 1);
-            if (config.put(key, value) != null) {
-                throw new ArgumentException("already configured: " + key);
+            if (key.startsWith("-")) {
+                key = key.substring(1);
+                dest = config;
+            } else {
+                dest = environment;
+            }
+            if (dest.put(key, value) != null) {
+                throw new ArgumentException("duplicate key: " + key);
             }
             args.remove(i);
         }
@@ -72,7 +81,7 @@ public class Create extends WorkspaceAdd {
         client = globals.configuration().currentContext().connect(world);
         reference = new Reference(client, name);
         try {
-            client.create(name, repository, config);
+            client.create(name, repository, config, environment);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {

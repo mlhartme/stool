@@ -565,9 +565,8 @@ public class Stage {
             v.println("jmxmp: " + image.jmxmp);
             v.println("cert: " + cert());
             v.println("fault: " + fault(world, image));
-            v.println("environment:");
             for (Map.Entry<String, String> entry : environment.entrySet()) {
-                v.println("  " + entry.getKey() + ": " + entry.getValue());
+                v.println(entry.getKey() + ": " + entry.getValue());
             }
         }
         try {
