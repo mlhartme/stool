@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.stage;
 
-import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
@@ -209,10 +208,7 @@ public class Stage {
         fields.add(new Field("values") {
             @Override
             public Object get(Context context) throws IOException {
-                JsonObject obj;
-
-                obj = context.engine.helmRead(name);
-                return obj.get("chart").getAsJsonObject().get("values");
+                return context.engine.helmReadValues(name);
             }
         });
         fields.add(new Field("images") {
@@ -528,7 +524,7 @@ public class Stage {
         TagInfo image;
         String stageName;
         FileNode values;
-        Map<String, String> environment;
+        Map<String, String> map;
 
         stageName = getName();
         world = World.create(); // TODO
@@ -537,24 +533,25 @@ public class Stage {
 
         image = resolve(registry, imageOpt);
         world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
-        environment = new HashMap<>(server.configuration.environment);
-        environment.putAll(configuration.environment);
-        environment.putAll(clientEnvironment);
-        Server.LOGGER.debug("environment: " + environment);
+        if (upgrade) {
+            map = new HashMap<>(engine.helmReadValues(name));
+        } else {
+            map = new HashMap<>(server.configuration.environment);
+        }
+        map.putAll(clientEnvironment);
+        map.put("openshift", Boolean.toString(server.openShift));
+        map.put("name", stageName);
+        map.put("dnsLabel", dnsLabel());
+        map.put("image", image.repositoryTag);
+        map.put("fqdn", stageFqdn());
+        map.put("memory", Integer.toString(1024 * 1024 * image.memory));
+        map.put("jmxmp", Integer.toString(image.jmxmp));
+        map.put("cert", cert());
+        map.put("fault", fault(world, image));
 
+        Server.LOGGER.info("values: " + map);
         try (PrintWriter v = new PrintWriter(values.newWriter())) {
-            if (server.openShift) {
-                v.println("openshift: true");
-            }
-            v.println("name: " + stageName);
-            v.println("dnsLabel: " + dnsLabel());
-            v.println("image: " + image.repositoryTag);
-            v.println("fqdn: " + stageFqdn());
-            v.println("memory: " + 1024 * 1024 * image.memory);
-            v.println("jmxmp: " + image.jmxmp);
-            v.println("cert: " + cert());
-            v.println("fault: " + fault(world, image));
-            for (Map.Entry<String, String> entry : environment.entrySet()) {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
                 v.println(entry.getKey() + ": " + entry.getValue());
             }
         }

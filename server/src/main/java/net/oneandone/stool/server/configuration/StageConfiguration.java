@@ -68,16 +68,12 @@ public class StageConfiguration {
     @Option(key = "comment")
     public String comment;
 
-    @Option(key = "environment")
-    public Map<String, String> environment;
-
     public StageConfiguration(String repository) {
         this.repository = repository;
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
         this.expire = Expire.never();
         this.comment = "";
-        this.environment = new HashMap<>();
     }
 
     //--

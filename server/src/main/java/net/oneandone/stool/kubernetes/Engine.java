@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.kubernetes;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
@@ -891,6 +892,13 @@ public class Engine implements AutoCloseable {
         }
     }
 
+    public Map<String, String> helmReadValues(String name) throws IOException {
+        JsonObject obj;
+
+        obj = helmRead(name);
+        return toStringMap(obj.get("chart").getAsJsonObject().get("values").getAsJsonObject());
+    }
+
     public JsonObject helmRead(String name) throws IOException {
         List<V1Secret> lst;
 
@@ -910,6 +918,17 @@ public class Engine implements AutoCloseable {
                 throw new IllegalStateException(lst.toString());
         }
     }
+
+    public static Map<String, String> toStringMap(JsonObject obj) {
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAsString());
+        }
+        return result;
+    }
+
 
     private JsonObject helmSecretRead(String secretName) throws IOException {
         V1Secret s;
