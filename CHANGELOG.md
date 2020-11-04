@@ -8,6 +8,7 @@
 * dumped separate start/stop command
 * changes `restart` to `publish`
 * stool no longer wipes stages
+* added `values` field to status
 
 * server
   * log validation report

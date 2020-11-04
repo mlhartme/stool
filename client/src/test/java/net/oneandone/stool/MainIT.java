@@ -91,7 +91,7 @@ public class MainIT {
     }
 
     @Test
-    public void turnaround() throws IOException, InterruptedException {
+    public void turnaround() throws IOException {
         FileNode working;
         String stage;
 

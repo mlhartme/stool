@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
+import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
@@ -78,9 +79,7 @@ import java.util.zip.GZIPOutputStream;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String LABEL_PREFIX = "net.oneandone.stool-";
-
-    public static final String DEPLOYMENT_LABEL_STAGE = LABEL_PREFIX + "stage";
+    public static final String DEPLOYMENT_LABEL_STAGE = "net.oneandone.stool-stage";
 
     public static final String MAIN_CONTAINER = "main"; // TODO ...
 
@@ -205,6 +204,15 @@ public class Stage {
             @Override
             public Object get(Context context) {
                 return name;
+            }
+        });
+        fields.add(new Field("values") {
+            @Override
+            public Object get(Context context) throws IOException {
+                JsonObject obj;
+
+                obj = context.engine.helmRead(name);
+                return obj.get("chart").getAsJsonObject().get("values");
             }
         });
         fields.add(new Field("images") {

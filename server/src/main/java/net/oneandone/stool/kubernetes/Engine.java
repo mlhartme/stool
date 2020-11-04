@@ -66,7 +66,6 @@ import net.oneandone.sushi.util.Strings;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -893,10 +892,30 @@ public class Engine implements AutoCloseable {
     }
 
     public JsonObject helmRead(String name) throws IOException {
+        List<V1Secret> lst;
+
+        try {
+            lst = core.listNamespacedSecret(namespace, null, null, null, null,
+                    labelSelector(Strings.toMap("owner", "helm", "name", name, "status", "deployed")),
+                    null, null, null, null).getItems();
+        } catch (ApiException e) {
+            throw wrap(e);
+        }
+        switch (lst.size()) {
+            case 0:
+                throw new java.io.FileNotFoundException("helm release not found: " + name);
+            case 1:
+                return helmSecretRead(lst.get(0).getMetadata().getName());
+            default:
+                throw new IllegalStateException(lst.toString());
+        }
+    }
+
+    private JsonObject helmSecretRead(String secretName) throws IOException {
         V1Secret s;
         byte[] release;
 
-        s = secretRead(name);
+        s = secretRead(secretName);
         release = s.getData().get("release");
         release = Base64.getDecoder().decode(release);
         try (Reader src = new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(release)))) {
