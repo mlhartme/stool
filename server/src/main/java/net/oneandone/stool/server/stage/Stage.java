@@ -470,17 +470,19 @@ public class Stage {
 
     /** @return sorted list, oldest first */
     public List<TagInfo> images(Registry registry) throws IOException {
+        String path;
         List<String> tags;
         List<TagInfo> result;
 
+        path = getRepositoryPath();
         result = new ArrayList<>();
         try {
-            tags = registry.tags(getRepositoryPath());
+            tags = registry.tags(path);
         } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
             return result;
         }
         for (String tag : tags) {
-            result.add(registry.info(getRepositoryPath(), tag));
+            result.add(registry.info(path, tag));
         }
         Collections.sort(result);
         return result;
