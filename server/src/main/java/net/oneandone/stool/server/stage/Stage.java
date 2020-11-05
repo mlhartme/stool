@@ -640,15 +640,15 @@ public class Stage {
         } else {
             image = lookup(all, imageOpt);
             if (image == null) {
-                throw new ArgumentException("image not found: " + imageOpt);
+                throw new ArgumentException("image not found: " + imageOpt + " " + all);
             }
         }
         return image;
     }
 
-    private static TagInfo lookup(List<TagInfo> images, String tag) {
+    private static TagInfo lookup(List<TagInfo> images, String tagOrRepositoryTag /* TODO */) {
         for (TagInfo image : images) {
-            if (image.tag.equals(tag)) {
+            if (image.tag.equals(tagOrRepositoryTag) || image.repositoryTag.equals(tagOrRepositoryTag)) {
                 return image;
             }
         }
