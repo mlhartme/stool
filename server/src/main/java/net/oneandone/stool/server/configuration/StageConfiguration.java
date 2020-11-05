@@ -30,7 +30,6 @@ public class StageConfiguration {
     public static final String NOTIFY_CREATED_BY = "@created-by";
     public static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
-
     private static final String EXPIRE = "stageExpire";
     private static final String COMMENT = "stageComment";
     private static final String REPOSITORY = "stageRepository";

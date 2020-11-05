@@ -123,7 +123,7 @@ public class Stage {
     public String getRepositoryPath() {
         String path;
 
-        path = URI.create(configuration.repository).getPath();
+        path = URI.create(getRepository()).getPath();
         path = path.substring(path.indexOf('/') + 1);   // strip hostname
         return path;
     }
