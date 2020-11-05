@@ -1055,17 +1055,19 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public Map<String, String> helmReadValues(String name) throws IOException {
+    public Map<String, Object> helmReadValues(String name) throws IOException {
         JsonObject obj;
+        Map<String, Object> result;
 
         obj = helmRead(name);
-        return toStringMap(obj.get("chart").getAsJsonObject().get("values").getAsJsonObject());
+        result = toStringMap(obj.get("chart").getAsJsonObject().get("values").getAsJsonObject());
+        result.putAll(toStringMap(obj.get("config").getAsJsonObject()));
+        return result;
     }
 
     public JsonObject helmRead(String name) throws IOException {
         List<V1Secret> lst;
 
-        System.out.println("helmRead " + name);
         try {
             lst = core.listNamespacedSecret(namespace, null, null, null, null,
                     labelSelector(Strings.toMap("owner", "helm", "name", name, "status", "deployed")),
@@ -1098,20 +1100,8 @@ public class Engine implements AutoCloseable {
         for (V1Secret secret : lst.getItems()) {
             result.add(secret.getMetadata().getLabels().get("name"));
         }
-        System.out.println("helm list" + lst);
         return result;
     }
-
-    public static Map<String, String> toStringMap(JsonObject obj) {
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return result;
-    }
-
 
     private JsonObject helmSecretRead(String secretName) throws IOException {
         V1Secret s;
@@ -1126,6 +1116,28 @@ public class Engine implements AutoCloseable {
     }
 
     //--
+
+    public static Map<String, Object> toStringMap(JsonObject obj) {
+        Map<String, Object> result;
+        JsonPrimitive value;
+        Object v;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+            value = entry.getValue().getAsJsonPrimitive();
+            if (value.isNumber()) {
+                v = value.getAsInt();
+            } else if (value.isBoolean()) {
+                v = value.getAsBoolean();
+            } else if (value.isString()) {
+                v = value.getAsString();
+            } else {
+                throw new IllegalStateException(value.toString());
+            }
+            result.put(entry.getKey(), v);
+        }
+        return result;
+    }
 
     private static boolean same(String left, String right) {
         if (left == null) {

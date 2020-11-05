@@ -498,7 +498,7 @@ public class Stage {
         TagInfo image;
         String stageName;
         FileNode values;
-        Map<String, String> map;
+        Map<String, Object> map;
 
         stageName = getName();
         world = World.create(); // TODO
@@ -512,7 +512,7 @@ public class Stage {
         } else {
             map = new HashMap<>(server.configuration.environment);
         }
-        image = resolve(registry, KEEP_IMAGE == imageOpt ? map.get("image") : imageOpt);
+        image = resolve(registry, KEEP_IMAGE == imageOpt ? (String) map.get("image") : imageOpt);
         world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
         if (upgrade) {
             // TODO:
@@ -521,39 +521,40 @@ public class Stage {
             map.putAll(image.chartValues);
         }
         map.putAll(clientEnvironment);
-        map.put("openshift", Boolean.toString(server.openShift));
+        map.put("openshift", server.openShift);
         map.put("name", stageName);
         map.put("dnsLabel", dnsLabel());
         map.put("image", image.repositoryTag);
         map.put("fqdn", stageFqdn());
-        map.put("jmxmp", Integer.toString(image.jmxmp));
+        map.put("jmxmp", image.jmxmp);
         map.put("cert", cert());
         map.put("fault", fault(world, image));
         configuration.save(map);
 
         Server.LOGGER.info("values: " + map);
         try (PrintWriter v = new PrintWriter(values.newWriter())) {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                v.println(entry.getKey() + ": " + escape(entry.getValue()));
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                v.println(entry.getKey() + ": " + toJson(entry.getValue()));
             }
         }
         try {
-            Server.LOGGER.info(tmp.exec("helm", "template", stageName, tmp.getAbsolute(), "--values", values.getAbsolute()));
+            Server.LOGGER.info(tmp.exec("helm", "template", "--values", values.getAbsolute(), stageName, tmp.getAbsolute()));
             Server.LOGGER.info("helm install upgrade=" + upgrade);
-            Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", stageName, tmp.getAbsolute(), "--values", values.getAbsolute()));
+            Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), stageName, tmp.getAbsolute()));
+            System.out.println("written values: " + values.readString());
         } finally {
             tmp.deleteTree();
         }
+        System.out.println("created values: " + engine.helmReadValues(name));
         engine.deploymentAwait(dnsLabel());
         return image.repositoryTag;
     }
 
-    // TODO
-    private static String escape(String str) {
-        if (str.contains("@")) {
-            return "\"" + str + "\"";
+    private static String toJson(Object obj) {
+        if (obj instanceof String) {
+            return "\"" + obj + '"';
         } else {
-            return str;
+            return obj.toString(); // ok für boolean and integer
         }
     }
 

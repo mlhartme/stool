@@ -98,7 +98,7 @@ public class MainIT {
         working = IT_ROOT.join("projects/it").mkdirsOpt();
         helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
 
-        stage = "de.wq-ta"; // with some special characters
+        stage = "somename"; // de.wq-ta"; // with some special characters
 
         sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
 

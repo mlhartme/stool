@@ -30,16 +30,23 @@ public class StageConfiguration {
     public static final String NOTIFY_CREATED_BY = "@created-by";
     public static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
+
+    private static final String EXPIRE = "stageExpire";
+    private static final String COMMENT = "stageComment";
+    private static final String REPOSITORY = "stageRepository";
+    private static final String NOTIFY = "stageNotify";
+
     public static StageConfiguration load(Engine engine, String stageName) throws IOException {
-        Map<String, String> values;
+        Map<String, Object> values;
         StageConfiguration result;
+        String str;
 
         values = engine.helmReadValues(stageName);
-        System.out.println("values for " + stageName + ": " + values);
-        result = new StageConfiguration(values.get("_repository"));
-        result.notify = Separator.COMMA.split(opt(values.get("_notify")));
-        result.expire = Expire.fromHuman(values.get("_expire"));
-        result.comment = values.get("_comment");
+        result = new StageConfiguration((String) values.get(REPOSITORY));
+        result.notify = Separator.COMMA.split(opt((String) values.get(NOTIFY)));
+        str = (String) values.get(EXPIRE);
+        result.expire = str == null ? Expire.never() : Expire.fromHuman(str);  //TODO: really never?
+        result.comment = opt((String) values.get(COMMENT));
         return result;
     }
 
@@ -113,13 +120,11 @@ public class StageConfiguration {
         }
     }
 
-    public void save(Map<String, String> dest) {
-        dest.put("_repository", repository);
-        dest.put("_notify", Separator.COMMA.join(notify));
-        dest.put("_expire", expire.toString());
-        if (comment != null) {
-            dest.put("_comment", comment);
-        }
+    public void save(Map<String, Object> dest) {
+        dest.put(REPOSITORY, repository);
+        dest.put(NOTIFY, Separator.COMMA.join(notify));
+        dest.put(EXPIRE, expire.toString());
+        dest.put(COMMENT, comment);
     }
 }
 
