@@ -12,6 +12,7 @@
 * dumped config.environment -- publish automatically preserves previous configuration
 * dumped disk quota
 * server
+  * store stage configuration in helm values
   * log validation report
   * dumped memory quota handling, kubernetes is responsible for that
   * dumped environment field - it's too container centric now that we have kubernetes; use 'sc ssh' instead
