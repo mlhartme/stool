@@ -22,6 +22,8 @@ import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
+import net.oneandone.stool.server.configuration.Option;
+import net.oneandone.stool.server.configuration.ReflectAccessor;
 import net.oneandone.stool.server.configuration.ServerConfiguration;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
@@ -50,6 +52,7 @@ import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -135,7 +138,21 @@ public class Server {
         this.localhostIp = localhostIp;
         this.configuration = configuration;
         this.userManager = UserManager.loadOpt(home.join("users.json"));
-        this.accessors = StageConfiguration.accessors();
+        this.accessors = accessors();
+    }
+
+    private static Map<String, Accessor> accessors() {
+        Map<String, Accessor> result;
+        Option option;
+
+        result = new LinkedHashMap<>();
+        for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
+            option = field.getAnnotation(Option.class);
+            if (option != null) {
+                result.put(option.key(), new ReflectAccessor(option.key(), field));
+            }
+        }
+        return result;
     }
 
     public FileNode getServerLogs() {
@@ -239,7 +256,7 @@ public class Server {
         StageConfiguration c;
 
         try {
-            c = StageConfiguration.load(gson, engine, name);
+            c = StageConfiguration.load(engine, name);
         } catch (FileNotFoundException e) {
             throw new StageNotFoundException(name, e);
         }

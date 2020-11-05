@@ -26,7 +26,6 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.StageExistsException;
 import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.configuration.StageConfiguration;
@@ -60,6 +59,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -91,7 +91,6 @@ public class ApiController {
     @GetMapping("/info")
     public String info() throws IOException {
         JsonObject result;
-        Registry registry;
 
         try (Engine engine = engine()) {
             result = new JsonObject();
@@ -167,7 +166,6 @@ public class ApiController {
         Stage stage;
         Property property;
         Registry registry;
-        int reserved;
         Map<String, String> environment;
 
         idx = image.indexOf(':');
@@ -185,6 +183,14 @@ public class ApiController {
         config = map(request, "config.");
 
         try (Engine engine = engine()) {
+            try {
+                engine.helmRead(name);
+                response.sendError(409 /* conflict */, "stage exists: " + name);
+                return "";
+            } catch (FileNotFoundException e) {
+                // OK, fall through
+            }
+
             stage = new Stage(server, name, new StageConfiguration(repository));
             stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
             for (Map.Entry<String, String> entry : config.entrySet()) {
@@ -194,12 +200,6 @@ public class ApiController {
                 }
                 property.set(entry.getValue());
             }
-            try {
-                stage.saveConfig(engine, false);
-            } catch (StageExistsException e) {
-                response.sendError(409 /* conflict */, "stage exists: " + name);
-            }
-
             registry = stage.createRegistry(World.create() /* TODO */);
             stage.checkExpired();
             return json(stage.install(false, engine, registry, tag, environment)).toString();
@@ -276,11 +276,7 @@ public class ApiController {
                     throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
                 }
             }
-            try {
-                stage.saveConfig(engine, true);
-            } catch (StageExistsException e) {
-                throw new IllegalStateException(e);
-            }
+            stage.publishConfig(engine, stage.createRegistry(World.create() /* TODO */));
             return result.toString();
         }
     }

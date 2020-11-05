@@ -23,7 +23,6 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.StageExistsException;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.kubernetes.Engine;
@@ -35,7 +34,6 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.util.Strings;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
@@ -78,6 +76,8 @@ import java.util.zip.GZIPOutputStream;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
+    private static final String KEEP_IMAGE = "marker string to indicate an 'empty publish'";
+
     public static final String DEPLOYMENT_LABEL_STAGE = "net.oneandone.stool-stage";
 
     public static final String MAIN_CONTAINER = "main"; // TODO ...
@@ -438,14 +438,8 @@ public class Stage {
         }
     }
 
-    public void saveConfig(Engine engine, boolean overwrite) throws IOException, StageExistsException {
-        try {
-            configuration.save(server.gson, engine, name, overwrite);
-        } catch (StatusException e) {
-            if (e.getStatusLine().code == 409) {
-                throw new StageExistsException();
-            }
-        }
+    public void publishConfig(Engine engine, Registry registry) throws IOException {
+        install(true, engine, registry, KEEP_IMAGE, Collections.emptyMap());
     }
 
     /** @return logins */
@@ -511,14 +505,19 @@ public class Stage {
         tmp = world.getTemp().createTempDirectory();
         values = world.getTemp().createTempFile();
 
-        image = resolve(registry, imageOpt);
-        world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
         if (upgrade) {
             map = new HashMap<>(engine.helmReadValues(name));
             // TODO:
-            // put values frmo image again? it might have changed ...
+            // put values from image again? it might have changed ...
         } else {
             map = new HashMap<>(server.configuration.environment);
+        }
+        image = resolve(registry, KEEP_IMAGE == imageOpt ? map.get("image") : imageOpt);
+        world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
+        if (upgrade) {
+            // TODO:
+            // put values frmo image again? it might have changed ...
+        } else {
             map.putAll(image.chartValues);
         }
         map.putAll(clientEnvironment);
@@ -530,11 +529,12 @@ public class Stage {
         map.put("jmxmp", Integer.toString(image.jmxmp));
         map.put("cert", cert());
         map.put("fault", fault(world, image));
+        configuration.save(map);
 
         Server.LOGGER.info("values: " + map);
         try (PrintWriter v = new PrintWriter(values.newWriter())) {
             for (Map.Entry<String, String> entry : map.entrySet()) {
-                v.println(entry.getKey() + ": " + entry.getValue());
+                v.println(entry.getKey() + ": " + escape(entry.getValue()));
             }
         }
         try {
@@ -546,6 +546,15 @@ public class Stage {
         }
         engine.deploymentAwait(dnsLabel());
         return image.repositoryTag;
+    }
+
+    // TODO
+    private static String escape(String str) {
+        if (str.contains("@")) {
+            return "\"" + str + "\"";
+        } else {
+            return str;
+        }
     }
 
     /** tar directory into byte array */
@@ -616,13 +625,14 @@ public class Stage {
         }
     }
 
+    // TODO: expensive
     private TagInfo resolve(Registry registry, String imageOpt) throws IOException {
         List<TagInfo> all;
         TagInfo image;
 
         all = images(registry);
         if (all.isEmpty()) {
-            throw new ArgumentException("no image to start - did you build the stage?");
+            throw new ArgumentException("no image found in repository " + getRepository());
         }
         if (imageOpt == null) {
             image = all.get(all.size() - 1);
@@ -736,8 +746,6 @@ public class Stage {
 
     public void delete(Engine engine, Registry registry) throws IOException {
         uninstall(engine, registry); // usually returns true for already stopped
-
-        StageConfiguration.delete(engine, name);
     }
 
     //--

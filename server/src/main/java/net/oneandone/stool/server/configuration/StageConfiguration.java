@@ -15,20 +15,14 @@
  */
 package net.oneandone.stool.server.configuration;
 
-import com.google.gson.Gson;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.ArgumentException;
-import net.oneandone.sushi.util.Strings;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,22 +30,32 @@ public class StageConfiguration {
     public static final String NOTIFY_CREATED_BY = "@created-by";
     public static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
-    private static final String CONFIG_MAP_KEY = "config";
+    public static StageConfiguration load(Engine engine, String stageName) throws IOException {
+        Map<String, String> values;
+        StageConfiguration result;
 
-    public static StageConfiguration load(Gson gson, Engine engine, String stageName) throws IOException {
-        String str;
-        StringReader reader;
+        values = engine.helmReadValues(stageName);
+        System.out.println("values for " + stageName + ": " + values);
+        result = new StageConfiguration(values.get("_repository"));
+        result.notify = Separator.COMMA.split(opt(values.get("_notify")));
+        result.expire = Expire.fromHuman(values.get("_expire"));
+        result.comment = values.get("_comment");
+        return result;
+    }
 
-        str = engine.configMapRead(stageName).get(CONFIG_MAP_KEY);
-        reader = new StringReader(str);
-        return gson.fromJson(reader, StageConfiguration.class);
+    private static String opt(String str) {
+        return str == null ? "" : str;
     }
 
     public static final List<String> list(Engine engine) throws IOException {
-        return new ArrayList<>(engine.configMapList(CONFIG_MARKER).keySet());
-    }
+        List<String> result;
 
-    private static final Map<String, String> CONFIG_MARKER = Collections.unmodifiableMap(Strings.toMap("type", "stage-config"));
+        result = engine.helmList();
+        if (!result.remove("stool")) {
+            throw new IllegalStateException(result.toString());
+        }
+        return result;
+    }
 
     //--
 
@@ -109,41 +113,13 @@ public class StageConfiguration {
         }
     }
 
-
-    //--
-    public void save(Gson gson, Engine engine, String stageName, boolean overwrite) throws IOException {
-        StringWriter writer;
-        Map<String, String> map;
-
-        if (overwrite) {
-            delete(engine, stageName);
+    public void save(Map<String, String> dest) {
+        dest.put("_repository", repository);
+        dest.put("_notify", Separator.COMMA.join(notify));
+        dest.put("_expire", expire.toString());
+        if (comment != null) {
+            dest.put("_comment", comment);
         }
-        writer = new StringWriter();
-        gson.toJson(this, writer);
-        map = new HashMap<>();
-        map.put(CONFIG_MAP_KEY, writer.toString());
-        engine.configMapCreate(stageName, map, CONFIG_MARKER);
-    }
-
-    public static void delete(Engine engine, String stageName) throws IOException {
-        engine.configMapDelete(stageName);
-    }
-
-    //--
-
-    /** you'll usually invoke server.accessors() instead */
-    public static Map<String, Accessor> accessors() {
-        Map<String, Accessor> result;
-        Option option;
-
-        result = new LinkedHashMap<>();
-        for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
-            option = field.getAnnotation(Option.class);
-            if (option != null) {
-                result.put(option.key(), new ReflectAccessor(option.key(), field));
-            }
-        }
-        return result;
     }
 }
 
