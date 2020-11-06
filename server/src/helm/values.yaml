@@ -48,8 +48,8 @@ autoRemove: -1
 # Defines the number of days to expire new stages (0 for never). Type number, default 0.
 defaultExpire: 0
 
-# Default environment variables set automatically when starting stages, can be overwritten by the `start` command. Type map, default empty.
-environment: ""
+# Default values set automatically when installing charts, can be overwritten by the `start` command. Type map, default empty.
+values: ""
 
 # For server logging. Type string, default INFO. Example value: DEBUG.
 loglevel: "INFO"

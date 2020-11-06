@@ -162,9 +162,9 @@ public class ApiController {
         Map<String, String> config;
         Stage stage;
         Property property;
-        Map<String, String> environment;
+        Map<String, String> values;
 
-        environment = map(request, "env.");
+        values = map(request, "value.");
         config = map(request, "config.");
 
         try (Engine engine = engine()) {
@@ -186,19 +186,19 @@ public class ApiController {
                 property.set(entry.getValue());
             }
             stage.checkExpired();
-            return json(stage.install(false, engine, image, environment)).toString();
+            return json(stage.install(false, engine, image, values)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/publish")
     public String publish(@PathVariable(value = "stage") String stageName, String imageOpt, HttpServletRequest request) throws IOException {
-        Map<String, String> environment;
+        Map<String, String> values;
         Stage stage;
 
-        environment = map(request, "env.");
+        values = map(request, "value.");
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            return json(stage.install(true, engine, imageOpt, environment)).toString();
+            return json(stage.install(true, engine, imageOpt, values)).toString();
         }
     }
 

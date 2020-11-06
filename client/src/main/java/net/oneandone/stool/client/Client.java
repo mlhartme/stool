@@ -149,20 +149,20 @@ public class Client {
     /**
      * @return image actually started
      * @throws FileAlreadyExistsException if the stage already exists */
-    public String create(String stage, String image, Map<String, String> config, Map<String, String> environment) throws IOException {
+    public String create(String stage, String image, Map<String, String> config, Map<String, String> values) throws IOException {
         HttpNode node;
         JsonElement started;
 
         node = node("stages/" + stage);
         node = node.withParameter("image", image);
         node = node.withParameters("config.", config);
-        node = node.withParameters("env.", environment);
+        node = node.withParameters("value.", values);
         started = postJson(node, "");
         return started.getAsString();
     }
 
     /** @return tag actually started */
-    public String publish(String stage, String imageOpt, Map<String, String> environment) throws IOException {
+    public String publish(String stage, String imageOpt, Map<String, String> values) throws IOException {
         HttpNode node;
         JsonElement started;
 
@@ -170,7 +170,7 @@ public class Client {
         if (imageOpt != null) {
             node = node.withParameters("image", imageOpt);
         }
-        node = node.withParameters("env.", environment);
+        node = node.withParameters("value.", values);
         started = postJson(node, "");
         return started.getAsString();
     }

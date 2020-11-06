@@ -516,7 +516,7 @@ public class Stage {
 
     /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
      *                  keep to stick with current image. */
-    public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientEnvironment) throws IOException {
+    public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
         World world;
         FileNode tmp;
         TagInfo image;
@@ -535,7 +535,7 @@ public class Stage {
             // TODO:
             // put values from image again? it might have changed ...
         } else {
-            map = new HashMap<>(server.configuration.environment);
+            map = new HashMap<>(server.configuration.values);
         }
         image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
         world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
@@ -545,7 +545,7 @@ public class Stage {
         } else {
             map.putAll(image.chartValues);
         }
-        map.putAll(clientEnvironment);
+        map.putAll(clientValues);
         map.put("openshift", server.openShift);
         map.put("name", name);
         map.put("dnsLabel", dnsLabel());

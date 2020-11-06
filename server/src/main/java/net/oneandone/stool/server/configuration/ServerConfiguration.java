@@ -85,8 +85,8 @@ public class ServerConfiguration {
 
     public int defaultExpire;
 
-    // default environment for every stage
-    public Map<String, String> environment;
+    // default values for all charts
+    public Map<String, String> values;
 
     public ServerConfiguration() {
         fqdn = "localhost";
@@ -104,7 +104,7 @@ public class ServerConfiguration {
         mailUsername = "";
         mailPassword = "";
         defaultExpire = 0;
-        environment = new HashMap<>();
+        values = new HashMap<>();
     }
 
     public String registryUrl() {

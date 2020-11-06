@@ -11,7 +11,7 @@ jmxmp: 5555
 cpu: 1
 memory: 1073741824
 
-environmentMode: "test"
-environmentStage: ""
-environmentDebug: "true"
-environmentSuspend: "false"
+mode: "test"
+stage: ""
+debug: "true"
+suspend: "false"

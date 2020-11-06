@@ -25,12 +25,12 @@ import java.util.Map;
 
 public class Publish extends IteratedStageCommand {
     private final String imageOpt;
-    private final Map<String, String> environment;
+    private final Map<String, String> values;
 
     public Publish(Globals globals, List<String> args) {
         super(globals);
-        this.environment = new LinkedHashMap<>();
-        eatEnvironment(args);
+        this.values = new LinkedHashMap<>();
+        eatValues(args);
         switch (args.size()) {
             case 0:
                 imageOpt = null;
@@ -43,7 +43,7 @@ public class Publish extends IteratedStageCommand {
         }
     }
 
-    private void eatEnvironment(List<String> args) {
+    private void eatValues(List<String> args) {
         int idx;
         String arg;
         String key;
@@ -57,7 +57,7 @@ public class Publish extends IteratedStageCommand {
             }
             key = arg.substring(0, idx);
             value = arg.substring(idx + 1);
-            if (environment.put(key, value) != null) {
+            if (values.put(key, value) != null) {
                 throw new ArgumentException("duplicate key: " + key);
             }
             args.remove(i);
@@ -66,6 +66,6 @@ public class Publish extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        reference.client.publish(reference.stage, imageOpt, environment);
+        reference.client.publish(reference.stage, imageOpt, values);
     }
 }

@@ -144,8 +144,8 @@ spec:
           value: "{{ .Values.defaultExpire }}"
         - name: ENGINE_LOG
           value: "{{ .Values.engineLog }}"
-        - name: ENVIRONMENT
-          value: "{{ .Values.environment }}"
+        - name: VALUES
+          value: "{{ .Values.values }}"
         - name: LOGLEVEL
           value: "{{ .Values.loglevel }}"
         - name: MAIL_HOST

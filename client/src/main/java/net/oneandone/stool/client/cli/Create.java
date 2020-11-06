@@ -30,14 +30,14 @@ public class Create extends WorkspaceAdd {
     private final boolean optional;
     private final String repository;
     private final Map<String, String> config;
-    private final Map<String, String> environment;
+    private final Map<String, String> values;
 
     public Create(Globals globals, boolean optional, boolean detached, String name, String repository, List<String> args) {
         super(globals, detached, name);
         this.optional = optional;
         this.repository = repository;
         this.config = new LinkedHashMap<>();
-        this.environment = new LinkedHashMap<>();
+        this.values = new LinkedHashMap<>();
         eatProperties(args);
         if (!args.isEmpty()) {
             throw new ArgumentException("malformed properties: " + args);
@@ -63,7 +63,7 @@ public class Create extends WorkspaceAdd {
                 key = key.substring(1);
                 dest = config;
             } else {
-                dest = environment;
+                dest = values;
             }
             if (dest.put(key, value) != null) {
                 throw new ArgumentException("duplicate key: " + key);
@@ -81,7 +81,7 @@ public class Create extends WorkspaceAdd {
         client = globals.configuration().currentContext().connect(world);
         reference = new Reference(client, name);
         try {
-            client.create(name, repository, config, environment);
+            client.create(name, repository, config, values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {

@@ -82,7 +82,7 @@ public class Main {
                     cli.add(Ls.class, "list info* { select*(info) }");
                     cli.add(Delete.class, "delete -batch");
                     cli.add(Remove.class, "remove");
-                    cli.add(Publish.class, "publish image?");
+                    cli.add(Publish.class, "publish imageOptValues*");
                     cli.add(Status.class, "status info* { select*(info) }");
                     cli.add(PortForward.class, "port-forward -timeout=30 port toPort?");
                     cli.add(Ssh.class, "ssh -timeout=30 shell?");
