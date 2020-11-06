@@ -160,24 +160,9 @@ public class ApiController {
     public String create(@PathVariable("stage") String name, @RequestParam(value = "image", required = true) String image,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> config;
-        int idx;
-        String repository;
-        String tag;
         Stage stage;
         Property property;
-        Registry registry;
         Map<String, String> environment;
-
-        idx = image.indexOf(':');
-        if (idx == -1) {
-            repository = image;
-            tag = null;
-        } else {
-            repository = image.substring(0, idx);
-            tag = image.substring(idx + 1);
-        }
-
-        StageConfiguration.validateRepository(repository);
 
         environment = map(request, "env.");
         config = map(request, "config.");
@@ -191,7 +176,7 @@ public class ApiController {
                 // OK, fall through
             }
 
-            stage = new Stage(server, name, new StageConfiguration(repository));
+            stage = new Stage(server, name, new StageConfiguration());
             stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
             for (Map.Entry<String, String> entry : config.entrySet()) {
                 property = stage.propertyOpt(entry.getKey());
@@ -200,23 +185,20 @@ public class ApiController {
                 }
                 property.set(entry.getValue());
             }
-            registry = stage.createRegistry(World.create() /* TODO */);
             stage.checkExpired();
-            return json(stage.install(false, engine, registry, tag, environment)).toString();
+            return json(stage.install(false, engine, image, environment)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/publish")
     public String publish(@PathVariable(value = "stage") String stageName, String imageOpt, HttpServletRequest request) throws IOException {
         Map<String, String> environment;
-        Registry registry;
         Stage stage;
 
         environment = map(request, "env.");
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            registry = stage.createRegistry(World.create());
-            return json(stage.install(true, engine, registry, imageOpt, environment)).toString();
+            return json(stage.install(true, engine, imageOpt, environment)).toString();
         }
     }
 
@@ -276,7 +258,7 @@ public class ApiController {
                     throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
                 }
             }
-            stage.publishConfig(engine, stage.createRegistry(World.create() /* TODO */));
+            stage.publishConfig(engine);
             return result.toString();
         }
     }
@@ -335,7 +317,7 @@ public class ApiController {
             result = new ArrayList<>();
             stage = server.load(engine, name);
             registry = stage.createRegistry(World.create() /* TODO */);
-            all = stage.images(registry);
+            all = stage.images(engine, registry);
             current = stage.currentOpt(engine, registry);
             for (TagInfo image : all) {
                 marker = current != null && image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";

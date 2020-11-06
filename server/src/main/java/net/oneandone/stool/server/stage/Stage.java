@@ -116,29 +116,39 @@ public class Stage {
         return server.getStageLogs(name);
     }
 
-    public String getRepository() {
-        return configuration.repository();
+    public String getImage(Engine engine) throws IOException {
+        return (String) engine.helmReadValues(name).get("image");
     }
 
-    public String getRepositoryPath() {
+    public String getRepositoryPath(Engine engine) throws IOException {
+        return getRepositoryPath(toRepository(getImage(engine)));
+    }
+
+    // without hostname
+    public static String getRepositoryPath(String repository) {
         String path;
 
-        path = URI.create(getRepository()).getPath();
-        path = path.substring(path.indexOf('/') + 1);   // strip hostname
+        path = URI.create(repository).getPath();
+        path = path.substring(path.indexOf('/') + 1);
         return path;
+    }
+
+    public static String getTag(String image) {
+        return image.substring(image.lastIndexOf(':') + 1);
     }
 
     public Registry createRegistry(World world) throws IOException {
         String registry;
-        URI url;
-        String repository;
 
         registry = server.configuration.registryUrl();
+        /* TODO: re-enabled this test
+        URI url;
+        String repository;
         url = URI.create(registry);
         repository = getRepository();
         if (!repository.startsWith(url.getHost() + "/")) {
             throw new IllegalStateException(url.getHost() + " vs " + repository);
-        }
+        }*/
         return PortusRegistry.create(world, Strings.removeRightOpt(registry, "/"), null);
     }
 
@@ -438,8 +448,8 @@ public class Stage {
         }
     }
 
-    public void publishConfig(Engine engine, Registry registry) throws IOException {
-        install(true, engine, registry, KEEP_IMAGE, Collections.emptyMap());
+    public void publishConfig(Engine engine) throws IOException {
+        install(true, engine, KEEP_IMAGE, Collections.emptyMap());
     }
 
     /** @return logins */
@@ -469,20 +479,23 @@ public class Stage {
     //-- docker
 
     /** @return sorted list, oldest first */
-    public List<TagInfo> images(Registry registry) throws IOException {
-        String path;
+    public List<TagInfo> images(Engine engine, Registry registry) throws IOException {
+        return images(registry, getRepositoryPath(engine));
+    }
+
+    /** @return sorted list, oldest first */
+    public static List<TagInfo> images(Registry registry, String repositoryPath) throws IOException {
         List<String> tags;
         List<TagInfo> result;
 
-        path = getRepositoryPath();
         result = new ArrayList<>();
         try {
-            tags = registry.tags(path);
+            tags = registry.tags(repositoryPath);
         } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
             return result;
         }
         for (String tag : tags) {
-            result.add(registry.info(path, tag));
+            result.add(registry.info(repositoryPath, tag));
         }
         Collections.sort(result);
         return result;
@@ -494,15 +507,25 @@ public class Stage {
         }
     }
 
-    public String install(boolean upgrade, Engine engine, Registry registry, String imageOpt, Map<String, String> clientEnvironment) throws IOException {
+    public static String toRepository(String imageOrRepository) {
+        int idx;
+
+        idx = imageOrRepository.indexOf(':');
+        return idx == -1 ? imageOrRepository : imageOrRepository.substring(0, idx);
+    }
+
+    /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
+     *                  keep to stick with current image. */
+    public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientEnvironment) throws IOException {
         World world;
         FileNode tmp;
         TagInfo image;
-        String stageName;
         FileNode values;
         Map<String, Object> map;
 
-        stageName = getName();
+        if (imageOrRepositoryX != null && imageOrRepositoryX != KEEP_IMAGE) {
+            StageConfiguration.validateRepository(toRepository(imageOrRepositoryX));
+        }
         world = World.create(); // TODO
         tmp = world.getTemp().createTempDirectory();
         values = world.getTemp().createTempFile();
@@ -514,7 +537,7 @@ public class Stage {
         } else {
             map = new HashMap<>(server.configuration.environment);
         }
-        image = resolve(registry, KEEP_IMAGE == imageOpt ? (String) map.get("image") : imageOpt);
+        image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
         world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
         if (upgrade) {
             // TODO:
@@ -524,7 +547,7 @@ public class Stage {
         }
         map.putAll(clientEnvironment);
         map.put("openshift", server.openShift);
-        map.put("name", stageName);
+        map.put("name", name);
         map.put("dnsLabel", dnsLabel());
         map.put("image", image.repositoryTag);
         map.put("fqdn", stageFqdn());
@@ -540,9 +563,9 @@ public class Stage {
             }
         }
         try {
-            Server.LOGGER.info(tmp.exec("helm", "template", "--values", values.getAbsolute(), stageName, tmp.getAbsolute()));
+            Server.LOGGER.info(tmp.exec("helm", "template", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
             Server.LOGGER.info("helm install upgrade=" + upgrade);
-            Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), stageName, tmp.getAbsolute()));
+            Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
             System.out.println("written values: " + values.readString());
         } finally {
             tmp.deleteTree();
@@ -628,33 +651,51 @@ public class Stage {
         }
     }
 
-    // TODO: expensive
-    private TagInfo resolve(Registry registry, String imageOpt) throws IOException {
-        List<TagInfo> all;
-        TagInfo image;
-
-        all = images(registry);
-        if (all.isEmpty()) {
-            throw new ArgumentException("no image found in repository " + getRepository());
-        }
-        if (imageOpt == null) {
-            image = all.get(all.size() - 1);
-        } else {
-            image = lookup(all, imageOpt);
-            if (image == null) {
-                throw new ArgumentException("image not found: " + imageOpt + " " + all);
-            }
-        }
-        return image;
+    private TagInfo tagInfo(String image) {
+        return null; // TODO
     }
 
-    private static TagInfo lookup(List<TagInfo> images, String tagOrRepositoryTag /* TODO */) {
-        for (TagInfo image : images) {
-            if (image.tag.equals(tagOrRepositoryTag) || image.repositoryTag.equals(tagOrRepositoryTag)) {
-                return image;
-            }
+    // TODO: expensive
+    private TagInfo resolve(Engine engine, World world, String imageOrRepositoryX, String imagePrevious) throws IOException {
+        String imageOrRepository;
+        int idx;
+        Registry registry;
+
+        if (imageOrRepositoryX == KEEP_IMAGE) {
+            imageOrRepository = imagePrevious;
+        } else if (imageOrRepositoryX == null) {
+            imageOrRepository = toRepository(getImage(engine));
+        } else {
+            imageOrRepository = imageOrRepositoryX;
         }
-        return null;
+        registry = createRegistry(world);
+        idx = imageOrRepository.indexOf(':');
+        if (idx == -1) {
+            return latest(registry, imageOrRepository);
+        } else {
+            return tagInfo(registry, imageOrRepository);
+        }
+    }
+
+    private static TagInfo latest(Registry registry, String repository) throws IOException {
+        String repositoryPath;
+        List<TagInfo> all;
+
+        repositoryPath = getRepositoryPath(repository);
+        all = images(registry, repositoryPath);
+        if (all.isEmpty()) {
+            throw new ArgumentException("no image(s) found in repository " + repository);
+        }
+        return all.get(all.size() - 1);
+    }
+
+    private static TagInfo tagInfo(Registry registry, String image) throws IOException {
+        String tag;
+        String repositoy;
+
+        tag = getTag(image);
+        repositoy = getRepositoryPath(toRepository(image));
+        return registry.info(repositoy, tag);
     }
 
     public String uninstall(Engine engine, Registry registry) throws IOException {
@@ -702,7 +743,7 @@ public class Stage {
         if (pod != null) {
             tag = registry.info(pod, MAIN_CONTAINER);
         } else {
-            lst = images(registry);
+            lst = images(engine, registry);
             tag = lst.isEmpty() ? null : lst.get(lst.size() - 1);
         }
         if (tag != null) {

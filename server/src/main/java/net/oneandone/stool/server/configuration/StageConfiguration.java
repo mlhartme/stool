@@ -32,7 +32,6 @@ public class StageConfiguration {
 
     private static final String EXPIRE = "stageExpire";
     private static final String COMMENT = "stageComment";
-    private static final String REPOSITORY = "stageRepository";
     private static final String NOTIFY = "stageNotify";
 
     public static StageConfiguration load(Engine engine, String stageName) throws IOException {
@@ -41,7 +40,7 @@ public class StageConfiguration {
         String str;
 
         values = engine.helmReadValues(stageName);
-        result = new StageConfiguration((String) values.get(REPOSITORY));
+        result = new StageConfiguration();
         result.notify = Separator.COMMA.split(opt((String) values.get(NOTIFY)));
         str = (String) values.get(EXPIRE);
         result.expire = str == null ? Expire.never() : Expire.fromHuman(str);  //TODO: really never?
@@ -65,9 +64,6 @@ public class StageConfiguration {
 
     //--
 
-    @Option(key = "repository")
-    public String repository;
-
     /** login names or email addresses, or "@last-modified-by" or "@created-by" */
     @Option(key = "notify")
     public List<String> notify;
@@ -78,25 +74,21 @@ public class StageConfiguration {
     @Option(key = "comment")
     public String comment;
 
-    public StageConfiguration(String repository) {
-        this.repository = repository;
+    public StageConfiguration() {
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
         this.expire = Expire.never();
         this.comment = "";
     }
 
-    //--
-
-    /** @return full repository url, i.e. with server and path */
-    public String repository() {
-        return repository;
-    }
-
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public static void validateRepository(String repository) {
+    public static void validateRepository(String image) {
         URI uri;
+        int idx;
+        String repository;
 
+        idx = image.indexOf(':');
+        repository = idx == -1 ? image : image.substring(0, idx);
         if (repository.endsWith("/")) {
             throw new ArgumentException("invalid repository: " + repository);
         }
@@ -120,7 +112,6 @@ public class StageConfiguration {
     }
 
     public void save(Map<String, Object> dest) {
-        dest.put(REPOSITORY, repository);
         dest.put(NOTIFY, Separator.COMMA.join(notify));
         dest.put(EXPIRE, expire.toString());
         dest.put(COMMENT, comment);

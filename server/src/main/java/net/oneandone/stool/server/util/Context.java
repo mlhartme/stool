@@ -67,7 +67,7 @@ public class Context {
 
         result = stageImages.get(stage.getName());
         if (result == null) {
-            result = stage.images(registry(stage));
+            result = stage.images(engine, registry(stage));
             stageImages.put(stage.getName(), result);
         }
         return result;
