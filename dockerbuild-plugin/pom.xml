@@ -8,14 +8,12 @@
   </parent>
 
   <name>Stock Image Plugin</name>
-  <description>Maven plugin to build Docker images from stock Dockerfiles.
-    The main goal is to keep Dockerfiles in a central location and not spread
-    in every application that want to build an image. The central location holds
-    Dockerfiles for various frameworks, and developers can simply choose one of
-    them an get a proper image.
-    The plugin can set Dockerfile arguments and pass artifacts to the Docker context.
+  <description>Maven plugin to build Docker images from shared Docker builds.
+    The main goal is to keep Docker builds in a central location and not spread
+    in every application that wants to build an image.
+    The plugin can set builds arguments, e.g. to pass artifacts.
   </description>
-  <artifactId>stock-image-plugin</artifactId>
+  <artifactId>dockerbuild-plugin</artifactId>
   <packaging>maven-plugin</packaging>
 
   <properties>
