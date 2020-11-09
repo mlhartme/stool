@@ -181,10 +181,6 @@ public class Source {
         return nextTag(images.keySet());
     }
 
-    private boolean hasContainer(Daemon engine, String repoTag) throws IOException {
-        return engine.containerListForImage(repoTag).size() > 0;
-    }
-
     public static String tag(String repositoryTag) {
         String result;
         int idx;
