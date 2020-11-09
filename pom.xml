@@ -63,7 +63,6 @@
   <modules>
     <module>docker</module>
     <module>server</module>
-    <module>dockerbuild-plugin</module>
     <module>client</module>
   </modules>
 
