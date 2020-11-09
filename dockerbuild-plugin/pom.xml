@@ -7,7 +7,7 @@
     <version>6.1.0-SNAPSHOT</version>
   </parent>
 
-  <name>Stock Image Plugin</name>
+  <name>Maven Dockerbuild Plugin</name>
   <description>Maven plugin to build Docker images from shared Docker builds.
     The main goal is to keep Docker builds in a central location and not spread
     in every application that wants to build an image.
