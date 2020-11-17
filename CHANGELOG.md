@@ -9,6 +9,13 @@
 * changes `restart` to `publish`
 * stool no longer wipes stages
 * added `values` field to status
+* client
+  * create
+    * type is gone, @ now prefixes image name
+    * paths now point to image files
+  * attach
+    * now takes a single name argument
+    * can be used in an existing workspace
 * dumped config.environment -- publish automatically preserves previous configuration
 * dumped disk quota
 * server
