@@ -19,43 +19,96 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.Workspace;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Create extends WorkspaceAdd {
+public class Create extends ClientCommand {
+    private final String name;
     private final boolean optional;
-    private final String repository;
+    private final List<String> images;
+
+    // TODO: merge config and values?
     private final Map<String, String> config;
     private final Map<String, String> values;
+    private final boolean detached;
 
-    public Create(Globals globals, boolean optional, boolean detached, String name, String repository, List<String> args) {
-        super(globals, detached, name);
+    public Create(Globals globals, boolean optional, boolean detached, List<String> args) throws IOException {
+        super(globals);
+
+        int nameIdx;
+
+        nameIdx = nameIdx(args);
+        this.detached = detached;
         this.optional = optional;
-        this.repository = repository;
+        this.name = args.get(nameIdx);
+        this.images = new ArrayList<>();
         this.config = new LinkedHashMap<>();
         this.values = new LinkedHashMap<>();
-        eatProperties(args);
-        if (!args.isEmpty()) {
-            throw new ArgumentException("malformed properties: " + args);
+        images(args, nameIdx);
+        if (images.isEmpty()) {
+            image(".");
+            if (images.isEmpty()) {
+                throw new IllegalStateException();
+            }
+        }
+        configAndValues(args, nameIdx);
+    }
+
+    private static int nameIdx(List<String> args) {
+        String arg;
+
+        for (int i = args.size() - 1; i >= 0; i--) {
+            arg = args.get(i);
+            if (arg.indexOf('=') == -1) {
+                return i;
+            }
+        }
+        throw new ArgumentException("missing name argument");
+    }
+
+    private void images(List<String> args, int nameIdx) throws IOException {
+        for (int i = 0; i < nameIdx; i++) {
+            image(args.get(i));
         }
     }
 
-    private void eatProperties(List<String> args) {
+    private void image(String str) throws IOException {
+        boolean found;
+
+        if (str.startsWith("@")) {
+            images.add(str.substring(1));
+        } else {
+            found = false;
+            for (FileNode child : world.getWorking().join(str).checkDirectory().find("**/target/dockerbuild/image")) {
+                images.add(child.readString().trim());
+                found = true;
+            }
+            if (!found) {
+                throw new ArgumentException(str + ": no image file(s) in path");
+            }
+        }
+    }
+
+    /** return name */
+    private void configAndValues(List<String> args, int nameIdx) {
         int idx;
         String arg;
         String key;
         String value;
         Map<String, String> dest;
 
-        for (int i = args.size() - 1; i >= 0; i--) {
+        for (int i = nameIdx + 1; i < args.size(); i++) {
             arg = args.get(i);
             idx = arg.indexOf('=');
             if (idx == -1) {
-                break;
+                throw new IllegalStateException(args + " " + name);
             }
             key = arg.substring(0, idx);
             value = arg.substring(idx + 1);
@@ -72,16 +125,77 @@ public class Create extends WorkspaceAdd {
         }
     }
 
-    protected Reference stage(String name) throws IOException {
+    //--
+
+    @Override
+    public void run() throws IOException {
+        Workspace workspaceOpt;
+        Reference reference;
+
+        if (detached) {
+            workspaceOpt = null;
+        } else {
+            workspaceOpt = lookupWorkspace();
+            if (workspaceOpt == null) {
+                workspaceOpt = Workspace.create(world.getWorking());
+            }
+        }
+        try {
+            for (String image : images) {
+                reference = create(image);
+                if (workspaceOpt != null) {
+                    try {
+                        workspaceOpt.add(reference);
+                    } catch (IOException e) {
+                        throw new IOException("failed to attach stage: " + e.getMessage(), e);
+                    }
+                } else {
+                    // -detached
+                }
+            }
+            if (workspaceOpt != null) {
+                workspaceOpt.save();
+            }
+        } catch (IOException e) {
+            try {
+                if (workspaceOpt != null) {
+                    workspaceOpt.save();
+                }
+            } catch (IOException e2) {
+                e.addSuppressed(e2);
+            }
+            throw e;
+        }
+    }
+
+    protected Reference create(String image) throws IOException {
+        return doCreate(image, resolvedName(image));
+    }
+
+    private String resolvedName(String image) {
+        int idx;
+
+        idx = image.lastIndexOf(':');
+        if (idx >= 0) {
+            image = image.substring(0, idx);
+        }
+        idx = image.lastIndexOf('/');
+        if (idx != 0) {
+            image = image.substring(idx + 1);
+        }
+        return name.replace("_", image);
+    }
+
+    protected Reference doCreate(String image, String resolvedName) throws IOException {
         Client client;
         Reference reference;
         Map<String, String> running;
 
-        checkName(name);
+        checkName(resolvedName);
         client = globals.configuration().currentContext().connect(world);
-        reference = new Reference(client, name);
+        reference = new Reference(client, resolvedName);
         try {
-            client.create(name, repository, config, values);
+            client.create(resolvedName, image, config, values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {
@@ -145,5 +259,4 @@ public class Create extends WorkspaceAdd {
     private static boolean isDigit(char c) {
         return c >= '0' && c <= '9';
     }
-
 }

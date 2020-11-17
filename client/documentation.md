@@ -237,12 +237,12 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` [`-optional`][`-detached`] [[*type*'@'][*path*] ...] *name* [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`] [[*path*|'@'image] ...] *name* [*key*`=`*value*...]
 
 
 
 
-`sc` *global-option*... `attach` [[*type*'@'][*path*] ...] *name*
+`sc` *global-option*... `attach` *name*
 
 
 `sc` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
@@ -426,16 +426,17 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-detached`] [[*type*'@'][*path*] ...] *name* [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`] [[*path*|'@'image] ...] *name* [*key*`=`*value*...]
 
 
 
 #### DESCRIPTION
 
-Searches the specified *path*s (default: `.`) for apps of the specified type (either `war` or `docker`, default is `war`) and creates one 
-stage for each of them. *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes. 
+Creates stages for all specified images. If you specify path instead of an image, the path is search for `image` files and ths image
+repositoryTag is loaded from it. It'f fine to have multiple image files. If neither path nor image is specified, `.` is searched for
+image files. *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes. 
 Otherwise it's rejected because it would cause problems with urls or docker tags that contain the name. *name* may also include an 
-underscore `_`, which will be substituted by the respective app name.
+underscore `_`, which will be substituted by the last segment of the repositoryTag.
 
 Reports an error if a stage already exists. You can disable this with the `-optional` option.
 
@@ -459,11 +460,12 @@ Attach stage to a workspace
 
 #### SYNOPSIS
 
-`sc` *global-option*... `attach` [[*type*'@'][*path*] ...] *name*
+`sc` *global-option*... `attach` *name*
 
 #### DESCRIPTION
 
-Similar to `create`, but stages have to exist, they are not created. 
+Attaches the specified stage to the current workspace. Creates a new workspace if there is no current.
+
 
 [//]: # (include globalOptions.md)
 

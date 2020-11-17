@@ -56,7 +56,7 @@ public class MainIT {
     public static void main(String[] args) throws IOException {
         FileNode working;
 
-        working = IT_ROOT.join("projects/buiild").mkdirsOpt();
+        working = IT_ROOT.join("projects/build").mkdirsOpt();
         System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
         System.out.println(working.exec("mvn", "clean", "package", "-Dmaven.javadoc.skip=true")); // junit.org for javadocs is offline every now and then ...
         System.out.println(working.exec("mvn", "net.oneandone.stool:stock-image-plugin:build", "-Ddocker.repository=" + REPOSITORY));
@@ -104,7 +104,7 @@ public class MainIT {
 
         sc(working, "context", "localhost");
         sc(working, "list");
-        sc(working,"create", "-e", stage, REPOSITORY);
+        sc(working,"create", "-e", '@' + REPOSITORY, stage);
         sc(working,"list");
         sc(working,"status", "-stage", stage);
         sc(working, "detach", "-stage", stage);

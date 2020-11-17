@@ -72,8 +72,8 @@ public class Main {
                  cli.add(Auth.class, "auth -batch");
                  cli.add(ConfigContext.class, "context -offline -q name?");
                  cli.add(ShellInc.class, "shell-inc");
-                 cli.add(Create.class, "create -optional -detached name image args*");
-                 cli.add(Attach.class, "attach name");
+                 cli.add(Create.class, "create -optional -detached args*");
+                 cli.add(Attach.class, "attach stage");
                  cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                     cli.add(Detach.class, "detach");
                     cli.add(Config.class, "config property* { property*(property) }");

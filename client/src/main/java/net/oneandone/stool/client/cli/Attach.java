@@ -17,16 +17,38 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.Workspace;
 
 import java.io.IOException;
 import java.util.List;
 
-public class Attach extends WorkspaceAdd {
-    public Attach(Globals globals, String name) {
-        super(globals, false, name);
+public class Attach extends ClientCommand {
+    protected final String stage;
+
+    public Attach(Globals globals, String stage) {
+        super(globals);
+        this.stage = stage;
     }
 
-    protected Reference stage(String name) throws IOException {
+    @Override
+    public void run() throws IOException {
+        Workspace workspace;
+        Reference reference;
+
+        workspace = lookupWorkspace();
+        if (workspace == null) {
+            workspace = Workspace.create(world.getWorking());
+        }
+        reference = resolve(stage);
+        try {
+            workspace.add(reference);
+        } catch (IOException e) {
+            throw new IOException("failed to attach stage: " + e.getMessage(), e);
+        }
+        workspace.save();
+    }
+
+    protected Reference resolve(String name) throws IOException {
         List<Reference> found;
 
         found = globals.configuration().list(name);
