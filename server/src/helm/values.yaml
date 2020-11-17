@@ -62,3 +62,6 @@ mailUsername: ""
 
 # Password for mailHost. Type string, default empty.
 mailPassword: ""
+
+# TODO:
+# charts:

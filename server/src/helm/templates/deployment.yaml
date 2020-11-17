@@ -28,13 +28,6 @@ metadata:
 {{ end }}
 ---
 apiVersion: v1
-binaryData:
-  charts.tgz: {{ .Values.charts }}
-kind: ConfigMap
-metadata:
-  name: stool-charts
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
   name: stool-log-collector
@@ -182,7 +175,7 @@ spec:
       - name: init-charts
         image: {{ .Values.repositoryTag }}
         command: ["sh"]
-        args: ["-c", "cd /etc/charts && tar zxf /var/lib/stool/charts.tgz"]
+        args: ["-c", "cd /tmp && git clone -b helm https://github.com/mlhartme/stool.git && cp -r stool/server/src/charts /etc"]
         resources:
           limits:
             cpu: 1
@@ -191,8 +184,6 @@ spec:
         volumeMounts:
         - mountPath: /etc/charts
           name: charts
-        - mountPath: /var/lib/stool
-          name: charts-tgz
 {{- if .Values.faultName }}
       - name: init-fault
         image: {{ .Values.repositoryTag }}
@@ -212,12 +203,6 @@ spec:
       volumes:
       - name: charts
         emptyDir: {}
-      - name: charts-tgz
-        configMap:
-          name: stool-charts
-          items:
-            - key: charts.tgz
-              path: charts.tgz
       - name: fluentd-config
         configMap:
           name: stool-log-collector

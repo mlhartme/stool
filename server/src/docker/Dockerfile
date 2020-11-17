@@ -24,6 +24,7 @@ COPY cert.sh /var/lib/stool/cert.sh
 RUN mkdir /var/lib/stool/certs && \
     curl -o /tmp/helm.tgz https://get.helm.sh/helm-v3.3.4-linux-amd64.tar.gz && \
     cd /usr/local/bin && \
-    tar zxf /tmp/helm.tgz --strip-components=1 linux-amd64/helm
+    tar zxf /tmp/helm.tgz --strip-components=1 linux-amd64/helm && \
+    apt-get update && apt-get install -y --no-install-recommends git
 
 CMD [ "sh", "-c", "exec java ${OPTS} -jar /usr/local/bin/stool-server.jar" ]
