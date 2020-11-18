@@ -8,8 +8,8 @@ fault: "H4sIAChpiV8AA9PTZ6A5MDAwMDc1VQDTZhDawMgEQkOBgqGxuYmRkZmJibGRgoGhoaGJGYOC
 
 jmxmp: 5555
 
-cpu: 1
-memory: 1073741824
+cpu: 200m
+memory: 512Mi
 
 mode: "test"
 stage: ""
