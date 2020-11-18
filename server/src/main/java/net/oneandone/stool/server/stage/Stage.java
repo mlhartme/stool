@@ -32,6 +32,7 @@ import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Property;
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -522,6 +523,7 @@ public class Stage {
         TagInfo image;
         FileNode values;
         Map<String, Object> map;
+        FileNode src;
 
         if (imageOrRepositoryX != null && imageOrRepositoryX != KEEP_IMAGE) {
             StageConfiguration.validateRepository(toRepository(imageOrRepositoryX));
@@ -538,7 +540,11 @@ public class Stage {
             map = new HashMap<>(server.configuration.values);
         }
         image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
-        world.file("/etc/charts").join(image.chart).copyDirectory(tmp);
+        src = world.file("/etc/charts").join(image.chart);
+        if (!src.isDirectory()) {
+            throw new ArgumentException("helm chart not found: " + image.chart);
+        }
+        src.copyDirectory(tmp);
         if (upgrade) {
             // TODO:
             // put values frmo image again? it might have changed ...
@@ -673,7 +679,11 @@ public class Stage {
         if (idx == -1) {
             return latest(registry, imageOrRepository);
         } else {
-            return tagInfo(registry, imageOrRepository);
+            try {
+                return tagInfo(registry, imageOrRepository);
+            } catch (FileNotFoundException e) {
+                throw new ArgumentException("image not found: " + imageOrRepository);
+            }
         }
     }
 
