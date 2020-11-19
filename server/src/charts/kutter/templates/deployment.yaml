@@ -45,8 +45,8 @@ spec:
         name: fluentd
         resources:
           limits:
-            cpu: "{{ .Values.cpu }}"
-            memory: "{{ .Values.memory }}Mi"
+            cpu: "1"
+            memory: "256Mi"
         volumeMounts:
         - mountPath: /fluentd/etc
           name: {{ .Values.dnsLabel }}-fluentd
