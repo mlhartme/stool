@@ -3,25 +3,30 @@
 ### 6.1.0 (pending)
 
 * moved stool build into separate Maven plugin
-* sc create now takes an image argument and starts the stage
-* delete now also stops the stage; the -stop option is gone
-* dumped separate start/stop command
-* changes `restart` to `publish`
 * stool no longer wipes stages
 * added `values` field to status
 * client
   * create
-    * type is gone, @ now prefixes image name
+    * always starts the stage
+    * type is gone, @ now prefixes images
     * paths now point to image files
+    * can now be used in an existing workspace
+  * delete
+    * always stops the stage, the explicit -stop option is gone
   * attach
     * now takes a single name argument
     * can be used in an existing workspace
+  * dumped separate `start`/`stop` command; the stopped status is gone
+  * changed `restart` to `publish`
 * dumped config.environment -- publish automatically preserves previous configuration
-* dumped disk quota
+* dumped disk quota; I might use Kubernetes euphemeral quotas later
 * server
-  * store stage configuration in helm values
+  * use helm to managed stages
+    * creating a new stage internally executes `helm install`
+    * deleting a stage internally executes `helm uninstall`
+    * store all stage configuration as helm values; the separate ConfigMap is gone
   * log validation report
-  * dumped memory quota handling, kubernetes is responsible for that
+  * dumped memory quota handling, Kubernetes is responsible for that
   * dumped environment field - it's too container centric now that we have kubernetes; use 'sc ssh' instead
   * server startup output with image version
   * readiness probe for stool server

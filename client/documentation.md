@@ -426,17 +426,17 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-detached`] [[*path*|'@'image] ...] *name* [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`] [['@'image | *path*] ...] *name* [*key*`=`*value*...]
 
 
 
 #### DESCRIPTION
 
-Creates stages for all specified images. If you specify path instead of an image, the path is search for `image` files and ths image
-repositoryTag is loaded from it. It'f fine to have multiple image files. If neither path nor image is specified, `.` is searched for
-image files. *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes. 
+Creates stages for all specified images. You specify images either explicitly with a '@' prefix of by a path to be searched for `image` 
+files containing the image repositoryTag. It's fine to have multiple image files in one path. If neither image nor path is specified, 
+images default to the path `.`. *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes. 
 Otherwise it's rejected because it would cause problems with urls or docker tags that contain the name. *name* may also include an 
-underscore `_`, which will be substituted by the last segment of the repositoryTag.
+underscore `_`, which will be substituted by the last segment of the image.
 
 Reports an error if a stage already exists. You can disable this with the `-optional` option.
 
