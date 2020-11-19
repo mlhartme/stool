@@ -30,8 +30,8 @@ spec:
             value: {{ .Values.suspend | quote }}
         resources:
           limits:
-            cpu: 200m
-            memory: 256Mi
+            cpu: {{ .Values.cpu }}
+            memory: {{ .Values.memory }}
         volumeMounts:
         - mountPath: /usr/local/tomcat/conf/tomcat.p12
           name: cert
