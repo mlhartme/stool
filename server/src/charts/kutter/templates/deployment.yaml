@@ -31,7 +31,7 @@ spec:
         resources:
           limits:
             cpu: 200m
-            memory: 256Gi
+            memory: 256Mi
         volumeMounts:
         - mountPath: /usr/local/tomcat/conf/tomcat.p12
           name: cert
