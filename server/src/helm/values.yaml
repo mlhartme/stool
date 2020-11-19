@@ -63,5 +63,5 @@ mailUsername: ""
 # Password for mailHost. Type string, default empty.
 mailPassword: ""
 
-# TODO:
-# charts:
+# TODO
+charts: "https://bitbucket.1and1.org/scm/cisodevenv/helmcharts.git"

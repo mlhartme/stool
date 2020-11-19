@@ -89,16 +89,12 @@ public class ApiController {
 
     // TODO: used for readiness probes - becomes expensive if I used quotas ...
     @GetMapping("/info")
-    public String info() throws IOException {
+    public String version() throws IOException {
         JsonObject result;
 
-        try (Engine engine = engine()) {
-            result = new JsonObject();
-            result.addProperty("version", Main.versionString(World.create() /* TODO */));
-            result.addProperty("memory-quota", ""); // TODO: dump
-            result.addProperty("disk-quota", ""); // TODO: dump
-            return result.toString();
-        }
+        result = new JsonObject();
+        result.addProperty("version", Main.versionString(World.create() /* TODO */));
+        return result.toString();
     }
 
     @PostMapping("/auth")
@@ -209,7 +205,7 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            registry = stage.createRegistry(World.create());
+            registry = stage.createRegistry(World.create() /* TODO */);
             stage.uninstall(engine, registry);
             stage.delete(engine, registry);
         }

@@ -657,10 +657,6 @@ public class Stage {
         }
     }
 
-    private TagInfo tagInfo(String image) {
-        return null; // TODO
-    }
-
     // TODO: expensive
     private TagInfo resolve(Engine engine, World world, String imageOrRepositoryX, String imagePrevious) throws IOException {
         String imageOrRepository;

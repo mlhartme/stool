@@ -237,7 +237,7 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` [`-optional`][`-detached`] [[*path*|'@'image] ...] *name* [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`] [['@'image | *path*] ...] *name* [*key*`=`*value*...]
 
 
 

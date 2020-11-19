@@ -21,6 +21,7 @@
 * dumped config.environment -- publish automatically preserves previous configuration
 * dumped disk quota; I might use Kubernetes euphemeral quotas later
 * server
+  * dumped memory and disk quotas from "info" response
   * use helm to managed stages
     * creating a new stage internally executes `helm install`
     * deleting a stage internally executes `helm uninstall`
