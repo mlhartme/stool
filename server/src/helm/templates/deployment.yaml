@@ -175,7 +175,7 @@ spec:
       - name: init-charts
         image: {{ .Values.repositoryTag }}
         command: ["sh"]
-        args: ["-c", "cd /tmp && git clone {{ .Values.charts }} && cp -r helmcharts /etc/charts"]
+        args: ["-c", "cd /tmp && git clone {{ .Values.charts }} charts && cp -r charts /etc"]
         resources:
           limits:
             cpu: 1
