@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.stage;
 
-import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.PortusRegistry;
@@ -406,7 +405,7 @@ public class Stage {
             return "[no jmx port]";
         }
 
-        url = podJmxUrl(context);
+        url = podJmxUrl(context, current.image.jmxmp);
         try {
             objectName = new ObjectName("java.lang:type=Memory");
         } catch (MalformedObjectNameException e) {
@@ -884,10 +883,20 @@ public class Stage {
     //--
 
     public void awaitStartup(Context context) throws IOException {
+        Stage.Current current;
         JMXServiceURL url;
         String state;
 
-        url = podJmxUrl(context);
+        try {
+            Thread.sleep(1000); // TODO  -- avoid eof exception !?
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        current = context.currentOpt(this);
+        if (current == null) {
+            return;
+        }
+        url = podJmxUrl(context, current.image.jmxmp);
         if (url != null) {
             for (int count = 0; true; count++) {
                 try {
@@ -924,23 +933,15 @@ public class Stage {
         }
     }
 
-    public JMXServiceURL podJmxUrl(Context context) throws IOException {
+    public JMXServiceURL podJmxUrl(Context context, int port) throws IOException {
         PodInfo running;
-        int port;
-        String str;
 
         running = context.runningPodsFirst(this);
         if (running == null) {
             return null;
         } else {
-            str = running.labels.get(ImageInfo.IMAGE_LABEL_PORT_JMXMP);
-            if (str == null) {
-                return null;
-            } else {
-                port = Integer.parseInt(Strings.removeLeft(str, "x"));
-                // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-                return new JMXServiceURL("service:jmx:jmxmp://" + running.ip + ":" + port);
-            }
+            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+            return new JMXServiceURL("service:jmx:jmxmp://" + running.ip + ":" + port);
         }
     }
 
