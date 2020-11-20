@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
+import net.oneandone.stool.kubernetes.ContainerInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.PortusRegistry;
@@ -42,11 +43,9 @@ import org.kamranzafar.jtar.TarOutputStream;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
-import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -370,15 +369,6 @@ public class Stage {
                 }
             }
         });
-        fields.add(new Field("heap") {
-            @Override
-            public Object get(Context context) throws IOException {
-                Current current;
-
-                current = context.currentOpt(Stage.this);
-                return current == null ? null : heap(context, current);
-            }
-        });
         fields.add(new Field("origin-scm") {
             @Override
             public Object get(Context context) throws IOException {
@@ -388,43 +378,6 @@ public class Stage {
                 return current == null ? null : current.image.originScm;
             }
         });
-    }
-
-    public String heap(Context context, Stage.Current current) throws IOException {
-        JMXServiceURL url;
-        MBeanServerConnection connection;
-        ObjectName objectName;
-        CompositeData result;
-        long used;
-        long max;
-
-        if (!current.first /* TODO */.isRunning()) {
-            return "";
-        }
-        if (current.image.jmxmp == -1) {
-            return "[no jmx port]";
-        }
-
-        url = podJmxUrl(context, current.image.jmxmp);
-        try {
-            objectName = new ObjectName("java.lang:type=Memory");
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException(e);
-        }
-        try (JMXConnector raw = JMXConnectorFactory.connect(url, null)) {
-            connection = raw.getMBeanServerConnection();
-            try {
-                result = (CompositeData) connection.getAttribute(objectName, "HeapMemoryUsage");
-            } catch (Exception e) {
-                return "[cannot get jmx attribute: " + e.getMessage() + "]";
-            }
-        } catch (IOException e) {
-            Server.LOGGER.debug("cannot connect to jmx server", e);
-            return "[cannot connect jmx server: " + e.getMessage() + "]";
-        }
-        used = (Long) result.get("used");
-        max = (Long) result.get("max");
-        return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
     public static String timespan(LocalDateTime ldt) {
@@ -553,7 +506,6 @@ public class Stage {
         map.putAll(clientValues);
         map.put("image", image.repositoryTag);
         map.put("fqdn", stageFqdn());
-        map.put("jmxmp", image.jmxmp);
         map.put("cert", cert());
         map.put("fault", fault(world, image));
         configuration.save(map);
@@ -884,51 +836,30 @@ public class Stage {
 
     public void awaitStartup(Context context) throws IOException {
         Stage.Current current;
-        JMXServiceURL url;
-        String state;
+        ContainerInfo container;
 
-        try {
-            Thread.sleep(1000); // TODO  -- avoid eof exception !?
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        current = context.currentOpt(this);
-        if (current == null) {
-            return;
-        }
-        url = podJmxUrl(context, current.image.jmxmp);
-        if (url != null) {
-            for (int count = 0; true; count++) {
-                try {
-                    state = jmxEngineState(url);
-                    break;
-                } catch (Exception e) {
-                    if (count > 600) {
-                        throw new IOException(name + ": initial state timed out: " + e.getMessage(), e);
-                    }
-                    if (count % 100 == 99) {
-                        Server.LOGGER.info(name + ": waiting for tomcat startup ... ");
-                    }
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ex) {
-                        // fall-through
+        for (int count = 0; true; count++) {
+            current = context.currentOpt(this);
+            if (current != null) {
+                container = current.first.containers.get(MAIN_CONTAINER);
+                if (container != null) {
+                    System.out.println("container " + container.id);
+                    if (container.ready) {
+                        // ok
+                        return;
                     }
                 }
             }
-            for (int count = 1; !"STARTED".equals(state); count++) {
-                if (count > 10 * 60 * 5) {
-                    throw new IOException(name + ": tomcat startup timed out, state" + state);
-                }
-                if (count % 100 == 99) {
-                    Server.LOGGER.info(name + ": waiting for tomcat startup ... " + state);
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                    // fall-through
-                }
-                state = jmxEngineState(url);
+            if (count > 600) {
+                throw new IOException(name + ": waiting for pod timed out");
+            }
+            if (count % 100 == 99) {
+                Server.LOGGER.info(name + ": waiting for pod to get ready ... ");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                // fall-through
             }
         }
     }

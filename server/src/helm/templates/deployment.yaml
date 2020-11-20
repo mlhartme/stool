@@ -86,8 +86,8 @@ spec:
             {{- end }}
             path: /api/info
             port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 10
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           limits:
             cpu: 2

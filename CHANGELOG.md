@@ -5,6 +5,8 @@
 * moved stool build into separate Maven plugin
 * stool no longer wipes stages
 * added `values` field to status
+* dumped jmxmp, rely on readniss probes instead; 
+  also humped heap field
 * client
   * create
     * always starts the stage

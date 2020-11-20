@@ -35,7 +35,7 @@ public class ContainerInfo {
         if (lst != null) {
             for (V1ContainerStatus status : lst) {
                 name = status.getName();
-                result.put(name, new ContainerInfo(name, status.getImage(), pruneDocker(status.getContainerID())));
+                result.put(name, new ContainerInfo(name, status.getImage(), pruneDocker(status.getContainerID()), status.getReady()));
             }
         }
         return result;
@@ -52,11 +52,13 @@ public class ContainerInfo {
     public final String name;
     public final String image;
     public final String id;
+    public final boolean ready;
 
-    public ContainerInfo(String name, String image, String id) {
+    public ContainerInfo(String name, String image, String id, boolean ready) {
         this.name = name;
         this.image = image;
         this.id = id;
+        this.ready = ready;
     }
 
     public String toString() {

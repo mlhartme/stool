@@ -28,7 +28,6 @@ public class TagInfo implements Comparable<TagInfo> {
     public static TagInfo create(String id, String repositoryTag, String tag, String author, LocalDateTime created, Map<String, String> labels) {
         return new TagInfo(id, repositoryTag, tag, author,
                 labels.get(ImageInfo.IMAGE_LABEL_CHART), map(ImageInfo.IMAGE_LABEL_CHART + ".", labels),
-                jmxmp(labels.get(ImageInfo.IMAGE_LABEL_PORT_JMXMP)),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
                 labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
@@ -122,9 +121,6 @@ public class TagInfo implements Comparable<TagInfo> {
     public final String chart;
     public final Map<String, String> chartValues;
 
-    /** -1 if not specified */
-    public final int jmxmp;
-
     public final String urlContext;
     public final List<String> urlSuffixes;
 
@@ -139,7 +135,7 @@ public class TagInfo implements Comparable<TagInfo> {
     public final List<String> faultProjects;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public TagInfo(String id, String repositoryTag, String tag, String author, String chart, Map<String, String> chartValues, int jmxmp,
+    public TagInfo(String id, String repositoryTag, String tag, String author, String chart, Map<String, String> chartValues,
                    String urlContext, List<String> urlSuffixes, String comment, String originScm, String originUser,
                    LocalDateTime createdAt, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
@@ -155,7 +151,6 @@ public class TagInfo implements Comparable<TagInfo> {
 
         this.chart = chart;
         this.chartValues = chartValues;
-        this.jmxmp = jmxmp;
         this.urlContext = urlContext;
         this.urlSuffixes = urlSuffixes;
         this.comment = comment;
