@@ -552,9 +552,6 @@ public class Stage {
             map.putAll(image.chartValues);
         }
         map.putAll(clientValues);
-        map.put("openshift", server.openShift);
-        map.put("name", name);
-        map.put("dnsLabel", dnsLabel());
         map.put("image", image.repositoryTag);
         map.put("fqdn", stageFqdn());
         map.put("jmxmp", image.jmxmp);
@@ -569,7 +566,6 @@ public class Stage {
             }
         }
         try {
-            Server.LOGGER.info(tmp.exec("helm", "template", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
             Server.LOGGER.info("helm install upgrade=" + upgrade);
             Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
             System.out.println("written values: " + values.readString());
