@@ -23,9 +23,7 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
-import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
@@ -57,6 +55,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -77,6 +76,15 @@ import java.util.zip.GZIPOutputStream;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
+    private static final String PROPERTY_NOTIFY = "notify";
+    private static final String PROPERTY_EXPIRE = "expire";
+    private static final String PROPERTY_COMMENT = "comment";
+
+    private static final String NOTIFY_CREATED_BY = "@created-by";
+    private static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
+
+    //--
+
     private static final String KEEP_IMAGE = "marker string to indicate an 'empty publish'";
 
     public static final String DEPLOYMENT_LABEL_STAGE = "net.oneandone.stool-stage";
@@ -95,12 +103,9 @@ public class Stage {
      */
     private final String name;
 
-    private final StageConfiguration configuration;
-
-    public Stage(Server server, String name, StageConfiguration configuration) {
+    public Stage(Server server, String name) {
         this.server = server;
         this.name = name;
-        this.configuration = configuration;
     }
 
     public String getName() {
@@ -110,36 +115,6 @@ public class Stage {
     public String dnsLabel() {
         // is not allowed to contain dots
         return name.replace(".", "--");
-    }
-
-    //-- property accessors
-
-    private Property expire() {
-        Property result;
-
-        result = propertyOpt("expire");
-        if (result == null) {
-            throw new IllegalStateException(properties().toString());
-        }
-        return result;
-    }
-
-    public Expire getExpire() {
-        return Expire.fromHuman(expire().get());
-    }
-
-    public void setExpire(Expire expire) {
-        expire().set(expire.toString());
-    }
-
-    public List<String> getNotify() {
-        Property result;
-
-        result = propertyOpt("notify");
-        if (result == null) {
-            throw new IllegalStateException(properties().toString());
-        }
-        return Separator.COMMA.split(result.get());
     }
 
     //--
@@ -196,11 +171,11 @@ public class Stage {
         return null;
     }
 
-    public Info info(String str) {
+    public Info info(Engine engine, String str) throws IOException {
         Info result;
         List<String> lst;
 
-        result = propertyOpt(str);
+        result = propertyOpt(engine, str);
         if (result != null) {
             return result;
         }
@@ -212,29 +187,49 @@ public class Stage {
         for (Field f : fields()) {
             lst.add(f.name());
         }
-        for (Property p : properties()) {
+        for (Property p : properties(engine)) {
             lst.add(p.name());
         }
         throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
     }
 
-    public List<Property> properties() {
+    public List<Property> properties(Engine engine) throws IOException {
+        Map<String, Object> values;
         List<Property> result;
 
+        values = engine.helmReadValues(name);
         result = new ArrayList<>();
-        for (Accessor type : server.accessors.values()) {
-            result.add(new Property(type, configuration));
+        result.add(new Property(PROPERTY_COMMENT, "", values));
+        result.add(new Property(PROPERTY_EXPIRE, Expire.fromNumber(server.configuration.defaultExpire).toString(), values));
+        result.add(new Property(PROPERTY_NOTIFY, Stage.NOTIFY_CREATED_BY, values));
+        return result;
+    }
+
+    public Property property(Engine engine, String property) throws IOException {
+        Property result;
+
+        result = propertyOpt(engine, property);
+        if (result == null) {
+            throw new ArgumentException("unknown property: " + property);
         }
         return result;
     }
 
-    public Property propertyOpt(String property) {
-        for (Property candidate : properties()) {
+    public Property propertyOpt(Engine engine, String property) throws IOException {
+        for (Property candidate : properties(engine)) {
             if (property.equals(candidate.name())) {
                 return candidate;
             }
         }
         return null;
+    }
+
+    public Expire getPropertyExpire(Engine engine) throws IOException {
+        return Expire.fromHuman(property(engine, PROPERTY_EXPIRE).get());
+    }
+
+    public List<String> getPropertyNotify(Engine engine) throws IOException {
+        return Separator.COMMA.split(property(engine, PROPERTY_NOTIFY).get());
     }
 
     public List<Field> fields() {
@@ -439,17 +434,17 @@ public class Stage {
     }
 
     /** @return logins */
-    public Set<String> notifyLogins() throws IOException {
+    public Set<String> notifyLogins(Engine engine) throws IOException {
         Set<String> done;
         String login;
 
         done = new HashSet<>();
-        for (String user : getNotify()) {
+        for (String user : getPropertyNotify(engine)) {
             switch (user) {
-                case StageConfiguration.NOTIFY_LAST_MODIFIED_BY:
+                case NOTIFY_LAST_MODIFIED_BY:
                     login = lastModifiedBy();
                     break;
-                case StageConfiguration.NOTIFY_CREATED_BY:
+                case NOTIFY_CREATED_BY:
                     login = createdBy();
                     break;
                 default:
@@ -487,9 +482,12 @@ public class Stage {
         return result;
     }
 
-    public void checkExpired() {
-        if (getExpire().isExpired()) {
-            throw new ArgumentException("Stage expired " + getExpire() + ". To start it, you have to adjust the 'expire' date.");
+    public void checkExpired(Engine engine) throws IOException {
+        Expire expire;
+
+        expire = getPropertyExpire(engine);
+        if (expire.isExpired()) {
+            throw new ArgumentException("Stage expired " + expire + ". To start it, you have to adjust the 'expire' date.");
         }
     }
 
@@ -511,7 +509,7 @@ public class Stage {
         FileNode src;
 
         if (imageOrRepositoryX != null && imageOrRepositoryX != KEEP_IMAGE) {
-            StageConfiguration.validateRepository(toRepository(imageOrRepositoryX));
+            validateRepository(toRepository(imageOrRepositoryX));
         }
         world = World.create(); // TODO
         tmp = world.getTemp().createTempDirectory();
@@ -541,7 +539,6 @@ public class Stage {
         map.put("fqdn", stageFqdn());
         map.put("cert", cert());
         map.put("fault", fault(world, image));
-        configuration.save(map);
 
         Server.LOGGER.info("values: " + map);
         try (PrintWriter v = new PrintWriter(values.newWriter())) {
@@ -559,6 +556,36 @@ public class Stage {
         System.out.println("created values: " + engine.helmReadValues(name));
         engine.deploymentAwait(dnsLabel());
         return image.repositoryTag;
+    }
+
+    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
+    public static void validateRepository(String image) {
+        URI uri;
+        int idx;
+        String repository;
+
+        idx = image.indexOf(':');
+        repository = idx == -1 ? image : image.substring(0, idx);
+        if (repository.endsWith("/")) {
+            throw new ArgumentException("invalid repository: " + repository);
+        }
+        try {
+            uri = new URI(repository);
+        } catch (URISyntaxException e) {
+            throw new ArgumentException("invalid repository: " + repository);
+        }
+        if (uri.getHost() != null) {
+            checkLowercase(uri.getHost());
+        }
+        checkLowercase(uri.getPath());
+    }
+
+    private static void checkLowercase(String str) {
+        for (int i = 0, length = str.length(); i < length; i++) {
+            if (Character.isUpperCase(str.charAt(i))) {
+                throw new ArgumentException("invalid registry prefix: " + str);
+            }
+        }
     }
 
     private static String toJson(Object obj) {

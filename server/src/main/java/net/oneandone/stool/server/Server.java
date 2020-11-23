@@ -20,12 +20,8 @@ import com.google.gson.GsonBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.server.api.StageNotFoundException;
-import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
-import net.oneandone.stool.server.configuration.Option;
-import net.oneandone.stool.server.configuration.ReflectAccessor;
 import net.oneandone.stool.server.configuration.ServerConfiguration;
-import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.kubernetes.Engine;
@@ -44,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.mail.MessagingException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -52,7 +47,6 @@ import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -125,8 +119,6 @@ public class Server {
 
     public final UserManager userManager;
 
-    public final Map<String, Accessor> accessors;
-
     public Server(Gson gson, String version, World world, boolean openShift, String localhostIp, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.version = version;
@@ -138,21 +130,6 @@ public class Server {
         this.localhostIp = localhostIp;
         this.configuration = configuration;
         this.userManager = UserManager.loadOpt(home.join("users.json"));
-        this.accessors = accessors();
-    }
-
-    private static Map<String, Accessor> accessors() {
-        Map<String, Accessor> result;
-        Option option;
-
-        result = new LinkedHashMap<>();
-        for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
-            option = field.getAnnotation(Option.class);
-            if (option != null) {
-                result.put(option.key(), new ReflectAccessor(option.key(), field));
-            }
-        }
-        return result;
     }
 
     public FileNode getServerLogs() {
@@ -218,7 +195,7 @@ public class Server {
         Stage stage;
 
         result = new ArrayList<>();
-        for (String name : StageConfiguration.list(engine)) {
+        for (String name : list(engine)) {
             try {
                 stage = load(engine, name);
             } catch (IOException e) {
@@ -229,6 +206,16 @@ public class Server {
             if (predicate.matches(stage)) {
                 result.add(stage);
             }
+        }
+        return result;
+    }
+
+    private static List<String> list(Engine engine) throws IOException {
+        List<String> result;
+
+        result = engine.helmList();
+        if (!result.remove("stool")) {
+            throw new IllegalStateException(result.toString());
         }
         return result;
     }
@@ -253,14 +240,10 @@ public class Server {
     //-- Stage access
 
     public Stage load(Engine engine, String name) throws IOException {
-        StageConfiguration c;
-
-        try {
-            c = StageConfiguration.load(engine, name);
-        } catch (FileNotFoundException e) {
-            throw new StageNotFoundException(name, e);
+        if (!list(engine).contains(name)) {
+            throw new StageNotFoundException(name);
         }
-        return new Stage(this, name, c);
+        return new Stage(this, name);
     }
 
     //--

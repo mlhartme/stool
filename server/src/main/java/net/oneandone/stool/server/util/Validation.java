@@ -57,7 +57,7 @@ public class Validation {
             Server.LOGGER.info("  " + line);
         }
         if (email && !report.isEmpty()) {
-            email(name, stage.notifyLogins(), report);
+            email(name, stage.notifyLogins(engine), report);
         }
         return report;
     }
@@ -66,7 +66,7 @@ public class Validation {
         Expire expire;
 
         try {
-            stage.checkExpired();
+            stage.checkExpired(engine);
             return;
         } catch (ArgumentException e) {
             report.add(e.getMessage());
@@ -81,7 +81,7 @@ public class Validation {
                     Server.LOGGER.debug(e.getMessage(), e);
                 }
             }
-            expire = stage.getExpire();
+            expire = stage.getPropertyExpire(engine);
             if (server.configuration.autoRemove >= 0 && expire.expiredDays() >= 0) {
                 if (expire.expiredDays() >= server.configuration.autoRemove) {
                     try {

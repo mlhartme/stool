@@ -26,9 +26,7 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.registry.TagInfo;
@@ -136,7 +134,7 @@ public class ApiController {
                         obj.add(info.name(), info.getAsJson(context));
                     }
                 }
-                for (Property property : stage.properties()) {
+                for (Property property : stage.properties(engine)) {
                     if (select != null && select.remove(property.name())) {
                         obj.add(property.name(), new JsonPrimitive(property.get(context)));
                     }
@@ -172,16 +170,15 @@ public class ApiController {
                 // OK, fall through
             }
 
-            stage = new Stage(server, name, new StageConfiguration());
-            stage.setExpire(Expire.fromNumber(server.configuration.defaultExpire));
+            stage = new Stage(server, name);
             for (Map.Entry<String, String> entry : config.entrySet()) {
-                property = stage.propertyOpt(entry.getKey());
-                if (property == null) {
-                    throw new ArgumentException("unknown property: " + entry.getKey());
-                }
+                property = stage.property(engine, entry.getKey());
                 property.set(entry.getValue());
             }
-            stage.checkExpired();
+            // TODO: save properties ...
+
+            // TODO: no values available yet ...
+            //  stage.checkExpired(engine);
             return json(stage.install(false, engine, image, values)).toString();
         }
     }
@@ -219,7 +216,7 @@ public class ApiController {
         result = new JsonObject();
         try (Engine engine = engine()) {
             context = new Context(engine);
-            for (Property property : server.load(engine, stage).properties()) {
+            for (Property property : server.load(engine, stage).properties(engine)) {
                 result.add(property.name(), new JsonPrimitive(property.get(context)));
             }
             return result.toString();
@@ -241,10 +238,7 @@ public class ApiController {
             result = new JsonObject();
             context = new Context(engine);
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
-                prop = stage.propertyOpt(entry.getKey());
-                if (prop == null) {
-                    throw new ArgumentException("unknown property: " + entry.getKey());
-                }
+                prop = stage.property(engine, entry.getKey());
                 value = entry.getValue();
                 value = value.replace("{}", prop.get(context));
                 try {

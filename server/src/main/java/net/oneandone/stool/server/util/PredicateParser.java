@@ -148,7 +148,7 @@ public class PredicateParser {
                 if (constField != null) {
                     obj = field.get(context);
                 } else {
-                    p = stage.propertyOpt(constProperty);
+                    p = stage.propertyOpt(context.engine, constProperty);
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }

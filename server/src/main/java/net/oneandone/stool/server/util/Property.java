@@ -15,18 +15,23 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.server.configuration.Accessor;
-import net.oneandone.stool.server.configuration.StageConfiguration;
+import net.oneandone.sushi.util.Strings;
+
+import java.util.Map;
 
 /** A stored value representing one aspect of the stage status. */
 public class Property extends Info {
-    private final Accessor type;
-    private final StageConfiguration configuration;
+    private final String dflt;
+    private final Map<String, Object> values;
 
-    public Property(Accessor type, StageConfiguration configuration) {
-        super(type.name);
-        this.type = type;
-        this.configuration = configuration;
+    public Property(String name, String dflt, Map<String, Object> values) {
+        super(name);
+        this.dflt = dflt;
+        this.values = values;
+    }
+
+    private String valueName() {
+        return "stage" + Strings.capitalize(name());
     }
 
     public String get(Context context) {
@@ -34,11 +39,14 @@ public class Property extends Info {
     }
 
     public String get() {
-        return type.get(configuration);
+        Object result;
+
+        result = values.get(valueName());
+        return result == null ? dflt : result.toString();
     }
 
     public void set(String str) {
-        type.set(configuration, str);
+        values.put(valueName(), str);
     }
 
     public String toString() {

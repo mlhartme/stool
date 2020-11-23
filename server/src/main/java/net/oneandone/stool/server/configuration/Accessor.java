@@ -26,17 +26,10 @@ public abstract class Accessor {
     public String get(ServerConfiguration configuration) {
         return doGet(configuration);
     }
-    public String get(StageConfiguration configuration) {
-        return doGet(configuration);
-    }
 
     protected abstract String doGet(Object configuration);
 
     public void set(ServerConfiguration configuration, String str) {
-        doSet(configuration, str);
-    }
-
-    public void set(StageConfiguration configuration, String str) {
         doSet(configuration, str);
     }
 
