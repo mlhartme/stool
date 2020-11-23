@@ -199,9 +199,9 @@ public class Stage {
 
         values = engine.helmReadValues(name);
         result = new ArrayList<>();
-        result.add(new Property(PROPERTY_COMMENT, "", values));
-        result.add(new Property(PROPERTY_EXPIRE, Expire.fromNumber(server.configuration.defaultExpire).toString(), values));
-        result.add(new Property(PROPERTY_NOTIFY, Stage.NOTIFY_CREATED_BY, values));
+        result.add(Property.create(PROPERTY_COMMENT, values, ""));
+        result.add(Property.create(PROPERTY_EXPIRE, values, Expire.fromNumber(server.configuration.defaultExpire).toString()));
+        result.add(Property.create(PROPERTY_NOTIFY, values, Stage.NOTIFY_CREATED_BY));
         return result;
     }
 

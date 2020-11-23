@@ -19,13 +19,18 @@ import java.util.Map;
 
 /** A stored value representing one aspect of the stage status. */
 public class Property extends Info {
-    private final String dflt;
-    private final Map<String, Object> values;
+    public static Property create(String name, Map<String, Object> values, String dflt) {
+        Object result;
 
-    public Property(String name, String dflt, Map<String, Object> values) {
+        result = values.get(name);
+        return new Property(name, result == null ? dflt : result.toString());
+    }
+
+    private final String value;
+
+    public Property(String name, String value) {
         super(name);
-        this.dflt = dflt;
-        this.values = values;
+        this.value = value;
     }
 
     public String get(Context context) {
@@ -33,10 +38,7 @@ public class Property extends Info {
     }
 
     public String get() {
-        Object result;
-
-        result = values.get(name());
-        return result == null ? dflt : result.toString();
+        return value;
     }
 
     public String toString() {
