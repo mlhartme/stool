@@ -173,7 +173,7 @@ public class ApiController {
             }
 
             stage = new Stage(server, name, new StageConfiguration());
-            stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
+            stage.configuration.setExpire(Expire.fromNumber(server.configuration.defaultExpire));
             for (Map.Entry<String, String> entry : config.entrySet()) {
                 property = stage.propertyOpt(entry.getKey());
                 if (property == null) {

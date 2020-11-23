@@ -78,8 +78,8 @@ public class Validation {
                     Server.LOGGER.debug(e.getMessage(), e);
                 }
             }
-            if (server.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
-                if (stage.configuration.expire.expiredDays() >= server.configuration.autoRemove) {
+            if (server.configuration.autoRemove >= 0 && stage.configuration.getExpire().expiredDays() >= 0) {
+                if (stage.configuration.getExpire().expiredDays() >= server.configuration.autoRemove) {
                     try {
                         report.add("removing expired stage");
                         stage.delete(engine, registry);
@@ -89,7 +89,7 @@ public class Validation {
                     }
                 } else {
                     report.add("CAUTION: This stage will be removed automatically in "
-                            + (server.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
+                            + (server.configuration.autoRemove - stage.configuration.getExpire().expiredDays()) + " day(s)");
                 }
             }
         }

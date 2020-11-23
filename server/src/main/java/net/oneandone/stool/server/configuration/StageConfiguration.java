@@ -66,19 +66,31 @@ public class StageConfiguration {
 
     /** login names or email addresses, or "@last-modified-by" or "@created-by" */
     @Option(key = "notify")
-    public List<String> notify;
+    private List<String> notify;
 
     @Option(key = "expire")
-    public Expire expire;
+    private Expire expire;
 
     @Option(key = "comment")
-    public String comment;
+    private String comment;
 
     public StageConfiguration() {
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
         this.expire = Expire.never();
         this.comment = "";
+    }
+
+    public List<String> getNotify() {
+        return notify;
+    }
+
+    public Expire getExpire() {
+        return expire;
+    }
+
+    public void setExpire(Expire expire) {
+        this.expire = expire;
     }
 
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"

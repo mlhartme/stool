@@ -411,7 +411,7 @@ public class Stage {
         String login;
 
         done = new HashSet<>();
-        for (String user : configuration.notify) {
+        for (String user : configuration.getNotify()) {
             switch (user) {
                 case StageConfiguration.NOTIFY_LAST_MODIFIED_BY:
                     login = lastModifiedBy();
@@ -455,8 +455,8 @@ public class Stage {
     }
 
     public void checkExpired() {
-        if (configuration.expire.isExpired()) {
-            throw new ArgumentException("Stage expired " + configuration.expire + ". To start it, you have to adjust the 'expire' date.");
+        if (configuration.getExpire().isExpired()) {
+            throw new ArgumentException("Stage expired " + configuration.getExpire() + ". To start it, you have to adjust the 'expire' date.");
         }
     }
 
