@@ -7,6 +7,7 @@
 * added `values` field to status
 * dumped jmxmp, rely on readniss probes instead; 
   also humped heap field
+* generalized config command to get/set argitrary value; properties are values with a stage prefix
 * client
   * create
     * always starts the stage

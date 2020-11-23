@@ -199,8 +199,8 @@ public class ApiController {
         }
     }
 
-    @GetMapping("/stages/{stage}/properties")
-    public String properties(@PathVariable(value = "stage") String stage) throws IOException {
+    @GetMapping("/stages/{stage}/values")
+    public String values(@PathVariable(value = "stage") String stage) throws IOException {
         JsonObject result;
         Context context;
 
@@ -214,8 +214,8 @@ public class ApiController {
         }
     }
 
-    @PostMapping("/stages/{stage}/set-properties")
-    public String setProperties(@PathVariable(value = "stage") String stageName, HttpServletRequest request) throws IOException {
+    @PostMapping("/stages/{stage}/set-values")
+    public String setValues(@PathVariable(value = "stage") String stageName, HttpServletRequest request) throws IOException {
         Stage stage;
         Property prop;
         String value;

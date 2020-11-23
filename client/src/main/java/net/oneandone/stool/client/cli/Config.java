@@ -24,17 +24,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Config extends IteratedStageCommand {
-    private final Map<String, String> arguments;
+    private final Map<String, String> values;
 
     private boolean get;
     private boolean set;
 
     public Config(Globals globals) {
         super(globals);
-        arguments = new LinkedHashMap<>();
+        values = new LinkedHashMap<>();
     }
 
-    public void property(String str) {
+    public void value(String str) {
         int idx;
         String key;
         String value;
@@ -49,57 +49,57 @@ public class Config extends IteratedStageCommand {
             value = str.substring(idx + 1);
             set = true;
         }
-        if (arguments.containsKey(key)) {
-            throw new ArgumentException("duplicate property: " + key);
+        if (values.containsKey(key)) {
+            throw new ArgumentException("duplicate value: " + key);
         }
         if (get && set) {
             throw new ArgumentException("cannot mix get and set arguments");
         }
-        if (arguments.put(key, value) != null) {
-            throw new ArgumentException("duplicate property: " + key);
+        if (values.put(key, value) != null) {
+            throw new ArgumentException("value property: " + key);
         }
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Map<String, String> props;
+        Map<String, String> loaded;
         int width;
 
         if (set) {
-            for (Map.Entry<String, String> entry : reference.client.setProperties(reference.stage, arguments).entrySet()) {
+            for (Map.Entry<String, String> entry : reference.client.setValues(reference.stage, values).entrySet()) {
                 console.info.println(entry.getKey() + "=" + entry.getValue());
             }
         } else {
-            props = reference.client.getProperties(reference.stage);
+            loaded = reference.client.getValues(reference.stage);
             if (get) {
-                props = selectedProperties(props);
+                loaded = selectedValues(loaded);
             } else {
                 // neither get nor set -> show all
             }
             width = 0;
-            if (props.size() > 1) {
-                for (String name : props.keySet()) {
+            if (loaded.size() > 1) {
+                for (String name : loaded.keySet()) {
                     width = Math.max(width, name.length());
                 }
                 width += 3;
             }
-            for (Map.Entry<String, String> entry : props.entrySet()) {
+            for (Map.Entry<String, String> entry : loaded.entrySet()) {
                 console.info.println(Strings.padLeft(entry.getKey(), width) + " : " + entry.getValue());
             }
         }
     }
 
-    private Map<String, String> selectedProperties(Map<String, String> all) {
+    private Map<String, String> selectedValues(Map<String, String> all) {
         Map<String, String> result;
-        String property;
+        String value;
 
         result = new LinkedHashMap<>();
-        for (String name : arguments.keySet()) {
-            property = all.get(name);
-            if (property == null) {
-                throw new ArgumentException("unknown property: " + name);
+        for (String name : values.keySet()) {
+            value = all.get(name);
+            if (value == null) {
+                throw new ArgumentException("unknown value: " + name);
             }
-            result.put(name, property);
+            result.put(name, value);
         }
         return result;
     }

@@ -76,7 +76,7 @@ public class Main {
                  cli.add(Attach.class, "attach stage");
                  cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                     cli.add(Detach.class, "detach");
-                    cli.add(Config.class, "config property* { property*(property) }");
+                    cli.add(Config.class, "config value* { value*(value) }");
                     cli.add(History.class, "history -details=false -max=-1");
                     cli.add(Images.class, "images");
                     cli.add(Ls.class, "list info* { select*(info) }");

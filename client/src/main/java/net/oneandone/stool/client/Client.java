@@ -268,11 +268,11 @@ public class Client {
 
     //-- config command
 
-    public Map<String, String> getProperties(String stage) throws Exception {
+    public Map<String, String> getValues(String stage) throws Exception {
         Map<String, String> result;
         JsonObject properties;
 
-        properties = getJson(node(stage, "properties")).getAsJsonObject();
+        properties = getJson(node(stage, "values")).getAsJsonObject();
         result = new LinkedHashMap<>();
         for (String property : properties.keySet()) {
             result.put(property, properties.get(property).getAsString());
@@ -280,13 +280,13 @@ public class Client {
         return result;
     }
 
-    public Map<String, String> setProperties(String stage, Map<String, String> arguments) throws IOException {
+    public Map<String, String> setValues(String stage, Map<String, String> values) throws IOException {
         HttpNode node;
         JsonObject response;
         Map<String, String> result;
 
-        node = node(stage, "set-properties");
-        node = node.withParameters(arguments);
+        node = node(stage, "set-values");
+        node = node.withParameters(values);
 
         response = postJson(node, "").getAsJsonObject();
         result = new LinkedHashMap<>();
