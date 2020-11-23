@@ -187,22 +187,31 @@ public class Stage {
         for (Field f : fields()) {
             lst.add(f.name());
         }
-        for (Value p : values(engine)) {
+        for (Value p : values(engine).values()) {
             lst.add(p.name());
         }
         throw new ArgumentException(str + ": no such status field or value, choose one of " + lst);
     }
 
-    public List<Value> values(Engine engine) throws IOException {
+    public Map<String, Value> values(Engine engine) throws IOException {
         Map<String, Object> values;
-        List<Value> result;
+        Map<String, Value> result;
 
         values = engine.helmReadValues(name);
-        result = new ArrayList<>();
-        result.add(Value.create(VALUE_COMMENT, values, ""));
-        result.add(Value.create(VALUE_EXPIRE, values, Expire.fromNumber(server.configuration.defaultExpire).toString()));
-        result.add(Value.create(VALUE_NOTIFY, values, Stage.NOTIFY_CREATED_BY));
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+            result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
+        }
+        addOpt(result, VALUE_COMMENT, "");
+        addOpt(result, VALUE_EXPIRE, Expire.fromNumber(server.configuration.defaultExpire).toString());
+        addOpt(result, VALUE_NOTIFY, Stage.NOTIFY_CREATED_BY);
         return result;
+    }
+
+    private static void addOpt(Map<String, Value> dest, String name, String value) {
+        if (!dest.containsKey(name)) {
+            dest.put(name, new Value(name, value));
+        }
     }
 
     public Value value(Engine engine, String value) throws IOException {
@@ -216,12 +225,7 @@ public class Stage {
     }
 
     public Value valueOpt(Engine engine, String value) throws IOException {
-        for (Value candidate : values(engine)) {
-            if (value.equals(candidate.name())) {
-                return candidate;
-            }
-        }
-        return null;
+        return values(engine).get(value);
     }
 
     public Expire getValueExpire(Engine engine) throws IOException {
