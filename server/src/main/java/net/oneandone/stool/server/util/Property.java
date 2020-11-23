@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.sushi.util.Strings;
-
 import java.util.Map;
 
 /** A stored value representing one aspect of the stage status. */
@@ -30,10 +28,6 @@ public class Property extends Info {
         this.values = values;
     }
 
-    private String valueName() {
-        return "stage" + Strings.capitalize(name());
-    }
-
     public String get(Context context) {
         return get();
     }
@@ -41,12 +35,12 @@ public class Property extends Info {
     public String get() {
         Object result;
 
-        result = values.get(valueName());
+        result = values.get(name());
         return result == null ? dflt : result.toString();
     }
 
     public void set(String str) {
-        values.put(valueName(), str);
+        values.put(name(), str);
     }
 
     public String toString() {

@@ -76,9 +76,9 @@ import java.util.zip.GZIPOutputStream;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String PROPERTY_NOTIFY = "notify";
-    private static final String PROPERTY_EXPIRE = "expire";
-    private static final String PROPERTY_COMMENT = "comment";
+    private static final String PROPERTY_NOTIFY = "stageNotify";
+    private static final String PROPERTY_EXPIRE = "stageExpire";
+    private static final String PROPERTY_COMMENT = "stageComment";
 
     private static final String NOTIFY_CREATED_BY = "@created-by";
     private static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
