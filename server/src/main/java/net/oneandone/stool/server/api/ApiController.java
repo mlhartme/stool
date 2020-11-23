@@ -153,14 +153,11 @@ public class ApiController {
     @PostMapping("/stages/{stage}")
     public String create(@PathVariable("stage") String name, @RequestParam(value = "image", required = true) String image,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, String> config;
         Stage stage;
         Property property;
         Map<String, String> values;
 
         values = map(request, "value.");
-        config = map(request, "config.");
-
         try (Engine engine = engine()) {
             try {
                 engine.helmRead(name);
@@ -171,12 +168,6 @@ public class ApiController {
             }
 
             stage = new Stage(server, name);
-            for (Map.Entry<String, String> entry : config.entrySet()) {
-                property = stage.property(engine, entry.getKey());
-                property.set(entry.getValue());
-            }
-            // TODO: save properties ...
-
             // TODO: no values available yet ...
             //  stage.checkExpired(engine);
             return json(stage.install(false, engine, image, values)).toString();

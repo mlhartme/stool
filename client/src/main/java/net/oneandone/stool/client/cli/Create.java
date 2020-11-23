@@ -33,9 +33,6 @@ public class Create extends ClientCommand {
     private final String name;
     private final boolean optional;
     private final List<String> images;
-
-    // TODO: merge config and values?
-    private final Map<String, String> config;
     private final Map<String, String> values;
     private final boolean detached;
 
@@ -49,7 +46,6 @@ public class Create extends ClientCommand {
         this.optional = optional;
         this.name = args.get(nameIdx);
         this.images = new ArrayList<>();
-        this.config = new LinkedHashMap<>();
         this.values = new LinkedHashMap<>();
         images(args, nameIdx);
         if (images.isEmpty()) {
@@ -58,7 +54,7 @@ public class Create extends ClientCommand {
                 throw new IllegalStateException();
             }
         }
-        configAndValues(args, nameIdx);
+        values(args, nameIdx);
     }
 
     private static int nameIdx(List<String> args) {
@@ -97,12 +93,11 @@ public class Create extends ClientCommand {
     }
 
     /** return name */
-    private void configAndValues(List<String> args, int nameIdx) {
+    private void values(List<String> args, int nameIdx) {
         int idx;
         String arg;
         String key;
         String value;
-        Map<String, String> dest;
 
         for (int i = nameIdx + 1; i < args.size(); i++) {
             arg = args.get(i);
@@ -112,13 +107,7 @@ public class Create extends ClientCommand {
             }
             key = arg.substring(0, idx);
             value = arg.substring(idx + 1);
-            if (key.startsWith("-")) {
-                key = key.substring(1);
-                dest = config;
-            } else {
-                dest = values;
-            }
-            if (dest.put(key, value) != null) {
+            if (values.put(key, value) != null) {
                 throw new ArgumentException("duplicate key: " + key);
             }
             args.remove(i);
@@ -195,7 +184,7 @@ public class Create extends ClientCommand {
         client = globals.configuration().currentContext().connect(world);
         reference = new Reference(client, resolvedName);
         try {
-            client.create(resolvedName, image, config, values);
+            client.create(resolvedName, image, values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {
