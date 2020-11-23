@@ -81,18 +81,6 @@ public class StageConfiguration {
         this.comment = "";
     }
 
-    public List<String> getNotify() {
-        return notify;
-    }
-
-    public Expire getExpire() {
-        return expire;
-    }
-
-    public void setExpire(Expire expire) {
-        this.expire = expire;
-    }
-
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
     public static void validateRepository(String image) {
         URI uri;

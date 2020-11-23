@@ -36,6 +36,7 @@ import net.oneandone.stool.server.util.Property;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
@@ -96,7 +97,7 @@ public class Stage {
 
     private final StageConfiguration configuration;
 
-    public Stage(Server server, String name, StageConfiguration configuration) {
+    public Stage(Server server, String name) {
         this.server = server;
         this.name = name;
         this.configuration = configuration;
@@ -111,7 +112,7 @@ public class Stage {
         return name.replace(".", "--");
     }
 
-    //-- former config handling
+    //-- property accessors
 
     private Property expire() {
         Property result;
@@ -132,7 +133,13 @@ public class Stage {
     }
 
     public List<String> getNotify() {
-        return configuration.getNotify();
+        Property result;
+
+        result = propertyOpt("notify");
+        if (result == null) {
+            throw new IllegalStateException(properties().toString());
+        }
+        return Separator.COMMA.split(result.get());
     }
 
     //--
@@ -481,8 +488,8 @@ public class Stage {
     }
 
     public void checkExpired() {
-        if (configuration.getExpire().isExpired()) {
-            throw new ArgumentException("Stage expired " + configuration.getExpire() + ". To start it, you have to adjust the 'expire' date.");
+        if (getExpire().isExpired()) {
+            throw new ArgumentException("Stage expired " + getExpire() + ". To start it, you have to adjust the 'expire' date.");
         }
     }
 
