@@ -134,13 +134,13 @@ public class ApiController {
                         obj.add(info.name(), info.getAsJson(context));
                     }
                 }
-                for (Value property : stage.values(engine)) {
-                    if (select != null && select.remove(property.name())) {
-                        obj.add(property.name(), new JsonPrimitive(property.get(context)));
+                for (Value value : stage.values(engine)) {
+                    if (select != null && select.remove(value.name())) {
+                        obj.add(value.name(), new JsonPrimitive(value.get(context)));
                     }
                 }
                 if (select != null && !select.isEmpty()) {
-                    throw new IOException("select argument: unknown property/field(s): " + select);
+                    throw new IOException("select argument: unknown value/field(s): " + select);
                 }
             }
             if (!problems.isEmpty()) {
@@ -154,7 +154,6 @@ public class ApiController {
     public String create(@PathVariable("stage") String name, @RequestParam(value = "image", required = true) String image,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
         Stage stage;
-        Value property;
         Map<String, String> values;
 
         values = map(request, "value.");
@@ -207,8 +206,8 @@ public class ApiController {
         result = new JsonObject();
         try (Engine engine = engine()) {
             context = new Context(engine);
-            for (Value property : server.load(engine, stage).values(engine)) {
-                result.add(property.name(), new JsonPrimitive(property.get(context)));
+            for (Value value : server.load(engine, stage).values(engine)) {
+                result.add(value.name(), new JsonPrimitive(value.get(context)));
             }
             return result.toString();
         }

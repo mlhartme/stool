@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
+/** Handles Stool property. Converts between strings an objects and deals with reflection */
 public class ReflectAccessor extends Accessor {
     private final Field field;
 

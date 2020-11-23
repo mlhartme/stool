@@ -81,7 +81,7 @@ public class Validation {
                     Server.LOGGER.debug(e.getMessage(), e);
                 }
             }
-            expire = stage.getPropertyExpire(engine);
+            expire = stage.getValueExpire(engine);
             if (server.configuration.autoRemove >= 0 && expire.expiredDays() >= 0) {
                 if (expire.expiredDays() >= server.configuration.autoRemove) {
                     try {

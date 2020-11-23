@@ -76,9 +76,9 @@ import java.util.zip.GZIPOutputStream;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String PROPERTY_NOTIFY = "stageNotify";
-    private static final String PROPERTY_EXPIRE = "stageExpire";
-    private static final String PROPERTY_COMMENT = "stageComment";
+    private static final String VALUE_NOTIFY = "stageNotify";
+    private static final String VALUE_EXPIRE = "stageExpire";
+    private static final String VALUE_COMMENT = "stageComment";
 
     private static final String NOTIFY_CREATED_BY = "@created-by";
     private static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
@@ -160,7 +160,7 @@ public class Stage {
     }
 
 
-    //-- fields and properties
+    //-- fields and values
 
     public Field fieldOpt(String str) {
         for (Field f : fields()) {
@@ -190,7 +190,7 @@ public class Stage {
         for (Value p : values(engine)) {
             lst.add(p.name());
         }
-        throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
+        throw new ArgumentException(str + ": no such status field or value, choose one of " + lst);
     }
 
     public List<Value> values(Engine engine) throws IOException {
@@ -199,37 +199,37 @@ public class Stage {
 
         values = engine.helmReadValues(name);
         result = new ArrayList<>();
-        result.add(Value.create(PROPERTY_COMMENT, values, ""));
-        result.add(Value.create(PROPERTY_EXPIRE, values, Expire.fromNumber(server.configuration.defaultExpire).toString()));
-        result.add(Value.create(PROPERTY_NOTIFY, values, Stage.NOTIFY_CREATED_BY));
+        result.add(Value.create(VALUE_COMMENT, values, ""));
+        result.add(Value.create(VALUE_EXPIRE, values, Expire.fromNumber(server.configuration.defaultExpire).toString()));
+        result.add(Value.create(VALUE_NOTIFY, values, Stage.NOTIFY_CREATED_BY));
         return result;
     }
 
-    public Value value(Engine engine, String property) throws IOException {
+    public Value value(Engine engine, String value) throws IOException {
         Value result;
 
-        result = valueOpt(engine, property);
+        result = valueOpt(engine, value);
         if (result == null) {
-            throw new ArgumentException("unknown value: " + property);
+            throw new ArgumentException("unknown value: " + value);
         }
         return result;
     }
 
-    public Value valueOpt(Engine engine, String property) throws IOException {
+    public Value valueOpt(Engine engine, String value) throws IOException {
         for (Value candidate : values(engine)) {
-            if (property.equals(candidate.name())) {
+            if (value.equals(candidate.name())) {
                 return candidate;
             }
         }
         return null;
     }
 
-    public Expire getPropertyExpire(Engine engine) throws IOException {
-        return Expire.fromHuman(value(engine, PROPERTY_EXPIRE).get());
+    public Expire getValueExpire(Engine engine) throws IOException {
+        return Expire.fromHuman(value(engine, VALUE_EXPIRE).get());
     }
 
-    public List<String> getPropertyNotify(Engine engine) throws IOException {
-        return Separator.COMMA.split(value(engine, PROPERTY_NOTIFY).get());
+    public List<String> getValueNotify(Engine engine) throws IOException {
+        return Separator.COMMA.split(value(engine, VALUE_NOTIFY).get());
     }
 
     public List<Field> fields() {
@@ -433,7 +433,7 @@ public class Stage {
         String login;
 
         done = new HashSet<>();
-        for (String user : getPropertyNotify(engine)) {
+        for (String user : getValueNotify(engine)) {
             switch (user) {
                 case NOTIFY_LAST_MODIFIED_BY:
                     login = lastModifiedBy();
@@ -479,7 +479,7 @@ public class Stage {
     public void checkExpired(Engine engine) throws IOException {
         Expire expire;
 
-        expire = getPropertyExpire(engine);
+        expire = getValueExpire(engine);
         if (expire.isExpired()) {
             throw new ArgumentException("Stage expired " + expire + ". To start it, you have to adjust the 'expire' date.");
         }

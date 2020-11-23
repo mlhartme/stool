@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/** Field or Property */
+/** Field or Value */
 public abstract class Info {
     private final String name;
 
