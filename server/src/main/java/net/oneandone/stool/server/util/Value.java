@@ -18,17 +18,17 @@ package net.oneandone.stool.server.util;
 import java.util.Map;
 
 /** A stored value representing one aspect of the stage status. */
-public class Property extends Info {
-    public static Property create(String name, Map<String, Object> values, String dflt) {
+public class Value extends Info {
+    public static Value create(String name, Map<String, Object> values, String dflt) {
         Object result;
 
         result = values.get(name);
-        return new Property(name, result == null ? dflt : result.toString());
+        return new Value(name, result == null ? dflt : result.toString());
     }
 
     private final String value;
 
-    public Property(String name, String value) {
+    public Value(String name, String value) {
         super(name);
         this.value = value;
     }

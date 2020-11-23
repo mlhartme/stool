@@ -35,7 +35,7 @@ import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.PredicateParser;
-import net.oneandone.stool.server.util.Property;
+import net.oneandone.stool.server.util.Value;
 import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -134,7 +134,7 @@ public class ApiController {
                         obj.add(info.name(), info.getAsJson(context));
                     }
                 }
-                for (Property property : stage.properties(engine)) {
+                for (Value property : stage.values(engine)) {
                     if (select != null && select.remove(property.name())) {
                         obj.add(property.name(), new JsonPrimitive(property.get(context)));
                     }
@@ -154,7 +154,7 @@ public class ApiController {
     public String create(@PathVariable("stage") String name, @RequestParam(value = "image", required = true) String image,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
         Stage stage;
-        Property property;
+        Value property;
         Map<String, String> values;
 
         values = map(request, "value.");
@@ -207,7 +207,7 @@ public class ApiController {
         result = new JsonObject();
         try (Engine engine = engine()) {
             context = new Context(engine);
-            for (Property property : server.load(engine, stage).properties(engine)) {
+            for (Value property : server.load(engine, stage).values(engine)) {
                 result.add(property.name(), new JsonPrimitive(property.get(context)));
             }
             return result.toString();
@@ -217,7 +217,7 @@ public class ApiController {
     @PostMapping("/stages/{stage}/set-values")
     public String setValues(@PathVariable(value = "stage") String stageName, HttpServletRequest request) throws IOException {
         Stage stage;
-        Property prop;
+        Value prop;
         String value;
         Map<String, String> arguments;
         Context context;
@@ -231,7 +231,7 @@ public class ApiController {
             context = new Context(engine);
             clientValues = new HashMap<>();
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
-                prop = stage.property(engine, entry.getKey());
+                prop = stage.value(engine, entry.getKey());
                 value = entry.getValue();
                 value = value.replace("{}", prop.get(context));
                 clientValues.put(entry.getKey(), value);

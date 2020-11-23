@@ -30,7 +30,7 @@ import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.util.Property;
+import net.oneandone.stool.server.util.Value;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -175,7 +175,7 @@ public class Stage {
         Info result;
         List<String> lst;
 
-        result = propertyOpt(engine, str);
+        result = valueOpt(engine, str);
         if (result != null) {
             return result;
         }
@@ -187,36 +187,36 @@ public class Stage {
         for (Field f : fields()) {
             lst.add(f.name());
         }
-        for (Property p : properties(engine)) {
+        for (Value p : values(engine)) {
             lst.add(p.name());
         }
         throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
     }
 
-    public List<Property> properties(Engine engine) throws IOException {
+    public List<Value> values(Engine engine) throws IOException {
         Map<String, Object> values;
-        List<Property> result;
+        List<Value> result;
 
         values = engine.helmReadValues(name);
         result = new ArrayList<>();
-        result.add(Property.create(PROPERTY_COMMENT, values, ""));
-        result.add(Property.create(PROPERTY_EXPIRE, values, Expire.fromNumber(server.configuration.defaultExpire).toString()));
-        result.add(Property.create(PROPERTY_NOTIFY, values, Stage.NOTIFY_CREATED_BY));
+        result.add(Value.create(PROPERTY_COMMENT, values, ""));
+        result.add(Value.create(PROPERTY_EXPIRE, values, Expire.fromNumber(server.configuration.defaultExpire).toString()));
+        result.add(Value.create(PROPERTY_NOTIFY, values, Stage.NOTIFY_CREATED_BY));
         return result;
     }
 
-    public Property property(Engine engine, String property) throws IOException {
-        Property result;
+    public Value value(Engine engine, String property) throws IOException {
+        Value result;
 
-        result = propertyOpt(engine, property);
+        result = valueOpt(engine, property);
         if (result == null) {
-            throw new ArgumentException("unknown property: " + property);
+            throw new ArgumentException("unknown value: " + property);
         }
         return result;
     }
 
-    public Property propertyOpt(Engine engine, String property) throws IOException {
-        for (Property candidate : properties(engine)) {
+    public Value valueOpt(Engine engine, String property) throws IOException {
+        for (Value candidate : values(engine)) {
             if (property.equals(candidate.name())) {
                 return candidate;
             }
@@ -225,11 +225,11 @@ public class Stage {
     }
 
     public Expire getPropertyExpire(Engine engine) throws IOException {
-        return Expire.fromHuman(property(engine, PROPERTY_EXPIRE).get());
+        return Expire.fromHuman(value(engine, PROPERTY_EXPIRE).get());
     }
 
     public List<String> getPropertyNotify(Engine engine) throws IOException {
-        return Separator.COMMA.split(property(engine, PROPERTY_NOTIFY).get());
+        return Separator.COMMA.split(value(engine, PROPERTY_NOTIFY).get());
     }
 
     public List<Field> fields() {
