@@ -19,6 +19,7 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserNotFound;
@@ -62,6 +63,8 @@ public class Validation {
     }
 
     private void doRun(Stage stage, Registry registry, List<String> report, boolean repair) throws IOException {
+        Expire expire;
+
         try {
             stage.checkExpired();
             return;
@@ -78,8 +81,9 @@ public class Validation {
                     Server.LOGGER.debug(e.getMessage(), e);
                 }
             }
-            if (server.configuration.autoRemove >= 0 && stage.getExpire().expiredDays() >= 0) {
-                if (stage.getExpire().expiredDays() >= server.configuration.autoRemove) {
+            expire = stage.getExpire();
+            if (server.configuration.autoRemove >= 0 && expire.expiredDays() >= 0) {
+                if (expire.expiredDays() >= server.configuration.autoRemove) {
                     try {
                         report.add("removing expired stage");
                         stage.delete(engine, registry);
@@ -89,7 +93,7 @@ public class Validation {
                     }
                 } else {
                     report.add("CAUTION: This stage will be removed automatically in "
-                            + (server.configuration.autoRemove - stage.getExpire().expiredDays()) + " day(s)");
+                            + (server.configuration.autoRemove - expire.expiredDays()) + " day(s)");
                 }
             }
         }
