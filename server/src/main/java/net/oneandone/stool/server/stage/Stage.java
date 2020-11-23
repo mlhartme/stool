@@ -24,6 +24,7 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.configuration.Accessor;
+import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
@@ -93,7 +94,7 @@ public class Stage {
      */
     private final String name;
 
-    public final StageConfiguration configuration;
+    private final StageConfiguration configuration;
 
     public Stage(Server server, String name, StageConfiguration configuration) {
         this.server = server;
@@ -110,6 +111,17 @@ public class Stage {
         return name.replace(".", "--");
     }
 
+    //-- former config handling
+
+    public Expire getExpire() {
+        return configuration.getExpire();
+    }
+
+    public void setExpire(Expire expire) {
+        configuration.setExpire(expire);
+    }
+
+    //--
 
     public FileNode getLogs() {
         return server.getStageLogs(name);
