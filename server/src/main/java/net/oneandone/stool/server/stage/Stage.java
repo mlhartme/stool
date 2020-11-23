@@ -97,7 +97,7 @@ public class Stage {
 
     private final StageConfiguration configuration;
 
-    public Stage(Server server, String name) {
+    public Stage(Server server, String name, StageConfiguration configuration) {
         this.server = server;
         this.name = name;
         this.configuration = configuration;
