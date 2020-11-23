@@ -242,12 +242,6 @@ public class Stage {
                 return name;
             }
         });
-        fields.add(new Field("values") {
-            @Override
-            public Object get(Context context) throws IOException {
-                return context.engine.helmReadValues(name);
-            }
-        });
         fields.add(new Field("images") {
             @Override
             public Object get(Context context) throws IOException {
