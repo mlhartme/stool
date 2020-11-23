@@ -66,13 +66,13 @@ public class StageConfiguration {
 
     /** login names or email addresses, or "@last-modified-by" or "@created-by" */
     @Option(key = "notify")
-    private List<String> notify;
+    public List<String> notify;
 
     @Option(key = "expire")
-    private Expire expire;
+    public Expire expire;
 
     @Option(key = "comment")
-    private String comment;
+    public String comment;
 
     public StageConfiguration() {
         this.notify = new ArrayList<>();

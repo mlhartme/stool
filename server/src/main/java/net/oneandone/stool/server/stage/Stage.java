@@ -113,12 +113,26 @@ public class Stage {
 
     //-- former config handling
 
+    private Property expire() {
+        Property result;
+
+        result = propertyOpt("expire");
+        if (result == null) {
+            throw new IllegalStateException(properties().toString());
+        }
+        return result;
+    }
+
     public Expire getExpire() {
-        return configuration.getExpire();
+        return Expire.fromHuman(expire().get());
     }
 
     public void setExpire(Expire expire) {
-        configuration.setExpire(expire);
+        expire().set(expire.toString());
+    }
+
+    public List<String> getNotify() {
+        return configuration.getNotify();
     }
 
     //--
@@ -423,7 +437,7 @@ public class Stage {
         String login;
 
         done = new HashSet<>();
-        for (String user : configuration.getNotify()) {
+        for (String user : getNotify()) {
             switch (user) {
                 case StageConfiguration.NOTIFY_LAST_MODIFIED_BY:
                     login = lastModifiedBy();

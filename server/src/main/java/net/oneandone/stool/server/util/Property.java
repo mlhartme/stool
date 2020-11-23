@@ -30,10 +30,18 @@ public class Property extends Info {
     }
 
     public String get(Context context) {
+        return get();
+    }
+
+    public String get() {
         return type.get(configuration);
     }
 
     public void set(String str) {
         type.set(configuration, str);
+    }
+
+    public String toString() {
+        return name() + ": " + get();
     }
 }
