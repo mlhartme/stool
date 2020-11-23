@@ -423,8 +423,8 @@ public class Stage {
         }
     }
 
-    public void publishConfig(Engine engine) throws IOException {
-        install(true, engine, KEEP_IMAGE, Collections.emptyMap());
+    public void publishConfig(Engine engine, Map<String, String> clientValues) throws IOException {
+        install(true, engine, KEEP_IMAGE, clientValues);
     }
 
     /** @return logins */

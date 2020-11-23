@@ -39,10 +39,6 @@ public class Property extends Info {
         return result == null ? dflt : result.toString();
     }
 
-    public void set(String str) {
-        values.put(name(), str);
-    }
-
     public String toString() {
         return name() + ": " + get();
     }

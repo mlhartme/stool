@@ -220,26 +220,24 @@ public class ApiController {
         Property prop;
         String value;
         Map<String, String> arguments;
-        JsonObject result;
         Context context;
+        Map<String, String> clientValues;
+        JsonObject result;
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
             arguments = map(request, "");
             result = new JsonObject();
             context = new Context(engine);
+            clientValues = new HashMap<>();
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
                 prop = stage.property(engine, entry.getKey());
                 value = entry.getValue();
                 value = value.replace("{}", prop.get(context));
-                try {
-                    prop.set(value);
-                    result.add(prop.name(), new JsonPrimitive(prop.getAsString(context)));
-                } catch (RuntimeException e) {
-                    throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
-                }
+                clientValues.put(entry.getKey(), value);
+                result.add(prop.name(), new JsonPrimitive(prop.getAsString(context)));
             }
-            stage.publishConfig(engine);
+            stage.publishConfig(engine, clientValues);
             return result.toString();
         }
     }
