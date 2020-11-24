@@ -182,12 +182,13 @@ Besides values, every stage has status fields, you can view them with `sc status
 
 ### Stage Expiring
 
-Every stage has an `expire` property that specifies how long the stage is needed. You can see the expire date with `sc config expire`. 
-If this date has passed, the stage is called expired, and it is automatically stopped, a notification email is sent and you cannot start it 
+Every stage has an `expire` value that specifies the date until the stage is needed. You can see the expire date with `sc config expire`. 
+If this date has passed, the stage is called expired, and it is automatically stopped, a notification email is sent, and you cannot start it 
 again unless you specify a new date with `sc config expire=`*yyyy-mm-dd*.
 
-Depending on the `autoRemove` Stool property, an expired stage will automatically be removed after the configured number of days. Stage 
-expiring helps to detect and remove unused stages, which is handy (and sometimes even crucial) if you are not the only user of a server. 
+Depending on the `autoRemove` setting, an expired stage will automatically be removed after the configured number of days. 
+
+Stage expiring helps to detect and remove unused stages, which is handy (and sometimes even crucial) if you are not the only user of a server. 
 If you receive an email notification that your stage has expired, please check if your stage is still needed. If so, adjust the expire date. 
 Otherwise, remove the stage.
 
@@ -250,10 +251,6 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 
 
 
-`sc` *global-option*... `build` *stage-option*... [`-app` *path*][`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
-
-
-
 `sc` *global-option*... `detach` *stage-option*... 
 
 
@@ -273,10 +270,10 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
 
 
-`sc` *global-option*... `config` *stage-option*... (*key* | *value*)...
+`sc` *global-option*... `config` *stage-option*... (*key* | *key* `=` *str*)...
 
 
-`sc` *global-option*... `status *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `status *stage-option*... (*field*|*value*)...
 
 
 
@@ -284,7 +281,7 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 
 
 
-`sc` *global-option*... `list` *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `list` *stage-option*... (*field*|*value*)...
 
 
 `sc` *global-option*... `port-forward` *stage-option*... [*local-port*] *remote-port*
@@ -501,21 +498,21 @@ following selection option:
               or = and {',' and}
               and = expr {'+' expr}
               expr = NAME | cmp
-              cmp = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
+              cmp = (FIELD | VALUE) ('=' | '!=') (STR | prefix | suffix | substring)
               prefix = VALUE '*'
-              suffix = '*' VALUE
-              substring = '*' VALUE '*'
+              suffix = '*' STR
+              substring = '*' STR '*'
               NAME       # name of a stage
               FIELD      # name of a status field
-              PROPERTY   # name of a configuration property
-              VALUE      # arbitrary string
+              VALUE      # name of a configuration value
+              STR        # arbitrary string
 
 
 The most basic predicate is a simple `NAME`. It performs a substring match on the stage name. This is handy to run one command for a stage 
 without attaching it.
 
 Next, a predicate *FIELD*`=`*VALUE* matches stages who's status field has the specified value.
-*PROPERTY*`=`*VALUE* is similar, it matches stage properties.
+*VALUE*`=`*VALUE* is similar, it matches stage values.
 
 #### Failure mode
 
@@ -537,42 +534,6 @@ on remaining matching stages. This is the default.
 after the first stage that cannot be started (e.g. because it's already running).
 
 `sc stop -stage up=true` stops all stages currently up, but aborts immediately if one stage fails to stop.
-
-
-### sc-build
-
-Build stages
-
-#### SYNOPSIS
-
-`sc` *global-option*... `build` *stage-option*... [`-app` *path*][`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
-
-
-#### DESCRIPTION
-
-Builds the specified stages by running Docker on the app attached to the selected stage. The attached app is picked form the workspace
-or from the `-app` argument if specified. The resulting image is pushed to the registry. 
-
-Docker build is run with appropriate build arguments. 
-
-For war apps, available build arguments depend on the template being used, you can see them in the error message if you specify an 
-unknown build argument. Build arguments are loaded from a properties file in the war. You can add additional argument or overwrite values 
-by passing *key*`=`*value* arguments to the command.
-
-You can see the build arguments actually used for an image with `sc images`.
-
-You can build a stage while it's running. In this case, specify `-restart` to stop the currently running image and start the newly built one.
-Otherwise, use `sc restart` after the build to get the latest image running.
-
-*keep* specifies the number of images that will not be exceeded for this stage, default is 3. I.e. if you already have 3 images 
-and run `build`, the oldest unreferenced image the will be removed. Unreferenced means it's not currently running.
-
-[//]: # (include stageOptions.md)
-
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
-
-[//]: # (-)
 
 
 ### sc-detach
@@ -724,45 +685,39 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 
 ### sc-config
 
-Manage stage properties
+Manage stage values
 
 #### SYNOPSIS
 
-`sc` *global-option*... `config` *stage-option*... (*key* | *value*)...
+`sc` *global-option*... `config` *stage-option*... (*key* | *key* `=` *str*)...
 
 #### DESCRIPTION
 
-This command gets or sets stage [properties](#properties). 
+This command gets or sets stage [values](#values). 
 
-Caution: `config` does not deal with build argumetn, see `sc build` for that. And: it does not deal with environment variables,
-see `sc start` for that. And finally: it does not deal with Stool properties, see `sc help` for that.
+Caution: `config` does not deal Stool settings, see `sc help` for that.
 
-When invoked without arguments, all stage properties are printed.
+When invoked without arguments, all stage values are printed.
 
-When invoked with one or more *key*s, the respective properties are printed.
+When invoked with one or more *key*s, the respective values are printed.
 
-When invoked with one or more assignments, the respective properties are changed.
+When invoked with one or more assignments, the respective values are changed.
 
-Property values may contain `{}` to refer to the previous value. You can use this, e.g., to append to a property:
+Strings may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
 `sc config "comment={} append this"`.
 
-If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
-Otherwise, the Stool does not see what belongs to your value.
+If you want to set a value to a String with spaces, you have to use quotes around the assignment.
 
-If you change a property, you have to run the necessary re-builds or re-starts to make the changes
-effective. E.g. if you change `memory`, you have to run `sc restart` to make the change effective.
+If you change a value, your application might be restart to apply this change.
 
-Properties have a type: boolean, number, date, string, list of strings, or map of strings to strings.
+Values have a type: boolean, number, date, string, or list of strings.
 
-Boolean properties have the values `true` or `false`, case sensitive.
+Boolean values by be `true` or `false`, case sensitive.
 
-Date properties have the form *yyyy-mm-dd*, so a valid value for `expire` is - e.g. -`2016-12-31`. Alternatively, 
+Date values have the form *yyyy-mm-dd*, so a valid `expire` value is - e.g. -`2016-12-31`. Alternatively, 
 you can specify a number which is translated into the date that number of days from now (e.g. `1` means tomorrow).
 
-List properties (e.g. `select`) are separated by commas, whitespace before and after an item is ignored.
-
-Map properties (e.g. `macros`) separate entries by commas, whitespace before and after is ignored.
-Each entry separates key and value by a colon. Example `foo:bar, key:value`
+List values (e.g. `notify`) are separated by commas, whitespace before and after an item is ignored.
 
 [//]: # (include stageOptions.md)
 
@@ -772,17 +727,17 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 [//]: # (-)
 
 
-#### Available stage properties
+#### Available stage values
+
+Stool exposed all values of the underlying Helm chart. In addition, every stage has the following values:
 
 * **comment**
-  Arbitrary comment for this stage. Stool only stores and displays this value, it has no effect. Type string.
+  Arbitrary comment for this stage. This value nothing but stored, it has no effect. Type string.
 * **expire**
   Defines when this stage [expires](#stage-expiring). Type date.
 * **notify**
   List of email addresses or `@last-modified-by` or `@created-by` to send notifications about
   this stage. Type list. Default value: `@created-by`.
-* **environment**
-  List of environment variables names with values (separated by `:`) to set when starting an application.
 
 
 #### Examples
@@ -798,12 +753,12 @@ Display stage status
 
 #### SYNOPSIS
 
-`sc` *global-option*... `status *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `status *stage-option*... (*field*|*value*)...
 
 
 #### DESCRIPTION
 
-Prints the specified status *field*s or properties. Default: print all fields.
+Prints the specified status *field*s or *value*s. Default: print all fields.
 
 Available fields:
 
@@ -896,12 +851,12 @@ List stages
 
 #### SYNOPSIS
 
-`sc` *global-option*... `list` *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `list` *stage-option*... (*field*|*value*)...
 
 #### DESCRIPTION
 
 Displays status of all stages (or the stages specified by `-stage`) as a table. See the `status`
-command for a list of available fields. Default fields/properties are `name state last-modified-by url directory`.
+command for a list of available fields. Default fields/values are `name state last-modified-by`.
 
 [//]: # (include stageOptions.md)
 
@@ -960,7 +915,7 @@ Validate the stage
 
 Checks if the `expire` date of the stage has passed. If so, and if
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoRemove days). And
-if `-email` is specified, a notification mail is sent as configured by the notify property.
+if `-email` is specified, a notification mail is sent as configured by the notify value.
 
 [//]: # (include stageOptions.md)
 
