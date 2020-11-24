@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
@@ -44,10 +43,6 @@ public class Context {
         this.runningPods = new HashMap<>();
         this.currentOpts = new HashMap<>();
         this.urlMaps = new HashMap<>();
-    }
-
-    public DeploymentInfo deploymentOpt(Stage stage) throws IOException {
-        return engine.deploymentProbe(stage.dnsLabel());
     }
 
     public Registry registry(Stage stage) throws IOException {

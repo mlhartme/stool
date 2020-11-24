@@ -234,7 +234,7 @@ public class ApiController {
                 value = entry.getValue();
                 value = value.replace("{}", prop.get(context));
                 clientValues.put(entry.getKey(), value);
-                result.add(prop.name(), new JsonPrimitive(prop.getAsString(context)));
+                result.add(prop.name(), new JsonPrimitive(value));
             }
             stage.publishConfig(engine, clientValues);
             return result.toString();
