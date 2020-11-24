@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.configuration;
+package net.oneandone.stool.server.settings;
 
 import net.oneandone.stool.server.util.Mailer;
 
@@ -145,7 +145,7 @@ public class Settings {
     public String toString() {
         StringBuilder result;
 
-        result = new StringBuilder("ServerConfiguration {\n");
+        result = new StringBuilder("Settings {\n");
         for (Map.Entry<String, Accessor> entry : Settings.properties().entrySet()) {
             result.append("  ").append(entry.getKey()).append(": ").append(entry.getValue().get(this)).append('\n');
         }

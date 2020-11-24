@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server;
 
-import net.oneandone.stool.server.configuration.Settings;
+import net.oneandone.stool.server.settings.Settings;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;

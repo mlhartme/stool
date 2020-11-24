@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.configuration.adapter;
+package net.oneandone.stool.server.settings.adapter;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

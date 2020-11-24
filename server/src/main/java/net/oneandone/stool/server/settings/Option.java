@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.configuration;
+package net.oneandone.stool.server.settings;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

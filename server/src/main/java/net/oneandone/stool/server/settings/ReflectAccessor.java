@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.configuration;
+package net.oneandone.stool.server.settings;
 
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.World;
@@ -37,13 +37,13 @@ public class ReflectAccessor extends Accessor {
         field.setAccessible(true);
     }
 
-    protected String doGet(Object configuration) {
+    protected String doGet(Object settings) {
         Object obj;
         StringBuilder builder;
         boolean first;
 
         try {
-            obj = field.get(configuration);
+            obj = field.get(settings);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
@@ -80,7 +80,7 @@ public class ReflectAccessor extends Accessor {
         }
     }
 
-    protected void doSet(Object configuration, String str) {
+    protected void doSet(Object settings, String str) {
         Object value;
         Class type;
         int idx;
@@ -121,7 +121,7 @@ public class ReflectAccessor extends Accessor {
             throw new ArgumentException(field.getName() + ": invalid value: '" + str + "': " + e.getMessage());
         }
         try {
-            field.set(configuration, value);
+            field.set(settings, value);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }

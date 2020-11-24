@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.configuration;
+package net.oneandone.stool.server.settings;
 
-/** Handles Stool or Stage configuration access. Converts between strings an objects and deals with reflection */
+/** Handles settings access. Converts between strings an objects and deals with reflection */
 public abstract class Accessor {
     public final String name;
 
@@ -23,17 +23,17 @@ public abstract class Accessor {
         this.name = name;
     }
 
-    public String get(Settings configuration) {
-        return doGet(configuration);
+    public String get(Settings settings) {
+        return doGet(settings);
     }
 
-    protected abstract String doGet(Object configuration);
+    protected abstract String doGet(Object settings);
 
-    public void set(Settings configuration, String str) {
-        doSet(configuration, str);
+    public void set(Settings settings, String str) {
+        doSet(settings, str);
     }
 
-    protected abstract void doSet(Object configuration, String str);
+    protected abstract void doSet(Object settings, String str);
 
     public int hashCode() {
         return name.hashCode();

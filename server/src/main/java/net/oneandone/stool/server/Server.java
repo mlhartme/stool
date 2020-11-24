@@ -20,10 +20,10 @@ import com.google.gson.GsonBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.server.api.StageNotFoundException;
-import net.oneandone.stool.server.configuration.Expire;
-import net.oneandone.stool.server.configuration.Settings;
-import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
-import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
+import net.oneandone.stool.server.settings.Expire;
+import net.oneandone.stool.server.settings.Settings;
+import net.oneandone.stool.server.settings.adapter.ExpireTypeAdapter;
+import net.oneandone.stool.server.settings.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
@@ -59,16 +59,16 @@ public class Server {
 
     public static Server create(World world) throws IOException {
         String version;
-        Settings config;
+        Settings settings;
         Server server;
         String localhostIp;
         version = Main.versionString(world);
         boolean openShift;
 
-        config = Settings.load();
+        settings = Settings.load();
         LOGGER.info("server version: " + Main.versionString(world));
-        LOGGER.info("server auth: " + config.auth());
-        LOGGER.info("server configuration: " + config);
+        LOGGER.info("server auth: " + settings.auth());
+        LOGGER.info("server settings: " + settings);
         try (Engine engine = Engine.createFromCluster(STOOL_LABELS)) {
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
@@ -85,7 +85,7 @@ public class Server {
                 }
             }
             LOGGER.info("OpenShift: " + openShift);
-            server = new Server(gson(world), version, world, openShift, localhostIp, config);
+            server = new Server(gson(world), version, world, openShift, localhostIp, settings);
             server.validate(engine);
             return server;
         }
