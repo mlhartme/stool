@@ -22,11 +22,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ServerConfiguration {
-    public static ServerConfiguration load() {
-        ServerConfiguration result;
+/** Global configuration */
+public class Settings {
+    public static Settings load() {
+        Settings result;
 
-        result = new ServerConfiguration();
+        result = new Settings();
         result.loadEnv();
         return result;
     }
@@ -35,7 +36,7 @@ public class ServerConfiguration {
         Map<String, Accessor> result;
 
         result = new LinkedHashMap<>();
-        for (Field field : ServerConfiguration.class.getFields()) {
+        for (Field field : Settings.class.getFields()) {
             result.put(field.getName(), new ReflectAccessor(field.getName(), field));
         }
         return result;
@@ -88,7 +89,7 @@ public class ServerConfiguration {
     // default values for all charts
     public Map<String, String> values;
 
-    public ServerConfiguration() {
+    public Settings() {
         fqdn = "localhost";
         kubernetes = "http://localhost";
         loglevel = "INFO";
@@ -145,7 +146,7 @@ public class ServerConfiguration {
         StringBuilder result;
 
         result = new StringBuilder("ServerConfiguration {\n");
-        for (Map.Entry<String, Accessor> entry : ServerConfiguration.properties().entrySet()) {
+        for (Map.Entry<String, Accessor> entry : Settings.properties().entrySet()) {
             result.append("  ").append(entry.getKey()).append(": ").append(entry.getValue().get(this)).append('\n');
         }
         result.append("}\n");

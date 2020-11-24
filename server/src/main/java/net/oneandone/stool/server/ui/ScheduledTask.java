@@ -45,7 +45,7 @@ public class ScheduledTask {
         try (Engine engine = Engine.createFromCluster(Server.STOOL_LABELS)) {
             for (Stage stage : server.listAll(engine)) {
                 Server.LOGGER.info("validate " + stage.getName() + ":");
-                output = new Validation(server, engine).run(stage.getName(), !server.configuration.mailHost.isEmpty(), true);
+                output = new Validation(server, engine).run(stage.getName(), !server.settings.mailHost.isEmpty(), true);
                 for (String line : output) {
                     Server.LOGGER.info("  " + line);
                 }

@@ -147,7 +147,7 @@ public class Stage {
     public Registry createRegistry(World world) throws IOException {
         String registry;
 
-        registry = server.configuration.registryUrl();
+        registry = server.settings.registryUrl();
         /* TODO: re-enabled this test
         URI url;
         String repository;
@@ -203,7 +203,7 @@ public class Stage {
             result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
         }
         addOpt(result, VALUE_COMMENT, "");
-        addOpt(result, VALUE_EXPIRE, Expire.fromNumber(server.configuration.defaultExpire).toString());
+        addOpt(result, VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
         addOpt(result, VALUE_NOTIFY, Stage.NOTIFY_CREATED_BY);
         return result;
     }
@@ -518,7 +518,7 @@ public class Stage {
             // TODO:
             // put values from image again? it might have changed ...
         } else {
-            map = new HashMap<>(server.configuration.values);
+            map = new HashMap<>(server.settings.values);
         }
         image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
         src = world.file("/etc/charts").join(image.chart);
@@ -605,7 +605,7 @@ public class Stage {
         String result;
 
         missing = new ArrayList<>();
-        if (server.configuration.auth()) {
+        if (server.settings.auth()) {
             server.checkFaultPermissions(image.author, image.faultProjects);
         }
         workspace = world.file("/etc/fault/workspace");
@@ -779,7 +779,7 @@ public class Stage {
     }
 
     public String stageFqdn() {
-        return name + "." + server.configuration.fqdn;
+        return name + "." + server.settings.fqdn;
     }
 
     private List<String> url(TagInfo tag, String protocol) {

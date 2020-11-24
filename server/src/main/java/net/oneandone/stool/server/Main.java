@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server;
 
-import net.oneandone.stool.server.configuration.ServerConfiguration;
+import net.oneandone.stool.server.configuration.Settings;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
@@ -39,10 +39,10 @@ import java.util.List;
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor") // instantiated by spring
 public class Main {
     public static void main(String[] args){
-        ServerConfiguration config;
+        Settings settings;
 
-        config = ServerConfiguration.load(); // it's loaded twice, but I don't have injection here ...
-        System.setProperty("loglevel", config.loglevel);
+        settings = Settings.load(); // it's loaded twice, but I don't have injection here ...
+        System.setProperty("loglevel", settings.loglevel);
         SpringApplication.run(Main.class, args);
     }
 

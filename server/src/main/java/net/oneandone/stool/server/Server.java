@@ -21,7 +21,7 @@ import io.fabric8.kubernetes.client.KubernetesClientException;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.configuration.Expire;
-import net.oneandone.stool.server.configuration.ServerConfiguration;
+import net.oneandone.stool.server.configuration.Settings;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.kubernetes.Engine;
@@ -59,13 +59,13 @@ public class Server {
 
     public static Server create(World world) throws IOException {
         String version;
-        ServerConfiguration config;
+        Settings config;
         Server server;
         String localhostIp;
         version = Main.versionString(world);
         boolean openShift;
 
-        config = ServerConfiguration.load();
+        config = Settings.load();
         LOGGER.info("server version: " + Main.versionString(world));
         LOGGER.info("server auth: " + config.auth());
         LOGGER.info("server configuration: " + config);
@@ -115,11 +115,11 @@ public class Server {
     public final String localhostIp;
 
     /** used read-only */
-    public final ServerConfiguration configuration;
+    public final Settings settings;
 
     public final UserManager userManager;
 
-    public Server(Gson gson, String version, World world, boolean openShift, String localhostIp, ServerConfiguration configuration) throws IOException {
+    public Server(Gson gson, String version, World world, boolean openShift, String localhostIp, Settings settings) throws IOException {
         this.gson = gson;
         this.version = version;
         this.world = world;
@@ -128,7 +128,7 @@ public class Server {
         this.serverLogs = world.file("/var/log/stool");
         this.stageLogs = world.file("/var/log/stages");
         this.localhostIp = localhostIp;
-        this.configuration = configuration;
+        this.settings = settings;
         this.userManager = UserManager.loadOpt(home.join("users.json"));
     }
 
@@ -255,14 +255,14 @@ public class Server {
         PrintWriter writer;
 
         LOGGER.error("[" + command + "] " + context + ": " + e.getMessage(), e);
-        if (!configuration.admin.isEmpty()) {
+        if (!settings.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
             body.write("stool: " + Main.versionString(world) + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + context + "\n");
             body.write("user: " + MDC.get("USER") + "\n"); // TODO
-            body.write("fqdn: " + configuration.fqdn + "\n");
+            body.write("fqdn: " + settings.fqdn + "\n");
             writer = new PrintWriter(body);
             while (true) {
                 e.printStackTrace(writer);
@@ -273,7 +273,7 @@ public class Server {
                 body.append("Caused by:\n");
             }
             try {
-                configuration.mailer().send(configuration.admin, new String[]{configuration.admin}, subject, body.toString());
+                settings.mailer().send(settings.admin, new String[]{settings.admin}, subject, body.toString());
             } catch (MessagingException suppressed) {
                 LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
@@ -319,7 +319,7 @@ public class Server {
         }
         dir = home.join("certs", certname);
         try {
-            LOGGER.debug(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), configuration.fqdn));
+            LOGGER.debug(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), settings.fqdn));
         } catch (IOException e) {
             broken = dir.getParent().join(dir.getName() + ".broken");
             broken.deleteTreeOpt();
@@ -333,8 +333,8 @@ public class Server {
     //--
 
     public void validate(Engine engine) throws IOException {
-        if (configuration.auth()) {
-            if (configuration.ldapSso.isEmpty()) {
+        if (settings.auth()) {
+            if (settings.ldapSso.isEmpty()) {
                 LOGGER.error("ldapSso cannot be empty because security is enabled");
                 throw new IOException("ldapSso is empty");
             }

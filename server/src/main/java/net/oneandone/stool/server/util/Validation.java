@@ -82,8 +82,8 @@ public class Validation {
                 }
             }
             expire = stage.getValueExpire(engine);
-            if (server.configuration.autoRemove >= 0 && expire.expiredDays() >= 0) {
-                if (expire.expiredDays() >= server.configuration.autoRemove) {
+            if (server.settings.autoRemove >= 0 && expire.expiredDays() >= 0) {
+                if (expire.expiredDays() >= server.settings.autoRemove) {
                     try {
                         report.add("removing expired stage");
                         stage.delete(engine, registry);
@@ -93,7 +93,7 @@ public class Validation {
                     }
                 } else {
                     report.add("CAUTION: This stage will be removed automatically in "
-                            + (server.configuration.autoRemove - expire.expiredDays()) + " day(s)");
+                            + (server.settings.autoRemove - expire.expiredDays()) + " day(s)");
                 }
             }
         }
@@ -105,8 +105,8 @@ public class Validation {
         String email;
         String body;
 
-        fqdn = server.configuration.fqdn;
-        mailer = server.configuration.mailer();
+        fqdn = server.settings.fqdn;
+        mailer = server.settings.mailer();
         for (String user : users) {
             body = Separator.RAW_LINE.join(report);
             email = email(user);
@@ -129,9 +129,9 @@ public class Validation {
         }
         try {
             userobj = server.userManager.byLogin(user);
-            email = userobj.email == null ? server.configuration.admin : userobj.email;
+            email = userobj.email == null ? server.settings.admin : userobj.email;
         } catch (UserNotFound e) {
-            email = server.configuration.admin;
+            email = server.settings.admin;
         }
         return email.isEmpty() ? null : email;
     }

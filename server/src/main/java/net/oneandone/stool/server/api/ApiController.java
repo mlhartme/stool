@@ -100,7 +100,7 @@ public class ApiController {
         User user;
         String result;
 
-        if (server.configuration.ldapUrl.isEmpty()) {
+        if (server.settings.ldapUrl.isEmpty()) {
             throw new IOException("authentication is disabled");
         }
         user = User.authenticatedOpt();
@@ -380,7 +380,7 @@ public class ApiController {
             os.createBinding(bindingName, saName, roleName);
 
             result = new JsonObject();
-            result.add("server", new JsonPrimitive(server.configuration.kubernetes));
+            result.add("server", new JsonPrimitive(server.settings.kubernetes));
             result.add("namespace", new JsonPrimitive(engine.getNamespace()));
             result.add("pod", new JsonPrimitive(pod.name));
             result.add("token", new JsonPrimitive(os.getServiceAccountToken(saName)));

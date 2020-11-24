@@ -23,13 +23,13 @@ public abstract class Accessor {
         this.name = name;
     }
 
-    public String get(ServerConfiguration configuration) {
+    public String get(Settings configuration) {
         return doGet(configuration);
     }
 
     protected abstract String doGet(Object configuration);
 
-    public void set(ServerConfiguration configuration, String str) {
+    public void set(Settings configuration, String str) {
         doSet(configuration, str);
     }
 
