@@ -2,6 +2,7 @@
 
 ### 6.1.0 (pending)
 
+* split "properties" in to settings (applied to the server) and values (applied to individual stages)
 * moved stool build into separate Maven plugin
 * stool no longer wipes stages
 * added `values` field to status

@@ -165,19 +165,20 @@ workspace, the stage indicator changes accordingly. You can explicitly change th
 stage indicator is invisible if you have no current workspace.
 
 
-### Properties
+### Settings
 
-Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
-or map (string to string)). Stool distinguishes server properties and stage properties. Server properties are global settings that apply to 
-all stages, they are usually adjusted by system administrators. Stage properties configure the respective stage only, every stage has 
-its own set of stage properties. You can adjust stage properties with [stool config](#sc-config). 
+Stool server is configured via settings. A setting is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
+or map (string to string)). Settings are global, they apply to all stages, they are usually adjusted by system administrators. 
 
-Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are similar to
-properties, but they are read-only.
+### Values
 
-Besides properties, stages have build options and environment variables for every application image. Use `sc images` to see the current
-values.
- 
+Stages are configured via values. A value is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
+or map (string to string)). Values onfigure the respective stage only, every stage has its own set of stage values. You can adjust 
+values with [stool config](#sc-config). 
+
+Technically, values are helm chart values.
+
+Besides values, every stage has status fields, you can view them with `sc status`. Status fields are similar to values, but they are read-only.
 
 ### Stage Expiring
 
