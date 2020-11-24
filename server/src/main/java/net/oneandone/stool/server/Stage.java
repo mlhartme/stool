@@ -348,15 +348,6 @@ public class Stage {
                 return Stage.timespan(started);
             }
         });
-        fields.add(new Field("disk-used") {
-            @Override
-            public Object get(Context context) throws IOException {
-                Current current;
-
-                current = context.currentOpt(Stage.this);
-                return current == null ? null : context.sizeRw(current.first /* TODO */.containerId(MAIN_CONTAINER));
-            }
-        });
         fields.add(new Field("cpu") {
             @Override
             public Object get(Context context) throws IOException {

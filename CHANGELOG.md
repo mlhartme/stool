@@ -50,6 +50,8 @@ create/attach multiple stages with a singlle command.
 
 User-visible ports are gone (along with port options), dispatching to stages is now based on vhosts.
 
+Dumped `disk-used` field.
+
 Client changes
 * general note: many user-visible changes make Stool 5 and 6 usable in parallel
 * renamed `stool` to `sc`

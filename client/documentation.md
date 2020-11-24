@@ -782,8 +782,6 @@ TODO:
   container id if the stage is running.
 * **uptime**
   How long this stage is in state `up`. Empty if stage is not up. Type string.
-* **disk-used**
-  Disk space used for by running container in mb. This does not include the size of the underlying image, it's just the size of the RW layer. Type number.
 * **cpu**
   Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.#
 * **mem**

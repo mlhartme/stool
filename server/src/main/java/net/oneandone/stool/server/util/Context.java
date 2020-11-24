@@ -114,18 +114,4 @@ public class Context {
         }
         return result;
     }
-
-    /** @return size of the read-write layer, not size of the root file system */
-    public int sizeRw(String containerId) throws IOException {
-        JsonObject obj;
-
-        if (containerId == null) {
-            return 0;
-        }
-        return 0;
-        /*
-        obj = containerInspect(containerId);
-        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024)); */
-    }
-
 }
