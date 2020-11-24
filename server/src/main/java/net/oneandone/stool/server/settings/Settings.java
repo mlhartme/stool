@@ -37,7 +37,7 @@ public class Settings {
 
         result = new LinkedHashMap<>();
         for (Field field : Settings.class.getFields()) {
-            result.put(field.getName(), new ReflectAccessor(field.getName(), field));
+            result.put(field.getName(), new Accessor(field.getName(), field));
         }
         return result;
     }

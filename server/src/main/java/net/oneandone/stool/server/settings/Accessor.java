@@ -15,25 +15,118 @@
  */
 package net.oneandone.stool.server.settings;
 
-/** Handles settings access. Converts between strings an objects and deals with reflection */
-public abstract class Accessor {
-    public final String name;
+import net.oneandone.stool.server.ArgumentException;
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 
-    public Accessor(String name) {
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/** Handles settings access. Converts between strings an objects and deals with reflection */
+public class Accessor {
+    private final String name;
+    private final Field field;
+
+    public Accessor(String name, Field field) {
         this.name = name;
+        this.field = field;
+        field.setAccessible(true);
     }
 
     public String get(Settings settings) {
-        return doGet(settings);
-    }
+        Object obj;
+        StringBuilder builder;
+        boolean first;
 
-    protected abstract String doGet(Object settings);
+        try {
+            obj = field.get(settings);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
+        if (obj instanceof List) {
+            builder = new StringBuilder();
+            first = true;
+            for (Object item : (List) obj) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append(", ");
+                }
+                builder.append(item.toString());
+            }
+            return builder.toString();
+        } else if (obj instanceof Map) {
+            builder = new StringBuilder();
+            first = true;
+            for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) obj).entrySet()) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append(", ");
+                }
+                builder.append(entry.getKey().toString());
+                builder.append(':');
+                builder.append(entry.getValue().toString());
+            }
+            return builder.toString();
+        } else if (obj == null) {
+            return "null";
+        } else {
+            return obj.toString();
+        }
+    }
 
     public void set(Settings settings, String str) {
-        doSet(settings, str);
-    }
+        Object value;
+        Class type;
+        int idx;
+        Map<String, String> map;
 
-    protected abstract void doSet(Object settings, String str);
+        try {
+            type = field.getType();
+            if (type.equals(String.class)) {
+                value = str;
+            } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
+                value = Boolean.valueOf(str);
+            } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
+                value = Integer.valueOf(str);
+            } else if (Enum.class.isAssignableFrom(type)) {
+                value = Enum.valueOf(type, str);
+            } else if (type.equals(List.class)) {
+                value = asList(str);
+            } else if (type.equals(Map.class)) {
+                map = new HashMap<>();
+                for (String item : asList(str)) {
+                    idx = item.indexOf(':');
+                    if (idx == -1) {
+                        throw new ArgumentException("cannot set property '" + name + "': expected key:value, got " + item);
+                    }
+                    map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
+                }
+                value = map;
+            } else if (type.equals(Expire.class)) {
+                value = Expire.fromHuman(str);
+            } else if (type.equals(FileNode.class)) {
+                value = str.isEmpty() ? null : World.createMinimal().file(str);
+            } else if (Map.class.isAssignableFrom(type)) {
+                value = str;
+            } else {
+                throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
+            }
+        } catch (RuntimeException e) {
+            throw new ArgumentException(field.getName() + ": invalid value: '" + str + "': " + e.getMessage());
+        }
+        try {
+            field.set(settings, value);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     public int hashCode() {
         return name.hashCode();
@@ -44,5 +137,19 @@ public abstract class Accessor {
             return name.equals(((Accessor) obj).name);
         }
         return false;
+    }
+
+    private static List<String> asList(String str) {
+        List<String> result;
+
+        if (str.contains(",")) {
+            result = Arrays.asList(str.split(","));
+        } else if (str.length() > 0) {
+            result = new ArrayList<>();
+            result.add(str);
+        } else {
+            result = Collections.emptyList();
+        }
+        return result;
     }
 }
