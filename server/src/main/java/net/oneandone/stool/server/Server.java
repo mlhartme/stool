@@ -28,7 +28,6 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
-import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.util.Predicate;
 import net.oneandone.sushi.fs.World;

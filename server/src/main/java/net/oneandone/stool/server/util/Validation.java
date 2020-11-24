@@ -20,7 +20,7 @@ import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.settings.Expire;
-import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.sushi.fs.World;

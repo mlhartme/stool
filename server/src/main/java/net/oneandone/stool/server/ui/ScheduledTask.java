@@ -17,7 +17,7 @@ package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.Stage;
 import net.oneandone.stool.server.util.Validation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

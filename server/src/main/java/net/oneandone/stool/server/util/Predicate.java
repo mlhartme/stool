@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.Stage;
 
 import java.io.IOException;
 

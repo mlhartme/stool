@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.stage;
+package net.oneandone.stool.server;
 
 import net.oneandone.stool.kubernetes.ContainerInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
@@ -21,8 +21,6 @@ import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.server.ArgumentException;
-import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;

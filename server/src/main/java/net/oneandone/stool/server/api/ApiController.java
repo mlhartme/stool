@@ -30,7 +30,7 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Info;

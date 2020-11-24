@@ -21,7 +21,7 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.Stage;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
