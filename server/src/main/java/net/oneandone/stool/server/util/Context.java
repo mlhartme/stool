@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.util;
 
-import com.google.gson.JsonObject;
 import net.oneandone.stool.kubernetes.DeploymentInfo;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.kubernetes.Engine;

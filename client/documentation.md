@@ -182,9 +182,9 @@ Besides values, every stage has status fields, you can view them with `sc status
 
 ### Stage Expiring
 
-Every stage has an `expire` value that specifies the date until the stage is needed. You can see the expire date with `sc config expire`. 
+Every stage has an `stageExpire` value that specifies the date until the stage is needed. You can see the expire date with `sc config stageExpire`. 
 If this date has passed, the stage is called expired, and it is automatically stopped, a notification email is sent, and you cannot start it 
-again unless you specify a new date with `sc config expire=`*yyyy-mm-dd*.
+again unless you specify a new date with `sc config stageExpire=`*yyyy-mm-dd*.
 
 Depending on the `autoRemove` setting, an expired stage will automatically be removed after the configured number of days. 
 
@@ -599,7 +599,7 @@ it defaults to the latest. Use `sc images` to see available images.
 
 Startup is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
-Startup is refused if your stage has expired. In this case, use `sc config expire=`*newdate* to configure a new `expire` date.
+Startup is refused if your stage has expired. In this case, use `sc config stageExpire=`*newdate* to configure a new `stageExpire` date.
 
 TODO: The hostname of the container is set to <id>.<servername>, where id is a hash of stage name and application name. This hash
 serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names. 
@@ -704,7 +704,7 @@ When invoked with one or more *key*s, the respective values are printed.
 When invoked with one or more assignments, the respective values are changed.
 
 Strings may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
-`sc config "comment={} append this"`.
+`sc config "stageComment={} append this"`.
 
 If you want to set a value to a String with spaces, you have to use quotes around the assignment.
 
@@ -714,10 +714,10 @@ Values have a type: boolean, number, date, string, or list of strings.
 
 Boolean values by be `true` or `false`, case sensitive.
 
-Date values have the form *yyyy-mm-dd*, so a valid `expire` value is - e.g. -`2016-12-31`. Alternatively, 
+Date values have the form *yyyy-mm-dd*, so a valid `stageExpire` value is - e.g. -`2016-12-31`. Alternatively, 
 you can specify a number which is translated into the date that number of days from now (e.g. `1` means tomorrow).
 
-List values (e.g. `notify`) are separated by commas, whitespace before and after an item is ignored.
+List values (e.g. `stageNotify`) are separated by commas, whitespace before and after an item is ignored.
 
 [//]: # (include stageOptions.md)
 
@@ -731,20 +731,20 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 
 Stool exposed all values of the underlying Helm chart. In addition, every stage has the following values:
 
-* **comment**
+* **stageComment**
   Arbitrary comment for this stage. This value nothing but stored, it has no effect. Type string.
-* **expire**
+* **stageExpire**
   Defines when this stage [expires](#stage-expiring). Type date.
-* **notify**
+* **stageNotify**
   List of email addresses or `@last-modified-by` or `@created-by` to send notifications about
   this stage. Type list. Default value: `@created-by`.
 
 
 #### Examples
 
-`sc config comment` prints the current `comment` value.
+`sc config stageComment` prints the current `comment` value.
 
-`sc config comment=42` sets the comment to 42.
+`sc config stageComment=42` sets the comment to 42.
 
 
 ### sc-status
@@ -911,9 +911,9 @@ Validate the stage
 
 #### DESCRIPTION
 
-Checks if the `expire` date of the stage has passed. If so, and if
+Checks if the `stageExpire` date of the stage has passed. If so, and if
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoRemove days). And
-if `-email` is specified, a notification mail is sent as configured by the notify value.
+if `-email` is specified, a notification mail is sent as configured by the `stageNotify` value.
 
 [//]: # (include stageOptions.md)
 
