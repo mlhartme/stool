@@ -197,18 +197,6 @@ public class EngineIT {
             assertNull(engine.containerStats(container));
             assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
             engine.containerRemove(container);
-            try {
-                engine.containerStatus(container);
-                fail();
-            } catch (FileNotFoundException e) {
-                // ok
-            }
-            try {
-                assertNull(engine.containerStats(container));
-                fail();
-            } catch (FileNotFoundException e) {
-                // ok
-            }
             engine.imageRemove(image, false);
         }
     }
