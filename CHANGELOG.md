@@ -5,7 +5,6 @@
 server
 * improved logging when stage expires
 * remove port-in-use check - it doesnt make sense in a container (thanks to Kanan)
-* update junit 4.12 to 4.13.1
 
 client 
 * added -network argument to make the server network configurable
