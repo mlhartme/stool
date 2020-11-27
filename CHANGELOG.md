@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 5.1.1 (pending)
+### 5.1.1 (2020-11-27)
 
 server
 * improved logging when stage expires
