@@ -1,5 +1,7 @@
 ## Changelog 
 
+TODO: fix client integration tests
+
 ### 5.1.1 (2020-11-27)
 
 server
