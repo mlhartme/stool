@@ -15,6 +15,10 @@
  */
 package net.oneandone.stool.server;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.stool.kubernetes.ContainerInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
@@ -52,6 +56,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -78,12 +83,16 @@ public class Stage {
     private static final String VALUE_EXPIRE = "stageExpire";
     private static final String VALUE_COMMENT = "stageComment";
 
+    private static final String[] STAGE_VALUES = {
+            VALUE_COMMENT, VALUE_EXPIRE, VALUE_NOTIFY
+    };
+
     private static final String NOTIFY_CREATED_BY = "@created-by";
     private static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
     //--
 
-    private static final String KEEP_IMAGE = "marker string to indicate an 'empty publish'";
+    public static final String KEEP_IMAGE = "marker string to indicate an 'empty publish'";
 
     public static final String DEPLOYMENT_LABEL_STAGE = "net.oneandone.stool-stage";
 
@@ -416,10 +425,6 @@ public class Stage {
         }
     }
 
-    public void publishConfig(Engine engine, Map<String, String> clientValues) throws IOException {
-        install(true, engine, KEEP_IMAGE, clientValues);
-    }
-
     /** @return logins */
     public Set<String> notifyLogins(Engine engine) throws IOException {
         Set<String> done;
@@ -504,20 +509,22 @@ public class Stage {
 
         if (upgrade) {
             map = new HashMap<>(engine.helmReadValues(name));
-            // TODO:
-            // put values from image again? it might have changed ...
         } else {
             map = new HashMap<>(server.settings.values);
         }
         image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
+        if (image.chart == null) {
+            throw new ArgumentException("image " + image.repositoryTag + " does not specify a helm chart");
+        }
         src = world.file("/etc/charts").join(image.chart);
         if (!src.isDirectory()) {
             throw new ArgumentException("helm chart not found: " + image.chart);
         }
         src.copyDirectory(tmp);
+        checkValues(tmp, clientValues);
         if (upgrade) {
             // TODO:
-            // put values frmo image again? it might have changed ...
+            // put values from image again? it might have changed ...
         } else {
             map.putAll(image.chartValues);
         }
@@ -543,6 +550,41 @@ public class Stage {
         System.out.println("created values: " + engine.helmReadValues(name));
         engine.deploymentAwait(dnsLabel());
         return image.repositoryTag;
+    }
+
+    private void checkValues(FileNode chart, Map<String, String> clientValues) throws IOException {
+        Set unknown;
+
+        unknown = new HashSet(clientValues.keySet());
+        unknown.removeAll(builtInValues(chart).keySet());
+
+        for (String value : STAGE_VALUES) {
+            unknown.remove(value);
+        }
+        if (!unknown.isEmpty()) {
+            throw new ArgumentException("unknown value(s): " + unknown);
+        }
+    }
+
+    public Map<String, String> builtInValues(FileNode chart) throws IOException {
+        ObjectMapper yaml;
+        ObjectNode root;
+        Map<String, String> result;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+
+        yaml = new ObjectMapper(new YAMLFactory());
+        try (Reader src = chart.join("values.yaml").newReader()) {
+            root = (ObjectNode) yaml.readTree(src);
+        }
+        result = new HashMap<>();
+        iter = root.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            result.put(entry.getKey(), entry.getValue().asText());
+        }
+        System.out.println("buildInValues: " + chart); // TODO
+        return result;
     }
 
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"

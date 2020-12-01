@@ -218,25 +218,25 @@ public class ApiController {
         Stage stage;
         Value prop;
         String value;
-        Map<String, String> arguments;
+        Map<String, String> values;
         Context context;
         Map<String, String> clientValues;
         JsonObject result;
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            arguments = map(request, "");
+            values = map(request, "");
             result = new JsonObject();
             context = new Context(engine);
             clientValues = new HashMap<>();
-            for (Map.Entry<String, String> entry : arguments.entrySet()) {
+            for (Map.Entry<String, String> entry : values.entrySet()) {
                 prop = stage.value(engine, entry.getKey());
                 value = entry.getValue();
                 value = value.replace("{}", prop.get(context));
                 clientValues.put(entry.getKey(), value);
                 result.add(prop.name(), new JsonPrimitive(value));
             }
-            stage.publishConfig(engine, clientValues);
+            stage.install(true, engine, Stage.KEEP_IMAGE, clientValues);
             return result.toString();
         }
     }
