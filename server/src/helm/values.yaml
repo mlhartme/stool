@@ -49,7 +49,7 @@ autoRemove: -1
 defaultExpire: 0
 
 # Default values set automatically when installing charts, can be overwritten by the `start` command. Type map, default empty.
-values: ""
+values: "networkPolicy:, fluentd:stool"
 
 # For server logging. Type string, default INFO. Example value: DEBUG.
 loglevel: "INFO"
