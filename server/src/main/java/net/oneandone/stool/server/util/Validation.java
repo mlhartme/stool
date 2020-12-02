@@ -65,11 +65,9 @@ public class Validation {
     private void doRun(Stage stage, Registry registry, List<String> report, boolean repair) throws IOException {
         Expire expire;
 
-        try {
-            stage.checkExpired(engine);
-            return;
-        } catch (ArgumentException e) {
-            report.add(e.getMessage());
+        expire = stage.getValueExpire(engine);
+        if (expire.isExpired()) {
+            report.add("Stage expired " + expire + ". To start it, you have to adjust the 'expire' date.");
         }
         if (repair) {
             if (stage.runningPodFirst(engine) != null) {
@@ -81,7 +79,6 @@ public class Validation {
                     Server.LOGGER.debug(e.getMessage(), e);
                 }
             }
-            expire = stage.getValueExpire(engine);
             if (server.settings.autoRemove >= 0 && expire.expiredDays() >= 0) {
                 if (expire.expiredDays() >= server.settings.autoRemove) {
                     try {

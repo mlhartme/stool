@@ -474,15 +474,6 @@ public class Stage {
         return result;
     }
 
-    public void checkExpired(Engine engine) throws IOException {
-        Expire expire;
-
-        expire = getValueExpire(engine);
-        if (expire.isExpired()) {
-            throw new ArgumentException("Stage expired " + expire + ". To start it, you have to adjust the 'expire' date.");
-        }
-    }
-
     public static String toRepository(String imageOrRepository) {
         int idx;
 
@@ -534,6 +525,9 @@ public class Stage {
         map.put("cert", cert());
         map.put("fault", fault(world, image));
 
+        if (Expire.fromHuman(map.getOrDefault(VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire))).isExpired()) {
+            throw new ArgumentException("stage expired");
+        }
         Server.LOGGER.info("values: " + map);
         try (PrintWriter v = new PrintWriter(values.newWriter())) {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
