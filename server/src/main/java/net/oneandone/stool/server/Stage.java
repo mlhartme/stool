@@ -490,6 +490,7 @@ public class Stage {
         FileNode values;
         Map<String, Object> map;
         FileNode src;
+        Expire expire;
 
         if (imageOrRepositoryX != null && imageOrRepositoryX != KEEP_IMAGE) {
             validateRepository(toRepository(imageOrRepositoryX));
@@ -525,9 +526,11 @@ public class Stage {
         map.put("cert", cert());
         map.put("fault", fault(world, image));
 
-        if (Expire.fromHuman(map.getOrDefault(VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire))).isExpired()) {
-            throw new ArgumentException("stage expired");
+        expire = Expire.fromHuman((String) map.getOrDefault(VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
+        if (expire.isExpired()) {
+            throw new ArgumentException(name + ": stage expired: " + expire);
         }
+        map.put(VALUE_EXPIRE, expire.toString()); // normalize
         Server.LOGGER.info("values: " + map);
         try (PrintWriter v = new PrintWriter(values.newWriter())) {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
