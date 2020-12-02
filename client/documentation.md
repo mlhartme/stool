@@ -2,13 +2,14 @@
 
 ## Introduction
 
-Stool is a tool to manage stages: create, build, start, stop, delete. A stage is a Web application defined by Docker images and executed in a container.
+Stool is a tool to manage stages: create, build, start, stop, delete. A stage is a Web application packaged a container running in Kubernetes.
+Technically, Stool is a simple Helm frontend that simplifies value handling.
 
 ### Quick Tour
 
 Here's an example what you can do with Stool. 
 
-You generally invoke Stool from the command `sc` followed by a Stool command and arguments for the respective command. 
+You generally invoke Stool from the command-line with `sc` followed by a Stool command and arguments for the respective command. 
 
 Open a terminal and run 
 
@@ -38,7 +39,7 @@ Create a new stage with
 
 and build an image with
 
-    sc build
+    sc build   TODO: that's changed ...
     
 Start it:
 
@@ -103,19 +104,21 @@ or the whole Github project.
 
 ### Context
 
-A *context* specifies a place that can host stages. It has a name, an optional token, and a URL pointing to a Stool server. 
-`sc` manages a list of contexts in its client configuration file. `sc` also manages a current context, you can change it permanently 
-with `sc context` or per-invocation with the `-context` global option.
+A *context* specifies a place that can host stages together with the necessary authentication. It has a name, an optional token, and 
+a URL pointing to a Stool server. `sc` manages a list of contexts in its client configuration file. `sc` also manages a current context, 
+you can change it permanently with `sc context` or per-invocation with the `-context` global option.
 
 Advanced note: The concept of a context is similar to `kubectl`s context.
 
 
 ### Stage
 
-A *stage* is a set of Docker images together with some configuration (e.g. a name). Each image holds a Web Application, i.e. something you 
-can point your browser to. Typically, that's a Tomcat servlet container (http://tomcat.apache.org) with a Java web application 
-(https://en.wikipedia.org/wiki/Java_Servlet). Different images hold different versions of your Web Application. Starting a stage creates 
-a container for one of the images.
+A *stage* is a running web application, for example a Tomcat servlet container (http://tomcat.apache.org) with a Java web application
+(https://en.wikipedia.org/wiki/Java_Servlet). This application is packaged into a Docker image and installed as a Helm chart in the 
+current context. Stage configuration is the set of Helm values use for this release. 
+
+Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it. It's also safe to `helm uninstall`
+instead of `sc delete`.
 
 A stage is hosted in a Kubernetes namespace, which is identified by a context. Every stage has a unique name in that context. A stage is 
 referenced by *name*`@`*context* or just the *name* if it's in the current context. The stages attached to a workspace are shown in your 
@@ -139,17 +142,20 @@ Labels: TODO
 
 ### Workspace
 
-A workspace maps apps to stages. An app can be a Java War file or a Dockerfile.
+A workspace is a list of stages associated with the current directory tree.
 
 You'll typically work with workspaces like this: you have a checkout of the sources of one or multiple applications of yours. If the source 
-code is Java, you build the war(s) with something like `mvn clean package`. To get a stage with that application, you create a workspace 
-with `sc create`, which also creates a workspace mapping this app to the stages. You work with your stage (e.g. build it with `sc build`), 
-and when you're done, you clean up with `sc delete`. You can also use `sc attach` to work with existing stages, and `sc detach` to remove 
-stages from a workspace without deleting them.
+code is Java, you build and deploy the image with something like `mvn clean deploy`. Not that you generally have to deploy it because the 
+a local Docker image is not available on a deparate Kubernetes cluster. To get a stage with that image, run `sc create`, which also creates 
+a workspace with the newly created stages. You work with your stage (e.g. build it with `sc config` or `sc publish`), and when you're done, 
+you clean up with `sc delete`. You can also use `sc attach` to work with existing stages, and `sc detach` to remove stages from a workspace 
+without deleting them.
 
 Technically, the workspace is stored in `.backstage/workspace.yaml`
 
 The current workspace used by a Stool command is determined by searching the working directory and it parents for a workspace file. 
+
+Instead of using workspaces, you can also use `sc` with an explict `-stage <name>` command instead.
 
 
 ### Current stages and stage indicator
@@ -172,11 +178,11 @@ or map (string to string)). Settings are global, they apply to all stages, they 
 
 ### Values
 
-Stages are configured via values. A value is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
-or map (string to string)). Values onfigure the respective stage only, every stage has its own set of stage values. You can adjust 
+Stages are configured via values. A value is a key/object pair; object has a type (string, number, date, boolean, list (of strings), 
+or map (string to string)). Values configure the respective stage only, every stage has its own set of values. You can inspect and adjust 
 values with [stool config](#sc-config). 
 
-Technically, values are helm chart values.
+Technically, values are values of the Helm deployment represented by this stage.
 
 Besides values, every stage has status fields, you can view them with `sc status`. Status fields are similar to values, but they are read-only.
 
@@ -191,7 +197,6 @@ Depending on the `autoRemove` setting, an expired stage will automatically be re
 Stage expiring helps to detect and remove unused stages, which is handy (and sometimes even crucial) if you are not the only user of a server. 
 If you receive an email notification that your stage has expired, please check if your stage is still needed. If so, adjust the expire date. 
 Otherwise, remove the stage.
-
 
 ### Dashboard
 
@@ -375,7 +380,7 @@ Creates a fresh client configuration file or reports an error if it already exis
 The location of the client configuration file is configured with the `SC_YAML` environment variable, 
 defaults is `~/.sc.yaml`.
 
-Use *spec* to specify a context name and a api url to configure. If not specified, this is guessed from the
+Use *spec* to specify a context name and an api url to configure. If not specified, this is guessed from the
 local machine (TODO: cisotools).
 
 
@@ -389,7 +394,8 @@ Manage current context
 
 #### DESCRIPTION
 
-When called without argument: Lists all contexts with an arrow pointing to the current context. Prints just the current context when called with `-q`.
+When called without argument: lists all contexts with an arrow pointing to the current one. 
+Prints just the current context when called with `-q`.
 
 Changes the current context when invoked with a *context* argument. If the new context requires authentication, this command implicitly 
 runs `sc auth` to get the respective token. This can be disabled by specifying `-offline`.
@@ -424,21 +430,22 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-detached`] [['@'image | *path*] ...] *name* [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`] [['@'image | *path*] ...] *name* [*key*`=`*object*...]
 
 
 
 #### DESCRIPTION
 
-Creates stages for all specified images. You specify images either explicitly with a '@' prefix of by a path to be searched for `image` 
-files containing the image repositoryTag. It's fine to have multiple image files in one path. If neither image nor path is specified, 
-images default to the path `.`. *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes. 
-Otherwise it's rejected because it would cause problems with urls or docker tags that contain the name. *name* may also include an 
-underscore `_`, which will be substituted by the last segment of the image.
+Creates stages for all specified images. You specify images either explicitly with a '@' prefixing the repositoryTag or by a path to be 
+searched for `image` files containing the image repositoryTag. It's fine to have multiple image files in one path. If neither image nor 
+path is specified, images default to the path `.`. *name* specifies the name for new stages. It must contain only lower case ascii 
+characters or digit or dashes, it's rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the 
+name. *name* may also include an underscore `_`, which will be substituted by the last segment of the image; this is required if you create
+multiple stages and the command-line can only specify a single name.
 
-Reports an error if a stage already exists. You can disable this with the `-optional` option.
+Reports an error if a stage already exists. Or omits stages creation if the `-optional` option is specified.
 
-New stages are configured with the specified *key*/*value* pairs. Specifying a *key*/*value* pair is equivalent to running 
+New stages are configured with the specified *key*/*object* pairs. Specifying a *key*/*object* pair is equivalent to running 
 [stool config](#sc-config) with these arguments.
 
 [//]: # (include globalOptions.md)
@@ -449,8 +456,8 @@ See `sc help global-options` for available [global options](#sc-global-options)
 
 #### Examples
 
-Create one stage `foo` for one war file in the current Maven Project: `sc create foo`
-Create stages for all wars in a multi-module Maven Project: `sc create _.foo`
+Create one stage `foo` for one image file somewhere below the current directory: `sc create foo`
+Create stages for all images in a multi-module Maven Project: `sc create _.foo`
 
 ### sc-attach
 
@@ -474,8 +481,8 @@ See `sc help global-options` for available [global options](#sc-global-options)
 
 ## Stage Commands
 
-Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical stage commands are `status`, `start`, 
-and `stop`. All stage commands support the same stage options, see `sc help stage-options` for documentation.
+Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical stage commands are `status`, `publish`, 
+and `delete`. All stage commands support the same stage options, see `sc help stage-options` for documentation.
 
 ### sc-stage-options
 
@@ -491,9 +498,9 @@ Options available for all stage commands
 By default, stage commands operate on the attached stage (as shown in the stage indicator). You can change this by specifying one of the
 following selection option:
 
-`-all` operates on all stages
+`-all` operates on all stages in the current context
 
-`-stage` *predicate* operates on all matching stages. The syntax for predicates is as follows:
+`-stage` *predicate* operates on all matching stages in the current context. The syntax for predicates is as follows:
 
               or = and {',' and}
               and = expr {'+' expr}
@@ -511,8 +518,8 @@ following selection option:
 The most basic predicate is a simple `NAME`. It performs a substring match on the stage name. This is handy to run one command for a stage 
 without attaching it.
 
-Next, a predicate *FIELD*`=`*VALUE* matches stages who's status field has the specified value.
-*VALUE*`=`*VALUE* is similar, it matches stage values.
+Next, a predicate *FIELD*`=`*STR* matches stages who's status field has the specified string.
+*VALUE*`=`*STR* is similar, it matches stage values.
 
 #### Failure mode
 
@@ -564,14 +571,12 @@ Deletes a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `delete` *stage-option*... [`-stop`] [`-batch`]
+`sc` *global-option*... `delete` *stage-option*... [`-batch`]
 
 #### Description
 
-Deletes the stage, i.e. deletes it from the respective cluster. This includes images, containers and log files.
+Deletes the stage, i.e. deletes it from the respective cluster. This includes containers and log files.
 If the current workspace is attached to this stage, this attachment is removed as well.
-
-Reports an error if the stage is up. In this case, stop the stage first or invoke the command with `-stop`. 
 
 Before actually touching anything, this command asks if you really want to delete the stage. You can suppress this interaction 
 with the `-batch` option.
@@ -584,22 +589,22 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 [//]: # (-)
 
 
-### sc-start
+### sc-publish
 
-Start a stage
+Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `start` *stage-option*... [*key*`=`*value*...] [`*image*]
+`sc` *global-option*... `publish` *stage-option*... [*key*`=`*object*...] [*image*]
 
 #### Description
 
-Starts the stage with the environment arguments specified by *key*=*value* arguments. *image* specifies the image to actually start,
-it defaults to the latest. Use `sc images` to see available images.
+Updates the stage with the specified values. *image* specifies the image to actually start, it defaults to the latest. Use `sc images`
+to see available images.
 
-Startup is refused if the user who built the image does not have access to all fault projects referenced by the image.
+Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
-Startup is refused if your stage has expired. In this case, use `sc config stageExpire=`*newdate* to configure a new `stageExpire` date.
+Publishing is refused if your stage has expired. In this case, publish with a new expire value.
 
 TODO: The hostname of the container is set to <id>.<servername>, where id is a hash of stage name and application name. This hash
 serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names. 
@@ -608,51 +613,6 @@ check the hostname to configure themselves, use environment variables defined fo
 remove the server name from the container's hostname as well. 
 TODO: how to define additional environment variables?
 
-
-[//]: # (include stageOptions.md)
-
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
-
-[//]: # (-)
-
-
-### sc-stop
-
-Stop a stage
-
-#### SYNOPSIS
-
-`sc` *global-option*... `stop` *stage-option*...
-
-#### DESCRIPTION
-
-Stops the specified stage. 
-
-This command sends a "kill 15" to the root process of the container. If that's not successful within 300 seconds, the process is forcibly 
-terminated with "kill 9". If shutdown is slow, try to debug and find out what's slow in their kill 15 signal handling. 
-
-
-[//]: # (include stageOptions.md)
-
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
-
-[//]: # (-)
-
-
-### sc-restart
-
-Restart a stage
-
-#### SYNOPSIS
-
-`sc` *global-option*... `restart` *stage-option*... [*image*]
-
-
-#### DESCRIPTION
-
-Shorthand for `sc stop && stool start`.
 
 [//]: # (include stageOptions.md)
 
@@ -689,7 +649,7 @@ Manage stage values
 
 #### SYNOPSIS
 
-`sc` *global-option*... `config` *stage-option*... (*key* | *key* `=` *str*)...
+`sc` *global-option*... `config` *stage-option*... (*key* | *key*`=`*str*)...
 
 #### DESCRIPTION
 
@@ -698,9 +658,7 @@ This command gets or sets stage [values](#values).
 Caution: `config` does not deal Stool settings, see `sc help` for that.
 
 When invoked without arguments, all stage values are printed.
-
 When invoked with one or more *key*s, the respective values are printed.
-
 When invoked with one or more assignments, the respective values are changed.
 
 Strings may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
@@ -715,7 +673,7 @@ Values have a type: boolean, number, date, string, or list of strings.
 Boolean values by be `true` or `false`, case sensitive.
 
 Date values have the form *yyyy-mm-dd*, so a valid `stageExpire` value is - e.g. -`2016-12-31`. Alternatively, 
-you can specify a number which is translated into the date that number of days from now (e.g. `1` means tomorrow).
+you can specify a number which is shorthand for that number of days from now (e.g. `1` means tomorrow).
 
 List values (e.g. `stageNotify`) are separated by commas, whitespace before and after an item is ignored.
 
@@ -812,6 +770,7 @@ Display image status
 
 Display info about the images of the stage.
 
+TODO
 * **disk**
   Read/write disk space that has to be reserved for this image. Type number (mb).
 * **memory**
@@ -830,9 +789,6 @@ Display info about the images of the stage.
   Source scm this image was built from. Type string.
 * **origin-user**
   Who build this image. Type string.
-
-
-
   
 
 [//]: # (include stageOptions.md)
