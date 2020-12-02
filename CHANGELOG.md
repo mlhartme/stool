@@ -2,15 +2,19 @@
 
 ### 6.1.0 (pending)
 
-* split "properties" in to settings (applied to the server) and values (applied to individual stages)
-* environment configuration is gone, use Helm values instead
-* moved stool build into separate Maven plugin
-* stool no longer wipes stages
-* added `values` field to status
-* dumped jmxmp, rely on readniss probes instead; 
-  also humped heap field
-* generalized config command to get/set argitrary value; properties are values with a stage prefix;
-  dumped status field `values`
+* image handling changes
+  * dumped `sc build`, configure an image build in your Maven build instead
+  * created a separate `maven-dockerbuild-plugin` that contains the formder `sc build` functionality
+  * stool no longer wipes stages
+* stages are helm releases now
+  * `sc create` installs a Helm chart now, resulting in a Helm release; `sc delete` uninstalls this release
+  * stage configuration is stored in Helm Release values, replacing the previous config maps
+  * renamed environment to value
+  * split "properties" in to settings (applied to the server) and values (applied to individual stages)
+  * generalized config command to get/set arbitrary (Helm chart) value; properties are values with a stage prefix;
+    dumped status field `values`
+  * environment properties are gone, use stage config and value settings (i.e. Helm values) instead
+* dumped jmxmp, rely on readness probes instead; also dumped heap field
 * client
   * create
     * always starts the stage
@@ -38,7 +42,6 @@
   * server startup output with image version
   * readiness probe for stool server
 * update to junit 5.7.0
-* renamed environment to values
 
 
 ### 6.0.0 (2020-10-12)
