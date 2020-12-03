@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Things that I assume about helm charts.
+ * Things that Stool assumes about helm charts.
  */
 public class Type {
     public static final String VALUE_NOTIFY = "stageNotify";
@@ -31,6 +31,8 @@ public class Type {
     public static final String[] STAGE_VALUES = {
             VALUE_COMMENT, VALUE_EXPIRE, VALUE_NOTIFY
     };
+
+    public static final String MAIN_CONTAINER = "main"; // TODO: mostly need for monitoring, statistics ...
 
     //--
 

@@ -42,19 +42,9 @@ import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
@@ -87,8 +77,6 @@ public class Stage {
     public static final String KEEP_IMAGE = "marker string to indicate an 'empty publish'";
 
     public static final String DEPLOYMENT_LABEL_STAGE = "net.oneandone.stool-stage";
-
-    public static final String MAIN_CONTAINER = "main"; // TODO ...
 
     //--
 
@@ -342,7 +330,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                started = context.engine.podStartedAt(current.first.name /* TODO */, MAIN_CONTAINER);
+                started = context.engine.podStartedAt(current.first.name /* TODO */, Type.MAIN_CONTAINER);
                 if (started == null) {
                     return null;
                 }
@@ -359,7 +347,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = OpenShift.create().statsOpt(current.first /* TODO */.name, MAIN_CONTAINER);
+                stats = OpenShift.create().statsOpt(current.first /* TODO */.name, Type.MAIN_CONTAINER);
                 if (stats != null) {
                     return stats.cpu;
                 } else {
@@ -377,7 +365,7 @@ public class Stage {
                 if (current == null) {
                     return null;
                 }
-                stats = OpenShift.create().statsOpt(current.first /* TODO */.name, MAIN_CONTAINER);
+                stats = OpenShift.create().statsOpt(current.first /* TODO */.name, Type.MAIN_CONTAINER);
                 if (stats != null) {
                     return stats.memory;
                 } else {
@@ -771,7 +759,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         pod = runningPodFirst(engine); // first pod is picked as a representative
         if (pod != null) {
-            tag = registry.info(pod, MAIN_CONTAINER);
+            tag = registry.info(pod, Type.MAIN_CONTAINER);
         } else {
             lst = images(engine, registry);
             tag = lst.isEmpty() ? null : lst.get(lst.size() - 1);
@@ -864,7 +852,7 @@ public class Stage {
             for (PodInfo pod : runningPods.values()) {
                 if (image == null) {
                     first = pod;
-                    image = registry.info(pod, MAIN_CONTAINER);
+                    image = registry.info(pod, Type.MAIN_CONTAINER);
                 }
                 if (!pod.isRunning()) {
                     throw new IllegalStateException("TODO");
@@ -918,7 +906,7 @@ public class Stage {
         for (int count = 0; true; count++) {
             current = context.currentOpt(this);
             if (current != null) {
-                container = current.first.containers.get(MAIN_CONTAINER);
+                container = current.first.containers.get(Type.MAIN_CONTAINER);
                 if (container != null) {
                     if (container.ready) {
                         // ok
@@ -939,53 +927,4 @@ public class Stage {
             }
         }
     }
-
-    public JMXServiceURL podJmxUrl(Context context, int port) throws IOException {
-        PodInfo running;
-
-        running = context.runningPodsFirst(this);
-        if (running == null) {
-            return null;
-        } else {
-            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            return new JMXServiceURL("service:jmx:jmxmp://" + running.ip + ":" + port);
-        }
-    }
-
-    private String jmxEngineState(JMXServiceURL url) throws IOException {
-        ObjectName object;
-
-        try {
-            object = new ObjectName("Catalina:type=Engine");
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException(e);
-        }
-        try (JMXConnector connection = JMXConnectorFactory.connect(url, null)) {
-            return (String) connection.getMBeanServerConnection().getAttribute(object, "stateName");
-        } catch (ReflectionException | InstanceNotFoundException | AttributeNotFoundException | MBeanException e) {
-            throw new IllegalStateException();
-        }
-    }
-
-    // CAUTION: blocks until ctrl-c.
-    // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
-    public void tailF(Engine engine, PrintWriter dest) throws IOException {
-        PodInfo running;
-
-        running = runningPodFirst(engine); // TODO: choose different pod
-        if (running == null) {
-            Server.LOGGER.info("ignoring -tail option because container is not unique");
-        } else {
-            engine.podLogsFollow(running.containerId(MAIN_CONTAINER), new OutputStream() {
-                @Override
-                public void write(int b) {
-                    dest.write(b);
-                    if (b == 10) {
-                        dest.flush(); // newline
-                    }
-                }
-            });
-        }
-    }
-
 }
