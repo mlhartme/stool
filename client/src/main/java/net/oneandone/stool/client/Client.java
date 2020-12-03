@@ -270,12 +270,12 @@ public class Client {
 
     public Map<String, String> getValues(String stage) throws Exception {
         Map<String, String> result;
-        JsonObject properties;
+        JsonObject values;
 
-        properties = getJson(node(stage, "values")).getAsJsonObject();
+        values = getJson(node(stage, "values")).getAsJsonObject();
         result = new LinkedHashMap<>();
-        for (String property : properties.keySet()) {
-            result.put(property, properties.get(property).getAsString());
+        for (String value : values.keySet()) {
+            result.put(value, values.get(value).getAsString());
         }
         return result;
     }

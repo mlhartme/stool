@@ -540,13 +540,27 @@ public class Stage {
         try {
             Server.LOGGER.info("helm install upgrade=" + upgrade);
             Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
-            System.out.println("written values: " + values.readString());
         } finally {
             tmp.deleteTree();
         }
-        System.out.println("created values: " + engine.helmReadValues(name));
-        engine.deploymentAwait(dnsLabel());
+        if (replicas(map) > 0) { // TODO
+            engine.deploymentAwait(dnsLabel());
+        }
         return image.repositoryTag;
+    }
+
+    private static int replicas(Map<String, Object> map) {
+        Object obj;
+
+        obj = map.get("replicas");
+        if (obj == null) {
+            return 1; // TODO: error message?
+        }
+        if (obj instanceof Integer) {
+            return (int) obj;
+        } else {
+            return Integer.parseInt(obj.toString());
+        }
     }
 
     private void checkValues(FileNode chart, Map<String, String> clientValues) throws IOException {
@@ -580,7 +594,6 @@ public class Stage {
             entry = iter.next();
             result.put(entry.getKey(), entry.getValue().asText());
         }
-        System.out.println("buildInValues: " + chart); // TODO
         return result;
     }
 
@@ -929,7 +942,6 @@ public class Stage {
             if (current != null) {
                 container = current.first.containers.get(MAIN_CONTAINER);
                 if (container != null) {
-                    System.out.println("container " + container.id);
                     if (container.ready) {
                         // ok
                         return;
