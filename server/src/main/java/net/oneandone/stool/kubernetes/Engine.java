@@ -484,6 +484,28 @@ public class Engine implements AutoCloseable {
         }
     }
 
+    public void deploymentAwaitGone(String name) throws IOException {
+        DeploymentInfo info;
+        int count;
+
+        count = 0;
+        while (true) {
+            info = deploymentProbe(name);
+            if (info == null) {
+                return;
+            }
+            count++;
+            if (count > 500) {
+                throw new IOException(name + ": waiting for deployment to vanish timed out");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new IOException(name + "waiting for deployment to vanish interrupted", e);
+            }
+        }
+    }
+
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                                  Container container, String hostname, Map<String, String> podLabels) throws IOException {
         deploymentCreate(name, selector, deploymentLabels, new Container[] { container }, hostname, podLabels);

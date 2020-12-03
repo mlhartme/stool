@@ -695,16 +695,9 @@ public class Stage {
         return registry.info(repositoy, tag);
     }
 
-    public String uninstall(Engine engine, Registry registry) throws IOException {
-        Current current;
-
-        current = currentOpt(engine, registry);
-        if (current == null) {
-            return null;
-        }
+    public void uninstall(Engine engine) throws IOException {
         Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "uninstall", getName()));
-        engine.podAwait(current.first /* TODO */.name, null);
-        return current.image.tag;
+        engine.deploymentAwaitGone(getName());
     }
 
     private String cert() throws IOException {
@@ -783,10 +776,6 @@ public class Stage {
             result.add(url + suffix);
         }
         return result;
-    }
-
-    public void delete(Engine engine, Registry registry) throws IOException {
-        uninstall(engine, registry); // usually returns true for already stopped
     }
 
     //--

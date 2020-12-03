@@ -187,14 +187,8 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/delete")
     public void delete(@PathVariable(value = "stage") String stageName) throws IOException {
-        Registry registry;
-        Stage stage;
-
         try (Engine engine = engine()) {
-            stage = server.load(engine, stageName);
-            registry = stage.createRegistry(World.create() /* TODO */);
-            stage.uninstall(engine, registry);
-            stage.delete(engine, registry);
+            server.load(engine, stageName).uninstall(engine);
         }
     }
 

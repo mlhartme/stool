@@ -15,14 +15,12 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.server.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserNotFound;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
 
 import javax.mail.MessagingException;
@@ -32,25 +30,21 @@ import java.util.List;
 import java.util.Set;
 
 public class Validation {
-    private final World world;
     private final Server server;
     private final Engine engine;
 
-    public Validation(Server server, Engine engine) throws IOException {
-        this.world = World.create();
+    public Validation(Server server, Engine engine) {
         this.server = server;
         this.engine = engine;
     }
 
     public List<String> run(String name, boolean email, boolean repair) throws IOException, MessagingException {
         List<String> report;
-        Registry registry;
         Stage stage;
 
         stage = server.load(engine, name);
-        registry = stage.createRegistry(world);
         report = new ArrayList<>();
-        doRun(stage, registry, report, repair);
+        doRun(stage, report, repair);
         Server.LOGGER.info("Validation done (" + report.size() + " lines report)");
         for (String line : report) {
             Server.LOGGER.info("  " + line);
@@ -61,7 +55,7 @@ public class Validation {
         return report;
     }
 
-    private void doRun(Stage stage, Registry registry, List<String> report, boolean repair) throws IOException {
+    private void doRun(Stage stage, List<String> report, boolean repair) throws IOException {
         Expire expire;
 
         expire = stage.getValueExpire(engine);
@@ -71,7 +65,7 @@ public class Validation {
         if (repair) {
             if (stage.runningPodFirst(engine) != null) {
                 try {
-                    stage.uninstall(engine, registry);
+                    stage.uninstall(engine);
                     report.add("stage has been stopped");
                 } catch (Exception e) {
                     report.add("stage failed to stop: " + e.getMessage());
@@ -82,7 +76,7 @@ public class Validation {
                 if (expire.expiredDays() >= server.settings.autoRemove) {
                     try {
                         report.add("removing expired stage");
-                        stage.delete(engine, registry);
+                        stage.uninstall(engine);
                     } catch (Exception e) {
                         report.add("failed to remove expired stage: " + e.getMessage());
                         Server.LOGGER.debug(e.getMessage(), e);
