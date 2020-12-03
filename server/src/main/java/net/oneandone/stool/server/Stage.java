@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import net.oneandone.stool.kubernetes.ContainerInfo;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.PortusRegistry;
@@ -463,7 +462,7 @@ public class Stage {
 
     /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
      *                  keep to stick with current image. */
-    public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
+    public String install(boolean await, boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
         World world;
         FileNode tmp;
         TagInfo image;
@@ -523,8 +522,8 @@ public class Stage {
         } finally {
             tmp.deleteTree();
         }
-        if (replicas(map) > 0) { // TODO
-            engine.deploymentAwait(dnsLabel());
+        if (await) {
+            awaitStartup(engine);
         }
         return image.repositoryTag;
     }
@@ -899,32 +898,7 @@ public class Stage {
 
     //--
 
-    public void awaitStartup(Context context) throws IOException {
-        Stage.Current current;
-        ContainerInfo container;
-
-        for (int count = 0; true; count++) {
-            current = context.currentOpt(this);
-            if (current != null) {
-                container = current.first.containers.get(Type.MAIN_CONTAINER);
-                if (container != null) {
-                    if (container.ready) {
-                        // ok
-                        return;
-                    }
-                }
-            }
-            if (count > 600) {
-                throw new IOException(name + ": waiting for pod timed out");
-            }
-            if (count % 100 == 99) {
-                Server.LOGGER.info(name + ": waiting for pod to get ready ... ");
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                // fall-through
-            }
-        }
+    public void awaitStartup(Engine engine) throws IOException {
+        engine.deploymentAwait(dnsLabel());
     }
 }

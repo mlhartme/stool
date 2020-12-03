@@ -26,26 +26,29 @@ public class DeploymentInfo {
     public static DeploymentInfo create(V1Deployment deployment) {
         V1DeploymentStatus status;
         Map<String, String> labels;
-        Integer replicas;
+        Integer statusAvailable;
 
         if (deployment.getMetadata() == null) {
             throw new IllegalStateException("not metadata");
         }
         labels = deployment.getMetadata().getLabels();
         status = deployment.getStatus();
-        replicas = status == null ? null : status.getAvailableReplicas();
+        statusAvailable = status == null ? null : status.getAvailableReplicas();
         return new DeploymentInfo(deployment.getMetadata().getName(),
                 labels == null ? new HashMap<>() : labels,
-                replicas == null ? 0 : replicas);
+                deployment.getSpec().getReplicas(),
+                statusAvailable == null ? 0 : statusAvailable);
     }
 
     public final String name;
     public final Map<String, String> labels;
-    public final int available;
+    public final int specReplicas;
+    public final int statusAvailable;
 
-    public DeploymentInfo(String name, Map<String, String> labels, int available) {
+    public DeploymentInfo(String name, Map<String, String> labels, int specReplicas, int statusAvailable) {
         this.name = name;
         this.labels = labels;
-        this.available = available;
+        this.specReplicas = specReplicas;
+        this.statusAvailable = statusAvailable;
     }
 }

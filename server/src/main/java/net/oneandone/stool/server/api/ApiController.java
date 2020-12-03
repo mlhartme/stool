@@ -169,7 +169,7 @@ public class ApiController {
             stage = new Stage(server, name);
             // TODO: no values available yet ...
             //  stage.checkExpired(engine);
-            return json(stage.install(false, engine, image, values)).toString();
+            return json(stage.install(false, false, engine, image, values)).toString();
         }
     }
 
@@ -181,7 +181,7 @@ public class ApiController {
         values = map(request, "value.");
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            return json(stage.install(true, engine, imageOpt, values)).toString();
+            return json(stage.install(true, true, engine, imageOpt, values)).toString();
         }
     }
 
@@ -247,7 +247,7 @@ public class ApiController {
                 clientValues.put(entry.getKey(), value);
                 result.add(prop.name(), new JsonPrimitive(disclose(prop.name(), value)));
             }
-            stage.install(true, engine, Stage.KEEP_IMAGE, clientValues);
+            stage.install(true, true, engine, Stage.KEEP_IMAGE, clientValues);
             return result.toString();
         }
     }
@@ -343,7 +343,7 @@ public class ApiController {
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
             context = new Context(engine);
-            stage.awaitStartup(context);
+            stage.awaitStartup(engine);
 
             if (stage.currentOpt(engine, context.registry(stage)) == null) {
                 throw new IllegalStateException();

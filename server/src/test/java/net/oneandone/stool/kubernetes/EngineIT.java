@@ -288,7 +288,7 @@ public class EngineIT {
             assertEquals(1, map.size());
             info = map.get(name);
             assertEquals(name, info.name);
-            assertEquals(1, info.available);
+            assertEquals(1, info.statusAvailable);
 
             pods = engine.podList(Strings.toMap("app", "foo"));
             assertEquals(1, pods.size());

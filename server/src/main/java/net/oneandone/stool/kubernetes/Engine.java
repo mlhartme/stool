@@ -461,6 +461,7 @@ public class Engine implements AutoCloseable {
         }
     }
 
+    /** @return true for 0 spec replicas */
     public DeploymentInfo deploymentAwait(String name) throws IOException {
         DeploymentInfo info;
         int count;
@@ -468,7 +469,7 @@ public class Engine implements AutoCloseable {
         count = 0;
         while (true) {
             info = deploymentProbe(name);
-            if (info.available > 0) {
+            if (info.specReplicas == 0 || info.statusAvailable > 0) {
                 return info;
             }
             count++;
