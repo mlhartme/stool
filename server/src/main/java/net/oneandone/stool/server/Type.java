@@ -22,6 +22,7 @@ import java.util.Set;
 
 /**
  * Things that Stool assumes about helm charts.
+ * TODO: stage name -&gt; deployment name is not represented in this class
  */
 public class Type {
     public static final String VALUE_NOTIFY = "stageNotify";

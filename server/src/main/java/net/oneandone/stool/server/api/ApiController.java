@@ -336,12 +336,8 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            context = new Context(engine);
             stage.awaitStartup(engine);
-
-            if (stage.currentOpt(engine, context.registry(stage)) == null) {
-                throw new IllegalStateException();
-            }
+            context = new Context(engine);
             return Engine.obj(stage.urlMap(engine, context.registry(stage))).toString();
         }
     }

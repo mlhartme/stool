@@ -244,21 +244,6 @@ public class Stage {
                 return result;
             }
         });
-        fields.add(new Field("running") {
-            @Override
-            public Object get(Context context) throws IOException {
-                Current current;
-                List<String> result;
-
-                current = context.currentOpt(Stage.this);
-                result = new ArrayList<>();
-                if (current != null) {
-                    result.add(current.image.tag);
-                }
-                Collections.sort(result);
-                return result;
-            }
-        });
         appFields(fields);
         fields.add(new Field("created-by") {
             @Override
@@ -268,7 +253,6 @@ public class Stage {
                 login = createdBy();
                 return login == null ? null : server.userManager.checkedByLogin(login);
             }
-
         });
         fields.add(new Field("created-at") {
             @Override
@@ -280,7 +264,6 @@ public class Stage {
                 entry = oldest(accessLogModifiedOnly());
                 return entry == null ? null : entry.dateTime;
             }
-
         });
         fields.add(new Field("last-modified-by") {
             @Override

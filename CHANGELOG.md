@@ -30,7 +30,8 @@
   * changed `restart` to `publish`
 * dumped config.environment -- publish automatically preserves previous configuration
 * dumped disk quota; I might use Kubernetes euphemeral quotas later
-* dumped `pod` field
+* dumped `pod` field, that's too low-level
+* dumped `running` field, use `config image` instead 
 * renamed `uptime` field to `last-deployed`, it now reports the corresponding Helm status
 * server
   * dumped memory and disk quotas from "info" response
