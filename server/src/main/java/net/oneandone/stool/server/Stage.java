@@ -310,15 +310,6 @@ public class Stage {
     }
 
     private void appFields(List<Field> fields) {
-        fields.add(new Field("pod") {
-            @Override
-            public Object get(Context context) throws IOException {
-                PodInfo info;
-
-                info = context.runningPodsFirst(Stage.this);
-                return info == null ? null : info.name;
-            }
-        });
         fields.add(new Field("last-deployed") {
             @Override
             public Object get(Context context) throws IOException {
