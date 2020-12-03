@@ -79,14 +79,6 @@ import java.util.zip.GZIPOutputStream;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String VALUE_NOTIFY = "stageNotify";
-    private static final String VALUE_EXPIRE = "stageExpire";
-    private static final String VALUE_COMMENT = "stageComment";
-
-    private static final String[] STAGE_VALUES = {
-            VALUE_COMMENT, VALUE_EXPIRE, VALUE_NOTIFY
-    };
-
     private static final String NOTIFY_CREATED_BY = "@created-by";
     private static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
@@ -209,9 +201,9 @@ public class Stage {
         for (Map.Entry<String, Object> entry : values.entrySet()) {
             result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
         }
-        addOpt(result, VALUE_COMMENT, "");
-        addOpt(result, VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
-        addOpt(result, VALUE_NOTIFY, Stage.NOTIFY_CREATED_BY);
+        addOpt(result, Type.VALUE_COMMENT, "");
+        addOpt(result, Type.VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
+        addOpt(result, Type.VALUE_NOTIFY, Stage.NOTIFY_CREATED_BY);
         return result;
     }
 
@@ -236,11 +228,11 @@ public class Stage {
     }
 
     public Expire getValueExpire(Engine engine) throws IOException {
-        return Expire.fromHuman(value(engine, VALUE_EXPIRE).get());
+        return Expire.fromHuman(value(engine, Type.VALUE_EXPIRE).get());
     }
 
     public List<String> getValueNotify(Engine engine) throws IOException {
-        return Separator.COMMA.split(value(engine, VALUE_NOTIFY).get());
+        return Separator.COMMA.split(value(engine, Type.VALUE_NOTIFY).get());
     }
 
     public List<Field> fields() {
@@ -513,7 +505,7 @@ public class Stage {
             throw new ArgumentException("helm chart not found: " + image.chart);
         }
         src.copyDirectory(tmp);
-        checkValues(tmp, clientValues);
+        Type.TYPE.checkValues(clientValues, builtInValues(tmp).keySet());
         if (upgrade) {
             // TODO:
             // put values from image again? it might have changed ...
@@ -526,11 +518,11 @@ public class Stage {
         map.put("cert", cert());
         map.put("fault", fault(world, image));
 
-        expire = Expire.fromHuman((String) map.getOrDefault(VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
+        expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
         if (expire.isExpired()) {
             throw new ArgumentException(name + ": stage expired: " + expire);
         }
-        map.put(VALUE_EXPIRE, expire.toString()); // normalize
+        map.put(Type.VALUE_EXPIRE, expire.toString()); // normalize
         Server.LOGGER.info("values: " + map);
         try (PrintWriter v = new PrintWriter(values.newWriter())) {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -560,20 +552,6 @@ public class Stage {
             return (int) obj;
         } else {
             return Integer.parseInt(obj.toString());
-        }
-    }
-
-    private void checkValues(FileNode chart, Map<String, String> clientValues) throws IOException {
-        Set unknown;
-
-        unknown = new HashSet(clientValues.keySet());
-        unknown.removeAll(builtInValues(chart).keySet());
-
-        for (String value : STAGE_VALUES) {
-            unknown.remove(value);
-        }
-        if (!unknown.isEmpty()) {
-            throw new ArgumentException("unknown value(s): " + unknown);
         }
     }
 

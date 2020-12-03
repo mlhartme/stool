@@ -1,0 +1,57 @@
+/*
+ * Copyright 1&1 Internet AG, https://github.com/1and1/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.oneandone.stool.server;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Things that I assume about helm charts.
+ */
+public class Type {
+    public static final String VALUE_NOTIFY = "stageNotify";
+    public static final String VALUE_EXPIRE = "stageExpire";
+    public static final String VALUE_COMMENT = "stageComment";
+
+    public static final String[] STAGE_VALUES = {
+            VALUE_COMMENT, VALUE_EXPIRE, VALUE_NOTIFY
+    };
+
+    //--
+
+    public static final Type TYPE = new Type();
+
+    public Type() {
+    }
+
+    public void checkValues(Map<String, String> clientValues, Collection<String> builtIns) {
+        Set<String> unknown;
+
+        unknown = new HashSet<>(clientValues.keySet());
+        unknown.removeAll(builtIns);
+
+        for (String value : STAGE_VALUES) {
+            unknown.remove(value);
+        }
+        if (!unknown.isEmpty()) {
+            throw new ArgumentException("unknown value(s): " + unknown);
+        }
+    }
+
+
+}
