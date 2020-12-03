@@ -319,21 +319,10 @@ public class Stage {
                 return info == null ? null : info.name;
             }
         });
-        fields.add(new Field("uptime") {
+        fields.add(new Field("last-deployed") {
             @Override
             public Object get(Context context) throws IOException {
-                Current current;
-                Long started;
-
-                current = context.currentOpt(Stage.this);
-                if (current == null) {
-                    return null;
-                }
-                started = context.engine.podStartedAt(current.first.name /* TODO */, Type.MAIN_CONTAINER);
-                if (started == null) {
-                    return null;
-                }
-                return Stage.timespan(started);
+                return context.engine.helmRead(name).get("info").getAsJsonObject().get("last_deployed").getAsString();
             }
         });
         fields.add(new Field("cpu") {
