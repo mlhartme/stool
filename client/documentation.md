@@ -244,7 +244,7 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` [`-optional`][`-detached`] [['@'image | *path*] ...] *name* [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`] [['@'image | *path*] ...] *name* [*key*`=`*object*...]
 
 
 
@@ -259,23 +259,16 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `detach` *stage-option*... 
 
 
-`sc` *global-option*... `delete` *stage-option*... [`-stop`] [`-batch`]
+`sc` *global-option*... `delete` *stage-option*... [`-batch`]
 
 
-`sc` *global-option*... `start` *stage-option*... [*key*`=`*value*...] [`*image*]
-
-
-`sc` *global-option*... `stop` *stage-option*...
-
-
-`sc` *global-option*... `restart` *stage-option*... [*image*]
-
+`sc` *global-option*... `publish` *stage-option*... [*key*`=`*object*...] [*image*]
 
 
 `sc` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
 
 
-`sc` *global-option*... `config` *stage-option*... (*key* | *key* `=` *str*)...
+`sc` *global-option*... `config` *stage-option*... (*key* | *key*`=`*str*)...
 
 
 `sc` *global-option*... `status *stage-option*... (*field*|*value*)...

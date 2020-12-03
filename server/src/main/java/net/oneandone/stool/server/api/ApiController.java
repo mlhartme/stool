@@ -207,9 +207,20 @@ public class ApiController {
         try (Engine engine = engine()) {
             context = new Context(engine);
             for (Value value : server.load(engine, stage).values(engine).values()) {
-                result.add(value.name(), new JsonPrimitive(value.get(context)));
+                result.add(value.name(), new JsonPrimitive(disclose(value.name(), value.get(context))));
             }
             return result.toString();
+        }
+    }
+
+    // TODO: configurable
+    private static final List<String> DISCLOSE = Strings.toList("cert", "fault");
+
+    private static String disclose(String name, String value) {
+        if (DISCLOSE.contains(name)) {
+            return "(undisclosed)";
+        } else {
+            return value;
         }
     }
 
@@ -234,7 +245,7 @@ public class ApiController {
                 value = entry.getValue();
                 value = value.replace("{}", prop.get(context));
                 clientValues.put(entry.getKey(), value);
-                result.add(prop.name(), new JsonPrimitive(value));
+                result.add(prop.name(), new JsonPrimitive(disclose(prop.name(), value)));
             }
             stage.install(true, engine, Stage.KEEP_IMAGE, clientValues);
             return result.toString();
