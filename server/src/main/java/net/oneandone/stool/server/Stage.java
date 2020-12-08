@@ -340,10 +340,10 @@ public class Stage {
         fields.add(new Field("origin-scm") {
             @Override
             public Object get(Context context) throws IOException {
-                Current current;
+                TagInfo current;
 
                 current = context.currentOpt(Stage.this);
-                return current == null ? null : current.image.originScm;
+                return current == null ? null : current.originScm;
             }
         });
     }
@@ -756,14 +756,6 @@ public class Stage {
 
     //--
 
-    public static class Current {
-        public final TagInfo image;
-
-        public Current(TagInfo image) {
-            this.image = image;
-        }
-    }
-
     /** @return empty list if not running */
     public Map<String, PodInfo> runningPods(Engine engine) throws IOException {
         return engine.podList(Strings.toMap(DEPLOYMENT_LABEL_STAGE, name));
@@ -778,11 +770,11 @@ public class Stage {
     }
 
     /** @return null if not running */
-    public Current currentOpt(Engine engine, Registry registry) throws IOException {
+    public TagInfo currentOpt(Engine engine, Registry registry) throws IOException {
         return currentOpt(registry, runningPods(engine));
     }
 
-    public Current currentOpt(Registry registry, Map<String, PodInfo> runningPods) throws IOException {
+    public TagInfo currentOpt(Registry registry, Map<String, PodInfo> runningPods) throws IOException {
         TagInfo image;
 
         if (runningPods.isEmpty()) {
@@ -797,7 +789,7 @@ public class Stage {
                     throw new IllegalStateException("TODO");
                 }
             }
-            return new Current(image);
+            return image;
         }
     }
 

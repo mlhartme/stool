@@ -290,7 +290,7 @@ public class ApiController {
     public String images(@PathVariable("stage") String name) throws Exception {
         Stage stage;
         List<TagInfo> all;
-        Stage.Current current;
+        TagInfo current;
         String marker;
         List<String> result;
         List<String> args;
@@ -303,7 +303,7 @@ public class ApiController {
             all = stage.images(engine, registry);
             current = stage.currentOpt(engine, registry);
             for (TagInfo image : all) {
-                marker = current != null && image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";
+                marker = current != null && image.repositoryTag.equals(current.repositoryTag) ? "<==" : "";
                 result.add(image.tag + "  " + marker);
                 result.add("   id:            " + image.id);
                 result.add("   repositoryTag: " + image.repositoryTag);
@@ -407,15 +407,15 @@ public class ApiController {
         ex.schedule(cleanup, timeout, TimeUnit.MINUTES);
     }
 
-    private Stage.Current currentWithPermissions(String stageName) throws IOException {
+    private TagInfo currentWithPermissions(String stageName) throws IOException {
         Stage stage;
-        Stage.Current current;
+        TagInfo current;
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
             current = stage.currentOpt(engine, stage.createRegistry(World.create() /* TODO */));
         }
-        server.checkFaultPermissions(User.authenticatedOrAnonymous().login, current.image.faultProjects);
+        server.checkFaultPermissions(User.authenticatedOrAnonymous().login, current.faultProjects);
         return current;
     }
 

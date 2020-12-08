@@ -33,7 +33,7 @@ public class Context {
     private final Map<String, Registry> registries;
     private final Map<String, List<TagInfo>> stageImages;
     private final Map<String, Map<String, PodInfo>> runningPods;
-    private final Map<String, Stage.Current> currentOpts;
+    private final Map<String, TagInfo> currentOpts;
     private final Map<String, Map<String, String>> urlMaps;
 
     public Context(Engine engine) {
@@ -80,8 +80,8 @@ public class Context {
         return result;
     }
 
-    public Stage.Current currentOpt(Stage stage) throws IOException {
-        Stage.Current result;
+    public TagInfo currentOpt(Stage stage) throws IOException {
+        TagInfo result;
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
