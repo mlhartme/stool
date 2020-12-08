@@ -72,7 +72,7 @@ dashboard = {
                         var htmlSt;
                         var htmlName;
                         var htmlUrls;
-                        var htmlRestart;
+                        var htmlPublish;
                         var mailBody;
                         var htmlMenu;
                         var newTr;
@@ -97,9 +97,9 @@ dashboard = {
                             htmlUrls = htmlUrls + "<a href='" + url + "' target='_blank'>" + escapeHtml(name) + "</a><br/>\n"
                         })
                         htmlUrls = "<td class='links'>" + htmlUrls + "</td>\n"
-                        htmlRestart = " <td class='action restart'>\n" +
-                                      "   <button class='btn btn-light btn-sm' type='button' data-action='restart' data-stage='" + eName + "'>\n" +
-                                      "     <span style='white-space: nowrap'><i class='fas fa-sync'></i> Restart</span>\n" +
+                        htmlPublish = " <td class='action publish'>\n" +
+                                      "   <button class='btn btn-light btn-sm' type='button' data-action='publish' data-stage='" + eName + "'>\n" +
+                                      "     <span style='white-space: nowrap'><i class='fas fa-sync'></i> Publish</span>\n" +
                                       "   </button>\n"
                                       " </td>"
                         mailBody = "Application links:\n"
@@ -125,7 +125,7 @@ dashboard = {
                                    htmlUrls +
                                    "<td>" + status.stageExpire + "</td>\n" +
                                    "<td>" + status["last-modified-by"] + "</td>\n" +
-                                   htmlRestart +
+                                   htmlPublish +
                                    htmlMenu
                                    "</tr>";
                         newHash = String(hashCode(newTr));
@@ -175,37 +175,20 @@ dashboard = {
             box.modal('show');
             box.find('.modal-header').html("<h4>" + action + " " + stage + "</h4>");
 
-            if (action == "restart") {
-                $.post("/api/stages/" + stage + "/stop").fail(function (r) {
-                    box.find('.modal-body').html('<p>failed: ' + r + '</p>');
-                    dashboard.stages.reload();
-                }).done(function (r) {
-                    $.post("/api/stages/" + stage + "/start").fail(function (r) {
-                        box.find('.modal-body').html('<p>failed: ' + r + '</p>');
-                        dashboard.stages.reload();
-                    }).done(function (r) {
-                        // TODO: doesn't work if the browser is extremely slow (or busy)
-                        // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
-                        setTimeout( function() { box.modal("hide"); }, 500 );
-                        dashboard.stages.reload();
-                    });
-                });
-            } else {
-                url = "/api/stages/" + stage + "/" + action;
-                if (arguments != null) {
-                    url = url + "?" + arguments;
-                }
-                $.post(url).fail(function (r) {
-                    box.find('.modal-body').html('<p>failed: ' + String(r) + '</p>');
-                    console.log(url + " failed: " + String(r))
-                    dashboard.stages.reload();
-                }).done(function (r) {
-                    // TODO: doesn't work if the browser is extremely slow (or busy)
-                    // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
-                    setTimeout( function() { box.modal("hide"); }, 500 );
-                    dashboard.stages.reload();
-                });
+            url = "/api/stages/" + stage + "/" + action;
+            if (arguments != null) {
+                url = url + "?" + arguments;
             }
+            $.post(url).fail(function (r) {
+                box.find('.modal-body').html('<p>failed: ' + String(r) + '</p>');
+                console.log(url + " failed: " + String(r))
+                dashboard.stages.reload();
+            }).done(function (r) {
+                // TODO: doesn't work if the browser is extremely slow (or busy)
+                // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
+                setTimeout( function() { box.modal("hide"); }, 500 );
+                dashboard.stages.reload();
+            });
             return false;
         },
 
