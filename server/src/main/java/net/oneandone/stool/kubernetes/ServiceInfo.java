@@ -16,36 +16,24 @@
 package net.oneandone.stool.kubernetes;
 
 import io.kubernetes.client.openapi.models.V1Service;
-import io.kubernetes.client.openapi.models.V1ServicePort;
 
-import java.util.List;
 import java.util.Map;
 
 public class ServiceInfo {
     public static ServiceInfo create(V1Service service) {
         String name;
-        List<V1ServicePort> ports;
-        int port;
 
         name = service.getMetadata().getName();
-        ports = service.getSpec().getPorts();
-        if (ports.size() == 1) {
-            port = ports.get(0).getPort();
-        } else {
-            port = -1;
-        }
-        return new ServiceInfo(name, service.getSpec().getClusterIP(), port, service.getMetadata().getLabels());
+        return new ServiceInfo(name, service.getSpec().getClusterIP(), service.getMetadata().getLabels());
     }
 
     public final String name;
     public final String clusterIp;
-    public final int port; // TODO: -1 for more than one port
     public final Map<String, String> labels;
 
-    public ServiceInfo(String name, String clusterIp, int port, Map<String, String> labels) {
+    public ServiceInfo(String name, String clusterIp, Map<String, String> labels) {
         this.name = name;
         this.clusterIp = clusterIp;
-        this.port = port;
         this.labels = labels;
     }
 }

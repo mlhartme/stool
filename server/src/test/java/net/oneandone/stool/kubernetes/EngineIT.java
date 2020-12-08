@@ -114,7 +114,7 @@ public class EngineIT {
             assertEquals(0, engine.serviceList().size());
             engine.serviceCreate(name, 1234, 8080);
             info = engine.serviceList().get(name);
-            assertEquals(1234, info.port);
+            assertEquals(name, info.name);
             engine.serviceDelete(name);
             assertEquals(0, engine.serviceList().size());
         }

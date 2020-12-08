@@ -749,14 +749,6 @@ public class Stage {
     }
 
     /** @return null if not running */
-    public PodInfo runningPodFirst(Engine engine) throws IOException {
-        Map<String, PodInfo> lst;
-
-        lst = runningPods(engine);
-        return lst.isEmpty() ? null : lst.values().iterator().next();
-    }
-
-    /** @return null if not running */
     public TagInfo tagInfo(Engine engine, Registry registry) throws IOException {
         return tagInfo(registry, getImage(engine));
     }

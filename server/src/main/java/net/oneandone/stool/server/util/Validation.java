@@ -63,14 +63,12 @@ public class Validation {
             report.add("Stage expired " + expire + ". To start it, you have to adjust the 'expire' date.");
         }
         if (repair) {
-            if (stage.runningPodFirst(engine) != null) {
-                try {
-                    stage.uninstall(engine);
-                    report.add("stage has been stopped");
-                } catch (Exception e) {
-                    report.add("stage failed to stop: " + e.getMessage());
-                    Server.LOGGER.debug(e.getMessage(), e);
-                }
+            try {
+                stage.uninstall(engine);
+                report.add("stage has been stopped");
+            } catch (Exception e) {
+                report.add("stage failed to stop: " + e.getMessage());
+                Server.LOGGER.debug(e.getMessage(), e);
             }
             if (server.settings.autoRemove >= 0 && expire.expiredDays() >= 0) {
                 if (expire.expiredDays() >= server.settings.autoRemove) {

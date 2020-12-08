@@ -61,6 +61,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -355,6 +356,7 @@ public class ApiController {
     @GetMapping("/stages/{stage}/pod-token")
     public String podToken(@PathVariable(value = "stage") String stageName, int timeout) throws IOException {
         JsonObject result;
+        Collection<PodInfo> pods;
         PodInfo pod;
         String id;
         String saName;
@@ -366,10 +368,11 @@ public class ApiController {
         }
         currentWithPermissions(stageName);
         try (Engine engine = engine(); OpenShift os = OpenShift.create()) {
-            pod = server.load(engine, stageName).runningPodFirst(engine); // TODO: how to choose different pod?
-            if (pod == null) {
-                throw new IOException("stage is not running: " + stageName);
+            pods = server.load(engine, stageName).runningPods(engine).values();
+            if (pods.isEmpty()) {
+                throw new IOException("no pods running for stage: " + stageName);
             }
+            pod = pods.iterator().next(); // TODO: how to choose different pod
 
             id = UUID.randomUUID().toString();
             saName = "sa-" + stageName + "-" + id;
