@@ -23,16 +23,17 @@ import net.oneandone.sushi.util.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Ls extends InfoCommand {
     /** to delay output until I can determine column widths*/
-    private final List<List<String>> lines;
+    private final LinkedHashMap<String, List<String>> columns;
 
     public Ls(Globals globals) {
         super(globals);
-        lines = new ArrayList<>();
+        columns = new LinkedHashMap<>();
     }
 
     @Override
@@ -49,37 +50,37 @@ public class Ls extends InfoCommand {
     }
 
     private void doBefore() {
-        List<String> line;
-
         if (selected.isEmpty()) {
             selected.addAll(Arrays.asList("name", "image", "last-modified-by"));
         }
         header("stages");
 
-        line = new ArrayList<>();
-        lines.add(line);
         for (String infoName : selected) {
-            line.add('(' + infoName + ')');
+            columns.put(infoName, new ArrayList<>());
         }
     }
 
     private void doAfter() {
+        final String gap = "   ";
         List<Integer> widths;
-        boolean first;
+        int idx;
 
         widths = widths();
-        first = true;
-        for (List<String> line : lines) {
-            console.info.print("   ");
-            for (int i = 0; i < widths.size(); i++) {
-                console.info.print("  ");
-                console.info.print(Strings.padRight(line.get(i), widths.get(i)));
+        idx = 0;
+        for (String name : columns.keySet()) {
+            console.info.print(Strings.padRight("(" + name + ")", widths.get(idx)));
+            console.info.print(gap);
+            idx++;
+        }
+        console.info.println();
+        for (int i = 0, lines = lines(); i < lines; i++) {
+            idx = 0;
+            for (List<String> column : columns.values()) {
+                console.info.print(Strings.padRight(column.get(i), widths.get(idx)));
+                console.info.print(gap);
+                idx++;
             }
             console.info.println();
-            if (first) {
-                console.info.println();
-                first = false;
-            }
         }
         message("");
     }
@@ -87,18 +88,31 @@ public class Ls extends InfoCommand {
 
     @Override
     public void doRun(Client client, String clientFilter, CompoundResult result) throws Exception {
-        List<String> line;
         Map<String, Map<String, JsonElement>> response;
 
         response = client.list(clientFilter, selected);
         for (Map.Entry<String, Map<String, JsonElement>> stage : response.entrySet()) {
-            line = new ArrayList<>();
-            lines.add(line);
             for (Map.Entry<String, JsonElement> entry : stage.getValue().entrySet()) {
-                line.add(infoToString(entry.getValue()));
+                columns.get(entry.getKey()).add(infoToString(entry.getValue()));
             }
             result.success(new Reference(client, stage.getKey()));
         }
+    }
+
+    private int lines() {
+        int result;
+
+        result = -1;
+        for (List<String> column : columns.values()) {
+            if (result == -1) {
+                return column.size();
+            } else {
+                if (column.size() != result) {
+                    throw new IllegalStateException(column + " vs " + result);
+                }
+            }
+        }
+        return result;
     }
 
     private List<Integer> widths() {
@@ -106,10 +120,10 @@ public class Ls extends InfoCommand {
         int max;
 
         result = new ArrayList<>();
-        for (int i = 0; i < selected.size(); i++) {
-            max = 0;
-            for (List<String> line : lines) {
-                max = Math.max(max, line.get(i).length());
+        for (Map.Entry<String, List<String>> entry : columns.entrySet()) {
+            max = entry.getKey().length() + 2;
+            for (String cell : entry.getValue()) {
+                max = Math.max(max, cell.length());
             }
             result.add(max);
         }

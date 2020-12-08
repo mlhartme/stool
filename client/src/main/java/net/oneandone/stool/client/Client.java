@@ -125,7 +125,10 @@ public class Client {
         return new ArrayList<>(list(filter, Collections.emptyList()).keySet());
     }
 
-    /** @param filter null to return all stages */
+    /**
+     * @param filter null to return all stages
+     * @return stage -&gt; (field -&gt; value)
+     */
     public Map<String, Map<String, JsonElement>> list(String filter, List<String> select) throws IOException {
         HttpNode node;
         JsonObject response;
