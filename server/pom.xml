@@ -143,12 +143,6 @@
       <version>${gson.version}</version>
     </dependency>
 
-    <dependency><!-- to use jmxmp to check stage status via jmx -->
-      <groupId>org.glassfish.external</groupId>
-      <artifactId>opendmk_jmxremote_optional_jar</artifactId>
-      <version>1.0-b01-ea</version>
-    </dependency>
-
     <!-- tests -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

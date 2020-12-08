@@ -14,7 +14,7 @@
   * generalized config command to get/set arbitrary (Helm chart) value; properties are values with a stage prefix;
     dumped status field `values`
   * environment properties are gone, use stage config and value settings (i.e. Helm values) instead
-* dumped jmxmp, rely on readness probes instead; also dumped heap field
+* dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
 * client
   * create
     * always starts the stage

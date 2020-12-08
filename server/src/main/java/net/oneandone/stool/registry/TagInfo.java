@@ -50,10 +50,6 @@ public class TagInfo implements Comparable<TagInfo> {
         return result;
     }
 
-    private static int jmxmp(String value) {
-        return value == null ? -1 : Integer.parseInt(value);
-    }
-
     private static Map<String, String> args(Map<String, String> labels) {
         Map<String, String> result;
         String key;
