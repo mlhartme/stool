@@ -707,22 +707,13 @@ public class Stage {
      */
     public Map<String, String> urlMap(Engine engine, Registry registry) throws IOException {
         Map<String, String> result;
-        PodInfo pod;
         TagInfo tag;
-        List<TagInfo> lst;
 
         result = new LinkedHashMap<>();
-        pod = runningPodFirst(engine); // first pod is picked as a representative
-        if (pod != null) {
-            tag = registry.info(pod, Type.MAIN_CONTAINER);
-        } else {
-            lst = images(engine, registry);
-            tag = lst.isEmpty() ? null : lst.get(lst.size() - 1);
-        }
-        if (tag != null) {
-            addNamed("http", url(tag, "http"), result);
-            addNamed("https", url(tag, "https"), result);
-        }
+        tag = tagInfo(registry, getImage(engine));
+        System.out.println("tag: " + tag); // TODO
+        addNamed("http", url(tag, "http"), result);
+        addNamed("https", url(tag, "https"), result);
         return result;
     }
 

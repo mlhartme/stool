@@ -40,13 +40,6 @@ public class PodInfo {
         this.containers = containers;
     }
 
-    public String containerId(String containerNamw) {
-        ContainerInfo info;
-
-        info = containers.get(containerNamw);
-        return info == null ? null : info.id;
-    }
-
     public String repositoryTag(String containerName) {
         ContainerInfo info;
 

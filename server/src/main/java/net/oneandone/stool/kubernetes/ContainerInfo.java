@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Represents a pod as used by Stool. In particular, the pod has a single container */
+/** Represents a container used by Stool. In particular, the pod has a single container */
 public class ContainerInfo {
     public static Map<String, ContainerInfo> createMap(V1Pod pod) {
         List<V1ContainerStatus> lst;
