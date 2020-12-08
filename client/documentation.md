@@ -894,7 +894,7 @@ Install steps
 ### Server installation
 
 TODO 
-* see https://github.com/mlhartme/stool/blob/stool-6.0/server/src/helm/values.yaml for available values
+* see https://github.com/mlhartme/stool/blob/stool-6.x/server/src/helm/values.yaml for available values
 * helm install ...
 
 Technically, Stool server is a proxy for Kubernetes, it uses a services account to access Kubernetes API. Users authenticate against Stool
@@ -902,4 +902,4 @@ server, they do not have access to Kubernetes.
 
 ### Building Stool
 
-See https://github.com/mlhartme/stool/blob/stool-6.0/DEVELOPMENT.md
+See https://github.com/mlhartme/stool/blob/stool-6.x/DEVELOPMENT.md
