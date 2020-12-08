@@ -415,9 +415,6 @@ public class ApiController {
             stage = server.load(engine, stageName);
             current = stage.currentOpt(engine, stage.createRegistry(World.create() /* TODO */));
         }
-        if (current == null || !current.first.isRunning()) {
-            throw new ArgumentException("stage is not running: " + stageName);
-        }
         server.checkFaultPermissions(User.authenticatedOrAnonymous().login, current.image.faultProjects);
         return current;
     }
