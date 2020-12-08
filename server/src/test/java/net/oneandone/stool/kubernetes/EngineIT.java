@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import io.kubernetes.client.openapi.models.V1Secret;
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
@@ -23,7 +22,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -31,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class EngineIT {
     private static final World WORLD = World.createMinimal();

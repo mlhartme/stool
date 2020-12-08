@@ -17,6 +17,7 @@ package net.oneandone.stool.kubernetes;
 
 import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1DeploymentStatus;
+import io.kubernetes.client.openapi.models.V1LabelSelector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ public class DeploymentInfo {
         V1DeploymentStatus status;
         Map<String, String> labels;
         Integer statusAvailable;
+        V1LabelSelector selector;
 
         if (deployment.getMetadata() == null) {
             throw new IllegalStateException("not metadata");
@@ -34,21 +36,34 @@ public class DeploymentInfo {
         labels = deployment.getMetadata().getLabels();
         status = deployment.getStatus();
         statusAvailable = status == null ? null : status.getAvailableReplicas();
+        selector = deployment.getSpec().getSelector();
+        if (selector == null) {
+            throw new IllegalStateException();
+        }
+        if (selector.getMatchExpressions() != null && selector.getMatchExpressions().size() > 0) {
+            throw new UnsupportedOperationException("TODO expression: " + deployment.getSpec().getSelector());
+        }
+        if (selector.getMatchLabels() == null && selector.getMatchLabels().isEmpty()) {
+            throw new UnsupportedOperationException("TODO labels: " + deployment.getSpec().getSelector());
+        }
         return new DeploymentInfo(deployment.getMetadata().getName(),
                 labels == null ? new HashMap<>() : labels,
                 deployment.getSpec().getReplicas(),
-                statusAvailable == null ? 0 : statusAvailable);
+                statusAvailable == null ? 0 : statusAvailable,
+                selector.getMatchLabels());
     }
 
     public final String name;
     public final Map<String, String> labels;
     public final int specReplicas;
     public final int statusAvailable;
+    public final Map<String, String> selector;
 
-    public DeploymentInfo(String name, Map<String, String> labels, int specReplicas, int statusAvailable) {
+    public DeploymentInfo(String name, Map<String, String> labels, int specReplicas, int statusAvailable, Map<String, String> selector) {
         this.name = name;
         this.labels = labels;
         this.specReplicas = specReplicas;
         this.statusAvailable = statusAvailable;
+        this.selector = selector;
     }
 }

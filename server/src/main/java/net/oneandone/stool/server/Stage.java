@@ -76,8 +76,6 @@ public class Stage {
 
     public static final String KEEP_IMAGE = "marker string to indicate an 'empty publish'";
 
-    public static final String DEPLOYMENT_LABEL_STAGE = "net.oneandone.stool-stage";
-
     //--
 
     public final Server server;
@@ -743,12 +741,11 @@ public class Stage {
 
     //--
 
-    /** @return empty list if not running */
     public Map<String, PodInfo> runningPods(Engine engine) throws IOException {
-        return engine.podList(Strings.toMap(DEPLOYMENT_LABEL_STAGE, name));
+        return engine.podList(engine.deploymentProbe(dnsLabel()).selector);
     }
 
-    /** @return null if not running */
+    /** @return never null */
     public TagInfo tagInfo(Engine engine, Registry registry) throws IOException {
         return tagInfo(registry, getImage(engine));
     }
