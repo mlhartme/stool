@@ -165,7 +165,7 @@ spec:
             name: hostkey-volume
 {{- end }}
       - name: collector
-        image: fluent/fluentd:v1.11.2-1.0
+        image: contargo.server.lan/cisoops-public/github/fluent/fluentd:v1.11.2-1.0
         volumeMounts:
           - name: fluentd-config
             mountPath: /fluentd/etc

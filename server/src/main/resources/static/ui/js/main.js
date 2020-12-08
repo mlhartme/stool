@@ -57,7 +57,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=comment,expire,last-modified-by,running,urls', {
+            $.ajax('/api/stages?select=stageComment,stageExpire,last-modified-by,urls', {
                 dataType: "json",
                 success: function (data) {
                     $('#loading').remove();
@@ -82,7 +82,7 @@ dashboard = {
                         eName = escapeHtml(name)
                         done.push(name);
                         oldTr = allStages.find('[data-name="' + name + '"]');
-                        up = status.running.length > 0;
+                        up = true;
                         htmlSt = "<td class='status'>\n" +
                                  "  <div class='status badge badge-" + (up ? "success" : "danger") + "'>\n" +
                                  "    <span>" + (up ? "up" : "down") + "</span>\n"
@@ -90,7 +90,7 @@ dashboard = {
                                  "</td>";
                         htmlName = "<td class='name'>\n" +
                                    "  <span data-container='body' data-toggle='popover' data-placement='bottom' " +
-                                   "        data-content='" + (status.comment !== "" ? escapeHtml(status.comment) : "(no comment)") + "' " +
+                                   "        data-content='" + (status.stageComment !== "" ? escapeHtml(status.stageComment) : "(no comment)") + "' " +
                                    "        data-trigger='hover'>" + eName + "</span></td>";
                         htmlUrls = "";
                         $.each(status.urls, function (name, url) {
@@ -110,13 +110,11 @@ dashboard = {
                                    "  <div class='dropdown'>\n" +
                                    "    <button type='button' class='btn btn-light btn-sm dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'><span style='white-space: nowrap'>More</span></button>\n" +
                                    "    <div class='dropdown-menu'>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='start' data-stage='" + eName + "'>Start</a>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='stop' data-stage='" + eName + "'>Stop</a>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='set-properties' data-arguments='expire=%2B7' data-stage='" + eName + "'>Expire in 1 week</a>\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='set-values' data-arguments='stageExpire=%2B7' data-stage='" + eName + "'>Expire in 1 week</a>\n" +
                                    "      <a class='dropdown-item' href='mailto:?subject=" + encodeURIComponent("Stage " + name) + "&body=" + encodeURIComponent(mailBody) + "'>\n" +
                                    "        <span style='white-space: nowrap'><i class='fas fa-share'></i> Share</span></a>\n" +
                                    "      <a class='dropdown-item' data-toggle='modal' data-target='#logs' data-stage='" + eName + "'>Log files ...</a>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='delete' data-arguments='stop&batch' data-stage='" + eName + "'>Delete</a>\n"
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='delete' data-stage='" + eName + "'>Delete</a>\n"
                                    "    </div>\n" +
                                    "  </div>\n" +
                                    "</td>\n"
@@ -125,7 +123,7 @@ dashboard = {
                                    htmlSt +
                                    htmlName +
                                    htmlUrls +
-                                   "<td>" + status.expire + "</td>\n" +
+                                   "<td>" + status.stageExpire + "</td>\n" +
                                    "<td>" + status["last-modified-by"] + "</td>\n" +
                                    htmlRestart +
                                    htmlMenu
