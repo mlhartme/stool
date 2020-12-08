@@ -21,7 +21,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.docker.AuthException;
 import net.oneandone.stool.docker.Daemon;
-import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
@@ -30,7 +29,6 @@ import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.fs.http.model.Method;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -145,21 +143,6 @@ public class PortusRegistry extends Registry {
         }
         hl = HeaderList.of("Authorization", "Bearer " + authToken);
         return node.withHeaders(hl);
-    }
-
-    public TagInfo info(PodInfo pod, String containerName) throws IOException {
-        String repository;
-        int idx;
-        String tag;
-
-        repository = Strings.removeLeft(pod.repositoryTag(containerName), host + "/");
-        idx = repository.indexOf(':');
-        if (idx == -1) {
-            throw new IllegalStateException(repository);
-        }
-        tag = repository.substring(idx + 1);
-        repository = repository.substring(0, idx);
-        return info(repository, tag);
     }
 
     /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */

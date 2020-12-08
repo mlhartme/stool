@@ -18,7 +18,6 @@ package net.oneandone.stool.registry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.oneandone.stool.kubernetes.PodInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ public abstract class Registry {
     public abstract void delete(String repository) throws IOException;
     public abstract List<String> tags(String repository) throws IOException;
 
-    public abstract TagInfo info(PodInfo pod, String containerName) throws IOException;
     public abstract TagInfo info(String repository, String tag) throws IOException;
 
     //--
