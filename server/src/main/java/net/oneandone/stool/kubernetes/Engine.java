@@ -462,7 +462,7 @@ public class Engine implements AutoCloseable {
     }
 
     /** @return true for 0 spec replicas */
-    public DeploymentInfo deploymentAwait(String name) throws IOException {
+    public DeploymentInfo deploymentAwaitAvailable(String name) throws IOException {
         DeploymentInfo info;
         int count;
 
@@ -520,7 +520,6 @@ public class Engine implements AutoCloseable {
         } catch (ApiException e) {
             throw wrap(e);
         }
-        deploymentAwait(name);
     }
 
     /** @return containerId or null */

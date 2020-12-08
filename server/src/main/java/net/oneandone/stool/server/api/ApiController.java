@@ -170,19 +170,22 @@ public class ApiController {
             stage = new Stage(server, name);
             // TODO: no values available yet ...
             //  stage.checkExpired(engine);
-            return json(stage.install(false, false, engine, image, values)).toString();
+            return json(stage.install(false, engine, image, values)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/publish")
     public String publish(@PathVariable(value = "stage") String stageName, String imageOpt, HttpServletRequest request) throws IOException {
         Map<String, String> values;
+        String result;
         Stage stage;
 
         values = map(request, "value.");
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            return json(stage.install(true, true, engine, imageOpt, values)).toString();
+            result = stage.install(true, engine, imageOpt, values);
+            stage.awaitAvailable(engine);
+            return json(result).toString();
         }
     }
 
@@ -242,7 +245,8 @@ public class ApiController {
                 clientValues.put(entry.getKey(), value);
                 result.add(prop.name(), new JsonPrimitive(disclose(prop.name(), value)));
             }
-            stage.install(true, true, engine, Stage.KEEP_IMAGE, clientValues);
+            stage.install(true, engine, Stage.KEEP_IMAGE, clientValues);
+            stage.awaitAvailable(engine);
             return result.toString();
         }
     }
@@ -337,7 +341,7 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            stage.awaitStartup(engine);
+            stage.awaitAvailable(engine);
             context = new Context(engine);
             return Engine.obj(stage.urlMap(engine, context.registry(stage))).toString();
         }

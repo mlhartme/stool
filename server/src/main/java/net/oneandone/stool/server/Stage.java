@@ -97,11 +97,6 @@ public class Stage {
         return name;
     }
 
-    public String dnsLabel() {
-        // is not allowed to contain dots
-        return name.replace(".", "--");
-    }
-
     //--
 
     public FileNode getLogs() {
@@ -109,7 +104,7 @@ public class Stage {
     }
 
     public String getImage(Engine engine) throws IOException {
-        return (String) engine.helmReadValues(name).get("image");
+        return (String) engine.helmReadValues(name).get(Type.VALUE_IMAGE);
     }
 
     public String getRepositoryPath(Engine engine) throws IOException {
@@ -243,7 +238,44 @@ public class Stage {
                 return result;
             }
         });
-        appFields(fields);
+        fields.add(new Field("last-deployed") {
+            @Override
+            public Object get(Context context) throws IOException {
+                return context.engine.helmRead(name).get("info").getAsJsonObject().get("last_deployed").getAsString();
+            }
+        });
+        fields.add(new Field("cpu") {
+            @Override
+            public Object get(Context context) throws IOException {
+                Stats stats;
+
+                stats = statsOpt(context);
+                if (stats != null) {
+                    return stats.cpu;
+                } else {
+                    return "n.a.";
+                }
+            }
+        });
+        fields.add(new Field("mem") {
+            @Override
+            public Object get(Context context) throws IOException {
+                Stats stats;
+
+                stats = statsOpt(context);
+                if (stats != null) {
+                    return stats.memory;
+                } else {
+                    return "n.a.";
+                }
+            }
+        });
+        fields.add(new Field("origin-scm") {
+            @Override
+            public Object get(Context context) throws IOException {
+                return context.tagInfo(Stage.this).originScm;
+            }
+        });
         fields.add(new Field("created-by") {
             @Override
             public Object get(Context context) throws IOException {
@@ -299,47 +331,6 @@ public class Stage {
             return null;
         }
         return OpenShift.create().statsOpt(running.iterator().next() /* TODO */.name, Type.MAIN_CONTAINER);
-    }
-
-    private void appFields(List<Field> fields) {
-        fields.add(new Field("last-deployed") {
-            @Override
-            public Object get(Context context) throws IOException {
-                return context.engine.helmRead(name).get("info").getAsJsonObject().get("last_deployed").getAsString();
-            }
-        });
-        fields.add(new Field("cpu") {
-            @Override
-            public Object get(Context context) throws IOException {
-                Stats stats;
-
-                stats = statsOpt(context);
-                if (stats != null) {
-                    return stats.cpu;
-                } else {
-                    return "n.a.";
-                }
-            }
-        });
-        fields.add(new Field("mem") {
-            @Override
-            public Object get(Context context) throws IOException {
-                Stats stats;
-
-                stats = statsOpt(context);
-                if (stats != null) {
-                    return stats.memory;
-                } else {
-                    return "n.a.";
-                }
-            }
-        });
-        fields.add(new Field("origin-scm") {
-            @Override
-            public Object get(Context context) throws IOException {
-                return context.tagInfo(Stage.this).originScm;
-            }
-        });
     }
 
     public static String timespan(LocalDateTime ldt) {
@@ -421,7 +412,7 @@ public class Stage {
 
     /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
      *                  keep to stick with current image. */
-    public String install(boolean await, boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
+    public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
         World world;
         FileNode tmp;
         TagInfo image;
@@ -481,24 +472,11 @@ public class Stage {
         } finally {
             tmp.deleteTree();
         }
-        if (await) {
-            awaitStartup(engine);
-        }
         return image.repositoryTag;
     }
 
-    private static int replicas(Map<String, Object> map) {
-        Object obj;
-
-        obj = map.get("replicas");
-        if (obj == null) {
-            return 1; // TODO: error message?
-        }
-        if (obj instanceof Integer) {
-            return (int) obj;
-        } else {
-            return Integer.parseInt(obj.toString());
-        }
+    public void awaitAvailable(Engine engine) throws IOException {
+        engine.deploymentAwaitAvailable(Type.deploymentName(name));
     }
 
     public Map<String, String> builtInValues(FileNode chart) throws IOException {
@@ -698,7 +676,6 @@ public class Stage {
 
         result = new LinkedHashMap<>();
         tag = tagInfo(registry, getImage(engine));
-        System.out.println("tag: " + tag); // TODO
         addNamed("http", url(tag, "http"), result);
         addNamed("https", url(tag, "https"), result);
         return result;
@@ -742,7 +719,7 @@ public class Stage {
     //--
 
     public Map<String, PodInfo> runningPods(Engine engine) throws IOException {
-        return engine.podList(engine.deploymentProbe(dnsLabel()).selector);
+        return engine.podList(engine.deploymentProbe(Type.deploymentName(name)).selector);
     }
 
     /** @return never null */
@@ -792,11 +769,5 @@ public class Stage {
     /* @return null if unkown (e.g. because log file was wiped) */
     private static AccessLogEntry oldest(List<AccessLogEntry> accessLog) {
         return accessLog.isEmpty() ? null : accessLog.get(accessLog.size() - 1);
-    }
-
-    //--
-
-    public void awaitStartup(Engine engine) throws IOException {
-        engine.deploymentAwait(dnsLabel());
     }
 }
