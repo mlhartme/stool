@@ -22,29 +22,19 @@ import java.util.Map;
 /** Represents a pod as used by Stool. In particular, the pod has a single container */
 public class PodInfo {
     public static PodInfo create(V1Pod pod) {
-        return new PodInfo(pod.getMetadata().getName(), pod.getStatus().getPhase(), pod.getStatus().getPodIP(), pod.getMetadata().getLabels(),
-                ContainerInfo.createMap(pod));
+        return new PodInfo(pod.getMetadata().getName(), pod.getStatus().getPhase(), pod.getStatus().getPodIP(), pod.getMetadata().getLabels());
     }
 
     public final String name;
     public final String phase;
     public final String ip;
     public final Map<String, String> labels;
-    public final Map<String, ContainerInfo> containers;
 
-    public PodInfo(String name, String phase, String ip, Map<String, String> labels, Map<String, ContainerInfo> containers) {
+    public PodInfo(String name, String phase, String ip, Map<String, String> labels) {
         this.name = name;
         this.phase = phase;
         this.ip = ip;
         this.labels = labels;
-        this.containers = containers;
-    }
-
-    public String repositoryTag(String containerName) {
-        ContainerInfo info;
-
-        info = containers.get(containerName);
-        return info == null ? null : info.image;
     }
 
     public boolean isRunning() {
@@ -52,6 +42,6 @@ public class PodInfo {
     }
 
     public String toString() {
-        return name + ":" + phase + " " + ip + " " + labels + " " + containers;
+        return name + ":" + phase + " " + ip + " " + labels;
     }
 }
