@@ -295,7 +295,6 @@ public class Stage {
 
     private Stats statsOpt(Context context) throws IOException {
         Collection<PodInfo> running;
-        Stats stats;
 
         running = context.runningPods(this).values();
         if (running.isEmpty()) {
@@ -340,10 +339,7 @@ public class Stage {
         fields.add(new Field("origin-scm") {
             @Override
             public Object get(Context context) throws IOException {
-                TagInfo current;
-
-                current = context.currentOpt(Stage.this);
-                return current == null ? null : current.originScm;
+                return context.tagInfo(Stage.this).originScm;
             }
         });
     }
@@ -761,7 +757,7 @@ public class Stage {
     }
 
     /** @return null if not running */
-    public TagInfo currentOpt(Engine engine, Registry registry) throws IOException {
+    public TagInfo tagInfo(Engine engine, Registry registry) throws IOException {
         return tagInfo(registry, getImage(engine));
     }
 

@@ -80,12 +80,12 @@ public class Context {
         return result;
     }
 
-    public TagInfo currentOpt(Stage stage) throws IOException {
+    public TagInfo tagInfo(Stage stage) throws IOException {
         TagInfo result;
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.currentOpt(engine, registry(stage));
+            result = stage.tagInfo(engine, registry(stage));
             currentOpts.put(stage.getName(), result);
         }
         return result;

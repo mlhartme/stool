@@ -290,7 +290,7 @@ public class ApiController {
     public String images(@PathVariable("stage") String name) throws Exception {
         Stage stage;
         List<TagInfo> all;
-        TagInfo current;
+        TagInfo tagInfo;
         String marker;
         List<String> result;
         List<String> args;
@@ -301,9 +301,9 @@ public class ApiController {
             stage = server.load(engine, name);
             registry = stage.createRegistry(World.create() /* TODO */);
             all = stage.images(engine, registry);
-            current = stage.currentOpt(engine, registry);
+            tagInfo = stage.tagInfo(engine, registry);
             for (TagInfo image : all) {
-                marker = current != null && image.repositoryTag.equals(current.repositoryTag) ? "<==" : "";
+                marker = image.repositoryTag.equals(tagInfo.repositoryTag) ? "<==" : "";
                 result.add(image.tag + "  " + marker);
                 result.add("   id:            " + image.id);
                 result.add("   repositoryTag: " + image.repositoryTag);
@@ -409,14 +409,14 @@ public class ApiController {
 
     private TagInfo currentWithPermissions(String stageName) throws IOException {
         Stage stage;
-        TagInfo current;
+        TagInfo tagInfo;
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            current = stage.currentOpt(engine, stage.createRegistry(World.create() /* TODO */));
+            tagInfo = stage.tagInfo(engine, stage.createRegistry(World.create() /* TODO */));
         }
-        server.checkFaultPermissions(User.authenticatedOrAnonymous().login, current.faultProjects);
-        return current;
+        server.checkFaultPermissions(User.authenticatedOrAnonymous().login, tagInfo.faultProjects);
+        return tagInfo;
     }
 
     @ExceptionHandler({ ArgumentException.class })
