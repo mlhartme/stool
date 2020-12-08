@@ -69,13 +69,6 @@ public class Context {
 
     //--
 
-    public PodInfo runningPodsFirst(Stage stage) throws IOException {
-        Map<String, PodInfo> all;
-
-        all = runningPods(stage);
-        return all.isEmpty() ? null : all.values().iterator().next();
-    }
-
     public Map<String, PodInfo> runningPods(Stage stage) throws IOException {
         Map<String, PodInfo> result;
 

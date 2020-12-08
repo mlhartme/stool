@@ -52,6 +52,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -292,6 +293,17 @@ public class Stage {
         return fields;
     }
 
+    private Stats statsOpt(Context context) throws IOException {
+        Collection<PodInfo> running;
+        Stats stats;
+
+        running = context.runningPods(this).values();
+        if (running.isEmpty()) {
+            return null;
+        }
+        return OpenShift.create().statsOpt(running.iterator().next() /* TODO */.name, Type.MAIN_CONTAINER);
+    }
+
     private void appFields(List<Field> fields) {
         fields.add(new Field("last-deployed") {
             @Override
@@ -302,14 +314,9 @@ public class Stage {
         fields.add(new Field("cpu") {
             @Override
             public Object get(Context context) throws IOException {
-                Current current;
                 Stats stats;
 
-                current = context.currentOpt(Stage.this);
-                if (current == null) {
-                    return null;
-                }
-                stats = OpenShift.create().statsOpt(current.first /* TODO */.name, Type.MAIN_CONTAINER);
+                stats = statsOpt(context);
                 if (stats != null) {
                     return stats.cpu;
                 } else {
@@ -320,14 +327,9 @@ public class Stage {
         fields.add(new Field("mem") {
             @Override
             public Object get(Context context) throws IOException {
-                Current current;
                 Stats stats;
 
-                current = context.currentOpt(Stage.this);
-                if (current == null) {
-                    return null;
-                }
-                stats = OpenShift.create().statsOpt(current.first /* TODO */.name, Type.MAIN_CONTAINER);
+                stats = statsOpt(context);
                 if (stats != null) {
                     return stats.memory;
                 } else {
@@ -756,11 +758,9 @@ public class Stage {
 
     public static class Current {
         public final TagInfo image;
-        public final PodInfo first;
 
-        public Current(TagInfo image, PodInfo first) {
+        public Current(TagInfo image) {
             this.image = image;
-            this.first = first;
         }
     }
 
@@ -784,23 +784,20 @@ public class Stage {
 
     public Current currentOpt(Registry registry, Map<String, PodInfo> runningPods) throws IOException {
         TagInfo image;
-        PodInfo first;
 
         if (runningPods.isEmpty()) {
             return null;
         } else {
             image = null;
-            first = null;
             for (PodInfo pod : runningPods.values()) {
                 if (image == null) {
-                    first = pod;
                     image = registry.info(pod, Type.MAIN_CONTAINER);
                 }
                 if (!pod.isRunning()) {
                     throw new IllegalStateException("TODO");
                 }
             }
-            return new Current(image, first);
+            return new Current(image);
         }
     }
 

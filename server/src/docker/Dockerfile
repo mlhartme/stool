@@ -16,10 +16,9 @@ ENV CERTIFICATE=
 ENV APP_PROPERTIES_FILE=WEB-INF/classes/META-INF/pominfo.properties
 ENV APP_PROPERTIES_PREFIX=stool.
 ENV VALUES=
-
 ENV OPTS=
 
-RUN mkdir /var/lib/stool/certs && \
+RUN mkdir -p /var/lib/stool/certs && \
     curl -o /tmp/helm.tgz https://get.helm.sh/helm-v3.3.4-linux-amd64.tar.gz && \
     cd /usr/local/bin && \
     tar zxf /tmp/helm.tgz --strip-components=1 linux-amd64/helm && \
