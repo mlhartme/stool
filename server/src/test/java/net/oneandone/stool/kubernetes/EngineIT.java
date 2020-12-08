@@ -51,46 +51,6 @@ public class EngineIT {
     //-- pods
 
     @Test
-    public void podTerminating() throws IOException {
-        final String name = "pod";
-        Collection<PodInfo> lst;
-        PodInfo info;
-
-        try (Engine engine = create()) {
-            assertEquals(Collections.emptyMap(), engine.podList());
-            assertFalse(engine.podCreate(name, new Engine.Container("debian:stretch-slim", "sh", "-c", "echo ho"), "foo", "bar"));
-            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name, "noname"));
-            assertEquals("ho\n", engine.podLogs(name));
-            lst = engine.podList().values();
-            assertEquals(1, lst.size());
-            info = lst.iterator().next();
-            assertEquals(name, info.name);
-            assertEquals("Succeeded", info.phase);
-            assertTrue(info.labels.entrySet().containsAll(Strings.toMap("foo", "bar").entrySet()));
-            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(name, "noname"));
-            engine.podDelete(name);
-            assertEquals(0, engine.podList().size());
-        }
-    }
-
-
-    @Test
-    public void podRestart() throws IOException {
-        try (Engine engine = create()) {
-            assertTrue(engine.podCreate("restart-pod", new Engine.Container("debian:stretch-slim", "sleep", "3")));
-        }
-        try (Engine engine = create()) {
-            engine.podDelete("restart-pod");
-        }
-        try (Engine engine = create()) {
-            assertTrue(engine.podCreate("restart-pod", new Engine.Container("debian:stretch-slim", "sleep", "3")));
-        }
-        try (Engine engine = create()) {
-            engine.podDelete("restart-pod");
-        }
-    }
-
-    @Test
     public void podEnv() throws IOException {
         String pod = "podenv";
         String output;

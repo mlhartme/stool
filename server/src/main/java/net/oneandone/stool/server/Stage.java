@@ -671,15 +671,6 @@ public class Stage {
         return all.get(all.size() - 1);
     }
 
-    private static TagInfo tagInfo(Registry registry, String image) throws IOException {
-        String tag;
-        String repositoy;
-
-        tag = getTag(image);
-        repositoy = getRepositoryPath(toRepository(image));
-        return registry.info(repositoy, tag);
-    }
-
     public void uninstall(Engine engine) throws IOException {
         Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "uninstall", getName()));
         engine.deploymentAwaitGone(getName());
@@ -771,26 +762,16 @@ public class Stage {
 
     /** @return null if not running */
     public TagInfo currentOpt(Engine engine, Registry registry) throws IOException {
-        return currentOpt(registry, runningPods(engine));
+        return tagInfo(registry, getImage(engine));
     }
 
-    public TagInfo currentOpt(Registry registry, Map<String, PodInfo> runningPods) throws IOException {
-        TagInfo image;
+    private static TagInfo tagInfo(Registry registry, String image) throws IOException {
+        String tag;
+        String repositoy;
 
-        if (runningPods.isEmpty()) {
-            return null;
-        } else {
-            image = null;
-            for (PodInfo pod : runningPods.values()) {
-                if (image == null) {
-                    image = registry.info(pod, Type.MAIN_CONTAINER);
-                }
-                if (!pod.isRunning()) {
-                    throw new IllegalStateException("TODO");
-                }
-            }
-            return image;
-        }
+        tag = getTag(image);
+        repositoy = getRepositoryPath(toRepository(image));
+        return registry.info(repositoy, tag);
     }
 
     /** @return null if unknown */

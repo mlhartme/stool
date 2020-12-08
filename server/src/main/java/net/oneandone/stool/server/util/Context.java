@@ -85,7 +85,7 @@ public class Context {
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.currentOpt(registry(stage), runningPods(stage));
+            result = stage.currentOpt(engine, registry(stage));
             currentOpts.put(stage.getName(), result);
         }
         return result;
