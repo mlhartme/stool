@@ -15,6 +15,7 @@
     dumped status field `values`
   * environment properties are gone, use stage config and value settings (i.e. Helm values) instead
 * dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
+* changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
 * client
   * create
     * always starts the stage
@@ -35,6 +36,8 @@
 * dumped `pod` field, that's too low-level
 * dumped `running` field, use `config image` instead 
 * renamed `uptime` field to `last-deployed`, it now reports the corresponding Helm status
+* dumped created-at and created-by; added first-deployed
+* dumped last-modified-at, and last-modified-by; use `last-deployed` or check the history instead
 * server
   * dumped memory and disk quotas from "info" response
   * use helm to managed stages

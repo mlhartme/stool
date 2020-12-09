@@ -48,12 +48,9 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -68,8 +65,8 @@ import java.util.zip.GZIPOutputStream;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String NOTIFY_CREATED_BY = "@created-by";
-    private static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
+    private static final String NOTIFY_FIRST_MODIFIER = "@first";
+    private static final String NOTIFY_LAST_MODIFIER = "@last";
 
     //--
 
@@ -112,7 +109,7 @@ public class Stage {
         }
         addOpt(result, Type.VALUE_COMMENT, "");
         addOpt(result, Type.VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
-        addOpt(result, Type.VALUE_NOTIFY, Stage.NOTIFY_CREATED_BY);
+        addOpt(result, Type.VALUE_NOTIFY, Stage.NOTIFY_FIRST_MODIFIER);
         return result;
     }
 
@@ -248,6 +245,12 @@ public class Stage {
                 return context.engine.helmRead(name).get("info").getAsJsonObject().get("last_deployed").getAsString();
             }
         });
+        fields.add(new Field("first-deployed") {
+            @Override
+            public Object get(Context context) throws IOException {
+                return context.engine.helmRead(name).get("info").getAsJsonObject().get("first_deployed").getAsString();
+            }
+        });
         fields.add(new Field("cpu") {
             @Override
             public Object get(Context context) throws IOException {
@@ -280,44 +283,6 @@ public class Stage {
                 return context.tagInfo(Stage.this).originScm;
             }
         });
-        fields.add(new Field("created-by") {
-            @Override
-            public Object get(Context context) throws IOException {
-                String login;
-
-                login = createdBy();
-                return login == null ? null : server.userManager.checkedByLogin(login);
-            }
-        });
-        fields.add(new Field("created-at") {
-            @Override
-            public Object get(Context context) throws IOException {
-                // I can't ask the filesystem, see
-                // https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
-                AccessLogEntry entry;
-
-                entry = oldest(accessLogModifiedOnly());
-                return entry == null ? null : entry.dateTime;
-            }
-        });
-        fields.add(new Field("last-modified-by") {
-            @Override
-            public Object get(Context context) throws IOException {
-                AccessLogEntry entry;
-
-                entry = youngest(accessLogModifiedOnly());
-                return entry == null ? null : server.userManager.checkedByLogin(entry.user);
-            }
-        });
-        fields.add(new Field("last-modified-at") {
-            @Override
-            public Object get(Context context) throws IOException {
-                AccessLogEntry entry;
-
-                entry = youngest(accessLogModifiedOnly());
-                return entry == null ? null : timespan(entry.dateTime);
-            }
-        });
         fields.add(new Field("urls") {
             @Override
             public Object get(Context context) throws IOException {
@@ -337,27 +302,6 @@ public class Stage {
         return OpenShift.create().statsOpt(running.iterator().next() /* TODO */.name, Type.MAIN_CONTAINER);
     }
 
-    public static String timespan(LocalDateTime ldt) {
-        return timespan(ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-    }
-
-    public static String timespan(long since) {
-        long diff;
-        StringBuilder result;
-        long hours;
-
-        diff = System.currentTimeMillis() - since;
-        diff /= 1000;
-        hours = diff / 3600;
-        if (hours >= 48) {
-            return (hours / 24) + " days";
-        } else {
-            result = new StringBuilder();
-            new Formatter(result).format("%d:%02d:%02d", hours, diff % 3600 / 60, diff % 60);
-            return result.toString();
-        }
-    }
-
     /** @return logins */
     public Set<String> notifyLogins(Engine engine) throws IOException {
         Set<String> done;
@@ -366,11 +310,11 @@ public class Stage {
         done = new HashSet<>();
         for (String user : getValueNotify(engine)) {
             switch (user) {
-                case NOTIFY_LAST_MODIFIED_BY:
+                case NOTIFY_LAST_MODIFIER:
                     login = lastModifiedBy();
                     break;
-                case NOTIFY_CREATED_BY:
-                    login = createdBy();
+                case NOTIFY_FIRST_MODIFIER:
+                    login = firstModifiedBy();
                     break;
                 default:
                     login = user;
@@ -631,7 +575,7 @@ public class Stage {
     //--
 
     /** @return login name or null if unknown */
-    public String createdBy() throws IOException {
+    public String firstModifiedBy() throws IOException {
         AccessLogEntry entry;
 
         entry = oldest(accessLogModifiedOnly());

@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.logging;
 
-import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.LineFormat;
 import net.oneandone.sushi.io.LineReader;
@@ -70,10 +69,6 @@ public class LogReader<T> {
         this.parser = parser;
         this.files = files;
         this.lines = null;
-    }
-
-    public long lastModified() throws GetLastModifiedException {
-        return files.get(files.size() - 1).getLastModified();
     }
 
     public T first() throws IOException {

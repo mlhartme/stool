@@ -51,7 +51,7 @@ public class Ls extends InfoCommand {
 
     private void doBefore() {
         if (selected.isEmpty()) {
-            selected.addAll(Arrays.asList("name", "image", "last-modified-by"));
+            selected.addAll(Arrays.asList("name", "image", "last-deployed"));
         }
         for (String infoName : selected) {
             columns.put(infoName, new ArrayList<>());

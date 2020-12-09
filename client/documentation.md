@@ -687,8 +687,8 @@ Stool exposed all values of the underlying Helm chart. In addition, every stage 
 * **stageExpire**
   Defines when this stage [expires](#stage-expiring). Type date.
 * **stageNotify**
-  List of email addresses or `@last-modified-by` or `@created-by` to send notifications about
-  this stage. Type list. Default value: `@created-by`.
+  List of email addresses or `@first` (first person touching this stage) or `@last` (last person touching this stage)
+  to send notifications about this stage. Type list. Default value: `@first`.
 
 
 #### Examples
@@ -715,31 +715,24 @@ Available fields:
 
 * **name**
   Name of the stage.
-* **running**
-  Currently running images of this stage.
+* **available**
+  Number of available replicas.
 * **urls**
   Urls for this stage. Point your browser to one of them to access your stage.
-* **created-by**
-  User who created this stage.
-* **created-at**
+* **first-deployed**
   When this stage was created.
-* **last-modified-by**
-  User who last modified this stage.
-* **last-modified-at**
-  Last modified date of this stage.
-
-TODO:
-* **container**
-  container id if the stage is running.
-* **uptime**
-  How long this stage is in state `up`. Empty if stage is not up. Type string.
+* **last-deployed**
+  When this stage was last updated.
 * **cpu**
-  Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.#
+  Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.
 * **mem**
   Memory usage reported by Docker
-* **heap**
-  Java Heap usage reported by Jmx.
-
+* **images**
+  Available images in repository for this stage.
+* **urls**
+  Urls to invoke this stage.
+* **origin-scm**
+  SCM url label of the current image.
 
 
 [//]: # (include stageOptions.md)
@@ -803,7 +796,7 @@ List stages
 #### DESCRIPTION
 
 Displays status of all stages (or the stages specified by `-stage`) as a table. See the `status`
-command for a list of available fields. Default fields/values are `name state last-modified-by`.
+command for a list of available fields. Default fields/values are `name image last-deployed`.
 
 [//]: # (include stageOptions.md)
 

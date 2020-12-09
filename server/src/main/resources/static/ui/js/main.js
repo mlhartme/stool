@@ -57,7 +57,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=available,stageComment,stageExpire,last-modified-by,urls', {
+            $.ajax('/api/stages?select=available,stageComment,stageExpire,last-deployed,urls', {
                 dataType: "json",
                 success: function (data) {
                     $('#loading').remove();
@@ -124,7 +124,7 @@ dashboard = {
                                    htmlName +
                                    htmlUrls +
                                    "<td>" + status.stageExpire + "</td>\n" +
-                                   "<td>" + status["last-modified-by"] + "</td>\n" +
+                                   "<td>" + status["last-deployed"] + "</td>\n" +
                                    htmlPublish +
                                    htmlMenu
                                    "</tr>";
