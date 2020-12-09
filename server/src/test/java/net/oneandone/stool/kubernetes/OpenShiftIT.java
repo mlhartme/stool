@@ -27,7 +27,6 @@ public class OpenShiftIT {
         final String name = "testroute";
 
         try (OpenShift os = OpenShift.create("stool-openshift")) {
-            System.out.println(os.routeList());
             assertFalse(os.routeList().contains(name));
             os.routeCreate(name, "somehost", "someService", false, "http");
             assertTrue(os.routeList().contains(name));

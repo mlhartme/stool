@@ -26,7 +26,8 @@
   * attach
     * now takes a single name argument
     * can be used in an existing workspace
-  * dumped separate `start`/`stop` command; the stopped status is gone
+  * dumped separate `start`/`stop` command; the stopped status is gone;
+    instead of stopping a stage, you can now set replicas to 0
   * changed `restart` to `publish`
 * dumped config.environment -- publish automatically preserves previous configuration
 * dumped disk quota; I might use Kubernetes euphemeral quotas later

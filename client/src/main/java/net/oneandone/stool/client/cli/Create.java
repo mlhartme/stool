@@ -195,7 +195,7 @@ public class Create extends ClientCommand {
             }
         }
 
-        running = reference.client.awaitStartup(reference.stage);
+        running = reference.client.awaitAvailable(reference.stage);
         console.info.println("Urls available:");
         for (Map.Entry<String, String> entry : running.entrySet()) {
             console.info.println("  " + entry.getKey() + " " + entry.getValue());

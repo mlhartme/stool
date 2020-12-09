@@ -140,7 +140,6 @@ public class Settings {
                 }
                 lazyRegistryCredentials.put(host, new UsernamePassword(entry.substring(0, idx), entry.substring(idx + 1)));
             }
-            System.out.println("credentials: " + lazyRegistryCredentials);
         }
         return lazyRegistryCredentials.get(registry);
     }

@@ -177,10 +177,10 @@ public class Client {
         return started.getAsString();
     }
 
-    public Map<String, String> awaitStartup(String stage) throws IOException {
+    public Map<String, String> awaitAvailable(String stage) throws IOException {
         JsonObject response;
 
-        response = getJson(node(stage, "await-startup")).getAsJsonObject();
+        response = getJson(node(stage, "await-available")).getAsJsonObject();
         return stringMap(response.getAsJsonObject());
     }
 

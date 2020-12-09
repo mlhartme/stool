@@ -17,11 +17,13 @@ package net.oneandone.stool.server.util;
 
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.server.Type;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.server.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -64,10 +66,10 @@ public class Validation {
         }
         if (repair) {
             try {
-                stage.uninstall(engine);
-                report.add("stage has been stopped");
+                stage.install(true, engine, Stage.KEEP_IMAGE, Strings.toMap(Type.VALUE_REPLICAS, "0"));
+                report.add("replicas set to 0");
             } catch (Exception e) {
-                report.add("stage failed to stop: " + e.getMessage());
+                report.add("replicas change failed: " + e.getMessage());
                 Server.LOGGER.debug(e.getMessage(), e);
             }
             if (server.settings.autoRemove >= 0 && expire.expiredDays() >= 0) {

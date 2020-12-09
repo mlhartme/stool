@@ -26,6 +26,7 @@ import java.util.Set;
  * TODO: stage name -&gt; deployment name is not represented in this class
  */
 public class Type {
+    public static final String VALUE_REPLICAS = "replicas";
     public static final String VALUE_IMAGE = "image";
 
     public static final String VALUE_NOTIFY = "stageNotify";

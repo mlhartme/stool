@@ -337,8 +337,8 @@ public class ApiController {
         return opt == null ? JsonNull.INSTANCE : new JsonPrimitive(opt);
     }
 
-    @GetMapping("/stages//{stage}/await-startup")
-    public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
+    @GetMapping("/stages//{stage}/await-available")
+    public String awaitAvalable(@PathVariable(value = "stage") String stageName) throws IOException {
         Stage stage;
         Context context;
 
