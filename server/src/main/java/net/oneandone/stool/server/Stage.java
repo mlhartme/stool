@@ -19,6 +19,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.PortusRegistry;
@@ -95,22 +98,59 @@ public class Stage {
 
     //-- values
 
-    private Map<String, Object> lazyRawValues = null;
+    private JsonObject lazyHelmObject = null;
+
+    private JsonObject helmObject(Engine engine) throws IOException {
+        if (lazyHelmObject == null) {
+            lazyHelmObject = engine.helmRead(name);
+        }
+        return lazyHelmObject;
+    }
+
+    private Map<String, Object> helmValues(Engine engine) throws IOException {
+        JsonObject helmObject;
+        Map<String, Object> result;
+
+        helmObject = helmObject(engine);
+        result = toStringMap(helmObject.get("chart").getAsJsonObject().get("values").getAsJsonObject());
+        result.putAll(toStringMap(helmObject.get("config").getAsJsonObject()));
+        return result;
+    }
 
     public Map<String, Value> values(Engine engine) throws IOException {
         Map<String, Value> result;
 
-        if (lazyRawValues == null) {
-            lazyRawValues = engine.helmReadValues(name);
-        }
         result = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> entry : lazyRawValues.entrySet()) {
+        for (Map.Entry<String, Object> entry : helmValues(engine).entrySet()) {
             result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
         }
         addOpt(result, Type.VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
         addOpt(result, Type.VALUE_CONTACT, Stage.NOTIFY_FIRST_MODIFIER);
         return result;
     }
+
+    private static Map<String, Object> toStringMap(JsonObject obj) {
+        Map<String, Object> result;
+        JsonPrimitive value;
+        Object v;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+            value = entry.getValue().getAsJsonPrimitive();
+            if (value.isNumber()) {
+                v = value.getAsInt();
+            } else if (value.isBoolean()) {
+                v = value.getAsBoolean();
+            } else if (value.isString()) {
+                v = value.getAsString();
+            } else {
+                throw new IllegalStateException(value.toString());
+            }
+            result.put(entry.getKey(), v);
+        }
+        return result;
+    }
+
 
     private static void addOpt(Map<String, Value> dest, String name, String value) {
         if (dest.get(name).get().isEmpty()) {
@@ -241,13 +281,13 @@ public class Stage {
         fields.add(new Field("last-deployed") {
             @Override
             public Object get(Context context) throws IOException {
-                return context.engine.helmRead(name).get("info").getAsJsonObject().get("last_deployed").getAsString();
+                return helmObject(context.engine).get("info").getAsJsonObject().get("last_deployed").getAsString();
             }
         });
         fields.add(new Field("first-deployed") {
             @Override
             public Object get(Context context) throws IOException {
-                return context.engine.helmRead(name).get("info").getAsJsonObject().get("first_deployed").getAsString();
+                return helmObject(context.engine).get("info").getAsJsonObject().get("first_deployed").getAsString();
             }
         });
         fields.add(new Field("cpu") {
@@ -354,7 +394,7 @@ public class Stage {
         values = world.getTemp().createTempFile();
 
         if (upgrade) {
-            map = new HashMap<>(engine.helmReadValues(name));
+            map = new HashMap<>(helmValues(engine));
         } else {
             map = new HashMap<>(server.settings.values);
         }
@@ -397,7 +437,7 @@ public class Stage {
         } finally {
             tmp.deleteTree();
         }
-        lazyRawValues = null; // force reload
+        lazyHelmObject = null; // force reload
         return image.repositoryTag;
     }
 

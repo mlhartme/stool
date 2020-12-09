@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
@@ -1077,16 +1076,6 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public Map<String, Object> helmReadValues(String name) throws IOException {
-        JsonObject obj;
-        Map<String, Object> result;
-
-        obj = helmRead(name);
-        result = toStringMap(obj.get("chart").getAsJsonObject().get("values").getAsJsonObject());
-        result.putAll(toStringMap(obj.get("config").getAsJsonObject()));
-        return result;
-    }
-
     public JsonObject helmRead(String name) throws IOException {
         List<V1Secret> lst;
 
@@ -1138,28 +1127,6 @@ public class Engine implements AutoCloseable {
     }
 
     //--
-
-    public static Map<String, Object> toStringMap(JsonObject obj) {
-        Map<String, Object> result;
-        JsonPrimitive value;
-        Object v;
-
-        result = new HashMap<>();
-        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-            value = entry.getValue().getAsJsonPrimitive();
-            if (value.isNumber()) {
-                v = value.getAsInt();
-            } else if (value.isBoolean()) {
-                v = value.getAsBoolean();
-            } else if (value.isString()) {
-                v = value.getAsString();
-            } else {
-                throw new IllegalStateException(value.toString());
-            }
-            result.put(entry.getKey(), v);
-        }
-        return result;
-    }
 
     private static boolean same(String left, String right) {
         if (left == null) {
