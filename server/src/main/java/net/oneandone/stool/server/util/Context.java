@@ -35,6 +35,7 @@ public class Context {
     private final Map<String, Map<String, PodInfo>> runningPods;
     private final Map<String, TagInfo> currentOpts;
     private final Map<String, Map<String, String>> urlMaps;
+    private final Map<String, String> images;
 
     public Context(Engine engine) {
         this.engine = engine;
@@ -43,6 +44,18 @@ public class Context {
         this.runningPods = new HashMap<>();
         this.currentOpts = new HashMap<>();
         this.urlMaps = new HashMap<>();
+        this.images = new HashMap<>();
+    }
+
+    public String getImage(Stage stage) throws IOException {
+        String result;
+
+        result = images.get(stage.getName());
+        if (result == null) {
+            result = stage.getImage(engine);
+            images.put(stage.getName(), result);
+        }
+        return result;
     }
 
     public Registry registry(Stage stage) throws IOException {
@@ -50,7 +63,7 @@ public class Context {
 
         result = registries.get(stage.getName());
         if (result == null) {
-            result = stage.createRegistry(World.create() /* TODO */);
+            result = stage.createRegistry(World.create() /* TODO */, getImage(stage));
             registries.put(stage.getName(), result);
         }
         return result;

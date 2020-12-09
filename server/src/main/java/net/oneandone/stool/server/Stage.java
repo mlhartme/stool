@@ -124,7 +124,11 @@ public class Stage {
         return image.substring(image.lastIndexOf(':') + 1);
     }
 
-    public Registry createRegistry(World world) throws IOException {
+    public Registry createRegistry(World world, Engine engine) throws IOException {
+        return createRegistry(world, getImage(engine));
+    }
+
+    public Registry createRegistry(World world, String image) throws IOException {
         String registry;
 
         registry = server.settings.registryUrl();
@@ -618,7 +622,7 @@ public class Stage {
         } else {
             imageOrRepository = imageOrRepositoryX;
         }
-        registry = createRegistry(world);
+        registry = createRegistry(world, imageOrRepository);
         idx = imageOrRepository.indexOf(':');
         if (idx == -1) {
             return latest(registry, imageOrRepository);

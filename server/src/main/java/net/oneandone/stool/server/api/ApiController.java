@@ -304,8 +304,11 @@ public class ApiController {
         try (Engine engine = engine()) {
             result = new ArrayList<>();
             stage = server.load(engine, name);
-            registry = stage.createRegistry(World.create() /* TODO */);
+
+            // TODO
+            registry = stage.createRegistry(World.create() /* TODO */, engine);
             all = stage.images(engine, registry);
+
             tagInfo = stage.tagInfo(engine, registry);
             for (TagInfo image : all) {
                 marker = image.repositoryTag.equals(tagInfo.repositoryTag) ? "<==" : "";
@@ -420,7 +423,7 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            tagInfo = stage.tagInfo(engine, stage.createRegistry(World.create() /* TODO */));
+            tagInfo = stage.tagInfo(engine, stage.createRegistry(World.create() /* TODO */, engine));
         }
         server.checkFaultPermissions(User.authenticatedOrAnonymous().login, tagInfo.faultProjects);
         return tagInfo;
