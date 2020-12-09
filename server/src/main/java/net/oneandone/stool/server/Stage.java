@@ -97,18 +97,68 @@ public class Stage {
         return name;
     }
 
+    //-- values
+
+    private Map<String, Object> lazyRawValues = null;
+
+    public Map<String, Value> values(Engine engine) throws IOException {
+        Map<String, Value> result;
+
+        if (lazyRawValues == null) {
+            lazyRawValues = engine.helmReadValues(name);
+        }
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : lazyRawValues.entrySet()) {
+            result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
+        }
+        addOpt(result, Type.VALUE_COMMENT, "");
+        addOpt(result, Type.VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
+        addOpt(result, Type.VALUE_NOTIFY, Stage.NOTIFY_CREATED_BY);
+        return result;
+    }
+
+    private static void addOpt(Map<String, Value> dest, String name, String value) {
+        if (!dest.containsKey(name)) {
+            dest.put(name, new Value(name, value));
+        }
+    }
+
+    public Value value(Engine engine, String value) throws IOException {
+        Value result;
+
+        result = valueOpt(engine, value);
+        if (result == null) {
+            throw new ArgumentException("unknown value: " + value);
+        }
+        return result;
+    }
+
+    public Value valueOpt(Engine engine, String value) throws IOException {
+        return values(engine).get(value);
+    }
+
+    //-- important values
+
+    public Expire getValueExpire(Engine engine) throws IOException {
+        return Expire.fromHuman(value(engine, Type.VALUE_EXPIRE).get());
+    }
+
+    public List<String> getValueNotify(Engine engine) throws IOException {
+        return Separator.COMMA.split(value(engine, Type.VALUE_NOTIFY).get());
+    }
+
+    public String getValueImage(Engine engine) throws IOException {
+        return value(engine, Type.VALUE_IMAGE).get();
+    }
+
     //--
 
     public FileNode getLogs() {
         return server.getStageLogs(name);
     }
 
-    public String getImage(Engine engine) throws IOException {
-        return (String) engine.helmReadValues(name).get(Type.VALUE_IMAGE);
-    }
-
     public String getRepositoryPath(Engine engine) throws IOException {
-        return getRepositoryPath(toRepository(getImage(engine)));
+        return getRepositoryPath(toRepository(getValueImage(engine)));
     }
 
     // without hostname
@@ -125,7 +175,7 @@ public class Stage {
     }
 
     public Registry createRegistry(World world, Engine engine) throws IOException {
-        return createRegistry(world, getImage(engine));
+        return createRegistry(world, getValueImage(engine));
     }
 
     public Registry createRegistry(World world, String image) throws IOException {
@@ -149,7 +199,7 @@ public class Stage {
     }
 
 
-    //-- fields and values
+    //-- fields
 
     public Field fieldOpt(String str) {
         for (Field f : fields()) {
@@ -180,49 +230,6 @@ public class Stage {
             lst.add(p.name());
         }
         throw new ArgumentException(str + ": no such status field or value, choose one of " + lst);
-    }
-
-    public Map<String, Value> values(Engine engine) throws IOException {
-        Map<String, Object> values;
-        Map<String, Value> result;
-
-        values = engine.helmReadValues(name);
-        result = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> entry : values.entrySet()) {
-            result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
-        }
-        addOpt(result, Type.VALUE_COMMENT, "");
-        addOpt(result, Type.VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
-        addOpt(result, Type.VALUE_NOTIFY, Stage.NOTIFY_CREATED_BY);
-        return result;
-    }
-
-    private static void addOpt(Map<String, Value> dest, String name, String value) {
-        if (!dest.containsKey(name)) {
-            dest.put(name, new Value(name, value));
-        }
-    }
-
-    public Value value(Engine engine, String value) throws IOException {
-        Value result;
-
-        result = valueOpt(engine, value);
-        if (result == null) {
-            throw new ArgumentException("unknown value: " + value);
-        }
-        return result;
-    }
-
-    public Value valueOpt(Engine engine, String value) throws IOException {
-        return values(engine).get(value);
-    }
-
-    public Expire getValueExpire(Engine engine) throws IOException {
-        return Expire.fromHuman(value(engine, Type.VALUE_EXPIRE).get());
-    }
-
-    public List<String> getValueNotify(Engine engine) throws IOException {
-        return Separator.COMMA.split(value(engine, Type.VALUE_NOTIFY).get());
     }
 
     public List<Field> fields() {
@@ -487,6 +494,7 @@ public class Stage {
         } finally {
             tmp.deleteTree();
         }
+        lazyRawValues = null; // force reload
         return image.repositoryTag;
     }
 
@@ -629,7 +637,7 @@ public class Stage {
         if (imageOrRepositoryX == KEEP_IMAGE) {
             imageOrRepository = imagePrevious;
         } else if (imageOrRepositoryX == null) {
-            imageOrRepository = toRepository(getImage(engine));
+            imageOrRepository = toRepository(getValueImage(engine));
         } else {
             imageOrRepository = imageOrRepositoryX;
         }
@@ -690,7 +698,7 @@ public class Stage {
         TagInfo tag;
 
         result = new LinkedHashMap<>();
-        tag = tagInfo(registry, getImage(engine));
+        tag = tagInfo(registry, getValueImage(engine));
         addNamed("http", url(tag, "http"), result);
         addNamed("https", url(tag, "https"), result);
         return result;
@@ -739,7 +747,7 @@ public class Stage {
 
     /** @return never null */
     public TagInfo tagInfo(Engine engine, Registry registry) throws IOException {
-        return tagInfo(registry, getImage(engine));
+        return tagInfo(registry, getValueImage(engine));
     }
 
     private static TagInfo tagInfo(Registry registry, String image) throws IOException {

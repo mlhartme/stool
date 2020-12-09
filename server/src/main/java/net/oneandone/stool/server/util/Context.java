@@ -52,7 +52,7 @@ public class Context {
 
         result = images.get(stage.getName());
         if (result == null) {
-            result = stage.getImage(engine);
+            result = stage.getValueImage(engine);
             images.put(stage.getName(), result);
         }
         return result;
