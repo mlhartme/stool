@@ -53,7 +53,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -158,20 +157,7 @@ public class Stage {
     }
 
     public String getRepositoryPath(Engine engine) throws IOException {
-        return getRepositoryPath(toRepository(getValueImage(engine)));
-    }
-
-    // without hostname
-    public static String getRepositoryPath(String repository) {
-        String path;
-
-        path = URI.create(repository).getPath();
-        path = path.substring(path.indexOf('/') + 1);
-        return path;
-    }
-
-    public static String getTag(String image) {
-        return image.substring(image.lastIndexOf(':') + 1);
+        return Registry.getRepositoryPath(Registry.toRepository(getValueImage(engine)));
     }
 
     public Registry createRegistry(World world, Engine engine) throws IOException {
@@ -404,32 +390,7 @@ public class Stage {
 
     /** @return sorted list, oldest first */
     public List<TagInfo> images(Engine engine, Registry registry) throws IOException {
-        return images(registry, getRepositoryPath(engine));
-    }
-
-    /** @return sorted list, oldest first */
-    public static List<TagInfo> images(Registry registry, String repositoryPath) throws IOException {
-        List<String> tags;
-        List<TagInfo> result;
-
-        result = new ArrayList<>();
-        try {
-            tags = registry.tags(repositoryPath);
-        } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
-            return result;
-        }
-        for (String tag : tags) {
-            result.add(registry.info(repositoryPath, tag));
-        }
-        Collections.sort(result);
-        return result;
-    }
-
-    public static String toRepository(String imageOrRepository) {
-        int idx;
-
-        idx = imageOrRepository.indexOf(':');
-        return idx == -1 ? imageOrRepository : imageOrRepository.substring(0, idx);
+        return registry.list(getRepositoryPath(engine));
     }
 
     /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
@@ -444,7 +405,7 @@ public class Stage {
         Expire expire;
 
         if (imageOrRepositoryX != null && imageOrRepositoryX != KEEP_IMAGE) {
-            validateRepository(toRepository(imageOrRepositoryX));
+            validateRepository(Registry.toRepository(imageOrRepositoryX));
         }
         world = World.create(); // TODO
         tmp = world.getTemp().createTempDirectory();
@@ -637,33 +598,27 @@ public class Stage {
         if (imageOrRepositoryX == KEEP_IMAGE) {
             imageOrRepository = imagePrevious;
         } else if (imageOrRepositoryX == null) {
-            imageOrRepository = toRepository(getValueImage(engine));
+            imageOrRepository = Registry.toRepository(getValueImage(engine));
         } else {
             imageOrRepository = imageOrRepositoryX;
         }
         registry = createRegistry(world, imageOrRepository);
         idx = imageOrRepository.indexOf(':');
         if (idx == -1) {
-            return latest(registry, imageOrRepository);
+            List<TagInfo> all;
+
+            all = registry.list(Registry.getRepositoryPath(imageOrRepository));
+            if (all.isEmpty()) {
+                throw new ArgumentException("no image(s) found in repository " + imageOrRepository);
+            }
+            return all.get(all.size() - 1);
         } else {
             try {
-                return tagInfo(registry, imageOrRepository);
+                return registry.tagInfo(imageOrRepository);
             } catch (FileNotFoundException e) {
                 throw new ArgumentException("image not found: " + imageOrRepository);
             }
         }
-    }
-
-    private static TagInfo latest(Registry registry, String repository) throws IOException {
-        String repositoryPath;
-        List<TagInfo> all;
-
-        repositoryPath = getRepositoryPath(repository);
-        all = images(registry, repositoryPath);
-        if (all.isEmpty()) {
-            throw new ArgumentException("no image(s) found in repository " + repository);
-        }
-        return all.get(all.size() - 1);
     }
 
     public void uninstall(Engine engine) throws IOException {
@@ -698,7 +653,7 @@ public class Stage {
         TagInfo tag;
 
         result = new LinkedHashMap<>();
-        tag = tagInfo(registry, getValueImage(engine));
+        tag = registry.tagInfo(getValueImage(engine));
         addNamed("http", url(tag, "http"), result);
         addNamed("https", url(tag, "https"), result);
         return result;
@@ -747,16 +702,7 @@ public class Stage {
 
     /** @return never null */
     public TagInfo tagInfo(Engine engine, Registry registry) throws IOException {
-        return tagInfo(registry, getValueImage(engine));
-    }
-
-    private static TagInfo tagInfo(Registry registry, String image) throws IOException {
-        String tag;
-        String repositoy;
-
-        tag = getTag(image);
-        repositoy = getRepositoryPath(toRepository(image));
-        return registry.info(repositoy, tag);
+        return registry.tagInfo(getValueImage(engine));
     }
 
     /** @return null if unknown */

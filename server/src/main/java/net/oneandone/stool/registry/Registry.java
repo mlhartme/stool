@@ -20,7 +20,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,5 +79,52 @@ public abstract class Registry {
             throw new IOException("argument '" + arg + "' not terminated: " + header);
         }
         return header.substring(idx + len + 2, end);
+    }
+
+    //--
+
+    /** @return sorted list, oldest first */
+    public List<TagInfo> list(String repositoryPath) throws IOException {
+        List<String> tags;
+        List<TagInfo> result;
+
+        result = new ArrayList<>();
+        try {
+            tags = tags(repositoryPath);
+        } catch (net.oneandone.sushi.fs.FileNotFoundException e) {
+            return result;
+        }
+        for (String tag : tags) {
+            result.add(info(repositoryPath, tag));
+        }
+        Collections.sort(result);
+        return result;
+    }
+
+    public TagInfo tagInfo(String image) throws IOException {
+        String tag;
+        String repositoy;
+
+        tag = image.substring(image.lastIndexOf(':') + 1);
+        repositoy = getRepositoryPath(toRepository(image));
+        return info(repositoy, tag);
+    }
+
+    //-- utils
+
+    // without hostname
+    public static String getRepositoryPath(String repository) {
+        String path;
+
+        path = URI.create(repository).getPath();
+        path = path.substring(path.indexOf('/') + 1);
+        return path;
+    }
+
+    public static String toRepository(String imageOrRepository) {
+        int idx;
+
+        idx = imageOrRepository.indexOf(':');
+        return idx == -1 ? imageOrRepository : imageOrRepository.substring(0, idx);
     }
 }
