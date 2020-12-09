@@ -247,6 +247,12 @@ public class Stage {
                 return result;
             }
         });
+        fields.add(new Field("available") {
+            @Override
+            public Object get(Context context) throws IOException {
+                return context.engine.deploymentProbe(Type.deploymentName(name)).statusAvailable;
+            }
+        });
         fields.add(new Field("last-deployed") {
             @Override
             public Object get(Context context) throws IOException {

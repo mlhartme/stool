@@ -57,7 +57,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=stageComment,stageExpire,last-modified-by,urls', {
+            $.ajax('/api/stages?select=available,stageComment,stageExpire,last-modified-by,urls', {
                 dataType: "json",
                 success: function (data) {
                     $('#loading').remove();
@@ -82,7 +82,7 @@ dashboard = {
                         eName = escapeHtml(name)
                         done.push(name);
                         oldTr = allStages.find('[data-name="' + name + '"]');
-                        up = true;
+                        up = (available > 0);
                         htmlSt = "<td class='status'>\n" +
                                  "  <div class='status badge badge-" + (up ? "success" : "danger") + "'>\n" +
                                  "    <span>" + (up ? "up" : "down") + "</span>\n"
