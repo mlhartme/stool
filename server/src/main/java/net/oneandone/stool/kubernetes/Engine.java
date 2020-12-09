@@ -69,7 +69,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -94,35 +93,6 @@ public class Engine implements AutoCloseable {
 
     }
     private static final String UTF_8 = "utf8";
-
-    public static String encodeLabel(String str) {
-        String result;
-
-        result = encodeLabelRaw(str);
-        if (result.length() > 63) {
-            throw new IllegalStateException("value too long: " + str);
-        }
-        return result;
-    }
-
-    public static String encodeLabelRaw(String str) {
-        try {
-            return "a-" + Base64.getEncoder().encodeToString(str.getBytes(UTF_8)).replace('=', '-') + "-z";
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public static String decodeLabel(String str) {
-        str = Strings.removeLeft(str, "a-");
-        str = Strings.removeRight(str, "-z");
-        str = str.replace('-', '=');
-        try {
-            return new String(Base64.getDecoder().decode(str), UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
 
     //--
 
@@ -1074,7 +1044,7 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    //--
+    //-- helm
 
     public JsonObject helmRead(String name) throws IOException {
         List<V1Secret> lst;

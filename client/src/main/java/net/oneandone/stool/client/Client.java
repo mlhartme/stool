@@ -152,15 +152,15 @@ public class Client {
     /**
      * @return image actually started
      * @throws FileAlreadyExistsException if the stage already exists */
-    public String create(String stage, String image, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stage, String image, Map<String, String> values) throws IOException {
         HttpNode node;
-        JsonElement started;
+        JsonObject response;
 
         node = node("stages/" + stage);
         node = node.withParameter("image", image);
         node = node.withParameters("value.", values);
-        started = postJson(node, "");
-        return started.getAsString();
+        response = postJson(node, "").getAsJsonObject();
+        return stringMap(response.getAsJsonObject());
     }
 
     /** @return tag actually started */

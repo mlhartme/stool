@@ -244,7 +244,7 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` [`-optional`][`-detached`] [['@'image | *path*] ...] *name* [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`][`-wait`] [['@'image | *path*] ...] *name* [*key*`=`*object*...]
 
 
 
@@ -423,7 +423,7 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-detached`] [['@'image | *path*] ...] *name* [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-detached`][`-wait`] [['@'image | *path*] ...] *name* [*key*`=`*object*...]
 
 
 
@@ -435,6 +435,8 @@ path is specified, images default to the path `.`. *name* specifies the name for
 characters or digit or dashes, it's rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the 
 name. *name* may also include an underscore `_`, which will be substituted by the last segment of the image; this is required if you create
 multiple stages and the command-line can only specify a single name.
+
+Specify `-wait` to wait for pods to become available before returning from this command.
 
 Reports an error if a stage already exists. Or omits stages creation if the `-optional` option is specified.
 

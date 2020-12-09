@@ -23,6 +23,7 @@
     * type is gone, @ now prefixes images
     * paths now point to image files
     * can now be used in an existing workspace
+    * add `-wait` option
   * delete
     * always stops the stage, the explicit -stop option is gone
   * attach

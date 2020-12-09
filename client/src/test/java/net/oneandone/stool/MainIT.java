@@ -106,7 +106,7 @@ public class MainIT {
 
         sc(working, "context", "localhost");
         sc(working, "list");
-        sc(working,"create", "-e", '@' + REPOSITORY, stage);
+        sc(working,"create", "-e", "-wait", '@' + REPOSITORY, stage);
         sc(working,"list");
         sc(working,"status", "-stage", stage);
         sc(working, "detach", "-stage", stage);

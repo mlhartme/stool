@@ -32,11 +32,12 @@ import java.util.Map;
 public class Create extends ClientCommand {
     private final String name;
     private final boolean optional;
+    private final boolean detached;
+    private final boolean wait;
     private final List<String> images;
     private final Map<String, String> values;
-    private final boolean detached;
 
-    public Create(Globals globals, boolean optional, boolean detached, List<String> args) throws IOException {
+    public Create(Globals globals, boolean optional, boolean detached, boolean wait, List<String> args) throws IOException {
         super(globals);
 
         int nameIdx;
@@ -44,6 +45,7 @@ public class Create extends ClientCommand {
         nameIdx = nameIdx(args);
         this.detached = detached;
         this.optional = optional;
+        this.wait = wait;
         this.name = args.get(nameIdx);
         this.images = new ArrayList<>();
         this.values = new LinkedHashMap<>();
@@ -178,29 +180,31 @@ public class Create extends ClientCommand {
     protected Reference doCreate(String image, String resolvedName) throws IOException {
         Client client;
         Reference reference;
-        Map<String, String> running;
+        Map<String, String> urls;
 
         checkName(resolvedName);
         client = globals.configuration().currentContext().connect(world);
         reference = new Reference(client, resolvedName);
         try {
-            client.create(resolvedName, image, values);
+            urls = client.create(resolvedName, image, values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {
                 console.info.println("stage already exists - nothing to do: " + reference);
-                // fall-through
+                return reference;
             } else {
                 throw new IOException("stage already exists: " + reference);
             }
         }
 
-        running = reference.client.awaitAvailable(reference.stage);
-        console.info.println("Urls available:");
-        for (Map.Entry<String, String> entry : running.entrySet()) {
+        if (wait) {
+            console.info.println("Waiting for stage to become available ...");
+            urls = reference.client.awaitAvailable(reference.stage);
+        }
+        console.info.println("Urls:");
+        for (Map.Entry<String, String> entry : urls.entrySet()) {
             console.info.println("  " + entry.getKey() + " " + entry.getValue());
         }
-
         return reference;
     }
 

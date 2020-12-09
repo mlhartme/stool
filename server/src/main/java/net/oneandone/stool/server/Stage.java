@@ -376,7 +376,9 @@ public class Stage {
     }
 
     /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
-     *                  keep to stick with current image. */
+     *                  keep to stick with current image.
+     *  @return image actually published
+     */
     public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
         World world;
         FileNode tmp;

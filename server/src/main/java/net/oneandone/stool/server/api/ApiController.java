@@ -170,7 +170,8 @@ public class ApiController {
             stage = new Stage(server, name);
             // TODO: no values available yet ...
             //  stage.checkExpired(engine);
-            return json(stage.install(false, engine, image, values)).toString();
+            stage.install(false, engine, image, values);
+            return Engine.obj(stage.urlMap(engine, new Context(engine).registry(stage))).toString();
         }
     }
 
@@ -338,7 +339,7 @@ public class ApiController {
     }
 
     @GetMapping("/stages//{stage}/await-available")
-    public String awaitAvalable(@PathVariable(value = "stage") String stageName) throws IOException {
+    public String awaitAvailable(@PathVariable(value = "stage") String stageName) throws IOException {
         Stage stage;
         Context context;
 
