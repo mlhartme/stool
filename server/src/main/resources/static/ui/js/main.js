@@ -57,7 +57,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/api/stages?select=available,stageComment,stageExpire,last-deployed,urls', {
+            $.ajax('/api/stages?select=available,metadataComment,metadataExpire,last-deployed,urls', {
                 dataType: "json",
                 success: function (data) {
                     $('#loading').remove();
@@ -90,7 +90,7 @@ dashboard = {
                                  "</td>";
                         htmlName = "<td class='name'>\n" +
                                    "  <span data-container='body' data-toggle='popover' data-placement='bottom' " +
-                                   "        data-content='" + (status.stageComment !== "" ? escapeHtml(status.stageComment) : "(no comment)") + "' " +
+                                   "        data-content='" + (status.metadataComment !== "" ? escapeHtml(status.metadataComment) : "(no comment)") + "' " +
                                    "        data-trigger='hover'>" + eName + "</span></td>";
                         htmlUrls = "";
                         $.each(status.urls, function (name, url) {
@@ -110,7 +110,7 @@ dashboard = {
                                    "  <div class='dropdown'>\n" +
                                    "    <button type='button' class='btn btn-light btn-sm dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'><span style='white-space: nowrap'>More</span></button>\n" +
                                    "    <div class='dropdown-menu'>\n" +
-                                   "      <a class='dropdown-item' href='#dashboard' data-action='set-values' data-arguments='stageExpire=%2B7' data-stage='" + eName + "'>Expire in 1 week</a>\n" +
+                                   "      <a class='dropdown-item' href='#dashboard' data-action='set-values' data-arguments='metadataExpire=%2B7' data-stage='" + eName + "'>Expire in 1 week</a>\n" +
                                    "      <a class='dropdown-item' href='mailto:?subject=" + encodeURIComponent("Stage " + name) + "&body=" + encodeURIComponent(mailBody) + "'>\n" +
                                    "        <span style='white-space: nowrap'><i class='fas fa-share'></i> Share</span></a>\n" +
                                    "      <a class='dropdown-item' data-toggle='modal' data-target='#logs' data-stage='" + eName + "'>Log files ...</a>\n" +
@@ -123,7 +123,7 @@ dashboard = {
                                    htmlSt +
                                    htmlName +
                                    htmlUrls +
-                                   "<td>" + status.stageExpire + "</td>\n" +
+                                   "<td>" + status.metadataExpire + "</td>\n" +
                                    "<td>" + status["last-deployed"] + "</td>\n" +
                                    htmlPublish +
                                    htmlMenu

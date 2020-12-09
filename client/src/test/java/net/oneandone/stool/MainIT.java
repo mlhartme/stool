@@ -112,8 +112,8 @@ public class MainIT {
         sc(working, "detach", "-stage", stage);
         sc(working, "attach", stage);
         sc(working, "validate", "-stage", stage);
-        sc(working, "config", "-stage", stage, "stageComment");
-        sc(working, "config", "-stage", stage, "stageComment=42");
+        sc(working, "config", "-stage", stage, "metadataComment");
+        sc(working, "config", "-stage", stage, "metadataComment=42");
         sc(working, "images", "-stage", stage);
         sc(working, "publish", "-e", "-stage", stage);
         sc(working, "list", "-stage", stage);

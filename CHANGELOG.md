@@ -14,6 +14,7 @@
   * generalized config command to get/set arbitrary (Helm chart) value; properties are values with a stage prefix;
     dumped status field `values`
   * environment properties are gone, use stage config and value settings (i.e. Helm values) instead
+  * former `notify`, `expire` and `comment` properties are now metadata values
 * dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
 * client

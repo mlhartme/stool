@@ -109,7 +109,7 @@ public class Stage {
         }
         addOpt(result, Type.VALUE_COMMENT, "");
         addOpt(result, Type.VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
-        addOpt(result, Type.VALUE_NOTIFY, Stage.NOTIFY_FIRST_MODIFIER);
+        addOpt(result, Type.VALUE_CONTACT, Stage.NOTIFY_FIRST_MODIFIER);
         return result;
     }
 
@@ -140,7 +140,7 @@ public class Stage {
     }
 
     public List<String> getValueNotify(Engine engine) throws IOException {
-        return Separator.COMMA.split(value(engine, Type.VALUE_NOTIFY).get());
+        return Separator.COMMA.split(value(engine, Type.VALUE_CONTACT).get());
     }
 
     public String getValueImage(Engine engine) throws IOException {

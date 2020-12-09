@@ -188,9 +188,9 @@ Besides values, every stage has status fields, you can view them with `sc status
 
 ### Stage Expiring
 
-Every stage has an `stageExpire` value that specifies the date until the stage is needed. You can see the expire date with `sc config stageExpire`. 
+Every stage has an `metadataExpire` value that specifies the date until the stage is needed. You can see the expire date with `sc config metadataExpire`. 
 If this date has passed, the stage is called expired, and it is automatically stopped, a notification email is sent, and you cannot start it 
-again unless you specify a new date with `sc config stageExpire=`*yyyy-mm-dd*.
+again unless you specify a new date with `sc config metadataExpire=`*yyyy-mm-dd*.
 
 Depending on the `autoRemove` setting, an expired stage will automatically be removed after the configured number of days. 
 
@@ -655,7 +655,7 @@ When invoked with one or more *key*s, the respective values are printed.
 When invoked with one or more assignments, the respective values are changed.
 
 Strings may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
-`sc config "stageComment={} append this"`.
+`sc config "metadataComment={} append this"`.
 
 If you want to set a value to a String with spaces, you have to use quotes around the assignment.
 
@@ -665,10 +665,10 @@ Values have a type: boolean, number, date, string, or list of strings.
 
 Boolean values by be `true` or `false`, case sensitive.
 
-Date values have the form *yyyy-mm-dd*, so a valid `stageExpire` value is - e.g. -`2016-12-31`. Alternatively, 
+Date values have the form *yyyy-mm-dd*, so a valid `metadataExpire` value is - e.g. -`2016-12-31`. Alternatively, 
 you can specify a number which is shorthand for that number of days from now (e.g. `1` means tomorrow).
 
-List values (e.g. `stageNotify`) are separated by commas, whitespace before and after an item is ignored.
+List values (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
 
 [//]: # (include stageOptions.md)
 
@@ -682,20 +682,20 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 
 Stool exposed all values of the underlying Helm chart. In addition, every stage has the following values:
 
-* **stageComment**
+* **metadataComment**
   Arbitrary comment for this stage. This value nothing but stored, it has no effect. Type string.
-* **stageExpire**
+* **metadataExpire**
   Defines when this stage [expires](#stage-expiring). Type date.
-* **stageNotify**
+* **metadataContact**
   List of email addresses or `@first` (first person touching this stage) or `@last` (last person touching this stage)
   to send notifications about this stage. Type list. Default value: `@first`.
 
 
 #### Examples
 
-`sc config stageComment` prints the current `comment` value.
+`sc config metadataComment` prints the current `comment` value.
 
-`sc config stageComment=42` sets the comment to 42.
+`sc config metadataComment=42` sets the comment to 42.
 
 
 ### sc-status
@@ -853,9 +853,9 @@ Validate the stage
 
 #### DESCRIPTION
 
-Checks if the `stageExpire` date of the stage has passed. If so, and if
+Checks if the `metadataExpire` date of the stage has passed. If so, and if
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoRemove days). And
-if `-email` is specified, a notification mail is sent as configured by the `stageNotify` value.
+if `-email` is specified, a notification mail is sent as configured by the `metadataContact` value.
 
 [//]: # (include stageOptions.md)
 
