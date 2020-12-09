@@ -107,14 +107,13 @@ public class Stage {
         for (Map.Entry<String, Object> entry : lazyRawValues.entrySet()) {
             result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
         }
-        addOpt(result, Type.VALUE_COMMENT, "");
         addOpt(result, Type.VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
         addOpt(result, Type.VALUE_CONTACT, Stage.NOTIFY_FIRST_MODIFIER);
         return result;
     }
 
     private static void addOpt(Map<String, Value> dest, String name, String value) {
-        if (!dest.containsKey(name)) {
+        if (dest.get(name).get().isEmpty()) {
             dest.put(name, new Value(name, value));
         }
     }

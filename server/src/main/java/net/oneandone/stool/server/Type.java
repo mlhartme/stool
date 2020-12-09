@@ -33,7 +33,8 @@ public class Type {
     public static final String VALUE_EXPIRE = "metadataExpire";
     public static final String VALUE_COMMENT = "metadataComment";
 
-    public static final String[] STAGE_VALUES = {
+    public static final String[] MANDATORY_VALUES = {
+            VALUE_IMAGE, VALUE_REPLICAS,
             VALUE_COMMENT, VALUE_EXPIRE, VALUE_CONTACT
     };
 
@@ -57,14 +58,8 @@ public class Type {
 
         unknown = new HashSet<>(clientValues.keySet());
         unknown.removeAll(builtIns);
-
-        for (String value : STAGE_VALUES) {
-            unknown.remove(value);
-        }
         if (!unknown.isEmpty()) {
             throw new ArgumentException("unknown value(s): " + unknown);
         }
     }
-
-
 }
