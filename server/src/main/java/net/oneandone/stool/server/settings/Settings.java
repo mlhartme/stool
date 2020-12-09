@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.settings;
 
 import net.oneandone.stool.server.util.Mailer;
+import net.oneandone.sushi.util.Separator;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class Settings {
 
     public String loglevel;
 
-    public String registryUrl;
+    public String registryCredentials;
 
     /**
      * used for output and application urls
@@ -93,7 +94,7 @@ public class Settings {
         fqdn = "localhost";
         kubernetes = "http://localhost";
         loglevel = "INFO";
-        registryUrl = "http://localhost:31500/";
+        registryCredentials = "";
         admin = "";
         autoRemove = -1;
         ldapUrl = "";
@@ -108,9 +109,42 @@ public class Settings {
         values = new HashMap<>();
     }
 
-    public String registryUrl() {
-        return registryUrl;
+    public static class UsernamePassword {
+        public final String username;
+        public final String password;
+
+        public UsernamePassword(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
     }
+
+    private Map<String, UsernamePassword> lazyRegistryCredentials = null;
+
+    public UsernamePassword registryCredentials(String registry) {
+        int idx;
+        String host;
+
+        if (lazyRegistryCredentials == null) {
+            lazyRegistryCredentials = new HashMap<>();
+            for (String entry : Separator.COMMA.split(registryCredentials)) {
+                idx = entry.indexOf('=');
+                if (idx < 0) {
+                    throw new IllegalStateException(entry);
+                }
+                host = entry.substring(0, idx);
+                entry = entry.substring(idx + 1);
+                idx = entry.indexOf(':');
+                if (idx < 0) {
+                    throw new IllegalStateException(entry);
+                }
+                lazyRegistryCredentials.put(host, new UsernamePassword(entry.substring(0, idx), entry.substring(idx + 1)));
+            }
+            System.out.println("credentials: " + lazyRegistryCredentials);
+        }
+        return lazyRegistryCredentials.get(registry);
+    }
+
 
     private void loadEnv() {
         String name;

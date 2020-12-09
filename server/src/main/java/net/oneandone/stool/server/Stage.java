@@ -28,6 +28,7 @@ import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
+import net.oneandone.stool.server.settings.Settings;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
@@ -36,7 +37,6 @@ import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
@@ -129,18 +129,23 @@ public class Stage {
     }
 
     public Registry createRegistry(World world, String image) throws IOException {
-        String registry;
+        int idx;
+        String host;
+        Settings.UsernamePassword up;
+        String uri;
 
-        registry = server.settings.registryUrl();
-        /* TODO: re-enabled this test
-        URI url;
-        String repository;
-        url = URI.create(registry);
-        repository = getRepository();
-        if (!repository.startsWith(url.getHost() + "/")) {
-            throw new IllegalStateException(url.getHost() + " vs " + repository);
-        }*/
-        return PortusRegistry.create(world, Strings.removeRightOpt(registry, "/"), null);
+        idx = image.indexOf('/');
+        if (idx == -1) {
+            throw new IllegalArgumentException(image);
+        }
+        host = image.substring(0, idx);
+        uri = "https://";
+        up = server.settings.registryCredentials(host);
+        if (up != null) {
+            uri = uri + up.username + ":" + up.password + "@";
+        }
+        uri = uri + host;
+        return PortusRegistry.create(world, uri, null);
     }
 
 

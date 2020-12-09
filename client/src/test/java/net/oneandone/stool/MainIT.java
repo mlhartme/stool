@@ -65,9 +65,11 @@ public class MainIT {
 
     private static FileNode serverValues() throws IOException {
         FileNode file;
+        URI portus;
 
         file = IT_ROOT.join("values.yaml");
-        file.writeLines("registryUrl: " + Secrets.load(WORLD).portus.resolve("localhost/").toString());
+        portus = Secrets.load(WORLD).portus;
+        file.writeLines("registryCredentials: " + portus.getHost() + "=" + portus.getUserInfo());
         return file;
     }
 

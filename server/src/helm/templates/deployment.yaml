@@ -113,8 +113,8 @@ spec:
         env:
         - name: FQDN
           value: "{{ .Values.fqdn }}"
-        - name: REGISTRY_URL
-          value: "{{ .Values.registryUrl }}"
+        - name: REGISTRY_CREDENTIALS
+          value: "{{ .Values.registryCredentials }}"
         - name: KUBERNETES
           value: "{{ .Values.kubernetes }}"
         - name: OPTS
