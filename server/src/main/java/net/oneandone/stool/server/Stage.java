@@ -156,10 +156,6 @@ public class Stage {
         return server.getStageLogs(name);
     }
 
-    public String getRepositoryPath(Engine engine) throws IOException {
-        return Registry.getRepositoryPath(Registry.toRepository(getValueImage(engine)));
-    }
-
     public Registry createRegistry(World world, Engine engine) throws IOException {
         return createRegistry(world, getValueImage(engine));
     }
@@ -390,7 +386,10 @@ public class Stage {
 
     /** @return sorted list, oldest first */
     public List<TagInfo> images(Engine engine, Registry registry) throws IOException {
-        return registry.list(getRepositoryPath(engine));
+        String path;
+
+        path = Registry.getRepositoryPath(Registry.toRepository(getValueImage(engine)));
+        return registry.list(path);
     }
 
     /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
@@ -484,13 +483,9 @@ public class Stage {
     }
 
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public static void validateRepository(String image) {
+    public static void validateRepository(String repository) {
         URI uri;
-        int idx;
-        String repository;
 
-        idx = image.indexOf(':');
-        repository = idx == -1 ? image : image.substring(0, idx);
         if (repository.endsWith("/")) {
             throw new ArgumentException("invalid repository: " + repository);
         }
