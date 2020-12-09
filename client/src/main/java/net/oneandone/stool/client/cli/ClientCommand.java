@@ -83,10 +83,6 @@ public abstract class ClientCommand {
         }
     }
 
-    protected void header(String h) {
-        console.info.println("[" + h + "]");
-    }
-
     protected void message(Launcher l, String suffix) {
         message(Separator.SPACE.join(l.getBuilder().command()) + suffix);
     }

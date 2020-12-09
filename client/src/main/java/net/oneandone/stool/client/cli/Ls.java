@@ -53,8 +53,6 @@ public class Ls extends InfoCommand {
         if (selected.isEmpty()) {
             selected.addAll(Arrays.asList("name", "image", "last-modified-by"));
         }
-        header("stages");
-
         for (String infoName : selected) {
             columns.put(infoName, new ArrayList<>());
         }
@@ -68,16 +66,16 @@ public class Ls extends InfoCommand {
         widths = widths();
         idx = 0;
         for (String name : columns.keySet()) {
-            console.info.print(Strings.padRight("(" + name + ")", widths.get(idx)));
             console.info.print(gap);
+            console.info.print(Strings.padRight("(" + name + ")", widths.get(idx)));
             idx++;
         }
         console.info.println();
         for (int i = 0, lines = lines(); i < lines; i++) {
             idx = 0;
             for (List<String> column : columns.values()) {
-                console.info.print(Strings.padRight(column.get(i), widths.get(idx)));
                 console.info.print(gap);
+                console.info.print(Strings.padRight(column.get(i), widths.get(idx)));
                 idx++;
             }
             console.info.println();
