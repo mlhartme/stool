@@ -37,19 +37,50 @@ public class ValueBuilder {
     private final Server server;
     private final TagInfo image;
     private final String fqdn;
+    private final List<Field> fields;
+
+    private static class Field {
+        public final String name;
+        public final String macro;
+
+        private Field(String name, String macro) {
+            this.name = name;
+            this.macro = macro;
+        }
+    }
 
     public ValueBuilder(World world, Server server, TagInfo image, String fqdn) {
         this.world = world;
         this.server = server;
         this.image = image;
         this.fqdn = fqdn;
+        this.fields = new ArrayList<>();
+
+        fields.add(new Field("image", "image"));
+        fields.add(new Field("fqdn", "fqdn"));
+        fields.add(new Field("cert", "cert"));
+        fields.add(new Field("fault", "fault"));
     }
 
     public void run(Map<String, Object> map) throws IOException {
-        map.put("image", image.repositoryTag);
-        map.put("fqdn", fqdn);
-        map.put("cert", cert());
-        map.put("fault", fault());
+        for (Field field : fields) {
+            map.put(field.name, eval(field.macro));
+        }
+    }
+
+    public String eval(String macro) throws IOException {
+        switch (macro) {
+            case "image":
+                return image.repositoryTag;
+            case "fqdn":
+                return fqdn;
+            case "cert":
+                return cert();
+            case "fault":
+                return fault();
+            default:
+                throw new IOException("unknown macro: " + macro);
+        }
     }
 
     private String cert() throws IOException {
