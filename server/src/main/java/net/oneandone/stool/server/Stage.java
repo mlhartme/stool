@@ -40,19 +40,13 @@ import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
-import org.kamranzafar.jtar.TarEntry;
-import org.kamranzafar.jtar.TarHeader;
-import org.kamranzafar.jtar.TarOutputStream;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +55,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * A collection of images. From a Docker perspective, a stage roughly represents a Repository.
@@ -411,10 +404,7 @@ public class Stage {
             map.putAll(image.chartValues);
         }
         map.putAll(clientValues);
-        map.put("image", image.repositoryTag);
-        map.put("fqdn", stageFqdn());
-        map.put("cert", cert());
-        map.put("fault", fault(world, image));
+        new App(world, server, image).addValues(this, map);
 
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
         if (expire.isExpired()) {
@@ -495,74 +485,6 @@ public class Stage {
         }
     }
 
-    /** tar directory into byte array */
-    private String fault(World world, TagInfo image) throws IOException {
-        List<String> missing;
-        FileNode workspace;
-        FileNode project;
-        TarOutputStream tar;
-        byte[] buffer;
-        long now;
-        String result;
-
-        missing = new ArrayList<>();
-        if (server.settings.auth()) {
-            server.checkFaultPermissions(image.author, image.faultProjects);
-        }
-        workspace = world.file("/etc/fault/workspace");
-        buffer = new byte[64 * 1024];
-        try (ByteArrayOutputStream dest = new ByteArrayOutputStream()) {
-            tar = new TarOutputStream(new GZIPOutputStream(dest));
-            now = System.currentTimeMillis();
-            for (String projectName : image.faultProjects) {
-                project = workspace.join(projectName);
-                if (project.isDirectory()) {
-                    faultTarAdd(now, buffer, workspace, project, tar);
-                } else {
-                    missing.add(projectName);
-                }
-            }
-            tar.close();
-            result = Base64.getEncoder().encodeToString(dest.toByteArray());
-        }
-        if (!missing.isEmpty()) {
-            throw new ArgumentException("missing secret directories: " + missing);
-        }
-        return result;
-    }
-
-    /** tar directory into byte array */
-    private void faultTarAdd(long now, byte[] buffer, FileNode workspace, FileNode project, TarOutputStream tar) throws IOException {
-        List<FileNode> all;
-        Iterator<FileNode> iter;
-        FileNode file;
-        int count;
-
-        all = project.find("**/*");
-        iter = all.iterator();
-        while (iter.hasNext()) {
-            file = iter.next();
-            if (file.isDirectory()) {
-                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(workspace), 0, now, true, 0700)));
-                iter.remove();
-            }
-        }
-        iter = all.iterator();
-        while (iter.hasNext()) {
-            file = iter.next();
-            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(workspace), file.size(), now, false, 0700)));
-            try (InputStream src = file.newInputStream()) {
-                while (true) {
-                    count = src.read(buffer);
-                    if (count == -1) {
-                        break;
-                    }
-                    tar.write(buffer, 0, count);
-                }
-            }
-        }
-    }
-
     // TODO: expensive
     private TagInfo resolve(Engine engine, World world, String imageOrRepositoryX, String imagePrevious) throws IOException {
         String imageOrRepository;
@@ -598,13 +520,6 @@ public class Stage {
     public void uninstall(Engine engine) throws IOException {
         Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "uninstall", getName()));
         engine.deploymentAwaitGone(getName());
-    }
-
-    private String cert() throws IOException {
-        FileNode dir;
-
-        dir = server.certificate(stageFqdn());
-        return Base64.getEncoder().encodeToString(dir.join("keystore.p12").readBytes());
     }
 
     //--
