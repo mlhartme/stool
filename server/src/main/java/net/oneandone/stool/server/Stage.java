@@ -390,7 +390,7 @@ public class Stage {
         world = World.create(); // TODO
         image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
         expressions = new Expressions(world, server, image, stageFqdn());
-        app = Application.load(expressions, world.resource("app.yaml").readString());
+        app = Application.load(expressions, world.file("/etc/charts/app.yaml").readString());
         tmp = world.getTemp().createTempDirectory();
         values = world.getTemp().createTempFile();
         src = world.file("/etc/charts").join(app.chart);

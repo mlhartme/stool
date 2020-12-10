@@ -1,6 +1,0 @@
-chart: "{{ label net.oneandone.stool-chart }}"
-values:
-  image: "{{ image }}"
-  fqdn: "{{ fqdn }}"
-  cert: "{{ cert }}"
-  fault: "{{ fault {{ label net.oneandone.stool-fault }} }}"
