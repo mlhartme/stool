@@ -37,7 +37,7 @@ import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Value;
 import net.oneandone.stool.server.values.Application;
-import net.oneandone.stool.server.values.Macros;
+import net.oneandone.stool.server.values.Expressions;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -369,6 +369,7 @@ public class Stage {
      *  @return image actually published
      */
     public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
+        Expressions expressions;
         Application app;
         World world;
         FileNode tmp;
@@ -381,17 +382,17 @@ public class Stage {
         if (imageOrRepositoryX != null && imageOrRepositoryX != KEEP_IMAGE) {
             validateRepository(Registry.toRepository(imageOrRepositoryX));
         }
-        world = World.create(); // TODO
-        app = Application.load(world.resource("app.yaml").readString());
-        tmp = world.getTemp().createTempDirectory();
-        values = world.getTemp().createTempFile();
-
         if (upgrade) {
             map = new HashMap<>(helmValues(engine));
         } else {
             map = new HashMap<>(server.settings.values);
         }
+        world = World.create(); // TODO
         image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
+        expressions = new Expressions(world, server, image, stageFqdn());
+        app = Application.load(expressions, world.resource("app.yaml").readString());
+        tmp = world.getTemp().createTempDirectory();
+        values = world.getTemp().createTempFile();
         src = world.file("/etc/charts").join(app.chart);
         if (!src.isDirectory()) {
             throw new ArgumentException("helm chart not found: " + app.chart);
@@ -399,7 +400,7 @@ public class Stage {
         src.copyDirectory(tmp);
         Type.TYPE.checkValues(clientValues, builtInValues(tmp).keySet());
         map.putAll(clientValues);
-        app.addValues(new Macros(world, server, image, stageFqdn()), map);
+        app.addValues(expressions, map);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
         if (expire.isExpired()) {
             throw new ArgumentException(name + ": stage expired: " + expire);

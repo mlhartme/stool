@@ -33,20 +33,28 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
-public class Macros {
+public class Expressions {
     private final World world;
     private final Server server;
     private final TagInfo image;
     private final String fqdn;
 
-    public Macros(World world, Server server, TagInfo image, String fqdn) {
+    public Expressions(World world, Server server, TagInfo image, String fqdn) {
         this.world = world;
         this.server = server;
         this.image = image;
         this.fqdn = fqdn;
     }
 
-    public String eval(String macro) throws IOException {
+    public String eval(String expr) throws IOException {
+        if (expr.startsWith("$")) {
+            return macro(expr.substring(1));
+        } else {
+            return expr;
+        }
+    }
+
+    private String macro(String macro) throws IOException {
         switch (macro) {
             case "image":
                 return image.repositoryTag;

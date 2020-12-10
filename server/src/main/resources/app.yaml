@@ -1,6 +1,6 @@
 chart: "kutter"
 values:
-  image: "image"
-  fqdn: "fqdn"
-  cert: "cert"
-  fault: "fault"
+  image: "$image"
+  fqdn: "$fqdn"
+  cert: "$cert"
+  fault: "$fault"

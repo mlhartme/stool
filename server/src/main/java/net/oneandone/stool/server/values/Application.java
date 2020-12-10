@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Application {
-    public static Application load(String str) throws IOException {
+    public static Application load(Expressions expressions, String str) throws IOException {
         ObjectMapper mapper;
         ObjectNode root;
         ObjectNode values;
@@ -38,7 +38,7 @@ public class Application {
 
         mapper = new ObjectMapper(new YAMLFactory());
         root = (ObjectNode) mapper.readTree(new StringReader(str));
-        result = new Application(root.get("chart").asText());
+        result = new Application(expressions.eval(root.get("chart").asText()));
         values = (ObjectNode) root.get("values");
         iter = values.fields();
         while (iter.hasNext()) {
@@ -56,7 +56,7 @@ public class Application {
         this.fields = new ArrayList<>();
     }
 
-    public void addValues(Macros builder, Map<String, Object> map) throws IOException {
+    public void addValues(Expressions builder, Map<String, Object> map) throws IOException {
         for (Field field : fields) {
             map.put(field.name, builder.eval(field.macro));
         }
