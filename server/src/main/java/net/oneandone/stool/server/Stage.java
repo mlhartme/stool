@@ -316,12 +316,6 @@ public class Stage {
                 }
             }
         });
-        fields.add(new Field("origin-scm") {
-            @Override
-            public Object get(Context context) throws IOException {
-                return context.tagInfo(Stage.this).originScm;
-            }
-        });
         fields.add(new Field("urls") {
             @Override
             public Object get(Context context) throws IOException {

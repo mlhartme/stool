@@ -17,6 +17,7 @@
   * former `notify`, `expire` and `comment` properties are now metadata values
 * dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
+* dumped `origin-scm` field, check `sc images` instead
 * client
   * create
     * always starts the stage
