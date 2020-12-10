@@ -22,8 +22,6 @@ import java.util.Map;
 public class ImageInfo {
     private static final String IMAGE_PREFIX = "net.oneandone.stool-";
 
-    public static final String IMAGE_LABEL_CHART = IMAGE_PREFIX + "chart";
-
     public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.context";
     public static final String IMAGE_LABEL_URL_SUFFIXES = IMAGE_PREFIX + "url.suffixes";
     public static final String IMAGE_LABEL_FAULT = IMAGE_PREFIX + "fault";

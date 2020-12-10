@@ -36,9 +36,9 @@ public class Application {
         Map.Entry<String, JsonNode> entry;
         Application result;
 
-        result = new Application();
         mapper = new ObjectMapper(new YAMLFactory());
         root = (ObjectNode) mapper.readTree(new StringReader(str));
+        result = new Application(root.get("chart").asText());
         values = (ObjectNode) root.get("values");
         iter = values.fields();
         while (iter.hasNext()) {
@@ -48,9 +48,11 @@ public class Application {
         return result;
     }
 
+    public final String chart;
     private final List<Field> fields;
 
-    public Application() {
+    public Application(String chart) {
+        this.chart = chart;
         this.fields = new ArrayList<>();
     }
 

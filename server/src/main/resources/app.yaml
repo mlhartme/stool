@@ -1,3 +1,4 @@
+chart: "kutter"
 values:
   image: "image"
   fqdn: "fqdn"

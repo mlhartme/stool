@@ -369,6 +369,7 @@ public class Stage {
      *  @return image actually published
      */
     public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
+        Application app;
         World world;
         FileNode tmp;
         TagInfo image;
@@ -381,6 +382,7 @@ public class Stage {
             validateRepository(Registry.toRepository(imageOrRepositoryX));
         }
         world = World.create(); // TODO
+        app = Application.load(world.resource("app.yaml").readString());
         tmp = world.getTemp().createTempDirectory();
         values = world.getTemp().createTempFile();
 
@@ -390,23 +392,14 @@ public class Stage {
             map = new HashMap<>(server.settings.values);
         }
         image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
-        if (image.chart == null) {
-            throw new ArgumentException("image " + image.repositoryTag + " does not specify a helm chart");
-        }
-        src = world.file("/etc/charts").join(image.chart);
+        src = world.file("/etc/charts").join(app.chart);
         if (!src.isDirectory()) {
-            throw new ArgumentException("helm chart not found: " + image.chart);
+            throw new ArgumentException("helm chart not found: " + app.chart);
         }
         src.copyDirectory(tmp);
         Type.TYPE.checkValues(clientValues, builtInValues(tmp).keySet());
-        if (upgrade) {
-            // TODO:
-            // put values from image again? it might have changed ...
-        } else {
-            map.putAll(image.chartValues);
-        }
         map.putAll(clientValues);
-        Application.load(world.resource("app.yaml").readString()).addValues(new Macros(world, server, image, stageFqdn()), map);
+        app.addValues(new Macros(world, server, image, stageFqdn()), map);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
         if (expire.isExpired()) {
             throw new ArgumentException(name + ": stage expired: " + expire);

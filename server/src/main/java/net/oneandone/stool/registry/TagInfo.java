@@ -27,7 +27,6 @@ import java.util.Map;
 public class TagInfo implements Comparable<TagInfo> {
     public static TagInfo create(String id, String repositoryTag, String tag, String author, LocalDateTime created, Map<String, String> labels) {
         return new TagInfo(id, repositoryTag, tag, author,
-                labels.get(ImageInfo.IMAGE_LABEL_CHART), map(ImageInfo.IMAGE_LABEL_CHART + ".", labels),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)),
                 created, fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)), labels);
@@ -99,9 +98,6 @@ public class TagInfo implements Comparable<TagInfo> {
 
     //-- meta data
 
-    public final String chart;
-    public final Map<String, String> chartValues;
-
     public final String urlContext;
     public final List<String> urlSuffixes;
 
@@ -112,8 +108,7 @@ public class TagInfo implements Comparable<TagInfo> {
     public final Map<String, String> labels;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public TagInfo(String id, String repositoryTag, String tag, String author, String chart, Map<String, String> chartValues,
-                   String urlContext, List<String> urlSuffixes,
+    public TagInfo(String id, String repositoryTag, String tag, String author, String urlContext, List<String> urlSuffixes,
                    LocalDateTime createdAt, List<String> faultProjects, Map<String, String> labels) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
@@ -126,8 +121,6 @@ public class TagInfo implements Comparable<TagInfo> {
         this.tagNumber = parseOpt(tag);
         this.author = author;
 
-        this.chart = chart;
-        this.chartValues = chartValues;
         this.urlContext = urlContext;
         this.urlSuffixes = urlSuffixes;
         this.createdAt = createdAt;
