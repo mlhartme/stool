@@ -18,6 +18,7 @@
 * dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
 * dumped `origin-scm` field, check `sc images` instead
+* changed `images` command to display generic values only  
 * client
   * create
     * always starts the stage
