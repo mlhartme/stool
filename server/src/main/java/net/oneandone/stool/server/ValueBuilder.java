@@ -32,25 +32,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-public class App {
+public class ValueBuilder {
     private final World world;
     private final Server server;
     private final TagInfo image;
+    private final String fqdn;
 
-    public App(World world, Server server, TagInfo image) {
+    public ValueBuilder(World world, Server server, TagInfo image, String fqdn) {
         this.world = world;
         this.server = server;
         this.image = image;
+        this.fqdn = fqdn;
     }
 
-    public void addValues(Stage stage, Map<String, Object> map) throws IOException {
+    public void run(Map<String, Object> map) throws IOException {
         map.put("image", image.repositoryTag);
-        map.put("fqdn", stage.stageFqdn());
-        map.put("cert", cert(stage.stageFqdn()));
+        map.put("fqdn", fqdn);
+        map.put("cert", cert());
         map.put("fault", fault());
     }
 
-    private String cert(String fqdn) throws IOException {
+    private String cert() throws IOException {
         FileNode dir;
 
         dir = server.certificate(fqdn);

@@ -404,7 +404,7 @@ public class Stage {
             map.putAll(image.chartValues);
         }
         map.putAll(clientValues);
-        new App(world, server, image).addValues(this, map);
+        new ValueBuilder(world, server, image, stageFqdn()).run(map);
 
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
         if (expire.isExpired()) {
