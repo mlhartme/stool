@@ -63,8 +63,8 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String NOTIFY_FIRST_MODIFIER = "@first";
-    private static final String NOTIFY_LAST_MODIFIER = "@last";
+    public static final String NOTIFY_FIRST_MODIFIER = "@first";
+    public static final String NOTIFY_LAST_MODIFIER = "@last";
 
     //--
 
@@ -119,8 +119,6 @@ public class Stage {
         for (Map.Entry<String, Object> entry : helmValues(engine).entrySet()) {
             result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
         }
-        addOpt(result, Type.VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
-        addOpt(result, Type.VALUE_CONTACT, Stage.NOTIFY_FIRST_MODIFIER);
         return result;
     }
 
@@ -399,8 +397,8 @@ public class Stage {
         }
         src.copyDirectory(tmp);
         Type.TYPE.checkValues(clientValues, builtInValues(tmp).keySet());
-        map.putAll(clientValues);
         app.addValues(expressions, map);
+        map.putAll(clientValues);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
         if (expire.isExpired()) {
             throw new ArgumentException(name + ": stage expired: " + expire);

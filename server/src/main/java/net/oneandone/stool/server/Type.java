@@ -22,8 +22,6 @@ import java.util.Set;
 
 /**
  * Things that Stool assumes about helm charts.
- *
- * TODO: stage name -&gt; deployment name is not represented in this class
  */
 public class Type {
     public static final String VALUE_REPLICAS = "replicas";
@@ -32,11 +30,6 @@ public class Type {
     public static final String VALUE_CONTACT = "metadataContact";
     public static final String VALUE_EXPIRE = "metadataExpire";
     public static final String VALUE_COMMENT = "metadataComment";
-
-    public static final String[] MANDATORY_VALUES = {
-            VALUE_IMAGE, VALUE_REPLICAS,
-            VALUE_COMMENT, VALUE_EXPIRE, VALUE_CONTACT
-    };
 
     public static final String MAIN_CONTAINER = "main"; // TODO: needed for monitoring stats ...
 

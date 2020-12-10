@@ -18,6 +18,8 @@ package net.oneandone.stool.server.values;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
+import net.oneandone.stool.server.Stage;
+import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -76,6 +78,12 @@ public class Expressions {
             call = Strings.toList(macro.substring(0, idx), macro.substring(idx + 1));
         }
         switch (call.get(0)) {
+            case "defaultExpire":
+                arg(call, 0);
+                return Expire.fromNumber(server.settings.defaultExpire).toString();
+            case "defaultContact":
+                arg(call, 0);
+                return Stage.NOTIFY_FIRST_MODIFIER;
             case "label":
                 arg(call, 1);
                 return label(eval(call.get(1)));
