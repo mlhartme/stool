@@ -144,13 +144,6 @@ public class Stage {
         return result;
     }
 
-
-    private static void addOpt(Map<String, Value> dest, String name, String value) {
-        if (dest.get(name).get().isEmpty()) {
-            dest.put(name, new Value(name, value));
-        }
-    }
-
     public Value value(Engine engine, String value) throws IOException {
         Value result;
 
@@ -383,7 +376,7 @@ public class Stage {
         if (upgrade) {
             map = new HashMap<>(helmValues(engine));
         } else {
-            map = new HashMap<>(server.settings.values);
+            map = new HashMap<>();
         }
         world = World.create(); // TODO
         image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
