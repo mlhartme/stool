@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server;
+package net.oneandone.stool.server.values;
 
 import net.oneandone.stool.registry.TagInfo;
+import net.oneandone.stool.server.ArgumentException;
+import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.kamranzafar.jtar.TarEntry;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server;
+package net.oneandone.stool.server.values;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,16 +22,6 @@ import java.util.Map;
 
 public class Application {
     private final List<Field> fields;
-
-    private static class Field {
-        public final String name;
-        public final String macro;
-
-        private Field(String name, String macro) {
-            this.name = name;
-            this.macro = macro;
-        }
-    }
 
     public Application() {
         this.fields = new ArrayList<>();

@@ -36,6 +36,8 @@ import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Value;
+import net.oneandone.stool.server.values.Application;
+import net.oneandone.stool.server.values.Macros;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
