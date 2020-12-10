@@ -15,21 +15,43 @@
  */
 package net.oneandone.stool.server.values;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class Application {
+    public static Application load(String str) throws IOException {
+        ObjectMapper mapper;
+        ObjectNode root;
+        ObjectNode values;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+        Application result;
+
+        result = new Application();
+        mapper = new ObjectMapper(new YAMLFactory());
+        root = (ObjectNode) mapper.readTree(new StringReader(str));
+        values = (ObjectNode) root.get("values");
+        iter = values.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            result.fields.add(new Field(entry.getKey(), entry.getValue().asText()));
+        }
+        return result;
+    }
+
     private final List<Field> fields;
 
     public Application() {
         this.fields = new ArrayList<>();
-
-        fields.add(new Field("image", "image"));
-        fields.add(new Field("fqdn", "fqdn"));
-        fields.add(new Field("cert", "cert"));
-        fields.add(new Field("fault", "fault"));
     }
 
     public void addValues(Macros builder, Map<String, Object> map) throws IOException {

@@ -406,7 +406,7 @@ public class Stage {
             map.putAll(image.chartValues);
         }
         map.putAll(clientValues);
-        new Application().addValues(new Macros(world, server, image, stageFqdn()), map);
+        Application.load(world.resource("app.yaml").readString()).addValues(new Macros(world, server, image, stageFqdn()), map);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
         if (expire.isExpired()) {
             throw new ArgumentException(name + ": stage expired: " + expire);

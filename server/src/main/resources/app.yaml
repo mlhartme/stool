@@ -1,0 +1,5 @@
+values:
+  image: "image"
+  fqdn: "fqdn"
+  cert: "cert"
+  fault: "fault"
