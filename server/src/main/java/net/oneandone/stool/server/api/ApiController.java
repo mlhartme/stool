@@ -62,7 +62,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -316,18 +315,12 @@ public class ApiController {
                 result.add(image.tag + "  " + marker);
                 result.add("   id:            " + image.id);
                 result.add("   repositoryTag: " + image.repositoryTag);
-                result.add("   comment:       " + image.comment);
-                result.add("   origin-scm:    " + image.originScm);
-                result.add("   origin-user:   " + image.originUser);
                 result.add("   created-at:    " + image.createdAt);
                 result.add("   created-by:    " + image.author);
-                result.add("   build args:");
-                args = new ArrayList<>(image.args.keySet());
-                Collections.sort(args);
-                for (String arg : args) {
-                    result.add("       " + arg + ": \t" + image.args.get(arg));
+                result.add("   labels:");
+                for (Map.Entry<String, String> labels : image.labels.entrySet()) {
+                    result.add("     " + labels.getKey() + "\t: " + labels.getValue());
                 }
-                result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
             }
             return array(result).toString();
         }

@@ -27,10 +27,6 @@ public class ImageInfo {
     public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.context";
     public static final String IMAGE_LABEL_URL_SUFFIXES = IMAGE_PREFIX + "url.suffixes";
     public static final String IMAGE_LABEL_FAULT = IMAGE_PREFIX + "fault";
-    public static final String IMAGE_LABEL_COMMENT = IMAGE_PREFIX + "comment";
-    public static final String IMAGE_LABEL_ORIGIN_SCM = IMAGE_PREFIX + "origin-scm";
-    public static final String IMAGE_LABEL_ORIGIN_USER = IMAGE_PREFIX + "origin-user";
-    public static final String IMAGE_LABEL_ARG_PREFIX = IMAGE_PREFIX + "arg.";
 
     public final String id;
     public final LocalDateTime created;

@@ -29,9 +29,8 @@ public class TagInfo implements Comparable<TagInfo> {
         return new TagInfo(id, repositoryTag, tag, author,
                 labels.get(ImageInfo.IMAGE_LABEL_CHART), map(ImageInfo.IMAGE_LABEL_CHART + ".", labels),
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
-                suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)), labels.get(ImageInfo.IMAGE_LABEL_COMMENT),
-                labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_SCM), labels.get(ImageInfo.IMAGE_LABEL_ORIGIN_USER),
-                created, args(labels), fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)));
+                suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)),
+                created, fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)), labels);
     }
 
     private static Map<String, String> map(String prefix, Map<String, String> from) {
@@ -45,20 +44,6 @@ public class TagInfo implements Comparable<TagInfo> {
             key = entry.getKey();
             if (key.startsWith(prefix)) {
                 result.put(key.substring(length), entry.getValue());
-            }
-        }
-        return result;
-    }
-
-    private static Map<String, String> args(Map<String, String> labels) {
-        Map<String, String> result;
-        String key;
-
-        result = new HashMap<>();
-        for (Map.Entry<String, String> entry : labels.entrySet()) {
-            key = entry.getKey();
-            if (key.startsWith(ImageInfo.IMAGE_LABEL_ARG_PREFIX)) {
-                result.put(key.substring(ImageInfo.IMAGE_LABEL_ARG_PREFIX.length()), entry.getValue());
             }
         }
         return result;
@@ -120,20 +105,16 @@ public class TagInfo implements Comparable<TagInfo> {
     public final String urlContext;
     public final List<String> urlSuffixes;
 
-    /** docker api returns a comment field, but i didn't find documentation how to set it */
-    public final String comment;
-    public final String originScm;
-    public final String originUser;
     public final LocalDateTime createdAt;
-    public final Map<String, String> args;
 
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
+    public final Map<String, String> labels;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public TagInfo(String id, String repositoryTag, String tag, String author, String chart, Map<String, String> chartValues,
-                   String urlContext, List<String> urlSuffixes, String comment, String originScm, String originUser,
-                   LocalDateTime createdAt, Map<String, String> args, List<String> faultProjects) {
+                   String urlContext, List<String> urlSuffixes,
+                   LocalDateTime createdAt, List<String> faultProjects, Map<String, String> labels) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
@@ -149,12 +130,9 @@ public class TagInfo implements Comparable<TagInfo> {
         this.chartValues = chartValues;
         this.urlContext = urlContext;
         this.urlSuffixes = urlSuffixes;
-        this.comment = comment;
-        this.originScm = originScm;
-        this.originUser = originUser;
         this.createdAt = createdAt;
-        this.args = args;
         this.faultProjects = faultProjects;
+        this.labels = labels;
     }
 
     private static Integer parseOpt(String str) {
