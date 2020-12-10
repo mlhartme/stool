@@ -29,43 +29,19 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-public class ValueBuilder {
+public class Macros {
     private final World world;
     private final Server server;
     private final TagInfo image;
     private final String fqdn;
-    private final List<Field> fields;
 
-    private static class Field {
-        public final String name;
-        public final String macro;
-
-        private Field(String name, String macro) {
-            this.name = name;
-            this.macro = macro;
-        }
-    }
-
-    public ValueBuilder(World world, Server server, TagInfo image, String fqdn) {
+    public Macros(World world, Server server, TagInfo image, String fqdn) {
         this.world = world;
         this.server = server;
         this.image = image;
         this.fqdn = fqdn;
-        this.fields = new ArrayList<>();
-
-        fields.add(new Field("image", "image"));
-        fields.add(new Field("fqdn", "fqdn"));
-        fields.add(new Field("cert", "cert"));
-        fields.add(new Field("fault", "fault"));
-    }
-
-    public void run(Map<String, Object> map) throws IOException {
-        for (Field field : fields) {
-            map.put(field.name, eval(field.macro));
-        }
     }
 
     public String eval(String macro) throws IOException {
