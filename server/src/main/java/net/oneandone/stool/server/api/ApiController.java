@@ -419,7 +419,7 @@ public class ApiController {
             stage = server.load(engine, stageName);
             tagInfo = stage.tagInfo(engine, stage.createRegistry(World.create() /* TODO */, engine));
         }
-        server.checkFaultPermissions(User.authenticatedOrAnonymous().login, tagInfo.faultProjects);
+        server.checkFaultPermissions(User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
         return tagInfo;
     }
 

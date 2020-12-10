@@ -20,6 +20,7 @@ import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
@@ -48,29 +49,56 @@ public class Expressions {
     }
 
     public String eval(String expr) throws IOException {
-        if (expr.startsWith("$")) {
-            return macro(expr.substring(1));
-        } else {
+        int start;
+        int end;
+
+        start = expr.indexOf("{{");
+        if (start < 0) {
             return expr;
         }
+        end = expr.lastIndexOf("}}");
+        if (end < 0) {
+            throw new IOException("missing closing brackets: " + expr);
+        }
+        return expr.substring(0, start) + macro(expr.substring(start + 2, end)) + expr.substring(end + 2);
     }
 
     private String macro(String macro) throws IOException {
-        if (macro.startsWith("label ")) {
-            return label(Strings.removeLeft(macro, "label").trim());
+        int idx;
+        List<String> call;
+
+        macro = macro.trim();
+        // TODO: just 1 arg ...
+        idx = macro.indexOf(' ');
+        if (idx < 0) {
+            call = Strings.toList(macro);
         } else {
-            switch (macro) {
-                case "image":
-                    return image.repositoryTag;
-                case "fqdn":
-                    return fqdn;
-                case "cert":
-                    return cert();
-                case "fault":
-                    return fault();
-                default:
-                    throw new IOException("unknown macro: " + macro);
-            }
+            call = Strings.toList(macro.substring(0, idx), macro.substring(idx + 1));
+        }
+        switch (call.get(0)) {
+            case "label":
+                arg(call, 1);
+                return label(eval(call.get(1)));
+            case "image":
+                arg(call, 0);
+                return image.repositoryTag;
+            case "fqdn":
+                arg(call, 0);
+                return fqdn;
+            case "cert":
+                arg(call, 0);
+                return cert();
+            case "fault":
+                arg(call, 1);
+                return fault(Separator.COMMA.split(eval(call.get(1))));
+            default:
+                throw new IOException("unknown macro: " + macro);
+        }
+    }
+
+    private void arg(List<String> call, int size) throws IOException {
+        if (call.size() - 1 != size) {
+            throw new IOException(call.get(0) + ": argument count mismatch, expected " + size + ", got " + (call.size() - 1));
         }
     }
 
@@ -93,7 +121,7 @@ public class Expressions {
 
 
     /** tar directory into byte array */
-    private String fault() throws IOException {
+    private String fault(List<String> faultProjects) throws IOException {
         List<String> missing;
         FileNode workspace;
         FileNode project;
@@ -104,14 +132,14 @@ public class Expressions {
 
         missing = new ArrayList<>();
         if (server.settings.auth()) {
-            server.checkFaultPermissions(image.author, image.faultProjects);
+            server.checkFaultPermissions(image.author, faultProjects);
         }
         workspace = world.file("/etc/fault/workspace");
         buffer = new byte[64 * 1024];
         try (ByteArrayOutputStream dest = new ByteArrayOutputStream()) {
             tar = new TarOutputStream(new GZIPOutputStream(dest));
             now = System.currentTimeMillis();
-            for (String projectName : image.faultProjects) {
+            for (String projectName : faultProjects) {
                 project = workspace.join(projectName);
                 if (project.isDirectory()) {
                     faultTarAdd(now, buffer, workspace, project, tar);

@@ -20,7 +20,6 @@ import net.oneandone.sushi.util.Separator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,23 +28,7 @@ public class TagInfo implements Comparable<TagInfo> {
         return new TagInfo(id, repositoryTag, tag, author,
                 context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)),
-                created, fault(labels.get(ImageInfo.IMAGE_LABEL_FAULT)), labels);
-    }
-
-    private static Map<String, String> map(String prefix, Map<String, String> from) {
-        int length;
-        Map<String, String> result;
-        String key;
-
-        length = prefix.length();
-        result = new HashMap<>();
-        for (Map.Entry<String, String> entry : from.entrySet()) {
-            key = entry.getKey();
-            if (key.startsWith(prefix)) {
-                result.put(key.substring(length), entry.getValue());
-            }
-        }
-        return result;
+                created, labels);
     }
 
     private static String context(String context) {
@@ -76,16 +59,6 @@ public class TagInfo implements Comparable<TagInfo> {
         return result;
     }
 
-    private static List<String> fault(String fault) {
-        List<String> result;
-
-        result = new ArrayList<>();
-        if (fault != null) {
-            result.addAll(Separator.COMMA.split(fault));
-        }
-        return result;
-    }
-
     //--
 
     public final String id; // includes "sha256:" prefix
@@ -95,21 +68,17 @@ public class TagInfo implements Comparable<TagInfo> {
     /** parsed version, null if version is not a number */
     public final Integer tagNumber;
     public final String author;
+    public final LocalDateTime createdAt;
+    public final Map<String, String> labels;
 
     //-- meta data
 
     public final String urlContext;
     public final List<String> urlSuffixes;
 
-    public final LocalDateTime createdAt;
-
-    /** maps relative host path to absolute container path */
-    public final List<String> faultProjects;
-    public final Map<String, String> labels;
-
     @SuppressWarnings("checkstyle:ParameterNumber")
     public TagInfo(String id, String repositoryTag, String tag, String author, String urlContext, List<String> urlSuffixes,
-                   LocalDateTime createdAt, List<String> faultProjects, Map<String, String> labels) {
+                   LocalDateTime createdAt, Map<String, String> labels) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
@@ -124,7 +93,6 @@ public class TagInfo implements Comparable<TagInfo> {
         this.urlContext = urlContext;
         this.urlSuffixes = urlSuffixes;
         this.createdAt = createdAt;
-        this.faultProjects = faultProjects;
         this.labels = labels;
     }
 

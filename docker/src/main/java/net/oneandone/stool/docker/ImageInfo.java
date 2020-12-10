@@ -24,7 +24,6 @@ public class ImageInfo {
 
     public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.context";
     public static final String IMAGE_LABEL_URL_SUFFIXES = IMAGE_PREFIX + "url.suffixes";
-    public static final String IMAGE_LABEL_FAULT = IMAGE_PREFIX + "fault";
 
     public final String id;
     public final LocalDateTime created;
