@@ -1,4 +1,4 @@
-chart: "kutter"
+chart: "$label net.oneandone.stool-chart"
 values:
   image: "$image"
   fqdn: "$fqdn"

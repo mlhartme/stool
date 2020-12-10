@@ -20,6 +20,7 @@ import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
@@ -55,18 +56,32 @@ public class Expressions {
     }
 
     private String macro(String macro) throws IOException {
-        switch (macro) {
-            case "image":
-                return image.repositoryTag;
-            case "fqdn":
-                return fqdn;
-            case "cert":
-                return cert();
-            case "fault":
-                return fault();
-            default:
-                throw new IOException("unknown macro: " + macro);
+        if (macro.startsWith("label ")) {
+            return label(Strings.removeLeft(macro, "label").trim());
+        } else {
+            switch (macro) {
+                case "image":
+                    return image.repositoryTag;
+                case "fqdn":
+                    return fqdn;
+                case "cert":
+                    return cert();
+                case "fault":
+                    return fault();
+                default:
+                    throw new IOException("unknown macro: " + macro);
+            }
         }
+    }
+
+    private String label(String name) throws IOException {
+        String result;
+
+        result = image.labels.get(name);
+        if (result == null) {
+            throw new IOException("label not found: " + name);
+        }
+        return result;
     }
 
     private String cert() throws IOException {
