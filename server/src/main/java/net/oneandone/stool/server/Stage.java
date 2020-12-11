@@ -65,7 +65,8 @@ public class Stage {
         stage = new Stage(server, name);
         // TODO: no values available yet ...
         //  stage.checkExpired(engine);
-        stage.install(false, new HashMap<>(), image, values);
+        stage.install(server, name, stage.stageFqdn(), false, new HashMap<>(), image, values);
+        stage.lazyHelmObject = null;
         return stage;
     }
 
@@ -342,16 +343,21 @@ public class Stage {
     public String publish(Engine engine, String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
         String imageOrRepository;
+        String result;
 
         map = new HashMap<>(helmValues(engine));
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
-        return install(true, map, imageOrRepository, clientValues);
+        result = install(server, name, stageFqdn(), true, map, imageOrRepository, clientValues);
+        lazyHelmObject = null;
+        return result;
     }
 
     /**
      * @return imageOrRepository exact image or repository to publish latest image from
      */
-    private String install(boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues) throws IOException {
+    private static String install(Server server, String name, String fqdn,
+                                  boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
+            throws IOException {
         Expressions expressions;
         Application app;
         World world;
@@ -366,7 +372,7 @@ public class Stage {
         world = World.create(); // TODO
         registry = server.createRegistry(world, imageOrRepository);
         image = registry.resolve(imageOrRepository);
-        expressions = new Expressions(world, server, image, stageFqdn());
+        expressions = new Expressions(world, server, image, fqdn);
         app = Application.load(expressions, world.file("/etc/charts/app.yaml").readString());
         tmp = world.getTemp().createTempDirectory();
         values = world.getTemp().createTempFile();
@@ -395,7 +401,6 @@ public class Stage {
         } finally {
             tmp.deleteTree();
         }
-        lazyHelmObject = null; // force reload
         return image.repositoryTag;
     }
 
@@ -403,7 +408,7 @@ public class Stage {
         engine.deploymentAwaitAvailable(Type.deploymentName(name));
     }
 
-    public Map<String, String> builtInValues(FileNode chart) throws IOException {
+    public static Map<String, String> builtInValues(FileNode chart) throws IOException {
         ObjectMapper yaml;
         ObjectNode root;
         Map<String, String> result;
