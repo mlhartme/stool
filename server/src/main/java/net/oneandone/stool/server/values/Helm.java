@@ -33,16 +33,19 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public final class Helm {
     /**
-     * @return imageOrRepository exact image or repository to publish latest image from
+     * @return imageOrRepository exact image or repository to publish latest tag from
      */
     public static String run(Server server, String name, boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
             throws IOException {
@@ -78,7 +81,7 @@ public final class Helm {
             throw new ArgumentException("helm chart not found: " + app.chart);
         }
         src.copyDirectory(tmp);
-        Type.TYPE.checkValues(clientValues, builtInValues(tmp).keySet());
+        checkValues(clientValues, builtInValues(tmp).keySet());
         app.addValues(expressions, map);
         map.putAll(clientValues);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
@@ -99,6 +102,16 @@ public final class Helm {
             tmp.deleteTree();
         }
         return image.repositoryTag;
+    }
+
+    public static void checkValues(Map<String, String> clientValues, Collection<String> builtIns) {
+        Set<String> unknown;
+
+        unknown = new HashSet<>(clientValues.keySet());
+        unknown.removeAll(builtIns);
+        if (!unknown.isEmpty()) {
+            throw new ArgumentException("unknown value(s): " + unknown);
+        }
     }
 
     public static Map<String, String> builtInValues(FileNode chart) throws IOException {

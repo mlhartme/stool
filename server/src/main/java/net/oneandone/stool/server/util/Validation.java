@@ -60,7 +60,7 @@ public class Validation {
     private void doRun(Stage stage, List<String> report, boolean repair) {
         Expire expire;
 
-        expire = stage.getValueExpire();
+        expire = stage.getMetadataExpire();
         if (expire.isExpired()) {
             report.add("Stage expired " + expire + ". To start it, you have to adjust the 'expire' date.");
         }

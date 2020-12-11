@@ -57,16 +57,25 @@ public class Stage {
         return stage;
     }
 
-    public static Stage create(Server server, String name, JsonObject helmObject) {
+    public static Stage create(Server server, String name, JsonObject helmObject) throws IOException {
         return new Stage(server, name, values(helmObject), helmObject.get("info").getAsJsonObject());
     }
 
-    private static Map<String, Object> values(JsonObject helmObject) {
+    private static Map<String, Object> values(JsonObject helmObject) throws IOException {
         Map<String, Object> result;
 
         result = toStringMap(helmObject.get("chart").getAsJsonObject().get("values").getAsJsonObject());
         result.putAll(toStringMap(helmObject.get("config").getAsJsonObject()));
+        check(result, Type.MANDATORY);
         return result;
+    }
+
+    private static void check(Map<String, Object> values, String... keys) throws IOException {
+        for (String key : keys) {
+            if (!values.containsKey(key)) {
+                throw new IOException("missing key in helm chart: " + key);
+            }
+        }
     }
 
     private static Map<String, Object> toStringMap(JsonObject obj) {
@@ -152,16 +161,16 @@ public class Stage {
 
     //-- important values
 
-    public Expire getValueExpire() {
-        return Expire.fromHuman(value(Type.VALUE_EXPIRE).get());
+    public Expire getMetadataExpire() {
+        return Expire.fromHuman(values.get(Type.VALUE_EXPIRE).toString());
     }
 
-    public List<String> getValueNotify() {
-        return Separator.COMMA.split(value(Type.VALUE_CONTACT).get());
+    public List<String> getMetadataNotify() {
+        return Separator.COMMA.split(values.get(Type.VALUE_CONTACT).toString());
     }
 
-    public String getValueImage() {
-        return value(Type.VALUE_IMAGE).get();
+    public String getImage() {
+        return values.get(Type.VALUE_IMAGE).toString();
     }
 
     //--
@@ -171,7 +180,7 @@ public class Stage {
     }
 
     public Registry createRegistry(World world) throws IOException {
-        return server.createRegistry(world, getValueImage());
+        return server.createRegistry(world, getImage());
     }
 
     //-- fields
@@ -298,7 +307,7 @@ public class Stage {
         String login;
 
         done = new HashSet<>();
-        for (String user : getValueNotify()) {
+        for (String user : getMetadataNotify()) {
             switch (user) {
                 case NOTIFY_LAST_MODIFIER:
                     login = lastModifiedBy();
@@ -322,7 +331,7 @@ public class Stage {
     public List<TagInfo> images(Registry registry) throws IOException {
         String path;
 
-        path = Registry.getRepositoryPath(Registry.toRepository(getValueImage()));
+        path = Registry.getRepositoryPath(Registry.toRepository(getImage()));
         return registry.list(path);
     }
 
@@ -369,7 +378,7 @@ public class Stage {
         TagInfo tag;
 
         result = new LinkedHashMap<>();
-        tag = registry.tagInfo(getValueImage());
+        tag = registry.tagInfo(getImage());
         addNamed("http", url(tag, "http"), result);
         addNamed("https", url(tag, "https"), result);
         return result;
@@ -414,7 +423,7 @@ public class Stage {
 
     /** @return never null */
     public TagInfo tagInfo(Registry registry) throws IOException {
-        return registry.tagInfo(getValueImage());
+        return registry.tagInfo(getImage());
     }
 
     /** @return null if unknown */

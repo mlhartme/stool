@@ -185,7 +185,7 @@ public class ApiController {
             if (explicitImage != null && !explicitImage.isEmpty()) {
                 imageOrRepository = explicitImage;
             } else {
-                imageOrRepository = Registry.toRepository(stage.getValueImage());
+                imageOrRepository = Registry.toRepository(stage.getImage());
             }
             result = stage.publish(imageOrRepository, values);
             return json(result).toString();

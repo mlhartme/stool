@@ -50,7 +50,7 @@ public class Context {
 
         result = registries.get(stage.getName());
         if (result == null) {
-            result = stage.server.createRegistry(World.create() /* TODO */, stage.getValueImage());
+            result = stage.server.createRegistry(World.create() /* TODO */, stage.getImage());
             registries.put(stage.getName(), result);
         }
         return result;
