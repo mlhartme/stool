@@ -19,6 +19,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import net.oneandone.stool.kubernetes.OpenShift;
+import net.oneandone.stool.registry.PortusRegistry;
+import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.server.settings.Settings;
@@ -243,6 +245,28 @@ public class Server {
             throw new StageNotFoundException(name);
         }
         return new Stage(this, name);
+    }
+
+    //--
+
+    public Registry createRegistry(World registryWorld, String image) throws IOException {
+        int idx;
+        String host;
+        Settings.UsernamePassword up;
+        String uri;
+
+        idx = image.indexOf('/');
+        if (idx == -1) {
+            throw new IllegalArgumentException(image);
+        }
+        host = image.substring(0, idx);
+        uri = "https://";
+        up = settings.registryCredentials(host);
+        if (up != null) {
+            uri = uri + up.username + ":" + up.password + "@";
+        }
+        uri = uri + host;
+        return PortusRegistry.create(registryWorld, uri, null);
     }
 
     //--

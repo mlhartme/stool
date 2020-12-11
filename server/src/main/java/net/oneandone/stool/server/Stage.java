@@ -24,14 +24,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
-import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.settings.Settings;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
@@ -185,29 +183,8 @@ public class Stage {
     }
 
     public Registry createRegistry(World world, Engine engine) throws IOException {
-        return createRegistry(world, getValueImage(engine));
+        return server.createRegistry(world, getValueImage(engine));
     }
-
-    public Registry createRegistry(World world, String image) throws IOException {
-        int idx;
-        String host;
-        Settings.UsernamePassword up;
-        String uri;
-
-        idx = image.indexOf('/');
-        if (idx == -1) {
-            throw new IllegalArgumentException(image);
-        }
-        host = image.substring(0, idx);
-        uri = "https://";
-        up = server.settings.registryCredentials(host);
-        if (up != null) {
-            uri = uri + up.username + ":" + up.password + "@";
-        }
-        uri = uri + host;
-        return PortusRegistry.create(world, uri, null);
-    }
-
 
     //-- fields
 
@@ -387,7 +364,7 @@ public class Stage {
 
         validateRepository(Registry.toRepository(imageOrRepository));
         world = World.create(); // TODO
-        registry = createRegistry(world, imageOrRepository);
+        registry = server.createRegistry(world, imageOrRepository);
         image = registry.resolve(imageOrRepository);
         expressions = new Expressions(world, server, image, stageFqdn());
         app = Application.load(expressions, world.file("/etc/charts/app.yaml").readString());
