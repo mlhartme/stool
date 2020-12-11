@@ -58,24 +58,14 @@ public class Stage {
     }
 
     public static Stage create(Server server, String name, JsonObject helmObject) {
-        return new Stage(server, name, values(helmValues(helmObject)), helmObject.get("info").getAsJsonObject());
+        return new Stage(server, name, values(helmObject), helmObject.get("info").getAsJsonObject());
     }
 
-    private static Map<String, Object> helmValues(JsonObject helmObject) {
+    private static Map<String, Object> values(JsonObject helmObject) {
         Map<String, Object> result;
 
         result = toStringMap(helmObject.get("chart").getAsJsonObject().get("values").getAsJsonObject());
         result.putAll(toStringMap(helmObject.get("config").getAsJsonObject()));
-        return result;
-    }
-
-    private static Map<String, Value> values(Map<String, Object> helmValues) {
-        Map<String, Value> result;
-
-        result = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> entry : helmValues.entrySet()) {
-            result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
-        }
         return result;
     }
 
@@ -118,11 +108,11 @@ public class Stage {
      */
     private final String name;
 
-    private final Map<String, Value> values;
+    private final Map<String, Object> values;
 
     private final JsonObject info;
 
-    public Stage(Server server, String name, Map<String, Value> values, JsonObject info) {
+    public Stage(Server server, String name, Map<String, Object> values, JsonObject info) {
         this.server = server;
         this.name = name;
         this.values = values;
@@ -136,21 +126,28 @@ public class Stage {
     //-- values
 
     public List<Value> values() {
-        return new ArrayList<>(values.values());
-    }
+        List<Value> result;
 
-    public Value value(String value) {
-        Value result;
-
-        result = valueOpt(value);
-        if (result == null) {
-            throw new ArgumentException("unknown value: " + value);
+        result = new ArrayList<>();
+        for (String key : values.keySet()) {
+            result.add(value(key));
         }
         return result;
     }
+    public Value value(String key) {
+        Value result;
 
+        result = valueOpt(key);
+        if (result == null) {
+            throw new ArgumentException("unknown value: " + key);
+        }
+        return result;
+    }
     public Value valueOpt(String value) {
-        return values.get(value);
+        Object obj;
+
+        obj = values.get(value);
+        return obj == null ? null : new Value(value, obj.toString());
     }
 
     //-- important values
@@ -204,8 +201,8 @@ public class Stage {
         for (Field f : fields()) {
             lst.add(f.name());
         }
-        for (Value p : values.values()) {
-            lst.add(p.name());
+        for (Value v : values()) {
+            lst.add(v.name());
         }
         throw new ArgumentException(str + ": no such status field or value, choose one of " + lst);
     }
