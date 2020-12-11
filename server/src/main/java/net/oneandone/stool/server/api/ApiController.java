@@ -134,7 +134,7 @@ public class ApiController {
                         obj.add(info.name(), info.getAsJson(context));
                     }
                 }
-                for (Value value : stage.values().values()) {
+                for (Value value : stage.values()) {
                     if (select != null && select.remove(value.name())) {
                         obj.add(value.name(), new JsonPrimitive(value.get(context)));
                     }
@@ -207,7 +207,7 @@ public class ApiController {
         result = new JsonObject();
         try (Engine engine = engine()) {
             context = new Context(engine);
-            for (Value value : server.load(engine, stage).values().values()) {
+            for (Value value : server.load(engine, stage).values()) {
                 result.add(value.name(), new JsonPrimitive(disclose(value.name(), value.get(context))));
             }
             return result.toString();

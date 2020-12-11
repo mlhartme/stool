@@ -53,42 +53,15 @@ public class Stage {
         Stage stage;
 
         Helm.run(server, name, false, new HashMap<>(), image, values);
-        stage = new Stage(server, name, engine.helmRead(name));
+        stage = Stage.create(server, name, engine.helmRead(name));
         return stage;
     }
 
-    //--
-
-    public static final String NOTIFY_FIRST_MODIFIER = "@first";
-    public static final String NOTIFY_LAST_MODIFIER = "@last";
-
-    //--
-
-    public final Server server;
-
-    /**
-     * Has a very strict syntax, it's used:
-     * * in Kubernetes resource names
-     * * Docker repository tags
-     * * label values
-     */
-    private final String name;
-
-    private final JsonObject helmObject;
-
-    public Stage(Server server, String name, JsonObject helmObject) {
-        this.server = server;
-        this.name = name;
-        this.helmObject = helmObject;
+    public static Stage create(Server server, String name, JsonObject helmObject) {
+        return new Stage(server, name, values(helmValues(helmObject)), helmObject.get("info").getAsJsonObject());
     }
 
-    public String getName() {
-        return name;
-    }
-
-    //-- values
-
-    private Map<String, Object> helmValues() {
+    private static Map<String, Object> helmValues(JsonObject helmObject) {
         Map<String, Object> result;
 
         result = toStringMap(helmObject.get("chart").getAsJsonObject().get("values").getAsJsonObject());
@@ -96,11 +69,11 @@ public class Stage {
         return result;
     }
 
-    public Map<String, Value> values() {
+    private static Map<String, Value> values(Map<String, Object> helmValues) {
         Map<String, Value> result;
 
         result = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> entry : helmValues().entrySet()) {
+        for (Map.Entry<String, Object> entry : helmValues.entrySet()) {
             result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
         }
         return result;
@@ -128,6 +101,44 @@ public class Stage {
         return result;
     }
 
+    //--
+
+    public static final String NOTIFY_FIRST_MODIFIER = "@first";
+    public static final String NOTIFY_LAST_MODIFIER = "@last";
+
+    //--
+
+    public final Server server;
+
+    /**
+     * Has a very strict syntax, it's used:
+     * * in Kubernetes resource names
+     * * Docker repository tags
+     * * label values
+     */
+    private final String name;
+
+    private final Map<String, Value> values;
+
+    private final JsonObject info;
+
+    public Stage(Server server, String name, Map<String, Value> values, JsonObject info) {
+        this.server = server;
+        this.name = name;
+        this.values = values;
+        this.info = info;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    //-- values
+
+    public List<Value> values() {
+        return new ArrayList<>(values.values());
+    }
+
     public Value value(String value) {
         Value result;
 
@@ -139,7 +150,7 @@ public class Stage {
     }
 
     public Value valueOpt(String value) {
-        return values().get(value);
+        return values.get(value);
     }
 
     //-- important values
@@ -193,7 +204,7 @@ public class Stage {
         for (Field f : fields()) {
             lst.add(f.name());
         }
-        for (Value p : values().values()) {
+        for (Value p : values.values()) {
             lst.add(p.name());
         }
         throw new ArgumentException(str + ": no such status field or value, choose one of " + lst);
@@ -229,14 +240,14 @@ public class Stage {
         });
         fields.add(new Field("last-deployed") {
             @Override
-            public Object get(Context context) throws IOException {
-                return helmObject.get("info").getAsJsonObject().get("last_deployed").getAsString();
+            public Object get(Context context) {
+                return info.get("last_deployed").getAsString();
             }
         });
         fields.add(new Field("first-deployed") {
             @Override
-            public Object get(Context context) throws IOException {
-                return helmObject.get("info").getAsJsonObject().get("first_deployed").getAsString();
+            public Object get(Context context) {
+                return info.get("first_deployed").getAsString();
             }
         });
         fields.add(new Field("cpu") {
@@ -326,7 +337,7 @@ public class Stage {
         String imageOrRepository;
         String result;
 
-        map = new HashMap<>(helmValues());
+        map = new HashMap<>(values);
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
         result = Helm.run(server, name, true, map, imageOrRepository, clientValues);
         return result;
