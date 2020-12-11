@@ -38,7 +38,6 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Value;
 import net.oneandone.stool.server.values.Application;
 import net.oneandone.stool.server.values.Expressions;
-import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -59,7 +58,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A collection of images. From a Docker perspective, a stage roughly represents a Repository.
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
@@ -369,6 +367,8 @@ public class Stage {
         Map<String, Object> map;
         FileNode src;
         Expire expire;
+        String imageOrRepository;
+        Registry registry;
 
         if (imageOrRepositoryX != null && imageOrRepositoryX != KEEP_IMAGE) {
             validateRepository(Registry.toRepository(imageOrRepositoryX));
@@ -379,7 +379,9 @@ public class Stage {
             map = new HashMap<>();
         }
         world = World.create(); // TODO
-        image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
+        imageOrRepository = imageOrRepository(engine, imageOrRepositoryX, (String) map.get("image"));
+        registry = createRegistry(world, imageOrRepository);
+        image = registry.resolve(imageOrRepository);
         expressions = new Expressions(world, server, image, stageFqdn());
         app = Application.load(expressions, world.file("/etc/charts/app.yaml").readString());
         tmp = world.getTemp().createTempDirectory();
@@ -471,12 +473,8 @@ public class Stage {
         }
     }
 
-    // TODO: expensive
-    private TagInfo resolve(Engine engine, World world, String imageOrRepositoryX, String imagePrevious) throws IOException {
+    private String imageOrRepository(Engine engine, String imageOrRepositoryX, String imagePrevious) throws IOException {
         String imageOrRepository;
-        int idx;
-        Registry registry;
-
         if (imageOrRepositoryX == KEEP_IMAGE) {
             imageOrRepository = imagePrevious;
         } else if (imageOrRepositoryX == null) {
@@ -484,23 +482,7 @@ public class Stage {
         } else {
             imageOrRepository = imageOrRepositoryX;
         }
-        registry = createRegistry(world, imageOrRepository);
-        idx = imageOrRepository.indexOf(':');
-        if (idx == -1) {
-            List<TagInfo> all;
-
-            all = registry.list(Registry.getRepositoryPath(imageOrRepository));
-            if (all.isEmpty()) {
-                throw new ArgumentException("no image(s) found in repository " + imageOrRepository);
-            }
-            return all.get(all.size() - 1);
-        } else {
-            try {
-                return registry.tagInfo(imageOrRepository);
-            } catch (FileNotFoundException e) {
-                throw new ArgumentException("image not found: " + imageOrRepository);
-            }
-        }
+        return imageOrRepository;
     }
 
     public void uninstall(Engine engine) throws IOException {
