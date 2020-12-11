@@ -166,22 +166,28 @@ public class ApiController {
                 // OK, fall through
             }
 
-            stage = Stage.create(server, engine, name, image, values);
+            stage = Stage.create(server, name, image, values);
             return Engine.obj(stage.urlMap(engine, new Context(engine).registry(stage))).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public String publish(@PathVariable(value = "stage") String stageName, String imageOpt, HttpServletRequest request) throws IOException {
+    public String publish(@PathVariable(value = "stage") String stageName,
+                          @RequestParam(value = "image", required = false) String explicitImage, HttpServletRequest request) throws IOException {
         Map<String, String> values;
         String result;
         Stage stage;
+        String imageOrRepository;
 
         values = map(request, "value.");
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            result = stage.publish(engine, imageOpt, values);
-            stage.awaitAvailable(engine);
+            if (explicitImage != null && !explicitImage.isEmpty()) {
+                imageOrRepository = explicitImage;
+            } else {
+                imageOrRepository = Registry.toRepository(stage.getValueImage(engine));
+            }
+            result = stage.publish(engine, imageOrRepository, values);
             return json(result).toString();
         }
     }
@@ -242,7 +248,7 @@ public class ApiController {
                 clientValues.put(entry.getKey(), value);
                 result.add(prop.name(), new JsonPrimitive(disclose(prop.name(), value)));
             }
-            stage.publish(engine, Stage.KEEP_IMAGE, clientValues);
+            stage.publish(engine, null, clientValues);
             stage.awaitAvailable(engine);
             return result.toString();
         }

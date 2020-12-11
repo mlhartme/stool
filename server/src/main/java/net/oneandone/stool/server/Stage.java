@@ -61,13 +61,13 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    public static Stage create(Server server, Engine engine, String name, String image, Map<String, String> values) throws IOException {
+    public static Stage create(Server server, String name, String image, Map<String, String> values) throws IOException {
         Stage stage;
 
         stage = new Stage(server, name);
         // TODO: no values available yet ...
         //  stage.checkExpired(engine);
-        stage.install(false, engine, image, values);
+        stage.install(false, new HashMap<>(), image, values);
         return stage;
     }
 
@@ -75,10 +75,6 @@ public class Stage {
 
     public static final String NOTIFY_FIRST_MODIFIER = "@first";
     public static final String NOTIFY_LAST_MODIFIER = "@last";
-
-    //--
-
-    public static final String KEEP_IMAGE = "marker string to indicate an 'empty publish'";
 
     //--
 
@@ -365,36 +361,31 @@ public class Stage {
         return registry.list(path);
     }
 
-    public String publish(Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
-        return install(true, engine, imageOrRepositoryX, clientValues);
+    /** @param imageOrRepositoryOpt null to keep current image */
+    public String publish(Engine engine, String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
+        Map<String, Object> map;
+        String imageOrRepository;
+
+        map = new HashMap<>(helmValues(engine));
+        imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
+        return install(true, map, imageOrRepository, clientValues);
     }
 
-    /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
-     *                  keep to stick with current image.
-     *  @return image actually published
+    /**
+     * @return imageOrRepository exact image or repository to publish latest image from
      */
-    private String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
+    private String install(boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues) throws IOException {
         Expressions expressions;
         Application app;
         World world;
         FileNode tmp;
         TagInfo image;
         FileNode values;
-        Map<String, Object> map;
         FileNode src;
         Expire expire;
-        String imageOrRepository;
         Registry registry;
 
-        if (imageOrRepositoryX != null && imageOrRepositoryX != KEEP_IMAGE) {
-            validateRepository(Registry.toRepository(imageOrRepositoryX));
-        }
-        if (upgrade) {
-            map = new HashMap<>(helmValues(engine));
-        } else {
-            map = new HashMap<>();
-        }
-        imageOrRepository = imageOrRepository(engine, imageOrRepositoryX, (String) map.get("image"));
+        validateRepository(Registry.toRepository(imageOrRepository));
         world = World.create(); // TODO
         registry = createRegistry(world, imageOrRepository);
         image = registry.resolve(imageOrRepository);
@@ -487,18 +478,6 @@ public class Stage {
         } else {
             return obj.toString(); // ok für boolean and integer
         }
-    }
-
-    private String imageOrRepository(Engine engine, String imageOrRepositoryX, String imagePrevious) throws IOException {
-        String imageOrRepository;
-        if (imageOrRepositoryX == KEEP_IMAGE) {
-            imageOrRepository = imagePrevious;
-        } else if (imageOrRepositoryX == null) {
-            imageOrRepository = Registry.toRepository(getValueImage(engine));
-        } else {
-            imageOrRepository = imageOrRepositoryX;
-        }
-        return imageOrRepository;
     }
 
     public void uninstall(Engine engine) throws IOException {
