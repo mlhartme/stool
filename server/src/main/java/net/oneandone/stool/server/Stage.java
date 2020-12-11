@@ -15,10 +15,6 @@
  */
 package net.oneandone.stool.server;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -34,22 +30,16 @@ import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Value;
-import net.oneandone.stool.server.values.Application;
-import net.oneandone.stool.server.values.Expressions;
+import net.oneandone.stool.server.values.Helm;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,11 +52,8 @@ public class Stage {
     public static Stage create(Server server, String name, String image, Map<String, String> values) throws IOException {
         Stage stage;
 
+        Helm.run(server, name, false, new HashMap<>(), image, values);
         stage = new Stage(server, name);
-        // TODO: no values available yet ...
-        //  stage.checkExpired(engine);
-        stage.install(server, name, stage.stageFqdn(), false, new HashMap<>(), image, values);
-        stage.lazyHelmObject = null;
         return stage;
     }
 
@@ -347,124 +334,18 @@ public class Stage {
 
         map = new HashMap<>(helmValues(engine));
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
-        result = install(server, name, stageFqdn(), true, map, imageOrRepository, clientValues);
+        result = Helm.run(server, name, true, map, imageOrRepository, clientValues);
         lazyHelmObject = null;
         return result;
-    }
-
-    /**
-     * @return imageOrRepository exact image or repository to publish latest image from
-     */
-    private static String install(Server server, String name, String fqdn,
-                                  boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
-            throws IOException {
-        Expressions expressions;
-        Application app;
-        World world;
-        FileNode tmp;
-        TagInfo image;
-        FileNode values;
-        FileNode src;
-        Expire expire;
-        Registry registry;
-
-        validateRepository(Registry.toRepository(imageOrRepository));
-        world = World.create(); // TODO
-        registry = server.createRegistry(world, imageOrRepository);
-        image = registry.resolve(imageOrRepository);
-        expressions = new Expressions(world, server, image, fqdn);
-        app = Application.load(expressions, world.file("/etc/charts/app.yaml").readString());
-        tmp = world.getTemp().createTempDirectory();
-        values = world.getTemp().createTempFile();
-        src = world.file("/etc/charts").join(app.chart);
-        if (!src.isDirectory()) {
-            throw new ArgumentException("helm chart not found: " + app.chart);
-        }
-        src.copyDirectory(tmp);
-        Type.TYPE.checkValues(clientValues, builtInValues(tmp).keySet());
-        app.addValues(expressions, map);
-        map.putAll(clientValues);
-        expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
-        if (expire.isExpired()) {
-            throw new ArgumentException(name + ": stage expired: " + expire);
-        }
-        map.put(Type.VALUE_EXPIRE, expire.toString()); // normalize
-        Server.LOGGER.info("values: " + map);
-        try (PrintWriter v = new PrintWriter(values.newWriter())) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                v.println(entry.getKey() + ": " + toJson(entry.getValue()));
-            }
-        }
-        try {
-            Server.LOGGER.info("helm install upgrade=" + upgrade);
-            Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
-        } finally {
-            tmp.deleteTree();
-        }
-        return image.repositoryTag;
-    }
-
-    public void awaitAvailable(Engine engine) throws IOException {
-        engine.deploymentAwaitAvailable(Type.deploymentName(name));
-    }
-
-    public static Map<String, String> builtInValues(FileNode chart) throws IOException {
-        ObjectMapper yaml;
-        ObjectNode root;
-        Map<String, String> result;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Map.Entry<String, JsonNode> entry;
-
-        yaml = new ObjectMapper(new YAMLFactory());
-        try (Reader src = chart.join("values.yaml").newReader()) {
-            root = (ObjectNode) yaml.readTree(src);
-        }
-        result = new HashMap<>();
-        iter = root.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            result.put(entry.getKey(), entry.getValue().asText());
-        }
-        return result;
-    }
-
-    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public static void validateRepository(String repository) {
-        URI uri;
-
-        if (repository.endsWith("/")) {
-            throw new ArgumentException("invalid repository: " + repository);
-        }
-        try {
-            uri = new URI(repository);
-        } catch (URISyntaxException e) {
-            throw new ArgumentException("invalid repository: " + repository);
-        }
-        if (uri.getHost() != null) {
-            checkLowercase(uri.getHost());
-        }
-        checkLowercase(uri.getPath());
-    }
-
-    private static void checkLowercase(String str) {
-        for (int i = 0, length = str.length(); i < length; i++) {
-            if (Character.isUpperCase(str.charAt(i))) {
-                throw new ArgumentException("invalid registry prefix: " + str);
-            }
-        }
-    }
-
-    private static String toJson(Object obj) {
-        if (obj instanceof String) {
-            return "\"" + obj + '"';
-        } else {
-            return obj.toString(); // ok für boolean and integer
-        }
     }
 
     public void uninstall(Engine engine) throws IOException {
         Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "uninstall", getName()));
         engine.deploymentAwaitGone(getName());
+    }
+
+    public void awaitAvailable(Engine engine) throws IOException {
+        engine.deploymentAwaitAvailable(Type.deploymentName(name));
     }
 
     //--
@@ -507,16 +388,12 @@ public class Stage {
         }
     }
 
-    public String stageFqdn() {
-        return name + "." + server.settings.fqdn;
-    }
-
     private List<String> url(TagInfo tag, String protocol) {
         String fqdn;
         String url;
         List<String> result;
 
-        fqdn = stageFqdn();
+        fqdn = server.stageFqdn(name);
         url = protocol + "://" + fqdn + "/" + tag.urlContext;
         if (!url.endsWith("/")) {
             url = url + "/";

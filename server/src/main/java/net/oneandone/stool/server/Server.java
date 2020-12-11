@@ -133,6 +133,10 @@ public class Server {
         this.userManager = UserManager.loadOpt(home.join("users.json"));
     }
 
+    public String stageFqdn(String stage) {
+        return stage + "." + settings.fqdn;
+    }
+
     public FileNode getServerLogs() {
         return serverLogs;
     }
