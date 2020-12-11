@@ -46,20 +46,29 @@ public final class Helm {
      */
     public static String run(Server server, String name, boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
             throws IOException {
-        Expressions expressions;
-        Application app;
         World world;
-        FileNode tmp;
         TagInfo image;
-        FileNode values;
-        FileNode src;
-        Expire expire;
         Registry registry;
 
         validateRepository(Registry.toRepository(imageOrRepository));
         world = World.create(); // TODO
         registry = server.createRegistry(world, imageOrRepository);
         image = registry.resolve(imageOrRepository);
+        return run(world, server, name, upgrade, map, image, clientValues);
+    }
+
+    /**
+     * @return imageOrRepository exact image or repository to publish latest image from
+     */
+    public static String run(World world, Server server, String name, boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
+            throws IOException {
+        Expressions expressions;
+        Application app;
+        FileNode tmp;
+        FileNode values;
+        FileNode src;
+        Expire expire;
+
         expressions = new Expressions(world, server, image, server.stageFqdn(name));
         app = Application.load(expressions, world.file("/etc/charts/app.yaml").readString());
         tmp = world.getTemp().createTempDirectory();
