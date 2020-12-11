@@ -66,7 +66,7 @@ public class Validation {
         }
         if (repair) {
             try {
-                stage.install(true, engine, Stage.KEEP_IMAGE, Strings.toMap(Type.VALUE_REPLICAS, "0"));
+                stage.publish(engine, Stage.KEEP_IMAGE, Strings.toMap(Type.VALUE_REPLICAS, "0"));
                 report.add("replicas set to 0");
             } catch (Exception e) {
                 report.add("replicas change failed: " + e.getMessage());

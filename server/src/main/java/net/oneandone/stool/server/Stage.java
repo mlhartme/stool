@@ -61,6 +61,18 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
+    public static Stage create(Server server, Engine engine, String name, String image, Map<String, String> values) throws IOException {
+        Stage stage;
+
+        stage = new Stage(server, name);
+        // TODO: no values available yet ...
+        //  stage.checkExpired(engine);
+        stage.install(false, engine, image, values);
+        return stage;
+    }
+
+    //--
+
     public static final String NOTIFY_FIRST_MODIFIER = "@first";
     public static final String NOTIFY_LAST_MODIFIER = "@last";
 
@@ -353,11 +365,15 @@ public class Stage {
         return registry.list(path);
     }
 
+    public String publish(Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
+        return install(true, engine, imageOrRepositoryX, clientValues);
+    }
+
     /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
      *                  keep to stick with current image.
      *  @return image actually published
      */
-    public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
+    private String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
         Expressions expressions;
         Application app;
         World world;
@@ -378,8 +394,8 @@ public class Stage {
         } else {
             map = new HashMap<>();
         }
-        world = World.create(); // TODO
         imageOrRepository = imageOrRepository(engine, imageOrRepositoryX, (String) map.get("image"));
+        world = World.create(); // TODO
         registry = createRegistry(world, imageOrRepository);
         image = registry.resolve(imageOrRepository);
         expressions = new Expressions(world, server, image, stageFqdn());

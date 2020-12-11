@@ -166,10 +166,7 @@ public class ApiController {
                 // OK, fall through
             }
 
-            stage = new Stage(server, name);
-            // TODO: no values available yet ...
-            //  stage.checkExpired(engine);
-            stage.install(false, engine, image, values);
+            stage = Stage.create(server, engine, name, image, values);
             return Engine.obj(stage.urlMap(engine, new Context(engine).registry(stage))).toString();
         }
     }
@@ -183,7 +180,7 @@ public class ApiController {
         values = map(request, "value.");
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            result = stage.install(true, engine, imageOpt, values);
+            result = stage.publish(engine, imageOpt, values);
             stage.awaitAvailable(engine);
             return json(result).toString();
         }
@@ -245,7 +242,7 @@ public class ApiController {
                 clientValues.put(entry.getKey(), value);
                 result.add(prop.name(), new JsonPrimitive(disclose(prop.name(), value)));
             }
-            stage.install(true, engine, Stage.KEEP_IMAGE, clientValues);
+            stage.publish(engine, Stage.KEEP_IMAGE, clientValues);
             stage.awaitAvailable(engine);
             return result.toString();
         }
