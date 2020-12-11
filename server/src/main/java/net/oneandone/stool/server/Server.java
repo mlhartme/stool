@@ -248,7 +248,7 @@ public class Server {
         if (!list(engine).contains(name)) {
             throw new StageNotFoundException(name);
         }
-        return new Stage(this, name);
+        return new Stage(this, name, engine.helmRead(name));
     }
 
     //--

@@ -49,11 +49,11 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    public static Stage create(Server server, String name, String image, Map<String, String> values) throws IOException {
+    public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values) throws IOException {
         Stage stage;
 
         Helm.run(server, name, false, new HashMap<>(), image, values);
-        stage = new Stage(server, name);
+        stage = new Stage(server, name, engine.helmRead(name));
         return stage;
     }
 
@@ -74,9 +74,12 @@ public class Stage {
      */
     private final String name;
 
-    public Stage(Server server, String name) {
+    private final JsonObject helmObject;
+
+    public Stage(Server server, String name, JsonObject helmObject) {
         this.server = server;
         this.name = name;
+        this.helmObject = helmObject;
     }
 
     public String getName() {
@@ -85,30 +88,19 @@ public class Stage {
 
     //-- values
 
-    private JsonObject lazyHelmObject = null;
-
-    private JsonObject helmObject(Engine engine) throws IOException {
-        if (lazyHelmObject == null) {
-            lazyHelmObject = engine.helmRead(name);
-        }
-        return lazyHelmObject;
-    }
-
-    private Map<String, Object> helmValues(Engine engine) throws IOException {
-        JsonObject helmObject;
+    private Map<String, Object> helmValues() {
         Map<String, Object> result;
 
-        helmObject = helmObject(engine);
         result = toStringMap(helmObject.get("chart").getAsJsonObject().get("values").getAsJsonObject());
         result.putAll(toStringMap(helmObject.get("config").getAsJsonObject()));
         return result;
     }
 
-    public Map<String, Value> values(Engine engine) throws IOException {
+    public Map<String, Value> values() {
         Map<String, Value> result;
 
         result = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> entry : helmValues(engine).entrySet()) {
+        for (Map.Entry<String, Object> entry : helmValues().entrySet()) {
             result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
         }
         return result;
@@ -136,32 +128,32 @@ public class Stage {
         return result;
     }
 
-    public Value value(Engine engine, String value) throws IOException {
+    public Value value(String value) {
         Value result;
 
-        result = valueOpt(engine, value);
+        result = valueOpt(value);
         if (result == null) {
             throw new ArgumentException("unknown value: " + value);
         }
         return result;
     }
 
-    public Value valueOpt(Engine engine, String value) throws IOException {
-        return values(engine).get(value);
+    public Value valueOpt(String value) {
+        return values().get(value);
     }
 
     //-- important values
 
-    public Expire getValueExpire(Engine engine) throws IOException {
-        return Expire.fromHuman(value(engine, Type.VALUE_EXPIRE).get());
+    public Expire getValueExpire() {
+        return Expire.fromHuman(value(Type.VALUE_EXPIRE).get());
     }
 
-    public List<String> getValueNotify(Engine engine) throws IOException {
-        return Separator.COMMA.split(value(engine, Type.VALUE_CONTACT).get());
+    public List<String> getValueNotify() {
+        return Separator.COMMA.split(value(Type.VALUE_CONTACT).get());
     }
 
-    public String getValueImage(Engine engine) throws IOException {
-        return value(engine, Type.VALUE_IMAGE).get();
+    public String getValueImage() {
+        return value(Type.VALUE_IMAGE).get();
     }
 
     //--
@@ -170,8 +162,8 @@ public class Stage {
         return server.getStageLogs(name);
     }
 
-    public Registry createRegistry(World world, Engine engine) throws IOException {
-        return server.createRegistry(world, getValueImage(engine));
+    public Registry createRegistry(World world) throws IOException {
+        return server.createRegistry(world, getValueImage());
     }
 
     //-- fields
@@ -185,11 +177,11 @@ public class Stage {
         return null;
     }
 
-    public Info info(Engine engine, String str) throws IOException {
+    public Info info(String str) {
         Info result;
         List<String> lst;
 
-        result = valueOpt(engine, str);
+        result = valueOpt(str);
         if (result != null) {
             return result;
         }
@@ -201,7 +193,7 @@ public class Stage {
         for (Field f : fields()) {
             lst.add(f.name());
         }
-        for (Value p : values(engine).values()) {
+        for (Value p : values().values()) {
             lst.add(p.name());
         }
         throw new ArgumentException(str + ": no such status field or value, choose one of " + lst);
@@ -238,13 +230,13 @@ public class Stage {
         fields.add(new Field("last-deployed") {
             @Override
             public Object get(Context context) throws IOException {
-                return helmObject(context.engine).get("info").getAsJsonObject().get("last_deployed").getAsString();
+                return helmObject.get("info").getAsJsonObject().get("last_deployed").getAsString();
             }
         });
         fields.add(new Field("first-deployed") {
             @Override
             public Object get(Context context) throws IOException {
-                return helmObject(context.engine).get("info").getAsJsonObject().get("first_deployed").getAsString();
+                return helmObject.get("info").getAsJsonObject().get("first_deployed").getAsString();
             }
         });
         fields.add(new Field("cpu") {
@@ -293,12 +285,12 @@ public class Stage {
     }
 
     /** @return logins */
-    public Set<String> notifyLogins(Engine engine) throws IOException {
+    public Set<String> notifyLogins() throws IOException {
         Set<String> done;
         String login;
 
         done = new HashSet<>();
-        for (String user : getValueNotify(engine)) {
+        for (String user : getValueNotify()) {
             switch (user) {
                 case NOTIFY_LAST_MODIFIER:
                     login = lastModifiedBy();
@@ -319,23 +311,24 @@ public class Stage {
     //-- docker
 
     /** @return sorted list, oldest first */
-    public List<TagInfo> images(Engine engine, Registry registry) throws IOException {
+    public List<TagInfo> images(Registry registry) throws IOException {
         String path;
 
-        path = Registry.getRepositoryPath(Registry.toRepository(getValueImage(engine)));
+        path = Registry.getRepositoryPath(Registry.toRepository(getValueImage()));
         return registry.list(path);
     }
 
-    /** @param imageOrRepositoryOpt null to keep current image */
-    public String publish(Engine engine, String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
+    /** CAUTION: values are not updated!
+     * @param imageOrRepositoryOpt null to keep current image
+     */
+    public String publish(String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
         String imageOrRepository;
         String result;
 
-        map = new HashMap<>(helmValues(engine));
+        map = new HashMap<>(helmValues());
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
         result = Helm.run(server, name, true, map, imageOrRepository, clientValues);
-        lazyHelmObject = null;
         return result;
     }
 
@@ -363,12 +356,12 @@ public class Stage {
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, Registry registry) throws IOException {
+    public Map<String, String> urlMap(Registry registry) throws IOException {
         Map<String, String> result;
         TagInfo tag;
 
         result = new LinkedHashMap<>();
-        tag = registry.tagInfo(getValueImage(engine));
+        tag = registry.tagInfo(getValueImage());
         addNamed("http", url(tag, "http"), result);
         addNamed("https", url(tag, "https"), result);
         return result;
@@ -412,8 +405,8 @@ public class Stage {
     }
 
     /** @return never null */
-    public TagInfo tagInfo(Engine engine, Registry registry) throws IOException {
-        return registry.tagInfo(getValueImage(engine));
+    public TagInfo tagInfo(Registry registry) throws IOException {
+        return registry.tagInfo(getValueImage());
     }
 
     /** @return null if unknown */

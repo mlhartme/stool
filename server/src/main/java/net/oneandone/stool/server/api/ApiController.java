@@ -134,7 +134,7 @@ public class ApiController {
                         obj.add(info.name(), info.getAsJson(context));
                     }
                 }
-                for (Value value : stage.values(engine).values()) {
+                for (Value value : stage.values().values()) {
                     if (select != null && select.remove(value.name())) {
                         obj.add(value.name(), new JsonPrimitive(value.get(context)));
                     }
@@ -166,8 +166,8 @@ public class ApiController {
                 // OK, fall through
             }
 
-            stage = Stage.create(server, name, image, values);
-            return Engine.obj(stage.urlMap(engine, new Context(engine).registry(stage))).toString();
+            stage = Stage.create(engine, server, name, image, values);
+            return Engine.obj(stage.urlMap(new Context(engine).registry(stage))).toString();
         }
     }
 
@@ -185,9 +185,9 @@ public class ApiController {
             if (explicitImage != null && !explicitImage.isEmpty()) {
                 imageOrRepository = explicitImage;
             } else {
-                imageOrRepository = Registry.toRepository(stage.getValueImage(engine));
+                imageOrRepository = Registry.toRepository(stage.getValueImage());
             }
-            result = stage.publish(engine, imageOrRepository, values);
+            result = stage.publish(imageOrRepository, values);
             return json(result).toString();
         }
     }
@@ -207,7 +207,7 @@ public class ApiController {
         result = new JsonObject();
         try (Engine engine = engine()) {
             context = new Context(engine);
-            for (Value value : server.load(engine, stage).values(engine).values()) {
+            for (Value value : server.load(engine, stage).values().values()) {
                 result.add(value.name(), new JsonPrimitive(disclose(value.name(), value.get(context))));
             }
             return result.toString();
@@ -242,14 +242,13 @@ public class ApiController {
             context = new Context(engine);
             clientValues = new HashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
-                prop = stage.value(engine, entry.getKey());
+                prop = stage.value(entry.getKey());
                 value = entry.getValue();
                 value = value.replace("{}", prop.get(context));
                 clientValues.put(entry.getKey(), value);
                 result.add(prop.name(), new JsonPrimitive(disclose(prop.name(), value)));
             }
-            stage.publish(engine, null, clientValues);
-            stage.awaitAvailable(engine);
+            stage.publish(null, clientValues);
             return result.toString();
         }
     }
@@ -309,10 +308,10 @@ public class ApiController {
             stage = server.load(engine, name);
 
             // TODO
-            registry = stage.createRegistry(World.create() /* TODO */, engine);
-            all = stage.images(engine, registry);
+            registry = stage.createRegistry(World.create() /* TODO */);
+            all = stage.images(registry);
 
-            tagInfo = stage.tagInfo(engine, registry);
+            tagInfo = stage.tagInfo(registry);
             for (TagInfo image : all) {
                 marker = image.repositoryTag.equals(tagInfo.repositoryTag) ? "<==" : "";
                 result.add(image.tag + "  " + marker);
@@ -343,7 +342,7 @@ public class ApiController {
             stage = server.load(engine, stageName);
             stage.awaitAvailable(engine);
             context = new Context(engine);
-            return Engine.obj(stage.urlMap(engine, context.registry(stage))).toString();
+            return Engine.obj(stage.urlMap(context.registry(stage))).toString();
         }
     }
 
@@ -420,7 +419,7 @@ public class ApiController {
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            tagInfo = stage.tagInfo(engine, stage.createRegistry(World.create() /* TODO */, engine));
+            tagInfo = stage.tagInfo(stage.createRegistry(World.create() /* TODO */));
         }
         server.checkFaultPermissions(User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
         return tagInfo;

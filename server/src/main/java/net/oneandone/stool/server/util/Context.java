@@ -50,7 +50,7 @@ public class Context {
 
         result = registries.get(stage.getName());
         if (result == null) {
-            result = stage.server.createRegistry(World.create() /* TODO */, stage.getValueImage(engine));
+            result = stage.server.createRegistry(World.create() /* TODO */, stage.getValueImage());
             registries.put(stage.getName(), result);
         }
         return result;
@@ -61,7 +61,7 @@ public class Context {
 
         result = stageImages.get(stage.getName());
         if (result == null) {
-            result = stage.images(engine, registry(stage));
+            result = stage.images(registry(stage));
             stageImages.put(stage.getName(), result);
         }
         return result;
@@ -85,7 +85,7 @@ public class Context {
 
         result = currentOpts.get(stage.getName());
         if (result == null) {
-            result = stage.tagInfo(engine, registry(stage));
+            result = stage.tagInfo(registry(stage));
             currentOpts.put(stage.getName(), result);
         }
         return result;
@@ -96,7 +96,7 @@ public class Context {
 
         result = urlMaps.get(stage.getName());
         if (result == null) {
-            result = stage.urlMap(engine, registry);
+            result = stage.urlMap(registry);
             urlMaps.put(stage.getName(), result);
         }
         return result;
