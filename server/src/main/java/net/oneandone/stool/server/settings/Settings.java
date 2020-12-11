@@ -87,9 +87,6 @@ public class Settings {
 
     public int defaultExpire;
 
-    // default values for all charts
-    public Map<String, String> values;
-
     public Settings() {
         fqdn = "localhost";
         kubernetes = "http://localhost";
@@ -106,7 +103,6 @@ public class Settings {
         mailUsername = "";
         mailPassword = "";
         defaultExpire = 0;
-        values = new HashMap<>();
     }
 
     public static class UsernamePassword {

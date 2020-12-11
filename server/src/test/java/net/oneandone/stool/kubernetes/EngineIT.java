@@ -85,7 +85,7 @@ public class EngineIT {
 
     @Test
     public void podLimit() throws IOException {
-        final int limit = 1024*1024*5;
+        final int limit = 1024*1024*7;
         String pod = "limit";
 
         try (Engine engine = create()) {

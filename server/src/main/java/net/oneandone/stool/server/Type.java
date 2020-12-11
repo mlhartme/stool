@@ -15,27 +15,19 @@
  */
 package net.oneandone.stool.server;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Things that Stool assumes about helm charts.
- *
- * TODO: stage name -&gt; deployment name is not represented in this class
  */
-public class Type {
-    public static final String VALUE_REPLICAS = "replicas";
+public final class Type {
     public static final String VALUE_IMAGE = "image";
+    public static final String VALUE_REPLICAS = "replicas";
 
     public static final String VALUE_CONTACT = "metadataContact";
     public static final String VALUE_EXPIRE = "metadataExpire";
     public static final String VALUE_COMMENT = "metadataComment";
 
-    public static final String[] MANDATORY_VALUES = {
-            VALUE_IMAGE, VALUE_REPLICAS,
-            VALUE_COMMENT, VALUE_EXPIRE, VALUE_CONTACT
+    public static final String[] MANDATORY = {
+            VALUE_REPLICAS, VALUE_IMAGE, VALUE_CONTACT, VALUE_COMMENT, VALUE_EXPIRE
     };
 
     public static final String MAIN_CONTAINER = "main"; // TODO: needed for monitoring stats ...
@@ -46,20 +38,7 @@ public class Type {
         return name.replace(".", "--");
     }
 
-    //--
-
-    public static final Type TYPE = new Type();
-
-    public Type() {
+    private Type() {
     }
 
-    public void checkValues(Map<String, String> clientValues, Collection<String> builtIns) {
-        Set<String> unknown;
-
-        unknown = new HashSet<>(clientValues.keySet());
-        unknown.removeAll(builtIns);
-        if (!unknown.isEmpty()) {
-            throw new ArgumentException("unknown value(s): " + unknown);
-        }
-    }
 }

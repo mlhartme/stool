@@ -15,118 +15,67 @@
  */
 package net.oneandone.stool.server;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
-import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.settings.Settings;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Value;
-import net.oneandone.sushi.fs.FileNotFoundException;
+import net.oneandone.stool.server.values.Helm;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
-import org.kamranzafar.jtar.TarEntry;
-import org.kamranzafar.jtar.TarHeader;
-import org.kamranzafar.jtar.TarOutputStream;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.GZIPOutputStream;
 
 /**
- * A collection of images. From a Docker perspective, a stage roughly represents a Repository.
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    private static final String NOTIFY_FIRST_MODIFIER = "@first";
-    private static final String NOTIFY_LAST_MODIFIER = "@last";
+    public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values) throws IOException {
+        Stage stage;
 
-    //--
-
-    public static final String KEEP_IMAGE = "marker string to indicate an 'empty publish'";
-
-    //--
-
-    public final Server server;
-
-    /**
-     * Has a very strict syntax, it's used:
-     * * in Kubernetes resource names
-     * * Docker repository tags
-     * * label values
-     */
-    private final String name;
-
-    public Stage(Server server, String name) {
-        this.server = server;
-        this.name = name;
+        Helm.run(server, name, false, new HashMap<>(), image, values);
+        stage = Stage.create(server, name, engine.helmRead(name));
+        return stage;
     }
 
-    public String getName() {
-        return name;
+    public static Stage create(Server server, String name, JsonObject helmObject) throws IOException {
+        return new Stage(server, name, values(helmObject), helmObject.get("info").getAsJsonObject());
     }
 
-    //-- values
-
-    private JsonObject lazyHelmObject = null;
-
-    private JsonObject helmObject(Engine engine) throws IOException {
-        if (lazyHelmObject == null) {
-            lazyHelmObject = engine.helmRead(name);
-        }
-        return lazyHelmObject;
-    }
-
-    private Map<String, Object> helmValues(Engine engine) throws IOException {
-        JsonObject helmObject;
+    private static Map<String, Object> values(JsonObject helmObject) throws IOException {
         Map<String, Object> result;
 
-        helmObject = helmObject(engine);
         result = toStringMap(helmObject.get("chart").getAsJsonObject().get("values").getAsJsonObject());
         result.putAll(toStringMap(helmObject.get("config").getAsJsonObject()));
+        check(result, Type.MANDATORY);
         return result;
     }
 
-    public Map<String, Value> values(Engine engine) throws IOException {
-        Map<String, Value> result;
-
-        result = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> entry : helmValues(engine).entrySet()) {
-            result.put(entry.getKey(), new Value(entry.getKey(), entry.getValue().toString()));
+    private static void check(Map<String, Object> values, String... keys) throws IOException {
+        for (String key : keys) {
+            if (!values.containsKey(key)) {
+                throw new IOException("missing key in helm chart: " + key);
+            }
         }
-        addOpt(result, Type.VALUE_EXPIRE, Expire.fromNumber(server.settings.defaultExpire).toString());
-        addOpt(result, Type.VALUE_CONTACT, Stage.NOTIFY_FIRST_MODIFIER);
-        return result;
     }
 
     private static Map<String, Object> toStringMap(JsonObject obj) {
@@ -151,39 +100,77 @@ public class Stage {
         return result;
     }
 
+    //--
 
-    private static void addOpt(Map<String, Value> dest, String name, String value) {
-        if (dest.get(name).get().isEmpty()) {
-            dest.put(name, new Value(name, value));
-        }
+    public static final String NOTIFY_FIRST_MODIFIER = "@first";
+    public static final String NOTIFY_LAST_MODIFIER = "@last";
+
+    //--
+
+    public final Server server;
+
+    /**
+     * Has a very strict syntax, it's used:
+     * * in Kubernetes resource names
+     * * Docker repository tags
+     * * label values
+     */
+    private final String name;
+
+    private final Map<String, Object> values;
+
+    private final JsonObject info;
+
+    public Stage(Server server, String name, Map<String, Object> values, JsonObject info) {
+        this.server = server;
+        this.name = name;
+        this.values = values;
+        this.info = info;
     }
 
-    public Value value(Engine engine, String value) throws IOException {
-        Value result;
+    public String getName() {
+        return name;
+    }
 
-        result = valueOpt(engine, value);
-        if (result == null) {
-            throw new ArgumentException("unknown value: " + value);
+    //-- values
+
+    public List<Value> values() {
+        List<Value> result;
+
+        result = new ArrayList<>();
+        for (String key : values.keySet()) {
+            result.add(value(key));
         }
         return result;
     }
+    public Value value(String key) {
+        Value result;
 
-    public Value valueOpt(Engine engine, String value) throws IOException {
-        return values(engine).get(value);
+        result = valueOpt(key);
+        if (result == null) {
+            throw new ArgumentException("unknown value: " + key);
+        }
+        return result;
+    }
+    public Value valueOpt(String value) {
+        Object obj;
+
+        obj = values.get(value);
+        return obj == null ? null : new Value(value, obj.toString());
     }
 
     //-- important values
 
-    public Expire getValueExpire(Engine engine) throws IOException {
-        return Expire.fromHuman(value(engine, Type.VALUE_EXPIRE).get());
+    public Expire getMetadataExpire() {
+        return Expire.fromHuman(values.get(Type.VALUE_EXPIRE).toString());
     }
 
-    public List<String> getValueNotify(Engine engine) throws IOException {
-        return Separator.COMMA.split(value(engine, Type.VALUE_CONTACT).get());
+    public List<String> getMetadataNotify() {
+        return Separator.COMMA.split(values.get(Type.VALUE_CONTACT).toString());
     }
 
-    public String getValueImage(Engine engine) throws IOException {
-        return value(engine, Type.VALUE_IMAGE).get();
+    public String getImage() {
+        return values.get(Type.VALUE_IMAGE).toString();
     }
 
     //--
@@ -192,30 +179,9 @@ public class Stage {
         return server.getStageLogs(name);
     }
 
-    public Registry createRegistry(World world, Engine engine) throws IOException {
-        return createRegistry(world, getValueImage(engine));
+    public Registry createRegistry(World world) throws IOException {
+        return server.createRegistry(world, getImage());
     }
-
-    public Registry createRegistry(World world, String image) throws IOException {
-        int idx;
-        String host;
-        Settings.UsernamePassword up;
-        String uri;
-
-        idx = image.indexOf('/');
-        if (idx == -1) {
-            throw new IllegalArgumentException(image);
-        }
-        host = image.substring(0, idx);
-        uri = "https://";
-        up = server.settings.registryCredentials(host);
-        if (up != null) {
-            uri = uri + up.username + ":" + up.password + "@";
-        }
-        uri = uri + host;
-        return PortusRegistry.create(world, uri, null);
-    }
-
 
     //-- fields
 
@@ -228,11 +194,11 @@ public class Stage {
         return null;
     }
 
-    public Info info(Engine engine, String str) throws IOException {
+    public Info info(String str) {
         Info result;
         List<String> lst;
 
-        result = valueOpt(engine, str);
+        result = valueOpt(str);
         if (result != null) {
             return result;
         }
@@ -244,8 +210,8 @@ public class Stage {
         for (Field f : fields()) {
             lst.add(f.name());
         }
-        for (Value p : values(engine).values()) {
-            lst.add(p.name());
+        for (Value v : values()) {
+            lst.add(v.name());
         }
         throw new ArgumentException(str + ": no such status field or value, choose one of " + lst);
     }
@@ -280,14 +246,14 @@ public class Stage {
         });
         fields.add(new Field("last-deployed") {
             @Override
-            public Object get(Context context) throws IOException {
-                return helmObject(context.engine).get("info").getAsJsonObject().get("last_deployed").getAsString();
+            public Object get(Context context) {
+                return info.get("last_deployed").getAsString();
             }
         });
         fields.add(new Field("first-deployed") {
             @Override
-            public Object get(Context context) throws IOException {
-                return helmObject(context.engine).get("info").getAsJsonObject().get("first_deployed").getAsString();
+            public Object get(Context context) {
+                return info.get("first_deployed").getAsString();
             }
         });
         fields.add(new Field("cpu") {
@@ -336,12 +302,12 @@ public class Stage {
     }
 
     /** @return logins */
-    public Set<String> notifyLogins(Engine engine) throws IOException {
+    public Set<String> notifyLogins() throws IOException {
         Set<String> done;
         String login;
 
         done = new HashSet<>();
-        for (String user : getValueNotify(engine)) {
+        for (String user : getMetadataNotify()) {
             switch (user) {
                 case NOTIFY_LAST_MODIFIER:
                     login = lastModifiedBy();
@@ -362,237 +328,25 @@ public class Stage {
     //-- docker
 
     /** @return sorted list, oldest first */
-    public List<TagInfo> images(Engine engine, Registry registry) throws IOException {
+    public List<TagInfo> images(Registry registry) throws IOException {
         String path;
 
-        path = Registry.getRepositoryPath(Registry.toRepository(getValueImage(engine)));
+        path = Registry.getRepositoryPath(Registry.toRepository(getImage()));
         return registry.list(path);
     }
 
-    /** @param imageOrRepositoryX image to publish this particular image; null or repository to publish latest from (current) repository;
-     *                  keep to stick with current image.
-     *  @return image actually published
+    /** CAUTION: values are not updated!
+     * @param imageOrRepositoryOpt null to keep current image
      */
-    public String install(boolean upgrade, Engine engine, String imageOrRepositoryX, Map<String, String> clientValues) throws IOException {
-        World world;
-        FileNode tmp;
-        TagInfo image;
-        FileNode values;
+    public String publish(String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
-        FileNode src;
-        Expire expire;
-
-        if (imageOrRepositoryX != null && imageOrRepositoryX != KEEP_IMAGE) {
-            validateRepository(Registry.toRepository(imageOrRepositoryX));
-        }
-        world = World.create(); // TODO
-        tmp = world.getTemp().createTempDirectory();
-        values = world.getTemp().createTempFile();
-
-        if (upgrade) {
-            map = new HashMap<>(helmValues(engine));
-        } else {
-            map = new HashMap<>(server.settings.values);
-        }
-        image = resolve(engine, world, imageOrRepositoryX, (String) map.get("image"));
-        if (image.chart == null) {
-            throw new ArgumentException("image " + image.repositoryTag + " does not specify a helm chart");
-        }
-        src = world.file("/etc/charts").join(image.chart);
-        if (!src.isDirectory()) {
-            throw new ArgumentException("helm chart not found: " + image.chart);
-        }
-        src.copyDirectory(tmp);
-        Type.TYPE.checkValues(clientValues, builtInValues(tmp).keySet());
-        if (upgrade) {
-            // TODO:
-            // put values from image again? it might have changed ...
-        } else {
-            map.putAll(image.chartValues);
-        }
-        map.putAll(clientValues);
-        map.put("image", image.repositoryTag);
-        map.put("fqdn", stageFqdn());
-        map.put("cert", cert());
-        map.put("fault", fault(world, image));
-
-        expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
-        if (expire.isExpired()) {
-            throw new ArgumentException(name + ": stage expired: " + expire);
-        }
-        map.put(Type.VALUE_EXPIRE, expire.toString()); // normalize
-        Server.LOGGER.info("values: " + map);
-        try (PrintWriter v = new PrintWriter(values.newWriter())) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                v.println(entry.getKey() + ": " + toJson(entry.getValue()));
-            }
-        }
-        try {
-            Server.LOGGER.info("helm install upgrade=" + upgrade);
-            Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
-        } finally {
-            tmp.deleteTree();
-        }
-        lazyHelmObject = null; // force reload
-        return image.repositoryTag;
-    }
-
-    public void awaitAvailable(Engine engine) throws IOException {
-        engine.deploymentAwaitAvailable(Type.deploymentName(name));
-    }
-
-    public Map<String, String> builtInValues(FileNode chart) throws IOException {
-        ObjectMapper yaml;
-        ObjectNode root;
-        Map<String, String> result;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Map.Entry<String, JsonNode> entry;
-
-        yaml = new ObjectMapper(new YAMLFactory());
-        try (Reader src = chart.join("values.yaml").newReader()) {
-            root = (ObjectNode) yaml.readTree(src);
-        }
-        result = new HashMap<>();
-        iter = root.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            result.put(entry.getKey(), entry.getValue().asText());
-        }
-        return result;
-    }
-
-    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public static void validateRepository(String repository) {
-        URI uri;
-
-        if (repository.endsWith("/")) {
-            throw new ArgumentException("invalid repository: " + repository);
-        }
-        try {
-            uri = new URI(repository);
-        } catch (URISyntaxException e) {
-            throw new ArgumentException("invalid repository: " + repository);
-        }
-        if (uri.getHost() != null) {
-            checkLowercase(uri.getHost());
-        }
-        checkLowercase(uri.getPath());
-    }
-
-    private static void checkLowercase(String str) {
-        for (int i = 0, length = str.length(); i < length; i++) {
-            if (Character.isUpperCase(str.charAt(i))) {
-                throw new ArgumentException("invalid registry prefix: " + str);
-            }
-        }
-    }
-
-    private static String toJson(Object obj) {
-        if (obj instanceof String) {
-            return "\"" + obj + '"';
-        } else {
-            return obj.toString(); // ok für boolean and integer
-        }
-    }
-
-    /** tar directory into byte array */
-    private String fault(World world, TagInfo image) throws IOException {
-        List<String> missing;
-        FileNode workspace;
-        FileNode project;
-        TarOutputStream tar;
-        byte[] buffer;
-        long now;
+        String imageOrRepository;
         String result;
 
-        missing = new ArrayList<>();
-        if (server.settings.auth()) {
-            server.checkFaultPermissions(image.author, image.faultProjects);
-        }
-        workspace = world.file("/etc/fault/workspace");
-        buffer = new byte[64 * 1024];
-        try (ByteArrayOutputStream dest = new ByteArrayOutputStream()) {
-            tar = new TarOutputStream(new GZIPOutputStream(dest));
-            now = System.currentTimeMillis();
-            for (String projectName : image.faultProjects) {
-                project = workspace.join(projectName);
-                if (project.isDirectory()) {
-                    faultTarAdd(now, buffer, workspace, project, tar);
-                } else {
-                    missing.add(projectName);
-                }
-            }
-            tar.close();
-            result = Base64.getEncoder().encodeToString(dest.toByteArray());
-        }
-        if (!missing.isEmpty()) {
-            throw new ArgumentException("missing secret directories: " + missing);
-        }
+        map = new HashMap<>(values);
+        imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
+        result = Helm.run(server, name, true, map, imageOrRepository, clientValues);
         return result;
-    }
-
-    /** tar directory into byte array */
-    private void faultTarAdd(long now, byte[] buffer, FileNode workspace, FileNode project, TarOutputStream tar) throws IOException {
-        List<FileNode> all;
-        Iterator<FileNode> iter;
-        FileNode file;
-        int count;
-
-        all = project.find("**/*");
-        iter = all.iterator();
-        while (iter.hasNext()) {
-            file = iter.next();
-            if (file.isDirectory()) {
-                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(workspace), 0, now, true, 0700)));
-                iter.remove();
-            }
-        }
-        iter = all.iterator();
-        while (iter.hasNext()) {
-            file = iter.next();
-            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(workspace), file.size(), now, false, 0700)));
-            try (InputStream src = file.newInputStream()) {
-                while (true) {
-                    count = src.read(buffer);
-                    if (count == -1) {
-                        break;
-                    }
-                    tar.write(buffer, 0, count);
-                }
-            }
-        }
-    }
-
-    // TODO: expensive
-    private TagInfo resolve(Engine engine, World world, String imageOrRepositoryX, String imagePrevious) throws IOException {
-        String imageOrRepository;
-        int idx;
-        Registry registry;
-
-        if (imageOrRepositoryX == KEEP_IMAGE) {
-            imageOrRepository = imagePrevious;
-        } else if (imageOrRepositoryX == null) {
-            imageOrRepository = Registry.toRepository(getValueImage(engine));
-        } else {
-            imageOrRepository = imageOrRepositoryX;
-        }
-        registry = createRegistry(world, imageOrRepository);
-        idx = imageOrRepository.indexOf(':');
-        if (idx == -1) {
-            List<TagInfo> all;
-
-            all = registry.list(Registry.getRepositoryPath(imageOrRepository));
-            if (all.isEmpty()) {
-                throw new ArgumentException("no image(s) found in repository " + imageOrRepository);
-            }
-            return all.get(all.size() - 1);
-        } else {
-            try {
-                return registry.tagInfo(imageOrRepository);
-            } catch (FileNotFoundException e) {
-                throw new ArgumentException("image not found: " + imageOrRepository);
-            }
-        }
     }
 
     public void uninstall(Engine engine) throws IOException {
@@ -600,11 +354,8 @@ public class Stage {
         engine.deploymentAwaitGone(getName());
     }
 
-    private String cert() throws IOException {
-        FileNode dir;
-
-        dir = server.certificate(stageFqdn());
-        return Base64.getEncoder().encodeToString(dir.join("keystore.p12").readBytes());
+    public void awaitAvailable(Engine engine) throws IOException {
+        engine.deploymentAwaitAvailable(Type.deploymentName(name));
     }
 
     //--
@@ -622,12 +373,12 @@ public class Stage {
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, Registry registry) throws IOException {
+    public Map<String, String> urlMap(Registry registry) throws IOException {
         Map<String, String> result;
         TagInfo tag;
 
         result = new LinkedHashMap<>();
-        tag = registry.tagInfo(getValueImage(engine));
+        tag = registry.tagInfo(getImage());
         addNamed("http", url(tag, "http"), result);
         addNamed("https", url(tag, "https"), result);
         return result;
@@ -647,16 +398,12 @@ public class Stage {
         }
     }
 
-    public String stageFqdn() {
-        return name + "." + server.settings.fqdn;
-    }
-
     private List<String> url(TagInfo tag, String protocol) {
         String fqdn;
         String url;
         List<String> result;
 
-        fqdn = stageFqdn();
+        fqdn = server.stageFqdn(name);
         url = protocol + "://" + fqdn + "/" + tag.urlContext;
         if (!url.endsWith("/")) {
             url = url + "/";
@@ -675,8 +422,8 @@ public class Stage {
     }
 
     /** @return never null */
-    public TagInfo tagInfo(Engine engine, Registry registry) throws IOException {
-        return registry.tagInfo(getValueImage(engine));
+    public TagInfo tagInfo(Registry registry) throws IOException {
+        return registry.tagInfo(getImage());
     }
 
     /** @return null if unknown */

@@ -18,6 +18,8 @@ package net.oneandone.stool.registry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.oneandone.stool.server.ArgumentException;
+import net.oneandone.sushi.fs.FileNotFoundException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -127,4 +129,28 @@ public abstract class Registry {
         idx = imageOrRepository.indexOf(':');
         return idx == -1 ? imageOrRepository : imageOrRepository.substring(0, idx);
     }
+
+    //--
+
+    public TagInfo resolve(String imageOrRepository) throws IOException {
+        int idx;
+
+        idx = imageOrRepository.indexOf(':');
+        if (idx == -1) {
+            List<TagInfo> all;
+
+            all = list(Registry.getRepositoryPath(imageOrRepository));
+            if (all.isEmpty()) {
+                throw new ArgumentException("no image(s) found in repository " + imageOrRepository);
+            }
+            return all.get(all.size() - 1);
+        } else {
+            try {
+                return tagInfo(imageOrRepository);
+            } catch (FileNotFoundException e) {
+                throw new ArgumentException("image not found: " + imageOrRepository);
+            }
+        }
+    }
+
 }

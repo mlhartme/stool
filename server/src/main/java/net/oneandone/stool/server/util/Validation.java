@@ -52,21 +52,21 @@ public class Validation {
             Server.LOGGER.info("  " + line);
         }
         if (email && !report.isEmpty()) {
-            email(name, stage.notifyLogins(engine), report);
+            email(name, stage.notifyLogins(), report);
         }
         return report;
     }
 
-    private void doRun(Stage stage, List<String> report, boolean repair) throws IOException {
+    private void doRun(Stage stage, List<String> report, boolean repair) {
         Expire expire;
 
-        expire = stage.getValueExpire(engine);
+        expire = stage.getMetadataExpire();
         if (expire.isExpired()) {
             report.add("Stage expired " + expire + ". To start it, you have to adjust the 'expire' date.");
         }
         if (repair) {
             try {
-                stage.install(true, engine, Stage.KEEP_IMAGE, Strings.toMap(Type.VALUE_REPLICAS, "0"));
+                stage.publish(null, Strings.toMap(Type.VALUE_REPLICAS, "0"));
                 report.add("replicas set to 0");
             } catch (Exception e) {
                 report.add("replicas change failed: " + e.getMessage());
