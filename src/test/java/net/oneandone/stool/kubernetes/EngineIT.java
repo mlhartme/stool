@@ -129,64 +129,6 @@ public class EngineIT {
     //-- misc
 
     @Test
-    public void secrets() throws IOException {
-        final String name = "sec";
-        Data data;
-
-        try (Engine engine = create()) {
-            data = Data.secrets(name);
-            data.addUtf8("sub/renamed.txt", "blablub");
-            data.define(engine);
-
-            assertTrue(engine.secretList().containsKey(name));
-            assertFalse(engine.podCreate(name,
-                    new Engine.Container("secrets", "debian:stretch-slim", new String[] { "cat", "/etc/secrets/sub/renamed.txt" },
-                            false, Collections.emptyMap(), null, null,
-                            Collections.singletonMap(new Volume.Mount("/etc/secrets", false), data)),
-                    "somehost", false, Collections.emptyMap()));
-            assertEquals("blablub", engine.podLogs(name));
-            engine.podDelete(name);
-            engine.secretDelete(name);
-        }
-    }
-
-    @Test
-    public void configMap() throws IOException {
-        Map<String, String> data;
-        final String name = "cm";
-
-        data = Strings.toMap("test.yaml", "123", "sub-file", "foo");
-        try (Engine engine = create()) {
-            engine.configMapCreate(name, data);
-            assertEquals(data, engine.configMapRead(name));
-            engine.configMapDelete(name);;
-        }
-    }
-
-    @Test
-    public void configMapBinary() throws IOException {
-        final String name = "cmbinary";
-        Data data;
-
-        try (Engine engine = create()) {
-            data = Data.configMap(name);
-            data.addUtf8("test.yaml", "123");
-            data.addUtf8("sub/file", "foo");
-            data.define(engine);
-
-            assertTrue(engine.configMapList().containsKey(name));
-
-            assertFalse(engine.podCreate(name, new Engine.Container("cm", "debian:stretch-slim", new String[] { "cat", "/etc/test.yaml", "/etc/sub/file" },
-                            false, Collections.emptyMap(), null, null, Collections.singletonMap(new Volume.Mount("/etc", true), data)),
-                    "somehost", false, Collections.emptyMap()));
-            assertEquals("123foo", engine.podLogs(name));
-
-            engine.podDelete(name);
-            engine.configMapDelete(name);;
-        }
-    }
-
-    @Test
     public void deployment() throws IOException {
         String name = "dpl";
         Map<String, DeploymentInfo> map;

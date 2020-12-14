@@ -30,9 +30,6 @@ import io.kubernetes.client.openapi.apis.ExtensionsV1beta1Api;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1HTTPIngressPathBuilder;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1HTTPIngressRuleValueBuilder;
 import io.kubernetes.client.openapi.models.ExtensionsV1beta1IngressBuilder;
-import io.kubernetes.client.openapi.models.V1ConfigMap;
-import io.kubernetes.client.openapi.models.V1ConfigMapBuilder;
-import io.kubernetes.client.openapi.models.V1ConfigMapList;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1ContainerBuilder;
 import io.kubernetes.client.openapi.models.V1ContainerState;
@@ -49,7 +46,6 @@ import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
 import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.openapi.models.V1Secret;
-import io.kubernetes.client.openapi.models.V1SecretBuilder;
 import io.kubernetes.client.openapi.models.V1SecretList;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceBuilder;
@@ -180,18 +176,6 @@ public class Engine implements AutoCloseable {
             if (hasImplicit(service.labels)) {
                 System.out.println("delete service: " + service.name);
                 serviceDelete(service.name);
-            }
-        }
-        for (DataInfo cm : configMapList().values()) {
-            if (hasImplicit(cm.labels)) {
-                System.out.println("delete configMap: " + cm.name);
-                configMapDelete(cm.name);
-            }
-        }
-        for (DataInfo s : secretList().values()) {
-            if (hasImplicit(s.labels)) {
-                System.out.println("delete secret: " + s.name);
-                secretDelete(s.name);
             }
         }
     }
@@ -868,181 +852,6 @@ public class Engine implements AutoCloseable {
                 .endSpec().build();
     }
 
-    //-- secrets
-
-    public void secretCreate(String name, Map<String, byte[]> data) throws IOException {
-        V1Secret secret;
-
-        secret = new V1SecretBuilder().withNewMetadata().withName(name).withLabels(implicitLabels).withNamespace(namespace).endMetadata()
-                .withData(data).build();
-        try {
-            core.createNamespacedSecret(namespace, secret, null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }
-
-    public V1Secret secretRead(String name) throws IOException {
-        try {
-            return core.readNamespacedSecret(name, namespace, null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }
-    public void secretDelete(String name) throws IOException {
-        try {
-            core.deleteNamespacedSecret(name, namespace, null, null, null, null, "Foreground", null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-        awaitSecretDeleted(name);
-    }
-
-    /** @return name- to phase mapping */
-    public Map<String, DataInfo> secretList() throws IOException {
-        V1SecretList lst;
-        Map<String, DataInfo> result;
-
-        try {
-            lst = core.listNamespacedSecret(namespace, null, null, null, null, null, null, null, null, null);
-            result = new HashMap();
-            for (V1Secret ns : lst.getItems()) {
-                result.put(ns.getMetadata().getName(), DataInfo.create(ns.getMetadata()));
-            }
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-        return result;
-    }
-
-    private void awaitSecretDeleted(String name) throws IOException {
-        int count;
-
-        count = 0;
-        while (true) {
-            try {
-                try {
-                    core.readNamespacedSecret(name, namespace, null, null, null);
-                } catch (ApiException e) {
-                    throw wrap(e);
-                }
-            } catch (java.io.FileNotFoundException e) {
-                return;
-            }
-            count++;
-            if (count > 500) {
-                throw new IOException("waiting for delete timed out");
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new IOException("waiting for delete timed interrupted");
-            }
-        }
-
-    }
-
-    //-- config maps
-
-    public Map<String, DataInfo> configMapList() throws IOException {
-        return doConfigMapList(null);
-    }
-
-    public Map<String, DataInfo> configMapList(Map<String, String> labelSelector) throws IOException {
-        return doConfigMapList(labelSelector(labelSelector));
-    }
-
-    public Map<String, DataInfo> doConfigMapList(String labelSelector) throws IOException {
-        V1ConfigMapList lst;
-        Map<String, DataInfo> result;
-
-        try {
-            lst = core.listNamespacedConfigMap(namespace, null, null, null, null, labelSelector,
-                    null, null, null, null);
-            result = new HashMap();
-            for (V1ConfigMap m : lst.getItems()) {
-                result.put(m.getMetadata().getName(), DataInfo.create(m.getMetadata()));
-            }
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-        return result;
-    }
-
-    public void configMapCreate(String name, Map<String, String> data) throws IOException {
-        configMapCreate(name, data, Collections.emptyMap());
-    }
-
-    public void configMapCreate(String name, Map<String, String> data, Map<String, String> labels) throws IOException {
-        V1ConfigMap map;
-
-        map = new V1ConfigMapBuilder()
-                .withNewMetadata().withName(name).withNamespace(namespace).withLabels(withImplicit(labels)).endMetadata()
-                .withData(data).build();
-        try {
-            core.createNamespacedConfigMap(namespace, map, null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }
-
-    public Map<String, String> configMapRead(String name) throws IOException {
-        V1ConfigMap map;
-
-        try {
-            map = core.readNamespacedConfigMap(name, namespace, null, null, null);
-            return map.getData();
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }
-
-    public void configMapCreateBinary(String name, Map<String, byte[]> data) throws IOException {
-        V1ConfigMap map;
-
-        map = new V1ConfigMapBuilder().withNewMetadata().withName(name).withNamespace(namespace).endMetadata().withBinaryData(data).build();
-        try {
-            core.createNamespacedConfigMap(namespace, map, null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }
-
-    public void configMapDelete(String name) throws IOException {
-        try {
-            core.deleteNamespacedConfigMap(name, namespace, null, null, null, null, "Foreground", null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-        awaitConfigMapDeleted(name);
-    }
-
-    private void awaitConfigMapDeleted(String name) throws IOException {
-        int count;
-
-        count = 0;
-        while (true) {
-            try {
-                try {
-                    core.readNamespacedConfigMap(name, namespace, null, null, null);
-                } catch (ApiException e) {
-                    throw wrap(e);
-                }
-            } catch (java.io.FileNotFoundException e) {
-                return;
-            }
-            count++;
-            if (count > 500) {
-                throw new IOException("waiting for delete timed out");
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new IOException("waiting for delete timed interrupted");
-            }
-        }
-    }
-
     //-- helm
 
     public JsonObject helmRead(String name) throws IOException {
@@ -1092,6 +901,13 @@ public class Engine implements AutoCloseable {
         release = Base64.getDecoder().decode(release);
         try (Reader src = new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(release)))) {
             return JsonParser.parseReader(src).getAsJsonObject();
+        }
+    }
+    private V1Secret secretRead(String name) throws IOException {
+        try {
+            return core.readNamespacedSecret(name, namespace, null, null, null);
+        } catch (ApiException e) {
+            throw wrap(e);
         }
     }
 
