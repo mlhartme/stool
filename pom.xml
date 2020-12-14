@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>net.oneandone.maven.poms</groupId>
     <artifactId>lazy-foss-parent</artifactId>
     <version>1.4.2-SNAPSHOT</version>
     <relativePath />
   </parent>
+
+  <groupId>net.oneandone.stool</groupId>
+  <artifactId>stool</artifactId>
+  <version>6.1.0-SNAPSHOT</version>
+
+  <packaging>jar</packaging>
 
   <name>Stool</name>
   <url>https://github.com/mlhartme/stool</url>
@@ -21,17 +28,6 @@
     <system>Travis CI</system>
     <url>https://travis-ci.org/mlhartme/stool</url>
   </ciManagement>
-
-  <properties>
-    <sushi.version>3.2.2</sushi.version>
-    <gson.version>2.8.6</gson.version>
-  </properties>
-
-  <groupId>net.oneandone.stool</groupId>
-  <artifactId>stool</artifactId>
-  <version>6.1.0-SNAPSHOT</version>
-
-  <packaging>pom</packaging>
 
   <developers>
     <developer>
@@ -60,10 +56,6 @@
     <url>https://github.com/mlhartme/stool/issues/</url>
   </issueManagement>
 
-  <modules>
-    <module>server</module>
-  </modules>
-
   <distributionManagement>
     <site>
       <id>github</id>
@@ -71,6 +63,356 @@
       <url>https://github.com/mlhartme/stool</url>
     </site>
   </distributionManagement>
+
+  <properties>
+    <sushi.version>3.2.2</sushi.version>
+    <gson.version>2.8.6</gson.version>
+    <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
+    <springboot.version>2.3.4.RELEASE</springboot.version>
+    <spring.version>5.2.9.RELEASE</spring.version>
+    <spring.security.version>5.3.5.RELEASE</spring.security.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.github.jnr</groupId>
+      <artifactId>jnr-unixsocket</artifactId>
+      <version>0.25</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kamranzafar</groupId>
+      <artifactId>jtar</artifactId>
+      <version>2.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>2.11.1</version>
+    </dependency>
+    <dependency>
+      <groupId>net.oneandone</groupId>
+      <artifactId>inline</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.googlecode.lanterna</groupId>
+      <artifactId>lanterna</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.kubernetes</groupId>
+      <artifactId>client-java</artifactId>
+      <version>8.0.2</version>
+    </dependency>
+    <dependency><!-- TODO fabric8 xor kubernetes -->
+      <groupId>io.fabric8</groupId>
+      <artifactId>openshift-client</artifactId>
+      <version>4.10.2</version>
+    </dependency>
+
+    <!-- spring core -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <!-- spring boot -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <version>${springboot.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <version>${springboot.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- security -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-ldap</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-cas</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+
+    <!-- ui -->
+    <dependency>
+      <groupId>org.thymeleaf</groupId>
+      <artifactId>thymeleaf-spring5</artifactId>
+      <version>3.0.11.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery</artifactId>
+      <version>3.4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>bootstrap</artifactId>
+      <version>4.4.1</version>
+    </dependency>
+
+
+    <!-- logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.30</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>1.2.3</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>net.oneandone</groupId>
+      <artifactId>sushi</artifactId>
+      <version>${sushi.version}</version>
+    </dependency>
+
+    <dependency><!-- https://java.net/projects/javamail/pages/Home -->
+      <groupId>com.sun.mail</groupId>
+      <artifactId>javax.mail</artifactId>
+      <version>1.6.2</version>
+      <exclusions>
+        <exclusion><!-- because I have jakarta activation -->
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${gson.version}</version>
+    </dependency>
+
+    <!-- tests -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.7.0</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/filtered-resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <configuration>
+          <rules><dependencyConvergence /></rules>
+          <fail>false</fail>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>regex-property</id>
+            <goals>
+              <goal>regex-property</goal>
+            </goals>
+            <configuration>
+              <name>image.version</name>
+              <value>${project.version}</value>
+              <regex>-SNAPSHOT</regex>
+              <replacement>-${maven.build.timestamp}</replacement>
+              <failIfNoMatch>false</failIfNoMatch>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${springboot.version}</version>
+        <configuration>
+          <classifier>springboot</classifier>
+        </configuration>
+        <executions>
+          <execution>
+            <id>repackage</id>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <!-- https://github.com/fabric8io/docker-maven-plugin -->
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.34.1</version>
+        <configuration>
+          <images>
+            <image>
+              <name>contargo.server.lan/cisoops-public/stool-server:${image.version}</name>
+              <build>
+                <dockerFile>${basedir}/src/docker/Dockerfile</dockerFile>
+                <assembly>
+                  <descriptor>${basedir}/src/docker/assembly.xml</descriptor>
+                </assembly>
+              </build>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>build-image</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>deploy-image</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>push</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- helm chart -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/helm</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/helm</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.oneandone.maven.plugins</groupId>
+        <artifactId>application</artifactId>
+        <version>1.7.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>stool-client</id>
+            <configuration>
+              <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
+              <path>$PATH</path>
+              <options>"-Djava.awt.headless=true --illegal-access=deny"</options>
+              <name>sc</name>
+              <main>net.oneandone.stool.client.cli.Main</main>
+              <equal>META-INF/services/java.security.Provider, org/aopalliance/**/*, META-INF/ASL2.0, javax/annotation/**/*, org/bouncycastle/**/*</equal>
+              <remove>META-INF/maven/**/*,
+                module-info.class, META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
+                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
+                readme.txt, changelog.txt, notice.txt, license.txt, licenses/*,
+                META-INF/versions/9/module-info.class
+              </remove>
+              <concat>META-INF/services/com.fasterxml.jackson.core.ObjectCodec,
+                META-INF/services/com.fasterxml.jackson.core.JsonFactory,
+                META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat,
+                META-INF/spring.*</concat>
+              <overwrite>manifest.vm, ValidationMessages.properties, META-INF/services/com.fasterxml.jackson.databind.Module, schema/*-schema.json,
+                META-INF/services/io.fabric8.kubernetes.client.*,
+                META-INF/jandex.idx,
+                META-INF/services/io.fabric8.kubernetes.api.KubernetesResourceMappingProvider,
+                META-INF/versions/9/javax/xml/bind/ModuleUtil.class,
+                javax/xml/bind/**/*,
+                META-INF/BC*.DSA, META-INF/BC*SF,
+                io/sundr/**/*,
+                javax/annotation/Resource$AuthenticationType.class,
+                META-INF/services/javax.servlet.ServletContainerInitializer,
+                META-INF/spring-autoconfigure-metadata.properties,
+                META-INF/web-fragment.xml,
+                META-INF/spring-configuration-metadata.json, META-INF/additional-spring-configuration-metadata.json,
+                META-INF/services/javax.annotation.processing.Processor
+              </overwrite><!-- TODO -->
+              <attach>true</attach>
+            </configuration>
+            <!-- TODO goals>
+              <goal>generate</goal>
+            </goals -->
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.oneandone.maven.plugins</groupId>
+        <artifactId>active-markdown</artifactId>
+        <version>1.0.1</version>
+        <configuration>
+          <man>true</man>
+          <mandir>${project.build.directory}/classes/templates/man/man1</mandir>
+        </configuration>
+        <executions>
+          <execution>
+            <goals><goal>run</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
   <profiles>
     <profile><!-- if your remote repository needs a special trustStore, StoolIT needs this as well -->

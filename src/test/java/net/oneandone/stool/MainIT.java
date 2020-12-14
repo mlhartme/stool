@@ -73,8 +73,8 @@ public class MainIT {
         return file;
     }
 
-    private static FileNode helmChart() throws IOException { // TODO: ugly reference to the outside
-        return PROJECT_ROOT.join("../server/target/helm").checkDirectory();
+    private static FileNode helmChart() throws IOException {
+        return PROJECT_ROOT.join("target/helm").checkDirectory();
     }
 
     public MainIT() {
