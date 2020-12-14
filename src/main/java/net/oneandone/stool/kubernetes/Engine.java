@@ -757,19 +757,14 @@ public class Engine implements AutoCloseable {
         public final Map<Volume.Mount, Volume> mounts; // maps volume names to mount paths
 
         public Container(String image, String... command) {
-            this("noname", image, command, false, Collections.emptyMap(), null, null,
-                    Collections.emptyMap());
-        }
-
-        public Container(String name, String image, String[] command, boolean imagePull, Map<String, String> env, Integer cpu, Integer memory, Map<Volume.Mount, Volume> mounts) {
-            this.name = name;
+            this.name = "noname";
             this.image = image;
             this.command = command;
-            this.imagePull = imagePull;
-            this.env = env;
-            this.cpu = cpu;
-            this.memory = memory;
-            this.mounts = mounts;
+            this.imagePull = false;
+            this.env = Collections.emptyMap();
+            this.cpu = null;
+            this.memory = null;
+            this.mounts = Collections.emptyMap();
         }
 
         public void volumes(List<V1Volume> result) {

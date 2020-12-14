@@ -47,22 +47,6 @@ public class EngineIT {
     //-- pods
 
     @Test
-    public void podEnv() throws IOException {
-        String pod = "podenv";
-        String output;
-
-        try (Engine engine = create()) {
-            assertFalse(engine.podCreate(pod,
-                    new Engine.Container("env", "debian:stretch-slim", new String[] { "sh", "-c", "echo $foo $notfound $xxx" },
-                            false, Strings.toMap("foo", "bar", "xxx", "after"), null, null, Collections.emptyMap()
-                    ), Strings.toMap()));
-            output = engine.podLogs(pod);
-            assertEquals("bar after\n", output);
-            engine.podDelete(pod);
-        }
-    }
-
-    @Test
     public void podImplicitHostname() throws IOException {
         doHostnameTest("podimplicit", null, "podimplicit");
     }
@@ -78,23 +62,6 @@ public class EngineIT {
                     hostname, false, Strings.toMap()));
             assertEquals(false, engine.podContainerRunning(pod, "noname"));
             assertEquals(expected + "\n", engine.podLogs(pod));
-            engine.podDelete(pod);
-        }
-    }
-
-    @Test
-    public void podLimit() throws IOException {
-        final int limit = 1024*1024*7;
-        String pod = "limit";
-
-        try (Engine engine = create()) {
-            engine.podCreate(pod, new Engine.Container("limit",
-                            "debian:stretch-slim", new String[] { "sleep", "3" }, false, Collections.emptyMap(), null, limit, Collections.emptyMap()),
-                    null, false, Collections.emptyMap());
-
-            // TODO: only available when stats server is installed
-            // assert on openshift.stats(pod)
-
             engine.podDelete(pod);
         }
     }
@@ -141,8 +108,7 @@ public class EngineIT {
 
             assertEquals(0, engine.deploymentList().size());
             engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(),
-                    new Engine.Container("main", "debian:stretch-slim", new String[] { "sleep", "1000" }, true,
-                            Strings.toMap(), null, null, Collections.emptyMap()),
+                    new Engine.Container("debian:stretch-slim", new String[] { "sleep", "1000" }),
                     null, Strings.toMap("app", "foo"));
             engine.deploymentAwaitAvailable(name);
 
