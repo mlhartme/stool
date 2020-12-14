@@ -82,7 +82,7 @@ public class ApiController {
     }
 
     private Engine engine() throws IOException {
-        return Engine.createFromCluster(Server.STOOL_LABELS);
+        return Engine.createFromCluster();
     }
 
     // TODO: used for readiness probes - becomes expensive if I used quotas ...

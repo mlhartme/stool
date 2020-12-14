@@ -33,14 +33,12 @@ import io.kubernetes.client.openapi.models.ExtensionsV1beta1IngressBuilder;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1ContainerBuilder;
 import io.kubernetes.client.openapi.models.V1ContainerState;
-import io.kubernetes.client.openapi.models.V1ContainerStateRunning;
 import io.kubernetes.client.openapi.models.V1ContainerStatus;
 import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1DeploymentBuilder;
 import io.kubernetes.client.openapi.models.V1DeploymentList;
 import io.kubernetes.client.openapi.models.V1EnvVar;
 import io.kubernetes.client.openapi.models.V1Namespace;
-import io.kubernetes.client.openapi.models.V1NamespaceBuilder;
 import io.kubernetes.client.openapi.models.V1NamespaceList;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
@@ -51,8 +49,6 @@ import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceBuilder;
 import io.kubernetes.client.openapi.models.V1ServiceList;
 import io.kubernetes.client.openapi.models.V1ServicePort;
-import io.kubernetes.client.openapi.models.V1Volume;
-import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.KubeConfig;
 import net.oneandone.sushi.fs.World;
@@ -62,7 +58,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -87,11 +82,10 @@ public class Engine implements AutoCloseable {
         Configuration.setDefaultApiClient(null);
 
     }
-    private static final String UTF_8 = "utf8";
 
     //--
 
-    public static Engine createFromCluster(Map<String, String> implicitLabels) throws IOException {
+    public static Engine createFromCluster() throws IOException {
         String namespace;
         Engine engine;
 
@@ -100,11 +94,10 @@ public class Engine implements AutoCloseable {
                 StandardCharsets.UTF_8.name());
         // default client automatically detects inCluster config
         engine = new Engine(Config.fromCluster(), namespace);
-        engine.implicitLabels.putAll(implicitLabels);
         return engine;
     }
 
-    public static Engine create(World world, String context, Map<String, String> implicitLabels) throws IOException {
+    public static Engine create(World world, String context) throws IOException {
         KubeConfig config;
         Engine engine;
 
@@ -116,7 +109,6 @@ public class Engine implements AutoCloseable {
         }
         // default client automatically detects inCluster config
         engine = new Engine(Config.fromConfig(config), config.getNamespace());
-        engine.implicitLabels.putAll(implicitLabels);
         return engine;
     }
 
@@ -125,7 +117,6 @@ public class Engine implements AutoCloseable {
     private final AppsV1Api apps;
     private final ExtensionsV1beta1Api extensions;
     private final String namespace;
-    private final Map<String, String> implicitLabels;
 
     private Engine(ApiClient client, String namespace) {
         this.client = client;
@@ -134,11 +125,6 @@ public class Engine implements AutoCloseable {
         this.apps = new AppsV1Api(client);
         this.extensions = new ExtensionsV1beta1Api(client);
         this.namespace = namespace;
-        this.implicitLabels = new HashMap<>();
-    }
-
-    public void addImplicitLabel(String key, String value) {
-        implicitLabels.put(key, value);
     }
 
     public String getNamespace() {
@@ -161,59 +147,16 @@ public class Engine implements AutoCloseable {
 
     public void namespaceReset() throws IOException {
         for (DeploymentInfo deployment : deploymentList().values()) {
-            if (hasImplicit(deployment.labels)) {
-                System.out.println("delete deployment: " + deployment.name);
-                deploymentDelete(deployment.name);
-            }
+            System.out.println("delete deployment: " + deployment.name);
+            deploymentDelete(deployment.name);
         }
         for (PodInfo pod: podList().values()) {
-            if (hasImplicit(pod.labels)) {
-                System.out.println("delete pod: " + pod.name);
-                podDelete(pod.name);
-            }
+            System.out.println("delete pod: " + pod.name);
+            podDelete(pod.name);
         }
         for (ServiceInfo service : serviceList().values()) {
-            if (hasImplicit(service.labels)) {
-                System.out.println("delete service: " + service.name);
-                serviceDelete(service.name);
-            }
-        }
-    }
-
-    public void namespaceCreate() throws IOException {
-        try {
-            core.createNamespace(new V1NamespaceBuilder()
-                            .withNewMetadata().withLabels(implicitLabels).withName(namespace).endMetadata()
-                            .build(),
-                    null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-
-        namespaceAwait("Active");
-        try { // TODO: avoids "No API token found for service account" in follow-up calls
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public void namespaceDelete() throws IOException {
-        try {
-            try {
-                core.deleteNamespace(namespace, null, null, null, null, "Foreground", null);
-            } catch (JsonSyntaxException e) {
-                if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
-                    // TODO The Java Client is generated, and this code generation does not support union return types,
-                    //      see https://github.com/kubernetes-client/java/issues/86
-                    // fall-through
-                } else {
-                    throw e;
-                }
-            }
-            namespaceAwait(null);
-        } catch (ApiException e) {
-            throw wrap(e);
+            System.out.println("delete service: " + service.name);
+            serviceDelete(service.name);
         }
     }
 
@@ -234,49 +177,7 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    private void namespaceAwait(String expectedPhase) throws IOException {
-        int count;
-        String phase;
-
-        count = 0;
-        while (true) {
-            phase = namespaceList().get(namespace);
-            if (same(expectedPhase, phase)) {
-                return;
-            }
-            count++;
-            if (count > 500) {
-                throw new IOException("waiting for namespace phase '" + expectedPhase + "' timed out, phase now is " + phase);
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new IOException("waiting for namespace phase '" + expectedPhase + "' interrupted");
-            }
-        }
-
-    }
-
     //-- services
-
-    public ServiceInfo serviceGetOpt(String name) throws IOException {
-        try {
-            return serviceGet(name);
-        } catch (java.io.FileNotFoundException e) {
-            return null;
-        }
-    }
-
-    public ServiceInfo serviceGet(String name) throws IOException {
-        V1Service service;
-
-        try {
-            service = core.readNamespacedService(name, namespace, null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-        return ServiceInfo.create(service);
-    }
 
     public void serviceCreate(String name, int port, int targetPort, String... selector) throws IOException {
         serviceCreate(name, port, targetPort, Strings.toMap(selector));
@@ -313,7 +214,7 @@ public class Engine implements AutoCloseable {
         }
         try {
             core.createNamespacedService(namespace, new V1ServiceBuilder()
-                    .withNewMetadata().withName(name).withLabels(withImplicit(labels)).endMetadata()
+                    .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                     .withNewSpec().withType("ClusterIP").withPorts(lst).withSelector(selector).endSpec()
                     .build(), null, null, null);
         } catch (ApiException e) {
@@ -361,7 +262,7 @@ public class Engine implements AutoCloseable {
         rule = new ExtensionsV1beta1HTTPIngressRuleValueBuilder();
         rule = rule.withPaths(path.build());
         ingress = new ExtensionsV1beta1IngressBuilder()
-                .withNewMetadata().withName(name).withLabels(implicitLabels).endMetadata()
+                .withNewMetadata().withName(name).endMetadata()
                 .withNewSpec()
                    .addNewRule().withHost(host).withHttp(rule.build()).endRule().endSpec();
         try {
@@ -496,47 +397,28 @@ public class Engine implements AutoCloseable {
     @SuppressWarnings("checkstyle:ParameterNumber")
     private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                            Container[] containers, String hostname, Map<String, String> podLabels) {
-        List<V1Volume> vl;
         List<V1Container> cl;
 
-        vl = new ArrayList<>();
         cl = new ArrayList<>();
         for (Container c : containers) {
-            c.volumes(vl);
             cl.add(c.build());
         }
         return new V1DeploymentBuilder()
                 .withNewMetadata()
                   .withName(name)
-                  .withLabels(withImplicit(deploymentLabels))
+                  .withLabels(deploymentLabels)
                 .endMetadata()
                 .withNewSpec()
                   .withReplicas(1)
                   .withNewSelector().withMatchLabels(selector).endSelector()
                   .withNewTemplate()
-                    .withNewMetadata().withLabels(withImplicit(podLabels)).endMetadata()
+                    .withNewMetadata().withLabels(podLabels).endMetadata()
                     .withNewSpec()
                       .withHostname(hostname)
-                      .addAllToVolumes(vl)
                       .withContainers(cl)
                     .endSpec()
                   .endTemplate()
                 .endSpec().build();
-    }
-
-    public boolean hasImplicit(Map<String, String> labels) {
-        return labels.entrySet().containsAll(implicitLabels.entrySet());
-    }
-
-    private Map<String, String> withImplicit(Map<String, String> explicit) {
-        Map<String, String> result;
-
-        if (explicit.isEmpty()) {
-            return implicitLabels;
-        }
-        result = new HashMap<>(implicitLabels);
-        result.putAll(explicit);
-        return result;
     }
 
     //--
@@ -716,23 +598,6 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    public void podLogsFollow(String pod, OutputStream dest) {
-        throw new IllegalStateException("TODO");
-    }
-
-
-    public Long podStartedAt(String pod, String containerName) throws IOException {
-        V1ContainerStatus status;
-        V1ContainerStateRunning running;
-
-        status = getPodContainerStatus(pod, containerName);
-        running = status.getState().getRunning();
-        if (running == null) {
-            return null;
-        }
-        return running.getStartedAt().toDate().getTime();
-    }
-
     private static String toString(String[] args) {
         StringBuilder result;
 
@@ -752,9 +617,6 @@ public class Engine implements AutoCloseable {
         public final String[] command;
         public final boolean imagePull;
         public final Map<String, String> env;
-        public final Integer cpu;
-        public final Integer memory;
-        public final Map<Volume.Mount, Volume> mounts; // maps volume names to mount paths
 
         public Container(String image, String... command) {
             this.name = "noname";
@@ -762,28 +624,6 @@ public class Engine implements AutoCloseable {
             this.command = command;
             this.imagePull = false;
             this.env = Collections.emptyMap();
-            this.cpu = null;
-            this.memory = null;
-            this.mounts = Collections.emptyMap();
-        }
-
-        public void volumes(List<V1Volume> result) {
-            for (Volume volume : mounts.values()) {
-                if (contains(result, volume.name)) {
-                    // already defined
-                } else {
-                    result.add(volume.volume());
-                }
-            }
-        }
-
-        private static boolean contains(List<V1Volume> lst, String name) {
-            for (V1Volume v : lst) {
-                if (v.getName().equals(name)) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         public V1Container build() {
@@ -793,12 +633,6 @@ public class Engine implements AutoCloseable {
             V1EnvVar var;
 
             limits = new HashMap<>();
-            if (cpu != null) {
-                limits.put("cpu", new Quantity(cpu.toString()));
-            }
-            if (memory != null) {
-                limits.put("memory", new Quantity(memory.toString()));
-            }
             lst = new ArrayList<>();
             for (Map.Entry<String, String> entry : env.entrySet()) {
                 var = new V1EnvVar();
@@ -807,8 +641,7 @@ public class Engine implements AutoCloseable {
                 lst.add(var);
             }
             container = new V1ContainerBuilder();
-            container.addAllToVolumeMounts(mountList())
-                    .withNewResources().withLimits(limits).endResources()
+            container.withNewResources().withLimits(limits).endResources()
                     .withName(name)
                     .withImage(image)
                     .withEnv(lst)
@@ -819,30 +652,16 @@ public class Engine implements AutoCloseable {
             }
             return container.build();
         }
-
-        private List<V1VolumeMount> mountList() {
-            List<V1VolumeMount> result;
-
-            result = new ArrayList<>();
-            for (Map.Entry<Volume.Mount, Volume> entry : mounts.entrySet()) {
-                entry.getValue().mounts(entry.getKey(), result);
-            }
-            return result;
-        }
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     private V1Pod pod(String name, Container container, String hostname, boolean healing, Map<String, String> labels) {
-        List<V1Volume> vl;
-
-        vl = new ArrayList<>();
-        container.volumes(vl);
         return new V1PodBuilder()
-                .withNewMetadata().withName(name).withLabels(withImplicit(labels)).endMetadata()
+                .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy(healing ? "Always" : "Never")
                 .withHostname(hostname)
-                .addAllToVolumes(vl)
+                .addAllToVolumes(new ArrayList<>())
                 .addToContainers(container.build())
                 .endSpec().build();
     }

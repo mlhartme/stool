@@ -35,7 +35,6 @@ import net.oneandone.stool.server.util.Predicate;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -54,8 +53,6 @@ import java.util.Properties;
 
 /** Immutable. */
 public class Server {
-    public static final Map<String, String> STOOL_LABELS = Strings.toMap("origin", "net.oneandone.stool.server");
-
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
     public static Server create(World world) throws IOException {
@@ -70,7 +67,7 @@ public class Server {
         LOGGER.info("server version: " + Main.versionString(world));
         LOGGER.info("server auth: " + settings.auth());
         LOGGER.info("server settings: " + settings);
-        try (Engine engine = Engine.createFromCluster(STOOL_LABELS)) {
+        try (Engine engine = Engine.createFromCluster()) {
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
             try (OpenShift os = OpenShift.create()) {

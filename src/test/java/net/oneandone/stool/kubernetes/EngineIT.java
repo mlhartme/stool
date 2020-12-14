@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,7 +32,7 @@ public class EngineIT {
     private static final World WORLD = World.createMinimal();
 
     private static Engine create() throws IOException {
-        return Engine.create(WORLD, "stool-engine-it" /* TODO */, Strings.toMap("origin", "net.oneandone.stool.engine-it"));
+        return Engine.create(WORLD, "stool-engine-it" /* TODO */);
     }
 
     @BeforeAll
