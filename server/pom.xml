@@ -21,6 +21,23 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>2.11.1</version>
+    </dependency>
+    <dependency>
+      <groupId>net.oneandone</groupId>
+      <artifactId>inline</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.googlecode.lanterna</groupId>
+      <artifactId>lanterna</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+
     <dependency><!-- TODO for testing only -->
       <groupId>net.oneandone.stool</groupId>
       <artifactId>docker</artifactId>
@@ -135,6 +152,12 @@
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
       <version>1.6.2</version>
+      <exclusions>
+        <exclusion><!-- because I have jakarta activation -->
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -265,6 +288,67 @@
                 </resource>
               </resources>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.oneandone.maven.plugins</groupId>
+        <artifactId>application</artifactId>
+        <version>1.7.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>stool-client</id>
+            <configuration>
+              <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
+              <path>$PATH</path>
+              <options>"-Djava.awt.headless=true --illegal-access=deny"</options>
+              <name>sc</name>
+              <main>net.oneandone.stool.client.cli.Main</main>
+              <equal>META-INF/services/java.security.Provider, org/aopalliance/**/*, META-INF/ASL2.0, javax/annotation/**/*, org/bouncycastle/**/*</equal>
+              <remove>META-INF/maven/**/*,
+                module-info.class, META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
+                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
+                readme.txt, changelog.txt, notice.txt, license.txt, licenses/*,
+                META-INF/versions/9/module-info.class
+              </remove>
+              <concat>META-INF/services/com.fasterxml.jackson.core.ObjectCodec,
+                META-INF/services/com.fasterxml.jackson.core.JsonFactory,
+                META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat,
+                META-INF/spring.*</concat>
+              <overwrite>manifest.vm, ValidationMessages.properties, META-INF/services/com.fasterxml.jackson.databind.Module, schema/*-schema.json,
+                META-INF/services/io.fabric8.kubernetes.client.*,
+                META-INF/jandex.idx,
+                META-INF/services/io.fabric8.kubernetes.api.KubernetesResourceMappingProvider,
+                META-INF/versions/9/javax/xml/bind/ModuleUtil.class,
+                javax/xml/bind/**/*,
+                META-INF/BC*.DSA, META-INF/BC*SF,
+                io/sundr/**/*,
+                javax/annotation/Resource$AuthenticationType.class,
+                META-INF/services/javax.servlet.ServletContainerInitializer,
+                META-INF/spring-autoconfigure-metadata.properties,
+                META-INF/web-fragment.xml,
+                META-INF/spring-configuration-metadata.json, META-INF/additional-spring-configuration-metadata.json,
+                META-INF/services/javax.annotation.processing.Processor
+              </overwrite><!-- TODO -->
+              <attach>true</attach>
+            </configuration>
+            <!-- TODO goals>
+              <goal>generate</goal>
+            </goals -->
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.oneandone.maven.plugins</groupId>
+        <artifactId>active-markdown</artifactId>
+        <version>1.0.1</version>
+        <configuration>
+          <man>true</man>
+          <mandir>${project.build.directory}/classes/templates/man/man1</mandir>
+        </configuration>
+        <executions>
+          <execution>
+            <goals><goal>run</goal></goals>
           </execution>
         </executions>
       </plugin>
