@@ -61,14 +61,14 @@ public class Context {
     }
 
     public void auth(World world, String username, String password) throws IOException {
-        Client client;
+        RemoteClient client;
 
-        client = Client.basicAuth(world, name, url, wirelog, clientInvocation, clientCommand, username, password);
+        client = RemoteClient.basicAuth(world, name, url, wirelog, clientInvocation, clientCommand, username, password);
         this.token = client.auth();
     }
 
-    public Client connect(World world) throws IOException {
-        return Client.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
+    public RemoteClient connect(World world) throws IOException {
+        return RemoteClient.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
     }
 
     public ObjectNode toYaml(ObjectMapper yaml) {

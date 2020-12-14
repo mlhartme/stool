@@ -15,10 +15,10 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Configuration;
 import net.oneandone.stool.client.Context;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.RemoteClient;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ public class Version extends ClientCommand {
     public void run() throws IOException {
         Configuration configuration;
         Context context;
-        Client client;
+        RemoteClient client;
 
         console.info.println("client version: " + clientVersion());
         configuration = globals.configuration();

@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.RemoteClient;
 import net.oneandone.stool.client.Workspace;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
@@ -34,7 +34,7 @@ public class WorkspaceTest {
         world = World.createMinimal();
         dir = world.getTemp().createTempDirectory();
         workspace = Workspace.create(dir);
-        workspace.add(new Reference(new Client("ctx", null /* TODO */), "stage"));
+        workspace.add(new Reference(new RemoteClient("ctx", null /* TODO */), "stage"));
         workspace.save();
     }
 }
