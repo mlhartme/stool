@@ -118,7 +118,7 @@ public class Main {
     public static String versionString(World world) {
         // don't use class.getPackage().getSpecificationVersion() because META-INF/META.MF is not available in test cases
         try {
-            return world.resource("stool-server.version").readString().trim();
+            return world.resource("stool.version").readString().trim();
         } catch (IOException e) {
             throw new IllegalStateException("cannot determine version", e);
         }

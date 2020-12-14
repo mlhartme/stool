@@ -21,7 +21,7 @@ RUN mkdir -p /var/lib/stool/certs && \
     tar zxf /tmp/helm.tgz --strip-components=1 linux-amd64/helm && \
     apt-get update && apt-get install -y --no-install-recommends git
 
-COPY maven/*.jar /usr/local/bin/stool-server.jar
+COPY maven/*.jar /usr/local/bin/stool.jar
 COPY cert.sh /var/lib/stool/cert.sh
 
-CMD [ "sh", "-c", "exec java ${OPTS} -jar /usr/local/bin/stool-server.jar" ]
+CMD [ "sh", "-c", "exec java ${OPTS} -jar /usr/local/bin/stool.jar" ]

@@ -2,6 +2,7 @@
 
 ### 6.1.0 (pending)
 
+* Maven: merged all modules into one
 * image handling changes
   * dumped `sc build`, configure an image build in your Maven build instead
   * created a separate `maven-dockerbuild-plugin` that contains the formder `sc build` functionality

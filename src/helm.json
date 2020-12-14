@@ -57,7 +57,7 @@
       "mailPassword": "",
       "mailUsername": "",
       "registryUrl": "",
-      "repositoryTag": "contargo.server.lan/cisoops-public/stool-server:6.1.0-20201203-143327",
+      "repositoryTag": "contargo.server.lan/cisoops-public/stool:6.1.0-20201203-143327",
       "values": "networkPolicy:, fluentd:stool"
     },
     "schema": null,

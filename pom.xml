@@ -75,11 +75,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.github.jnr</groupId>
-      <artifactId>jnr-unixsocket</artifactId>
-      <version>0.25</version>
-    </dependency>
-    <dependency>
       <groupId>org.kamranzafar</groupId>
       <artifactId>jtar</artifactId>
       <version>2.3</version>
@@ -306,7 +301,7 @@
         <configuration>
           <images>
             <image>
-              <name>contargo.server.lan/cisoops-public/stool-server:${image.version}</name>
+              <name>contargo.server.lan/cisoops-public/stool:${image.version}</name>
               <build>
                 <dockerFile>${basedir}/src/docker/Dockerfile</dockerFile>
                 <assembly>

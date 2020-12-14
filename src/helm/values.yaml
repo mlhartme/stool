@@ -5,7 +5,7 @@ fqdn: "localhost"
 cert: ""
 
 # points to stool server image
-repositoryTag: "contargo.server.lan/cisoops-public/stool-server:${image.version}"
+repositoryTag: "contargo.server.lan/cisoops-public/stool:${image.version}"
 
 # Comma-separated list with host=username:password entries. Type string.
 registryCredentials: ""
