@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.BeforeAll;
@@ -77,7 +76,7 @@ public class EngineIT {
         try (Engine engine = create()) {
             assertFalse(engine.podCreate(pod, new Engine.Container("debian:stretch-slim", "hostname"),
                     hostname, false, Strings.toMap()));
-            assertEquals(Daemon.Status.EXITED, engine.podContainerStatus(pod, "noname"));
+            assertEquals(false, engine.podContainerRunning(pod, "noname"));
             assertEquals(expected + "\n", engine.podLogs(pod));
             engine.podDelete(pod);
         }

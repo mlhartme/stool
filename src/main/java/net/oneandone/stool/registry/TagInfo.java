@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.registry;
 
-import net.oneandone.stool.docker.ImageInfo;
 import net.oneandone.sushi.util.Separator;
 
 import java.time.LocalDateTime;
@@ -24,10 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 public class TagInfo implements Comparable<TagInfo> {
+    public static final String IMAGE_LABEL_URL_CONTEXT = "LABEL net.oneandone.stool-url.context";
+    public static final String IMAGE_LABEL_URL_SUFFIXES = "LABEL net.oneandone.stool-url.suffixes";
+
     public static TagInfo create(String id, String repositoryTag, String tag, String author, LocalDateTime created, Map<String, String> labels) {
         return new TagInfo(id, repositoryTag, tag, author,
-                context(labels.get(ImageInfo.IMAGE_LABEL_URL_CONTEXT)),
-                suffixes(labels.get(ImageInfo.IMAGE_LABEL_URL_SUFFIXES)),
+                context(labels.get(IMAGE_LABEL_URL_CONTEXT)),
+                suffixes(labels.get(IMAGE_LABEL_URL_SUFFIXES)),
                 created, labels);
     }
 

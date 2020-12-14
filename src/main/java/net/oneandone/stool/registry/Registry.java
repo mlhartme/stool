@@ -23,6 +23,7 @@ import net.oneandone.sushi.fs.FileNotFoundException;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -34,6 +35,8 @@ import java.util.Map;
  * But I keep the Docker implementation to preserve knowledge, and maybe I find a ways later ...
  */
 public abstract class Registry {
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
+
     /** @return list of repositories */
     public abstract List<String> list() throws IOException;
     public abstract void delete(String repository) throws IOException;

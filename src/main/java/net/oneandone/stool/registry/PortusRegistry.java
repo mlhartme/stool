@@ -19,8 +19,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.oneandone.stool.docker.AuthException;
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
@@ -159,7 +157,7 @@ public class PortusRegistry extends Registry {
         digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
         info = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/blobs/" + digest)));
         obj = portusTag(portusRepositoryId(repository), tag);
-        created = LocalDateTime.parse(obj.get("created_at").getAsString(), Daemon.DATE_FORMAT);
+        created = LocalDateTime.parse(obj.get("created_at").getAsString(), Registry.DATE_FORMAT);
         author = obj.get("author").getAsJsonObject().get("name").getAsString();
         labels = toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);

@@ -18,7 +18,6 @@ package net.oneandone.stool.registry;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.oneandone.stool.docker.AuthException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.http.HttpFilesystem;

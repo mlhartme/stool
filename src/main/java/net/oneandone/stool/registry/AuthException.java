@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.docker;
+package net.oneandone.stool.registry;
 
-public class Stats {
-    /* cpu percentage */
-    public final int cpu;
-    public final long memoryUsage;
-    public final long memoryLimit;
+import java.io.IOException;
 
-    public Stats(int cpu, long memoryUsage, long memoryLimit) {
-        this.cpu = cpu;
-        this.memoryUsage = memoryUsage;
-        this.memoryLimit = memoryLimit;
+public class AuthException extends IOException {
+    public final String realm;
+    public final String service;
+    public final String scope;
+
+    public AuthException(String realm, String service, String scope) {
+        super("auth failed: realm=" + realm + ", service=" + service + ", scope=" + scope);
+        this.realm = realm;
+        this.service = service;
+        this.scope = scope;
     }
 }

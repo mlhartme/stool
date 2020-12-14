@@ -59,7 +59,6 @@ import io.kubernetes.client.openapi.models.V1Volume;
 import io.kubernetes.client.openapi.models.V1VolumeMount;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.KubeConfig;
-import net.oneandone.stool.docker.Daemon;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 
@@ -659,17 +658,17 @@ public class Engine implements AutoCloseable {
         podAwait(name, null);
     }
 
-    public Daemon.Status podContainerStatus(String podName, String containerName) throws IOException {
+    public boolean podContainerRunning(String podName, String containerName) throws IOException {
         V1ContainerStatus status;
         V1ContainerState state;
 
         status = getPodContainerStatus(podName, containerName);
         state = status.getState();
         if (state.getTerminated() != null) {
-            return Daemon.Status.EXITED;
+            return false;
         }
         if (state.getRunning() != null) {
-            return Daemon.Status.RUNNING;
+            return true;
         }
         throw new IOException("unknown state: " + state);
     }
