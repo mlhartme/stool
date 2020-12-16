@@ -19,17 +19,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
-import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.apis.ExtensionsV1beta1Api;
-import io.kubernetes.client.openapi.models.ExtensionsV1beta1HTTPIngressPathBuilder;
-import io.kubernetes.client.openapi.models.ExtensionsV1beta1HTTPIngressRuleValueBuilder;
-import io.kubernetes.client.openapi.models.ExtensionsV1beta1IngressBuilder;
 import io.kubernetes.client.openapi.models.V1Container;
 import io.kubernetes.client.openapi.models.V1ContainerBuilder;
 import io.kubernetes.client.openapi.models.V1ContainerState;
@@ -108,7 +103,6 @@ public class Engine implements AutoCloseable {
     private final ApiClient client;
     private final CoreV1Api core;
     private final AppsV1Api apps;
-    private final ExtensionsV1beta1Api extensions;
     private final String namespace;
 
     private Engine(ApiClient client, String namespace) {
@@ -116,7 +110,6 @@ public class Engine implements AutoCloseable {
         // client.setDebugging(true);
         this.core = new CoreV1Api(client);
         this.apps = new AppsV1Api(client);
-        this.extensions = new ExtensionsV1beta1Api(client);
         this.namespace = namespace;
     }
 
@@ -142,36 +135,6 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    //-- ingress
-
-    public void ingressCreate(String name, String host, String serviceName, int servicePort) throws IOException {
-        ExtensionsV1beta1IngressBuilder ingress;
-        ExtensionsV1beta1HTTPIngressRuleValueBuilder rule;
-        ExtensionsV1beta1HTTPIngressPathBuilder path;
-
-        path = new ExtensionsV1beta1HTTPIngressPathBuilder();
-        path = path.withPath("/").withNewBackend().withServiceName(serviceName).withServicePort(new IntOrString(servicePort)).endBackend();
-        rule = new ExtensionsV1beta1HTTPIngressRuleValueBuilder();
-        rule = rule.withPaths(path.build());
-        ingress = new ExtensionsV1beta1IngressBuilder()
-                .withNewMetadata().withName(name).endMetadata()
-                .withNewSpec()
-                   .addNewRule().withHost(host).withHttp(rule.build()).endRule().endSpec();
-        try {
-            extensions.createNamespacedIngress(namespace, ingress.build(), null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }
-
-    public void ingressDelete(String name) throws IOException {
-        try {
-            extensions.deleteNamespacedIngress(name, namespace, null, null, null,
-                    null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }
 
     //-- deployments
 
@@ -495,11 +458,11 @@ public class Engine implements AutoCloseable {
         return result.toString();
     }
 
-    public static class Container {
+    private static class Container {
         public final String image;
         public final String[] command;
 
-        public Container(String image, String... command) {
+        Container(String image, String... command) {
             this.image = image;
             this.command = command;
         }

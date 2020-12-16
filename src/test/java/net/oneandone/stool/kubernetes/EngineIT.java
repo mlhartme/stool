@@ -65,16 +65,6 @@ public class EngineIT {
         }
     }
 
-    //-- ingress
-
-    @Test
-    public void ingress() throws IOException {
-        try (Engine engine = create()) {
-            engine.ingressCreate("ingress", "some-service", "some-host", 1234);
-            engine.ingressDelete("ingress");
-        }
-    }
-
     //-- misc
 
     @Test
