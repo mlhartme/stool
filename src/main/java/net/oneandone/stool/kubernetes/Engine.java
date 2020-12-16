@@ -249,7 +249,7 @@ public class Engine implements AutoCloseable {
         List<V1Container> cl;
 
         cl = new ArrayList<>();
-        cl.add(new Container(image, command).build());
+        cl.add(container(image, command));
         return new V1DeploymentBuilder()
                 .withNewMetadata()
                   .withName(name)
@@ -331,7 +331,7 @@ public class Engine implements AutoCloseable {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, new Container(image, command), hostname, healing, labels), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, image, command, hostname, healing, labels), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }
@@ -449,45 +449,35 @@ public class Engine implements AutoCloseable {
         return result.toString();
     }
 
-    private static class Container {
-        public final String image;
-        public final String[] command;
+    private static V1Container container(String image, String... command) {
+        Map<String, Quantity> limits;
+        V1ContainerBuilder container;
+        List<V1EnvVar> lst;
 
-        Container(String image, String... command) {
-            this.image = image;
-            this.command = command;
+        limits = new HashMap<>();
+        lst = new ArrayList<>();
+        container = new V1ContainerBuilder();
+        container.withNewResources().withLimits(limits).endResources()
+                .withName("noname")
+                .withImage(image)
+                .withEnv(lst)
+                .withImagePullPolicy("Never");
+
+        if (command != null) {
+            container.withCommand(command);
         }
-
-        public V1Container build() {
-            Map<String, Quantity> limits;
-            V1ContainerBuilder container;
-            List<V1EnvVar> lst;
-
-            limits = new HashMap<>();
-            lst = new ArrayList<>();
-            container = new V1ContainerBuilder();
-            container.withNewResources().withLimits(limits).endResources()
-                    .withName("noname")
-                    .withImage(image)
-                    .withEnv(lst)
-                    .withImagePullPolicy("Never");
-
-            if (command != null) {
-                container.withCommand(command);
-            }
-            return container.build();
-        }
+        return container.build();
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private V1Pod pod(String name, Container container, String hostname, boolean healing, Map<String, String> labels) {
+    private V1Pod pod(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels) {
         return new V1PodBuilder()
                 .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy(healing ? "Always" : "Never")
                 .withHostname(hostname)
                 .addAllToVolumes(new ArrayList<>())
-                .addToContainers(container.build())
+                .addToContainers(container(image, command))
                 .endSpec().build();
     }
 
