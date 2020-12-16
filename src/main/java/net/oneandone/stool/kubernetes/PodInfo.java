@@ -15,13 +15,13 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import io.kubernetes.client.openapi.models.V1Pod;
+import io.fabric8.kubernetes.api.model.Pod;
 
 import java.util.Map;
 
 /** Represents a pod as used by Stool. In particular, the pod has a single container */
 public class PodInfo {
-    public static PodInfo create(V1Pod pod) {
+    public static PodInfo create(Pod pod) {
         return new PodInfo(pod.getMetadata().getName(), pod.getStatus().getPhase(), pod.getStatus().getPodIP(), pod.getMetadata().getLabels());
     }
 

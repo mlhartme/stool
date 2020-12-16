@@ -15,20 +15,20 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import io.kubernetes.client.openapi.models.V1Deployment;
-import io.kubernetes.client.openapi.models.V1DeploymentStatus;
-import io.kubernetes.client.openapi.models.V1LabelSelector;
+import io.fabric8.kubernetes.api.model.LabelSelector;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /** Represents a pod as used by Stool. In particular, the pod has a single container */
 public class DeploymentInfo {
-    public static DeploymentInfo create(V1Deployment deployment) {
-        V1DeploymentStatus status;
+    public static DeploymentInfo create(Deployment deployment) {
+        DeploymentStatus status;
         Map<String, String> labels;
         Integer statusAvailable;
-        V1LabelSelector selector;
+        LabelSelector selector;
 
         if (deployment.getMetadata() == null) {
             throw new IllegalStateException("not metadata");
@@ -38,13 +38,13 @@ public class DeploymentInfo {
         statusAvailable = status == null ? null : status.getAvailableReplicas();
         selector = deployment.getSpec().getSelector();
         if (selector == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("" + selector);
         }
-        if (selector.getMatchExpressions() != null && selector.getMatchExpressions().size() > 0) {
-            throw new UnsupportedOperationException("TODO expression: " + deployment.getSpec().getSelector());
+        if (selector.getMatchExpressions() != null && !selector.getMatchExpressions().isEmpty()) {
+            throw new IllegalStateException("" + selector);
         }
-        if (selector.getMatchLabels() == null && selector.getMatchLabels().isEmpty()) {
-            throw new UnsupportedOperationException("TODO labels: " + deployment.getSpec().getSelector());
+        if (selector.getMatchLabels() == null || selector.getMatchLabels().isEmpty()) {
+            throw new IllegalStateException("" + selector);
         }
         return new DeploymentInfo(deployment.getMetadata().getName(),
                 labels == null ? new HashMap<>() : labels,

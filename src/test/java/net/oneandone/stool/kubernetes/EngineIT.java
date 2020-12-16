@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,10 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EngineIT {
-    private static final World WORLD = World.createMinimal();
-
     private static Engine create() throws IOException {
-        return Engine.create(WORLD, "stool-engine-it" /* TODO */);
+        return Engine.create("stool-engine-it" /* TODO */);
     }
 
     @BeforeAll

@@ -18,29 +18,23 @@ package net.oneandone.stool.kubernetes;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
-import io.kubernetes.client.custom.Quantity;
-import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.apis.AppsV1Api;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Container;
-import io.kubernetes.client.openapi.models.V1ContainerBuilder;
-import io.kubernetes.client.openapi.models.V1ContainerState;
-import io.kubernetes.client.openapi.models.V1ContainerStatus;
-import io.kubernetes.client.openapi.models.V1Deployment;
-import io.kubernetes.client.openapi.models.V1DeploymentBuilder;
-import io.kubernetes.client.openapi.models.V1DeploymentList;
-import io.kubernetes.client.openapi.models.V1EnvVar;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodBuilder;
-import io.kubernetes.client.openapi.models.V1PodList;
-import io.kubernetes.client.openapi.models.V1Secret;
-import io.kubernetes.client.openapi.models.V1SecretList;
-import io.kubernetes.client.util.Config;
-import io.kubernetes.client.util.KubeConfig;
-import net.oneandone.sushi.fs.World;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.ContainerState;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.api.model.SecretList;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.openshift.client.DefaultOpenShiftClient;
+import io.fabric8.openshift.client.OpenShiftClient;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.ByteArrayInputStream;
@@ -48,9 +42,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -64,53 +55,31 @@ import java.util.zip.GZIPInputStream;
  * Not thread-safe because the io buffer is shared.
  */
 public class Engine implements AutoCloseable {
-    static {
-        // default api client doesnt work for multiple thread - i don't want to rely on that, so I set it to null
-        // to find places that use it
-        Configuration.setDefaultApiClient(null);
-
-    }
-
-    //--
-
-    public static Engine createFromCluster() throws IOException {
-        String namespace;
-        Engine engine;
-
-        // see https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/
-        namespace = new String(Files.readAllBytes(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/namespace")),
-                StandardCharsets.UTF_8.name());
-        // default client automatically detects inCluster config
-        engine = new Engine(Config.fromCluster(), namespace);
-        return engine;
-    }
-
-    public static Engine create(World world, String context) throws IOException {
-        KubeConfig config;
-        Engine engine;
-
-        try (Reader src = world.getHome().join(KubeConfig.KUBEDIR).join(KubeConfig.KUBECONFIG).newReader()) {
-            config = KubeConfig.loadKubeConfig(src);
-            if (!config.setContext(context)) {
-                throw new IllegalArgumentException(context);
-            }
+    public static void main(String[] args) throws IOException {
+        try (Engine engine = Engine.create("local")) {
+            System.out.println("pods: " + engine.podList());
+            System.out.println("deployments: " + engine.deploymentList());
+            System.out.println("helm: " + engine.helmRead("stool"));
         }
-        // default client automatically detects inCluster config
-        engine = new Engine(Config.fromConfig(config), config.getNamespace());
-        return engine;
     }
 
-    private final ApiClient client;
-    private final CoreV1Api core;
-    private final AppsV1Api apps;
+    public static Engine createFromCluster() {
+        return new Engine(new DefaultOpenShiftClient());
+    }
+
+    public static Engine create(String context) throws IOException {
+        Config config;
+
+        config = Config.autoConfigure(context);
+        return new Engine(new DefaultOpenShiftClient(config));
+    }
+
+    private final OpenShiftClient client;
     private final String namespace;
 
-    private Engine(ApiClient client, String namespace) {
+    private Engine(OpenShiftClient client) {
         this.client = client;
-        // client.setDebugging(true);
-        this.core = new CoreV1Api(client);
-        this.apps = new AppsV1Api(client);
-        this.namespace = namespace;
+        this.namespace = client.getNamespace();
     }
 
     public String getNamespace() {
@@ -118,8 +87,7 @@ public class Engine implements AutoCloseable {
     }
 
     public void close() {
-        // TODO: https://github.com/kubernetes-client/java/issues/865
-        client.getHttpClient().connectionPool().evictAll();
+        client.close();
     }
 
     //-- namespace
@@ -139,34 +107,30 @@ public class Engine implements AutoCloseable {
     //-- deployments
 
     public Map<String, DeploymentInfo> deploymentList() throws IOException {
-        V1DeploymentList list;
         Map<String, DeploymentInfo> result;
         String name;
 
         try {
-            list = apps.listNamespacedDeployment(namespace, null, null, null, null, null,
-                    null, null, null, null);
             result = new LinkedHashMap<>();
-            for (V1Deployment deployment : list.getItems()) {
+            for (Deployment deployment : client.apps().deployments().inNamespace(namespace).list().getItems()) {
                 name = deployment.getMetadata().getName();
                 result.put(name, DeploymentInfo.create(deployment));
             }
-        } catch (ApiException e) {
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
         return result;
     }
 
     public DeploymentInfo deploymentProbe(String name) throws IOException {
+        Deployment d;
+
         try {
-            return DeploymentInfo.create(apps.readNamespacedDeployment(name, namespace, null, null, null));
-        } catch (ApiException e) {
-            try {
-                throw wrap(e);
-            } catch (FileNotFoundException ignored) {
-                return null;
-            }
+            d = client.apps().deployments().inNamespace(namespace).withName(name).get();
+        } catch (KubernetesClientException e) {
+            throw wrap(e);
         }
+        return d == null ? null : DeploymentInfo.create(d);
     }
 
     /** @return true for 0 spec replicas */
@@ -217,9 +181,8 @@ public class Engine implements AutoCloseable {
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                                  String image, String[] command, String hostname, Map<String, String> podLabels) throws IOException {
         try {
-            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, image, command, hostname, podLabels),
-                    null, null, null);
-        } catch (ApiException e) {
+            client.apps().deployments().inNamespace(namespace).create(deployment(name, selector, deploymentLabels, image, command, hostname, podLabels));
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
     }
@@ -227,30 +190,20 @@ public class Engine implements AutoCloseable {
     /** @return containerId or null */
     public void deploymentDelete(String name) throws IOException {
         try {
-            apps.deleteNamespacedDeployment(name, namespace, null,
-                    null, null, null, null,  null);
-        } catch (JsonSyntaxException e) {
-            if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
-                // TODO The Java Client is generated, and this code generation does not support union return types,
-                //      see https://github.com/kubernetes-client/java/issues/86
-                // TODO: check if pod was actually deletes
-                // fall-through
-            } else {
-                throw e;
-            }
-        } catch (ApiException e) {
+            client.apps().deployments().inNamespace(namespace).withName(name).delete();
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                           String image, String[] command, String hostname, Map<String, String> podLabels) {
-        List<V1Container> cl;
+    private Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
+                                    String image, String[] command, String hostname, Map<String, String> podLabels) {
+        List<Container> cl;
 
         cl = new ArrayList<>();
         cl.add(container(image, command));
-        return new V1DeploymentBuilder()
+        return new DeploymentBuilder()
                 .withNewMetadata()
                   .withName(name)
                   .withLabels(deploymentLabels)
@@ -288,27 +241,22 @@ public class Engine implements AutoCloseable {
     //-- pods
 
     public Map<String, PodInfo> podList() throws IOException {
-        return doPodList(null);
+        return podList(Strings.toMap());
     }
 
     public Map<String, PodInfo> podList(Map<String, String> labelSelector) throws IOException {
-        return doPodList(labelSelector(labelSelector));
-    }
-
-    private Map<String, PodInfo> doPodList(String labelSelector) throws IOException {
-        V1PodList list;
+        PodList list;
         Map<String, PodInfo> result;
         String name;
 
         try {
-            list = core.listNamespacedPod(namespace, null, null, null, null, labelSelector,
-                    null, null, null, null);
+            list = client.pods().inNamespace(namespace).withLabels(labelSelector).list();
             result = new LinkedHashMap<>();
-            for (V1Pod pod : list.getItems()) {
+            for (Pod pod : list.getItems()) {
                 name = pod.getMetadata().getName();
                 result.put(name, PodInfo.create(pod));
             }
-        } catch (ApiException e) {
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
         return result;
@@ -316,23 +264,23 @@ public class Engine implements AutoCloseable {
 
     /** @return null if not found */
     public PodInfo podProbe(String name) throws IOException {
+        Pod pod;
+
         try {
-            return PodInfo.create(core.readNamespacedPod(name, namespace, null, null, null));
-        } catch (ApiException e) {
-            try {
-                throw wrap(e);
-            } catch (FileNotFoundException ignored) {
-                return null;
-            }
+            pod = client.pods().inNamespace(namespace).withName(name).get();
+        } catch (KubernetesClientException e) {
+            throw wrap(e);
         }
+        return pod == null ? null : PodInfo.create(pod);
     }
 
-    public boolean podCreate(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels) throws IOException {
+    public boolean podCreate(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels)
+            throws IOException {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, image, command, hostname, healing, labels), null, null, null);
-        } catch (ApiException e) {
+            client.pods().inNamespace(namespace).create(pod(name, image, command, hostname, healing, labels));
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
 
@@ -345,26 +293,16 @@ public class Engine implements AutoCloseable {
 
     public void podDelete(String name) throws IOException {
         try {
-            core.deleteNamespacedPod(name, namespace, null,
-                    null, null, null, null,  null);
-        } catch (JsonSyntaxException e) {
-            if (e.getMessage().contains("java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT")) {
-                // TODO The Java Client is generated, and this code generation does not support union return types,
-                //      see https://github.com/kubernetes-client/java/issues/86
-                // TODO: check if pod was actually deletes
-                // fall-through
-            } else {
-                throw e;
-            }
-        } catch (ApiException e) {
+            client.pods().inNamespace(namespace).withName(name).delete();
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
         podAwait(name, null);
     }
 
     public boolean podContainerRunning(String podName, String containerName) throws IOException {
-        V1ContainerStatus status;
-        V1ContainerState state;
+        ContainerStatus status;
+        ContainerState state;
 
         status = getPodContainerStatus(podName, containerName);
         state = status.getState();
@@ -377,17 +315,20 @@ public class Engine implements AutoCloseable {
         throw new IOException("unknown state: " + state);
     }
 
-    private V1ContainerStatus getPodContainerStatus(String podName, String containerName) throws IOException {
-        V1Pod pod;
-        List<V1ContainerStatus> lst;
+    private ContainerStatus getPodContainerStatus(String podName, String containerName) throws IOException {
+        Pod pod;
+        List<ContainerStatus> lst;
 
         try {
-            pod = core.readNamespacedPod(podName, namespace, null, null, null);
-        } catch (ApiException e) {
+            pod = client.pods().inNamespace(namespace).withName(podName).get();
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
+        if (pod == null) {
+            throw new FileNotFoundException("pod/" + podName);
+        }
         lst = pod.getStatus().getContainerStatuses();
-        for (V1ContainerStatus status : lst) {
+        for (ContainerStatus status : lst) {
             if (status.getName().equals(containerName)) {
                 return status;
             }
@@ -430,8 +371,8 @@ public class Engine implements AutoCloseable {
 
     public String podLogs(String pod) throws IOException {
         try {
-            return core.readNamespacedPodLog(pod, namespace, null, false, null, null, null, null, null, null);
-        } catch (ApiException e) {
+            return client.pods().inNamespace(namespace).withName(pod).getLog();
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
     }
@@ -449,14 +390,14 @@ public class Engine implements AutoCloseable {
         return result.toString();
     }
 
-    private static V1Container container(String image, String... command) {
+    private static Container container(String image, String... command) {
         Map<String, Quantity> limits;
-        V1ContainerBuilder container;
-        List<V1EnvVar> lst;
+        ContainerBuilder container;
+        List<EnvVar> lst;
 
         limits = new HashMap<>();
         lst = new ArrayList<>();
-        container = new V1ContainerBuilder();
+        container = new ContainerBuilder();
         container.withNewResources().withLimits(limits).endResources()
                 .withName("noname")
                 .withImage(image)
@@ -470,8 +411,8 @@ public class Engine implements AutoCloseable {
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private V1Pod pod(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels) {
-        return new V1PodBuilder()
+    private Pod pod(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels) {
+        return new PodBuilder()
                 .withNewMetadata().withName(name).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy(healing ? "Always" : "Never")
@@ -484,13 +425,12 @@ public class Engine implements AutoCloseable {
     //-- helm
 
     public JsonObject helmRead(String name) throws IOException {
-        List<V1Secret> lst;
+        List<Secret> lst;
 
         try {
-            lst = core.listNamespacedSecret(namespace, null, null, null, null,
-                    labelSelector(Strings.toMap("owner", "helm", "name", name, "status", "deployed")),
-                    null, null, null, null).getItems();
-        } catch (ApiException e) {
+            lst = client.secrets().inNamespace(namespace)
+                    .withLabels(Strings.toMap("owner", "helm", "name", name, "status", "deployed")).list().getItems();
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
         switch (lst.size()) {
@@ -504,40 +444,45 @@ public class Engine implements AutoCloseable {
     }
 
     public List<String> helmList() throws IOException {
-        V1SecretList lst;
+        SecretList lst;
         List<String> result;
 
         result = new ArrayList<>();
         try {
-            lst = core.listNamespacedSecret(namespace, null, null, null, null,
-                    labelSelector(Strings.toMap("owner", "helm", "status", "deployed")),
-                    null, null, null, null);
-        } catch (ApiException e) {
+            lst = client.secrets().inNamespace(namespace).withLabels(Strings.toMap("owner", "helm", "status", "deployed")).list();
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
-        for (V1Secret secret : lst.getItems()) {
+        for (Secret secret : lst.getItems()) {
             result.add(secret.getMetadata().getLabels().get("name"));
         }
         return result;
     }
 
     private JsonObject helmSecretRead(String secretName) throws IOException {
-        V1Secret s;
+        Secret s;
         byte[] release;
 
         s = secretRead(secretName);
-        release = s.getData().get("release");
+        release = Base64.getDecoder().decode(s.getData().get("release"));
         release = Base64.getDecoder().decode(release);
         try (Reader src = new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(release)))) {
             return JsonParser.parseReader(src).getAsJsonObject();
         }
     }
-    private V1Secret secretRead(String name) throws IOException {
+
+    private Secret secretRead(String name) throws IOException {
+        Secret secret;
+
         try {
-            return core.readNamespacedSecret(name, namespace, null, null, null);
-        } catch (ApiException e) {
+            secret = client.secrets().inNamespace(namespace).withName(name).get();
+        } catch (KubernetesClientException e) {
             throw wrap(e);
         }
+        if (secret == null) {
+            throw new FileNotFoundException("secret/" + name);
+        }
+        return secret;
     }
 
     //--
@@ -550,15 +495,15 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    private static IOException wrap(ApiException e) {
+    private static IOException wrap(KubernetesClientException e) {
         IOException result;
 
         if (e.getCode() == 404) {
-            result = new java.io.FileNotFoundException(e.getResponseBody());
+            result = new FileNotFoundException(e.getMessage());
             result.initCause(e);
             return result;
         }
-        return new IOException(e.getResponseBody(), e);
+        return new IOException(e.getMessage(), e);
     }
 
     //-- json utils
