@@ -50,19 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-/**
- * Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/
- * Not thread-safe because the io buffer is shared.
- */
 public class Engine implements AutoCloseable {
-    public static void main(String[] args) throws IOException {
-        try (Engine engine = Engine.create("local")) {
-            System.out.println("pods: " + engine.podList());
-            System.out.println("deployments: " + engine.deploymentList());
-            System.out.println("helm: " + engine.helmRead("stool"));
-        }
-    }
-
     public static Engine createFromCluster() {
         return new Engine(new DefaultOpenShiftClient());
     }
