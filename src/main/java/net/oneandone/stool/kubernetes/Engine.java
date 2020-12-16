@@ -216,14 +216,8 @@ public class Engine implements AutoCloseable {
 
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
                                  String image, String[] command, String hostname, Map<String, String> podLabels) throws IOException {
-        deploymentCreate(name, selector, deploymentLabels, new Container[] { new Container(image, command) }, hostname, podLabels);
-    }
-
-    @SuppressWarnings("checkstyle:ParameterNumber")
-    public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                                    Container[] containers, String hostname, Map<String, String> podLabels) throws IOException {
         try {
-            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, containers, hostname, podLabels),
+            apps.createNamespacedDeployment(namespace, deployment(name, selector, deploymentLabels, image, command, hostname, podLabels),
                     null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
@@ -251,13 +245,11 @@ public class Engine implements AutoCloseable {
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     private V1Deployment deployment(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                           Container[] containers, String hostname, Map<String, String> podLabels) {
+                           String image, String[] command, String hostname, Map<String, String> podLabels) {
         List<V1Container> cl;
 
         cl = new ArrayList<>();
-        for (Container c : containers) {
-            cl.add(c.build());
-        }
+        cl.add(new Container(image, command).build());
         return new V1DeploymentBuilder()
                 .withNewMetadata()
                   .withName(name)
@@ -335,7 +327,6 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    @SuppressWarnings("checkstyle:ParameterNumber")
     public boolean podCreate(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels) throws IOException {
         String phase;
 
