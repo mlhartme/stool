@@ -54,6 +54,7 @@ public class EngineIT {
 
     private void doHostnameTest(String pod, String hostname, String expected) throws IOException {
         try (Engine engine = create()) {
+            assertFalse(engine.isOpenShift());
             assertFalse(engine.podCreate(pod, "debian:stretch-slim", new String[] { "hostname" },
                     hostname, false, Strings.toMap()));
             assertEquals(false, engine.podContainerRunning(pod, "noname"));

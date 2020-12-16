@@ -23,16 +23,29 @@ import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerState;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretList;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
+import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
+import io.fabric8.kubernetes.api.model.metrics.v1beta1.ContainerMetrics;
+import io.fabric8.kubernetes.api.model.metrics.v1beta1.PodMetrics;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.openshift.api.model.PolicyRuleBuilder;
+import io.fabric8.openshift.api.model.RoleBindingBuilder;
+import io.fabric8.openshift.api.model.RoleBuilder;
+import io.fabric8.openshift.api.model.Route;
+import io.fabric8.openshift.api.model.RouteBuilder;
+import io.fabric8.openshift.api.model.RouteSpecBuilder;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import net.oneandone.sushi.util.Strings;
@@ -68,6 +81,19 @@ public class Engine implements AutoCloseable {
     private Engine(OpenShiftClient client) {
         this.client = client;
         this.namespace = client.getNamespace();
+    }
+
+    public boolean isOpenShift() throws IOException {
+        try {
+            client.builds().list();
+            return true;
+        } catch (KubernetesClientException e) {
+            if (e.getCode() == 404) {
+                return false;
+            } else {
+                throw new IOException("cannot detect openshift", e);
+            }
+        }
     }
 
     public String getNamespace() {
@@ -504,5 +530,167 @@ public class Engine implements AutoCloseable {
             result.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
         }
         return result;
+    }
+
+    //--
+
+    public void routeCreate(String name, String host, String serviceName, boolean tlsPassthrough, String targetPort) {
+        RouteSpecBuilder spec;
+        RouteBuilder route;
+
+        spec = new RouteSpecBuilder()
+                .withHost(host)
+                .withNewTo().withKind("Service").withName(serviceName).endTo()
+                .withNewPort().withTargetPort(new IntOrString(targetPort)).endPort();
+        if (tlsPassthrough) {
+            spec.withNewTls().withTermination("passthrough").endTls();
+        } else {
+            spec.withPath("/");
+        }
+        route = new RouteBuilder()
+                .withNewMetadata().withNamespace(namespace).withName(name).endMetadata()
+                .withSpec(spec.build());
+        client.routes().inNamespace(namespace).create(route.build());
+    }
+
+    public void routeDelete(String name) {
+        Route route;
+
+        route = new RouteBuilder()
+                .withNewMetadata().withNamespace(namespace).withName(name).endMetadata()
+                .build();
+        client.routes().inNamespace(namespace).delete(route);
+    }
+
+    public List<String> routeList() {
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (Route route : client.routes().inNamespace(namespace).list().getItems()) {
+            result.add(route.getMetadata().getName());
+        }
+        return result;
+    }
+
+    public Stats statsOpt(String pod, String container) {
+        PodMetrics p;
+        Map<String, Quantity> usage;
+
+        try {
+            p = client.top().pods().metrics(namespace, pod);
+        } catch (KubernetesClientException e) {
+            if (e.getCode() == 404) {
+                // TODO: could be stats not found or pod not found ...
+                return null;
+            } else {
+                throw e;
+            }
+        }
+        usage = container(p, container).getUsage();
+        return new Stats(usage.get("cpu").toString(), usage.get("memory").toString());
+    }
+
+    private ContainerMetrics container(PodMetrics p, String container) {
+        for (ContainerMetrics cm : p.getContainers()) {
+            if (cm.getName().equals(container)) {
+                return cm;
+            }
+        }
+        throw new IllegalStateException(p.getMetadata().getName() + " container not found: " + container);
+    }
+
+    //--
+
+    public void createServiceAccount(String name) {
+        ServiceAccountBuilder sa;
+
+        sa = new ServiceAccountBuilder().withNewMetadata().withNamespace(namespace).withName(name).endMetadata();
+        client.serviceAccounts().create(sa.build());
+    }
+
+    public List<String> getServiceAccountSecrets(String name) {
+        ServiceAccount sa;
+        List<String> result;
+
+        result = new ArrayList<>();
+        sa = client.serviceAccounts().inNamespace(namespace).withName(name).get();
+        for (ObjectReference ref : sa.getSecrets()) {
+            result.add(ref.getName());
+        }
+        return result;
+    }
+
+    /** @return base64 encoded token */
+    public String getServiceAccountToken(String name) {
+        String tokenSecret;
+        Secret token;
+
+        tokenSecret = tokenSecret(getServiceAccountSecrets(name));
+        token = client.secrets().inNamespace(namespace).withName(tokenSecret).get();
+        return token.getData().get("token");
+    }
+
+    private String tokenSecret(List<String> secrets) {
+        String result;
+
+        result = null;
+        for (String secret : secrets) {
+            if (secret.contains("-token-")) {
+                if (result != null) {
+                    throw new IllegalStateException("token secret ambiguous: " + result + " vs " + secret);
+                }
+                result = secret;
+            }
+        }
+        if (result == null) {
+            throw new IllegalStateException("no token secret: " + secrets);
+        }
+        return result;
+    }
+
+    public void deleteServiceAccount(String name) throws IOException {
+        if (!client.serviceAccounts().inNamespace(namespace).withName(name).delete()) {
+            throw new IOException("delete failed: " + name);
+        }
+    }
+
+    public void createRole(String name, String... pods) {
+        PolicyRuleBuilder ruleBuilder;
+        RoleBuilder rb;
+
+        ruleBuilder = new PolicyRuleBuilder();
+        ruleBuilder.withApiGroups("")
+                .withAttributeRestrictions(null)
+                .withResources("pods", "pods/portforward", "pods/exec")
+                .withResourceNames(pods).withVerbs("get", "create");
+        rb = new RoleBuilder();
+        rb.withNewMetadata().withName(name).endMetadata().withRules(ruleBuilder.build());
+        client.roles().create(rb.build());
+    }
+
+    public void deleteRole(String name) throws IOException {
+        if (!client.roles().inNamespace(namespace).withName(name).delete()) {
+            throw new IOException("delete failed: " + name);
+        }
+    }
+
+    public void createBinding(String name, String serviceAccount, String role) {
+        RoleBindingBuilder rb;
+        ObjectReferenceBuilder s;
+
+        s = new ObjectReferenceBuilder();
+        s.withKind("ServiceAccount");
+        s.withName(serviceAccount);
+        rb = new RoleBindingBuilder();
+        rb.withNewMetadata().withName(name).endMetadata()
+                .withNewRoleRef().withName(role).withNamespace(namespace).endRoleRef()
+                .withSubjects(s.build());
+        client.roleBindings().create(rb.build());
+    }
+
+    public void deleteBinding(String name) throws IOException {
+        if (!client.roleBindings().inNamespace(namespace).withName(name).delete()) {
+            throw new IOException("delete failed: " + name);
+        }
     }
 }

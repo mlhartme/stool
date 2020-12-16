@@ -17,8 +17,6 @@ package net.oneandone.stool.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.fabric8.kubernetes.client.KubernetesClientException;
-import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
@@ -68,21 +66,10 @@ public class Server {
         LOGGER.info("server auth: " + settings.auth());
         LOGGER.info("server settings: " + settings);
         try (Engine engine = Engine.createFromCluster()) {
+            openShift = engine.isOpenShift();
+            LOGGER.info("OpenShift: " + openShift);
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            try (OpenShift os = OpenShift.create()) {
-                try {
-                    os.routeList();
-                    openShift = true;
-                } catch (KubernetesClientException e) {
-                    if (e.getCode() == 404) {
-                        openShift = false;
-                    } else {
-                        throw e;
-                    }
-                }
-            }
-            LOGGER.info("OpenShift: " + openShift);
             server = new Server(gson(world), version, world, openShift, localhostIp, settings);
             server.validate();
             return server;

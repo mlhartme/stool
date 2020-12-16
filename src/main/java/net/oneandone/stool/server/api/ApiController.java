@@ -20,7 +20,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
@@ -370,7 +369,7 @@ public class ApiController {
             throw new IOException("timeout to big: " + timeout);
         }
         currentWithPermissions(stageName);
-        try (Engine engine = engine(); OpenShift os = OpenShift.create()) {
+        try (Engine engine = engine()) {
             pods = server.load(engine, stageName).runningPods(engine).values();
             if (pods.isEmpty()) {
                 throw new IOException("no pods running for stage: " + stageName);
@@ -382,15 +381,15 @@ public class ApiController {
             roleName = "role-" + stageName + "-" + id;
             bindingName = "binding-" + stageName + "-" + id;
 
-            os.createServiceAccount(saName);
-            os.createRole(roleName, pod.name);
-            os.createBinding(bindingName, saName, roleName);
+            engine.createServiceAccount(saName);
+            engine.createRole(roleName, pod.name);
+            engine.createBinding(bindingName, saName, roleName);
 
             result = new JsonObject();
             result.add("server", new JsonPrimitive(server.settings.kubernetes));
             result.add("namespace", new JsonPrimitive(engine.getNamespace()));
             result.add("pod", new JsonPrimitive(pod.name));
-            result.add("token", new JsonPrimitive(os.getServiceAccountToken(saName)));
+            result.add("token", new JsonPrimitive(engine.getServiceAccountToken(saName)));
 
             schedulePodTokenCleanup(saName, roleName, bindingName, timeout);
             return result.toString();
@@ -401,10 +400,10 @@ public class ApiController {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable cleanup = new Runnable() {
             public void run() {
-                try (OpenShift os = OpenShift.create()) {
-                    os.deleteServiceAccount(saName);
-                    os.deleteRole(roleName);
-                    os.deleteBinding(bindingName);
+                try (Engine engine = Engine.createFromCluster()) {
+                    engine.deleteServiceAccount(saName);
+                    engine.deleteRole(roleName);
+                    engine.deleteBinding(bindingName);
                 } catch (IOException e) {
                     e.printStackTrace(); // TODO: proper logging ...
                 }

@@ -18,7 +18,6 @@ package net.oneandone.stool.server;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.stool.kubernetes.OpenShift;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
@@ -298,7 +297,7 @@ public class Stage {
         if (running.isEmpty()) {
             return null;
         }
-        return OpenShift.create().statsOpt(running.iterator().next() /* TODO */.name, Type.MAIN_CONTAINER);
+        return context.engine.statsOpt(running.iterator().next() /* TODO */.name, Type.MAIN_CONTAINER);
     }
 
     /** @return logins */
