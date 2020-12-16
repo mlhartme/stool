@@ -334,8 +334,8 @@ public class Engine implements AutoCloseable {
     }
 
     public void deploymentCreate(String name, Map<String, String> selector, Map<String, String> deploymentLabels,
-                                 Container container, String hostname, Map<String, String> podLabels) throws IOException {
-        deploymentCreate(name, selector, deploymentLabels, new Container[] { container }, hostname, podLabels);
+                                 String image, String[] command, String hostname, Map<String, String> podLabels) throws IOException {
+        deploymentCreate(name, selector, deploymentLabels, new Container[] { new Container(image, command) }, hostname, podLabels);
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -454,20 +454,12 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    public boolean podCreate(String name, Container container, String... labels) throws IOException {
-        return podCreate(name, container, Strings.toMap(labels));
-    }
-
-    public boolean podCreate(String name, Container container, Map<String, String> labels) throws IOException {
-        return podCreate(name, container, null, false, labels);
-    }
-
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public boolean podCreate(String name, Container container, String hostname, boolean healing, Map<String, String> labels) throws IOException {
+    public boolean podCreate(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels) throws IOException {
         String phase;
 
         try {
-            core.createNamespacedPod(namespace, pod(name, container, hostname, healing, labels), null, null, null);
+            core.createNamespacedPod(namespace, pod(name, new Container(image, command), hostname, healing, labels), null, null, null);
         } catch (ApiException e) {
             throw wrap(e);
         }

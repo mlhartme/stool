@@ -57,7 +57,7 @@ public class EngineIT {
 
     private void doHostnameTest(String pod, String hostname, String expected) throws IOException {
         try (Engine engine = create()) {
-            assertFalse(engine.podCreate(pod, new Engine.Container("debian:stretch-slim", "hostname"),
+            assertFalse(engine.podCreate(pod, "debian:stretch-slim", new String[] { "hostname" },
                     hostname, false, Strings.toMap()));
             assertEquals(false, engine.podContainerRunning(pod, "noname"));
             assertEquals(expected + "\n", engine.podLogs(pod));
@@ -107,7 +107,7 @@ public class EngineIT {
 
             assertEquals(0, engine.deploymentList().size());
             engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(),
-                    new Engine.Container("debian:stretch-slim", new String[] { "sleep", "1000" }),
+                    "debian:stretch-slim", new String[] { "sleep", "1000" },
                     null, Strings.toMap("app", "foo"));
             engine.deploymentAwaitAvailable(name);
 
