@@ -364,7 +364,8 @@
                 module-info.class, META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
                 META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
                 readme.txt, changelog.txt, notice.txt, license.txt, licenses/*,
-                META-INF/versions/9/module-info.class
+                META-INF/versions/9/module-info.class,
+                META-INF/BC*.DSA, META-INF/BC*SF
               </remove>
               <concat>META-INF/services/com.fasterxml.jackson.core.ObjectCodec,
                 META-INF/services/com.fasterxml.jackson.core.JsonFactory,
@@ -376,7 +377,6 @@
                 META-INF/services/io.fabric8.kubernetes.api.KubernetesResourceMappingProvider,
                 META-INF/versions/9/javax/xml/bind/ModuleUtil.class,
                 javax/xml/bind/**/*,
-                META-INF/BC*.DSA, META-INF/BC*SF,
                 io/sundr/**/*,
                 javax/annotation/Resource$AuthenticationType.class,
                 META-INF/services/javax.servlet.ServletContainerInitializer,
@@ -387,9 +387,9 @@
               </overwrite><!-- TODO -->
               <attach>true</attach>
             </configuration>
-            <!-- TODO goals>
+            <goals>
               <goal>generate</goal>
-            </goals -->
+            </goals>
           </execution>
         </executions>
       </plugin>
