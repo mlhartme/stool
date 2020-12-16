@@ -17,9 +17,9 @@ package net.oneandone.stool.client.cli;
 
 import io.fabric8.kubernetes.client.LocalPortForward;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.OpenShift;
 import net.oneandone.stool.client.PodConfig;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.kubernetes.Engine;
 
 import java.io.IOException;
 
@@ -42,8 +42,8 @@ public class PortForward extends IteratedStageCommand {
 
         config = reference.client.podToken(reference.stage, timeout);
         console.verbose.println(config.toString());
-        try (OpenShift os = OpenShift.create(config)) {
-            try (LocalPortForward pf = os.portForward(config.pod, localPort, podPort)) {
+        try (Engine engine = Engine.create(config)) {
+            try (LocalPortForward pf = engine.portForward(config.pod, localPort, podPort)) {
                 console.info.println("forwarding local port " + pf.getLocalPort() + " -> pod " + config.pod + " port " + podPort);
                 console.info.println("for " + timeout + " minutes");
                 console.info.println("Press ctrl-c abort.");

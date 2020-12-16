@@ -39,7 +39,11 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.ContainerMetrics;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.PodMetrics;
 import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.LocalPortForward;
+import io.fabric8.kubernetes.client.dsl.ExecListener;
+import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.fabric8.openshift.api.model.PolicyRuleBuilder;
 import io.fabric8.openshift.api.model.RoleBindingBuilder;
 import io.fabric8.openshift.api.model.RoleBuilder;
@@ -48,6 +52,7 @@ import io.fabric8.openshift.api.model.RouteBuilder;
 import io.fabric8.openshift.api.model.RouteSpecBuilder;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
+import net.oneandone.stool.client.PodConfig;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.ByteArrayInputStream;
@@ -72,6 +77,28 @@ public class Engine implements AutoCloseable {
         Config config;
 
         config = Config.autoConfigure(context);
+        return new Engine(new DefaultOpenShiftClient(config));
+    }
+
+
+    public static Engine create(PodConfig config) {
+        return create(config.server, config.namespace, config.token);
+    }
+
+    public static Engine create(String masterUrl, String namespace, String token) {
+        Config config;
+        String old;
+
+        // TODO: not thread safe ...
+        old = System.getProperty(Config.KUBERNETES_DISABLE_AUTO_CONFIG_SYSTEM_PROPERTY);
+        System.setProperty(Config.KUBERNETES_DISABLE_AUTO_CONFIG_SYSTEM_PROPERTY, "true");
+        config = new ConfigBuilder().withMasterUrl(masterUrl).withTrustCerts(true).withNamespace(namespace).withOauthToken(token).build();
+        if (old == null) {
+            System.getProperties().remove(Config.KUBERNETES_DISABLE_AUTO_CONFIG_SYSTEM_PROPERTY);
+        } else {
+            System.setProperty(Config.KUBERNETES_DISABLE_AUTO_CONFIG_SYSTEM_PROPERTY, old);
+        }
+
         return new Engine(new DefaultOpenShiftClient(config));
     }
 
@@ -692,5 +719,21 @@ public class Engine implements AutoCloseable {
         if (!client.roleBindings().inNamespace(namespace).withName(name).delete()) {
             throw new IOException("delete failed: " + name);
         }
+    }
+
+    //--
+
+    public LocalPortForward portForward(String pod, int localPort, int podPort) {
+        return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
+    }
+
+    public ExecWatch ssh(String pod, String container, String[] command, ExecListener listener) {
+        return client.pods().inNamespace(namespace).withName(pod).inContainer(container)
+                .readingInput(System.in)
+                .writingOutput(System.out)
+                .writingError(System.err)
+                .withTTY()
+                .usingListener(listener)
+                .exec(command);
     }
 }

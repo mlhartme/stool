@@ -17,9 +17,10 @@ package net.oneandone.stool.client.cli;
 
 import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.OpenShift;
 import net.oneandone.stool.client.PodConfig;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.kubernetes.StoolExecListener;
 
 import java.io.IOException;
 
@@ -36,12 +37,12 @@ public class Ssh extends IteratedStageCommand {
     @Override
     public void doMain(Reference reference) throws IOException, InterruptedException {
         PodConfig config;
-        OpenShift.StoolExecListener listener;
+        StoolExecListener listener;
 
         config = reference.client.podToken(reference.stage, timeout);
         console.verbose.println(config.toString());
-        try (OpenShift os = OpenShift.create(config)) {
-            listener = new OpenShift.StoolExecListener();
+        try (Engine os = Engine.create(config)) {
+            listener = new StoolExecListener();
             try (ExecWatch watch = os.ssh(config.pod, "main", new String[] { shell }, listener)) {
                 while (listener.closeReason == null) { // TODO: busy wait
                     Thread.sleep(100);
