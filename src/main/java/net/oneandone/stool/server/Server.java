@@ -84,7 +84,7 @@ public class Server {
             }
             LOGGER.info("OpenShift: " + openShift);
             server = new Server(gson(world), version, world, openShift, localhostIp, settings);
-            server.validate(engine);
+            server.validate();
             return server;
         }
     }
@@ -356,7 +356,7 @@ public class Server {
 
     //--
 
-    public void validate(Engine engine) throws IOException {
+    public void validate() throws IOException {
         if (settings.auth()) {
             if (settings.ldapSso.isEmpty()) {
                 LOGGER.error("ldapSso cannot be empty because security is enabled");
@@ -366,12 +366,6 @@ public class Server {
                 LOGGER.error("enable ssl when running authenticated");
                 throw new IOException("enable ssl when running authenticated");
             }
-        }
-        try {
-            LOGGER.info("kubernetes info: " + engine.version());
-        } catch (IOException e) {
-            LOGGER.error("cannot access kubernetes", e);
-            throw e;
         }
         LOGGER.info("server validation ok");
     }

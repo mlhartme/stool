@@ -38,8 +38,6 @@ import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1DeploymentBuilder;
 import io.kubernetes.client.openapi.models.V1DeploymentList;
 import io.kubernetes.client.openapi.models.V1EnvVar;
-import io.kubernetes.client.openapi.models.V1Namespace;
-import io.kubernetes.client.openapi.models.V1NamespaceList;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodBuilder;
 import io.kubernetes.client.openapi.models.V1PodList;
@@ -136,13 +134,6 @@ public class Engine implements AutoCloseable {
         client.getHttpClient().connectionPool().evictAll();
     }
 
-
-    //--
-
-    public String version() throws IOException {
-        return "TODO";
-    }
-
     //-- namespace
 
     public void namespaceReset() throws IOException {
@@ -158,23 +149,6 @@ public class Engine implements AutoCloseable {
             System.out.println("delete service: " + service.name);
             serviceDelete(service.name);
         }
-    }
-
-    /** @return name- to phase mapping */
-    public Map<String, String> namespaceList() throws IOException {
-        V1NamespaceList lst;
-        Map<String, String> result;
-
-        try {
-            lst = core.listNamespace(null, null, null, null, null, null, null, null, null);
-            result = new HashMap();
-            for (V1Namespace ns : lst.getItems()) {
-                result.put(ns.getMetadata().getName(), ns.getStatus().getPhase());
-            }
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-        return result;
     }
 
     //-- services
@@ -612,40 +586,27 @@ public class Engine implements AutoCloseable {
     }
 
     public static class Container {
-        public final String name;
         public final String image;
         public final String[] command;
-        public final boolean imagePull;
-        public final Map<String, String> env;
 
         public Container(String image, String... command) {
-            this.name = "noname";
             this.image = image;
             this.command = command;
-            this.imagePull = false;
-            this.env = Collections.emptyMap();
         }
 
         public V1Container build() {
             Map<String, Quantity> limits;
             V1ContainerBuilder container;
             List<V1EnvVar> lst;
-            V1EnvVar var;
 
             limits = new HashMap<>();
             lst = new ArrayList<>();
-            for (Map.Entry<String, String> entry : env.entrySet()) {
-                var = new V1EnvVar();
-                var.setName(entry.getKey());
-                var.setValue(entry.getValue());
-                lst.add(var);
-            }
             container = new V1ContainerBuilder();
             container.withNewResources().withLimits(limits).endResources()
-                    .withName(name)
+                    .withName("noname")
                     .withImage(image)
                     .withEnv(lst)
-                    .withImagePullPolicy(imagePull ? "IfNotPresent" : "Never");
+                    .withImagePullPolicy("Never");
 
             if (command != null) {
                 container.withCommand(command);
