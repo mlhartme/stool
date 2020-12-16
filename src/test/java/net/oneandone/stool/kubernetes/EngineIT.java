@@ -65,23 +65,6 @@ public class EngineIT {
         }
     }
 
-    //-- services
-
-    @Test
-    public void services() throws IOException {
-        final String name = "service";
-        ServiceInfo info;
-
-        try (Engine engine = create()) {
-            assertEquals(0, engine.serviceList().size());
-            engine.serviceCreate(name, 1234, 8080);
-            info = engine.serviceList().get(name);
-            assertEquals(name, info.name);
-            engine.serviceDelete(name);
-            assertEquals(0, engine.serviceList().size());
-        }
-    }
-
     //-- ingress
 
     @Test

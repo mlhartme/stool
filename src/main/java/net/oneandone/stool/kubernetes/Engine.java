@@ -43,10 +43,6 @@ import io.kubernetes.client.openapi.models.V1PodBuilder;
 import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.openapi.models.V1Secret;
 import io.kubernetes.client.openapi.models.V1SecretList;
-import io.kubernetes.client.openapi.models.V1Service;
-import io.kubernetes.client.openapi.models.V1ServiceBuilder;
-import io.kubernetes.client.openapi.models.V1ServiceList;
-import io.kubernetes.client.openapi.models.V1ServicePort;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.KubeConfig;
 import net.oneandone.sushi.fs.World;
@@ -62,7 +58,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -144,83 +139,6 @@ public class Engine implements AutoCloseable {
         for (PodInfo pod: podList().values()) {
             System.out.println("delete pod: " + pod.name);
             podDelete(pod.name);
-        }
-        for (ServiceInfo service : serviceList().values()) {
-            System.out.println("delete service: " + service.name);
-            serviceDelete(service.name);
-        }
-    }
-
-    //-- services
-
-    public void serviceCreate(String name, int port, int targetPort, String... selector) throws IOException {
-        serviceCreate(name, port, targetPort, Strings.toMap(selector));
-    }
-
-    public void serviceCreate(String name, int port, int targetPort, Map<String, String> selector) throws IOException {
-        serviceCreate(name, port, targetPort, selector, Strings.toMap());
-    }
-
-    public void serviceCreate(String name, int port, int targetPort, Map<String, String> selector, Map<String, String> labels)
-            throws IOException {
-        serviceCreate(name, Collections.singletonList("p"), Collections.singletonList(port), Collections.singletonList(targetPort),
-                selector, labels);
-    }
-
-    public void serviceCreate(String name, List<String> portNames, List<Integer> ports, List<Integer> targetPorts, Map<String, String> selector,
-                              Map<String, String> labels)
-            throws IOException {
-        int count;
-        List<V1ServicePort> lst;
-        V1ServicePort p;
-
-        count = portNames.size();
-        if (count != ports.size() || count != targetPorts.size()) {
-            throw new IllegalArgumentException(count + " vs " + ports.size() + " vs " + targetPorts.size());
-        }
-        lst = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            p = new V1ServicePort();
-            p.setName(portNames.get(i));
-            p.setPort(ports.get(i));
-            p.setTargetPort(new IntOrString(targetPorts.get(i)));
-            lst.add(p);
-        }
-        try {
-            core.createNamespacedService(namespace, new V1ServiceBuilder()
-                    .withNewMetadata().withName(name).withLabels(labels).endMetadata()
-                    .withNewSpec().withType("ClusterIP").withPorts(lst).withSelector(selector).endSpec()
-                    .build(), null, null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-    }
-
-    public Map<String, ServiceInfo> serviceList() throws IOException {
-        V1ServiceList list;
-        Map<String, ServiceInfo> result;
-        ServiceInfo info;
-
-        try {
-            list = core.listNamespacedService(namespace, null, null, null, null, null,
-                    null, null, null, null);
-            result = new HashMap<>();
-            for (V1Service service: list.getItems()) {
-                info = ServiceInfo.create(service);
-                result.put(info.name, info);
-            }
-        } catch (ApiException e) {
-            throw wrap(e);
-        }
-        return result;
-    }
-
-    public void serviceDelete(String name) throws IOException {
-        try {
-            core.deleteNamespacedService(name, namespace, null, null, null, null,
-                    null, null);
-        } catch (ApiException e) {
-            throw wrap(e);
         }
     }
 
