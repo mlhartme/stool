@@ -15,6 +15,9 @@
  */
 package net.oneandone.stool.client;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 /** kubernetes config with access to one particular port */
 public class PodConfig {
     public final String server;
@@ -27,6 +30,17 @@ public class PodConfig {
         this.namespace = namespace;
         this.token = token;
         this.pod = pod;
+    }
+
+    public JsonObject toJson() {
+        JsonObject result;
+
+        result = new JsonObject();
+        result.add("server", new JsonPrimitive(server));
+        result.add("namespace", new JsonPrimitive(namespace));
+        result.add("pod", new JsonPrimitive(pod));
+        result.add("token", new JsonPrimitive(token));
+        return result;
     }
 
     public String toString() {

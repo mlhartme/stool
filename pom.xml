@@ -65,8 +65,6 @@
   </distributionManagement>
 
   <properties>
-    <sushi.version>3.2.2</sushi.version>
-    <gson.version>2.8.6</gson.version>
     <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
     <springboot.version>2.3.4.RELEASE</springboot.version>
     <spring.version>5.2.9.RELEASE</spring.version>
@@ -74,42 +72,59 @@
   </properties>
 
   <dependencies>
+    <!-- core libs -->
+    <dependency>
+      <groupId>net.oneandone</groupId>
+      <artifactId>sushi</artifactId>
+      <version>3.2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.8.6</version>
+    </dependency>
     <dependency>
       <groupId>org.kamranzafar</groupId>
       <artifactId>jtar</artifactId>
       <version>2.3</version>
     </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>2.11.1</version>
-    </dependency>
-    <dependency>
-      <groupId>net.oneandone</groupId>
-      <artifactId>inline</artifactId>
-      <version>1.2.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.googlecode.lanterna</groupId>
-      <artifactId>lanterna</artifactId>
-      <version>3.0.1</version>
+    <dependency><!-- https://java.net/projects/javamail/pages/Home -->
+      <groupId>com.sun.mail</groupId>
+      <artifactId>javax.mail</artifactId>
+      <version>1.6.2</version>
+      <exclusions>
+        <exclusion><!-- because I have jakarta activation from fabric8 kubernetes -->
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
+    <!-- kubernetes -->
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>openshift-client</artifactId>
       <version>4.10.2</version>
     </dependency>
 
-    <!-- spring core -->
+    <!-- cli -->
+    <dependency>
+      <groupId>net.oneandone</groupId>
+      <artifactId>inline</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.lanterna</groupId>
+      <artifactId>lanterna</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+
+    <!-- spring -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
       <version>${spring.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
@@ -173,7 +188,6 @@
       <version>4.4.1</version>
     </dependency>
 
-
     <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -189,30 +203,6 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
-    </dependency>
-
-    <dependency>
-      <groupId>net.oneandone</groupId>
-      <artifactId>sushi</artifactId>
-      <version>${sushi.version}</version>
-    </dependency>
-
-    <dependency><!-- https://java.net/projects/javamail/pages/Home -->
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>1.6.2</version>
-      <exclusions>
-        <exclusion><!-- because I have jakarta activation -->
-          <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>${gson.version}</version>
     </dependency>
 
     <!-- tests -->

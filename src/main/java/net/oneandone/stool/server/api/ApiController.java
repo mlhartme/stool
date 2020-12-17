@@ -17,26 +17,13 @@ package net.oneandone.stool.server.api;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.ArgumentException;
-import net.oneandone.stool.server.Main;
-import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.logging.DetailsLogEntry;
-import net.oneandone.stool.registry.TagInfo;
+import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.Stage;
 import net.oneandone.stool.server.users.User;
-import net.oneandone.stool.server.util.Context;
-import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.util.PredicateParser;
-import net.oneandone.stool.server.util.Value;
-import net.oneandone.stool.server.util.Validation;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -53,45 +40,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
 public class ApiController {
     private final Server server;
+    private final LocalClient client;
 
     @Autowired
     public ApiController(Server server) {
         this.server = server;
-    }
-
-    private Engine engine() throws IOException {
-        return Engine.createFromCluster();
+        this.client = new LocalClient(server);
     }
 
     // TODO: used for readiness probes - becomes expensive if I used quotas ...
-    @GetMapping("/info")
-    public String version() throws IOException {
-        JsonObject result;
-
-        result = new JsonObject();
-        result.addProperty("version", Main.versionString(World.create() /* TODO */));
-        return result.toString();
+    @GetMapping("/version")
+    public String info() throws IOException {
+        return client.version();
     }
 
     @PostMapping("/auth")
@@ -110,239 +84,78 @@ public class ApiController {
         return new JsonPrimitive(result).toString();
     }
 
-
     @GetMapping("/stages")
     public String list(@RequestParam(value = "filter", required = false, defaultValue = "") String filter,
                        @RequestParam(value = "select", required = false, defaultValue = "") String selectStr) throws IOException {
-        JsonObject result;
-        Context context;
-        Map<String, IOException> problems;
-        List<String> select;
+        Map<String, Map<String, JsonElement>> map;
         JsonObject obj;
+        JsonObject result;
 
+        map = client.list(filter, "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr));
         result = new JsonObject();
-        problems = new HashMap<>();
-        try (Engine engine = engine()) {
-            context = new Context(engine);
-            for (Stage stage : server.list(engine, new PredicateParser(context).parse(filter), problems)) {
-                select = "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr);
-                obj = new JsonObject();
-                result.add(stage.getName(), obj);
-                for (Info info : stage.fields()) {
-                    if (select == null || select.remove(info.name())) {
-                        obj.add(info.name(), info.getAsJson(context));
-                    }
-                }
-                for (Value value : stage.values()) {
-                    if (select != null && select.remove(value.name())) {
-                        obj.add(value.name(), new JsonPrimitive(value.get(context)));
-                    }
-                }
-                if (select != null && !select.isEmpty()) {
-                    throw new IOException("select argument: unknown value/field(s): " + select);
-                }
+        for (Map.Entry<String, Map<String, JsonElement>> entry : map.entrySet()) {
+            obj = new JsonObject();
+            for (Map.Entry<String, JsonElement> o : entry.getValue().entrySet()) {
+                result.add(o.getKey(), o.getValue());
             }
-            if (!problems.isEmpty()) {
-                throw new IOException("nested problems: " + problems);
-            }
-            return result.toString();
+            result.add(entry.getKey(), obj);
         }
+        return result.toString();
     }
 
     @PostMapping("/stages/{stage}")
     public String create(@PathVariable("stage") String name, @RequestParam(value = "image", required = true) String image,
                        HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Stage stage;
         Map<String, String> values;
 
         values = map(request, "value.");
-        try (Engine engine = engine()) {
-            try {
-                engine.helmRead(name);
-                response.sendError(409 /* conflict */, "stage exists: " + name);
-                return "";
-            } catch (FileNotFoundException e) {
-                // OK, fall through
-            }
-
-            stage = Stage.create(engine, server, name, image, values);
-            return Engine.obj(stage.urlMap(new Context(engine).registry(stage))).toString();
+        try {
+            return Engine.obj(client.create(name, image, values)).toString();
+        } catch (FileAlreadyExistsException e) {
+            // OK, fall through
+            response.sendError(409 /* conflict */, "stage exists: " + name);
+            return "";
         }
     }
 
     @PostMapping("/stages/{stage}/publish")
     public String publish(@PathVariable(value = "stage") String stageName,
                           @RequestParam(value = "image", required = false) String explicitImage, HttpServletRequest request) throws IOException {
-        Map<String, String> values;
         String result;
-        Stage stage;
-        String imageOrRepository;
 
-        values = map(request, "value.");
-        try (Engine engine = engine()) {
-            stage = server.load(engine, stageName);
-            if (explicitImage != null && !explicitImage.isEmpty()) {
-                imageOrRepository = explicitImage;
-            } else {
-                imageOrRepository = Registry.toRepository(stage.getImage());
-            }
-            result = stage.publish(imageOrRepository, values);
-            return json(result).toString();
-        }
+        result = client.publish(stageName, explicitImage, map(request, "value."));
+        return new JsonPrimitive(result).toString();
     }
 
     @PostMapping("/stages/{stage}/delete")
-    public void delete(@PathVariable(value = "stage") String stageName) throws IOException {
-        try (Engine engine = engine()) {
-            server.load(engine, stageName).uninstall(engine);
-        }
+    public void delete(@PathVariable(value = "stage") String stage) throws IOException {
+        client.delete(stage);
     }
 
     @GetMapping("/stages/{stage}/values")
     public String values(@PathVariable(value = "stage") String stage) throws IOException {
-        JsonObject result;
-        Context context;
-
-        result = new JsonObject();
-        try (Engine engine = engine()) {
-            context = new Context(engine);
-            for (Value value : server.load(engine, stage).values()) {
-                result.add(value.name(), new JsonPrimitive(disclose(value.name(), value.get(context))));
-            }
-            return result.toString();
-        }
-    }
-
-    // TODO: configurable
-    private static final List<String> DISCLOSE = Strings.toList("cert", "fault");
-
-    private static String disclose(String name, String value) {
-        if (DISCLOSE.contains(name)) {
-            return "(undisclosed)";
-        } else {
-            return value;
-        }
+        return Engine.obj(client.getValues(stage)).toString();
     }
 
     @PostMapping("/stages/{stage}/set-values")
-    public String setValues(@PathVariable(value = "stage") String stageName, HttpServletRequest request) throws IOException {
-        Stage stage;
-        Value prop;
-        String value;
-        Map<String, String> values;
-        Context context;
-        Map<String, String> clientValues;
-        JsonObject result;
-
-        try (Engine engine = engine()) {
-            stage = server.load(engine, stageName);
-            values = map(request, "");
-            result = new JsonObject();
-            context = new Context(engine);
-            clientValues = new HashMap<>();
-            for (Map.Entry<String, String> entry : values.entrySet()) {
-                prop = stage.value(entry.getKey());
-                value = entry.getValue();
-                value = value.replace("{}", prop.get(context));
-                clientValues.put(entry.getKey(), value);
-                result.add(prop.name(), new JsonPrimitive(disclose(prop.name(), value)));
-            }
-            stage.publish(null, clientValues);
-            return result.toString();
-        }
-    }
-
-
-    @GetMapping("/stages/{stage}/status")
-    public String status(@PathVariable(value = "stage") String stage, @RequestParam(value = "select", required = false) String select)
-            throws IOException {
-        JsonObject result;
-        Context context;
-        List<String> selection;
-
-        if (select == null || select.isEmpty()) {
-            selection = null;
-        } else {
-            selection = Separator.COMMA.split(select);
-        }
-        result = new JsonObject();
-        try (Engine engine = engine()) {
-            context = new Context(engine);
-            for (Info info : server.load(engine, stage).fields()) {
-                if (selection == null || selection.remove(info.name())) {
-                    result.add(info.name(), new JsonPrimitive(info.getAsString(context)));
-                }
-            }
-            if (selection != null && !selection.isEmpty()) {
-                throw new ArgumentException("unknown field(s): " + selection);
-            }
-            return result.toString();
-        }
+    public String setValues(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
+        return Engine.obj(client.setValues(stage, map(request, ""))).toString();
     }
 
     @PostMapping("/stages/{stage}/validate")
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
-        List<String> output;
-
-        try (Engine engine = engine()) {
-            output = new Validation(server, engine).run(stage, email, repair);
-        } catch (MessagingException e) {
-            throw new IOException("email failure: " + e.getMessage(), e);
-        }
-        return array(output).toString();
+        return array(client.validate(stage, email, repair)).toString();
     }
 
     @GetMapping("/stages/{stage}/images")
     public String images(@PathVariable("stage") String name) throws Exception {
-        Stage stage;
-        List<TagInfo> all;
-        TagInfo tagInfo;
-        String marker;
-        List<String> result;
-        List<String> args;
-        Registry registry;
-
-        try (Engine engine = engine()) {
-            result = new ArrayList<>();
-            stage = server.load(engine, name);
-
-            // TODO
-            registry = stage.createRegistry(World.create() /* TODO */);
-            all = stage.images(registry);
-
-            tagInfo = stage.tagInfo(registry);
-            for (TagInfo image : all) {
-                marker = image.repositoryTag.equals(tagInfo.repositoryTag) ? "<==" : "";
-                result.add(image.tag + "  " + marker);
-                result.add("   id:            " + image.id);
-                result.add("   repositoryTag: " + image.repositoryTag);
-                result.add("   created-at:    " + image.createdAt);
-                result.add("   created-by:    " + image.author);
-                result.add("   labels:");
-                for (Map.Entry<String, String> labels : image.labels.entrySet()) {
-                    result.add("     " + labels.getKey() + "\t: " + labels.getValue());
-                }
-            }
-            return array(result).toString();
-        }
+        return array(client.images(name)).toString();
     }
 
-
-    private static JsonElement json(String opt) {
-        return opt == null ? JsonNull.INSTANCE : new JsonPrimitive(opt);
-    }
 
     @GetMapping("/stages//{stage}/await-available")
-    public String awaitAvailable(@PathVariable(value = "stage") String stageName) throws IOException {
-        Stage stage;
-        Context context;
-
-        try (Engine engine = engine()) {
-            stage = server.load(engine, stageName);
-            stage.awaitAvailable(engine);
-            context = new Context(engine);
-            return Engine.obj(stage.urlMap(context.registry(stage))).toString();
-        }
+    public String awaitAvailable(@PathVariable(value = "stage") String stage) throws IOException {
+        return Engine.obj(client.awaitAvailable(stage)).toString();
     }
 
     private static JsonArray array(List<String> array) {
@@ -357,71 +170,7 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/pod-token")
     public String podToken(@PathVariable(value = "stage") String stageName, int timeout) throws IOException {
-        JsonObject result;
-        Collection<PodInfo> pods;
-        PodInfo pod;
-        String id;
-        String saName;
-        String roleName;
-        String bindingName;
-
-        if (timeout > 240) {
-            throw new IOException("timeout to big: " + timeout);
-        }
-        currentWithPermissions(stageName);
-        try (Engine engine = engine()) {
-            pods = server.load(engine, stageName).runningPods(engine).values();
-            if (pods.isEmpty()) {
-                throw new IOException("no pods running for stage: " + stageName);
-            }
-            pod = pods.iterator().next(); // TODO: how to choose different pod
-
-            id = UUID.randomUUID().toString();
-            saName = "sa-" + stageName + "-" + id;
-            roleName = "role-" + stageName + "-" + id;
-            bindingName = "binding-" + stageName + "-" + id;
-
-            engine.createServiceAccount(saName);
-            engine.createRole(roleName, pod.name);
-            engine.createBinding(bindingName, saName, roleName);
-
-            result = new JsonObject();
-            result.add("server", new JsonPrimitive(server.settings.kubernetes));
-            result.add("namespace", new JsonPrimitive(engine.getNamespace()));
-            result.add("pod", new JsonPrimitive(pod.name));
-            result.add("token", new JsonPrimitive(engine.getServiceAccountToken(saName)));
-
-            schedulePodTokenCleanup(saName, roleName, bindingName, timeout);
-            return result.toString();
-        }
-    }
-
-    private void schedulePodTokenCleanup(String saName, String roleName, String bindingName, int timeout) {
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        Runnable cleanup = new Runnable() {
-            public void run() {
-                try (Engine engine = Engine.createFromCluster()) {
-                    engine.deleteServiceAccount(saName);
-                    engine.deleteRole(roleName);
-                    engine.deleteBinding(bindingName);
-                } catch (IOException e) {
-                    e.printStackTrace(); // TODO: proper logging ...
-                }
-            }
-        };
-        ex.schedule(cleanup, timeout, TimeUnit.MINUTES);
-    }
-
-    private TagInfo currentWithPermissions(String stageName) throws IOException {
-        Stage stage;
-        TagInfo tagInfo;
-
-        try (Engine engine = engine()) {
-            stage = server.load(engine, stageName);
-            tagInfo = stage.tagInfo(stage.createRegistry(World.create() /* TODO */));
-        }
-        server.checkFaultPermissions(User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
-        return tagInfo;
+        return client.podToken(stageName, timeout).toJson().toString();
     }
 
     @ExceptionHandler({ ArgumentException.class })
@@ -444,22 +193,7 @@ public class ApiController {
     @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage,
                           @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
-        List<AccessLogEntry> entries;
-        JsonArray result;
-
-        result = new JsonArray();
-        try (Engine engine = engine()) {
-            entries = server.load(engine, stage).accessLogAll(max);
-            for (AccessLogEntry entry : entries) {
-                result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
-                if (details) {
-                    for (DetailsLogEntry detail : server.detailsLog(entry.clientInvocation)) {
-                        result.add(new JsonPrimitive("  " + detail.level + " " + detail.message));
-                    }
-                }
-            }
-        }
-        return result.toString();
+        return array(client.history(stage, details, max)).toString();
     }
 
     @GetMapping("/stages/{name}/logs")
@@ -468,7 +202,7 @@ public class ApiController {
         FileNode dir;
         Stage stage;
 
-        try (Engine engine = engine()) {
+        try (Engine engine = client.engine()) {
             stage = server.load(engine, stageName);
         }
         dir = stage.getLogs(); // TODO: application logs
@@ -490,7 +224,7 @@ public class ApiController {
         file = request.getRequestURI();
         file = Strings.removeLeft(file, request.getContextPath());
         file = Strings.removeLeft(file, "/api/stages/" + stageName + "/logs/");
-        try (Engine engine = engine()) {
+        try (Engine engine = client.engine()) {
             stage = server.load(engine, stageName);
         }
         resource = new FileSystemResource(stage.getLogs().join(file).toPath());

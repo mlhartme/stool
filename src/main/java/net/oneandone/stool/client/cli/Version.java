@@ -37,7 +37,7 @@ public class Version extends ClientCommand {
         context = configuration.currentContextOpt();
         if (context != null) {
             client = context.connect(world);
-            console.info.println("server " + client.getServer() + " version: " + client.info().get("version").getAsString());
+            console.info.println("server " + client.getServer() + " version: " + client.version());
         }
     }
 

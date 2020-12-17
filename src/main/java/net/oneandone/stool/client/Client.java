@@ -16,8 +16,6 @@
 package net.oneandone.stool.client;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
@@ -29,12 +27,13 @@ public abstract class Client {
     public Client() {
     }
 
+    public abstract String getContext();
+
+    public abstract String version() throws IOException;
+
     public List<String> list(String filter) throws IOException {
         return new ArrayList<>(list(filter, Collections.emptyList()).keySet());
     }
-
-    public abstract String getContext();
-
     public abstract Map<String, Map<String, JsonElement>> list(String filter, List<String> select) throws IOException;
 
     /**
@@ -42,15 +41,12 @@ public abstract class Client {
      * @throws FileAlreadyExistsException if the stage already exists */
     public abstract Map<String, String> create(String stage, String image, Map<String, String> values) throws IOException;
 
-    /** @return tag actually started */
+    /** @return image actually started */
     public abstract String publish(String stage, String imageOpt, Map<String, String> values) throws IOException;
     public abstract Map<String, String> awaitAvailable(String stage) throws IOException;
-
-    /** @return json with pod and token fields */
-    public abstract PodConfig podToken(String stage, int timeout) throws IOException;
     public abstract void delete(String stage) throws IOException;
+    public abstract PodConfig podToken(String stage, int timeout) throws IOException;
     public abstract List<String> history(String stage, boolean details, int max) throws IOException;
-    public abstract JsonObject info() throws IOException;
     public abstract List<String> validate(String stage, boolean email, boolean repair) throws IOException;
     public abstract Map<String, String> getValues(String stage) throws IOException;
     public abstract Map<String, String> setValues(String stage, Map<String, String> values) throws IOException;

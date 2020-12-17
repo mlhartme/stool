@@ -226,8 +226,8 @@ public class RemoteClient extends Client {
     }
 
     @Override
-    public JsonObject info() throws IOException {
-        return getJson(node("info")).getAsJsonObject();
+    public String version() throws IOException {
+        return node("version").readString();
     }
 
     @Override
