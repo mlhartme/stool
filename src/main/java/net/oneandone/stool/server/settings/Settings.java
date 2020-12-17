@@ -115,6 +115,11 @@ public class Settings {
         }
     }
 
+    // TODO - hack
+    public void setRegistryCredentials(Map<String, Settings.UsernamePassword> map) {
+        lazyRegistryCredentials = map;
+    }
+
     private Map<String, UsernamePassword> lazyRegistryCredentials = null;
 
     public UsernamePassword registryCredentials(String registry) {

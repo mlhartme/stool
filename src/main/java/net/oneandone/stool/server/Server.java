@@ -17,6 +17,7 @@ package net.oneandone.stool.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.oneandone.stool.client.Configuration;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.api.StageNotFoundException;
@@ -54,8 +55,16 @@ public class Server {
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
     public static Server createLocal(World world, String context) throws IOException {
-        return create(world, context);
+        Server result;
+        Configuration client;
+
+        result = create(world, context);
+        client = new Configuration(world);
+        client.load(world.getHome().join(".sc.yaml"));
+        result.settings.setRegistryCredentials(client.registryCredentials);
+        return result;
     }
+
     public static Server createCluster(World world) throws IOException {
         return create(world, null);
     }
@@ -67,6 +76,9 @@ public class Server {
         String localhostIp;
         version = Main.versionString(world);
         boolean openShift;
+        String charts;
+        FileNode home;
+        FileNode logbase;
 
         settings = Settings.load();
         LOGGER.info("server version: " + Main.versionString(world));
@@ -78,13 +90,24 @@ public class Server {
             LOGGER.info("OpenShift: " + openShift);
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), version, context, world, openShift, localhostIp, settings);
+            if (context == null) {
+                charts = "/etc/charts";
+                home = world.file("/var/lib/stool");
+                logbase = world.file("/var/log");
+            } else {
+                charts = "/Users/mhm/Projects/helmcharts";
+                home = world.getHome().join(".sc").mkdirOpt(); // TODO
+                logbase = world.getHome().join(".sc-logs").mkdirOpt(); // TODO
+            }
+            server = new Server(charts, gson(world), version, context, home, logbase, world, openShift, localhostIp, settings);
             server.validate();
             return server;
         }
     }
 
     //--
+
+    public final String charts;
 
     /** gson is thread-save */
     public final Gson gson;
@@ -114,15 +137,18 @@ public class Server {
 
     public final UserManager userManager;
 
-    public Server(Gson gson, String version, String context, World world, boolean openShift, String localhostIp, Settings settings) throws IOException {
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    public Server(String charts, Gson gson, String version, String context, FileNode home, FileNode logbase, World world,
+                  boolean openShift, String localhostIp, Settings settings) throws IOException {
+        this.charts = charts;
         this.gson = gson;
         this.version = version;
         this.context = context;
         this.world = world;
         this.openShift = openShift;
-        this.home = world.file("/var/lib/stool").checkDirectory();
-        this.serverLogs = world.file("/var/log/stool");
-        this.stageLogs = world.file("/var/log/stages");
+        this.home = home.checkDirectory();
+        this.serverLogs = logbase.join("server");
+        this.stageLogs = logbase.join("stages");
         this.localhostIp = localhostIp;
         this.settings = settings;
         this.userManager = UserManager.loadOpt(home.join("users.json"));

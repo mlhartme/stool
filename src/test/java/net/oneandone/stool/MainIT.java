@@ -102,7 +102,8 @@ public class MainIT {
 
         stage = "de.wq-ta"; // with some special characters
 
-        sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
+        //sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
+        sc("setup", "localhost=local:local");
 
         sc(working, "context", "localhost");
         sc(working, "list");

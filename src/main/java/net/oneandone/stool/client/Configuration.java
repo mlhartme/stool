@@ -22,13 +22,16 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.server.settings.Settings;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +42,7 @@ public class Configuration {
     private final World world;
     private String version;
     private String registryPrefix;
+    public final Map<String, Settings.UsernamePassword> registryCredentials;
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
@@ -54,6 +58,7 @@ public class Configuration {
         this.world = world;
         this.version = null;
         this.registryPrefix = "127.0.0.1:31500/";
+        this.registryCredentials = new HashMap<>();
         this.currentContext = null;
         this.contexts = new LinkedHashMap<>();
 
@@ -80,6 +85,26 @@ public class Configuration {
             throw new IllegalStateException(registryPrefix);
         }
         return registryPrefix;
+    }
+
+    public void setRegistryCredentials(String str) {
+        int idx;
+        String host;
+
+        registryCredentials.clear();
+        for (String entry : Separator.COMMA.split(str)) {
+            idx = entry.indexOf('=');
+            if (idx < 0) {
+                throw new IllegalStateException(entry);
+            }
+            host = entry.substring(0, idx);
+            entry = entry.substring(idx + 1);
+            idx = entry.indexOf(':');
+            if (idx < 0) {
+                throw new IllegalStateException(entry);
+            }
+            registryCredentials.put(host, new Settings.UsernamePassword(entry.substring(0, idx), entry.substring(idx + 1)));
+        }
     }
 
 
@@ -167,6 +192,7 @@ public class Configuration {
 
         contexts.clear();
         registryPrefix = all.get("registryPrefix").asText();
+        setRegistryCredentials(all.get("registryCredentials").asText());
         currentContext = all.has("currentContext") ? all.get("currentContext").asText() : null;
 
         iter = all.get("contexts").iterator();

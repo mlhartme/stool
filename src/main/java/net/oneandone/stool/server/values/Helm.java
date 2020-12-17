@@ -25,7 +25,6 @@ import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.Type;
 import net.oneandone.stool.server.settings.Expire;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -47,23 +46,22 @@ public final class Helm {
     /**
      * @return imageOrRepository exact image or repository to publish latest tag from
      */
-    public static String run(Server server, String name, boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
+    public static String run(FileNode root, Server server, String name,
+                             boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
             throws IOException {
-        World world;
         TagInfo image;
         Registry registry;
 
         validateRepository(Registry.toRepository(imageOrRepository));
-        world = World.create(); // TODO
-        registry = server.createRegistry(world, imageOrRepository);
+        registry = server.createRegistry(root.getWorld(), imageOrRepository);
         image = registry.resolve(imageOrRepository);
-        return run(world, server, name, upgrade, map, image, clientValues);
+        return run(root, server, name, upgrade, map, image, clientValues);
     }
 
     /**
      * @return imageOrRepository exact image or repository to publish latest image from
      */
-    public static String run(World world, Server server, String name, boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
+    public static String run(FileNode root, Server server, String name, boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
             throws IOException {
         Expressions expressions;
         Application app;
@@ -72,11 +70,11 @@ public final class Helm {
         FileNode src;
         Expire expire;
 
-        expressions = new Expressions(world, server, image, server.stageFqdn(name));
-        app = Application.load(expressions, world.file("/etc/charts/app.yaml").readString());
-        tmp = world.getTemp().createTempDirectory();
-        values = world.getTemp().createTempFile();
-        src = world.file("/etc/charts").join(app.chart);
+        expressions = new Expressions(root.getWorld(), server, image, server.stageFqdn(name));
+        app = Application.load(expressions, root.join("app.yaml").readString());
+        tmp = root.getWorld().getTemp().createTempDirectory();
+        values = root.getWorld().getTemp().createTempFile();
+        src = root.join(app.chart);
         if (!src.isDirectory()) {
             throw new ArgumentException("helm chart not found: " + app.chart);
         }
