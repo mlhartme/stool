@@ -27,7 +27,7 @@ public abstract class Client {
     public Client() {
     }
 
-    public abstract String getContext();
+    public abstract String toString();
 
     public abstract String version() throws IOException;
 
@@ -41,14 +41,14 @@ public abstract class Client {
      * @throws FileAlreadyExistsException if the stage already exists */
     public abstract Map<String, String> create(String stage, String image, Map<String, String> values) throws IOException;
 
-    /** @return image actually started */
+    /** @return image actually published */
     public abstract String publish(String stage, String imageOpt, Map<String, String> values) throws IOException;
     public abstract Map<String, String> awaitAvailable(String stage) throws IOException;
     public abstract void delete(String stage) throws IOException;
-    public abstract PodConfig podToken(String stage, int timeout) throws IOException;
-    public abstract List<String> history(String stage, boolean details, int max) throws IOException;
-    public abstract List<String> validate(String stage, boolean email, boolean repair) throws IOException;
     public abstract Map<String, String> getValues(String stage) throws IOException;
     public abstract Map<String, String> setValues(String stage, Map<String, String> values) throws IOException;
+    public abstract List<String> history(String stage, boolean details, int max) throws IOException;
+    public abstract List<String> validate(String stage, boolean email, boolean repair) throws IOException;
+    public abstract PodConfig podToken(String stage, int timeout) throws IOException;
     public abstract List<String> images(String stage) throws Exception;
 }

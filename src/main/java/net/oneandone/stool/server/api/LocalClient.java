@@ -242,11 +242,6 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public String getContext() {
-        return null;
-    }
-
-    @Override
     public Map<String, String> awaitAvailable(String name) throws IOException {
         Stage stage;
         Context context;
@@ -340,5 +335,10 @@ public class LocalClient extends Client {
             }
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "(local)";
     }
 }

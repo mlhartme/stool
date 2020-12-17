@@ -52,6 +52,6 @@ public class Reference {
     }
 
     public String toString() {
-        return stage + "@" + client.getContext();
+        return stage + "@" + client.toString();
     }
 }

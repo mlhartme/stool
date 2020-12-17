@@ -99,11 +99,6 @@ public class RemoteClient extends Client {
         return context.hashCode();
     }
 
-    @Override
-    public String getContext() {
-        return context;
-    }
-
     public String getServer() {
         return root.getRoot().getHostname();
     }
@@ -390,5 +385,10 @@ public class RemoteClient extends Client {
             result.put(entry.getKey(), entry.getValue());
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return context;
     }
 }

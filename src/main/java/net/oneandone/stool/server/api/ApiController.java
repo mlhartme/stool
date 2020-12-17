@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Counter-part for Remote Client. */
 @RestController
 @RequestMapping("/api")
 public class ApiController {
@@ -62,26 +63,11 @@ public class ApiController {
         this.client = new LocalClient(server);
     }
 
-    // TODO: used for readiness probes - becomes expensive if I used quotas ...
+    //-- Client methods
+
     @GetMapping("/version")
-    public String info() throws IOException {
+    public String version() throws IOException {
         return client.version();
-    }
-
-    @PostMapping("/auth")
-    public String auth() throws IOException {
-        User user;
-        String result;
-
-        if (server.settings.ldapUrl.isEmpty()) {
-            throw new IOException("authentication is disabled");
-        }
-        user = User.authenticatedOpt();
-        if (user == null) {
-            throw new IllegalStateException();
-        }
-        result = server.userManager.generateToken(user);
-        return new JsonPrimitive(result).toString();
     }
 
     @GetMapping("/stages")
@@ -127,6 +113,11 @@ public class ApiController {
         return new JsonPrimitive(result).toString();
     }
 
+    @GetMapping("/stages//{stage}/await-available")
+    public String awaitAvailable(@PathVariable(value = "stage") String stage) throws IOException {
+        return Engine.obj(client.awaitAvailable(stage)).toString();
+    }
+
     @PostMapping("/stages/{stage}/delete")
     public void delete(@PathVariable(value = "stage") String stage) throws IOException {
         client.delete(stage);
@@ -142,30 +133,15 @@ public class ApiController {
         return Engine.obj(client.setValues(stage, map(request, ""))).toString();
     }
 
+    @GetMapping("/stages/{stage}/history")
+    public String history(@PathVariable(value = "stage") String stage,
+                          @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
+        return array(client.history(stage, details, max)).toString();
+    }
+
     @PostMapping("/stages/{stage}/validate")
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         return array(client.validate(stage, email, repair)).toString();
-    }
-
-    @GetMapping("/stages/{stage}/images")
-    public String images(@PathVariable("stage") String name) throws Exception {
-        return array(client.images(name)).toString();
-    }
-
-
-    @GetMapping("/stages//{stage}/await-available")
-    public String awaitAvailable(@PathVariable(value = "stage") String stage) throws IOException {
-        return Engine.obj(client.awaitAvailable(stage)).toString();
-    }
-
-    private static JsonArray array(List<String> array) {
-        JsonArray result;
-
-        result = new JsonArray(array.size());
-        for (String str : array) {
-            result.add(new JsonPrimitive(str));
-        }
-        return result;
     }
 
     @GetMapping("/stages/{stage}/pod-token")
@@ -173,27 +149,27 @@ public class ApiController {
         return client.podToken(stageName, timeout).toJson().toString();
     }
 
-    @ExceptionHandler({ ArgumentException.class })
-    public void handleException(ArgumentException e, HttpServletResponse response) throws IOException {
-        response.setStatus(HttpStatus.BAD_REQUEST.value());
-        try (PrintWriter dest = response.getWriter()) {
-            dest.println(e.getMessage());
-        }
+    @GetMapping("/stages/{stage}/images")
+    public String images(@PathVariable("stage") String name) throws Exception {
+        return array(client.images(name)).toString();
     }
 
-    @ExceptionHandler({ StageNotFoundException.class })
-    public void handleException(StageNotFoundException e, HttpServletResponse response) throws IOException {
-        response.setStatus(HttpStatus.NOT_FOUND.value());
-        try (PrintWriter dest = response.getWriter()) {
-            dest.println(e.getMessage());
+    //--
+
+    @PostMapping("/auth")
+    public String auth() throws IOException {
+        User user;
+        String result;
+
+        if (server.settings.ldapUrl.isEmpty()) {
+            throw new IOException("authentication is disabled");
         }
-    }
-
-
-    @GetMapping("/stages/{stage}/history")
-    public String history(@PathVariable(value = "stage") String stage,
-                          @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
-        return array(client.history(stage, details, max)).toString();
+        user = User.authenticatedOpt();
+        if (user == null) {
+            throw new IllegalStateException();
+        }
+        result = server.userManager.generateToken(user);
+        return new JsonPrimitive(result).toString();
     }
 
     @GetMapping("/stages/{name}/logs")
@@ -232,6 +208,34 @@ public class ApiController {
     }
 
     //--
+
+    @ExceptionHandler({ ArgumentException.class })
+    public void handleException(ArgumentException e, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        try (PrintWriter dest = response.getWriter()) {
+            dest.println(e.getMessage());
+        }
+    }
+
+    @ExceptionHandler({ StageNotFoundException.class })
+    public void handleException(StageNotFoundException e, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.NOT_FOUND.value());
+        try (PrintWriter dest = response.getWriter()) {
+            dest.println(e.getMessage());
+        }
+    }
+
+    //--
+
+    private static JsonArray array(List<String> array) {
+        JsonArray result;
+
+        result = new JsonArray(array.size());
+        for (String str : array) {
+            result.add(new JsonPrimitive(str));
+        }
+        return result;
+    }
 
     private Map<String, String> map(HttpServletRequest request, String prefix) {
         Map<String, String> result;
