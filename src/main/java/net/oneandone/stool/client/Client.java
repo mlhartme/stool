@@ -24,10 +24,26 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Client {
-    public Client() {
+    private final String context;
+
+    public Client(String context) {
+        this.context = context;
     }
 
-    public abstract String toString();
+    public String getContext() {
+        return context;
+    }
+
+    public boolean equals(Object object) {
+        if (object instanceof Client) {
+            return context.equals(((Client) object).getContext());
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return context.hashCode();
+    }
 
     public abstract String version() throws IOException;
 

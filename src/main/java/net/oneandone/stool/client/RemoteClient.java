@@ -78,25 +78,13 @@ public class RemoteClient extends Client {
         return new RemoteClient(context, node);
     }
 
-    private final String context;
     private final HttpNode root;
     private final JsonParser parser;
 
     public RemoteClient(String context, HttpNode root) {
-        this.context = context;
+        super(context);
         this.root = root;
         this.parser = new JsonParser();
-    }
-
-    public boolean equals(Object object) {
-        if (object instanceof RemoteClient) {
-            return context.equals(((RemoteClient) object).context);
-        }
-        return false;
-    }
-
-    public int hashCode() {
-        return context.hashCode();
     }
 
     public String getServer() {
@@ -385,10 +373,5 @@ public class RemoteClient extends Client {
             result.put(entry.getKey(), entry.getValue());
         }
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return context;
     }
 }

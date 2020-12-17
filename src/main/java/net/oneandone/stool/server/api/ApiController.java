@@ -60,7 +60,7 @@ public class ApiController {
     @Autowired
     public ApiController(Server server) {
         this.server = server;
-        this.client = new LocalClient(server);
+        this.client = new LocalClient("server", server);
     }
 
     //-- Client methods

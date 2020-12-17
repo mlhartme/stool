@@ -54,7 +54,8 @@ import java.util.concurrent.TimeUnit;
 public class LocalClient extends Client {
     private final Server server;
 
-    public LocalClient(Server server) {
+    public LocalClient(String context, Server server) {
+        super(context);
         this.server = server;
     }
 
@@ -335,10 +336,5 @@ public class LocalClient extends Client {
             }
         }
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "(local)";
     }
 }
