@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EngineIT {
     private static Engine create() throws IOException {
-        return Engine.create("stool-engine-it" /* TODO */);
+        return Engine.createLocal("stool-engine-it" /* TODO */);
     }
 
     @BeforeAll

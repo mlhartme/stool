@@ -69,15 +69,23 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 public class Engine implements AutoCloseable {
-    public static Engine createFromCluster() {
-        return new Engine(new DefaultOpenShiftClient());
+    public static Engine createCluster() {
+        return createClusterOrLocal(null);
     }
 
-    public static Engine create(String context) throws IOException {
-        Config config;
+    public static Engine createLocal(String context) {
+        return createClusterOrLocal(context);
+    }
 
-        config = Config.autoConfigure(context);
-        return new Engine(new DefaultOpenShiftClient(config));
+    public static Engine createClusterOrLocal(String contextOpt) {
+        if (contextOpt == null) {
+            return new Engine(new DefaultOpenShiftClient());
+        } else {
+            Config config;
+
+            config = Config.autoConfigure(contextOpt);
+            return new Engine(new DefaultOpenShiftClient(config));
+        }
     }
 
 

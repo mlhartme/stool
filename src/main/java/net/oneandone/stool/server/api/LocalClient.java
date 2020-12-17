@@ -59,7 +59,7 @@ public class LocalClient extends Client {
     }
 
     public Engine engine() {
-        return Engine.createFromCluster();
+        return Engine.createLocal(server.context);
     }
 
     @Override
@@ -293,7 +293,7 @@ public class LocalClient extends Client {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable cleanup = new Runnable() {
             public void run() {
-                try (Engine engine = Engine.createFromCluster()) {
+                try (Engine engine = Engine.createClusterOrLocal(server.context)) {
                     engine.deleteServiceAccount(saName);
                     engine.deleteRole(roleName);
                     engine.deleteBinding(bindingName);

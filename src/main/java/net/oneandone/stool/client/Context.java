@@ -18,6 +18,8 @@ package net.oneandone.stool.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.stool.server.Server;
+import net.oneandone.stool.server.api.LocalClient;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -36,7 +38,6 @@ public class Context {
     }
 
     public final String name;
-    /** url pointing to cubernetes cluster */
     public final String url;
 
     /** null to work anonymously */
@@ -60,15 +61,29 @@ public class Context {
         return token != null;
     }
 
+    private static final String LOCAL_PREFIX = "local:";
+
+    public boolean isLocal() {
+        return url.startsWith(LOCAL_PREFIX);
+    }
+
     public void auth(World world, String username, String password) throws IOException {
         RemoteClient client;
 
-        client = RemoteClient.basicAuth(world, name, url, wirelog, clientInvocation, clientCommand, username, password);
-        this.token = client.auth();
+        if (isLocal()) {
+            this.token = null;
+        } else {
+            client = RemoteClient.basicAuth(world, name, url, wirelog, clientInvocation, clientCommand, username, password);
+            this.token = client.auth();
+        }
     }
 
-    public RemoteClient connect(World world) throws IOException {
-        return RemoteClient.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
+    public Client connect(World world) throws IOException {
+        if (isLocal()) {
+            return new LocalClient(Server.createLocal(world, url.substring(LOCAL_PREFIX.length())));
+        } else {
+            return RemoteClient.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
+        }
     }
 
     public ObjectNode toYaml(ObjectMapper yaml) {

@@ -53,7 +53,14 @@ import java.util.Properties;
 public class Server {
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
-    public static Server create(World world) throws IOException {
+    public static Server createLocal(World world, String context) throws IOException {
+        return create(world, context);
+    }
+    public static Server createCluster(World world) throws IOException {
+        return create(world, null);
+    }
+
+    private static Server create(World world, String context) throws IOException {
         String version;
         Settings settings;
         Server server;
@@ -63,14 +70,15 @@ public class Server {
 
         settings = Settings.load();
         LOGGER.info("server version: " + Main.versionString(world));
+        LOGGER.info("context: " + context);
         LOGGER.info("server auth: " + settings.auth());
         LOGGER.info("server settings: " + settings);
-        try (Engine engine = Engine.createFromCluster()) {
+        try (Engine engine = Engine.createClusterOrLocal(context)) {
             openShift = engine.isOpenShift();
             LOGGER.info("OpenShift: " + openShift);
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), version, world, openShift, localhostIp, settings);
+            server = new Server(gson(world), version, context, world, openShift, localhostIp, settings);
             server.validate();
             return server;
         }
@@ -82,6 +90,8 @@ public class Server {
     public final Gson gson;
 
     public final String version;
+
+    public final String context;
 
     /** CAUTION: not thread safe! Try to use engine.world instead */
     private final World world;
@@ -104,9 +114,10 @@ public class Server {
 
     public final UserManager userManager;
 
-    public Server(Gson gson, String version, World world, boolean openShift, String localhostIp, Settings settings) throws IOException {
+    public Server(Gson gson, String version, String context, World world, boolean openShift, String localhostIp, Settings settings) throws IOException {
         this.gson = gson;
         this.version = version;
+        this.context = context;
         this.world = world;
         this.openShift = openShift;
         this.home = world.file("/var/lib/stool").checkDirectory();
@@ -260,18 +271,18 @@ public class Server {
     //--
 
     /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
-    public void reportException(String command, String context, Throwable e) {
+    public void reportException(String command, String exceptionContext, Throwable e) {
         String subject;
         StringWriter body;
         PrintWriter writer;
 
-        LOGGER.error("[" + command + "] " + context + ": " + e.getMessage(), e);
+        LOGGER.error("[" + command + "] " + exceptionContext + ": " + e.getMessage(), e);
         if (!settings.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
             body.write("stool: " + Main.versionString(world) + "\n");
             body.write("command: " + command + "\n");
-            body.write("context: " + context + "\n");
+            body.write("context: " + exceptionContext + "\n");
             body.write("user: " + MDC.get("USER") + "\n"); // TODO
             body.write("fqdn: " + settings.fqdn + "\n");
             writer = new PrintWriter(body);
