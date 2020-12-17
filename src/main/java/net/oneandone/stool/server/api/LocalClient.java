@@ -78,7 +78,7 @@ public class LocalClient extends Client {
                 obj = new HashMap<>();
                 result.put(stage.getName(), obj);
                 for (Info info : stage.fields()) {
-                    if (select == null || select.remove(info.name())) {
+                    if (select.isEmpty() || select.remove(info.name())) {
                         obj.put(info.name(), info.getAsJson(context));
                     }
                 }

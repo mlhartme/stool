@@ -50,6 +50,7 @@ public abstract class Client {
     public List<String> list(String filter) throws IOException {
         return new ArrayList<>(list(filter, Collections.emptyList()).keySet());
     }
+    /** @param select  empty list to select all fields */
     public abstract Map<String, Map<String, JsonElement>> list(String filter, List<String> select) throws IOException;
 
     /**
