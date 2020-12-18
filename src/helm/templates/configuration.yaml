@@ -7,6 +7,8 @@ data:
     registryCredentials: "{{ .Values.registryCredentials }}"
     charts: "/etc/charts"
     currentContext: "localhost"
+    lib: "/var/lib/stool"
+    logs: "/var/log/stool"
     contexts:
       - name: "localhost"
         url: "local:local"

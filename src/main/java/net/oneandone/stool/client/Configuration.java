@@ -43,6 +43,8 @@ public class Configuration {
     private String version;
     public final Map<String, Settings.UsernamePassword> registryCredentials;
     public String charts;
+    public String logs;
+    public String lib;
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
@@ -60,7 +62,9 @@ public class Configuration {
         this.registryCredentials = new HashMap<>();
         this.currentContext = null;
         this.contexts = new LinkedHashMap<>();
-        this.charts = "/etc/charts";
+        this.charts = world.getHome().join(".sc/charts").getAbsolute();
+        this.logs = world.getHome().join(".sc/logs").getAbsolute();
+        this.lib = world.getHome().join(".sc/lib").getAbsolute();
 
         // transient
         this.wirelog = wirelog;
@@ -199,6 +203,8 @@ public class Configuration {
         contexts.clear();
         setRegistryCredentials(string(all, "registryCredentials", ""));
         charts = string(all, "charts", "/etc/charts");
+        lib = string(all, "lib", "/var/lib/stool");
+        logs = string(all, "logs", "/var/log/stool");
         currentContext = all.has("currentContext") ? all.get("currentContext").asText() : null;
 
         iter = all.get("contexts").iterator();
@@ -223,6 +229,8 @@ public class Configuration {
         }
         obj.put("registryCredentials", registryCredentialsString());
         obj.put("charts", charts);
+        obj.put("logs", logs);
+        obj.put("lib", lib);
         array = obj.putArray("contexts");
         for (Context server : contexts.values()) {
             array.add(server.toYaml(yaml));

@@ -70,9 +70,8 @@ public class Server {
         String localhostIp;
         version = Main.versionString(world);
         boolean openShift;
-        String charts;
-        FileNode home;
-        FileNode logbase;
+        FileNode lib;
+        FileNode logs;
 
         settings = Settings.load();
         configuration = new Configuration(world);
@@ -87,15 +86,7 @@ public class Server {
             LOGGER.info("OpenShift: " + openShift);
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            if (context == null) {
-                home = world.file("/var/lib/stool");
-                logbase = world.file("/var/log");
-            } else {
-                charts = "/Users/mhm/Projects/helmcharts";
-                home = world.getHome().join(".sc").mkdirOpt(); // TODO
-                logbase = world.getHome().join(".sc-logs").mkdirOpt(); // TODO
-            }
-            server = new Server(gson(world), version, context, home, logbase, world, openShift, localhostIp, settings, configuration);
+            server = new Server(gson(world), version, context, world, openShift, localhostIp, settings, configuration);
             server.validate();
             return server;
         }
@@ -116,7 +107,7 @@ public class Server {
     public final boolean openShift;
 
     /** CAUTION: not thread safe! */
-    private final FileNode home;
+    private final FileNode lib;
 
     /** Logs of the server. CAUTION: not thread safe! */
     private final FileNode serverLogs;
@@ -134,20 +125,20 @@ public class Server {
     public final UserManager userManager;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Server(Gson gson, String version, String context, FileNode home, FileNode logbase, World world,
+    public Server(Gson gson, String version, String context, World world,
                   boolean openShift, String localhostIp, Settings settings, Configuration configuration) throws IOException {
         this.gson = gson;
         this.version = version;
         this.context = context;
         this.world = world;
         this.openShift = openShift;
-        this.home = home.checkDirectory();
-        this.serverLogs = logbase.join("server");
-        this.stageLogs = logbase.join("stages");
+        this.lib = world.file(configuration.lib).mkdirsOpt();
+        this.serverLogs = world.file(configuration.logs).join("server").mkdirsOpt();
+        this.stageLogs = world.file(configuration.logs).join("stages").mkdirsOpt();
         this.localhostIp = localhostIp;
         this.settings = settings;
         this.configuration = configuration;
-        this.userManager = UserManager.loadOpt(home.join("users.json"));
+        this.userManager = UserManager.loadOpt(lib.join("users.json"));
     }
 
     public String stageFqdn(String stage) {
@@ -355,11 +346,12 @@ public class Server {
         FileNode dir;
         FileNode broken;
 
-        script = home.join("cert.sh");
+        script = lib.join("cert.sh");
         if (!script.isFile()) {
-            throw new IOException("don't know how to generate certificate: " + script.getAbsolute());
+            world.resource("cert-selfsigned.sh").copyFile(script);
+            script.setPermissions("rwxr-xr-x");
         }
-        dir = home.join("certs", certname);
+        dir = lib.join("certs", certname).mkdirsOpt();
         try {
             LOGGER.debug(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), settings.fqdn));
         } catch (IOException e) {
