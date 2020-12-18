@@ -85,11 +85,10 @@ public class MainIT {
         kubectl("logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
     }
 
-    /*
     @Test
     public void local() throws IOException {
         run(true);
-    }*/
+    }
 
     @Test
     public void proxy() throws IOException {
@@ -122,7 +121,7 @@ public class MainIT {
         sc(working, "publish", "-e", "-stage", stage);
         sc(working, "list", "-stage", stage);
         sc(working, "validate", "-stage", stage);
-        // TODO: sc(working, "history", "-stage", stage);
+        sc(working, "history", "-stage", stage);
         sc(working, "delete", "-stage", stage, "-batch");
         working.deleteTree();
     }
