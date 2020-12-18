@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sc-yaml
+data:
+  .sc.yaml: |
+    registryCredentials: "{{ .Values.registryCredentials }}"
+    charts: "/etc/charts"
+    currentContext: "localhost"
+    contexts:
+      - name: "localhost"
+        url: "local:local"

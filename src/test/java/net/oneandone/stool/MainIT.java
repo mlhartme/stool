@@ -85,25 +85,29 @@ public class MainIT {
         kubectl("logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
     }
 
-    private static String portusPrefix() throws IOException {
-        URI portus;
-
-        portus = Secrets.load(WORLD).portus;
-        return portus.getHost() + portus.getPath();
-    }
+    /*
+    @Test
+    public void local() throws IOException {
+        run(true);
+    }*/
 
     @Test
-    public void turnaround() throws IOException {
+    public void proxy() throws IOException {
+        run(false);
+    }
+
+    private void run(boolean local) throws IOException {
         FileNode working;
         String stage;
 
-        working = IT_ROOT.join("projects/it").mkdirsOpt();
-        // TODO helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
-
         stage = "de.wq-ta"; // with some special characters
-
-        //sc("setup", "localhost=http://localhost:31000/api");
-        sc("setup", "localhost=local:local");
+        working = IT_ROOT.join("projects/it").mkdirsOpt();
+        if (local) {
+            sc("setup", "localhost=local:local");
+        } else {
+            helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
+            sc("setup", "localhost=http://localhost:31000/api");
+        }
         sc(working, "context", "localhost");
         sc(working, "list");
         sc(working,"create", "-e", "-wait", '@' + REPOSITORY, stage);
@@ -118,7 +122,7 @@ public class MainIT {
         sc(working, "publish", "-e", "-stage", stage);
         sc(working, "list", "-stage", stage);
         sc(working, "validate", "-stage", stage);
-        sc(working, "history", "-stage", stage);
+        // TODO: sc(working, "history", "-stage", stage);
         sc(working, "delete", "-stage", stage, "-batch");
         working.deleteTree();
     }

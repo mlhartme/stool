@@ -68,23 +68,23 @@ public class LocalClient extends Client {
         Map<String, Map<String, JsonElement>> result;
         Context context;
         Map<String, IOException> problems;
-        Map<String, JsonElement> obj;
+        Map<String, JsonElement> s;
 
         result = new HashMap<>();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
             context = new Context(engine);
             for (Stage stage : server.list(engine, new PredicateParser(context).parse(filter), problems)) {
-                obj = new HashMap<>();
-                result.put(stage.getName(), obj);
+                s = new HashMap<>();
+                result.put(stage.getName(), s);
                 for (Info info : stage.fields()) {
                     if (select.isEmpty() || select.remove(info.name())) {
-                        obj.put(info.name(), info.getAsJson(context));
+                        s.put(info.name(), info.getAsJson(context));
                     }
                 }
                 for (Value value : stage.values()) {
                     if (select != null && select.remove(value.name())) {
-                        obj.put(value.name(), new JsonPrimitive(value.get(context)));
+                        s.put(value.name(), new JsonPrimitive(value.get(context)));
                     }
                 }
                 if (select != null && !select.isEmpty()) {

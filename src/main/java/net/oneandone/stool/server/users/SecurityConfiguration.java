@@ -99,7 +99,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .and()
 
                 .authorizeRequests()
-                    .antMatchers("/api/info", "/webjars/**").permitAll()
+                    .antMatchers("/api/version", "/webjars/**").permitAll()
                     .anyRequest().authenticated();
         } else {
             http.authorizeRequests().antMatchers("/**").anonymous();

@@ -84,7 +84,7 @@ spec:
             {{- if .Values.cert }}
             scheme: HTTPS
             {{- end }}
-            path: /api/info
+            path: /api/version
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
@@ -94,6 +94,9 @@ spec:
           requests:
             cpu: 200m
         volumeMounts:
+          - mountPath: /root/.sc.yaml
+            subPath: .sc.yaml
+            name: sc-yaml
           - mountPath: /etc/fault
             name: fault
           - mountPath: /etc/charts
@@ -113,8 +116,6 @@ spec:
         env:
         - name: FQDN
           value: "{{ .Values.fqdn }}"
-        - name: REGISTRY_CREDENTIALS
-          value: "{{ .Values.registryCredentials }}"
         - name: KUBERNETES
           value: "{{ .Values.kubernetes }}"
         - name: OPTS
@@ -199,6 +200,12 @@ spec:
             name: hostkey-volume
 {{- end }}
       volumes:
+      - name: sc-yaml
+        configMap:
+          name: sc-yaml
+          items:
+            - key: .sc.yaml
+              path: .sc.yaml
       - name: charts
         emptyDir: {}
       - name: fluentd-config

@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -77,14 +78,14 @@ public class ApiController {
         JsonObject obj;
         JsonObject result;
 
-        map = client.list(filter, "*".equals(selectStr) ? null : Separator.COMMA.split(selectStr));
+        map = client.list(filter, "*".equals(selectStr) ? Collections.emptyList() : Separator.COMMA.split(selectStr));
         result = new JsonObject();
-        for (Map.Entry<String, Map<String, JsonElement>> entry : map.entrySet()) {
+        for (Map.Entry<String, Map<String, JsonElement>> stage : map.entrySet()) {
             obj = new JsonObject();
-            for (Map.Entry<String, JsonElement> o : entry.getValue().entrySet()) {
-                result.add(o.getKey(), o.getValue());
+            for (Map.Entry<String, JsonElement> o : stage.getValue().entrySet()) {
+                obj.add(o.getKey(), o.getValue());
             }
-            result.add(entry.getKey(), obj);
+            result.add(stage.getKey(), obj);
         }
         return result.toString();
     }
