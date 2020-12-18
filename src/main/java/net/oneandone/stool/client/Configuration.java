@@ -95,6 +95,22 @@ public class Configuration {
         }
     }
 
+    public Settings.UsernamePassword registryCredentials(String registry) {
+        return registryCredentials.get(registry);
+    }
+
+    private String registryCredentialsString() {
+        StringBuilder result;
+
+        result = new StringBuilder();
+        for (Map.Entry<String, Settings.UsernamePassword> entry : registryCredentials.entrySet()) {
+            if (result.length() > 0) {
+                result.append(',');
+            }
+            result.append(entry.getKey() + "=" + entry.getValue().username + ":" + entry.getValue().password);
+        }
+        return result.toString();
+    }
 
     //-- contexts
 
@@ -198,6 +214,7 @@ public class Configuration {
         if (currentContext != null) {
             obj.put("currentContext", currentContext);
         }
+        obj.put("registryCredentials", registryCredentialsString());
         array = obj.putArray("contexts");
         for (Context server : contexts.values()) {
             array.add(server.toYaml(yaml));

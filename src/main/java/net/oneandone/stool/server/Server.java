@@ -55,14 +55,7 @@ public class Server {
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
     public static Server createLocal(World world, String context) throws IOException {
-        Server result;
-        Configuration client;
-
-        result = create(world, context);
-        client = new Configuration(world);
-        client.load(world.getHome().join(".sc.yaml"));
-        result.settings.setRegistryCredentials(client.registryCredentials);
-        return result;
+        return create(world, context);
     }
 
     public static Server createCluster(World world) throws IOException {
@@ -70,6 +63,7 @@ public class Server {
     }
 
     private static Server create(World world, String context) throws IOException {
+        Configuration configuration;
         String version;
         Settings settings;
         Server server;
@@ -81,10 +75,13 @@ public class Server {
         FileNode logbase;
 
         settings = Settings.load();
+        configuration = new Configuration(world);
+        configuration.load(world.getHome().join(".sc.yaml")); // TODO
         LOGGER.info("server version: " + Main.versionString(world));
         LOGGER.info("context: " + context);
         LOGGER.info("server auth: " + settings.auth());
         LOGGER.info("server settings: " + settings);
+        LOGGER.info("server configuration: " + configuration);
         try (Engine engine = Engine.createClusterOrLocal(context)) {
             openShift = engine.isOpenShift();
             LOGGER.info("OpenShift: " + openShift);
@@ -99,7 +96,7 @@ public class Server {
                 home = world.getHome().join(".sc").mkdirOpt(); // TODO
                 logbase = world.getHome().join(".sc-logs").mkdirOpt(); // TODO
             }
-            server = new Server(charts, gson(world), version, context, home, logbase, world, openShift, localhostIp, settings);
+            server = new Server(charts, gson(world), version, context, home, logbase, world, openShift, localhostIp, settings, configuration);
             server.validate();
             return server;
         }
@@ -135,11 +132,13 @@ public class Server {
     /** used read-only */
     public final Settings settings;
 
+    public final Configuration configuration;
+
     public final UserManager userManager;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public Server(String charts, Gson gson, String version, String context, FileNode home, FileNode logbase, World world,
-                  boolean openShift, String localhostIp, Settings settings) throws IOException {
+                  boolean openShift, String localhostIp, Settings settings, Configuration configuration) throws IOException {
         this.charts = charts;
         this.gson = gson;
         this.version = version;
@@ -151,6 +150,7 @@ public class Server {
         this.stageLogs = logbase.join("stages");
         this.localhostIp = localhostIp;
         this.settings = settings;
+        this.configuration = configuration;
         this.userManager = UserManager.loadOpt(home.join("users.json"));
     }
 
@@ -286,7 +286,7 @@ public class Server {
         }
         host = image.substring(0, idx);
         uri = "https://";
-        up = settings.registryCredentials(host);
+        up = configuration.registryCredentials(host);
         if (up != null) {
             uri = uri + up.username + ":" + up.password + "@";
         }
