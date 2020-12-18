@@ -236,9 +236,7 @@ public class Server {
         List<String> result;
 
         result = engine.helmList();
-        if (!result.remove("stool")) {
-            throw new IllegalStateException(result.toString());
-        }
+        result.remove("stool"); // optional, stool server is not required
         return result;
     }
 
