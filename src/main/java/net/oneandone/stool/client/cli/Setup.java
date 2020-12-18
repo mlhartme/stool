@@ -84,12 +84,6 @@ public class Setup {
             }
             name = spec.substring(0, idx);
             url = spec.substring(idx + 1);
-            idx = url.indexOf('@');
-            if (idx == -1) {
-                throw new IllegalStateException("missing '@': " + spec);
-            }
-            url = url.substring(0, idx);
-
             result.contexts.clear();
             result.addContext(name, url, null);
         }

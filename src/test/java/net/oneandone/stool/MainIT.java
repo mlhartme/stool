@@ -98,13 +98,12 @@ public class MainIT {
         String stage;
 
         working = IT_ROOT.join("projects/it").mkdirsOpt();
-        helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
+        // TODO helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
 
         stage = "de.wq-ta"; // with some special characters
 
-        //sc("setup", "localhost=http://localhost:31000/api@" + portusPrefix());
+        //sc("setup", "localhost=http://localhost:31000/api");
         sc("setup", "localhost=local:local");
-
         sc(working, "context", "localhost");
         sc(working, "list");
         sc(working,"create", "-e", "-wait", '@' + REPOSITORY, stage);
