@@ -75,7 +75,6 @@ public class Setup {
         Configuration result;
         String name;
         String url;
-        String registryPrefix;
 
         result = initialConfiguration();
         if (spec != null) {
@@ -89,12 +88,10 @@ public class Setup {
             if (idx == -1) {
                 throw new IllegalStateException("missing '@': " + spec);
             }
-            registryPrefix = url.substring(idx + 1);
             url = url.substring(0, idx);
 
             result.contexts.clear();
             result.addContext(name, url, null);
-            result.setRegistryPrefix(registryPrefix);
         }
         return result;
     }

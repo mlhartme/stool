@@ -41,7 +41,6 @@ import java.util.Map;
 public class Configuration {
     private final World world;
     private String version;
-    private String registryPrefix;
     public final Map<String, Settings.UsernamePassword> registryCredentials;
     public final FileNode wirelog;
     public final String clientInvocation;
@@ -57,7 +56,6 @@ public class Configuration {
     public Configuration(World world, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.world = world;
         this.version = null;
-        this.registryPrefix = "127.0.0.1:31500/";
         this.registryCredentials = new HashMap<>();
         this.currentContext = null;
         this.contexts = new LinkedHashMap<>();
@@ -75,16 +73,6 @@ public class Configuration {
     }
     public String version() {
         return version;
-    }
-
-    public void setRegistryPrefix(String str) {
-        this.registryPrefix = str;
-    }
-    public String registryPrefix() {
-        if (!registryPrefix.endsWith("/")) {
-            throw new IllegalStateException(registryPrefix);
-        }
-        return registryPrefix;
     }
 
     public void setRegistryCredentials(String str) {
@@ -191,7 +179,6 @@ public class Configuration {
         }
 
         contexts.clear();
-        registryPrefix = all.get("registryPrefix").asText();
         setRegistryCredentials(all.get("registryCredentials").asText());
         currentContext = all.has("currentContext") ? all.get("currentContext").asText() : null;
 
@@ -208,8 +195,6 @@ public class Configuration {
         ArrayNode array;
 
         obj = yaml.createObjectNode();
-        obj.put("registryPrefix", registryPrefix);
-
         if (currentContext != null) {
             obj.put("currentContext", currentContext);
         }
