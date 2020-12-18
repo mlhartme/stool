@@ -42,6 +42,7 @@ public class Configuration {
     private final World world;
     private String version;
     public final Map<String, Settings.UsernamePassword> registryCredentials;
+    public String charts;
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
@@ -59,6 +60,7 @@ public class Configuration {
         this.registryCredentials = new HashMap<>();
         this.currentContext = null;
         this.contexts = new LinkedHashMap<>();
+        this.charts = "/etc/charts";
 
         // transient
         this.wirelog = wirelog;
@@ -195,7 +197,8 @@ public class Configuration {
         }
 
         contexts.clear();
-        setRegistryCredentials(all.get("registryCredentials").asText());
+        setRegistryCredentials(string(all, "registryCredentials", ""));
+        charts = string(all, "charts", "/etc/charts");
         currentContext = all.has("currentContext") ? all.get("currentContext").asText() : null;
 
         iter = all.get("contexts").iterator();
@@ -204,6 +207,10 @@ public class Configuration {
             context = Context.fromYaml(one, wirelog, clientInvocation, clientCommand);
             contexts.put(context.name, context);
         }
+    }
+
+    private static String string(ObjectNode node, String field, String dflt) {
+        return node.has(field) ? node.get(field).asText() : dflt;
     }
 
     public void save(FileNode file) throws IOException {
@@ -215,6 +222,7 @@ public class Configuration {
             obj.put("currentContext", currentContext);
         }
         obj.put("registryCredentials", registryCredentialsString());
+        obj.put("charts", charts);
         array = obj.putArray("contexts");
         for (Context server : contexts.values()) {
             array.add(server.toYaml(yaml));

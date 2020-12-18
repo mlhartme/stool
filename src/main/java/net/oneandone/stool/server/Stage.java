@@ -51,7 +51,7 @@ public class Stage {
     public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values) throws IOException {
         Stage stage;
 
-        Helm.run(World.create().file(server.charts), server, name, false, new HashMap<>(), image, values);
+        Helm.run(World.create().file(server.configuration.charts), server, name, false, new HashMap<>(), image, values);
         stage = Stage.create(server, name, engine.helmRead(name));
         return stage;
     }
@@ -344,7 +344,7 @@ public class Stage {
 
         map = new HashMap<>(values);
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
-        result = Helm.run(World.create().file(server.charts) /* TODO */,
+        result = Helm.run(World.create().file(server.configuration.charts) /* TODO */,
                 server, name, true, map, imageOrRepository, clientValues);
         return result;
     }

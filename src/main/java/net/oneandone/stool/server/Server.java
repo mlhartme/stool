@@ -88,7 +88,6 @@ public class Server {
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
             if (context == null) {
-                charts = "/etc/charts";
                 home = world.file("/var/lib/stool");
                 logbase = world.file("/var/log");
             } else {
@@ -96,15 +95,13 @@ public class Server {
                 home = world.getHome().join(".sc").mkdirOpt(); // TODO
                 logbase = world.getHome().join(".sc-logs").mkdirOpt(); // TODO
             }
-            server = new Server(charts, gson(world), version, context, home, logbase, world, openShift, localhostIp, settings, configuration);
+            server = new Server(gson(world), version, context, home, logbase, world, openShift, localhostIp, settings, configuration);
             server.validate();
             return server;
         }
     }
 
     //--
-
-    public final String charts;
 
     /** gson is thread-save */
     public final Gson gson;
@@ -137,9 +134,8 @@ public class Server {
     public final UserManager userManager;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Server(String charts, Gson gson, String version, String context, FileNode home, FileNode logbase, World world,
+    public Server(Gson gson, String version, String context, FileNode home, FileNode logbase, World world,
                   boolean openShift, String localhostIp, Settings settings, Configuration configuration) throws IOException {
-        this.charts = charts;
         this.gson = gson;
         this.version = version;
         this.context = context;
