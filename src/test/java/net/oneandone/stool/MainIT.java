@@ -127,7 +127,7 @@ public class MainIT {
         sc(clientYaml, working, "publish", "-e", "-stage", stage);
         sc(clientYaml, working, "list", "-stage", stage);
         sc(clientYaml, working, "validate", "-stage", stage);
-        // TODO sc(working, "history", "-stage", stage);
+        sc(clientYaml, working, "history", "-stage", stage);
         sc(clientYaml, working, "delete", "-stage", stage, "-batch");
         working.deleteTree();
     }

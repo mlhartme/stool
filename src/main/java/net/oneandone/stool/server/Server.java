@@ -28,7 +28,6 @@ import net.oneandone.stool.server.settings.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.settings.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.util.Predicate;
@@ -179,25 +178,6 @@ public class Server {
                         break;
                     }
                 }
-            }
-        }
-        return entries;
-    }
-
-    public List<DetailsLogEntry> detailsLog(String clientInvocation) throws IOException {
-        DetailsLogEntry entry;
-        List<DetailsLogEntry> entries;
-        LogReader<DetailsLogEntry> reader;
-
-        entries = new ArrayList<>();
-        reader = LogReader.detailsLog(serverLogs);
-        while (true) {
-            entry = reader.prev();
-            if (entry == null) {
-                break;
-            }
-            if (clientInvocation.equals(entry.clientInvocation)) {
-                entries.add(entry);
             }
         }
         return entries;

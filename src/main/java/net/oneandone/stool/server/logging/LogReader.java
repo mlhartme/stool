@@ -34,10 +34,6 @@ public class LogReader<T> {
         return create(AccessLogEntry::parse, "access-", directory);
     }
 
-    public static LogReader<DetailsLogEntry> detailsLog(FileNode directory) throws IOException {
-        return create(DetailsLogEntry::parse, "details-", directory);
-    }
-
     private static <T> LogReader<T> create(Function<String, T> parser, String prefix, FileNode directory) throws IOException {
         List<FileNode> files;
         Iterator<FileNode> iter;
