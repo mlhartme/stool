@@ -23,13 +23,13 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class HistoryEntry {
-    public static HistoryEntry create(Caller caller, String stage) {
+    public static HistoryEntry create(Caller caller) {
         Instant instant;
         LocalDateTime date;
 
         instant = Instant.ofEpochMilli(System.currentTimeMillis());
         date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-        return new HistoryEntry(date, caller.invocation, caller.user, stage, caller.command);
+        return new HistoryEntry(date, caller.invocation, caller.user, caller.command);
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
@@ -39,18 +39,15 @@ public class HistoryEntry {
         int date;
         int invocation;
         int user;
-        int stage;
 
         date = line.indexOf('|');
         invocation = line.indexOf('|', date + 1); // invocation id
         user = line.indexOf('|', invocation + 1);
-        stage = line.indexOf('|', user + 1);
         return new HistoryEntry(
                 LocalDateTime.parse(line.substring(0, date), HistoryEntry.DATE_FMT),
                 line.substring(date + 1, invocation),
                 line.substring(invocation + 1, user),
-                line.substring(user + 1, stage),
-                line.substring(stage + 1));
+                line.substring(user + 1));
     }
 
     //--
@@ -58,14 +55,12 @@ public class HistoryEntry {
     public final LocalDateTime dateTime;
     public final String invocation;
     public final String user;
-    public final String stage;
     public final String command;
 
-    public HistoryEntry(LocalDateTime dateTime, String tnvocation, String user, String stage, String command) {
+    public HistoryEntry(LocalDateTime dateTime, String tnvocation, String user, String command) {
         this.dateTime = dateTime;
         this.invocation = tnvocation;
         this.user = user;
-        this.stage = stage;
         this.command = command;
     }
 
@@ -77,7 +72,6 @@ public class HistoryEntry {
         result.append(HistoryEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
         result.append(invocation).append('|');
         result.append(user).append('|');
-        result.append(stage).append('|');
         result.append(command);
         return result.toString();
     }

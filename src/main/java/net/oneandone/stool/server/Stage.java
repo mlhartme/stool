@@ -53,7 +53,7 @@ public class Stage {
         Stage stage;
 
         history = new ArrayList<>(1);
-        history.add(HistoryEntry.create(caller, name));
+        history.add(HistoryEntry.create(caller));
         Helm.run(World.create().file(server.configuration.charts), server, name, false, new HashMap<>(), image, values);
         stage = Stage.create(server, name, engine.helmRead(name), history);
         stage.saveHistory(engine);
@@ -382,7 +382,7 @@ public class Stage {
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
         result = Helm.run(World.create().file(server.configuration.charts) /* TODO */,
                 server, name, true, map, imageOrRepository, clientValues);
-        history.add(HistoryEntry.create(caller, name));
+        history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         return result;
     }

@@ -24,11 +24,10 @@ public class HistoryEntryTest {
     public void normal() {
         HistoryEntry entry;
 
-        entry = HistoryEntry.parse("19-04-30 10:12:12,948|someUUID|mabraun|stageName|cmd");
+        entry = HistoryEntry.parse("19-04-30 10:12:12,948|someUUID|mabraun|cmd");
         assertEquals("2019-04-30T10:12:12.948", entry.dateTime.toString());
         assertEquals("someUUID", entry.invocation);
         assertEquals("mabraun", entry.user);
-        assertEquals("stageName", entry.stage);
         assertEquals("cmd", entry.command);
     }
 }
