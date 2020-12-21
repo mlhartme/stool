@@ -36,13 +36,17 @@ public class Setup {
 
     private final World world;
     private final FileNode scYaml;
+    private final String charts;
+    private final String lib;
     private final Console console;
     private final String version;
     private final String spec;
 
-    public Setup(Globals globals, String spec) {
+    public Setup(Globals globals, String charts, String lib, String spec) {
         this.world = globals.getWorld();
         this.scYaml = globals.scYaml();
+        this.charts = charts;
+        this.lib = lib;
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.spec = spec;
@@ -55,6 +59,12 @@ public class Setup {
             throw new IOException("Stool is already set up in " + scYaml.getAbsolute());
         }
         configuration = configuration();
+        if (charts != null) {
+            configuration.charts = charts;
+        }
+        if (lib != null) {
+            configuration.lib = lib;
+        }
         configuration.save(scYaml);
         console.info.println("Done - created " + scYaml.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");

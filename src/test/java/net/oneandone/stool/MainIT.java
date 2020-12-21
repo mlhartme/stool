@@ -84,17 +84,16 @@ public class MainIT {
     public static void afterAll() throws IOException {
         kubectl("logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
     }
-
+/*
     @Test
     public void local() throws IOException {
         run(true);
     }
-
-    /*
+*/
     @Test
     public void proxy() throws IOException {
         run(false);
-    }*/
+    }
 
     private void run(boolean local) throws IOException {
         FileNode working;
@@ -103,7 +102,9 @@ public class MainIT {
         stage = "de.wq-ta"; // with some special characters
         working = IT_ROOT.join("projects/it-" + local).mkdirsOpt();
         if (local) {
-            sc("setup", "localhost=local:local");
+            // TODO
+            sc("setup", "-charts=/Users/mhm/Projects/helmcharts", "-lib=" + working.join("lib").getAbsolute(),
+                    "localhost=local:local");
         } else {
             helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
             sc("setup", "localhost=http://localhost:31000/api");
