@@ -48,7 +48,7 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values, List<String> history) throws IOException {
+    public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values, List<AccessLogEntry> history) throws IOException {
         Stage stage;
 
         Helm.run(World.create().file(server.configuration.charts), server, name, false, new HashMap<>(), image, values);
@@ -59,17 +59,17 @@ public class Stage {
 
     private static final String HISTORY_PREFIX = "stool-";
 
-    public static Map<String, String> historyToMap(List<String> history) {
+    public static Map<String, String> historyToMap(List<AccessLogEntry> history) {
         Map<String, String> map;
 
         map = new HashMap<>(history.size());
         for (int i = 0; i < history.size(); i++) {
-            map.put(HISTORY_PREFIX + i, history.get(i));
+            map.put(HISTORY_PREFIX + i, history.get(i).toString());
         }
         return map;
     }
-    public static List<String> historyFromMap(Map<String, String> annotations) {
-        List<String> result;
+    public static List<AccessLogEntry> historyFromMap(Map<String, String> annotations) {
+        List<AccessLogEntry> result;
         String value;
 
         result = new ArrayList<>();
@@ -79,14 +79,14 @@ public class Stage {
                 if (value == null) {
                     break;
                 }
-                result.add(value);
+                result.add(AccessLogEntry.parse(value));
             }
         }
         return result;
     }
 
 
-    public static Stage create(Server server, String name, JsonObject helmObject, List<String> history) throws IOException {
+    public static Stage create(Server server, String name, JsonObject helmObject, List<AccessLogEntry> history) throws IOException {
         return new Stage(server, name, values(helmObject), helmObject.get("info").getAsJsonObject(), history);
     }
 
@@ -150,9 +150,9 @@ public class Stage {
 
     private final JsonObject info;
 
-    public final List<String> history;
+    public final List<AccessLogEntry> history;
 
-    public Stage(Server server, String name, Map<String, Object> values, JsonObject info, List<String> history) {
+    public Stage(Server server, String name, Map<String, Object> values, JsonObject info, List<AccessLogEntry> history) {
         this.server = server;
         this.name = name;
         this.values = values;
@@ -379,7 +379,7 @@ public class Stage {
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
         result = Helm.run(World.create().file(server.configuration.charts) /* TODO */,
                 server, name, true, map, imageOrRepository, clientValues);
-        history.add("published"); // TODO
+        history.add(AccessLogEntry.create("published")); // TODO
         saveHistory(engine);
         return result;
     }
@@ -482,11 +482,6 @@ public class Stage {
             cachedAccessLogModifiedOnly = server.accessLog(getName(), -1, true);
         }
         return cachedAccessLogModifiedOnly;
-    }
-
-    /** @return last entry first; list may be empty because old log files are removed. */
-    public List<AccessLogEntry> accessLogAll(int max) throws IOException {
-        return server.accessLog(getName(), max, false);
     }
 
     /* @return null if unknown (e.g. because log file was wiped) */

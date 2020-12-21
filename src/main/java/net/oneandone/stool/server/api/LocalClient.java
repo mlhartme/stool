@@ -26,6 +26,7 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.Stage;
+import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Info;
@@ -99,6 +100,7 @@ public class LocalClient extends Client {
     @Override
     public Map<String, String> create(String name, String image, Map<String, String> values) throws IOException {
         Stage stage;
+        List<AccessLogEntry> history;
 
         try (Engine engine = engine()) {
             try {
@@ -107,7 +109,9 @@ public class LocalClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(engine, server, name, image, values, Strings.toList("sc create" /* TODO */));
+            history = new ArrayList<>();
+            history.add(AccessLogEntry.create("sc create"));
+            stage = Stage.create(engine, server, name, image, values, history);
             return stage.urlMap(new Context(engine).registry(stage));
         }
     }
@@ -317,13 +321,17 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public List<String> history(String stage) throws IOException {
+    public List<String> history(String name) throws IOException {
+        Stage s;
         List<String> result;
 
-        result = new ArrayList<>();
         try (Engine engine = engine()) {
-            result.addAll(server.load(engine, stage).history);
-            return result;
+            s = server.load(engine, name);
+            result = new ArrayList<>(s.history.size());
+            for (AccessLogEntry entry : s.history) {
+                result.add(entry.toString());
+            }
         }
+        return result;
     }
 }
