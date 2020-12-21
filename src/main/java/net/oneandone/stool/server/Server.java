@@ -350,7 +350,7 @@ public class Server {
         if (!script.isFile()) {
             world.resource("cert-selfsigned.sh").copyFile(script);
             script.setPermissions("rwxr-xr-x");
-            lib.join("certs", certname).mkdirsOpt();
+            lib.join("certs").mkdirsOpt();
         }
         dir = lib.join("certs", certname);
         try {
