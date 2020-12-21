@@ -3,6 +3,7 @@
 ### 6.1.0 (pending)
 
 * Maven: merged all modules into one
+* client `history`: dumped max and details options 
 * Client configuration
   * dumped registryPrefix
 * image handling changes

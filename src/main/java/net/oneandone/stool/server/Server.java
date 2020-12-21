@@ -17,6 +17,7 @@ package net.oneandone.stool.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import net.oneandone.stool.client.Configuration;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.mail.MessagingException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -251,10 +253,16 @@ public class Server {
     //-- Stage access
 
     public Stage load(Engine engine, String name) throws IOException {
-        if (!list(engine).contains(name)) {
+        String secretName;
+        JsonObject obj;
+
+        secretName = engine.helmSecretName(name);
+        try {
+            obj = engine.helmSecretRead(secretName);
+        } catch (FileNotFoundException e) {
             throw new StageNotFoundException(name);
         }
-        return Stage.create(this, name, engine.helmRead(name));
+        return Stage.create(this, name, obj, Stage.historyFromMap(engine.secretGetAnnotations(secretName)));
     }
 
     //--

@@ -135,9 +135,8 @@ public class ApiController {
     }
 
     @GetMapping("/stages/{stage}/history")
-    public String history(@PathVariable(value = "stage") String stage,
-                          @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
-        return array(client.history(stage, details, max)).toString();
+    public String history(@PathVariable(value = "stage") String stage) throws IOException {
+        return array(client.history(stage)).toString();
     }
 
     @PostMapping("/stages/{stage}/validate")

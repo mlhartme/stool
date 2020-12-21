@@ -48,16 +48,46 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values) throws IOException {
+    public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values, List<String> history) throws IOException {
         Stage stage;
 
         Helm.run(World.create().file(server.configuration.charts), server, name, false, new HashMap<>(), image, values);
-        stage = Stage.create(server, name, engine.helmRead(name));
+        stage = Stage.create(server, name, engine.helmRead(name), history);
+        stage.saveHistory(engine);
         return stage;
     }
 
-    public static Stage create(Server server, String name, JsonObject helmObject) throws IOException {
-        return new Stage(server, name, values(helmObject), helmObject.get("info").getAsJsonObject());
+    private static final String HISTORY_PREFIX = "stool-";
+
+    public static Map<String, String> historyToMap(List<String> history) {
+        Map<String, String> map;
+
+        map = new HashMap<>(history.size());
+        for (int i = 0; i < history.size(); i++) {
+            map.put(HISTORY_PREFIX + i, history.get(i));
+        }
+        return map;
+    }
+    public static List<String> historyFromMap(Map<String, String> annotations) {
+        List<String> result;
+        String value;
+
+        result = new ArrayList<>();
+        if (annotations != null) {
+            for (int n = 0; true; n++) {
+                value = annotations.get(HISTORY_PREFIX + n);
+                if (value == null) {
+                    break;
+                }
+                result.add(value);
+            }
+        }
+        return result;
+    }
+
+
+    public static Stage create(Server server, String name, JsonObject helmObject, List<String> history) throws IOException {
+        return new Stage(server, name, values(helmObject), helmObject.get("info").getAsJsonObject(), history);
     }
 
     private static Map<String, Object> values(JsonObject helmObject) throws IOException {
@@ -120,11 +150,14 @@ public class Stage {
 
     private final JsonObject info;
 
-    public Stage(Server server, String name, Map<String, Object> values, JsonObject info) {
+    public final List<String> history;
+
+    public Stage(Server server, String name, Map<String, Object> values, JsonObject info, List<String> history) {
         this.server = server;
         this.name = name;
         this.values = values;
         this.info = info;
+        this.history = history;
     }
 
     public String getName() {
@@ -337,7 +370,7 @@ public class Stage {
     /** CAUTION: values are not updated!
      * @param imageOrRepositoryOpt null to keep current image
      */
-    public String publish(String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
+    public String publish(Engine engine, String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
         String imageOrRepository;
         String result;
@@ -346,7 +379,13 @@ public class Stage {
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
         result = Helm.run(World.create().file(server.configuration.charts) /* TODO */,
                 server, name, true, map, imageOrRepository, clientValues);
+        history.add("published"); // TODO
+        saveHistory(engine);
         return result;
+    }
+
+    private void saveHistory(Engine engine) throws IOException {
+        engine.secretAddAnnotations(engine.helmSecretName(name), historyToMap(history));
     }
 
     public void uninstall(Engine engine) throws IOException {

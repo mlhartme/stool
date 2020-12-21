@@ -19,18 +19,13 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 
 public class History extends IteratedStageCommand {
-    private final boolean details;
-    private final int max;
-
-    public History(Globals globals, boolean details, int max) {
+    public History(Globals globals) {
         super(globals);
-        this.details = details;
-        this.max = max;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        for (String line : reference.client.history(reference.stage, details, max)) {
+        for (String line : reference.client.history(reference.stage)) {
             console.info.println(line);
         }
     }

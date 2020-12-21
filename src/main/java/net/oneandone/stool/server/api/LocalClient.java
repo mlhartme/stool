@@ -26,8 +26,6 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.Stage;
-import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Info;
@@ -109,7 +107,7 @@ public class LocalClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(engine, server, name, image, values);
+            stage = Stage.create(engine, server, name, image, values, Strings.toList("sc create" /* TODO */));
             return stage.urlMap(new Context(engine).registry(stage));
         }
     }
@@ -127,7 +125,7 @@ public class LocalClient extends Client {
             } else {
                 imageOrRepository = Registry.toRepository(stage.getImage());
             }
-            result = stage.publish(imageOrRepository, values);
+            result = stage.publish(engine, imageOrRepository, values);
             return result;
         }
     }
@@ -191,7 +189,7 @@ public class LocalClient extends Client {
                 clientValues.put(entry.getKey(), value);
                 result.put(prop.name(), disclose(prop.name(), value));
             }
-            stage.publish(null, clientValues);
+            stage.publish(engine, null, clientValues);
             return result;
         }
     }
@@ -319,22 +317,13 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public List<String> history(String stage, boolean details, int max) throws IOException {
-        List<AccessLogEntry> entries;
+    public List<String> history(String stage) throws IOException {
         List<String> result;
 
         result = new ArrayList<>();
         try (Engine engine = engine()) {
-            entries = server.load(engine, stage).accessLogAll(max);
-            for (AccessLogEntry entry : entries) {
-                result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
-                if (details) {
-                    for (DetailsLogEntry detail : server.detailsLog(entry.clientInvocation)) {
-                        result.add("  " + detail.level + " " + detail.message);
-                    }
-                }
-            }
+            result.addAll(server.load(engine, stage).history);
+            return result;
         }
-        return result;
     }
 }

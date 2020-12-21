@@ -192,14 +192,12 @@ public class RemoteClient extends Client {
     //--
 
     @Override
-    public List<String> history(String stage, boolean details, int max) throws IOException {
+    public List<String> history(String stage) throws IOException {
         HttpNode node;
         JsonArray references;
         List<String> result;
 
         node = node(stage, "history");
-        node = node.withParameter("details", details);
-        node = node.withParameter("max", max);
         references = getJson(node).getAsJsonArray();
         result = new ArrayList<>(references.size());
         for (JsonElement element : references) {

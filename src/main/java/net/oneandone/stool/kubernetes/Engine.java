@@ -474,6 +474,10 @@ public class Engine implements AutoCloseable {
     //-- helm
 
     public JsonObject helmRead(String name) throws IOException {
+        return helmSecretRead(helmSecretName(name));
+    }
+
+    public String helmSecretName(String name) throws IOException {
         List<Secret> lst;
 
         try {
@@ -486,7 +490,7 @@ public class Engine implements AutoCloseable {
             case 0:
                 throw new java.io.FileNotFoundException("helm release not found: " + name);
             case 1:
-                return helmSecretRead(lst.get(0).getMetadata().getName());
+                return lst.get(0).getMetadata().getName();
             default:
                 throw new IllegalStateException(lst.toString());
         }
@@ -508,7 +512,7 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    private JsonObject helmSecretRead(String secretName) throws IOException {
+    public JsonObject helmSecretRead(String secretName) throws IOException {
         Secret s;
         byte[] release;
 
@@ -532,6 +536,24 @@ public class Engine implements AutoCloseable {
             throw new FileNotFoundException("secret/" + name);
         }
         return secret;
+    }
+
+    public void secretAddAnnotations(String name, Map<String, String> map) throws IOException {
+        try {
+            client.secrets().inNamespace(namespace).withName(name).edit().editMetadata()
+                    .addToAnnotations(map)
+                    .endMetadata().done();
+        } catch (KubernetesClientException e) {
+            throw wrap(e);
+        }
+    }
+
+    public Map<String, String> secretGetAnnotations(String name) throws IOException {
+        try {
+            return client.secrets().inNamespace(namespace).withName(name).get().getMetadata().getAnnotations();
+        } catch (KubernetesClientException e) {
+            throw wrap(e);
+        }
     }
 
     //--
