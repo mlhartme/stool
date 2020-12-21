@@ -19,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.oneandone.stool.client.Caller;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.Server;
@@ -97,12 +98,19 @@ public class ApiController {
 
         values = map(request, "value.");
         try {
-            return Engine.obj(client.create(name, image, values)).toString();
+            return Engine.obj(client.create(caller(request), name, image, values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
             return "";
         }
+    }
+
+    private Caller caller(HttpServletRequest request) {
+        return new Caller(
+                request.getHeader("X-stool-client-invocation"),
+                User.authenticatedOrAnonymous().login,
+                request.getHeader("X-stool-client-command"));
     }
 
     @PostMapping("/stages/{stage}/publish")

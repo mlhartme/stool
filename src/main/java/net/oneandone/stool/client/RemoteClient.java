@@ -127,7 +127,7 @@ public class RemoteClient extends Client {
      * @return image actually started
      * @throws FileAlreadyExistsException if the stage already exists */
     @Override
-    public Map<String, String> create(String stage, String image, Map<String, String> values) throws IOException {
+    public Map<String, String> create(Caller callerTodo, String stage, String image, Map<String, String> values) throws IOException {
         HttpNode node;
         JsonObject response;
 

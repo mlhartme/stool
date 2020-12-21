@@ -56,7 +56,7 @@ public abstract class Client {
     /**
      * @return image actually started
      * @throws FileAlreadyExistsException if the stage already exists */
-    public abstract Map<String, String> create(String stage, String image, Map<String, String> values) throws IOException;
+    public abstract Map<String, String> create(Caller caller, String stage, String image, Map<String, String> values) throws IOException;
 
     /** @return image actually published */
     public abstract String publish(String stage, String imageOpt, Map<String, String> values) throws IOException;

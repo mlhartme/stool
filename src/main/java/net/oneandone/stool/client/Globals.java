@@ -61,6 +61,10 @@ public class Globals {
         this.wirelog = null;
     }
 
+    public Caller caller() {
+        return new Caller(invocation, "todoUser", command); // TODO
+    }
+
     public FileNode scYaml() {
         return scYaml;
     }

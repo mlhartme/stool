@@ -15,19 +15,21 @@
  */
 package net.oneandone.stool.server;
 
+import net.oneandone.stool.client.Caller;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class HistoryEntry {
-    public static HistoryEntry create(String cmd) { // TODO
+    public static HistoryEntry create(Caller caller, String stage, String cmd) { // TODO
         Instant instant;
         LocalDateTime date;
 
         instant = Instant.ofEpochMilli(System.currentTimeMillis());
         date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-        return new HistoryEntry(date, "clientInvocation", "user", "stage", cmd);
+        return new HistoryEntry(date, caller.invocation, caller.user, stage, cmd);
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");

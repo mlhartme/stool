@@ -186,7 +186,7 @@ public class Create extends ClientCommand {
         client = globals.configuration().currentContext().connect(world);
         reference = new Reference(client, resolvedName);
         try {
-            urls = client.create(resolvedName, image, values);
+            urls = client.create(globals.caller(), resolvedName, image, values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {

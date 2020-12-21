@@ -17,6 +17,7 @@ package net.oneandone.stool.server.api;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import net.oneandone.stool.client.Caller;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.PodConfig;
 import net.oneandone.stool.kubernetes.Engine;
@@ -98,7 +99,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> create(String name, String image, Map<String, String> values) throws IOException {
+    public Map<String, String> create(Caller caller, String name, String image, Map<String, String> values) throws IOException {
         Stage stage;
         List<HistoryEntry> history;
 
@@ -110,7 +111,7 @@ public class LocalClient extends Client {
                 // OK, fall through
             }
             history = new ArrayList<>();
-            history.add(HistoryEntry.create("sc create"));
+            history.add(HistoryEntry.create(caller, name, "sc create"));
             stage = Stage.create(engine, server, name, image, values, history);
             return stage.urlMap(new Context(engine).registry(stage));
         }

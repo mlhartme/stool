@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.api;
+package net.oneandone.stool.client;
 
-import net.oneandone.stool.server.Server;
-import net.oneandone.sushi.fs.World;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+public class Caller {
+    public final String invocation;
+    public final String user;
+    public final String command;
 
-import java.io.IOException;
-
-@Configuration
-public class ServerConfigurer implements WebMvcConfigurer {
-    @Bean
-    public World world() throws IOException {
-        return World.create();
-    }
-
-    @Bean
-    public Server server(World world) throws IOException {
-        return Server.createCluster(world);
+    public Caller(String invocation, String user, String command) {
+        this.invocation = invocation;
+        this.user = user;
+        this.command = command;
     }
 }

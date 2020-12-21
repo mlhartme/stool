@@ -18,6 +18,7 @@ package net.oneandone.stool.server;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.oneandone.stool.client.Caller;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
@@ -378,7 +379,7 @@ public class Stage {
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
         result = Helm.run(World.create().file(server.configuration.charts) /* TODO */,
                 server, name, true, map, imageOrRepository, clientValues);
-        history.add(HistoryEntry.create("published")); // TODO
+        history.add(HistoryEntry.create(new Caller("invocation", "user", "publish"), name, "published")); // TODO
         saveHistory(engine);
         return result;
     }
