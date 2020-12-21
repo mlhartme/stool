@@ -400,10 +400,10 @@ public class Stage {
     //--
 
     /** @return login name or null if unknown */
-    public String firstModifiedBy() throws IOException {
+    public String firstModifiedBy() {
         AccessLogEntry entry;
 
-        entry = oldest(accessLogModifiedOnly());
+        entry = oldest();
         return entry == null ? null : entry.user;
     }
 
@@ -466,32 +466,21 @@ public class Stage {
     }
 
     /** @return null if unknown */
-    public String lastModifiedBy() throws IOException {
+    public String lastModifiedBy() {
         AccessLogEntry entry;
 
-        entry = youngest(accessLogModifiedOnly());
+        entry = youngest();
         return entry == null ? null : entry.user;
     }
 
-
-    private List<AccessLogEntry> cachedAccessLogModifiedOnly = null;
-
-    /** @return last entry first; list may be empty because old log files are removed. */
-    public List<AccessLogEntry> accessLogModifiedOnly() throws IOException {
-        if (cachedAccessLogModifiedOnly == null) {
-            cachedAccessLogModifiedOnly = server.accessLog(getName(), -1, true);
-        }
-        return cachedAccessLogModifiedOnly;
-    }
-
     /* @return null if unknown (e.g. because log file was wiped) */
-    private static AccessLogEntry youngest(List<AccessLogEntry> accessLog) {
-        return accessLog.isEmpty() ? null : accessLog.get(0);
+    public AccessLogEntry youngest() {
+        return history.isEmpty() ? null : history.get(history.size() - 1);
     }
 
 
     /* @return null if unkown (e.g. because log file was wiped) */
-    private static AccessLogEntry oldest(List<AccessLogEntry> accessLog) {
-        return accessLog.isEmpty() ? null : accessLog.get(accessLog.size() - 1);
+    public AccessLogEntry oldest() {
+        return history.isEmpty() ? null : history.get(0);
     }
 }

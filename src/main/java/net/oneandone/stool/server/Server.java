@@ -27,8 +27,6 @@ import net.oneandone.stool.server.settings.Settings;
 import net.oneandone.stool.server.settings.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.settings.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.util.Predicate;
 import net.oneandone.sushi.fs.World;
@@ -152,35 +150,6 @@ public class Server {
 
     public FileNode getStageLogs(String name) {
         return stageLogs.join(name);
-    }
-
-    /** @return last entry first; list may be empty because old log files are removed. */
-    public List<AccessLogEntry> accessLog(String stage, int max, boolean modificationsOnly) throws IOException {
-        AccessLogEntry entry;
-        List<AccessLogEntry> entries;
-        LogReader<AccessLogEntry> reader;
-        String previousInvocation;
-
-        entries = new ArrayList<>();
-        reader = LogReader.accessLog(serverLogs);
-        while (true) {
-            entry = reader.prev();
-            if (entry == null) {
-                break;
-            }
-            if (stage.equals(entry.stageName)) {
-                if (!modificationsOnly || (modificationsOnly && entry.request.startsWith("POST "))) {
-                    previousInvocation = entries.isEmpty() ? "" : entries.get(entries.size() - 1).clientInvocation;
-                    if (!entry.clientInvocation.equals(previousInvocation)) {
-                        entries.add(entry);
-                    }
-                    if (entries.size() == max) {
-                        break;
-                    }
-                }
-            }
-        }
-        return entries;
     }
 
     //-- Stage listings
