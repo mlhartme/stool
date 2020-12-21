@@ -48,9 +48,12 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values, List<HistoryEntry> history) throws IOException {
+    public static Stage create(Caller caller, Engine engine, Server server, String name, String image, Map<String, String> values) throws IOException {
+        List<HistoryEntry> history;
         Stage stage;
 
+        history = new ArrayList<>(1);
+        history.add(HistoryEntry.create(caller, name));
         Helm.run(World.create().file(server.configuration.charts), server, name, false, new HashMap<>(), image, values);
         stage = Stage.create(server, name, engine.helmRead(name), history);
         stage.saveHistory(engine);
@@ -370,7 +373,7 @@ public class Stage {
     /** CAUTION: values are not updated!
      * @param imageOrRepositoryOpt null to keep current image
      */
-    public String publish(Engine engine, String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
+    public String publish(Caller caller, Engine engine, String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
         String imageOrRepository;
         String result;
@@ -379,7 +382,7 @@ public class Stage {
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
         result = Helm.run(World.create().file(server.configuration.charts) /* TODO */,
                 server, name, true, map, imageOrRepository, clientValues);
-        history.add(HistoryEntry.create(new Caller("invocation", "user", "publish"), name, "published")); // TODO
+        history.add(HistoryEntry.create(caller, name));
         saveHistory(engine);
         return result;
     }

@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.util;
 
+import net.oneandone.stool.client.Caller;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.Type;
@@ -34,10 +35,12 @@ import java.util.Set;
 public class Validation {
     private final Server server;
     private final Engine engine;
+    private final Caller caller;
 
     public Validation(Server server, Engine engine) {
         this.server = server;
         this.engine = engine;
+        this.caller = new Caller("todo", "todo", "validate cron job");
     }
 
     public List<String> run(String name, boolean email, boolean repair) throws IOException, MessagingException {
@@ -66,7 +69,7 @@ public class Validation {
         }
         if (repair) {
             try {
-                stage.publish(engine, null, Strings.toMap(Type.VALUE_REPLICAS, "0"));
+                stage.publish(caller, engine, null, Strings.toMap(Type.VALUE_REPLICAS, "0"));
                 report.add("replicas set to 0");
             } catch (Exception e) {
                 report.add("replicas change failed: " + e.getMessage());

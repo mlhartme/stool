@@ -140,7 +140,7 @@ public class RemoteClient extends Client {
 
     /** @return tag actually started */
     @Override
-    public String publish(String stage, String imageOpt, Map<String, String> values) throws IOException {
+    public String publish(Caller callerTodo, String stage, String imageOpt, Map<String, String> values) throws IOException {
         HttpNode node;
         JsonElement started;
 
@@ -235,7 +235,7 @@ public class RemoteClient extends Client {
     }
 
     @Override
-    public Map<String, String> setValues(String stage, Map<String, String> values) throws IOException {
+    public Map<String, String> setValues(Caller callerTodo, String stage, Map<String, String> values) throws IOException {
         HttpNode node;
         JsonObject response;
         Map<String, String> result;

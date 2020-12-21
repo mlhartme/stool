@@ -101,7 +101,6 @@ public class LocalClient extends Client {
     @Override
     public Map<String, String> create(Caller caller, String name, String image, Map<String, String> values) throws IOException {
         Stage stage;
-        List<HistoryEntry> history;
 
         try (Engine engine = engine()) {
             try {
@@ -110,15 +109,13 @@ public class LocalClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            history = new ArrayList<>();
-            history.add(HistoryEntry.create(caller, name, "sc create"));
-            stage = Stage.create(engine, server, name, image, values, history);
+            stage = Stage.create(caller, engine, server, name, image, values);
             return stage.urlMap(new Context(engine).registry(stage));
         }
     }
 
     @Override
-    public String publish(String name, String imageOpt, Map<String, String> values) throws IOException {
+    public String publish(Caller caller, String name, String imageOpt, Map<String, String> values) throws IOException {
         String result;
         Stage stage;
         String imageOrRepository;
@@ -130,7 +127,7 @@ public class LocalClient extends Client {
             } else {
                 imageOrRepository = Registry.toRepository(stage.getImage());
             }
-            result = stage.publish(engine, imageOrRepository, values);
+            result = stage.publish(caller, engine, imageOrRepository, values);
             return result;
         }
     }
@@ -174,7 +171,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> setValues(String name, Map<String, String> values) throws IOException {
+    public Map<String, String> setValues(Caller caller, String name, Map<String, String> values) throws IOException {
         Stage stage;
         Value prop;
         String value;
@@ -194,7 +191,7 @@ public class LocalClient extends Client {
                 clientValues.put(entry.getKey(), value);
                 result.put(prop.name(), disclose(prop.name(), value));
             }
-            stage.publish(engine, null, clientValues);
+            stage.publish(caller, engine, null, clientValues);
             return result;
         }
     }

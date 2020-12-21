@@ -66,7 +66,7 @@ public class Config extends IteratedStageCommand {
         int width;
 
         if (set) {
-            for (Map.Entry<String, String> entry : reference.client.setValues(reference.stage, values).entrySet()) {
+            for (Map.Entry<String, String> entry : reference.client.setValues(globals.caller(), reference.stage, values).entrySet()) {
                 console.info.println(entry.getKey() + "=" + entry.getValue());
             }
         } else {

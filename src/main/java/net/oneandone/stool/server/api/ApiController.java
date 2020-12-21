@@ -118,7 +118,7 @@ public class ApiController {
                           @RequestParam(value = "image", required = false) String explicitImage, HttpServletRequest request) throws IOException {
         String result;
 
-        result = client.publish(stageName, explicitImage, map(request, "value."));
+        result = client.publish(caller(request), stageName, explicitImage, map(request, "value."));
         return new JsonPrimitive(result).toString();
     }
 
@@ -139,7 +139,7 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/set-values")
     public String setValues(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        return Engine.obj(client.setValues(stage, map(request, ""))).toString();
+        return Engine.obj(client.setValues(caller(request), stage, map(request, ""))).toString();
     }
 
     @GetMapping("/stages/{stage}/history")

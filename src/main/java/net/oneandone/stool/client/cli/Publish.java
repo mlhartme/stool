@@ -66,6 +66,6 @@ public class Publish extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        reference.client.publish(reference.stage, imageOpt, values);
+        reference.client.publish(globals.caller(), reference.stage, imageOpt, values);
     }
 }

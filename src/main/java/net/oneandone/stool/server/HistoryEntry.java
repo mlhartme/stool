@@ -23,13 +23,13 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class HistoryEntry {
-    public static HistoryEntry create(Caller caller, String stage, String cmd) { // TODO
+    public static HistoryEntry create(Caller caller, String stage) {
         Instant instant;
         LocalDateTime date;
 
         instant = Instant.ofEpochMilli(System.currentTimeMillis());
         date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-        return new HistoryEntry(date, caller.invocation, caller.user, stage, cmd);
+        return new HistoryEntry(date, caller.invocation, caller.user, stage, caller.command);
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
