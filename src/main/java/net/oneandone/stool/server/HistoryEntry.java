@@ -27,82 +27,56 @@ public class HistoryEntry {
 
         instant = Instant.ofEpochMilli(System.currentTimeMillis());
         date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-        return new HistoryEntry(date, "clientInvocation", cmd, "user", "stage", "request", 200);
+        return new HistoryEntry(date, "clientInvocation", "user", "stage", cmd);
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
 
     /** Count-part of the Logging.log method. */
     public static HistoryEntry parse(String line) {
-        int len;
-
         int date;
         int invocation;
-        int command;
         int user;
         int stage;
-        int request;
 
-        len = line.length();
-
-        // CAUTION: do not use split, because messages may contain separators
         date = line.indexOf('|');
         invocation = line.indexOf('|', date + 1); // invocation id
-        command = line.indexOf('|', invocation + 1);
-        user = line.indexOf('|', command + 1);
+        user = line.indexOf('|', invocation + 1);
         stage = line.indexOf('|', user + 1);
-        request = line.indexOf('|', stage + 1);
-        if (request < 0) {
-            throw new IllegalArgumentException(line);
-        }
-        if (line.charAt(len - 1) != '\n') {
-            throw new IllegalArgumentException(line);
-        }
-
         return new HistoryEntry(
                 LocalDateTime.parse(line.substring(0, date), HistoryEntry.DATE_FMT),
                 line.substring(date + 1, invocation),
-                line.substring(invocation + 1, command),
-                line.substring(command + 1, user),
+                line.substring(invocation + 1, user),
                 line.substring(user + 1, stage),
-                line.substring(stage + 1, request),
-                Integer.parseInt(line.substring(request + 1, len - 1)));
+                line.substring(stage + 1));
     }
 
     //--
 
     public final LocalDateTime dateTime;
-    public final String clientInvocation;
-    public final String clientCommand;
+    public final String invocation;
     public final String user;
-    public final String stageName;
-    public final String request;
-    public final int status;
+    public final String stage;
+    public final String command;
 
-    public HistoryEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String request, int status) {
+    public HistoryEntry(LocalDateTime dateTime, String tnvocation, String user, String stage, String command) {
         this.dateTime = dateTime;
-        this.clientInvocation = clientInvocation;
-        this.clientCommand = clientCommand;
+        this.invocation = tnvocation;
         this.user = user;
-        this.stageName = stageName;
-        this.request = request;
-        this.status = status;
+        this.stage = stage;
+        this.command = command;
     }
 
     public String toString() {
         StringBuilder result;
 
         result = new StringBuilder();
-        char c;
 
         result.append(HistoryEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
-        result.append(clientInvocation).append('|');
-        result.append(clientCommand).append('|');
+        result.append(invocation).append('|');
         result.append(user).append('|');
-        result.append(stageName).append('|');
-        result.append(request).append('|');
-        result.append(status);
-        result.append('\n');
+        result.append(stage).append('|');
+        result.append(command);
         return result.toString();
     }
 }
