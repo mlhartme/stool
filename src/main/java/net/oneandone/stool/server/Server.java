@@ -350,11 +350,13 @@ public class Server {
         if (!script.isFile()) {
             world.resource("cert-selfsigned.sh").copyFile(script);
             script.setPermissions("rwxr-xr-x");
+            lib.join("certs", certname).mkdirsOpt();
         }
-        dir = lib.join("certs", certname).mkdirsOpt();
+        dir = lib.join("certs", certname);
         try {
-            LOGGER.debug(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), settings.fqdn));
+            LOGGER.info(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), settings.fqdn));
         } catch (IOException e) {
+            LOGGER.error(script.getAbsolute() + " failed: " + e.getMessage(), e);
             broken = dir.getParent().join(dir.getName() + ".broken");
             broken.deleteTreeOpt();
             dir.move(broken);

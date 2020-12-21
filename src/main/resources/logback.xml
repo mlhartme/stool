@@ -1,28 +1,4 @@
 <configuration>
-  <property name="root" value="/var/log/stool" />
-
-  <logger name="ACCESS" additivity="false">
-    <appender name="ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-        <fileNamePattern>${root}/access-%d{yyyy-MM-dd, UTC}.log</fileNamePattern>
-        <maxHistory>90</maxHistory>
-        <totalSizeCap>1GB</totalSizeCap>
-      </rollingPolicy>
-      <encoder class="net.oneandone.stool.server.logging.AccessLogEncoder" />
-    </appender>
-  </logger>
-
-  <logger name="DETAILS" level="debug" additivity="true">
-    <appender name="DETAILS" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-        <fileNamePattern>${root}/details-%d{yyyy-MM-dd, UTC}.log</fileNamePattern>
-        <maxHistory>90</maxHistory>
-        <totalSizeCap>1GB</totalSizeCap>
-      </rollingPolicy>
-      <encoder class="net.oneandone.stool.server.logging.DetailsLogEncoder" />
-    </appender>
-  </logger>
-
   <root level="${loglevel:-INFO}">
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
       <encoder>
