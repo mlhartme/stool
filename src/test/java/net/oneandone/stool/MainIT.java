@@ -17,6 +17,7 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.client.cli.Main;
 import net.oneandone.stool.util.Secrets;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -38,36 +39,36 @@ public class MainIT {
 
     private static final World WORLD;
     private static final FileNode PROJECT_ROOT;
-    private static final FileNode IT_ROOT;
-    private static final FileNode CLIENT_YAML;
 
     static {
         try {
             WORLD = Main.world();
             PROJECT_ROOT = WORLD.guessProjectHome(MainIT.class);
-            IT_ROOT = PROJECT_ROOT.join("target/it").mkdirOpt();
-            CLIENT_YAML = IT_ROOT.join("sc.yaml");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
+    private static FileNode itRoot(boolean local) throws MkdirException {
+        return PROJECT_ROOT.join("target/it-" + local).mkdirOpt();
+
+    }
     // run this to get a sample image deployed
     public static void main(String[] args) throws IOException {
         FileNode working;
 
-        working = IT_ROOT.join("projects/build").mkdirsOpt();
+        working = itRoot(true).join("projects/build").mkdirsOpt();
         System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
         System.out.println(working.exec("mvn", "clean", "package", "-Dmaven.javadoc.skip=true")); // junit.org for javadocs is offline every now and then ...
         System.out.println(working.exec("mvn", "net.oneandone.stool:stock-image-plugin:build", "-Ddocker.repository=" + REPOSITORY));
         System.out.println("build done");
     }
 
-    private static FileNode serverValues() throws IOException {
+    private static FileNode serverValues(boolean local) throws IOException {
         FileNode file;
         URI portus;
 
-        file = IT_ROOT.join("values.yaml");
+        file = itRoot(local).join("values.yaml");
         portus = Secrets.load(WORLD).portus;
         file.writeLines("registryCredentials: " + portus.getHost() + "=" + portus.getUserInfo());
         return file;
@@ -82,14 +83,15 @@ public class MainIT {
 
     @AfterAll
     public static void afterAll() throws IOException {
-        kubectl("logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
+        kubectl(true, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
+        kubectl(false, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
     }
-/*
+
     @Test
     public void local() throws IOException {
         run(true);
     }
-*/
+
     @Test
     public void proxy() throws IOException {
         run(false);
@@ -97,42 +99,44 @@ public class MainIT {
 
     private void run(boolean local) throws IOException {
         FileNode working;
+        FileNode clientYaml;
         String stage;
 
         stage = "de.wq-ta"; // with some special characters
-        working = IT_ROOT.join("projects/it-" + local).mkdirsOpt();
+        working = itRoot(local).join("projects/it-" + local).mkdirsOpt();
+        clientYaml = working.join("sc.yaml");
         if (local) {
             // TODO
-            sc("setup", "-charts=/Users/mhm/Projects/helmcharts", "-lib=" + working.join("lib").getAbsolute(),
+            sc(clientYaml, "setup", "-charts=/Users/mhm/Projects/helmcharts", "-lib=" + working.join("lib").getAbsolute(),
                     "localhost=local:local");
         } else {
-            helm("upgrade", "--install", "--wait", "--values=" + serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
-            sc("setup", "localhost=http://localhost:31000/api");
+            helm(local, "upgrade", "--install", "--wait", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
+            sc(clientYaml, "setup", "localhost=http://localhost:31000/api");
         }
-        sc(working, "context", "localhost");
-        sc(working, "list");
-        sc(working,"create", "-e", "-wait", '@' + REPOSITORY, stage);
-        sc(working,"list");
-        sc(working,"status", "-stage", stage);
-        sc(working, "detach", "-stage", stage);
-        sc(working, "attach", stage);
-        sc(working, "validate", "-stage", stage);
-        sc(working, "config", "-stage", stage, "metadataComment");
-        sc(working, "config", "-stage", stage, "metadataComment=42");
-        sc(working, "images", "-stage", stage);
-        sc(working, "publish", "-e", "-stage", stage);
-        sc(working, "list", "-stage", stage);
-        sc(working, "validate", "-stage", stage);
+        sc(clientYaml, working, "context", "localhost");
+        sc(clientYaml, working, "list");
+        sc(clientYaml, working,"create", "-e", "-wait", '@' + REPOSITORY, stage);
+        sc(clientYaml, working,"list");
+        sc(clientYaml, working,"status", "-stage", stage);
+        sc(clientYaml, working, "detach", "-stage", stage);
+        sc(clientYaml, working, "attach", stage);
+        sc(clientYaml, working, "validate", "-stage", stage);
+        sc(clientYaml, working, "config", "-stage", stage, "metadataComment");
+        sc(clientYaml, working, "config", "-stage", stage, "metadataComment=42");
+        sc(clientYaml, working, "images", "-stage", stage);
+        sc(clientYaml, working, "publish", "-e", "-stage", stage);
+        sc(clientYaml, working, "list", "-stage", stage);
+        sc(clientYaml, working, "validate", "-stage", stage);
         // TODO sc(working, "history", "-stage", stage);
-        sc(working, "delete", "-stage", stage, "-batch");
+        sc(clientYaml, working, "delete", "-stage", stage, "-batch");
         working.deleteTree();
     }
 
-    public static void kubectl(String ... cmd) throws IOException {
+    public static void kubectl(boolean local, String ... cmd) throws IOException {
         Launcher server;
 
-        try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
-            server = IT_ROOT.launcher("kubectl");
+        try (PrintWriter log = new PrintWriter(itRoot(local).join("server.log").newAppender())) {
+            server = itRoot(local).launcher("kubectl");
             server.arg("--context=" + CONTEXT);
             server.arg(cmd);
             log.write(server.toString() + "\n");
@@ -140,11 +144,11 @@ public class MainIT {
         }
     }
 
-    public void helm(String ... cmd) throws IOException {
+    public void helm(boolean local, String ... cmd) throws IOException {
         Launcher server;
 
-        try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
-            server = IT_ROOT.launcher("helm");
+        try (PrintWriter log = new PrintWriter(itRoot(local).join("server.log").newAppender())) {
+            server = itRoot(local).launcher("helm");
             server.arg("--kube-context=" + CONTEXT);
             server.arg(cmd);
             log.write(server.toString() + "\n");
@@ -153,11 +157,11 @@ public class MainIT {
     }
     private static int id = 0;
 
-    private void sc(String... args) throws IOException {
-        sc(WORLD.getWorking(), args);
+    private void sc(FileNode clientYaml, String... args) throws IOException {
+        sc(clientYaml, WORLD.getWorking(), args);
     }
 
-    private void sc(FileNode working, String... args) throws IOException {
+    private void sc(FileNode clientYaml, FileNode working, String... args) throws IOException {
         int result;
         String command;
         FileNode old;
@@ -168,7 +172,7 @@ public class MainIT {
         old = WORLD.getWorking();
         WORLD.setWorking(working);
         try {
-            result = Main.run(WORLD, CLIENT_YAML, args);
+            result = Main.run(WORLD, clientYaml, args);
             if (result == 0) {
                 System.out.println();
             } else {
