@@ -24,7 +24,6 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
@@ -48,7 +47,7 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
-    public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values, List<AccessLogEntry> history) throws IOException {
+    public static Stage create(Engine engine, Server server, String name, String image, Map<String, String> values, List<HistoryEntry> history) throws IOException {
         Stage stage;
 
         Helm.run(World.create().file(server.configuration.charts), server, name, false, new HashMap<>(), image, values);
@@ -59,7 +58,7 @@ public class Stage {
 
     private static final String HISTORY_PREFIX = "stool-";
 
-    public static Map<String, String> historyToMap(List<AccessLogEntry> history) {
+    public static Map<String, String> historyToMap(List<HistoryEntry> history) {
         Map<String, String> map;
 
         map = new HashMap<>(history.size());
@@ -68,8 +67,8 @@ public class Stage {
         }
         return map;
     }
-    public static List<AccessLogEntry> historyFromMap(Map<String, String> annotations) {
-        List<AccessLogEntry> result;
+    public static List<HistoryEntry> historyFromMap(Map<String, String> annotations) {
+        List<HistoryEntry> result;
         String value;
 
         result = new ArrayList<>();
@@ -79,14 +78,14 @@ public class Stage {
                 if (value == null) {
                     break;
                 }
-                result.add(AccessLogEntry.parse(value));
+                result.add(HistoryEntry.parse(value));
             }
         }
         return result;
     }
 
 
-    public static Stage create(Server server, String name, JsonObject helmObject, List<AccessLogEntry> history) throws IOException {
+    public static Stage create(Server server, String name, JsonObject helmObject, List<HistoryEntry> history) throws IOException {
         return new Stage(server, name, values(helmObject), helmObject.get("info").getAsJsonObject(), history);
     }
 
@@ -150,9 +149,9 @@ public class Stage {
 
     private final JsonObject info;
 
-    public final List<AccessLogEntry> history;
+    public final List<HistoryEntry> history;
 
-    public Stage(Server server, String name, Map<String, Object> values, JsonObject info, List<AccessLogEntry> history) {
+    public Stage(Server server, String name, Map<String, Object> values, JsonObject info, List<HistoryEntry> history) {
         this.server = server;
         this.name = name;
         this.values = values;
@@ -379,7 +378,7 @@ public class Stage {
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
         result = Helm.run(World.create().file(server.configuration.charts) /* TODO */,
                 server, name, true, map, imageOrRepository, clientValues);
-        history.add(AccessLogEntry.create("published")); // TODO
+        history.add(HistoryEntry.create("published")); // TODO
         saveHistory(engine);
         return result;
     }
@@ -401,7 +400,7 @@ public class Stage {
 
     /** @return login name or null if unknown */
     public String firstModifiedBy() {
-        AccessLogEntry entry;
+        HistoryEntry entry;
 
         entry = oldest();
         return entry == null ? null : entry.user;
@@ -467,20 +466,20 @@ public class Stage {
 
     /** @return null if unknown */
     public String lastModifiedBy() {
-        AccessLogEntry entry;
+        HistoryEntry entry;
 
         entry = youngest();
         return entry == null ? null : entry.user;
     }
 
     /* @return null if unknown (e.g. because log file was wiped) */
-    public AccessLogEntry youngest() {
+    public HistoryEntry youngest() {
         return history.isEmpty() ? null : history.get(history.size() - 1);
     }
 
 
     /* @return null if unkown (e.g. because log file was wiped) */
-    public AccessLogEntry oldest() {
+    public HistoryEntry oldest() {
         return history.isEmpty() ? null : history.get(0);
     }
 }

@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.logging;
+package net.oneandone.stool.server;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-public class AccessLogEntry {
-    public static AccessLogEntry create(String cmd) { // TODO
+public class HistoryEntry {
+    public static HistoryEntry create(String cmd) { // TODO
         Instant instant;
         LocalDateTime date;
 
         instant = Instant.ofEpochMilli(System.currentTimeMillis());
         date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-        return new AccessLogEntry(date, "clientInvocation", cmd, "user", "stage", "request", 200);
+        return new HistoryEntry(date, "clientInvocation", cmd, "user", "stage", "request", 200);
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
 
     /** Count-part of the Logging.log method. */
-    public static AccessLogEntry parse(String line) {
+    public static HistoryEntry parse(String line) {
         int len;
 
         int date;
@@ -59,8 +59,8 @@ public class AccessLogEntry {
             throw new IllegalArgumentException(line);
         }
 
-        return new AccessLogEntry(
-                LocalDateTime.parse(line.substring(0, date), AccessLogEntry.DATE_FMT),
+        return new HistoryEntry(
+                LocalDateTime.parse(line.substring(0, date), HistoryEntry.DATE_FMT),
                 line.substring(date + 1, invocation),
                 line.substring(invocation + 1, command),
                 line.substring(command + 1, user),
@@ -79,7 +79,7 @@ public class AccessLogEntry {
     public final String request;
     public final int status;
 
-    public AccessLogEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String request, int status) {
+    public HistoryEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String request, int status) {
         this.dateTime = dateTime;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
@@ -95,7 +95,7 @@ public class AccessLogEntry {
         result = new StringBuilder();
         char c;
 
-        result.append(AccessLogEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
+        result.append(HistoryEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
         result.append(clientInvocation).append('|');
         result.append(clientCommand).append('|');
         result.append(user).append('|');

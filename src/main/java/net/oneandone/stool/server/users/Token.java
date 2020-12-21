@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.users;
 
-import net.oneandone.stool.server.logging.AccessLogEntry;
+import net.oneandone.stool.server.HistoryEntry;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -38,7 +38,7 @@ public class Token {
         if (idx == -1) {
             throw new IllegalArgumentException("invalid token: " + str);
         }
-        return new Token(str.substring(0, idx), LocalDateTime.parse(str.substring(idx + SEPARATOR.length()), AccessLogEntry.DATE_FMT));
+        return new Token(str.substring(0, idx), LocalDateTime.parse(str.substring(idx + SEPARATOR.length()), HistoryEntry.DATE_FMT));
     }
 
     public Token(String value) {
@@ -51,7 +51,7 @@ public class Token {
     }
 
     public String toString() {
-        return value + SEPARATOR + AccessLogEntry.DATE_FMT.format(created);
+        return value + SEPARATOR + HistoryEntry.DATE_FMT.format(created);
     }
 
     public int hashCode() {

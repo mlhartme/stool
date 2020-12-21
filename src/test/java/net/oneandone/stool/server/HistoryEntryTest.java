@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.logging;
+package net.oneandone.stool.server;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AccessLogEntryTest {
+public class HistoryEntryTest {
     @Test
     public void normal() {
-        AccessLogEntry entry;
+        HistoryEntry entry;
 
-        entry = AccessLogEntry.parse("19-04-30 10:12:12,948|someUUID|cmd|mabraun|stageName|GET uri|404\n");
+        entry = HistoryEntry.parse("19-04-30 10:12:12,948|someUUID|cmd|mabraun|stageName|GET uri|404\n");
         assertEquals("2019-04-30T10:12:12.948", entry.dateTime.toString());
         assertEquals("someUUID", entry.clientInvocation);
         assertEquals("mabraun", entry.user);

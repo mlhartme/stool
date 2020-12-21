@@ -26,7 +26,7 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.Stage;
-import net.oneandone.stool.server.logging.AccessLogEntry;
+import net.oneandone.stool.server.HistoryEntry;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.Context;
 import net.oneandone.stool.server.util.Info;
@@ -100,7 +100,7 @@ public class LocalClient extends Client {
     @Override
     public Map<String, String> create(String name, String image, Map<String, String> values) throws IOException {
         Stage stage;
-        List<AccessLogEntry> history;
+        List<HistoryEntry> history;
 
         try (Engine engine = engine()) {
             try {
@@ -110,7 +110,7 @@ public class LocalClient extends Client {
                 // OK, fall through
             }
             history = new ArrayList<>();
-            history.add(AccessLogEntry.create("sc create"));
+            history.add(HistoryEntry.create("sc create"));
             stage = Stage.create(engine, server, name, image, values, history);
             return stage.urlMap(new Context(engine).registry(stage));
         }
@@ -328,7 +328,7 @@ public class LocalClient extends Client {
         try (Engine engine = engine()) {
             s = server.load(engine, name);
             result = new ArrayList<>(s.history.size());
-            for (AccessLogEntry entry : s.history) {
+            for (HistoryEntry entry : s.history) {
                 result.add(entry.toString());
             }
         }
