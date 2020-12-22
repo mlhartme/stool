@@ -30,10 +30,10 @@ import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.HistoryEntry;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.util.Cache;
-import net.oneandone.stool.util.Info;
+import net.oneandone.stool.core.Info;
 import net.oneandone.stool.util.PredicateParser;
 import net.oneandone.stool.util.Validation;
-import net.oneandone.stool.util.Value;
+import net.oneandone.stool.core.Value;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 

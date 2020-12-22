@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.util;
+package net.oneandone.stool.core;
+
+import net.oneandone.stool.util.Cache;
 
 import java.util.Map;
 

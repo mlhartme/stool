@@ -15,7 +15,9 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.stool.core.Field;
 import net.oneandone.stool.core.Stage;
+import net.oneandone.stool.core.Value;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
