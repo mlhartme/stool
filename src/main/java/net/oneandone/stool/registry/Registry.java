@@ -18,7 +18,7 @@ package net.oneandone.stool.registry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.oneandone.stool.server.ArgumentException;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 
 import java.io.IOException;

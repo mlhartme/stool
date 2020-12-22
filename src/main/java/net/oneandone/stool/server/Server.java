@@ -18,6 +18,7 @@ package net.oneandone.stool.server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Configuration;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;

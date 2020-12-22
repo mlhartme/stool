@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.server.values;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.Stage;
 import net.oneandone.stool.server.settings.Expire;

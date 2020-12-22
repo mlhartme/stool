@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.settings;
 
-import net.oneandone.stool.server.ArgumentException;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
