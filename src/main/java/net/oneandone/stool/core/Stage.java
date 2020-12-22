@@ -46,6 +46,7 @@ import java.util.Set;
 
 /**
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
+ * CAUTION: has to be reloaed to reflect e.g. value changes.
  */
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
@@ -269,7 +270,7 @@ public class Stage {
                 List<String> result;
 
                 result = new ArrayList<>();
-                for (TagInfo image : context.images(Stage.this)) {
+                for (TagInfo image : Stage.this.images(context.registry(Stage.this))) {
                     result.add(image.tag);
                 }
                 return result;
@@ -322,7 +323,7 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get(Cache cache) throws IOException {
-                return cache.urlMap(Stage.this, cache.registry(Stage.this));
+                return Stage.this.urlMap(cache.registry(Stage.this));
             }
         });
         return fields;
