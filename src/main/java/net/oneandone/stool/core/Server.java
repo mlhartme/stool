@@ -110,9 +110,6 @@ public class Server {
     /** CAUTION: not thread safe! */
     private final FileNode lib;
 
-    /** Logs of the server. CAUTION: not thread safe! */
-    private final FileNode serverLogs;
-
     /** Logs of stages. CAUTION: not thread safe! */
     private final FileNode stageLogs;
 
@@ -134,8 +131,7 @@ public class Server {
         this.world = world;
         this.openShift = openShift;
         this.lib = world.file(configuration.lib).mkdirsOpt();
-        this.serverLogs = world.file(configuration.logs).join("server").mkdirsOpt();
-        this.stageLogs = world.file(configuration.logs).join("stages").mkdirsOpt();
+        this.stageLogs = world.file(configuration.stageLogs).mkdirsOpt();
         this.localhostIp = localhostIp;
         this.settings = settings;
         this.configuration = configuration;
@@ -144,10 +140,6 @@ public class Server {
 
     public String stageFqdn(String stage) {
         return stage + "." + settings.fqdn;
-    }
-
-    public FileNode getServerLogs() {
-        return serverLogs;
     }
 
     public FileNode getStageLogs(String name) {
