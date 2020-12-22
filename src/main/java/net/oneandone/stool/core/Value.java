@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.core;
 
-import net.oneandone.stool.util.Cache;
+import net.oneandone.stool.kubernetes.Engine;
 
 import java.util.Map;
 
@@ -35,7 +35,7 @@ public class Value extends Info {
         this.value = value;
     }
 
-    public String get(Cache context) {
+    public String get(Engine engine) {
         return get();
     }
 

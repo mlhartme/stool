@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.core;
 
-import net.oneandone.stool.util.Cache;
+import net.oneandone.stool.kubernetes.Engine;
 
 import java.io.IOException;
 
@@ -29,5 +29,5 @@ public abstract class Field extends Info {
         return name();
     }
 
-    public abstract Object get(Cache context) throws IOException;
+    public abstract Object get(Engine engine) throws IOException;
 }

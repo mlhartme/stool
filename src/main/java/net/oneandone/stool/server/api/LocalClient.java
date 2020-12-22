@@ -20,6 +20,7 @@ import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.PodConfig;
+import net.oneandone.stool.core.Info;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
@@ -29,8 +30,6 @@ import net.oneandone.stool.core.Server;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.HistoryEntry;
 import net.oneandone.stool.server.users.User;
-import net.oneandone.stool.util.Cache;
-import net.oneandone.stool.core.Info;
 import net.oneandone.stool.util.PredicateParser;
 import net.oneandone.stool.util.Validation;
 import net.oneandone.stool.core.Value;
@@ -66,25 +65,23 @@ public class LocalClient extends Client {
     @Override
     public Map<String, Map<String, JsonElement>> list(String filter, List<String> select) throws IOException {
         Map<String, Map<String, JsonElement>> result;
-        Cache context;
         Map<String, IOException> problems;
         Map<String, JsonElement> s;
 
         result = new HashMap<>();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            context = new Cache(engine);
-            for (Stage stage : server.list(engine, new PredicateParser(context).parse(filter), problems)) {
+            for (Stage stage : server.list(engine, new PredicateParser(engine).parse(filter), problems)) {
                 s = new HashMap<>();
                 result.put(stage.getName(), s);
                 for (Info info : stage.fields()) {
                     if (select.isEmpty() || select.remove(info.name())) {
-                        s.put(info.name(), info.getAsJson(context));
+                        s.put(info.name(), info.getAsJson(engine));
                     }
                 }
                 for (Value value : stage.values()) {
                     if (select != null && select.remove(value.name())) {
-                        s.put(value.name(), new JsonPrimitive(value.get(context)));
+                        s.put(value.name(), new JsonPrimitive(value.get(engine)));
                     }
                 }
                 if (select != null && !select.isEmpty()) {
@@ -147,13 +144,11 @@ public class LocalClient extends Client {
     @Override
     public Map<String, String> getValues(String stage) throws IOException {
         Map<String, String> result;
-        Cache context;
 
         result = new HashMap<>();
         try (Engine engine = engine()) {
-            context = new Cache(engine);
             for (Value value : server.load(engine, stage).values()) {
-                result.put(value.name(), disclose(value.name(), value.get(context)));
+                result.put(value.name(), disclose(value.name(), value.get(engine)));
             }
             return result;
         }
@@ -175,19 +170,17 @@ public class LocalClient extends Client {
         Stage stage;
         Value prop;
         String value;
-        Cache context;
         Map<String, String> clientValues;
         Map<String, String> result;
 
         try (Engine engine = engine()) {
             stage = server.load(engine, name);
             result = new HashMap<>();
-            context = new Cache(engine);
             clientValues = new HashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 prop = stage.value(entry.getKey());
                 value = entry.getValue();
-                value = value.replace("{}", prop.get(context));
+                value = value.replace("{}", prop.get(engine));
                 clientValues.put(entry.getKey(), value);
                 result.put(prop.name(), disclose(prop.name(), value));
             }

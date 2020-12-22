@@ -18,6 +18,7 @@ package net.oneandone.stool.util;
 import net.oneandone.stool.core.Field;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.Value;
+import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
@@ -30,10 +31,10 @@ public class PredicateParser {
         }
     }
 
-    private final Cache context;
+    private final Engine engine;
 
-    public PredicateParser(Cache context) {
-        this.context = context;
+    public PredicateParser(Engine engine) {
+        this.engine = engine;
     }
 
     public Predicate parse(String filter) {
@@ -148,13 +149,13 @@ public class PredicateParser {
                 Value p;
 
                 if (constField != null) {
-                    obj = field.get(context);
+                    obj = field.get(engine);
                 } else {
                     p = stage.valueOpt(constProperty);
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }
-                    obj = p.get(context);
+                    obj = p.get(engine);
                 }
                 if (obj == null) {
                     str = "";

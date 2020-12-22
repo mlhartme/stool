@@ -26,7 +26,6 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.stool.util.Cache;
 import net.oneandone.stool.values.Helm;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -265,13 +264,13 @@ public class Stage {
         fields = new ArrayList<>();
         fields.add(new Field("name") {
             @Override
-            public Object get(Cache context) {
+            public Object get(Engine engine) {
                 return name;
             }
         });
         fields.add(new Field("images") {
             @Override
-            public Object get(Cache context) throws IOException {
+            public Object get(Engine engine) throws IOException {
                 List<String> result;
 
                 result = new ArrayList<>();
@@ -283,28 +282,28 @@ public class Stage {
         });
         fields.add(new Field("available") {
             @Override
-            public Object get(Cache context) throws IOException {
-                return context.engine.deploymentProbe(Type.deploymentName(name)).statusAvailable;
+            public Object get(Engine engine) throws IOException {
+                return engine.deploymentProbe(Type.deploymentName(name)).statusAvailable;
             }
         });
         fields.add(new Field("last-deployed") {
             @Override
-            public Object get(Cache context) {
+            public Object get(Engine engine) {
                 return info.get("last_deployed").getAsString();
             }
         });
         fields.add(new Field("first-deployed") {
             @Override
-            public Object get(Cache context) {
+            public Object get(Engine engine) {
                 return info.get("first_deployed").getAsString();
             }
         });
         fields.add(new Field("cpu") {
             @Override
-            public Object get(Cache context) throws IOException {
+            public Object get(Engine engine) throws IOException {
                 Stats stats;
 
-                stats = statsOpt(context);
+                stats = statsOpt(engine);
                 if (stats != null) {
                     return stats.cpu;
                 } else {
@@ -314,10 +313,10 @@ public class Stage {
         });
         fields.add(new Field("mem") {
             @Override
-            public Object get(Cache context) throws IOException {
+            public Object get(Engine engine) throws IOException {
                 Stats stats;
 
-                stats = statsOpt(context);
+                stats = statsOpt(engine);
                 if (stats != null) {
                     return stats.memory;
                 } else {
@@ -327,25 +326,25 @@ public class Stage {
         });
         fields.add(new Field("urls") {
             @Override
-            public Object get(Cache cache) throws IOException {
+            public Object get(Engine engine) throws IOException {
                 return Stage.this.urlMap(Stage.this.registry());
             }
         });
         return fields;
     }
 
-    private Stats statsOpt(Cache context) throws IOException {
+    private Stats statsOpt(Engine engine) throws IOException {
         Collection<PodInfo> running;
 
-        running = context.runningPods(this).values();
+        running = runningPods(engine).values();
         if (running.isEmpty()) {
             return null;
         }
-        return context.engine.statsOpt(running.iterator().next() /* TODO */.name, Type.MAIN_CONTAINER);
+        return engine.statsOpt(running.iterator().next() /* TODO */.name, Type.MAIN_CONTAINER);
     }
 
     /** @return logins */
-    public Set<String> notifyLogins() throws IOException {
+    public Set<String> notifyLogins() {
         Set<String> done;
         String login;
 

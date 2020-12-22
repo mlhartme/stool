@@ -19,7 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.stool.util.Cache;
+import net.oneandone.stool.kubernetes.Engine;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,10 +37,10 @@ public abstract class Info {
         return name;
     }
 
-    public abstract Object get(Cache context) throws IOException;
+    public abstract Object get(Engine engine) throws IOException;
 
-    public String getAsString(Cache context) throws IOException {
-        return valueString(get(context));
+    public String getAsString(Engine engine) throws IOException {
+        return valueString(get(engine));
 
     }
 
@@ -68,9 +68,8 @@ public abstract class Info {
             return value.toString();
         }
     }
-    public JsonElement getAsJson(Cache context) throws IOException {
-        return valueJson(get(context));
-
+    public JsonElement getAsJson(Engine engine) throws IOException {
+        return valueJson(get(engine));
     }
 
     private static JsonElement valueJson(Object value) {
