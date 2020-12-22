@@ -85,7 +85,7 @@ public final class Helm {
         checkValues(clientValues, builtInValues(tmp).keySet());
         app.addValues(expressions, map);
         map.putAll(clientValues);
-        expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.settings.defaultExpire)));
+        expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.configuration.defaultExpire)));
         if (expire.isExpired()) {
             throw new ArgumentException(name + ": stage expired: " + expire);
         }

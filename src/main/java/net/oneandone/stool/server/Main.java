@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server;
 
-import net.oneandone.stool.server.settings.Settings;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
@@ -39,10 +38,11 @@ import java.util.List;
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor") // instantiated by spring
 public class Main {
     public static void main(String[] args){
+        /* TODO
         Settings settings;
 
         settings = Settings.load(); // it's loaded twice, but I don't have injection here ...
-        System.setProperty("loglevel", settings.loglevel);
+        System.setProperty("loglevel", settings.loglevel);*/
         SpringApplication.run(Main.class, args);
     }
 

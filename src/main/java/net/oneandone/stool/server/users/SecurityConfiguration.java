@@ -67,7 +67,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private Server server;
 
     protected boolean enabled() {
-        return server.settings.auth();
+        return server.configuration.auth();
     }
 
     //--
@@ -117,7 +117,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override // note that moving this into configure(http) doesn't work ...
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(ldapAuthenticationProvider());
         auth.authenticationProvider(casAuthenticationProvider());
     }
@@ -134,16 +134,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultSpringSecurityContextSource contextSource;
         String url;
 
-        url = enabled() ? server.settings.ldapUrl : "ldap://will-not-be-used";
+        url = enabled() ? server.configuration.ldapUrl : "ldap://will-not-be-used";
         contextSource = new DefaultSpringSecurityContextSource(url);
-        contextSource.setUserDn(server.settings.ldapPrincipal);
-        contextSource.setPassword(server.settings.ldapCredentials);
+        contextSource.setUserDn(server.configuration.ldapPrincipal);
+        contextSource.setPassword(server.configuration.ldapCredentials);
         return contextSource;
     }
 
     @Bean
     public LdapUserSearch ldapUserSearch() {
-        return new FilterBasedLdapUserSearch("ou=users,ou=" + server.settings.ldapUnit, "(uid={0})", ldapContextSource());
+        return new FilterBasedLdapUserSearch("ou=users,ou=" + server.configuration.ldapUnit, "(uid={0})", ldapContextSource());
     }
 
     @Bean
@@ -159,7 +159,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public LdapAuthoritiesPopulator ldapAuthoritiesPopulator() {
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
 
-        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource(), "ou=roles,ou=" + server.settings.ldapUnit);
+        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource(), "ou=roles,ou=" + server.configuration.ldapUnit);
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
         authoritiesPopulator.setGroupRoleAttribute("ou");
         authoritiesPopulator.setSearchSubtree(false);
@@ -207,7 +207,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         provider = new CasAuthenticationProvider();
         provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(new Cas20ServiceTicketValidator(server.settings.ldapSso));
+        provider.setTicketValidator(new Cas20ServiceTicketValidator(server.configuration.ldapSso));
         provider.setKey("cas");
         provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsServiceBean()));
         return provider;
@@ -226,7 +226,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         CasAuthenticationEntryPoint entryPoint;
 
         entryPoint = new CasAuthenticationEntryPoint();
-        entryPoint.setLoginUrl(server.settings.ldapSso + "/login/");
+        entryPoint.setLoginUrl(server.configuration.ldapSso + "/login/");
         entryPoint.setServiceProperties(serviceProperties());
         return entryPoint;
     }
@@ -240,7 +240,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         serviceProperties = new ServiceProperties();
         // TODO: report an error when not running https ...
         protocol = System.getProperty("security.require-ssl") != null ? "https" : "http";
-        url = protocol + "://" + server.settings.fqdn + "/login/cas";
+        url = protocol + "://" + server.configuration.fqdn + "/login/cas";
         serviceProperties.setService(url);
         serviceProperties.setSendRenew(false);
         return serviceProperties;

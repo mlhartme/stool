@@ -24,10 +24,6 @@ import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.api.StageNotFoundException;
-import net.oneandone.stool.server.settings.Expire;
-import net.oneandone.stool.server.settings.Settings;
-import net.oneandone.stool.server.settings.adapter.ExpireTypeAdapter;
-import net.oneandone.stool.server.settings.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Predicate;
@@ -67,37 +63,28 @@ public class Server {
     private static Server create(World world, String context) throws IOException {
         Configuration configuration;
         String version;
-        Settings settings;
         Server server;
         String localhostIp;
-        version = Main.versionString(world);
         boolean openShift;
-        FileNode lib;
-        FileNode logs;
 
-        settings = Settings.load();
+        version = Main.versionString(world);
         configuration = new Configuration(world);
         configuration.load(world.getHome().join(".sc.yaml")); // TODO
-        LOGGER.info("server version: " + Main.versionString(world));
+        LOGGER.info("server version: " + version);
         LOGGER.info("context: " + context);
-        LOGGER.info("server auth: " + settings.auth());
-        LOGGER.info("server settings: " + settings);
-        LOGGER.info("server configuration: " + configuration);
+        LOGGER.info("configuration: " + configuration);
         try (Engine engine = Engine.createClusterOrLocal(context)) {
             openShift = engine.isOpenShift();
             LOGGER.info("OpenShift: " + openShift);
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), version, context, world, openShift, localhostIp, settings, configuration);
+            server = new Server(version, context, world, openShift, localhostIp, configuration);
             server.validate();
             return server;
         }
     }
 
     //--
-
-    /** gson is thread-save */
-    public final Gson gson;
 
     public final String version;
 
@@ -116,17 +103,13 @@ public class Server {
 
     public final String localhostIp;
 
-    /** used read-only */
-    public final Settings settings;
-
     public final Configuration configuration;
 
     public final UserManager userManager;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Server(Gson gson, String version, String context, World world,
-                  boolean openShift, String localhostIp, Settings settings, Configuration configuration) throws IOException {
-        this.gson = gson;
+    public Server(String version, String context, World world,
+                  boolean openShift, String localhostIp, Configuration configuration) throws IOException {
         this.version = version;
         this.context = context;
         this.world = world;
@@ -134,13 +117,12 @@ public class Server {
         this.lib = world.file(configuration.lib).mkdirsOpt();
         this.stageLogs = world.file(configuration.stageLogs).mkdirsOpt();
         this.localhostIp = localhostIp;
-        this.settings = settings;
         this.configuration = configuration;
         this.userManager = UserManager.loadOpt(lib.join("users.json"));
     }
 
     public String stageFqdn(String stage) {
-        return stage + "." + settings.fqdn;
+        return stage + "." + configuration.fqdn;
     }
 
     public FileNode getStageLogs(String name) {
@@ -240,14 +222,14 @@ public class Server {
         PrintWriter writer;
 
         LOGGER.error("[" + command + "] " + exceptionContext + ": " + e.getMessage(), e);
-        if (!settings.admin.isEmpty()) {
+        if (!configuration.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
-            body.write("stool: " + Main.versionString(world) + "\n");
+            body.write("stool: " + version + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + exceptionContext + "\n");
             body.write("user: " + MDC.get("USER") + "\n"); // TODO
-            body.write("fqdn: " + settings.fqdn + "\n");
+            body.write("fqdn: " + configuration.fqdn + "\n");
             writer = new PrintWriter(body);
             while (true) {
                 e.printStackTrace(writer);
@@ -258,7 +240,7 @@ public class Server {
                 body.append("Caused by:\n");
             }
             try {
-                settings.mailer().send(settings.admin, new String[]{settings.admin}, subject, body.toString());
+                configuration.mailer().send(configuration.admin, new String[]{ configuration.admin }, subject, body.toString());
             } catch (MessagingException suppressed) {
                 LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
@@ -267,10 +249,8 @@ public class Server {
 
     //-- stool properties
 
-    public static Gson gson(World world) {
+    public static Gson gson() {
         return new GsonBuilder()
-                .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
-                .registerTypeAdapter(Expire.class, new ExpireTypeAdapter())
                 .disableHtmlEscaping()
                 .serializeNulls()
                 .excludeFieldsWithModifiers(Modifier.STATIC, Modifier.TRANSIENT)
@@ -306,7 +286,7 @@ public class Server {
         }
         dir = lib.join("certs", certname);
         try {
-            LOGGER.info(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), settings.fqdn));
+            LOGGER.info(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), configuration.fqdn));
         } catch (IOException e) {
             LOGGER.error(script.getAbsolute() + " failed: " + e.getMessage(), e);
             broken = dir.getParent().join(dir.getName() + ".broken");
@@ -321,8 +301,8 @@ public class Server {
     //--
 
     public void validate() throws IOException {
-        if (settings.auth()) {
-            if (settings.ldapSso.isEmpty()) {
+        if (configuration.auth()) {
+            if (configuration.ldapSso.isEmpty()) {
                 LOGGER.error("ldapSso cannot be empty because security is enabled");
                 throw new IOException("ldapSso is empty");
             }

@@ -169,7 +169,7 @@ public class ApiController {
         User user;
         String result;
 
-        if (server.settings.ldapUrl.isEmpty()) {
+        if (server.configuration.ldapUrl.isEmpty()) {
             throw new IOException("authentication is disabled");
         }
         user = User.authenticatedOpt();

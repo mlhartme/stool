@@ -80,7 +80,7 @@ public class Expressions {
         switch (call.get(0)) {
             case "defaultExpire":
                 arg(call, 0);
-                return Expire.fromNumber(server.settings.defaultExpire).toString();
+                return Expire.fromNumber(server.configuration.defaultExpire).toString();
             case "defaultContact":
                 arg(call, 0);
                 return Stage.NOTIFY_FIRST_MODIFIER;
@@ -139,7 +139,7 @@ public class Expressions {
         String result;
 
         missing = new ArrayList<>();
-        if (server.settings.auth()) {
+        if (server.configuration.auth()) {
             server.checkFaultPermissions(image.author, faultProjects);
         }
         workspace = world.file("/etc/fault/workspace");

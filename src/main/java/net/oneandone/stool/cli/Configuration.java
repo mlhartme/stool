@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.UsernamePassword;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -29,6 +30,7 @@ import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +54,49 @@ public class Configuration {
     public final Map<String, Context> contexts;
     private final ObjectMapper yaml;
 
+    //--
+
+    public String loglevel;
+
+    /**
+     * used for output and application urls
+     */
+    public String fqdn;
+
+    /**
+     * public url for kubernetes api -- reported to clients to use temporary service accounts
+     */
+    public String kubernetes;
+
+    /**
+     * Name + email. Used for problem reports, feedback emails,
+     */
+    public String admin;
+
+    public String mailHost;
+
+    public String mailUsername;
+
+    public String mailPassword;
+
+    public String ldapUrl;
+
+    public String ldapPrincipal;
+
+    public String ldapCredentials;
+
+    public String ldapUnit;
+
+    public String ldapSso;
+
+    /**
+     * Number of days to wait before removing an expired stage.
+     */
+    public int autoRemove;
+
+    public int defaultExpire;
+
+
     public Configuration(World world) {
         this(world, null, null, null);
     }
@@ -72,6 +117,22 @@ public class Configuration {
         this.clientCommand = clientCommand;
 
         this.yaml = new ObjectMapper(new YAMLFactory());
+
+        //--
+        fqdn = "localhost";
+        kubernetes = "http://localhost";
+        loglevel = "INFO";
+        admin = "";
+        autoRemove = -1;
+        ldapUrl = "";
+        ldapPrincipal = "";
+        ldapCredentials = "";
+        ldapUnit = "";
+        ldapSso = "";
+        mailHost = "";
+        mailUsername = "";
+        mailPassword = "";
+        defaultExpire = 0;
     }
 
     public void setVersion(String version) {
@@ -207,6 +268,23 @@ public class Configuration {
         stageLogs = string(all, "stageLogs", "/var/log/stool/stages");
         currentContext = all.has("currentContext") ? all.get("currentContext").asText() : null;
 
+        //--
+        fqdn = string(all, "fqdn", fqdn);
+        kubernetes = string(all, "kubernetes", kubernetes);
+        loglevel = string(all, "loglevel", loglevel);
+        admin = string(all, "admin", admin);
+        autoRemove = number(all, "autoRemove", autoRemove);
+        ldapUrl = string(all, "ldapUrl", ldapUrl);
+        ldapPrincipal = string(all, "ldapPrincipal", ldapPrincipal);
+        ldapCredentials = string(all, "ldapCredentials", ldapCredentials);
+        ldapUnit = string(all, "ldapUnit", ldapUnit);
+        ldapSso = string(all, "ldapSso", ldapSso);
+        mailHost = string(all, "mailHost", mailHost);
+        mailUsername = string(all, "mailUsername", mailUsername);
+        mailPassword = string(all, "mailPassword", mailPassword);
+        defaultExpire = number(all, "defaultExpire", defaultExpire);
+
+        //--
         iter = all.get("contexts").iterator();
         while (iter.hasNext()) {
             one = iter.next();
@@ -215,11 +293,25 @@ public class Configuration {
         }
     }
 
+    private static int number(ObjectNode node, String field, int dflt) {
+        return node.has(field) ? node.get(field).asInt() : dflt;
+    }
+
     private static String string(ObjectNode node, String field, String dflt) {
         return node.has(field) ? node.get(field).asText() : dflt;
     }
 
     public void save(FileNode file) throws IOException {
+        ObjectNode obj;
+
+        obj = toYaml();
+        try (Writer dest = file.newWriter()) {
+            SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
+            sw.write(obj);
+        }
+    }
+
+    public ObjectNode toYaml() {
         ObjectNode obj;
         ArrayNode array;
 
@@ -231,13 +323,54 @@ public class Configuration {
         obj.put("charts", charts);
         obj.put("stageLog", stageLogs);
         obj.put("lib", lib);
+
+        //--
+
+        obj.put("fqdn", fqdn);
+        obj.put("kubernetes", kubernetes);
+        obj.put("loglevel", loglevel);
+        obj.put("admin", admin);
+        obj.put("autoRemove", autoRemove);
+        obj.put("ldapUrl", ldapUrl);
+        obj.put("ldapPrincipal", ldapPrincipal);
+        obj.put("ldapCredentials", ldapCredentials);
+        obj.put("ldapUnit", ldapUnit);
+        obj.put("ldapSso", ldapSso);
+        obj.put("mailHost", mailHost);
+        obj.put("mailUsername", mailUsername);
+        obj.put("mailPassword", mailPassword);
+        obj.put("defaultExpire", defaultExpire);
+
+        //--
+
         array = obj.putArray("contexts");
         for (Context server : contexts.values()) {
             array.add(server.toYaml(yaml));
         }
-        try (Writer dest = file.newWriter()) {
+        return obj;
+    }
+
+    //--
+
+    public String toString() {
+        ObjectNode obj;
+
+        obj = toYaml();
+        try (Writer dest = new StringWriter()) {
             SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
             sw.write(obj);
+            return dest.toString();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
+
+    public Mailer mailer() {
+        return new Mailer(mailHost, mailUsername, mailPassword);
+    }
+
+    public boolean auth() {
+        return !ldapUrl.isEmpty();
+    }
+
 }

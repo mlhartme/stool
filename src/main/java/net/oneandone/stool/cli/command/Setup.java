@@ -48,7 +48,7 @@ public class Setup {
         this.charts = charts;
         this.lib = lib;
         this.console = globals.getConsole();
-        this.version = Main.versionString(world);
+        this.version = net.oneandone.stool.server.Main.versionString(world);
         this.spec = spec;
     }
 
