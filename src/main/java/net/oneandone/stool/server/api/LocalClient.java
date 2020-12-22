@@ -29,7 +29,7 @@ import net.oneandone.stool.core.Server;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.HistoryEntry;
 import net.oneandone.stool.server.users.User;
-import net.oneandone.stool.util.Context;
+import net.oneandone.stool.util.Cache;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.PredicateParser;
 import net.oneandone.stool.util.Validation;
@@ -66,14 +66,14 @@ public class LocalClient extends Client {
     @Override
     public Map<String, Map<String, JsonElement>> list(String filter, List<String> select) throws IOException {
         Map<String, Map<String, JsonElement>> result;
-        Context context;
+        Cache context;
         Map<String, IOException> problems;
         Map<String, JsonElement> s;
 
         result = new HashMap<>();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            context = new Context(engine);
+            context = new Cache(engine);
             for (Stage stage : server.list(engine, new PredicateParser(context).parse(filter), problems)) {
                 s = new HashMap<>();
                 result.put(stage.getName(), s);
@@ -110,7 +110,7 @@ public class LocalClient extends Client {
                 // OK, fall through
             }
             stage = Stage.create(caller, engine, server, name, image, values);
-            return stage.urlMap(new Context(engine).registry(stage));
+            return stage.urlMap(new Cache(engine).registry(stage));
         }
     }
 
@@ -147,11 +147,11 @@ public class LocalClient extends Client {
     @Override
     public Map<String, String> getValues(String stage) throws IOException {
         Map<String, String> result;
-        Context context;
+        Cache context;
 
         result = new HashMap<>();
         try (Engine engine = engine()) {
-            context = new Context(engine);
+            context = new Cache(engine);
             for (Value value : server.load(engine, stage).values()) {
                 result.put(value.name(), disclose(value.name(), value.get(context)));
             }
@@ -175,14 +175,14 @@ public class LocalClient extends Client {
         Stage stage;
         Value prop;
         String value;
-        Context context;
+        Cache context;
         Map<String, String> clientValues;
         Map<String, String> result;
 
         try (Engine engine = engine()) {
             stage = server.load(engine, name);
             result = new HashMap<>();
-            context = new Context(engine);
+            context = new Cache(engine);
             clientValues = new HashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 prop = stage.value(entry.getKey());
@@ -245,12 +245,12 @@ public class LocalClient extends Client {
     @Override
     public Map<String, String> awaitAvailable(String name) throws IOException {
         Stage stage;
-        Context context;
+        Cache context;
 
         try (Engine engine = engine()) {
             stage = server.load(engine, name);
             stage.awaitAvailable(engine);
-            context = new Context(engine);
+            context = new Cache(engine);
             return stage.urlMap(context.registry(stage));
         }
     }

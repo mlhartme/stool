@@ -28,20 +28,18 @@ import java.util.List;
 import java.util.Map;
 
 /** Context for info computation. */
-public class Context {
+public class Cache {
     public final Engine engine;
     private final Map<String, Registry> registries;
     private final Map<String, List<TagInfo>> stageImages;
     private final Map<String, Map<String, PodInfo>> runningPods;
-    private final Map<String, TagInfo> currentOpts;
     private final Map<String, Map<String, String>> urlMaps;
 
-    public Context(Engine engine) {
+    public Cache(Engine engine) {
         this.engine = engine;
         this.registries = new HashMap<>();
         this.stageImages = new HashMap<>();
         this.runningPods = new HashMap<>();
-        this.currentOpts = new HashMap<>();
         this.urlMaps = new HashMap<>();
     }
 
@@ -76,17 +74,6 @@ public class Context {
         if (result == null) {
             result = stage.runningPods(engine);
             runningPods.put(stage.getName(), result);
-        }
-        return result;
-    }
-
-    public TagInfo tagInfo(Stage stage) throws IOException {
-        TagInfo result;
-
-        result = currentOpts.get(stage.getName());
-        if (result == null) {
-            result = stage.tagInfo(registry(stage));
-            currentOpts.put(stage.getName(), result);
         }
         return result;
     }

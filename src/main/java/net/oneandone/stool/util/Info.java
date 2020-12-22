@@ -36,9 +36,9 @@ public abstract class Info {
         return name;
     }
 
-    public abstract Object get(Context context) throws IOException;
+    public abstract Object get(Cache context) throws IOException;
 
-    public String getAsString(Context context) throws IOException {
+    public String getAsString(Cache context) throws IOException {
         return valueString(get(context));
 
     }
@@ -67,7 +67,7 @@ public abstract class Info {
             return value.toString();
         }
     }
-    public JsonElement getAsJson(Context context) throws IOException {
+    public JsonElement getAsJson(Cache context) throws IOException {
         return valueJson(get(context));
 
     }

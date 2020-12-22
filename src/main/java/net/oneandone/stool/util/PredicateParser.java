@@ -28,9 +28,9 @@ public class PredicateParser {
         }
     }
 
-    private final Context context;
+    private final Cache context;
 
-    public PredicateParser(Context context) {
+    public PredicateParser(Cache context) {
         this.context = context;
     }
 

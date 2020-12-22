@@ -27,5 +27,5 @@ public abstract class Field extends Info {
         return name();
     }
 
-    public abstract Object get(Context context) throws IOException;
+    public abstract Object get(Cache context) throws IOException;
 }

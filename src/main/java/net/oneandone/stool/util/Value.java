@@ -33,7 +33,7 @@ public class Value extends Info {
         this.value = value;
     }
 
-    public String get(Context context) {
+    public String get(Cache context) {
         return get();
     }
 

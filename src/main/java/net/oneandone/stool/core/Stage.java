@@ -26,7 +26,7 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.stool.util.Context;
+import net.oneandone.stool.util.Cache;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Value;
@@ -262,13 +262,13 @@ public class Stage {
         fields = new ArrayList<>();
         fields.add(new Field("name") {
             @Override
-            public Object get(Context context) {
+            public Object get(Cache context) {
                 return name;
             }
         });
         fields.add(new Field("images") {
             @Override
-            public Object get(Context context) throws IOException {
+            public Object get(Cache context) throws IOException {
                 List<String> result;
 
                 result = new ArrayList<>();
@@ -280,25 +280,25 @@ public class Stage {
         });
         fields.add(new Field("available") {
             @Override
-            public Object get(Context context) throws IOException {
+            public Object get(Cache context) throws IOException {
                 return context.engine.deploymentProbe(Type.deploymentName(name)).statusAvailable;
             }
         });
         fields.add(new Field("last-deployed") {
             @Override
-            public Object get(Context context) {
+            public Object get(Cache context) {
                 return info.get("last_deployed").getAsString();
             }
         });
         fields.add(new Field("first-deployed") {
             @Override
-            public Object get(Context context) {
+            public Object get(Cache context) {
                 return info.get("first_deployed").getAsString();
             }
         });
         fields.add(new Field("cpu") {
             @Override
-            public Object get(Context context) throws IOException {
+            public Object get(Cache context) throws IOException {
                 Stats stats;
 
                 stats = statsOpt(context);
@@ -311,7 +311,7 @@ public class Stage {
         });
         fields.add(new Field("mem") {
             @Override
-            public Object get(Context context) throws IOException {
+            public Object get(Cache context) throws IOException {
                 Stats stats;
 
                 stats = statsOpt(context);
@@ -324,14 +324,14 @@ public class Stage {
         });
         fields.add(new Field("urls") {
             @Override
-            public Object get(Context context) throws IOException {
-                return context.urlMap(Stage.this, context.registry(Stage.this));
+            public Object get(Cache cache) throws IOException {
+                return cache.urlMap(Stage.this, cache.registry(Stage.this));
             }
         });
         return fields;
     }
 
-    private Stats statsOpt(Context context) throws IOException {
+    private Stats statsOpt(Cache context) throws IOException {
         Collection<PodInfo> running;
 
         running = context.runningPods(this).values();
