@@ -114,38 +114,8 @@ spec:
             subPath: cert.sh
       {{- end }}
         env:
-        - name: FQDN
-          value: "{{ .Values.fqdn }}"
-        - name: KUBERNETES
-          value: "{{ .Values.kubernetes }}"
         - name: OPTS
           value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005{{ if .Values.cert }} -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true{{ end }}"
-        - name: LDAP_URL
-          value: "{{ .Values.ldapUrl }}"
-        - name: LDAP_UNIT
-          value: "{{ .Values.ldapUnit }}"
-        - name: LDAP_PRINCIPAL
-          value: "{{ .Values.ldapPrincipal }}"
-        - name: LDAP_CREDENTIALS
-          value: "{{ .Values.ldapCredentials }}"
-        - name: LDAP_SSO
-          value: "{{ .Values.ldapSso }}"
-        - name: ADMIN
-          value: "{{ .Values.admin }}"
-        - name: AUTO_REMOVE
-          value: "{{ .Values.autoRemove }}"
-        - name: DEFAULT_EXPIRE
-          value: "{{ .Values.defaultExpire }}"
-        - name: ENGINE_LOG
-          value: "{{ .Values.engineLog }}"
-        - name: LOGLEVEL
-          value: "{{ .Values.loglevel }}"
-        - name: MAIL_HOST
-          value: "{{ .Values.mailHost }}"
-        - name: MAIL_USERNAME
-          value: "{{ .Values.username }}"
-        - name: MAIL_PASSWORD
-          value: "{{ .Values.password }}"
 {{- if .Values.faultName }}
       - name: fault-update
         image: {{ .Values.repositoryTag }}
