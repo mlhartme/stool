@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.server.settings.Settings;
+import net.oneandone.stool.util.UsernamePassword;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -41,7 +41,7 @@ import java.util.Map;
 public class Configuration {
     private final World world;
     private String version;
-    public final Map<String, Settings.UsernamePassword> registryCredentials;
+    public final Map<String, UsernamePassword> registryCredentials;
     public String charts;
     public String stageLogs;
     public String lib;
@@ -97,11 +97,11 @@ public class Configuration {
             if (idx < 0) {
                 throw new IllegalStateException(entry);
             }
-            registryCredentials.put(host, new Settings.UsernamePassword(entry.substring(0, idx), entry.substring(idx + 1)));
+            registryCredentials.put(host, new UsernamePassword(entry.substring(0, idx), entry.substring(idx + 1)));
         }
     }
 
-    public Settings.UsernamePassword registryCredentials(String registry) {
+    public UsernamePassword registryCredentials(String registry) {
         return registryCredentials.get(registry);
     }
 
@@ -109,7 +109,7 @@ public class Configuration {
         StringBuilder result;
 
         result = new StringBuilder();
-        for (Map.Entry<String, Settings.UsernamePassword> entry : registryCredentials.entrySet()) {
+        for (Map.Entry<String, UsernamePassword> entry : registryCredentials.entrySet()) {
             if (result.length() > 0) {
                 result.append(',');
             }

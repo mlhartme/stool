@@ -31,6 +31,7 @@ import net.oneandone.stool.server.settings.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Predicate;
+import net.oneandone.stool.util.UsernamePassword;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -213,7 +214,7 @@ public class Server {
     public Registry createRegistry(World registryWorld, String image) throws IOException {
         int idx;
         String host;
-        Settings.UsernamePassword up;
+        UsernamePassword up;
         String uri;
 
         idx = image.indexOf('/');

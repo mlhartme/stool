@@ -100,16 +100,6 @@ public class Settings {
         defaultExpire = 0;
     }
 
-    public static class UsernamePassword {
-        public final String username;
-        public final String password;
-
-        public UsernamePassword(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-    }
-
     private void loadEnv() {
         String name;
         String str;
