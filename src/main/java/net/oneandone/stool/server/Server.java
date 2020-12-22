@@ -51,7 +51,7 @@ import java.util.Properties;
 
 /** Immutable. */
 public class Server {
-    public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
+    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
     public static Server createLocal(World world, String context) throws IOException {
         return create(world, context);

@@ -15,7 +15,8 @@
  */
 package net.oneandone.stool.server.users;
 
-import net.oneandone.stool.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,6 +37,8 @@ import java.util.Collections;
  */
 // TODO: watch https://www.youtube.com/watch?v=EeXFwR21J1A&list=PLEocw3gLFc8XRaRBZkhBEZ_R3tmvfkWZz&index=5
 public class TokenAuthenticationFilter extends GenericFilterBean {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
+
     private final UserManager manager;
 
     public TokenAuthenticationFilter(UserManager manager) {
@@ -47,7 +50,7 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
         User user;
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            Server.LOGGER.debug(((HttpServletRequest) request).getRequestURI() + ": already authenticated: " + User.authenticatedOrAnonymous().login);
+            LOGGER.debug(((HttpServletRequest) request).getRequestURI() + ": already authenticated: " + User.authenticatedOrAnonymous().login);
         } else {
             token = ((HttpServletRequest) request).getHeader("X-authentication");
             if (token != null) {

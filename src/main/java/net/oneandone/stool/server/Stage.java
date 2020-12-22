@@ -33,6 +33,8 @@ import net.oneandone.stool.server.values.Helm;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,6 +50,8 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public class Stage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
+
     public static Stage create(Caller caller, Engine engine, Server server, String name, String image, Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
@@ -392,7 +396,7 @@ public class Stage {
     }
 
     public void uninstall(Engine engine) throws IOException {
-        Server.LOGGER.info(World.createMinimal().getWorking().exec("helm", "uninstall", getName()));
+        LOGGER.info(World.createMinimal().getWorking().exec("helm", "uninstall", getName()));
         engine.deploymentAwaitGone(getName());
     }
 

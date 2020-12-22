@@ -19,6 +19,8 @@ import net.oneandone.stool.server.Server;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.Stage;
 import net.oneandone.stool.server.util.Validation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -29,6 +31,8 @@ import java.util.List;
 
 @Component
 public class ScheduledTask {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTask.class);
+
     private final Server server;
 
     @Autowired
@@ -41,13 +45,13 @@ public class ScheduledTask {
     public void validateAll() throws IOException, MessagingException {
         List<String> output;
 
-        Server.LOGGER.info("scheduled stage validation");
+        LOGGER.info("scheduled stage validation");
         try (Engine engine = Engine.createCluster()) {
             for (Stage stage : server.listAll(engine)) {
-                Server.LOGGER.info("validate " + stage.getName() + ":");
+                LOGGER.info("validate " + stage.getName() + ":");
                 output = new Validation(server, engine).run(stage.getName(), !server.settings.mailHost.isEmpty(), true);
                 for (String line : output) {
-                    Server.LOGGER.info("  " + line);
+                    LOGGER.info("  " + line);
                 }
             }
         }

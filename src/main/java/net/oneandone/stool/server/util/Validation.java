@@ -25,6 +25,8 @@ import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -33,6 +35,8 @@ import java.util.List;
 import java.util.Set;
 
 public class Validation {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Validation.class);
+
     private final Server server;
     private final Engine engine;
     private final Caller caller;
@@ -50,9 +54,9 @@ public class Validation {
         stage = server.load(engine, name);
         report = new ArrayList<>();
         doRun(stage, report, repair);
-        Server.LOGGER.info("Validation done (" + report.size() + " lines report)");
+        LOGGER.info("Validation done (" + report.size() + " lines report)");
         for (String line : report) {
-            Server.LOGGER.info("  " + line);
+            LOGGER.info("  " + line);
         }
         if (email && !report.isEmpty()) {
             email(name, stage.notifyLogins(), report);
@@ -73,7 +77,7 @@ public class Validation {
                 report.add("replicas set to 0");
             } catch (Exception e) {
                 report.add("replicas change failed: " + e.getMessage());
-                Server.LOGGER.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
             if (server.settings.autoRemove >= 0 && expire.expiredDays() >= 0) {
                 if (expire.expiredDays() >= server.settings.autoRemove) {
@@ -82,7 +86,7 @@ public class Validation {
                         stage.uninstall(engine);
                     } catch (Exception e) {
                         report.add("failed to remove expired stage: " + e.getMessage());
-                        Server.LOGGER.debug(e.getMessage(), e);
+                        LOGGER.debug(e.getMessage(), e);
                     }
                 } else {
                     report.add("CAUTION: This stage will be removed automatically in "
@@ -104,9 +108,9 @@ public class Validation {
             body = Separator.RAW_LINE.join(report);
             email = email(user);
             if (email == null) {
-                Server.LOGGER.error("cannot send email, there's nobody to send it to.");
+                LOGGER.error("cannot send email, there's nobody to send it to.");
             } else {
-                Server.LOGGER.info("sending email to " + email);
+                LOGGER.info("sending email to " + email);
                 mailer.send("stool@" + fqdn, new String[] { email },
                         "stage validation failed: " + name + "@" + fqdn, body);
             }

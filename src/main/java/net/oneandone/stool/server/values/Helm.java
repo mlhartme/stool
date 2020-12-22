@@ -26,6 +26,8 @@ import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.Type;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.sushi.fs.file.FileNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -43,6 +45,7 @@ import java.util.Set;
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
  */
 public final class Helm {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
     /**
      * @return imageOrRepository exact image or repository to publish latest tag from
      */
@@ -87,15 +90,15 @@ public final class Helm {
             throw new ArgumentException(name + ": stage expired: " + expire);
         }
         map.put(Type.VALUE_EXPIRE, expire.toString()); // normalize
-        Server.LOGGER.info("values: " + map);
+        LOGGER.info("values: " + map);
         try (PrintWriter v = new PrintWriter(values.newWriter())) {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 v.println(entry.getKey() + ": " + toJson(entry.getValue()));
             }
         }
         try {
-            Server.LOGGER.info("helm install upgrade=" + upgrade);
-            Server.LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
+            LOGGER.info("helm install upgrade=" + upgrade);
+            LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
         } finally {
             tmp.deleteTree();
         }

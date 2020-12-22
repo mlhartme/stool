@@ -18,8 +18,9 @@ package net.oneandone.stool.server.users;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.file.FileNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -36,6 +37,8 @@ import java.util.Random;
  * TODO: saving to a file doesn't make sense in a container ...
  */
 public class UserManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
+
     public static final User ANONYMOUS = new User("anonymous", "Anonymous", null);
 
     public static UserManager loadOpt(FileNode file) throws IOException {
@@ -88,7 +91,7 @@ public class UserManager {
         if (found == null) {
             return null;
         } else if (found.token.created.plusDays(7).isBefore(LocalDateTime.now())) {
-            Server.LOGGER.info("token expired: " + found.token + " " + found.user);
+            LOGGER.info("token expired: " + found.token + " " + found.user);
             tokens.remove(token);
             save();
             return null;
