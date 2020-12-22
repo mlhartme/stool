@@ -107,7 +107,7 @@ public class LocalClient extends Client {
                 // OK, fall through
             }
             stage = Stage.create(caller, engine, server, name, image, values);
-            return stage.urlMap(stage.registry());
+            return stage.urlMap();
         }
     }
 
@@ -213,12 +213,8 @@ public class LocalClient extends Client {
         try (Engine engine = engine()) {
             result = new ArrayList<>();
             stage = server.load(engine, name);
-
-            // TODO
-            registry = stage.registry();
-            all = stage.images(registry);
-
-            tagInfo = stage.tagInfo(registry);
+            all = stage.images();
+            tagInfo = stage.tagInfo();
             for (TagInfo image : all) {
                 marker = image.repositoryTag.equals(tagInfo.repositoryTag) ? "<==" : "";
                 result.add(image.tag + "  " + marker);
@@ -242,7 +238,7 @@ public class LocalClient extends Client {
         try (Engine engine = engine()) {
             stage = server.load(engine, name);
             stage.awaitAvailable(engine);
-            return stage.urlMap(stage.registry());
+            return stage.urlMap();
         }
     }
 
@@ -303,7 +299,7 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            tagInfo = stage.tagInfo(stage.registry());
+            tagInfo = stage.tagInfo();
         }
         server.checkFaultPermissions(User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
         return tagInfo;

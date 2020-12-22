@@ -274,7 +274,7 @@ public class Stage {
                 List<String> result;
 
                 result = new ArrayList<>();
-                for (TagInfo image : Stage.this.images(Stage.this.registry())) {
+                for (TagInfo image : Stage.this.images()) {
                     result.add(image.tag);
                 }
                 return result;
@@ -327,7 +327,7 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return Stage.this.urlMap(Stage.this.registry());
+                return Stage.this.urlMap();
             }
         });
         return fields;
@@ -370,11 +370,11 @@ public class Stage {
     //-- docker
 
     /** @return sorted list, oldest first */
-    public List<TagInfo> images(Registry registry) throws IOException {
+    public List<TagInfo> images() throws IOException {
         String path;
 
         path = Registry.getRepositoryPath(Registry.toRepository(getImage()));
-        return registry.list(path);
+        return registry().list(path);
     }
 
     /** CAUTION: values are not updated!
@@ -422,12 +422,12 @@ public class Stage {
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Registry registry) throws IOException {
+    public Map<String, String> urlMap() throws IOException {
         Map<String, String> result;
         TagInfo tag;
 
         result = new LinkedHashMap<>();
-        tag = registry.tagInfo(getImage());
+        tag = tagInfo();
         addNamed("http", url(tag, "http"), result);
         addNamed("https", url(tag, "https"), result);
         return result;
@@ -471,8 +471,8 @@ public class Stage {
     }
 
     /** @return never null */
-    public TagInfo tagInfo(Registry registry) throws IOException {
-        return registry.tagInfo(getImage());
+    public TagInfo tagInfo() throws IOException {
+        return registry().tagInfo(getImage());
     }
 
     /** @return null if unknown */
