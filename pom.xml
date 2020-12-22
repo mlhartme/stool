@@ -346,7 +346,7 @@
             <configuration>
               <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
               <path>$PATH</path>
-              <options>"-Djava.awt.headless=true --illegal-access=deny -Dlogback.configurationFile=/logback-cli.xml"</options>
+              <options>"-Djava.awt.headless=true --illegal-access=deny"</options>
               <name>sc</name>
               <main>net.oneandone.stool.client.cli.Main</main>
               <equal>META-INF/services/java.security.Provider, org/aopalliance/**/*, META-INF/ASL2.0, javax/annotation/**/*, org/bouncycastle/**/*</equal>
