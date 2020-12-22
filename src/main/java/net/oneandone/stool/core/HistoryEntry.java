@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.core;
 
-import net.oneandone.stool.client.Caller;
+import net.oneandone.stool.cli.Caller;
 
 import java.time.Instant;
 import java.time.LocalDateTime;

@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.client.Caller;
+import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.core.Server;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Type;

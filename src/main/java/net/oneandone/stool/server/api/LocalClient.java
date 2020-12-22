@@ -17,9 +17,9 @@ package net.oneandone.stool.server.api;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.stool.client.Caller;
-import net.oneandone.stool.client.Client;
-import net.oneandone.stool.client.PodConfig;
+import net.oneandone.stool.cli.Caller;
+import net.oneandone.stool.cli.Client;
+import net.oneandone.stool.cli.PodConfig;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;

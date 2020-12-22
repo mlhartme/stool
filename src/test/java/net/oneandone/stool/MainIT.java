@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.client.cli.Main;
+import net.oneandone.stool.cli.command.Main;
 import net.oneandone.stool.util.Secrets;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;

@@ -13,28 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool;
+package net.oneandone.stool.cli.command;
 
-import net.oneandone.stool.cli.RemoteClient;
-import net.oneandone.stool.cli.Workspace;
+import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
-import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
-import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
+public class Images extends IteratedStageCommand {
+    public Images(Globals globals) {
+        super(globals);
+    }
 
-public class WorkspaceTest {
-    @Test
-    public void yaml() throws IOException {
-        World world;
-        FileNode dir;
-        Workspace workspace;
-
-        world = World.createMinimal();
-        dir = world.getTemp().createTempDirectory();
-        workspace = Workspace.create(dir);
-        workspace.add(new Reference(new RemoteClient("ctx", null /* TODO */), "stage"));
-        workspace.save();
+    @Override
+    public void doMain(Reference reference) throws Exception {
+        for (String line : reference.client.images(reference.stage)) {
+            console.info.println(line);
+        }
     }
 }

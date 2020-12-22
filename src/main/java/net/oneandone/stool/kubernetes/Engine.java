@@ -52,7 +52,7 @@ import io.fabric8.openshift.api.model.RouteBuilder;
 import io.fabric8.openshift.api.model.RouteSpecBuilder;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
-import net.oneandone.stool.client.PodConfig;
+import net.oneandone.stool.cli.PodConfig;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.ByteArrayInputStream;

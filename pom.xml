@@ -348,7 +348,7 @@
               <path>$PATH</path>
               <options>"-Djava.awt.headless=true --illegal-access=deny"</options>
               <name>sc</name>
-              <main>net.oneandone.stool.client.cli.Main</main>
+              <main>net.oneandone.stool.cli.command.Main</main>
               <equal>META-INF/services/java.security.Provider, org/aopalliance/**/*, META-INF/ASL2.0, javax/annotation/**/*, org/bouncycastle/**/*</equal>
               <remove>META-INF/maven/**/*,
                 module-info.class, META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
