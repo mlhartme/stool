@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.values;
+package net.oneandone.stool.values;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.Stage;
+import net.oneandone.stool.core.Server;
+import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;

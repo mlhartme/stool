@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.users;
 
-import net.oneandone.stool.server.HistoryEntry;
+import net.oneandone.stool.core.HistoryEntry;
 
 import java.time.LocalDateTime;
 import java.util.Random;

@@ -13,35 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.util;
 
-import java.util.Map;
+import java.io.IOException;
 
-/** A stored value representing one aspect of the stage status. */
-public class Value extends Info {
-    public static Value create(String name, Map<String, Object> values, String dflt) {
-        Object result;
-
-        result = values.get(name);
-        return new Value(name, result == null ? dflt : result.toString());
-    }
-
-    private final String value;
-
-    public Value(String name, String value) {
+/** A computable value representing one aspect of the stage status. */
+public abstract class Field extends Info {
+    protected Field(String name) {
         super(name);
-        this.value = value;
-    }
-
-    public String get(Context context) {
-        return get();
-    }
-
-    public String get() {
-        return value;
     }
 
     public String toString() {
-        return name() + ": " + get();
+        return name();
     }
+
+    public abstract Object get(Context context) throws IOException;
 }

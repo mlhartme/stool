@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server;
+package net.oneandone.stool.core;
 
 /**
  * Things that Stool assumes about helm charts.

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server;
+package net.oneandone.stool.core;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,11 +26,11 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.stool.server.util.Context;
-import net.oneandone.stool.server.util.Field;
-import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.util.Value;
-import net.oneandone.stool.server.values.Helm;
+import net.oneandone.stool.util.Context;
+import net.oneandone.stool.util.Field;
+import net.oneandone.stool.util.Info;
+import net.oneandone.stool.util.Value;
+import net.oneandone.stool.values.Helm;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;

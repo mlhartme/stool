@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.ui;
 
-import net.oneandone.stool.server.Server;
+import net.oneandone.stool.core.Server;
 import net.oneandone.stool.server.users.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

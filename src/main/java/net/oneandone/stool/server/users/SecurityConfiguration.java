@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.users;
 
-import net.oneandone.stool.server.Server;
+import net.oneandone.stool.core.Server;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

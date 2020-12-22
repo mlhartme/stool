@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.values;
 
-import net.oneandone.stool.server.Stage;
+public class Field {
+    public final String name;
+    public final String macro;
 
-import java.io.IOException;
-
-public abstract class Predicate {
-    public abstract boolean matches(Stage stage) throws IOException;
+    public Field(String name, String macro) {
+        this.name = name;
+        this.macro = macro;
+    }
 }

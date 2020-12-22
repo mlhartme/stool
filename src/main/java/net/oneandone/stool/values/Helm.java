@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.values;
+package net.oneandone.stool.values;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,8 +22,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.Type;
+import net.oneandone.stool.core.Server;
+import net.oneandone.stool.core.Type;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;

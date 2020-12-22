@@ -15,10 +15,10 @@
  */
 package net.oneandone.stool.server.ui;
 
-import net.oneandone.stool.server.Server;
+import net.oneandone.stool.core.Server;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.server.Stage;
-import net.oneandone.stool.server.util.Validation;
+import net.oneandone.stool.core.Stage;
+import net.oneandone.stool.util.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

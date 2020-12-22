@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server;
+package net.oneandone.stool.core;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -22,6 +22,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Configuration;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
+import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.server.settings.Settings;
@@ -29,7 +30,7 @@ import net.oneandone.stool.server.settings.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.settings.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.users.UserManager;
-import net.oneandone.stool.server.util.Predicate;
+import net.oneandone.stool.util.Predicate;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;

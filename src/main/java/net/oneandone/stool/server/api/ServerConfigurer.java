@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.api;
 
-import net.oneandone.stool.server.Server;
+import net.oneandone.stool.core.Server;
 import net.oneandone.sushi.fs.World;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.core;
 
-import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
-/** A computable value representing one aspect of the stage status. */
-public abstract class Field extends Info {
-    protected Field(String name) {
-        super(name);
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class HistoryEntryTest {
+    @Test
+    public void normal() {
+        HistoryEntry entry;
+
+        entry = HistoryEntry.parse("19-04-30 10:12:12,948|someUUID|mabraun|cmd");
+        assertEquals("2019-04-30T10:12:12.948", entry.dateTime.toString());
+        assertEquals("someUUID", entry.invocation);
+        assertEquals("mabraun", entry.user);
+        assertEquals("cmd", entry.command);
     }
-
-    public String toString() {
-        return name();
-    }
-
-    public abstract Object get(Context context) throws IOException;
 }

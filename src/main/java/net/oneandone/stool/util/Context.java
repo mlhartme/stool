@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.util;
 
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.server.Stage;
+import net.oneandone.stool.core.Stage;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;

@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.settings;
 
-import net.oneandone.stool.server.util.Mailer;
+import net.oneandone.stool.util.Mailer;
 
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
