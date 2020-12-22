@@ -110,7 +110,7 @@ public class LocalClient extends Client {
                 // OK, fall through
             }
             stage = Stage.create(caller, engine, server, name, image, values);
-            return stage.urlMap(new Cache(engine).registry(stage));
+            return stage.urlMap(stage.registry());
         }
     }
 
@@ -222,7 +222,7 @@ public class LocalClient extends Client {
             stage = server.load(engine, name);
 
             // TODO
-            registry = stage.createRegistry(World.create() /* TODO */);
+            registry = stage.registry();
             all = stage.images(registry);
 
             tagInfo = stage.tagInfo(registry);
@@ -245,13 +245,11 @@ public class LocalClient extends Client {
     @Override
     public Map<String, String> awaitAvailable(String name) throws IOException {
         Stage stage;
-        Cache context;
 
         try (Engine engine = engine()) {
             stage = server.load(engine, name);
             stage.awaitAvailable(engine);
-            context = new Cache(engine);
-            return stage.urlMap(context.registry(stage));
+            return stage.urlMap(stage.registry());
         }
     }
 
@@ -312,7 +310,7 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             stage = server.load(engine, stageName);
-            tagInfo = stage.tagInfo(stage.createRegistry(World.create() /* TODO */));
+            tagInfo = stage.tagInfo(stage.registry());
         }
         server.checkFaultPermissions(User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
         return tagInfo;

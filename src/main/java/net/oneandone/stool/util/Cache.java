@@ -15,11 +15,9 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.core.Stage;
-import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,24 +26,11 @@ import java.util.Map;
 /** Context for info computation. */
 public class Cache {
     public final Engine engine;
-    private final Map<String, Registry> registries;
     private final Map<String, Map<String, PodInfo>> runningPods;
 
     public Cache(Engine engine) {
         this.engine = engine;
-        this.registries = new HashMap<>();
         this.runningPods = new HashMap<>();
-    }
-
-    public Registry registry(Stage stage) throws IOException {
-        Registry result;
-
-        result = registries.get(stage.getName());
-        if (result == null) {
-            result = stage.server.createRegistry(World.create() /* TODO */, stage.getImage());
-            registries.put(stage.getName(), result);
-        }
-        return result;
     }
 
     public Map<String, PodInfo> runningPods(Stage stage) throws IOException {

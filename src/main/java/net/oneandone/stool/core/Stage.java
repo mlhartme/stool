@@ -217,8 +217,13 @@ public class Stage {
         return server.getStageLogs(name);
     }
 
-    public Registry createRegistry(World world) throws IOException {
-        return server.createRegistry(world, getImage());
+    private Registry lazyRegistry = null;
+
+    public Registry registry() throws IOException {
+        if (lazyRegistry == null) {
+            lazyRegistry = server.createRegistry(World.create() /* TODO */, getImage());
+        }
+        return lazyRegistry;
     }
 
     //-- fields
@@ -270,7 +275,7 @@ public class Stage {
                 List<String> result;
 
                 result = new ArrayList<>();
-                for (TagInfo image : Stage.this.images(context.registry(Stage.this))) {
+                for (TagInfo image : Stage.this.images(Stage.this.registry())) {
                     result.add(image.tag);
                 }
                 return result;
@@ -323,7 +328,7 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get(Cache cache) throws IOException {
-                return Stage.this.urlMap(cache.registry(Stage.this));
+                return Stage.this.urlMap(Stage.this.registry());
             }
         });
         return fields;
