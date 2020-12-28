@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.server.Main;
 import net.oneandone.stool.util.Secrets;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
@@ -110,7 +109,7 @@ public class MainIT {
             sc(clientYaml, "setup", "-charts=/Users/mhm/Projects/helmcharts", "-lib=" + working.join("lib").getAbsolute(),
                     "localhost=local:local");
         } else {
-            helm(local, "upgrade", "--install", "--wait", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
+            helm(local, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
             sc(clientYaml, "setup", "localhost=http://localhost:31000/api");
         }
         sc(clientYaml, working, "context", "localhost");

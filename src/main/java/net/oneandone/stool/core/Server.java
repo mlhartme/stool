@@ -22,7 +22,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Configuration;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
-import net.oneandone.stool.server.Main;
+import net.oneandone.stool.Main;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.users.UserManager;

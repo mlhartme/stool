@@ -25,7 +25,7 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.server.Main;
+import net.oneandone.stool.Main;
 import net.oneandone.stool.core.Server;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.HistoryEntry;

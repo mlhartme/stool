@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli.command;
 
 import net.oneandone.stool.cli.Globals;
-import net.oneandone.stool.server.Main;
+import net.oneandone.stool.Main;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -35,12 +35,13 @@ public class Server extends ClientCommand {
         ConfigurableApplicationContext context;
         final CountDownLatch closed;
 
-        closed = new CountDownLatch(1);
         /* TODO
         Settings settings;
 
-        settings = Settings.load(); // it's loaded twice, but I don't have injection here ...
-        System.setProperty("loglevel", settings.loglevel);*/
+        settings = Settings.load(); // it's loaded twice, but I don't have injection here ... */
+        System.setProperty("loglevel", "INFO");
+
+        closed = new CountDownLatch(1);
         context = SpringApplication.run(Main.class, new String[] {});
         context.addApplicationListener(new ApplicationListener<ApplicationEvent>() {
             @Override

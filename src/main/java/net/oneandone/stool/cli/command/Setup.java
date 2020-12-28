@@ -19,6 +19,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Configuration;
+import net.oneandone.stool.Main;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
@@ -48,7 +49,7 @@ public class Setup {
         this.charts = charts;
         this.lib = lib;
         this.console = globals.getConsole();
-        this.version = net.oneandone.stool.server.Main.versionString(world);
+        this.version = Main.versionString(world);
         this.spec = spec;
     }
 
