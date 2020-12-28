@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.users;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -38,15 +37,6 @@ import java.util.Random;
  * TODO: saving to a file doesn't make sense in a container ...
  */
 public class UserManager {
-    public static void main(String[] abc) throws JsonProcessingException {
-        ObjectMapper mapper;
-        JsonNode node;
-
-        mapper = new ObjectMapper();
-        node = mapper.readTree("");
-        System.out.println("node: " + node + " " + node.isMissingNode() + " " + node.getClass());
-    }
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
     public static final User ANONYMOUS = new User("anonymous", "Anonymous", null);

@@ -22,7 +22,6 @@ import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerState;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -46,9 +45,6 @@ import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.fabric8.openshift.api.model.PolicyRuleBuilder;
 import io.fabric8.openshift.api.model.RoleBindingBuilder;
 import io.fabric8.openshift.api.model.RoleBuilder;
-import io.fabric8.openshift.api.model.Route;
-import io.fabric8.openshift.api.model.RouteBuilder;
-import io.fabric8.openshift.api.model.RouteSpecBuilder;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import net.oneandone.stool.cli.PodConfig;
@@ -579,44 +575,6 @@ public class Engine implements AutoCloseable {
     }
 
     //--
-
-    public void routeCreate(String name, String host, String serviceName, boolean tlsPassthrough, String targetPort) {
-        RouteSpecBuilder spec;
-        RouteBuilder route;
-
-        spec = new RouteSpecBuilder()
-                .withHost(host)
-                .withNewTo().withKind("Service").withName(serviceName).endTo()
-                .withNewPort().withTargetPort(new IntOrString(targetPort)).endPort();
-        if (tlsPassthrough) {
-            spec.withNewTls().withTermination("passthrough").endTls();
-        } else {
-            spec.withPath("/");
-        }
-        route = new RouteBuilder()
-                .withNewMetadata().withNamespace(namespace).withName(name).endMetadata()
-                .withSpec(spec.build());
-        client.routes().inNamespace(namespace).create(route.build());
-    }
-
-    public void routeDelete(String name) {
-        Route route;
-
-        route = new RouteBuilder()
-                .withNewMetadata().withNamespace(namespace).withName(name).endMetadata()
-                .build();
-        client.routes().inNamespace(namespace).delete(route);
-    }
-
-    public List<String> routeList() {
-        List<String> result;
-
-        result = new ArrayList<>();
-        for (Route route : client.routes().inNamespace(namespace).list().getItems()) {
-            result.add(route.getMetadata().getName());
-        }
-        return result;
-    }
 
     public Stats statsOpt(String pod, String container) {
         PodMetrics p;
