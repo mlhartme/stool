@@ -14,4 +14,4 @@ APP=$(dirname "$APP")
 APP=$(cd "$APP" && pwd)
 APP="$APP/$NAME"
 
-exec java -Djava.awt.headless=true --illegal-access=warn $SC_OPTS -jar "$APP" "$@"
+exec java -Djava.awt.headless=true --add-exports java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny $SC_OPTS -jar "$APP" "$@"
