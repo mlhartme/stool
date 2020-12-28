@@ -16,8 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.sushi.fs.DirectoryNotFoundException;
-import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -69,10 +67,6 @@ public class Globals {
         return scYaml;
     }
 
-    public FileNode templates() throws ExistsException, DirectoryNotFoundException {
-        return world.file(System.getenv("CISOTOOLS_HOME")).join("stool/templates-6").checkDirectory(); // TODO
-    }
-
     public void setWirelog(String wirelog) {
         this.wirelog = wirelog == null ? null : world.file(wirelog);
     }
@@ -104,5 +98,9 @@ public class Globals {
             result.setCurrentContext(context);
         }
         return result;
+    }
+
+    public Configuration configurationOrDefaults() throws IOException {
+        return scYaml().exists() ? configuration() : new Configuration(world);
     }
 }

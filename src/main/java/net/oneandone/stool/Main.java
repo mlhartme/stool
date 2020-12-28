@@ -96,8 +96,7 @@ public class Main {
         globals = Globals.create(console, world, clientYaml, "stool " + Separator.SPACE.join(args));
 
         // TDDO: ugly side-effect
-        System.setProperty("loglevel", globals.configuration().loglevel);
-        System.out.println("loglevel: " + globals.configuration().loglevel);
+        System.setProperty("loglevel", globals.configurationOrDefaults().loglevel);
 
         cli = new Cli(globals.getConsole()::handleException);
         cli.primitive(FileNode.class, "file name", null, world::file);
