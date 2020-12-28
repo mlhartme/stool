@@ -94,6 +94,11 @@ public class Main {
             console = new Console(out, out, System.in);
         }
         globals = Globals.create(console, world, clientYaml, "stool " + Separator.SPACE.join(args));
+
+        // TDDO: ugly side-effect
+        System.setProperty("loglevel", globals.configuration().loglevel);
+        System.out.println("loglevel: " + globals.configuration().loglevel);
+
         cli = new Cli(globals.getConsole()::handleException);
         cli.primitive(FileNode.class, "file name", null, world::file);
         cli.begin(globals.getConsole(), "-v -e  { setVerbose(v) setStacktraces(e) }");

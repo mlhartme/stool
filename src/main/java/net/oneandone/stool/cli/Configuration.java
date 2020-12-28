@@ -122,9 +122,10 @@ public class Configuration {
         this.yaml = new ObjectMapper(new YAMLFactory());
 
         //--
+
         fqdn = "localhost";
         kubernetes = "http://localhost";
-        loglevel = "INFO";
+        loglevel = "ERROR";
         admin = "";
         autoRemove = -1;
         ldapUrl = "";

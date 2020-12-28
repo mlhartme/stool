@@ -35,12 +35,6 @@ public class Server extends ClientCommand {
         ConfigurableApplicationContext context;
         final CountDownLatch closed;
 
-        /* TODO
-        Settings settings;
-
-        settings = Settings.load(); // it's loaded twice, but I don't have injection here ... */
-        System.setProperty("loglevel", "INFO");
-
         closed = new CountDownLatch(1);
         context = SpringApplication.run(Main.class, new String[] {});
         context.addApplicationListener(new ApplicationListener<ApplicationEvent>() {
