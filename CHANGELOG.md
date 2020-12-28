@@ -3,6 +3,7 @@
 ### 6.1.0 (pending)
 
 * Maven: merged all modules into one
+* unified cli built with spring boot; use `sc server` to start a server  
 * client `history`: dumped max and details options 
 * Client configuration
   * dumped registryPrefix

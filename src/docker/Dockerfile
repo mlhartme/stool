@@ -13,13 +13,13 @@ ENV MAIL_HOST=
 ENV MAIL_USERNAME=
 ENV MAIL_PASSWORD=
 ENV CERTIFICATE=
-ENV OPTS=
+ENV SC_OPTS=
 
 RUN curl -o /tmp/helm.tgz https://get.helm.sh/helm-v3.3.4-linux-amd64.tar.gz && \
     cd /usr/local/bin && \
     tar zxf /tmp/helm.tgz --strip-components=1 linux-amd64/helm && \
     apt-get update && apt-get install -y --no-install-recommends git
 
-COPY maven/*.jar /usr/local/bin/stool.jar
+COPY maven/sc /usr/local/bin/sc
 
-CMD [ "sh", "-c", "exec java ${OPTS} -jar /usr/local/bin/stool.jar" ]
+CMD [ "sc", "server" ]

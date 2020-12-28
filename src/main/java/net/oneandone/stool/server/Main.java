@@ -15,10 +15,37 @@
  */
 package net.oneandone.stool.server;
 
+import net.oneandone.inline.Cli;
+import net.oneandone.inline.Console;
+import net.oneandone.stool.cli.Globals;
+import net.oneandone.stool.cli.command.Attach;
+import net.oneandone.stool.cli.command.Auth;
+import net.oneandone.stool.cli.command.Config;
+import net.oneandone.stool.cli.command.ConfigContext;
+import net.oneandone.stool.cli.command.Create;
+import net.oneandone.stool.cli.command.Delete;
+import net.oneandone.stool.cli.command.Detach;
+import net.oneandone.stool.cli.command.Help;
+import net.oneandone.stool.cli.command.History;
+import net.oneandone.stool.cli.command.Images;
+import net.oneandone.stool.cli.command.Ls;
+import net.oneandone.stool.cli.command.PortForward;
+import net.oneandone.stool.cli.command.Publish;
+import net.oneandone.stool.cli.command.Remove;
+import net.oneandone.stool.cli.command.Server;
+import net.oneandone.stool.cli.command.Setup;
+import net.oneandone.stool.cli.command.ShellInc;
+import net.oneandone.stool.cli.command.Ssh;
+import net.oneandone.stool.cli.command.StageCommand;
+import net.oneandone.stool.cli.command.Status;
+import net.oneandone.stool.cli.command.Validate;
+import net.oneandone.stool.cli.command.Version;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
-import org.springframework.boot.SpringApplication;
+import net.oneandone.sushi.io.PrefixWriter;
+import net.oneandone.sushi.util.Separator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -27,6 +54,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
@@ -37,13 +65,74 @@ import java.util.List;
 @EnableScheduling
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor") // instantiated by spring
 public class Main {
-    public static void main(String[] args){
-        /* TODO
-        Settings settings;
+    public static void main(String[] args) throws IOException {
+        System.exit(run(args));
+    }
 
-        settings = Settings.load(); // it's loaded twice, but I don't have injection here ...
-        System.setProperty("loglevel", settings.loglevel);*/
-        SpringApplication.run(Main.class, args);
+    public static int run(String[] args) throws IOException {
+        return run(world(), null, args);
+    }
+
+    //--
+
+    public static String versionString(World world) {
+        // don't use class.getPackage().getSpecificationVersion() because META-INF/META.MF is not available in test cases
+        try {
+            return world.resource("stool.version").readString().trim();
+        } catch (IOException e) {
+            throw new IllegalStateException("cannot determine version", e);
+        }
+    }
+
+    public Main() {
+    }
+
+    //--
+
+    public static int run(World world, FileNode clientYaml, String[] args) throws IOException {
+        Cli cli;
+        Globals globals;
+
+        Console console;
+        PrintWriter out;
+
+        if (clientYaml != null) {
+            out = new PrefixWriter(clientYaml.getParent().join("client.log").newAppender());
+            console = new Console(out, out, System.in);
+        } else {
+            out = new PrefixWriter(new PrintWriter(System.out));
+            console = new Console(out, out, System.in);
+        }
+        globals = Globals.create(console, world, clientYaml, "stool " + Separator.SPACE.join(args));
+        cli = new Cli(globals.getConsole()::handleException);
+        cli.primitive(FileNode.class, "file name", null, world::file);
+        cli.begin(globals.getConsole(), "-v -e  { setVerbose(v) setStacktraces(e) }");
+          cli.begin("globals", globals,  "-context -wirelog -exception { setContext(context) setWirelog(wirelog) setException(exception) }");
+            cli.add(Version.class, "version");
+            cli.add(Server.class, "server");
+            cli.addDefault(Help.class, "help command?");
+            cli.begin("globals.getWorld", ""); cli.begin("globals.getConsole", "");
+              cli.add(Setup.class, "setup -charts -lib nameAndHost?");
+              cli.add(Auth.class, "auth -batch");
+              cli.add(ConfigContext.class, "context -offline -q name?");
+              cli.add(ShellInc.class, "shell-inc");
+              cli.add(Create.class, "create -optional -detached -wait args*");
+              cli.add(Attach.class, "attach stage");
+              cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
+                cli.add(Detach.class, "detach");
+                cli.add(Config.class, "config value* { value*(value) }");
+                cli.add(History.class, "history");
+                cli.add(Images.class, "images");
+                cli.add(Ls.class, "list info* { select*(info) }");
+                cli.add(Delete.class, "delete -batch");
+                cli.add(Remove.class, "remove");
+                cli.add(Publish.class, "publish imageOptValues*");
+                cli.add(Status.class, "status info* { select*(info) }");
+                cli.add(PortForward.class, "port-forward -timeout=30 port toPort?");
+                cli.add(Ssh.class, "ssh -timeout=30 shell?");
+                cli.add(Validate.class, "validate -email -repair");
+
+        return cli.run(args);
     }
 
     //--
@@ -113,17 +202,5 @@ public class Main {
             throw new IllegalArgumentException(e);
         }
         return sc.getSocketFactory();
-    }
-
-    public static String versionString(World world) {
-        // don't use class.getPackage().getSpecificationVersion() because META-INF/META.MF is not available in test cases
-        try {
-            return world.resource("stool.version").readString().trim();
-        } catch (IOException e) {
-            throw new IllegalStateException("cannot determine version", e);
-        }
-    }
-
-    public Main() {
     }
 }

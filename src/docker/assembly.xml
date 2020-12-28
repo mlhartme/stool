@@ -6,7 +6,7 @@
         <fileSet>
             <directory>target</directory>
             <includes>
-                <include>stool-*-springboot.jar</include>
+                <include>sc</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
