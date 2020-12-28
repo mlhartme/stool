@@ -18,6 +18,7 @@ package net.oneandone.stool.server.users;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.stool.util.Json;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -59,11 +60,7 @@ public class User implements UserDetails {
         JsonNode email;
 
         email = obj.get("email");
-        return new User(str(obj, "login"), str(obj, "name"), email == null ? null : email.asText());
-    }
-
-    private static String str(ObjectNode obj, String name) {
-        return obj.get(name).asText();
+        return new User(Json.string(obj, "login"), Json.string(obj, "name"), email == null ? null : email.asText());
     }
 
     public final String login;

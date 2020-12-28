@@ -26,6 +26,7 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Server;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
+import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -101,7 +102,7 @@ public class ApiController {
 
         values = map(request, "value.");
         try {
-            return Engine.obj(json, client.create(caller(request), name, image, values)).toString();
+            return Json.obj(json, client.create(caller(request), name, image, values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
@@ -127,7 +128,7 @@ public class ApiController {
 
     @GetMapping("/stages//{stage}/await-available")
     public String awaitAvailable(@PathVariable(value = "stage") String stage) throws IOException {
-        return Engine.obj(json, client.awaitAvailable(stage)).toString();
+        return Json.obj(json, client.awaitAvailable(stage)).toString();
     }
 
     @PostMapping("/stages/{stage}/delete")
@@ -137,12 +138,12 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/values")
     public String values(@PathVariable(value = "stage") String stage) throws IOException {
-        return Engine.obj(json, client.getValues(stage)).toString();
+        return Json.obj(json, client.getValues(stage)).toString();
     }
 
     @PostMapping("/stages/{stage}/set-values")
     public String setValues(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        return Engine.obj(json, client.setValues(caller(request), stage, map(request, ""))).toString();
+        return Json.obj(json, client.setValues(caller(request), stage, map(request, ""))).toString();
     }
 
     @GetMapping("/stages/{stage}/history")

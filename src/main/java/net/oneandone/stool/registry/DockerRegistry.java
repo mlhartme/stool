@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.oneandone.stool.cli.RemoteClient;
+import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -100,7 +100,7 @@ public class DockerRegistry extends Registry {
         // TODO: not available via docker registry api
         created = null;
         author = null;
-        labels = RemoteClient.stringMap((ObjectNode) info.get("container_config").get("Labels"));
+        labels = Json.stringMap((ObjectNode) info.get("container_config").get("Labels"));
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);
     }
 

@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.core;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
@@ -25,6 +24,7 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
+import net.oneandone.stool.util.Json;
 import net.oneandone.stool.values.Helm;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,8 +97,8 @@ public class Stage {
     private static Map<String, Object> values(ObjectNode helmObject) throws IOException {
         Map<String, Object> result;
 
-        result = toStringMap((ObjectNode) helmObject.get("chart").get("values"));
-        result.putAll(toStringMap((ObjectNode) helmObject.get("config")));
+        result = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"));
+        result.putAll(Json.toStringMap((ObjectNode) helmObject.get("config")));
         check(result, Type.MANDATORY);
         return result;
     }
@@ -110,32 +109,6 @@ public class Stage {
                 throw new IOException("missing key in helm chart: " + key);
             }
         }
-    }
-
-    private static Map<String, Object> toStringMap(ObjectNode obj) {
-        Map<String, Object> result;
-        JsonNode value;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Map.Entry<String, JsonNode> entry;
-        Object v;
-
-        result = new HashMap<>();
-        iter = obj.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            value = entry.getValue();
-            if (value.isNumber()) {
-                v = value.asInt();
-            } else if (value.isBoolean()) {
-                v = value.asBoolean();
-            } else if (value.isTextual()) {
-                v = value.asText();
-            } else {
-                throw new IllegalStateException(value.toString());
-            }
-            result.put(entry.getKey(), v);
-        }
-        return result;
     }
 
     //--

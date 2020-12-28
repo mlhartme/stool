@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.UsernamePassword;
 import net.oneandone.sushi.fs.World;
@@ -38,6 +39,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static net.oneandone.stool.util.Json.string;
 
 /** client configuration */
 public class Configuration {
@@ -269,20 +272,20 @@ public class Configuration {
         currentContext = all.has("currentContext") ? all.get("currentContext").asText() : null;
 
         //--
-        fqdn = string(all, "fqdn", fqdn);
-        kubernetes = string(all, "kubernetes", kubernetes);
-        loglevel = string(all, "loglevel", loglevel);
-        admin = string(all, "admin", admin);
-        autoRemove = number(all, "autoRemove", autoRemove);
-        ldapUrl = string(all, "ldapUrl", ldapUrl);
-        ldapPrincipal = string(all, "ldapPrincipal", ldapPrincipal);
-        ldapCredentials = string(all, "ldapCredentials", ldapCredentials);
-        ldapUnit = string(all, "ldapUnit", ldapUnit);
-        ldapSso = string(all, "ldapSso", ldapSso);
-        mailHost = string(all, "mailHost", mailHost);
-        mailUsername = string(all, "mailUsername", mailUsername);
-        mailPassword = string(all, "mailPassword", mailPassword);
-        defaultExpire = number(all, "defaultExpire", defaultExpire);
+        fqdn = Json.string(all, "fqdn", fqdn);
+        kubernetes = Json.string(all, "kubernetes", kubernetes);
+        loglevel = Json.string(all, "loglevel", loglevel);
+        admin = Json.string(all, "admin", admin);
+        autoRemove = Json.number(all, "autoRemove", autoRemove);
+        ldapUrl = Json.string(all, "ldapUrl", ldapUrl);
+        ldapPrincipal = Json.string(all, "ldapPrincipal", ldapPrincipal);
+        ldapCredentials = Json.string(all, "ldapCredentials", ldapCredentials);
+        ldapUnit = Json.string(all, "ldapUnit", ldapUnit);
+        ldapSso = Json.string(all, "ldapSso", ldapSso);
+        mailHost = Json.string(all, "mailHost", mailHost);
+        mailUsername = Json.string(all, "mailUsername", mailUsername);
+        mailPassword = Json.string(all, "mailPassword", mailPassword);
+        defaultExpire = Json.number(all, "defaultExpire", defaultExpire);
 
         //--
         iter = all.get("contexts").iterator();
@@ -291,14 +294,6 @@ public class Configuration {
             context = Context.fromYaml(one, wirelog, clientInvocation, clientCommand);
             contexts.put(context.name, context);
         }
-    }
-
-    private static int number(ObjectNode node, String field, int dflt) {
-        return node.has(field) ? node.get(field).asInt() : dflt;
-    }
-
-    private static String string(ObjectNode node, String field, String dflt) {
-        return node.has(field) ? node.get(field).asText() : dflt;
     }
 
     public void save(FileNode file) throws IOException {

@@ -578,18 +578,6 @@ public class Engine implements AutoCloseable {
         return new IOException(e.getMessage(), e);
     }
 
-    //-- json utils
-
-    public static ObjectNode obj(ObjectMapper json, Map<String, String> obj) {
-        ObjectNode result;
-
-        result = json.createObjectNode();
-        for (Map.Entry<String, String> entry : obj.entrySet()) {
-            result.put(entry.getKey(), entry.getValue());
-        }
-        return result;
-    }
-
     //--
 
     public void routeCreate(String name, String host, String serviceName, boolean tlsPassthrough, String targetPort) {

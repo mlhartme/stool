@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
@@ -39,12 +40,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static net.oneandone.stool.util.Json.map;
 
 public class RemoteClient extends Client {
     /** @param token null to work anonymously */
@@ -138,7 +140,7 @@ public class RemoteClient extends Client {
         node = node("stages/" + stage);
         node = node.withParameter("image", image);
         node = node.withParameters("value.", values);
-        return stringMap((ObjectNode) postJson(node, ""));
+        return Json.stringMap((ObjectNode) postJson(node, ""));
     }
 
     /** @return tag actually started */
@@ -158,10 +160,7 @@ public class RemoteClient extends Client {
 
     @Override
     public Map<String, String> awaitAvailable(String stage) throws IOException {
-        ObjectNode response;
-
-        response = (ObjectNode) getJson(node(stage, "await-available"));
-        return stringMap(response);
+        return Json.stringMap((ObjectNode) getJson(node(stage, "await-available")));
     }
 
     /** @return json with pod and token fields */
@@ -172,19 +171,9 @@ public class RemoteClient extends Client {
 
         node = node(stage, "pod-token").withParameter("timeout", timeout);
         pod = (ObjectNode) getJson(node);
-        return new PodConfig(str(pod, "server"), str(pod, "namespace"),
-                new String(Base64.getDecoder().decode(str(pod, "token")), Charset.forName("US-ASCII")),
-                str(pod, "pod"));
-    }
-
-    private static String str(ObjectNode obj, String field) {
-        JsonNode element;
-
-        element = obj.get(field);
-        if (element == null) {
-            throw new IllegalStateException(obj + ": field not found: " + field);
-        }
-        return element.asText();
+        return new PodConfig(Json.string(pod, "server"), Json.string(pod, "namespace"),
+                new String(Base64.getDecoder().decode(Json.string(pod, "token")), Charset.forName("US-ASCII")),
+                Json.string(pod, "pod"));
     }
 
     @Override
@@ -199,7 +188,7 @@ public class RemoteClient extends Client {
         HttpNode node;
 
         node = node(stage, "history");
-        return array((ArrayNode) getJson(node));
+        return Json.list((ArrayNode) getJson(node));
     }
 
     @Override
@@ -214,12 +203,12 @@ public class RemoteClient extends Client {
         node = node(stage, "validate");
         node = node.withParameter("email", email);
         node = node.withParameter("repair", repair);
-        return array((ArrayNode) postJson(node, ""));
+        return Json.list((ArrayNode) postJson(node, ""));
     }
 
     @Override
     public Map<String, String> getValues(String stage) throws IOException {
-        return stringMap((ObjectNode) getJson(node(stage, "values")));
+        return Json.stringMap((ObjectNode) getJson(node(stage, "values")));
     }
 
     @Override
@@ -227,14 +216,14 @@ public class RemoteClient extends Client {
         HttpNode node;
 
         node = node(stage, "set-values").withParameters(values);
-        return stringMap((ObjectNode) postJson(node, ""));
+        return Json.stringMap((ObjectNode) postJson(node, ""));
     }
 
     //-- images
 
     @Override
     public List<String> images(String stage) throws Exception {
-        return array((ArrayNode) getJson(node(stage, "images")));
+        return Json.list((ArrayNode) getJson(node(stage, "images")));
     }
 
 
@@ -318,47 +307,5 @@ public class RemoteClient extends Client {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    //-- json helper
-
-    private static List<String> array(ArrayNode json) {
-        List<String> result;
-        Iterator<JsonNode> iter;
-
-        result = new ArrayList<>(json.size());
-        iter = json.elements();
-        while (iter.hasNext()) {
-            result.add(iter.next().asText());
-        }
-        return result;
-    }
-
-    public static Map<String, String> stringMap(ObjectNode obj) {
-        Map<String, String> result;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Map.Entry<String, JsonNode> entry;
-
-        result = new LinkedHashMap<>();
-        iter = obj.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            result.put(entry.getKey(), entry.getValue().asText());
-        }
-        return result;
-    }
-
-    public static Map<String, JsonNode> map(ObjectNode infos) {
-        Map<String, JsonNode> result;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Map.Entry<String, JsonNode> entry;
-
-        result = new LinkedHashMap<>();
-        iter = infos.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            result.put(entry.getKey(), entry.getValue());
-        }
-        return result;
     }
 }

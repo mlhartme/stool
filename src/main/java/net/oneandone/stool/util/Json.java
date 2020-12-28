@@ -1,0 +1,127 @@
+/*
+ * Copyright 1&1 Internet AG, https://github.com/1and1/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.oneandone.stool.util;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public final class Json {
+    public static List<String> list(ArrayNode json) {
+        List<String> result;
+        Iterator<JsonNode> iter;
+
+        result = new ArrayList<>(json.size());
+        iter = json.elements();
+        while (iter.hasNext()) {
+            result.add(iter.next().asText());
+        }
+        return result;
+    }
+
+    public static Map<String, JsonNode> map(ObjectNode infos) {
+        Map<String, JsonNode> result;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+
+        result = new LinkedHashMap<>();
+        iter = infos.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
+
+    public static Map<String, String> stringMap(ObjectNode obj) {
+        Map<String, String> result;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+
+        result = new LinkedHashMap<>();
+        iter = obj.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            result.put(entry.getKey(), entry.getValue().asText());
+        }
+        return result;
+    }
+
+    public static int number(ObjectNode node, String field, int dflt) {
+        return node.has(field) ? node.get(field).asInt() : dflt;
+    }
+
+    public static String string(ObjectNode node, String field, String dflt) {
+        return node.has(field) ? node.get(field).asText() : dflt;
+    }
+
+    public static String string(ObjectNode obj, String field) {
+        JsonNode element;
+
+        element = obj.get(field);
+        if (element == null) {
+            throw new IllegalStateException(obj + ": field not found: " + field);
+        }
+        return element.asText();
+    }
+
+    public static Map<String, Object> toStringMap(ObjectNode obj) {
+        Map<String, Object> result;
+        JsonNode value;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+        Object v;
+
+        result = new HashMap<>();
+        iter = obj.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            value = entry.getValue();
+            if (value.isNumber()) {
+                v = value.asInt();
+            } else if (value.isBoolean()) {
+                v = value.asBoolean();
+            } else if (value.isTextual()) {
+                v = value.asText();
+            } else {
+                throw new IllegalStateException(value.toString());
+            }
+            result.put(entry.getKey(), v);
+        }
+        return result;
+    }
+
+    public static ObjectNode obj(ObjectMapper json, Map<String, String> obj) {
+        ObjectNode result;
+
+        result = json.createObjectNode();
+        for (Map.Entry<String, String> entry : obj.entrySet()) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
+
+    private Json() {
+    }
+}
