@@ -269,6 +269,7 @@
         <configuration>
           <executable>true</executable>
           <classifier>springboot</classifier>
+          <embeddedLaunchScript>${basedir}/src/launcher.sh</embeddedLaunchScript>
         </configuration>
         <executions>
           <execution>
