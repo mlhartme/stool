@@ -16,16 +16,13 @@
 package net.oneandone.stool.registry;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.util.Json;
-import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
-import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.fs.http.model.Method;
 
@@ -67,7 +64,6 @@ public class PortusRegistry extends Registry {
         return new PortusRegistry(root.getRoot().getHostname(), username, password, root);
     }
 
-    private final ObjectMapper json;
     private final String host;
     private final String username;
     private final String password;
@@ -80,7 +76,6 @@ public class PortusRegistry extends Registry {
         if (host.contains("/")) {
             throw new IllegalArgumentException(host);
         }
-        this.json = new ObjectMapper();
         this.host = host;
         this.username = username;
         this.password = password;
@@ -243,32 +238,5 @@ public class PortusRegistry extends Registry {
 
         hl = HeaderList.of("Accept", "application/vnd.docker.distribution.manifest.v2+json");
         return node.withHeaders(hl);
-    }
-    //--
-
-    private ObjectNode getJsonObject(HttpNode node) throws IOException {
-        return (ObjectNode) getJson(node);
-    }
-
-    private JsonNode getJson(HttpNode node) throws IOException {
-        StatusException se;
-        String auth;
-
-        try {
-            return json.readTree(node.readString());
-        } catch (NewInputStreamException e) {
-            if (e.getCause() instanceof StatusException) {
-                se = (StatusException) e.getCause();
-                if (se.getStatusLine().code == 401) {
-                    auth = se.getHeaderList().getFirstValue("Www-Authenticate");
-                    if (auth != null) {
-                        throw new AuthException(getArgument(auth, "realm"), getArgument(auth, "service"), getArgument(auth, "scope"));
-                    } else {
-                        // fall-through
-                    }
-                }
-            }
-            throw e;
-        }
     }
 }

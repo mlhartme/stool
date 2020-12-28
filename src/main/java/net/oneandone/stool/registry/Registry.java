@@ -16,9 +16,14 @@
 package net.oneandone.stool.registry;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
+import net.oneandone.sushi.fs.NewInputStreamException;
+import net.oneandone.sushi.fs.http.HttpNode;
+import net.oneandone.sushi.fs.http.StatusException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -74,6 +79,40 @@ public abstract class Registry {
             throw new IOException("argument '" + arg + "' not terminated: " + header);
         }
         return header.substring(idx + len + 2, end);
+    }
+
+    //--
+
+    private final ObjectMapper json;
+
+    protected Registry() {
+        this.json = new ObjectMapper();
+    }
+
+    protected ObjectNode getJsonObject(HttpNode node) throws IOException {
+        return (ObjectNode) getJson(node);
+    }
+
+    protected JsonNode getJson(HttpNode node) throws IOException {
+        StatusException se;
+        String auth;
+
+        try {
+            return json.readTree(node.readString());
+        } catch (NewInputStreamException e) {
+            if (e.getCause() instanceof StatusException) {
+                se = (StatusException) e.getCause();
+                if (se.getStatusLine().code == 401) {
+                    auth = se.getHeaderList().getFirstValue("Www-Authenticate");
+                    if (auth != null) {
+                        throw new AuthException(getArgument(auth, "realm"), getArgument(auth, "service"), getArgument(auth, "scope"));
+                    } else {
+                        // fall-through
+                    }
+                }
+            }
+            throw e;
+        }
     }
 
     //--

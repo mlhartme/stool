@@ -82,7 +82,7 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public ObjectNode toJson(ObjectMapper mapper) {
+    public ObjectNode toObject(ObjectMapper mapper) {
         ObjectNode result;
 
         result = mapper.createObjectNode();

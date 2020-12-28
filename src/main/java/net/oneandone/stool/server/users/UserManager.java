@@ -137,7 +137,7 @@ public class UserManager {
 
         json = mapper.createObjectNode();
         for (Pair pair : tokens.values()) {
-            json.set(pair.token.toString(), pair.user.toJson(mapper));
+            json.set(pair.token.toString(), pair.user.toObject(mapper));
         }
         file.writeString(json.toString());
     }

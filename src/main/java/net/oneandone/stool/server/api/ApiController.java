@@ -158,7 +158,7 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/pod-token")
     public String podToken(@PathVariable(value = "stage") String stageName, int timeout) throws IOException {
-        return client.podToken(stageName, timeout).toJson().toString();
+        return client.podToken(stageName, timeout).toObject(json).toString();
     }
 
     @GetMapping("/stages/{stage}/images")

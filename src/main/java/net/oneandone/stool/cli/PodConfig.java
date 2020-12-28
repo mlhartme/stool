@@ -32,11 +32,9 @@ public class PodConfig {
         this.pod = pod;
     }
 
-    public ObjectNode toJson() {
-        ObjectMapper mapper;
+    public ObjectNode toObject(ObjectMapper mapper) {
         ObjectNode result;
 
-        mapper = new ObjectMapper(); // TODO
         result = mapper.createObjectNode();
         result.put("server", server);
         result.put("namespace", namespace);
