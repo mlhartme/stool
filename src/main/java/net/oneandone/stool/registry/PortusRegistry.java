@@ -15,10 +15,11 @@
  */
 package net.oneandone.stool.registry;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.stool.cli.RemoteClient;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
@@ -31,6 +32,7 @@ import net.oneandone.sushi.fs.http.model.Method;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +67,7 @@ public class PortusRegistry extends Registry {
         return new PortusRegistry(root.getRoot().getHostname(), username, password, root);
     }
 
+    private final ObjectMapper json;
     private final String host;
     private final String username;
     private final String password;
@@ -77,6 +80,7 @@ public class PortusRegistry extends Registry {
         if (host.contains("/")) {
             throw new IllegalArgumentException(host);
         }
+        this.json = new ObjectMapper();
         this.host = host;
         this.username = username;
         this.password = password;
@@ -89,10 +93,12 @@ public class PortusRegistry extends Registry {
     /** @return list of repositories */
     public List<String> list() throws IOException {
         List<String> result;
+        Iterator<JsonNode> iter;
 
         result = new ArrayList<>();
-        for (JsonElement element : portusRepositories()) {
-            result.add(element.getAsJsonObject().get("full_name").getAsString());
+        iter = portusRepositories().elements();
+        while (iter.hasNext()) {
+            result.add(iter.next().get("full_name").asText());
         }
         return result;
     }
@@ -105,8 +111,8 @@ public class PortusRegistry extends Registry {
         result = new ArrayList<>();
         id = portusRepositoryIdOpt(repository);
         if (id != null) {
-            for (JsonElement element : portusTags(id)) {
-                result.add(element.getAsJsonObject().get("name").getAsString());
+            for (JsonNode element : portusTags(id)) {
+                result.add(element.get("name").asText());
             }
         }
         return result;
@@ -134,7 +140,7 @@ public class PortusRegistry extends Registry {
                 login = login.withParameter("service", service);
                 login = login.withParameter("scope", "repository:" + repository + ":*");
                 authRepository = repository;
-                authToken = getJsonObject(login).get("token").getAsString();
+                authToken = getJsonObject(login).get("token").asText();
             } finally {
                 login.getRoot().setCredentials(null, null);
             }
@@ -145,21 +151,21 @@ public class PortusRegistry extends Registry {
 
     /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
     public TagInfo info(String repository, String tag) throws IOException {
-        JsonObject manifest;
+        ObjectNode manifest;
         String digest;
-        JsonObject info;
-        JsonObject obj;
+        ObjectNode info;
+        ObjectNode obj;
         String author;
         LocalDateTime created;
         Map<String, String> labels;
 
         manifest = manifest(repository, tag);
-        digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
+        digest = manifest.get("config").get("digest").asText();
         info = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/blobs/" + digest)));
         obj = portusTag(portusRepositoryId(repository), tag);
-        created = LocalDateTime.parse(obj.get("created_at").getAsString(), Registry.DATE_FORMAT);
-        author = obj.get("author").getAsJsonObject().get("name").getAsString();
-        labels = toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
+        created = LocalDateTime.parse(obj.get("created_at").asText(), Registry.DATE_FORMAT);
+        author = obj.get("author").get("name").asText();
+        labels = RemoteClient.stringMap((ObjectNode) info.get("container_config").get("Labels"));
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);
     }
 
@@ -182,8 +188,8 @@ public class PortusRegistry extends Registry {
 
     //--
 
-    private JsonArray portusRepositories() throws IOException {
-        return getJson(root.join("api/v1/repositories")).getAsJsonArray();
+    private ArrayNode portusRepositories() throws IOException {
+        return (ArrayNode) getJson(root.join("api/v1/repositories"));
     }
 
     private String portusRepositoryId(String repository) throws IOException {
@@ -197,34 +203,38 @@ public class PortusRegistry extends Registry {
     }
 
     private String portusRepositoryIdOpt(String repository) throws IOException {
-        JsonObject obj;
+        Iterator<JsonNode> iter;
+        ObjectNode obj;
 
-        for (JsonElement element : portusRepositories()) {
-            obj = element.getAsJsonObject();
-            if (repository.equals(obj.get("full_name").getAsString())) {
-                return obj.get("id").getAsString();
+        iter = portusRepositories().elements();
+        while (iter.hasNext()) {
+            obj = (ObjectNode) iter.next();
+            if (repository.equals(obj.get("full_name").asText())) {
+                return obj.get("id").asText();
             }
         }
         return null;
     }
 
-    private JsonArray portusTags(String repositoryId) throws IOException {
-        return getJson(root.join("api/v1/repositories/" + repositoryId + "/tags")).getAsJsonArray();
+    private ArrayNode portusTags(String repositoryId) throws IOException {
+        return (ArrayNode) getJson(root.join("api/v1/repositories/" + repositoryId + "/tags"));
     }
 
-    private JsonObject portusTag(String portusRepositoryId, String tag) throws IOException {
-        JsonObject result;
+    private ObjectNode portusTag(String portusRepositoryId, String tag) throws IOException {
+        ObjectNode result;
+        Iterator<JsonNode> iter;
 
-        for (JsonElement element : portusTags(portusRepositoryId)) {
-            result = element.getAsJsonObject();
-            if (tag.equals(result.get("name").getAsString())) {
+        iter = portusTags(portusRepositoryId).elements();
+        while (iter.hasNext()) {
+            result = (ObjectNode) iter.next();
+            if (tag.equals(result.get("name").asText())) {
                 return result;
             }
         }
         throw new IOException("tag not found: " + tag);
     }
 
-    private JsonObject manifest(String repository, String tag) throws IOException {
+    private ObjectNode manifest(String repository, String tag) throws IOException {
         return getJsonObject(withV2Header(repositoryAuth(repository, root.join("v2/" + repository + "/manifests/" + tag))));
     }
 
@@ -236,16 +246,16 @@ public class PortusRegistry extends Registry {
     }
     //--
 
-    private static JsonObject getJsonObject(HttpNode node) throws IOException {
-        return getJson(node).getAsJsonObject();
+    private ObjectNode getJsonObject(HttpNode node) throws IOException {
+        return (ObjectNode) getJson(node);
     }
 
-    private static JsonElement getJson(HttpNode node) throws IOException {
+    private JsonNode getJson(HttpNode node) throws IOException {
         StatusException se;
         String auth;
 
         try {
-            return JsonParser.parseString(node.readString());
+            return json.readTree(node.readString());
         } catch (NewInputStreamException e) {
             if (e.getCause() instanceof StatusException) {
                 se = (StatusException) e.getCause();

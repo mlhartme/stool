@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.cli.command;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.databind.JsonNode;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
@@ -31,7 +31,7 @@ public class Status extends InfoCommand {
 
     @Override
     public void doRun(Client client, String clientFilter, CompoundResult result) throws Exception {
-        Map<String, Map<String, JsonElement>> response;
+        Map<String, Map<String, JsonNode>> response;
         boolean withPrefix;
         int prefixWidth;
         String prefix;
@@ -40,7 +40,7 @@ public class Status extends InfoCommand {
         response = client.list(clientFilter, selected);
         withPrefix = response.size() != 1;
         prefixWidth = maxWidth(response.keySet());
-        for (Map.Entry<String, Map<String, JsonElement>> stage : response.entrySet()) {
+        for (Map.Entry<String, Map<String, JsonNode>> stage : response.entrySet()) {
             name = stage.getKey();
             if (withPrefix) {
                 prefix = Strings.times(' ', prefixWidth - name.length());
@@ -53,11 +53,11 @@ public class Status extends InfoCommand {
         }
     }
 
-    public void output(String prefix, Map<String, JsonElement> infos) {
+    public void output(String prefix, Map<String, JsonNode> infos) {
         int width;
 
         width = maxWidth(infos.keySet()) + 2;
-        for (Map.Entry<String, JsonElement> entry : infos.entrySet()) {
+        for (Map.Entry<String, JsonNode> entry : infos.entrySet()) {
             console.info.print(prefix);
             console.info.print(Strings.times(' ', width - entry.getKey().length()));
             console.info.print(entry.getKey());

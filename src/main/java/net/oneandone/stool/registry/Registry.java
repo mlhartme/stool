@@ -15,9 +15,8 @@
  */
 package net.oneandone.stool.registry;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 
@@ -26,9 +25,8 @@ import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Registry API I need for Stool. I didn't find a way to query tag authors with Docker Registry API V2, so prerequisite is Portus for now.
@@ -46,22 +44,14 @@ public abstract class Registry {
 
     //--
 
-    public static List<String> toList(JsonArray array) {
+    public static List<String> toList(ArrayNode array) {
         List<String> result;
+        Iterator<JsonNode> iter;
 
         result = new ArrayList<>(array.size());
-        for (JsonElement element : array) {
-            result.add(element.getAsString());
-        }
-        return result;
-    }
-
-    public static Map<String, String> toMap(JsonObject object) {
-        Map<String, String> result;
-
-        result = new LinkedHashMap<>(object.size());
-        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
+        iter = array.elements();
+        while (iter.hasNext()) {
+            result.add(iter.next().asText());
         }
         return result;
     }

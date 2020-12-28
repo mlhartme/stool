@@ -15,9 +15,8 @@
  */
 package net.oneandone.stool.kubernetes;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerState;
@@ -110,10 +109,12 @@ public class Engine implements AutoCloseable {
         return new Engine(new DefaultOpenShiftClient(config));
     }
 
+    private final ObjectMapper json;
     private final OpenShiftClient client;
     private final String namespace;
 
     private Engine(OpenShiftClient client) {
+        this.json = new ObjectMapper();
         this.client = client;
         this.namespace = client.getNamespace();
     }
@@ -473,7 +474,7 @@ public class Engine implements AutoCloseable {
 
     //-- helm
 
-    public JsonObject helmRead(String name) throws IOException {
+    public ObjectNode helmRead(String name) throws IOException {
         return helmSecretRead(helmSecretName(name));
     }
 
@@ -512,7 +513,7 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    public JsonObject helmSecretRead(String secretName) throws IOException {
+    public ObjectNode helmSecretRead(String secretName) throws IOException {
         Secret s;
         byte[] release;
 
@@ -520,7 +521,7 @@ public class Engine implements AutoCloseable {
         release = Base64.getDecoder().decode(s.getData().get("release"));
         release = Base64.getDecoder().decode(release);
         try (Reader src = new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(release)))) {
-            return JsonParser.parseReader(src).getAsJsonObject();
+            return (ObjectNode) json.readTree(src);
         }
     }
 
@@ -579,12 +580,12 @@ public class Engine implements AutoCloseable {
 
     //-- json utils
 
-    public static JsonObject obj(Map<String, String> obj) {
-        JsonObject result;
+    public static ObjectNode obj(ObjectMapper json, Map<String, String> obj) {
+        ObjectNode result;
 
-        result = new JsonObject();
+        result = json.createObjectNode();
         for (Map.Entry<String, String> entry : obj.entrySet()) {
-            result.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
+            result.put(entry.getKey(), entry.getValue());
         }
         return result;
     }

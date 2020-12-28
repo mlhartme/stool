@@ -15,8 +15,9 @@
  */
 package net.oneandone.stool.server.api;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.PodConfig;
@@ -51,10 +52,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class LocalClient extends Client {
+    private final ObjectMapper json;
     private final Server server;
 
     public LocalClient(String context, Server server) {
         super(context);
+        this.json = new ObjectMapper();
         this.server = server;
     }
 
@@ -63,10 +66,10 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, Map<String, JsonElement>> list(String filter, List<String> select) throws IOException {
-        Map<String, Map<String, JsonElement>> result;
+    public Map<String, Map<String, JsonNode>> list(String filter, List<String> select) throws IOException {
+        Map<String, Map<String, JsonNode>> result;
         Map<String, IOException> problems;
-        Map<String, JsonElement> s;
+        Map<String, JsonNode> s;
 
         result = new HashMap<>();
         problems = new HashMap<>();
@@ -76,12 +79,12 @@ public class LocalClient extends Client {
                 result.put(stage.getName(), s);
                 for (Info info : stage.fields()) {
                     if (select.isEmpty() || select.remove(info.name())) {
-                        s.put(info.name(), info.getAsJson(engine));
+                        s.put(info.name(), info.getAsJson(json, engine));
                     }
                 }
                 for (Value value : stage.values()) {
                     if (select != null && select.remove(value.name())) {
-                        s.put(value.name(), new JsonPrimitive(value.get(engine)));
+                        s.put(value.name(), new TextNode(value.get(engine)));
                     }
                 }
                 if (select != null && !select.isEmpty()) {

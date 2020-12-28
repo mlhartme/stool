@@ -15,9 +15,8 @@
  */
 package net.oneandone.stool.core;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.kubernetes.Stats;
@@ -38,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,15 +91,15 @@ public class Stage {
     }
 
 
-    public static Stage create(Server server, String name, JsonObject helmObject, List<HistoryEntry> history) throws IOException {
-        return new Stage(server, name, values(helmObject), helmObject.get("info").getAsJsonObject(), history);
+    public static Stage create(Server server, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
+        return new Stage(server, name, values(helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
-    private static Map<String, Object> values(JsonObject helmObject) throws IOException {
+    private static Map<String, Object> values(ObjectNode helmObject) throws IOException {
         Map<String, Object> result;
 
-        result = toStringMap(helmObject.get("chart").getAsJsonObject().get("values").getAsJsonObject());
-        result.putAll(toStringMap(helmObject.get("config").getAsJsonObject()));
+        result = toStringMap((ObjectNode) helmObject.get("chart").get("values"));
+        result.putAll(toStringMap((ObjectNode) helmObject.get("config")));
         check(result, Type.MANDATORY);
         return result;
     }
@@ -112,20 +112,24 @@ public class Stage {
         }
     }
 
-    private static Map<String, Object> toStringMap(JsonObject obj) {
+    private static Map<String, Object> toStringMap(ObjectNode obj) {
         Map<String, Object> result;
-        JsonPrimitive value;
+        JsonNode value;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
         Object v;
 
         result = new HashMap<>();
-        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-            value = entry.getValue().getAsJsonPrimitive();
+        iter = obj.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            value = entry.getValue();
             if (value.isNumber()) {
-                v = value.getAsInt();
+                v = value.asInt();
             } else if (value.isBoolean()) {
-                v = value.getAsBoolean();
-            } else if (value.isString()) {
-                v = value.getAsString();
+                v = value.asBoolean();
+            } else if (value.isTextual()) {
+                v = value.asText();
             } else {
                 throw new IllegalStateException(value.toString());
             }
@@ -153,11 +157,11 @@ public class Stage {
 
     private final Map<String, Object> values;
 
-    private final JsonObject info;
+    private final ObjectNode info;
 
     public final List<HistoryEntry> history;
 
-    public Stage(Server server, String name, Map<String, Object> values, JsonObject info, List<HistoryEntry> history) {
+    public Stage(Server server, String name, Map<String, Object> values, ObjectNode info, List<HistoryEntry> history) {
         this.server = server;
         this.name = name;
         this.values = values;
@@ -289,13 +293,13 @@ public class Stage {
         fields.add(new Field("last-deployed") {
             @Override
             public Object get(Engine engine) {
-                return info.get("last_deployed").getAsString();
+                return info.get("last_deployed").asText();
             }
         });
         fields.add(new Field("first-deployed") {
             @Override
             public Object get(Engine engine) {
-                return info.get("first_deployed").getAsString();
+                return info.get("first_deployed").asText();
             }
         });
         fields.add(new Field("cpu") {

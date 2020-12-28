@@ -15,8 +15,7 @@
  */
 package net.oneandone.stool.cli.command;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
@@ -24,6 +23,7 @@ import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.cli.Configuration;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,29 +79,31 @@ public abstract class InfoCommand extends StageCommand {
         return result;
     }
 
-    public static String infoToString(JsonElement info) {
+    public static String infoToString(JsonNode info) {
         StringBuilder result;
-        JsonPrimitive p;
+        Iterator<JsonNode> array;
+        Iterator<Map.Entry<String, JsonNode>> obj;
+        Map.Entry<String, JsonNode> m;
 
-        if (info.isJsonPrimitive()) {
-            p = info.getAsJsonPrimitive();
-            if (p.isString()) {
-                return p.getAsString();
-            } else {
-                return p.toString();
-            }
-        } else if (info.isJsonArray()) {
+        if (info.isTextual()) {
+            return info.asText();
+        } else if (info.isNumber()) {
+            return info.toString();
+        } else if (info.isArray()) {
+            array = info.elements();
             result = new StringBuilder();
-            for (JsonElement e : info.getAsJsonArray()) {
+            while (array.hasNext()) {
                 if (result.length() > 0) {
                     result.append(", ");
                 }
-                result.append(infoToString(e));
+                result.append(infoToString(array.next()));
             }
             return result.toString();
-        } else if (info.isJsonObject()) {
+        } else if (info.isObject()) {
+            obj = info.fields();
             result = new StringBuilder();
-            for (Map.Entry<String, JsonElement> m : info.getAsJsonObject().entrySet()) {
+            while (obj.hasNext()) {
+                m = obj.next();
                 if (result.length() > 0) {
                     result.append(", ");
                 }

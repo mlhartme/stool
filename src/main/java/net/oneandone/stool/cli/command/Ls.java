@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.cli.command;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.databind.JsonNode;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
@@ -86,11 +86,11 @@ public class Ls extends InfoCommand {
 
     @Override
     public void doRun(Client client, String clientFilter, CompoundResult result) throws Exception {
-        Map<String, Map<String, JsonElement>> response;
+        Map<String, Map<String, JsonNode>> response;
 
         response = client.list(clientFilter, selected);
-        for (Map.Entry<String, Map<String, JsonElement>> stage : response.entrySet()) {
-            for (Map.Entry<String, JsonElement> entry : stage.getValue().entrySet()) {
+        for (Map.Entry<String, Map<String, JsonNode>> stage : response.entrySet()) {
+            for (Map.Entry<String, JsonNode> entry : stage.getValue().entrySet()) {
                 columns.get(entry.getKey()).add(infoToString(entry.getValue()));
             }
             result.success(new Reference(client, stage.getKey()));

@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.cli;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /** kubernetes config with access to one particular port */
 public class PodConfig {
@@ -32,14 +32,16 @@ public class PodConfig {
         this.pod = pod;
     }
 
-    public JsonObject toJson() {
-        JsonObject result;
+    public ObjectNode toJson() {
+        ObjectMapper mapper;
+        ObjectNode result;
 
-        result = new JsonObject();
-        result.add("server", new JsonPrimitive(server));
-        result.add("namespace", new JsonPrimitive(namespace));
-        result.add("pod", new JsonPrimitive(pod));
-        result.add("token", new JsonPrimitive(token));
+        mapper = new ObjectMapper(); // TODO
+        result = mapper.createObjectNode();
+        result.put("server", server);
+        result.put("namespace", namespace);
+        result.put("pod", pod);
+        result.put("token", token);
         return result;
     }
 

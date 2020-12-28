@@ -15,10 +15,10 @@
  */
 package net.oneandone.stool.cli;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
@@ -41,6 +41,7 @@ import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,13 +79,13 @@ public class RemoteClient extends Client {
         return new RemoteClient(context, node);
     }
 
+    private final ObjectMapper json;
     private final HttpNode root;
-    private final JsonParser parser;
 
     public RemoteClient(String context, HttpNode root) {
         super(context);
+        this.json = new ObjectMapper();
         this.root = root;
-        this.parser = new JsonParser();
     }
 
     public String getServer() {
@@ -95,7 +96,7 @@ public class RemoteClient extends Client {
         HttpNode node;
 
         node = node("auth");
-        return postJson(node, "").getAsString();
+        return postJson(node, "").asText();
     }
 
     /**
@@ -103,20 +104,24 @@ public class RemoteClient extends Client {
      * @return stage -&gt; (field -&gt; value)
      */
     @Override
-    public Map<String, Map<String, JsonElement>> list(String filter, List<String> select) throws IOException {
+    public Map<String, Map<String, JsonNode>> list(String filter, List<String> select) throws IOException {
         HttpNode node;
-        JsonObject response;
-        Map<String, Map<String, JsonElement>> result;
+        ObjectNode response;
+        Map<String, Map<String, JsonNode>> result;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
 
         node = node("stages");
         if (filter != null) {
             node = node.withParameter("filter", filter);
         }
         node = node.withParameter("select", select.isEmpty() ? "*" : Separator.COMMA.join(select));
-        response = getJson(node).getAsJsonObject();
+        response = (ObjectNode) getJson(node);
         result = new LinkedHashMap<>();
-        for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
-            result.put(entry.getKey(), map(entry.getValue().getAsJsonObject()));
+        iter = response.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            result.put(entry.getKey(), map((ObjectNode) entry.getValue()));
         }
         return result;
     }
@@ -129,20 +134,18 @@ public class RemoteClient extends Client {
     @Override
     public Map<String, String> create(Caller callerTodo, String stage, String image, Map<String, String> values) throws IOException {
         HttpNode node;
-        JsonObject response;
 
         node = node("stages/" + stage);
         node = node.withParameter("image", image);
         node = node.withParameters("value.", values);
-        response = postJson(node, "").getAsJsonObject();
-        return stringMap(response.getAsJsonObject());
+        return stringMap((ObjectNode) postJson(node, ""));
     }
 
     /** @return tag actually started */
     @Override
     public String publish(Caller callerTodo, String stage, String imageOpt, Map<String, String> values) throws IOException {
         HttpNode node;
-        JsonElement started;
+        JsonNode started;
 
         node = node(stage, "publish");
         if (imageOpt != null) {
@@ -150,38 +153,38 @@ public class RemoteClient extends Client {
         }
         node = node.withParameters("value.", values);
         started = postJson(node, "");
-        return started.getAsString();
+        return started.asText();
     }
 
     @Override
     public Map<String, String> awaitAvailable(String stage) throws IOException {
-        JsonObject response;
+        ObjectNode response;
 
-        response = getJson(node(stage, "await-available")).getAsJsonObject();
-        return stringMap(response.getAsJsonObject());
+        response = (ObjectNode) getJson(node(stage, "await-available"));
+        return stringMap(response);
     }
 
     /** @return json with pod and token fields */
     @Override
     public PodConfig podToken(String stage, int timeout) throws IOException {
         HttpNode node;
-        JsonObject json;
+        ObjectNode pod;
 
         node = node(stage, "pod-token").withParameter("timeout", timeout);
-        json = getJson(node).getAsJsonObject();
-        return new PodConfig(str(json, "server"), str(json, "namespace"),
-                new String(Base64.getDecoder().decode(str(json, "token")), Charset.forName("US-ASCII")),
-                str(json, "pod"));
+        pod = (ObjectNode) getJson(node);
+        return new PodConfig(str(pod, "server"), str(pod, "namespace"),
+                new String(Base64.getDecoder().decode(str(pod, "token")), Charset.forName("US-ASCII")),
+                str(pod, "pod"));
     }
 
-    private static String str(JsonObject obj, String field) {
-        JsonElement element;
+    private static String str(ObjectNode obj, String field) {
+        JsonNode element;
 
         element = obj.get(field);
         if (element == null) {
             throw new IllegalStateException(obj + ": field not found: " + field);
         }
-        return element.getAsString();
+        return element.asText();
     }
 
     @Override
@@ -194,16 +197,9 @@ public class RemoteClient extends Client {
     @Override
     public List<String> history(String stage) throws IOException {
         HttpNode node;
-        JsonArray references;
-        List<String> result;
 
         node = node(stage, "history");
-        references = getJson(node).getAsJsonArray();
-        result = new ArrayList<>(references.size());
-        for (JsonElement element : references) {
-            result.add(element.getAsString());
-        }
-        return result;
+        return array((ArrayNode) getJson(node));
     }
 
     @Override
@@ -218,44 +214,27 @@ public class RemoteClient extends Client {
         node = node(stage, "validate");
         node = node.withParameter("email", email);
         node = node.withParameter("repair", repair);
-        return array(postJson(node, "").getAsJsonArray());
+        return array((ArrayNode) postJson(node, ""));
     }
 
     @Override
     public Map<String, String> getValues(String stage) throws IOException {
-        Map<String, String> result;
-        JsonObject values;
-
-        values = getJson(node(stage, "values")).getAsJsonObject();
-        result = new LinkedHashMap<>();
-        for (String value : values.keySet()) {
-            result.put(value, values.get(value).getAsString());
-        }
-        return result;
+        return stringMap((ObjectNode) getJson(node(stage, "values")));
     }
 
     @Override
     public Map<String, String> setValues(Caller callerTodo, String stage, Map<String, String> values) throws IOException {
         HttpNode node;
-        JsonObject response;
-        Map<String, String> result;
 
-        node = node(stage, "set-values");
-        node = node.withParameters(values);
-
-        response = postJson(node, "").getAsJsonObject();
-        result = new LinkedHashMap<>();
-        for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return result;
+        node = node(stage, "set-values").withParameters(values);
+        return stringMap((ObjectNode) postJson(node, ""));
     }
 
     //-- images
 
     @Override
     public List<String> images(String stage) throws Exception {
-        return array(getJson(node(stage, "images")).getAsJsonArray());
+        return array((ArrayNode) getJson(node(stage, "images")));
     }
 
 
@@ -272,22 +251,22 @@ public class RemoteClient extends Client {
 
     //-- http methods with exception handling
 
-    private JsonElement getJson(HttpNode node) throws IOException {
+    private JsonNode getJson(HttpNode node) throws IOException {
         return stream(node, null, "GET", 200);
     }
 
-    private JsonElement postJson(HttpNode node, String body) throws IOException {
+    private JsonNode postJson(HttpNode node, String body) throws IOException {
         byte[] bytes;
 
         bytes = node.getWorld().getSettings().bytes(body);
         return postJson(node, new Body(null, null, (long) bytes.length, new ByteArrayInputStream(bytes), false));
     }
 
-    private JsonElement postJson(HttpNode node, Body body) throws IOException {
+    private JsonNode postJson(HttpNode node, Body body) throws IOException {
         return stream(node, body, "POST", 200, 201);
     }
 
-    private JsonElement stream(HttpNode node, Body body, String method, int... success) throws IOException {
+    private JsonNode stream(HttpNode node, Body body, String method, int... success) throws IOException {
         int code;
 
         try (Request.ResponseStream src = Request.streamResponse(node, method, body, null)) {
@@ -304,7 +283,7 @@ public class RemoteClient extends Client {
                 default:
                     for (int c : success) {
                         if (code == c) {
-                            return parser.parse(reader(src));
+                            return json.readTree(reader(src));
                         }
                     }
                     throw new IOException(node.getUri() + " returned http response code " + src.getStatusLine().code + "\n" + string(src));
@@ -325,10 +304,10 @@ public class RemoteClient extends Client {
     }
 
     private void postEmpty(HttpNode node, String body) throws IOException {
-        JsonElement e;
+        JsonNode e;
 
         e = postJson(node, body);
-        if (!e.isJsonNull()) {
+        if (!e.isNull()) {
             throw new IOException("unexpected response: " + e);
         }
     }
@@ -343,31 +322,41 @@ public class RemoteClient extends Client {
 
     //-- json helper
 
-    private static List<String> array(JsonArray json) {
+    private static List<String> array(ArrayNode json) {
         List<String> result;
+        Iterator<JsonNode> iter;
 
         result = new ArrayList<>(json.size());
-        for (JsonElement element : json) {
-            result.add(element.getAsString());
+        iter = json.elements();
+        while (iter.hasNext()) {
+            result.add(iter.next().asText());
         }
         return result;
     }
 
-    private static Map<String, String> stringMap(JsonObject json) {
+    public static Map<String, String> stringMap(ObjectNode obj) {
         Map<String, String> result;
-
-        result = new LinkedHashMap<>(json.size());
-        for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return result;
-    }
-
-    private static Map<String, JsonElement> map(JsonObject infos) {
-        Map<String, JsonElement> result;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
 
         result = new LinkedHashMap<>();
-        for (Map.Entry<String, JsonElement> entry : infos.entrySet()) {
+        iter = obj.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            result.put(entry.getKey(), entry.getValue().asText());
+        }
+        return result;
+    }
+
+    public static Map<String, JsonNode> map(ObjectNode infos) {
+        Map<String, JsonNode> result;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+
+        result = new LinkedHashMap<>();
+        iter = infos.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
             result.put(entry.getKey(), entry.getValue());
         }
         return result;

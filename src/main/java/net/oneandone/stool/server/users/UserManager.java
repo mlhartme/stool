@@ -15,9 +15,12 @@
  */
 package net.oneandone.stool.server.users;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +40,22 @@ import java.util.Random;
  * TODO: saving to a file doesn't make sense in a container ...
  */
 public class UserManager {
+    public static void main(String[] abc) throws JsonProcessingException {
+        ObjectMapper mapper;
+        ObjectNode node;
+
+        mapper = new ObjectMapper();
+        node = mapper.createObjectNode();
+        node.put("a", 1);
+        node.put("b", "text");
+        node.set("obj", mapper.readTree("{ \"a\": 42 }"));
+        System.out.println("node: " + node + " " + node.getClass());
+        System.out.println(new TextNode("abc").asText());
+        System.out.println(new TextNode("abc").toString());
+        System.out.println(new IntNode(42).asText());
+        System.out.println(new IntNode(42).toString());
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
     public static final User ANONYMOUS = new User("anonymous", "Anonymous", null);
@@ -58,10 +77,13 @@ public class UserManager {
 
     private final Random random;
 
+    private final ObjectMapper mapper;
+
     public UserManager(FileNode file) {
         this.file = file;
         this.tokens = new HashMap<>();
         this.random = new SecureRandom();
+        this.mapper = new ObjectMapper();
     }
 
     public synchronized User byLogin(String login) throws UserNotFound {
@@ -130,27 +152,30 @@ public class UserManager {
 
 
     private synchronized void save() throws IOException {
-        JsonObject json;
+        ObjectNode json;
 
-        json = new JsonObject();
+        json = mapper.createObjectNode();
         for (Pair pair : tokens.values()) {
-            json.add(pair.token.toString(), pair.user.toJson());
+            json.set(pair.token.toString(), pair.user.toJson(mapper));
         }
         file.writeString(json.toString());
     }
 
     private synchronized void load() throws IOException {
-        JsonObject obj;
+        ObjectNode obj;
         Token token;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
 
         tokens.clear();
-
         try (Reader in = file.newReader()) {
-            obj = JsonParser.parseReader(in).getAsJsonObject();
+            obj = (ObjectNode) mapper.readTree(in);
         }
-        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+        iter = obj.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
             token = Token.fromString(entry.getKey());
-            tokens.put(token.value, new Pair(token, User.fromJson(entry.getValue().getAsJsonObject())));
+            tokens.put(token.value, new Pair(token, User.fromJson((ObjectNode) entry.getValue())));
         }
     }
 }

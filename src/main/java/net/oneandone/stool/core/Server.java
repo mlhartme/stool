@@ -15,9 +15,7 @@
  */
 package net.oneandone.stool.core;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Configuration;
 import net.oneandone.stool.registry.PortusRegistry;
@@ -40,7 +38,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -180,7 +177,7 @@ public class Server {
 
     public Stage load(Engine engine, String name) throws IOException {
         String secretName;
-        JsonObject obj;
+        ObjectNode obj;
 
         secretName = engine.helmSecretName(name);
         try {
@@ -245,29 +242,6 @@ public class Server {
                 LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
-    }
-
-    //-- stool properties
-
-    public static Gson gson() {
-        return new GsonBuilder()
-                .disableHtmlEscaping()
-                .serializeNulls()
-                .excludeFieldsWithModifiers(Modifier.STATIC, Modifier.TRANSIENT)
-                .setPrettyPrinting()
-                .create();
-    }
-
-    public static String majorMinor(String version) {
-        int major;
-        int minor;
-
-        major = version.indexOf('.');
-        minor = version.indexOf('.', major + 1);
-        if (minor == -1) {
-            throw new IllegalArgumentException(version);
-        }
-        return version.substring(0, minor);
     }
 
     //--

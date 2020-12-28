@@ -15,9 +15,11 @@
  */
 package net.oneandone.stool.registry;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.stool.cli.RemoteClient;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -50,6 +52,7 @@ public class DockerRegistry extends Registry {
 
     private final String host;
     private final HttpNode root;
+    private final ObjectMapper json;
 
     private DockerRegistry(String host, HttpNode root) {
         if (host.contains("/")) {
@@ -57,20 +60,21 @@ public class DockerRegistry extends Registry {
         }
         this.host = host;
         this.root = root;
+        this.json = new ObjectMapper();
     }
 
     /** @return list of repositories */
     public List<String> list() throws IOException {
-        JsonObject result;
+        ObjectNode result;
 
         result = getJsonObject(root.join("v2/_catalog"));
-        return toList(result.get("repositories").getAsJsonArray());
+        return toList((ArrayNode) result.get("repositories"));
     }
 
     /** @return list of tags; empty list if repository does not exist */
     public List<String> tags(String repository) throws IOException {
-        JsonObject result;
-        JsonElement tags;
+        ObjectNode result;
+        JsonNode tags;
 
         try {
             result = getJsonObject(root.join("v2/" + repository + "/tags/list"));
@@ -78,25 +82,25 @@ public class DockerRegistry extends Registry {
             return new ArrayList<>();
         }
         tags = result.get("tags");
-        return tags.isJsonNull() ? new ArrayList<>() : toList(tags.getAsJsonArray());
+        return tags.isNull() ? new ArrayList<>() : toList((ArrayNode) tags);
     }
 
     /** implementation from https://forums.docker.com/t/retrieve-image-labels-from-manifest/37784/3 */
     public TagInfo info(String repository, String tag) throws IOException {
-        JsonObject manifest;
+        ObjectNode manifest;
         String digest;
-        JsonObject info;
+        ObjectNode info;
         String author;
         LocalDateTime created;
         Map<String, String> labels;
 
         manifest = manifest(repository, tag);
-        digest = manifest.get("config").getAsJsonObject().get("digest").getAsString();
+        digest = manifest.get("config").get("digest").asText();
         info = getJsonObject(root.join("v2/" + repository + "/blobs/" + digest));
         // TODO: not available via docker registry api
         created = null;
         author = null;
-        labels = toMap(info.get("container_config").getAsJsonObject().get("Labels").getAsJsonObject());
+        labels = RemoteClient.stringMap((ObjectNode) info.get("container_config").get("Labels"));
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);
     }
 
@@ -122,7 +126,7 @@ public class DockerRegistry extends Registry {
         }
     }
 
-    private JsonObject manifest(String repository, String tag) throws IOException {
+    private ObjectNode manifest(String repository, String tag) throws IOException {
         return getJsonObject(withV2Header(root.join("v2/" + repository + "/manifests/" + tag)));
     }
 
@@ -134,16 +138,16 @@ public class DockerRegistry extends Registry {
     }
     //--
 
-    private static JsonObject getJsonObject(HttpNode node) throws IOException {
-        return getJson(node).getAsJsonObject();
+    private ObjectNode getJsonObject(HttpNode node) throws IOException {
+        return (ObjectNode) getJson(node);
     }
 
-    private static JsonElement getJson(HttpNode node) throws IOException {
+    private JsonNode getJson(HttpNode node) throws IOException {
         StatusException se;
         String auth;
 
         try {
-            return JsonParser.parseString(node.readString());
+            return json.readTree(node.readString());
         } catch (NewInputStreamException e) {
             if (e.getCause() instanceof StatusException) {
                 se = (StatusException) e.getCause();

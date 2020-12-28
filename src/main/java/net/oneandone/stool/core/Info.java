@@ -15,10 +15,13 @@
  */
 package net.oneandone.stool.core;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.kubernetes.Engine;
 
 import java.io.IOException;
@@ -68,35 +71,37 @@ public abstract class Info {
             return value.toString();
         }
     }
-    public JsonElement getAsJson(Engine engine) throws IOException {
-        return valueJson(get(engine));
+    public JsonNode getAsJson(ObjectMapper json, Engine engine) throws IOException {
+        return valueJson(json, get(engine));
     }
 
-    private static JsonElement valueJson(Object value) {
+    private static JsonNode valueJson(ObjectMapper json, Object value) {
         if (value == null) {
-            return new JsonPrimitive("");
+            return NullNode.getInstance();
         } else if (value instanceof List) {
-            JsonArray result;
+            ArrayNode result;
             List<Object> lst;
 
-            result = new JsonArray();
+            result = json.createArrayNode();
             lst = (List) value;
             for (Object item : lst) {
-                result.add(valueJson(item));
+                result.add(valueJson(json, item));
             }
             return result;
         } else if (value instanceof Map) {
-            JsonObject result;
+            ObjectNode result;
             Map<Object, Object> map;
 
-            result = new JsonObject();
+            result = json.createObjectNode();
             map = (Map) value;
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
-                result.add((String) entry.getKey(), valueJson(entry.getValue()));
+                result.put((String) entry.getKey(), valueJson(json, entry.getValue()));
             }
             return result;
+        } else if (value instanceof Integer) {
+            return new IntNode((Integer) value);
         } else {
-            return new JsonPrimitive(value.toString());
+            return new TextNode(value.toString());
         }
     }
 }

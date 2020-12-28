@@ -15,9 +15,9 @@
  */
 package net.oneandone.stool.server.users;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -55,15 +55,15 @@ public class User implements UserDetails {
         }
     }
 
-    public static User fromJson(JsonObject obj) {
-        JsonElement email;
+    public static User fromJson(ObjectNode obj) {
+        JsonNode email;
 
         email = obj.get("email");
-        return new User(str(obj, "login"), str(obj, "name"), email == null ? null : email.getAsString());
+        return new User(str(obj, "login"), str(obj, "name"), email == null ? null : email.asText());
     }
 
-    private static String str(JsonObject obj, String name) {
-        return obj.get(name).getAsString();
+    private static String str(ObjectNode obj, String name) {
+        return obj.get(name).asText();
     }
 
     public final String login;
@@ -85,14 +85,14 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public JsonObject toJson() {
-        JsonObject result;
+    public ObjectNode toJson(ObjectMapper mapper) {
+        ObjectNode result;
 
-        result = new JsonObject();
-        result.add("login", new JsonPrimitive(login));
-        result.add("name", new JsonPrimitive(name));
+        result = mapper.createObjectNode();
+        result.put("login", login);
+        result.put("name", name);
         if (email != null) {
-            result.add("email", new JsonPrimitive(email));
+            result.put("email", email);
         }
         return result;
     }

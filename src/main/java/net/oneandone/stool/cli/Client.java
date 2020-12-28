@@ -15,7 +15,8 @@
  */
 package net.oneandone.stool.cli;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public abstract class Client {
         return new ArrayList<>(list(filter, Collections.emptyList()).keySet());
     }
     /** @param select  empty list to select all fields */
-    public abstract Map<String, Map<String, JsonElement>> list(String filter, List<String> select) throws IOException;
+    public abstract Map<String, Map<String, JsonNode>> list(String filter, List<String> select) throws IOException;
 
     /**
      * @return image actually started

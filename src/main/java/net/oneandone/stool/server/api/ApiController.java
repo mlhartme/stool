@@ -15,10 +15,11 @@
  */
 package net.oneandone.stool.server.api;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.kubernetes.Engine;
@@ -56,11 +57,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class ApiController {
+    private final ObjectMapper json; // TODO: threading
     private final Server server;
     private final LocalClient client;
 
     @Autowired
     public ApiController(Server server) {
+        this.json = new ObjectMapper();
         this.server = server;
         this.client = new LocalClient("server", server);
     }
@@ -75,18 +78,18 @@ public class ApiController {
     @GetMapping("/stages")
     public String list(@RequestParam(value = "filter", required = false, defaultValue = "") String filter,
                        @RequestParam(value = "select", required = false, defaultValue = "") String selectStr) throws IOException {
-        Map<String, Map<String, JsonElement>> map;
-        JsonObject obj;
-        JsonObject result;
+        Map<String, Map<String, JsonNode>> map;
+        ObjectNode obj;
+        ObjectNode result;
 
         map = client.list(filter, "*".equals(selectStr) ? Collections.emptyList() : Separator.COMMA.split(selectStr));
-        result = new JsonObject();
-        for (Map.Entry<String, Map<String, JsonElement>> stage : map.entrySet()) {
-            obj = new JsonObject();
-            for (Map.Entry<String, JsonElement> o : stage.getValue().entrySet()) {
-                obj.add(o.getKey(), o.getValue());
+        result = json.createObjectNode();
+        for (Map.Entry<String, Map<String, JsonNode>> stage : map.entrySet()) {
+            obj = json.createObjectNode();
+            for (Map.Entry<String, JsonNode> o : stage.getValue().entrySet()) {
+                obj.set(o.getKey(), o.getValue());
             }
-            result.add(stage.getKey(), obj);
+            result.set(stage.getKey(), obj);
         }
         return result.toString();
     }
@@ -98,7 +101,7 @@ public class ApiController {
 
         values = map(request, "value.");
         try {
-            return Engine.obj(client.create(caller(request), name, image, values)).toString();
+            return Engine.obj(json, client.create(caller(request), name, image, values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
@@ -119,12 +122,12 @@ public class ApiController {
         String result;
 
         result = client.publish(caller(request), stageName, explicitImage, map(request, "value."));
-        return new JsonPrimitive(result).toString();
+        return new TextNode(result).toString();
     }
 
     @GetMapping("/stages//{stage}/await-available")
     public String awaitAvailable(@PathVariable(value = "stage") String stage) throws IOException {
-        return Engine.obj(client.awaitAvailable(stage)).toString();
+        return Engine.obj(json, client.awaitAvailable(stage)).toString();
     }
 
     @PostMapping("/stages/{stage}/delete")
@@ -134,22 +137,22 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/values")
     public String values(@PathVariable(value = "stage") String stage) throws IOException {
-        return Engine.obj(client.getValues(stage)).toString();
+        return Engine.obj(json, client.getValues(stage)).toString();
     }
 
     @PostMapping("/stages/{stage}/set-values")
     public String setValues(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        return Engine.obj(client.setValues(caller(request), stage, map(request, ""))).toString();
+        return Engine.obj(json, client.setValues(caller(request), stage, map(request, ""))).toString();
     }
 
     @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage) throws IOException {
-        return array(client.history(stage)).toString();
+        return array(json, client.history(stage)).toString();
     }
 
     @PostMapping("/stages/{stage}/validate")
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
-        return array(client.validate(stage, email, repair)).toString();
+        return array(json, client.validate(stage, email, repair)).toString();
     }
 
     @GetMapping("/stages/{stage}/pod-token")
@@ -159,7 +162,7 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/images")
     public String images(@PathVariable("stage") String name) throws Exception {
-        return array(client.images(name)).toString();
+        return array(json, client.images(name)).toString();
     }
 
     //--
@@ -177,12 +180,12 @@ public class ApiController {
             throw new IllegalStateException();
         }
         result = server.userManager.generateToken(user);
-        return new JsonPrimitive(result).toString();
+        return new TextNode(result).toString();
     }
 
     @GetMapping("/stages/{name}/logs")
     public String logs(@PathVariable(value = "name") String stageName) throws Exception {
-        JsonArray result;
+        ArrayNode result;
         FileNode dir;
         Stage stage;
 
@@ -190,10 +193,10 @@ public class ApiController {
             stage = server.load(engine, stageName);
         }
         dir = stage.getLogs(); // TODO: application logs
-        result = new JsonArray();
+        result = json.createArrayNode();
         for (FileNode file : dir.find("**/*")) {
             if (!file.isDirectory()) {
-                result.add(new JsonPrimitive(file.getRelative(dir)));
+                result.add(new TextNode(file.getRelative(dir)));
             }
         }
         return result.toString();
@@ -235,12 +238,12 @@ public class ApiController {
 
     //--
 
-    private static JsonArray array(List<String> array) {
-        JsonArray result;
+    public static ArrayNode array(ObjectMapper mapper, List<String> array) {
+        ArrayNode result;
 
-        result = new JsonArray(array.size());
+        result = mapper.createArrayNode();
         for (String str : array) {
-            result.add(new JsonPrimitive(str));
+            result.add(new TextNode(str));
         }
         return result;
     }
