@@ -14,5 +14,4 @@ APP=$(dirname "$APP")
 APP=$(cd "$APP" && pwd)
 APP="$APP/$NAME"
 
-java -Djava.awt.headless=true --illegal-access=warn $SC_OPTS -jar "$APP" "$@"
-exit $?
+exec java -Djava.awt.headless=true --illegal-access=warn $SC_OPTS -jar "$APP" "$@"
