@@ -18,9 +18,7 @@ package net.oneandone.stool.server.users;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,18 +40,11 @@ import java.util.Random;
 public class UserManager {
     public static void main(String[] abc) throws JsonProcessingException {
         ObjectMapper mapper;
-        ObjectNode node;
+        JsonNode node;
 
         mapper = new ObjectMapper();
-        node = mapper.createObjectNode();
-        node.put("a", 1);
-        node.put("b", "text");
-        node.set("obj", mapper.readTree("{ \"a\": 42 }"));
-        System.out.println("node: " + node + " " + node.getClass());
-        System.out.println(new TextNode("abc").asText());
-        System.out.println(new TextNode("abc").toString());
-        System.out.println(new IntNode(42).asText());
-        System.out.println(new IntNode(42).toString());
+        node = mapper.readTree("");
+        System.out.println("node: " + node + " " + node.isMissingNode() + " " + node.getClass());
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);

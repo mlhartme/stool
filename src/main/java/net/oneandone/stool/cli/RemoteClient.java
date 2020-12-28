@@ -307,8 +307,8 @@ public class RemoteClient extends Client {
         JsonNode e;
 
         e = postJson(node, body);
-        if (!e.isNull()) {
-            throw new IOException("unexpected response: " + e);
+        if (!e.isMissingNode()) {
+            throw new IOException("unexpected response: " + e + " " + e.getClass());
         }
     }
 
