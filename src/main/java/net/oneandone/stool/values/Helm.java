@@ -73,7 +73,7 @@ public final class Helm {
         FileNode src;
         Expire expire;
 
-        expressions = new Expressions(root.getWorld(), server, image, server.stageFqdn(name));
+        expressions = new Expressions(root.getWorld(), server, image, server.configuration.stageFqdn(name));
         app = Application.load(expressions, root.join("app.yaml").readString());
         tmp = root.getWorld().getTemp().createTempDirectory();
         values = root.getWorld().getTemp().createTempFile();

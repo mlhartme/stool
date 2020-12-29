@@ -26,6 +26,7 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.values.Helm;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -189,8 +190,8 @@ public class Stage {
 
     //--
 
-    public FileNode getLogs() {
-        return server.getStageLogs(name);
+    public FileNode getLogs() throws MkdirException {
+        return server.configuration.stageLogs(name);
     }
 
     private Registry lazyRegistry = null;
@@ -429,7 +430,7 @@ public class Stage {
         String url;
         List<String> result;
 
-        fqdn = server.stageFqdn(name);
+        fqdn = server.configuration.stageFqdn(name);
         url = protocol + "://" + fqdn + "/" + tag.urlContext;
         if (!url.endsWith("/")) {
             url = url + "/";

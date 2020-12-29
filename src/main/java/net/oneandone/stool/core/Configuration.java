@@ -16,6 +16,7 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.UsernamePassword;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -201,6 +202,15 @@ public class Configuration {
                 LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
+    }
+
+    public FileNode stageLogs(String name) throws MkdirException {
+        return world.file(stageLogs).mkdirsOpt().join(name);
+    }
+
+
+    public String stageFqdn(String stage) {
+        return stage + "." + fqdn;
     }
 
     public Registry createRegistry(World registryWorld, String image) throws IOException {

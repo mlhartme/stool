@@ -23,14 +23,12 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,24 +49,13 @@ public class Server {
 
     private static Server create(World world, String context) throws IOException {
         Configuration configuration;
-        String version;
-        Server server;
-        String localhostIp;
-        boolean openShift;
 
-        version = Main.versionString(world);
         configuration = Configuration.load(Configuration.scYaml(world));
         configuration.validate();
-        LOGGER.info("version: " + version);
+        LOGGER.info("version: " + Main.versionString(world));
         LOGGER.info("context: " + context);
         LOGGER.info("configuration: " + configuration);
-        try (Engine engine = Engine.createClusterOrLocal(context)) {
-            openShift = engine.isOpenShift();
-            LOGGER.info("OpenShift: " + openShift);
-            localhostIp = InetAddress.getByName("localhost").getHostAddress();
-            LOGGER.info("localhostIp: " + localhostIp);
-            return new Server(context, world, openShift, localhostIp, configuration);
-        }
+        return new Server(context, world, configuration);
     }
 
     //--
@@ -78,34 +65,16 @@ public class Server {
     /** CAUTION: not thread safe! Try to use engine.world instead */
     private final World world;
 
-    public final boolean openShift;
-
-    /** Logs of stages. CAUTION: not thread safe! */
-    private final FileNode stageLogs;
-
-    public final String localhostIp;
-
     public final Configuration configuration;
 
     public final UserManager userManager;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Server(String context, World world, boolean openShift, String localhostIp, Configuration configuration) throws IOException {
+    public Server(String context, World world, Configuration configuration) throws IOException {
         this.context = context;
         this.world = world;
-        this.openShift = openShift;
-        this.stageLogs = world.file(configuration.stageLogs).mkdirsOpt();
-        this.localhostIp = localhostIp;
         this.configuration = configuration;
         this.userManager = UserManager.loadOpt(configuration.lib.mkdirsOpt().join("users.json"));
-    }
-
-    public String stageFqdn(String stage) {
-        return stage + "." + configuration.fqdn;
-    }
-
-    public FileNode getStageLogs(String name) {
-        return stageLogs.join(name);
     }
 
     //-- Stage access
