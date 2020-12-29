@@ -105,7 +105,7 @@ public class Setup {
         FileNode template;
 
         template = cisotoolsEnvironment(world);
-        return template == null ? new Configuration(world) : Configuration.load(template);
+        return template == null ? Configuration.create(world) : Configuration.load(template);
     }
 
     public static FileNode cisotoolsEnvironment(World world) throws FileNotFoundException, ExistsException {

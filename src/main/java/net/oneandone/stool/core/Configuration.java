@@ -52,21 +52,31 @@ import static net.oneandone.stool.util.Json.string;
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
-    public static Configuration load(World world) throws IOException { // TODO
-        Configuration configuration;
-
-        configuration = Configuration.load(Configuration.scYaml(world));
-        configuration.validate();
-        LOGGER.info("version: " + Main.versionString(world));
-        LOGGER.info("configuration: " + configuration);
-        return configuration;
+    public static Configuration load(World world) throws IOException {
+        return Configuration.load(Configuration.scYaml(world));
     }
 
     public static Configuration load(FileNode file) throws IOException {
+        ObjectMapper yaml;
+        ObjectNode configuration;
         Configuration result;
 
-        result = new Configuration(file.getWorld(), file.getParent());
-        result.doLoad(file);
+        yaml = yaml();
+        try (Reader src = file.newReader()) {
+            configuration = (ObjectNode) yaml.readTree(src);
+        }
+        result = new Configuration(file.getWorld(), yaml, file.getParent(), configuration);
+        result.validate();
+        return result;
+    }
+
+    public static Configuration create(World world) throws IOException {
+        ObjectMapper yaml;
+        Configuration result;
+
+        yaml = yaml();
+        result = new Configuration(world, yaml, scYaml(world).getParent(), yaml.createObjectNode());
+        result.validate();
         return result;
     }
 
@@ -77,91 +87,129 @@ public class Configuration {
         return str != null ? world.file(str) : world.getHome().join(".sc.yaml");
     }
 
+    private static ObjectMapper yaml() {
+        return new ObjectMapper(new YAMLFactory());
+    }
+
     //--
 
     private final World world;
+    private final ObjectMapper yaml;
+
     public final Map<String, UsernamePassword> registryCredentials;
     public String charts;
-    public String stageLogs;
+    public final String stageLogs;
     public FileNode lib;
     private String currentContext;
     public final Map<String, Context> contexts;
-    private final ObjectMapper yaml;
 
     //--
 
-    public String loglevel;
+    public final String loglevel;
 
     /**
      * used for output and application urls
      */
-    public String fqdn;
+    public final String fqdn;
 
     /**
      * public url for kubernetes api -- reported to clients to use temporary service accounts
      */
-    public String kubernetes;
+    public final String kubernetes;
 
     /**
      * Name + email. Used for problem reports, feedback emails,
      */
-    public String admin;
+    public final String admin;
 
-    public String mailHost;
+    public final String mailHost;
 
-    public String mailUsername;
+    public final String mailUsername;
 
-    public String mailPassword;
+    public final String mailPassword;
 
-    public String ldapUrl;
+    public final String ldapUrl;
 
-    public String ldapPrincipal;
+    public final String ldapPrincipal;
 
-    public String ldapCredentials;
+    public final String ldapCredentials;
 
-    public String ldapUnit;
+    public final String ldapUnit;
 
-    public String ldapSso;
+    public final String ldapSso;
 
     /**
      * Number of days to wait before removing an expired stage.
      */
-    public int autoRemove;
+    public final int autoRemove;
 
-    public int defaultExpire;
+    public final int defaultExpire;
 
 
-    public Configuration(World world) {
-        this(world, world.getHome().join(".sc")); // TODO
+    public Configuration(World world, ObjectMapper yaml, FileNode configdir, ObjectNode configuration) {
+        this.world = world;
+        this.yaml = yaml;
+
+        this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
+        this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
+        this.contexts = parseContexts((ArrayNode) configuration.get("contexts"));
+        this.charts = string(configuration, "charts", world.getHome().join(".sc/charts").getAbsolute());
+        this.stageLogs = string(configuration, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
+        this.lib = file(configuration, configdir, "lib", configdir.join("lib"));
+        this.fqdn = Json.string(configuration, "fqdn", "localhost");
+        this.kubernetes = Json.string(configuration, "kubernetes", "http://localhost");
+        this.loglevel = Json.string(configuration, "loglevel", "ERROR");
+        this.admin = Json.string(configuration, "admin", "");
+        this.autoRemove = Json.number(configuration, "autoRemove", -1);
+        this.ldapUrl = Json.string(configuration, "ldapUrl", "");
+        this.ldapPrincipal = Json.string(configuration, "ldapPrincipal", "");
+        this.ldapCredentials = Json.string(configuration, "ldapCredentials", "");
+        this.ldapUnit = Json.string(configuration, "ldapUnit", "");
+        this.ldapSso = Json.string(configuration, "ldapSso", "");
+        this.mailHost = Json.string(configuration, "mailHost", "");
+        this.mailUsername = Json.string(configuration, "mailUsername", "");
+        this.mailPassword = Json.string(configuration, "mailPassword", "");
+        this.defaultExpire = Json.number(configuration, "defaultExpire", 0);
     }
 
-    public Configuration(World world, FileNode configdir) {
-        this.world = world;
-        this.registryCredentials = new HashMap<>();
-        this.currentContext = null;
-        this.contexts = new LinkedHashMap<>();
-        this.charts = world.getHome().join(".sc/charts").getAbsolute();
-        this.stageLogs = world.getHome().join(".sc/logs").getAbsolute();
-        this.lib = configdir.join("lib");
+    private static Map<String, Context> parseContexts(ArrayNode contextsOpt) {
+        Context context;
+        Iterator<JsonNode> iter;
+        JsonNode one;
+        Map<String, Context> result;
 
-        this.yaml = new ObjectMapper(new YAMLFactory());
+        result = new LinkedHashMap<>();
+        if (contextsOpt != null) {
+            iter = contextsOpt.elements();
+            while (iter.hasNext()) {
+                one = iter.next();
+                context = Context.fromYaml(one);
+                result.put(context.name, context);
+            }
+        }
+        return result;
+    }
 
-        //--
+    private static Map<String, UsernamePassword> parseRegistryCredentials(String str) {
+        Map<String, UsernamePassword> result;
+        int idx;
+        String host;
 
-        fqdn = "localhost";
-        kubernetes = "http://localhost";
-        loglevel = "ERROR";
-        admin = "";
-        autoRemove = -1;
-        ldapUrl = "";
-        ldapPrincipal = "";
-        ldapCredentials = "";
-        ldapUnit = "";
-        ldapSso = "";
-        mailHost = "";
-        mailUsername = "";
-        mailPassword = "";
-        defaultExpire = 0;
+        result = new HashMap<>();
+        for (String entry : Separator.COMMA.split(str)) {
+            idx = entry.indexOf('=');
+            if (idx < 0) {
+                throw new IllegalStateException(entry);
+            }
+            host = entry.substring(0, idx);
+            entry = entry.substring(idx + 1);
+            idx = entry.indexOf(':');
+            if (idx < 0) {
+                throw new IllegalStateException(entry);
+            }
+            result.put(host, new UsernamePassword(entry.substring(0, idx), entry.substring(idx + 1)));
+        }
+        return result;
     }
 
     //-- Stage access
@@ -306,26 +354,6 @@ public class Configuration {
         return new Certificates(lib, charts);
     }
 
-    public void setRegistryCredentials(String str) {
-        int idx;
-        String host;
-
-        registryCredentials.clear();
-        for (String entry : Separator.COMMA.split(str)) {
-            idx = entry.indexOf('=');
-            if (idx < 0) {
-                throw new IllegalStateException(entry);
-            }
-            host = entry.substring(0, idx);
-            entry = entry.substring(idx + 1);
-            idx = entry.indexOf(':');
-            if (idx < 0) {
-                throw new IllegalStateException(entry);
-            }
-            registryCredentials.put(host, new UsernamePassword(entry.substring(0, idx), entry.substring(idx + 1)));
-        }
-    }
-
     public UsernamePassword registryCredentials(String registry) {
         return registryCredentials.get(registry);
     }
@@ -413,48 +441,6 @@ public class Configuration {
         result = new ArrayList<>();
         result.addAll(Reference.list(client, client.list(filter)));
         return result;
-    }
-
-    private void doLoad(FileNode file) throws IOException {
-        ObjectNode all;
-        Context context;
-        Iterator<JsonNode> iter;
-        JsonNode one;
-
-        try (Reader src = file.newReader()) {
-            all = (ObjectNode) yaml.readTree(src);
-        }
-
-        contexts.clear();
-        setRegistryCredentials(string(all, "registryCredentials", ""));
-        charts = string(all, "charts", charts);
-        lib = file(all, file.getParent(), "lib", lib);
-        stageLogs = string(all, "stageLogs", stageLogs);
-        currentContext = all.has("currentContext") ? all.get("currentContext").asText() : null;
-
-        //--
-        fqdn = Json.string(all, "fqdn", fqdn);
-        kubernetes = Json.string(all, "kubernetes", kubernetes);
-        loglevel = Json.string(all, "loglevel", loglevel);
-        admin = Json.string(all, "admin", admin);
-        autoRemove = Json.number(all, "autoRemove", autoRemove);
-        ldapUrl = Json.string(all, "ldapUrl", ldapUrl);
-        ldapPrincipal = Json.string(all, "ldapPrincipal", ldapPrincipal);
-        ldapCredentials = Json.string(all, "ldapCredentials", ldapCredentials);
-        ldapUnit = Json.string(all, "ldapUnit", ldapUnit);
-        ldapSso = Json.string(all, "ldapSso", ldapSso);
-        mailHost = Json.string(all, "mailHost", mailHost);
-        mailUsername = Json.string(all, "mailUsername", mailUsername);
-        mailPassword = Json.string(all, "mailPassword", mailPassword);
-        defaultExpire = Json.number(all, "defaultExpire", defaultExpire);
-
-        //--
-        iter = all.get("contexts").iterator();
-        while (iter.hasNext()) {
-            one = iter.next();
-            context = Context.fromYaml(one);
-            contexts.put(context.name, context);
-        }
     }
 
     public void save(FileNode file) throws IOException {

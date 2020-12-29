@@ -91,6 +91,6 @@ public class Globals {
     }
 
     public Configuration configurationOrDefaults() throws IOException {
-        return scYaml().exists() ? configuration() : new Configuration(world);
+        return scYaml().exists() ? configuration() : Configuration.create(world);
     }
 }
