@@ -6,9 +6,8 @@ data:
   .sc.yaml: |
     registryCredentials: "{{ .Values.registryCredentials }}"
     charts: "/etc/charts"
-    currentContext: "localhost"
-    lib: "/var/lib/stool"
-    logs: "/var/log/stool"
+    lib: "{{ .Values.lib }}"
+    stageLogs: "{{ .Values.stageLogs }}"
     fqdn: "{{ .Values.fqdn }}"
     kubernetes: "{{ .Values.kubernetes }}"
     ldapUrl: "{{ .Values.ldapUrl }}"
@@ -23,6 +22,7 @@ data:
     mailHost: "{{ .Values.mailHost }}"
     mailUsername: "{{ .Values.username }}"
     mailPassword: "{{ .Values.password }}"
+    currentContext: "localhost"
     contexts:
       - name: "localhost"
         url: "local:local"

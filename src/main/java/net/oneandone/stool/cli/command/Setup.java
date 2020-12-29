@@ -64,7 +64,7 @@ public class Setup {
             configuration.charts = charts;
         }
         if (lib != null) {
-            configuration.lib = lib;
+            configuration.lib = world.file(scYaml.getParent(), lib);
         }
         configuration.save(scYaml);
         console.info.println("Done - created " + scYaml.getAbsolute() + " for Stool version " + version);

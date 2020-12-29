@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,6 +71,16 @@ public final class Json {
 
     public static int number(ObjectNode node, String field, int dflt) {
         return node.has(field) ? node.get(field).asInt() : dflt;
+    }
+
+    public static FileNode file(ObjectNode node, FileNode basedir, String field, FileNode dflt) {
+        String path;
+
+        if (node.has(field)) {
+            return basedir.getWorld().file(basedir, node.get(field).asText());
+        } else {
+            return dflt;
+        }
     }
 
     public static String string(ObjectNode node, String field, String dflt) {

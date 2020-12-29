@@ -4,6 +4,9 @@ fqdn: "localhost"
 # certificate for fqdn; empty for none; base64 encoded p12 keystore file
 cert: ""
 
+lib: "/var/lib/stool"
+stageLogs: "/var/log/stool/stages"
+
 # points to stool server image
 repositoryTag: "contargo.server.lan/cisoops-public/stool:${image.version}"
 

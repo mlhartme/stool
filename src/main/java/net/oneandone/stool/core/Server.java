@@ -111,7 +111,7 @@ public class Server {
         this.context = context;
         this.world = world;
         this.openShift = openShift;
-        this.lib = world.file(configuration.lib).mkdirsOpt();
+        this.lib = configuration.lib.mkdirsOpt();
         this.stageLogs = world.file(configuration.stageLogs).mkdirsOpt();
         this.localhostIp = localhostIp;
         this.configuration = configuration;

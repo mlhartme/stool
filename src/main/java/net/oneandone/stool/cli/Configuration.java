@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import static net.oneandone.stool.util.Json.string;
+import static net.oneandone.stool.util.Json.file;
 
 /** client configuration */
 public class Configuration {
@@ -49,7 +50,7 @@ public class Configuration {
     public final Map<String, UsernamePassword> registryCredentials;
     public String charts;
     public String stageLogs;
-    public String lib;
+    public FileNode lib;
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
@@ -101,10 +102,10 @@ public class Configuration {
 
 
     public Configuration(World world) {
-        this(world, null, null, null);
+        this(world, world.getHome().join(".sc"), null, null, null);
     }
 
-    public Configuration(World world, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public Configuration(World world, FileNode configdir, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.world = world;
         this.version = null;
         this.registryCredentials = new HashMap<>();
@@ -112,7 +113,7 @@ public class Configuration {
         this.contexts = new LinkedHashMap<>();
         this.charts = world.getHome().join(".sc/charts").getAbsolute();
         this.stageLogs = world.getHome().join(".sc/logs").getAbsolute();
-        this.lib = world.getHome().join(".sc/lib").getAbsolute();
+        this.lib = configdir.join("lib");
 
         // transient
         this.wirelog = wirelog;
@@ -267,9 +268,9 @@ public class Configuration {
 
         contexts.clear();
         setRegistryCredentials(string(all, "registryCredentials", ""));
-        charts = string(all, "charts", "/etc/charts");
-        lib = string(all, "lib", "/var/lib/stool");
-        stageLogs = string(all, "stageLogs", "/var/log/stool/stages");
+        charts = string(all, "charts", charts);
+        lib = file(all, file.getParent(), "lib", lib);
+        stageLogs = string(all, "stageLogs", stageLogs);
         currentContext = all.has("currentContext") ? all.get("currentContext").asText() : null;
 
         //--
@@ -318,7 +319,7 @@ public class Configuration {
         obj.put("registryCredentials", registryCredentialsString());
         obj.put("charts", charts);
         obj.put("stageLog", stageLogs);
-        obj.put("lib", lib);
+        obj.put("lib", lib.getAbsolute());
 
         //--
 
