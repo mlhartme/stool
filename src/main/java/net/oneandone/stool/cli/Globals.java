@@ -26,18 +26,8 @@ import java.util.UUID;
 public class Globals {
     public static Globals create(Console console, World world, FileNode stoolYamlOpt, String command) {
         FileNode scYaml;
-        String str;
 
-        if (stoolYamlOpt != null) {
-            scYaml = stoolYamlOpt;
-        } else {
-            str = System.getenv("SC_YAML");
-            if (str != null) {
-                scYaml = world.file(str);
-            } else {
-                scYaml = world.getHome().join(".sc.yaml");
-            }
-        }
+        scYaml = stoolYamlOpt != null ?  stoolYamlOpt : Configuration.scYaml(world);
         return new Globals(console, world, scYaml, UUID.randomUUID().toString(), command);
     }
 

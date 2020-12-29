@@ -43,8 +43,15 @@ import java.util.Map;
 import static net.oneandone.stool.util.Json.string;
 import static net.oneandone.stool.util.Json.file;
 
-/** client configuration */
+/** Stool configuration, represents sc.yaml */
 public class Configuration {
+    public static FileNode scYaml(World world) {
+        String str;
+
+        str = System.getenv("SC_YAML");
+        return str != null ? world.file(str) : world.getHome().join(".sc.yaml");
+    }
+
     public static Configuration load(FileNode file) throws IOException {
         return Configuration.load(file, file.getWorld().getHome().join(".sc"), null, null, null);
     }
@@ -56,6 +63,7 @@ public class Configuration {
         result.doLoad(file);
         return result;
     }
+
 
     private final World world;
     private String version;
