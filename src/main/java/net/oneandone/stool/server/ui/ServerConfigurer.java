@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.api;
+package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.Main;
 import net.oneandone.stool.server.users.UserManager;

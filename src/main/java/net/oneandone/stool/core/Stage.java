@@ -21,7 +21,7 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.server.settings.Expire;
+import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.util.Json;

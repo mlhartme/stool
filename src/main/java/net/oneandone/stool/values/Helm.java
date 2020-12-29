@@ -24,7 +24,7 @@ import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.core.Type;
-import net.oneandone.stool.server.settings.Expire;
+import net.oneandone.stool.util.Expire;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

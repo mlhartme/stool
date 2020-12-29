@@ -19,7 +19,6 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Type;
-import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserManager;

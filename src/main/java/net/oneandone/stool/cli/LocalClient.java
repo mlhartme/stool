@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.api;
+package net.oneandone.stool.cli;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
-import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.cli.Client;
-import net.oneandone.stool.cli.PodConfig;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Info;
 import net.oneandone.stool.kubernetes.Engine;

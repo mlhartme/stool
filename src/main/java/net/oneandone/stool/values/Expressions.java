@@ -19,7 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.core.Stage;
-import net.oneandone.stool.server.settings.Expire;
+import net.oneandone.stool.util.Expire;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
