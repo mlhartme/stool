@@ -51,7 +51,7 @@ public class Globals {
     }
 
     public Caller caller() {
-        return new Caller(invocation, "todoUser", command); // TODO
+        return new Caller(invocation, "todoUser", command, wirelog); // TODO: immutable instance
     }
 
     public FileNode scYaml() {
@@ -83,7 +83,7 @@ public class Globals {
     public Configuration configuration() throws IOException {
         Configuration result;
 
-        result = Configuration.load(scYaml(), world.getHome() /* TODO */, wirelog);
+        result = Configuration.load(scYaml(), world.getHome() /* TODO */);
         if (context != null) {
             result.setCurrentContext(context);
         }

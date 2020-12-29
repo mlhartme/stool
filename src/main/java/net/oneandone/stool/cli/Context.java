@@ -21,12 +21,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.server.api.LocalClient;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
 public class Context {
-    public static Context fromYaml(JsonNode obj, FileNode wirelog) {
+    public static Context fromYaml(JsonNode obj) {
         String token;
 
         if (obj.has("token")) {
@@ -34,7 +33,7 @@ public class Context {
         } else {
             token = null;
         }
-        return new Context(obj.get("name").asText(), obj.get("url").asText(), token, wirelog);
+        return new Context(obj.get("name").asText(), obj.get("url").asText(), token);
     }
 
     public final String name;
@@ -43,14 +42,10 @@ public class Context {
     /** null to work anonymously */
     public String token;
 
-    private volatile FileNode wirelog;
-
-    public Context(String name, String url, String token, FileNode wirelog) {
+    public Context(String name, String url, String token) {
         this.name = name;
         this.url = url;
         this.token = token;
-
-        this.wirelog = wirelog;
     }
 
     public boolean hasToken() {
@@ -69,7 +64,7 @@ public class Context {
         if (isLocal()) {
             this.token = null;
         } else {
-            client = RemoteClient.basicAuth(world, name, url, wirelog, caller.invocation, caller.command, username, password);
+            client = RemoteClient.basicAuth(world, name, url, caller, username, password);
             this.token = client.auth();
         }
     }
@@ -78,7 +73,7 @@ public class Context {
         if (isLocal()) {
             return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Configuration.load(world));
         } else {
-            return RemoteClient.token(world, name, url, wirelog, caller.invocation, caller.command, token);
+            return RemoteClient.token(world, name, url, caller, token);
         }
     }
 

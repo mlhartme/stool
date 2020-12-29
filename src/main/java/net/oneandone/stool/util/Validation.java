@@ -47,7 +47,7 @@ public class Validation {
         this.configuration = configuration;
         this.userManager = userManager;
         this.engine = engine;
-        this.caller = new Caller("todo", "todo", "validate cron job");
+        this.caller = new Caller("todo", "todo", "validate cron job", null);
     }
 
     public List<String> run(String name, boolean email, boolean repair) throws IOException, MessagingException {

@@ -15,14 +15,18 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.sushi.fs.file.FileNode;
+
 public class Caller {
     public final String invocation;
     public final String user;
     public final String command;
+    public final FileNode wirelog;
 
-    public Caller(String invocation, String user, String command) {
+    public Caller(String invocation, String user, String command, FileNode wirelog) {
         this.invocation = invocation;
         this.user = user;
         this.command = command;
+        this.wirelog = wirelog;
     }
 }

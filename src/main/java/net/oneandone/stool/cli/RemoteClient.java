@@ -50,15 +50,15 @@ import static net.oneandone.stool.util.Json.map;
 
 public class RemoteClient extends Client {
     /** @param token null to work anonymously */
-    public static RemoteClient token(World world, String context, String url, FileNode wireLog, String clientInvocation, String clientCommand,
+    public static RemoteClient token(World world, String context, String url, Caller caller,
                                      String token) throws NodeInstantiationException {
-        return doCreate(world, context, url, wireLog, clientInvocation, clientCommand, token, null, null);
+        return doCreate(world, context, url, caller.wirelog, caller.invocation, caller.command, token, null, null);
 
     }
 
-    public static RemoteClient basicAuth(World world, String context, String url, FileNode wireLog, String clientInvocation, String clientCommand,
+    public static RemoteClient basicAuth(World world, String context, String url, Caller caller,
                                          String username, String password) throws NodeInstantiationException {
-        return doCreate(world, context, url, wireLog, clientInvocation, clientCommand, null, username, password);
+        return doCreate(world, context, url, caller.wirelog, caller.invocation, caller.command, null, username, password);
 
     }
 

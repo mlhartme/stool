@@ -117,7 +117,8 @@ public class ApiController {
         return new Caller(
                 request.getHeader("X-stool-client-invocation"),
                 User.authenticatedOrAnonymous().login,
-                request.getHeader("X-stool-client-command"));
+                request.getHeader("X-stool-client-command"),
+                null /* TODO */);
     }
 
     @PostMapping("/stages/{stage}/publish")

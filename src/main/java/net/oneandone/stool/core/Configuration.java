@@ -63,13 +63,13 @@ public class Configuration {
     }
 
     public static Configuration load(FileNode file) throws IOException {
-        return Configuration.load(file, file.getWorld().getHome().join(".sc"), null);
+        return Configuration.load(file, file.getWorld().getHome().join(".sc") /* TODO */);
     }
 
-    public static Configuration load(FileNode file, FileNode configdir, FileNode wirelog) throws IOException {
+    public static Configuration load(FileNode file, FileNode configdir) throws IOException {
         Configuration result;
 
-        result = new Configuration(file.getWorld(), configdir, wirelog);
+        result = new Configuration(file.getWorld(), configdir);
         result.doLoad(file);
         return result;
     }
@@ -88,7 +88,6 @@ public class Configuration {
     public String charts;
     public String stageLogs;
     public FileNode lib;
-    public final FileNode wirelog;
     private String currentContext;
     public final Map<String, Context> contexts;
     private final ObjectMapper yaml;
@@ -137,10 +136,10 @@ public class Configuration {
 
 
     public Configuration(World world) {
-        this(world, world.getHome().join(".sc"), null);
+        this(world, world.getHome().join(".sc")); // TODO
     }
 
-    public Configuration(World world, FileNode configdir, FileNode wirelog) {
+    public Configuration(World world, FileNode configdir) {
         this.world = world;
         this.registryCredentials = new HashMap<>();
         this.currentContext = null;
@@ -148,9 +147,6 @@ public class Configuration {
         this.charts = world.getHome().join(".sc/charts").getAbsolute();
         this.stageLogs = world.getHome().join(".sc/logs").getAbsolute();
         this.lib = configdir.join("lib");
-
-        // transient
-        this.wirelog = wirelog;
 
         this.yaml = new ObjectMapper(new YAMLFactory());
 
@@ -385,7 +381,7 @@ public class Configuration {
     }
 
     public void addContext(String name, String url, String token) {
-        contexts.put(name, new Context(name, url, token, null));
+        contexts.put(name, new Context(name, url, token));
     }
 
     public Context contextLookup(String context) {
@@ -460,7 +456,7 @@ public class Configuration {
         iter = all.get("contexts").iterator();
         while (iter.hasNext()) {
             one = iter.next();
-            context = Context.fromYaml(one, wirelog);
+            context = Context.fromYaml(one);
             contexts.put(context.name, context);
         }
     }
