@@ -199,11 +199,11 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public List<String> validate(String stage, boolean email, boolean repair) throws IOException {
+    public List<String> validate(Caller caller, String stage, boolean email, boolean repair) throws IOException {
         List<String> output;
 
         try (Engine engine = engine()) {
-            output = new Validation(configuration, configuration.createUserManager() /* TODO */, engine).run(stage, email, repair);
+            output = new Validation(configuration, configuration.createUserManager() /* TODO */, engine, caller).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }

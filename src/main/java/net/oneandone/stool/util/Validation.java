@@ -43,11 +43,11 @@ public class Validation {
     private final Engine engine;
     private final Caller caller;
 
-    public Validation(Configuration configuration, UserManager userManager, Engine engine) {
+    public Validation(Configuration configuration, UserManager userManager, Engine engine, Caller caller) {
         this.configuration = configuration;
         this.userManager = userManager;
         this.engine = engine;
-        this.caller = new Caller("todo", "todo", "validate cron job", null);
+        this.caller = caller;
     }
 
     public List<String> run(String name, boolean email, boolean repair) throws IOException, MessagingException {

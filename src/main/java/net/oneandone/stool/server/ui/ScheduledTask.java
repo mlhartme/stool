@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.ui;
 
+import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Stage;
@@ -49,7 +50,8 @@ public class ScheduledTask {
         try (Engine engine = Engine.createCluster()) {
             for (Stage stage : configuration.listAll(engine)) {
                 LOGGER.info("validate " + stage.getName() + ":");
-                output = new Validation(configuration, configuration.createUserManager() /* TODO */, engine).run(stage.getName(), !configuration.mailHost.isEmpty(), true);
+                output = new Validation(configuration, configuration.createUserManager() /* TODO */, engine,
+                        new Caller("TODO", "TODO", "scheduled-task", null)).run(stage.getName(), !configuration.mailHost.isEmpty(), true);
                 for (String line : output) {
                     LOGGER.info("  " + line);
                 }

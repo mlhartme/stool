@@ -156,8 +156,9 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/validate")
-    public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
-        return array(json, client.validate(stage, email, repair)).toString();
+    public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair,
+                           HttpServletRequest request) throws IOException {
+        return array(json, client.validate(caller(request), stage, email, repair)).toString();
     }
 
     @GetMapping("/stages/{stage}/pod-token")

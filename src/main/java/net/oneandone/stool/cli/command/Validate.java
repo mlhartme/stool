@@ -34,7 +34,7 @@ public class Validate extends IteratedStageCommand {
     public void doMain(Reference reference) throws Exception {
         List<String> result;
 
-        result = reference.client.validate(reference.stage, email, repair);
+        result = reference.client.validate(globals.caller(), reference.stage, email, repair);
         if (result.isEmpty()) {
             console.info.println("validate ok");
         } else {

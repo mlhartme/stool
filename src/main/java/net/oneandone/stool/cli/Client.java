@@ -66,7 +66,7 @@ public abstract class Client {
     public abstract Map<String, String> getValues(String stage) throws IOException;
     public abstract Map<String, String> setValues(Caller caller, String stage, Map<String, String> values) throws IOException;
     public abstract List<String> history(String stage) throws IOException;
-    public abstract List<String> validate(String stage, boolean email, boolean repair) throws IOException;
+    public abstract List<String> validate(Caller caller, String stage, boolean email, boolean repair) throws IOException;
     public abstract PodConfig podToken(String stage, int timeout) throws IOException;
     public abstract List<String> images(String stage) throws Exception;
 }

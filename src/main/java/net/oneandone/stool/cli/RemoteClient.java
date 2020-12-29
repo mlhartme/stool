@@ -197,7 +197,7 @@ public class RemoteClient extends Client {
     }
 
     @Override
-    public List<String> validate(String stage, boolean email, boolean repair) throws IOException {
+    public List<String> validate(Caller caller, String stage, boolean email, boolean repair) throws IOException {
         HttpNode node;
 
         node = node(stage, "validate");
