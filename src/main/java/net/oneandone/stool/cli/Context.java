@@ -71,7 +71,7 @@ public class Context {
 
     public Client connect(World world, Caller caller) throws IOException {
         if (isLocal()) {
-            return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Configuration.load(world));
+            return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Configuration.load(world), caller);
         } else {
             return RemoteClient.token(world, name, url, caller, token);
         }

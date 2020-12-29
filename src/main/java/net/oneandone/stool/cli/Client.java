@@ -24,11 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/** sort-lived, created per request/cli invocation */
 public abstract class Client {
     private final String context;
+    private final Caller callerTODO;
 
-    public Client(String context) {
+    public Client(String context, Caller caller) {
         this.context = context;
+        this.callerTODO = caller;
     }
 
     public String getContext() {

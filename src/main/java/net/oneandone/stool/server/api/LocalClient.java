@@ -60,8 +60,8 @@ public class LocalClient extends Client {
 
     private final Configuration configuration;
 
-    public LocalClient(String context, String kubernetesContext, Configuration configuration) {
-        super(context);
+    public LocalClient(String context, String kubernetesContext, Configuration configuration, Caller caller) {
+        super(context, caller);
         this.json = new ObjectMapper();
         this.kubernetesContext = kubernetesContext;
         this.configuration = configuration;

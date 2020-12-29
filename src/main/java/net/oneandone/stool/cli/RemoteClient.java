@@ -24,7 +24,6 @@ import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.model.Body;
@@ -46,46 +45,44 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.oneandone.stool.util.Json.map;
-
 public class RemoteClient extends Client {
     /** @param token null to work anonymously */
     public static RemoteClient token(World world, String context, String url, Caller caller,
                                      String token) throws NodeInstantiationException {
-        return doCreate(world, context, url, caller.wirelog, caller.invocation, caller.command, token, null, null);
+        return doCreate(world, context, url, caller, token, null, null);
 
     }
 
     public static RemoteClient basicAuth(World world, String context, String url, Caller caller,
                                          String username, String password) throws NodeInstantiationException {
-        return doCreate(world, context, url, caller.wirelog, caller.invocation, caller.command, null, username, password);
+        return doCreate(world, context, url, caller, null, username, password);
 
     }
 
-    private static RemoteClient doCreate(World world, String context, String url, FileNode wireLog, String clientInvocation, String clientCommand,
+    private static RemoteClient doCreate(World world, String context, String url, Caller caller,
                                          String token, String username, String password) throws NodeInstantiationException {
         HttpNode node;
 
-        if (wireLog != null) {
-            HttpFilesystem.wireLog(wireLog.getAbsolute());
+        if (caller.wirelog != null) {
+            HttpFilesystem.wireLog(caller.wirelog.getAbsolute());
         }
         node = (HttpNode) world.validNode(url);
-        node.getRoot().addExtraHeader("X-stool-client-invocation", clientInvocation);
-        node.getRoot().addExtraHeader("X-stool-client-command", clientCommand);
+        node.getRoot().addExtraHeader("X-stool-client-invocation", caller.invocation);
+        node.getRoot().addExtraHeader("X-stool-client-command", caller.command);
         if (token != null) {
             node.getRoot().addExtraHeader("X-authentication", token);
         }
         if (username != null) {
             node.getRoot().setCredentials(username, password);
         }
-        return new RemoteClient(context, node);
+        return new RemoteClient(context, node, caller);
     }
 
     private final ObjectMapper json;
     private final HttpNode root;
 
-    public RemoteClient(String context, HttpNode root) {
-        super(context);
+    public RemoteClient(String context, HttpNode root, Caller caller) {
+        super(context, caller);
         this.json = new ObjectMapper();
         this.root = root;
     }
@@ -123,7 +120,7 @@ public class RemoteClient extends Client {
         iter = response.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            result.put(entry.getKey(), map((ObjectNode) entry.getValue()));
+            result.put(entry.getKey(), Json.map((ObjectNode) entry.getValue()));
         }
         return result;
     }
