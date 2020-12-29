@@ -92,8 +92,7 @@ public class Globals {
     public Configuration configuration() throws IOException {
         Configuration result;
 
-        result = new Configuration(world, world.getHome() /* TODO */, wirelog, invocation, command);
-        result.load(scYaml());
+        result = Configuration.load(scYaml(), world.getHome() /* TODO */, wirelog, invocation, command);
         if (context != null) {
             result.setCurrentContext(context);
         }

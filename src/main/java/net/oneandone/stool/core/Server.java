@@ -65,8 +65,7 @@ public class Server {
         boolean openShift;
 
         version = Main.versionString(world);
-        configuration = new Configuration(world);
-        configuration.load(world.getHome().join(".sc.yaml")); // TODO
+        configuration = Configuration.load(world.getHome().join(".sc.yaml")); // TODO
         LOGGER.info("server version: " + version);
         LOGGER.info("context: " + context);
         LOGGER.info("configuration: " + configuration);

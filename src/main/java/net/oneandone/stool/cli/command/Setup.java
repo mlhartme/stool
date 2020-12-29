@@ -103,14 +103,9 @@ public class Setup {
 
     private Configuration initialConfiguration() throws IOException {
         FileNode template;
-        Configuration result;
 
         template = cisotoolsEnvironment(world);
-        result = new Configuration(world);
-        if (template != null) {
-            result.load(template);
-        }
-        return result;
+        return template == null ? new Configuration(world) : Configuration.load(template);
     }
 
     public static FileNode cisotoolsEnvironment(World world) throws FileNotFoundException, ExistsException {

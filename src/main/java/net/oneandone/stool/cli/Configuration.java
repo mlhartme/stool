@@ -45,6 +45,18 @@ import static net.oneandone.stool.util.Json.file;
 
 /** client configuration */
 public class Configuration {
+    public static Configuration load(FileNode file) throws IOException {
+        return Configuration.load(file, file.getWorld().getHome().join(".sc"), null, null, null);
+    }
+
+    public static Configuration load(FileNode file, FileNode configdir, FileNode wirelog, String clientInvocation, String clientCommand) throws IOException {
+        Configuration result;
+
+        result = new Configuration(file.getWorld(), configdir, wirelog, clientInvocation, clientCommand);
+        result.doLoad(file);
+        return result;
+    }
+
     private final World world;
     private String version;
     public final Map<String, UsernamePassword> registryCredentials;
@@ -256,7 +268,7 @@ public class Configuration {
         return result;
     }
 
-    public void load(FileNode file) throws IOException {
+    private void doLoad(FileNode file) throws IOException {
         ObjectNode all;
         Context context;
         Iterator<JsonNode> iter;
