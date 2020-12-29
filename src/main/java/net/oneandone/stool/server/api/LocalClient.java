@@ -68,7 +68,7 @@ public class LocalClient extends Client {
     }
 
     public Engine engine() {
-        return kubernetesContext == null ? Engine.createCluster() : Engine.createLocal(kubernetesContext);
+        return Engine.createClusterOrLocal(kubernetesContext);
     }
 
     @Override
