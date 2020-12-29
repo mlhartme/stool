@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 public class Expressions {
@@ -140,7 +141,7 @@ public class Expressions {
 
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
-            server.checkFaultPermissions(image.author, faultProjects);
+            checkFaultPermissions(world, image.author, faultProjects);
         }
         workspace = world.file("/etc/fault/workspace");
         buffer = new byte[64 * 1024];
@@ -192,6 +193,27 @@ public class Expressions {
                     }
                     tar.write(buffer, 0, count);
                 }
+            }
+        }
+    }
+
+    //--
+
+    public static void checkFaultPermissions(World world, String user, List<String> projects) throws IOException {
+        Properties permissions;
+        String lst;
+
+        if (projects.isEmpty()) {
+            return;
+        }
+        permissions = world.file("/etc/fault/workspace.permissions").readProperties();
+        for (String project : projects) {
+            lst = permissions.getProperty(project);
+            if (lst == null) {
+                throw new ArgumentException("fault project unknown or not accessible on this host: " + project);
+            }
+            if (!Separator.COMMA.split(lst).contains(user)) {
+                throw new ArgumentException("fault project " + project + ": permission denied for user " + user);
             }
         }
     }
