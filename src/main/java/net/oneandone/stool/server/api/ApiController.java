@@ -104,7 +104,7 @@ public class ApiController {
 
         values = map(request, "value.");
         try {
-            return Json.obj(json, client(request).create(caller(request), name, image, values)).toString();
+            return Json.obj(json, client(request).create(name, image, values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
@@ -113,15 +113,12 @@ public class ApiController {
     }
 
     private LocalClient client(HttpServletRequest request) {
-        return new LocalClient("server", null, configuration, caller(request));
-    }
-
-    private Caller caller(HttpServletRequest request) {
-        return new Caller(
-                request.getHeader("X-stool-client-invocation"),
-                User.authenticatedOrAnonymous().login,
-                request.getHeader("X-stool-client-command"),
-                null /* TODO */);
+        return new LocalClient("server", null, configuration,
+                new Caller(
+                        request.getHeader("X-stool-client-invocation"),
+                        User.authenticatedOrAnonymous().login,
+                        request.getHeader("X-stool-client-command"),
+                        null /* TODO */));
     }
 
     @PostMapping("/stages/{stage}/publish")
@@ -129,7 +126,7 @@ public class ApiController {
                           @RequestParam(value = "image", required = false) String explicitImage, HttpServletRequest request) throws IOException {
         String result;
 
-        result = client(request).publish(caller(request), stageName, explicitImage, map(request, "value."));
+        result = client(request).publish(stageName, explicitImage, map(request, "value."));
         return new TextNode(result).toString();
     }
 
@@ -150,7 +147,7 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/set-values")
     public String setValues(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        return Json.obj(json, client(request).setValues(caller(request), stage, map(request, ""))).toString();
+        return Json.obj(json, client(request).setValues(stage, map(request, ""))).toString();
     }
 
     @GetMapping("/stages/{stage}/history")
@@ -161,7 +158,7 @@ public class ApiController {
     @PostMapping("/stages/{stage}/validate")
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair,
                            HttpServletRequest request) throws IOException {
-        return array(json, client(request).validate(caller(request), stage, email, repair)).toString();
+        return array(json, client(request).validate(stage, email, repair)).toString();
     }
 
     @GetMapping("/stages/{stage}/pod-token")

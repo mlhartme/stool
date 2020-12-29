@@ -27,11 +27,11 @@ import java.util.Map;
 /** sort-lived, created per request/cli invocation */
 public abstract class Client {
     private final String context;
-    private final Caller callerTODO;
+    protected final Caller caller;
 
     public Client(String context, Caller caller) {
         this.context = context;
-        this.callerTODO = caller;
+        this.caller = caller;
     }
 
     public String getContext() {
@@ -60,16 +60,16 @@ public abstract class Client {
     /**
      * @return image actually started
      * @throws FileAlreadyExistsException if the stage already exists */
-    public abstract Map<String, String> create(Caller caller, String stage, String image, Map<String, String> values) throws IOException;
+    public abstract Map<String, String> create(String stage, String image, Map<String, String> values) throws IOException;
 
     /** @return image actually published */
-    public abstract String publish(Caller caller, String stage, String imageOpt, Map<String, String> values) throws IOException;
+    public abstract String publish(String stage, String imageOpt, Map<String, String> values) throws IOException;
     public abstract Map<String, String> awaitAvailable(String stage) throws IOException;
     public abstract void delete(String stage) throws IOException;
     public abstract Map<String, String> getValues(String stage) throws IOException;
-    public abstract Map<String, String> setValues(Caller caller, String stage, Map<String, String> values) throws IOException;
+    public abstract Map<String, String> setValues(String stage, Map<String, String> values) throws IOException;
     public abstract List<String> history(String stage) throws IOException;
-    public abstract List<String> validate(Caller caller, String stage, boolean email, boolean repair) throws IOException;
+    public abstract List<String> validate(String stage, boolean email, boolean repair) throws IOException;
     public abstract PodConfig podToken(String stage, int timeout) throws IOException;
     public abstract List<String> images(String stage) throws Exception;
 }

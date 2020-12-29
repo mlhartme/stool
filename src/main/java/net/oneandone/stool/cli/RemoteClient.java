@@ -131,7 +131,7 @@ public class RemoteClient extends Client {
      * @return image actually started
      * @throws FileAlreadyExistsException if the stage already exists */
     @Override
-    public Map<String, String> create(Caller callerTodo, String stage, String image, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stage, String image, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node("stages/" + stage);
@@ -142,7 +142,7 @@ public class RemoteClient extends Client {
 
     /** @return tag actually started */
     @Override
-    public String publish(Caller callerTodo, String stage, String imageOpt, Map<String, String> values) throws IOException {
+    public String publish(String stage, String imageOpt, Map<String, String> values) throws IOException {
         HttpNode node;
         JsonNode started;
 
@@ -194,7 +194,7 @@ public class RemoteClient extends Client {
     }
 
     @Override
-    public List<String> validate(Caller caller, String stage, boolean email, boolean repair) throws IOException {
+    public List<String> validate(String stage, boolean email, boolean repair) throws IOException {
         HttpNode node;
 
         node = node(stage, "validate");
@@ -209,7 +209,7 @@ public class RemoteClient extends Client {
     }
 
     @Override
-    public Map<String, String> setValues(Caller callerTodo, String stage, Map<String, String> values) throws IOException {
+    public Map<String, String> setValues(String stage, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node(stage, "set-values").withParameters(values);

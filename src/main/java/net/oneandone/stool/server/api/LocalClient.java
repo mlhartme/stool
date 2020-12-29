@@ -105,7 +105,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> create(Caller caller, String name, String image, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String name, String image, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
@@ -121,7 +121,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public String publish(Caller caller, String name, String imageOpt, Map<String, String> values) throws IOException {
+    public String publish(String name, String imageOpt, Map<String, String> values) throws IOException {
         String result;
         Stage stage;
         String imageOrRepository;
@@ -175,7 +175,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> setValues(Caller caller, String name, Map<String, String> values) throws IOException {
+    public Map<String, String> setValues(String name, Map<String, String> values) throws IOException {
         Stage stage;
         Value prop;
         String value;
@@ -199,7 +199,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public List<String> validate(Caller caller, String stage, boolean email, boolean repair) throws IOException {
+    public List<String> validate(String stage, boolean email, boolean repair) throws IOException {
         List<String> output;
 
         try (Engine engine = engine()) {
@@ -284,7 +284,7 @@ public class LocalClient extends Client {
         }
     }
 
-    // TODO: where to call
+    // TODO: where to call?
     private void schedulePodTokenCleanup(String saName, String roleName, String bindingName, int timeout) {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable cleanup = new Runnable() {

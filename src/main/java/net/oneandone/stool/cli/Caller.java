@@ -19,7 +19,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 public class Caller {
     public final String invocation;
-    public final String user;
+    public final String user; /** null for unauthenticated */
     public final String command;
     public final FileNode wirelog;
 
