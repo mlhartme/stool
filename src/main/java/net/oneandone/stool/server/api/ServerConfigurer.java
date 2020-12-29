@@ -32,7 +32,7 @@ public class ServerConfigurer implements WebMvcConfigurer {
 
     @Bean
     public net.oneandone.stool.core.Configuration configuration(World world) throws IOException {
-        return net.oneandone.stool.core.Configuration.create(world);
+        return net.oneandone.stool.core.Configuration.load(world);
     }
 
     @Bean

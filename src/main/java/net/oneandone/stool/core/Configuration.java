@@ -51,7 +51,7 @@ import static net.oneandone.stool.util.Json.string;
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
-    public static Configuration create(World world) throws IOException { // TODO
+    public static Configuration load(World world) throws IOException { // TODO
         Configuration configuration;
 
         configuration = Configuration.load(Configuration.scYaml(world));
@@ -59,13 +59,6 @@ public class Configuration {
         LOGGER.info("version: " + Main.versionString(world));
         LOGGER.info("configuration: " + configuration);
         return configuration;
-    }
-
-    public static FileNode scYaml(World world) {
-        String str;
-
-        str = System.getenv("SC_YAML");
-        return str != null ? world.file(str) : world.getHome().join(".sc.yaml");
     }
 
     public static Configuration load(FileNode file) throws IOException {
@@ -80,6 +73,14 @@ public class Configuration {
         return result;
     }
 
+    public static FileNode scYaml(World world) {
+        String str;
+
+        str = System.getenv("SC_YAML");
+        return str != null ? world.file(str) : world.getHome().join(".sc.yaml");
+    }
+
+    //--
 
     private final World world;
     private String version;
@@ -520,8 +521,8 @@ public class Configuration {
         //--
 
         array = obj.putArray("contexts");
-        for (Context server : contexts.values()) {
-            array.add(server.toYaml(yaml));
+        for (Context context : contexts.values()) {
+            array.add(context.toObject(yaml));
         }
         return obj;
     }

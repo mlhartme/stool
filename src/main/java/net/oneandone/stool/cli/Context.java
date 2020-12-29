@@ -80,13 +80,13 @@ public class Context {
 
     public Client connect(World world) throws IOException {
         if (isLocal()) {
-            return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Configuration.create(world));
+            return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Configuration.load(world));
         } else {
             return RemoteClient.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
         }
     }
 
-    public ObjectNode toYaml(ObjectMapper yaml) {
+    public ObjectNode toObject(ObjectMapper yaml) {
         ObjectNode result;
 
         result = yaml.createObjectNode();
