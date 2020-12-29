@@ -82,7 +82,7 @@ dashboard = {
                         eName = escapeHtml(name)
                         done.push(name);
                         oldTr = allStages.find('[data-name="' + name + '"]');
-                        up = (available > 0);
+                        up = (status.available > 0);
                         htmlSt = "<td class='status'>\n" +
                                  "  <div class='status badge badge-" + (up ? "success" : "danger") + "'>\n" +
                                  "    <span>" + (up ? "up" : "down") + "</span>\n"
