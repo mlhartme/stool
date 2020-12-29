@@ -35,6 +35,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.mail.MessagingException;
+import java.io.IOException;
 
 @Controller
 @Scope(WebApplicationContext.SCOPE_REQUEST)
@@ -47,8 +48,8 @@ public class DashboardController {
 
     private final String version;
 
-    public DashboardController() {
-        version = Main.versionString(World.createMinimal());
+    public DashboardController() throws IOException {
+        version = Main.versionString(World.create() /* TODO */);
     }
 
     @GetMapping("dashboard")

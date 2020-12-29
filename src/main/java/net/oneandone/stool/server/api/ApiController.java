@@ -68,6 +68,7 @@ public class ApiController {
         this.json = new ObjectMapper();
         this.configuration = configuration;
         this.userManager = userManager;
+
     }
 
     //-- Client methods

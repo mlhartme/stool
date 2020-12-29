@@ -15,8 +15,11 @@
  */
 package net.oneandone.stool.server.api;
 
+import net.oneandone.stool.Main;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.sushi.fs.World;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -25,6 +28,8 @@ import java.io.IOException;
 
 @Configuration
 public class ServerConfigurer implements WebMvcConfigurer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfigurer.class);
+
     @Bean
     public World world() throws IOException {
         return World.create();
@@ -32,7 +37,13 @@ public class ServerConfigurer implements WebMvcConfigurer {
 
     @Bean
     public net.oneandone.stool.core.Configuration configuration(World world) throws IOException {
-        return net.oneandone.stool.core.Configuration.load(world);
+        net.oneandone.stool.core.Configuration result;
+
+        result = net.oneandone.stool.core.Configuration.load(world);
+        LOGGER.info("server version " + Main.versionString(result.lib.getWorld()));
+        LOGGER.info("server configuration:");
+        LOGGER.info(result.toYaml().toPrettyString());
+        return result;
     }
 
     @Bean
