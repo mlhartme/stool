@@ -63,13 +63,9 @@ public class Configuration {
     }
 
     public static Configuration load(FileNode file) throws IOException {
-        return Configuration.load(file, file.getWorld().getHome().join(".sc") /* TODO */);
-    }
-
-    public static Configuration load(FileNode file, FileNode configdir) throws IOException {
         Configuration result;
 
-        result = new Configuration(file.getWorld(), configdir);
+        result = new Configuration(file.getWorld(), file.getParent());
         result.doLoad(file);
         return result;
     }
