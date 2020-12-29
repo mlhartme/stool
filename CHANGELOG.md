@@ -2,62 +2,59 @@
 
 ### 6.1.0 (pending)
 
-* Maven: merged all modules into one
-* unified cli built with spring boot; use `sc server` to start a server  
-* client `history`: dumped max and details options 
-* Client configuration
-  * dumped registryPrefix
+* merged client and server
+  * all functionality is in `sc` now; use `sc server` to start a server
+  * sc.yaml now also contains server configuration
+  * the big benefit is: you no longer need a running server, `sc` can now work with a local Kubernetes
+  * Maven: merged all modules into one
+* stages are helm releases now
+  * `sc create` installs a Helm chart now, resulting in a Helm release; `sc delete` uninstalls this release
+  * stage configuration is stored in Helm Release values, replacing the previous config maps
+  * renamed *environment* to *value*
+  * split "properties" in to configuration (from sc.yaml) and values (applied to individual stages)
+  * generalized `config` command to get/set arbitrary (Helm chart) values; former properties are values 
+    with a `metadata` prefix (namely `metadataNotify`, `metadataComment`, and `metadataExpire`); dumped status field `environment`
+  * implementation: instead of calling Kubernetes APIs, Stool now invokes Helm to managed stage resources
+    * creating a new stage internally executes `helm install`
+    * deleting a stage internally executes `helm uninstall`
+    * store all stage configuration as helm values; the separate ConfigMap is gone
 * image handling changes
   * dumped `sc build`, configure an image build in your Maven build instead
   * created a separate `maven-dockerbuild-plugin` that contains the formder `sc build` functionality
   * stool no longer wipes stages
-* stages are helm releases now
-  * `sc create` installs a Helm chart now, resulting in a Helm release; `sc delete` uninstalls this release
-  * stage configuration is stored in Helm Release values, replacing the previous config maps
-  * renamed environment to value
-  * split "properties" in to settings (applied to the server) and values (applied to individual stages)
-  * generalized config command to get/set arbitrary (Helm chart) value; properties are values with a stage prefix;
-    dumped status field `values`
-  * environment properties are gone, use stage config and value settings (i.e. Helm values) instead
-  * former `notify`, `expire` and `comment` properties are now metadata values
+  * dumped registryPrefix from the configuration
 * dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
-* dumped `origin-scm` field, check `sc images` instead
 * changed `images` command to display generic values only  
-* client
-  * create
+* commands
+  * `history`: dumped `-max` and `-details` options
+  * `status`, `list`:  
+    * added `available` field
+    * dumped `origin-scm` field, check `sc images` instead
+    * dumped `pod` field, that's too low-level
+    * dumped `running` field, use `config image` instead
+    * renamed `uptime` field to `last-deployed`, it now reports the corresponding Helm status
+    * dumped `created-at` and `created-by`; added `first-deployed`
+    * dumped `last-modified-at`, and `last-modified-by`; use `last-deployed` or check the history instead
+  * `create`
     * always starts the stage
     * type is gone, @ now prefixes images
     * paths now point to image files
     * can now be used in an existing workspace
     * add `-wait` option
-  * delete
+  * `delete`
     * always stops the stage, the explicit -stop option is gone
-  * attach
+  * `attach`
     * now takes a single name argument
     * can be used in an existing workspace
-  * dumped separate `start`/`stop` command; the stopped status is gone;
-    instead of stopping a stage, you can now set replicas to 0
+  * dumped separate `start`/`stop` commands; the stopped status is gone;
+    instead of stopping a stage, you can now set replicas to 0 (if suppored by the underlying Helm chart)
   * changed `restart` to `publish`
 * dumped config.environment -- publish automatically preserves previous configuration
-* dumped disk quota; I might use Kubernetes euphemeral quotas later
-* added `available` field
-* dumped `pod` field, that's too low-level
-* dumped `running` field, use `config image` instead 
-* renamed `uptime` field to `last-deployed`, it now reports the corresponding Helm status
-* dumped created-at and created-by; added first-deployed
-* dumped last-modified-at, and last-modified-by; use `last-deployed` or check the history instead
-* server
-  * dumped memory and disk quotas from "info" response
-  * use helm to managed stages
-    * creating a new stage internally executes `helm install`
-    * deleting a stage internally executes `helm uninstall`
-    * store all stage configuration as helm values; the separate ConfigMap is gone
-  * log validation report
-  * dumped memory quota handling, Kubernetes is responsible for that
-  * dumped environment field - it's too container centric now that we have kubernetes; use 'sc ssh' instead
-  * server startup output with image version
-  * readiness probe for stool server
+* dumped disk quota handling; I might use Kubernetes euphemeral quotas later
+* dumped memory quota handling, Kubernetes is responsible for that
+* log validation report
+* readiness probe for stool server
 * update to junit 5.7.0
 
 
