@@ -77,14 +77,14 @@ public class ConfigContext extends ClientCommand {
     private void check(Context context) throws Exception {
         Client client;
 
-        client = context.connect(globals.getWorld());
+        client = context.connect(globals.getWorld(), globals.caller());
         try {
             console.verbose.println("server info: " + client.version());
         } catch (AuthenticationException e) {
             console.verbose.println("authentication needed: " + e);
             e.printStackTrace(console.verbose);
             new Auth(globals, false).run();
-            console.verbose.println("server info: " + globals.configuration().currentContext().connect(globals.getWorld()).version());
+            console.verbose.println("server info: " + globals.configuration().currentContext().connect(globals.getWorld(), globals.caller()).version());
         }
     }
 }

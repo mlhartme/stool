@@ -26,7 +26,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 
 public class Context {
-    public static Context fromYaml(JsonNode obj, FileNode wirelog, Caller caller) {
+    public static Context fromYaml(JsonNode obj, FileNode wirelog) {
         String token;
 
         if (obj.has("token")) {
@@ -34,7 +34,7 @@ public class Context {
         } else {
             token = null;
         }
-        return new Context(obj.get("name").asText(), obj.get("url").asText(), token, wirelog, caller.invocation, caller.command);
+        return new Context(obj.get("name").asText(), obj.get("url").asText(), token, wirelog);
     }
 
     public final String name;
@@ -44,17 +44,13 @@ public class Context {
     public String token;
 
     private volatile FileNode wirelog;
-    private volatile String clientInvocation;
-    private volatile String clientCommand;
 
-    public Context(String name, String url, String token, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public Context(String name, String url, String token, FileNode wirelog) {
         this.name = name;
         this.url = url;
         this.token = token;
 
         this.wirelog = wirelog;
-        this.clientInvocation = clientInvocation;
-        this.clientCommand = clientCommand;
     }
 
     public boolean hasToken() {
@@ -67,22 +63,22 @@ public class Context {
         return url.startsWith(LOCAL_PREFIX);
     }
 
-    public void auth(World world, String username, String password) throws IOException {
+    public void auth(World world, Caller caller, String username, String password) throws IOException {
         RemoteClient client;
 
         if (isLocal()) {
             this.token = null;
         } else {
-            client = RemoteClient.basicAuth(world, name, url, wirelog, clientInvocation, clientCommand, username, password);
+            client = RemoteClient.basicAuth(world, name, url, wirelog, caller.invocation, caller.command, username, password);
             this.token = client.auth();
         }
     }
 
-    public Client connect(World world) throws IOException {
+    public Client connect(World world, Caller caller) throws IOException {
         if (isLocal()) {
             return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Configuration.load(world));
         } else {
-            return RemoteClient.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
+            return RemoteClient.token(world, name, url, wirelog, caller.invocation, caller.command, token);
         }
     }
 

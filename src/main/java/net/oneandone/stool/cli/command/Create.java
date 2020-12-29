@@ -183,7 +183,7 @@ public class Create extends ClientCommand {
         Map<String, String> urls;
 
         checkName(resolvedName);
-        client = globals.configuration().currentContext().connect(world);
+        client = globals.configuration().currentContext().connect(world, globals.caller());
         reference = new Reference(client, resolvedName);
         try {
             urls = client.create(globals.caller(), resolvedName, image, values);

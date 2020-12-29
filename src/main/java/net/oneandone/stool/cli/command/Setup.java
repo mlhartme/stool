@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli.command;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.Main;
@@ -97,7 +96,7 @@ public class Setup {
             name = spec.substring(0, idx);
             url = spec.substring(idx + 1);
             result.contexts.clear();
-            result.addContext(name, url, null, new Caller("TODO", "TODO", "TODO"));
+            result.addContext(name, url, null);
         }
         return result;
     }

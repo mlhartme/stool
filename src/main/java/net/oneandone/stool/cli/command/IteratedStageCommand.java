@@ -69,7 +69,7 @@ public abstract class IteratedStageCommand extends StageCommand {
             case 0:
                 return workspaceReferences();
             case 1:
-                return globals.configuration().list(all ? null : stageClause);
+                return globals.configuration().list(all ? null : stageClause, globals.caller());
             default:
                 throw new ArgumentException("too many select options");
         }

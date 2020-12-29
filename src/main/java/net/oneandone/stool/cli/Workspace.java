@@ -43,7 +43,7 @@ public class Workspace {
         return result;
     }
 
-    public static Workspace lookup(FileNode dir, Configuration configuration) throws IOException {
+    public static Workspace lookup(FileNode dir, Configuration configuration, Caller caller) throws IOException {
         FileNode workspaceYaml;
         Workspace result;
 
@@ -51,7 +51,7 @@ public class Workspace {
             workspaceYaml = workspaceYaml(dir);
             if (workspaceYaml.isFile()) {
                 result = new Workspace(workspaceYaml);
-                result.load(configuration);
+                result.load(configuration, caller);
                 return result;
             }
             dir = dir.getParent();
@@ -81,7 +81,7 @@ public class Workspace {
         this.stages = new ArrayList<>();
     }
 
-    public void load(Configuration configuration) throws IOException {
+    public void load(Configuration configuration, Caller caller) throws IOException {
         ObjectNode root;
         ArrayNode array;
 
@@ -91,7 +91,7 @@ public class Workspace {
         array = (ArrayNode) root.get("stages");
         stages.clear();
         for (JsonNode node : array) {
-            stages.add(configuration.reference(node.asText()));
+            stages.add(configuration.reference(node.asText(), caller));
         }
     }
 

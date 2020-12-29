@@ -63,14 +63,14 @@ public class Configuration {
     }
 
     public static Configuration load(FileNode file) throws IOException {
-        return Configuration.load(file, file.getWorld().getHome().join(".sc"), null, null, null);
+        return Configuration.load(file, file.getWorld().getHome().join(".sc"), null);
     }
 
-    public static Configuration load(FileNode file, FileNode configdir, FileNode wirelog, String clientInvocation, String clientCommand) throws IOException {
+    public static Configuration load(FileNode file, FileNode configdir, FileNode wirelog) throws IOException {
         Configuration result;
 
         result = new Configuration(file.getWorld(), configdir, wirelog);
-        result.doLoad(file, new Caller(clientInvocation, "TODO:user", clientCommand));
+        result.doLoad(file);
         return result;
     }
 
@@ -394,19 +394,19 @@ public class Configuration {
         currentContext = name;
     }
 
-    public void addContext(String name, String url, String token, Caller caller) {
-        contexts.put(name, new Context(name, url, token, null, caller.invocation, caller.command));
+    public void addContext(String name, String url, String token) {
+        contexts.put(name, new Context(name, url, token, null));
     }
 
     public Context contextLookup(String context) {
         return contexts.get(context);
     }
 
-    public Client currentContextConnect() throws IOException {
-        return currentContext().connect(world);
+    public Client currentContextConnect(Caller caller) throws IOException {
+        return currentContext().connect(world, caller);
     }
 
-    public Reference reference(String str) throws IOException {
+    public Reference reference(String str, Caller caller) throws IOException {
         int idx;
         String contextName;
         Context context;
@@ -420,20 +420,20 @@ public class Configuration {
         if (context == null) {
             throw new ArgumentException("context not found: " + str);
         }
-        return new Reference(context.connect(world), str.substring(0, idx));
+        return new Reference(context.connect(world, caller), str.substring(0, idx));
     }
 
-    public List<Reference> list(String filter) throws IOException {
+    public List<Reference> list(String filter, Caller caller) throws IOException {
         Client client;
         List<Reference> result;
 
-        client = currentContextConnect();
+        client = currentContextConnect(caller);
         result = new ArrayList<>();
         result.addAll(Reference.list(client, client.list(filter)));
         return result;
     }
 
-    private void doLoad(FileNode file, Caller caller) throws IOException {
+    private void doLoad(FileNode file) throws IOException {
         ObjectNode all;
         Context context;
         Iterator<JsonNode> iter;
@@ -470,7 +470,7 @@ public class Configuration {
         iter = all.get("contexts").iterator();
         while (iter.hasNext()) {
             one = iter.next();
-            context = Context.fromYaml(one, wirelog, caller);
+            context = Context.fromYaml(one, wirelog);
             contexts.put(context.name, context);
         }
     }

@@ -55,7 +55,7 @@ public abstract class ClientCommand {
     }
 
     public Workspace lookupWorkspace(FileNode directory) throws IOException {
-        return Workspace.lookup(directory, globals.configuration());
+        return Workspace.lookup(directory, globals.configuration(), globals.caller());
     }
 
     public List<Reference> workspaceReferences() throws IOException {

@@ -51,7 +51,7 @@ public class Attach extends ClientCommand {
     protected Reference resolve(String name) throws IOException {
         List<Reference> found;
 
-        found = globals.configuration().list(name);
+        found = globals.configuration().list(name, globals.caller());
         switch (found.size()) {
             case 0:
                 throw new IOException("no such stage: " + name);
