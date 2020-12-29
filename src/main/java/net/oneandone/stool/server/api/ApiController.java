@@ -66,7 +66,7 @@ public class ApiController {
     public ApiController(Server server) {
         this.json = new ObjectMapper();
         this.server = server;
-        this.client = new LocalClient("server", server);
+        this.client = new LocalClient("server", null, server);
     }
 
     //-- Client methods

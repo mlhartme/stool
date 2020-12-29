@@ -36,36 +36,24 @@ import java.util.Map;
 public class Server {
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
-    public static Server createLocal(World world, String context) throws IOException {
-        return create(world, context);
-    }
-
-    public static Server createCluster(World world) throws IOException {
-        return create(world, null);
-    }
-
-    private static Server create(World world, String context) throws IOException {
+    public static Server create(World world) throws IOException {
         Configuration configuration;
 
         configuration = Configuration.load(Configuration.scYaml(world));
         configuration.validate();
         LOGGER.info("version: " + Main.versionString(world));
-        LOGGER.info("context: " + context);
         LOGGER.info("configuration: " + configuration);
-        return new Server(context, configuration);
+        return new Server(configuration);
     }
 
     //--
-
-    public final String context;
 
     public final Configuration configuration;
 
     public final UserManager userManager;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Server(String context, Configuration configuration) throws IOException {
-        this.context = context;
+    public Server(Configuration configuration) throws IOException {
         this.configuration = configuration;
         this.userManager = UserManager.loadOpt(configuration.lib.mkdirsOpt().join("users.json"));
     }

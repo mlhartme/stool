@@ -80,7 +80,7 @@ public class Context {
 
     public Client connect(World world) throws IOException {
         if (isLocal()) {
-            return new LocalClient(name, Server.createLocal(world, url.substring(LOCAL_PREFIX.length())));
+            return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Server.create(world));
         } else {
             return RemoteClient.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
         }

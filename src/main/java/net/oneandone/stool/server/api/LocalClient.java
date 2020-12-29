@@ -54,16 +54,21 @@ import java.util.concurrent.TimeUnit;
 
 public class LocalClient extends Client {
     private final ObjectMapper json;
+
+    /** null for cluster */
+    private final String kubernetesContext;
+
     private final Server server;
 
-    public LocalClient(String context, Server server) {
+    public LocalClient(String context, String kubernetesContext, Server server) {
         super(context);
         this.json = new ObjectMapper();
+        this.kubernetesContext = kubernetesContext;
         this.server = server;
     }
 
     public Engine engine() {
-        return Engine.createLocal(server.context);
+        return kubernetesContext == null ? Engine.createCluster() : Engine.createLocal(kubernetesContext);
     }
 
     @Override
@@ -284,7 +289,7 @@ public class LocalClient extends Client {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable cleanup = new Runnable() {
             public void run() {
-                try (Engine engine = Engine.createClusterOrLocal(server.context)) {
+                try (Engine engine = Engine.createClusterOrLocal(kubernetesContext)) {
                     engine.deleteServiceAccount(saName);
                     engine.deleteRole(roleName);
                     engine.deleteBinding(bindingName);

@@ -32,6 +32,6 @@ public class ServerConfigurer implements WebMvcConfigurer {
 
     @Bean
     public Server server(World world) throws IOException {
-        return Server.createCluster(world);
+        return Server.create(world);
     }
 }
