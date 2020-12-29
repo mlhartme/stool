@@ -26,7 +26,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 
 public class Context {
-    public static Context fromYaml(JsonNode obj, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public static Context fromYaml(JsonNode obj, FileNode wirelog, Caller caller) {
         String token;
 
         if (obj.has("token")) {
@@ -34,7 +34,7 @@ public class Context {
         } else {
             token = null;
         }
-        return new Context(obj.get("name").asText(), obj.get("url").asText(), token, wirelog, clientInvocation, clientCommand);
+        return new Context(obj.get("name").asText(), obj.get("url").asText(), token, wirelog, caller.invocation, caller.command);
     }
 
     public final String name;

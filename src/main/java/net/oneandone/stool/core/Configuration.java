@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.Main;
+import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Reference;
@@ -68,8 +69,8 @@ public class Configuration {
     public static Configuration load(FileNode file, FileNode configdir, FileNode wirelog, String clientInvocation, String clientCommand) throws IOException {
         Configuration result;
 
-        result = new Configuration(file.getWorld(), configdir, wirelog, clientInvocation, clientCommand);
-        result.doLoad(file);
+        result = new Configuration(file.getWorld(), configdir, wirelog);
+        result.doLoad(file, new Caller(clientInvocation, "TODO:user", clientCommand));
         return result;
     }
 
@@ -89,8 +90,6 @@ public class Configuration {
     public String stageLogs;
     public FileNode lib;
     public final FileNode wirelog;
-    public final String clientInvocation;
-    public final String clientCommand;
     private String currentContext;
     public final Map<String, Context> contexts;
     private final ObjectMapper yaml;
@@ -139,10 +138,10 @@ public class Configuration {
 
 
     public Configuration(World world) {
-        this(world, world.getHome().join(".sc"), null, null, null);
+        this(world, world.getHome().join(".sc"), null);
     }
 
-    public Configuration(World world, FileNode configdir, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public Configuration(World world, FileNode configdir, FileNode wirelog) {
         this.world = world;
         this.version = null;
         this.registryCredentials = new HashMap<>();
@@ -154,8 +153,6 @@ public class Configuration {
 
         // transient
         this.wirelog = wirelog;
-        this.clientInvocation = clientInvocation;
-        this.clientCommand = clientCommand;
 
         this.yaml = new ObjectMapper(new YAMLFactory());
 
@@ -397,8 +394,8 @@ public class Configuration {
         currentContext = name;
     }
 
-    public void addContext(String name, String url, String token) {
-        contexts.put(name, new Context(name, url, token, null, clientInvocation, clientCommand));
+    public void addContext(String name, String url, String token, Caller caller) {
+        contexts.put(name, new Context(name, url, token, null, caller.invocation, caller.command));
     }
 
     public Context contextLookup(String context) {
@@ -436,7 +433,7 @@ public class Configuration {
         return result;
     }
 
-    private void doLoad(FileNode file) throws IOException {
+    private void doLoad(FileNode file, Caller caller) throws IOException {
         ObjectNode all;
         Context context;
         Iterator<JsonNode> iter;
@@ -473,7 +470,7 @@ public class Configuration {
         iter = all.get("contexts").iterator();
         while (iter.hasNext()) {
             one = iter.next();
-            context = Context.fromYaml(one, wirelog, clientInvocation, clientCommand);
+            context = Context.fromYaml(one, wirelog, caller);
             contexts.put(context.name, context);
         }
     }
