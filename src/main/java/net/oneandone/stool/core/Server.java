@@ -17,7 +17,6 @@ package net.oneandone.stool.core;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.cli.Configuration;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.Main;
@@ -91,9 +90,6 @@ public class Server {
 
     public final boolean openShift;
 
-    /** CAUTION: not thread safe! */
-    private final FileNode lib;
-
     /** Logs of stages. CAUTION: not thread safe! */
     private final FileNode stageLogs;
 
@@ -110,11 +106,10 @@ public class Server {
         this.context = context;
         this.world = world;
         this.openShift = openShift;
-        this.lib = configuration.lib.mkdirsOpt();
         this.stageLogs = world.file(configuration.stageLogs).mkdirsOpt();
         this.localhostIp = localhostIp;
         this.configuration = configuration;
-        this.userManager = UserManager.loadOpt(lib.join("users.json"));
+        this.userManager = UserManager.loadOpt(configuration.lib.mkdirsOpt().join("users.json"));
     }
 
     public String stageFqdn(String stage) {
@@ -241,34 +236,6 @@ public class Server {
                 LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
-    }
-
-    //--
-
-    /** @return path to generates directory */
-    public FileNode certificate(String certname) throws IOException {
-        FileNode script;
-        FileNode dir;
-        FileNode broken;
-
-        script = lib.join("cert.sh");
-        if (!script.isFile()) {
-            world.resource("cert-selfsigned.sh").copyFile(script);
-            script.setPermissions("rwxr-xr-x");
-            lib.join("certs").mkdirsOpt();
-        }
-        dir = lib.join("certs", certname);
-        try {
-            LOGGER.info(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), configuration.fqdn));
-        } catch (IOException e) {
-            LOGGER.error(script.getAbsolute() + " failed: " + e.getMessage(), e);
-            broken = dir.getParent().join(dir.getName() + ".broken");
-            broken.deleteTreeOpt();
-            dir.move(broken);
-            broken.join("error.log").writeString(e.getMessage());
-            throw e;
-        }
-        return dir;
     }
 
     //--

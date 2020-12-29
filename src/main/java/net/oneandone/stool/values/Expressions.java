@@ -123,7 +123,7 @@ public class Expressions {
     private String cert() throws IOException {
         FileNode dir;
 
-        dir = server.certificate(fqdn);
+        dir = server.configuration.certificates().generate(fqdn);
         return Base64.getEncoder().encodeToString(dir.join("keystore.p12").readBytes());
     }
 

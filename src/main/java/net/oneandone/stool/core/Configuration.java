@@ -1,19 +1,4 @@
-/*
- * Copyright 1&1 Internet AG, https://github.com/1and1/
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package net.oneandone.stool.cli;
+package net.oneandone.stool.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +7,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.cli.Client;
+import net.oneandone.stool.cli.Context;
+import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.UsernamePassword;
@@ -40,10 +28,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.oneandone.stool.util.Json.string;
 import static net.oneandone.stool.util.Json.file;
+import static net.oneandone.stool.util.Json.string;
 
-/** Stool configuration, represents sc.yaml */
+/**
+ * Stool configuration, represents sc.yaml
+ */
 public class Configuration {
     public static FileNode scYaml(World world) {
         String str;
@@ -160,9 +150,14 @@ public class Configuration {
         defaultExpire = 0;
     }
 
+    public Certificates certificates() {
+        return new Certificates(lib, charts);
+    }
+
     public void setVersion(String version) {
         this.version = version;
     }
+
     public String version() {
         return version;
     }

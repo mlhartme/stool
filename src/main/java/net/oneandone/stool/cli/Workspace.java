@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;

@@ -20,7 +20,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
-import net.oneandone.stool.cli.Configuration;
+import net.oneandone.stool.core.Configuration;
 
 import java.util.ArrayList;
 import java.util.Iterator;

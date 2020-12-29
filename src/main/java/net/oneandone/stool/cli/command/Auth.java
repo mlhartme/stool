@@ -18,7 +18,7 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Context;
-import net.oneandone.stool.cli.Configuration;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.http.StatusException;
 
 import java.io.IOException;
