@@ -65,7 +65,8 @@ public class Server {
 
         version = Main.versionString(world);
         configuration = Configuration.load(Configuration.scYaml(world));
-        LOGGER.info("server version: " + version);
+        configuration.validate();
+        LOGGER.info("version: " + version);
         LOGGER.info("context: " + context);
         LOGGER.info("configuration: " + configuration);
         try (Engine engine = Engine.createClusterOrLocal(context)) {
@@ -73,15 +74,11 @@ public class Server {
             LOGGER.info("OpenShift: " + openShift);
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(version, context, world, openShift, localhostIp, configuration);
-            server.validate();
-            return server;
+            return new Server(context, world, openShift, localhostIp, configuration);
         }
     }
 
     //--
-
-    public final String version;
 
     public final String context;
 
@@ -100,9 +97,7 @@ public class Server {
     public final UserManager userManager;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Server(String version, String context, World world,
-                  boolean openShift, String localhostIp, Configuration configuration) throws IOException {
-        this.version = version;
+    public Server(String context, World world, boolean openShift, String localhostIp, Configuration configuration) throws IOException {
         this.context = context;
         this.world = world;
         this.openShift = openShift;
@@ -216,7 +211,7 @@ public class Server {
         if (!configuration.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
-            body.write("stool: " + version + "\n");
+            body.write("stool: " + Main.versionString(world) + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + exceptionContext + "\n");
             body.write("user: " + MDC.get("USER") + "\n"); // TODO
@@ -236,22 +231,6 @@ public class Server {
                 LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
-    }
-
-    //--
-
-    public void validate() throws IOException {
-        if (configuration.auth()) {
-            if (configuration.ldapSso.isEmpty()) {
-                LOGGER.error("ldapSso cannot be empty because security is enabled");
-                throw new IOException("ldapSso is empty");
-            }
-            if (System.getProperty("server.ssl.key-store") == null) {
-                LOGGER.error("enable ssl when running authenticated");
-                throw new IOException("enable ssl when running authenticated");
-            }
-        }
-        LOGGER.info("server validation ok");
     }
 
     public void checkFaultPermissions(String user, List<String> projects) throws IOException {

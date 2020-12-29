@@ -150,6 +150,17 @@ public class Configuration {
         defaultExpire = 0;
     }
 
+    public void validate() throws IOException {
+        if (auth()) {
+            if (ldapSso.isEmpty()) {
+                throw new IOException("ldapSso is empty");
+            }
+            if (System.getProperty("server.ssl.key-store") == null) {
+                throw new IOException("enable ssl when running authenticated");
+            }
+        }
+    }
+
     public Certificates certificates() {
         return new Certificates(lib, charts);
     }

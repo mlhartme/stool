@@ -15,8 +15,10 @@
  */
 package net.oneandone.stool.server.ui;
 
+import net.oneandone.stool.Main;
 import net.oneandone.stool.core.Server;
 import net.oneandone.stool.server.users.User;
+import net.oneandone.sushi.fs.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,13 +45,19 @@ public class DashboardController {
     @Autowired
     private Server server;
 
+    private final String version;
+
+    public DashboardController() {
+        version = Main.versionString(World.createMinimal());
+    }
+
     @GetMapping("dashboard")
     public ModelAndView dashboard(ModelAndView modelAndView) {
         User user;
 
         user = User.authenticatedOrAnonymous();
         modelAndView.setViewName("dashboard");
-        modelAndView.addObject("version", server.version);
+        modelAndView.addObject("version", version);
         modelAndView.addObject("username", user.name);
         LOG.info("[" + user.login + "] GET dashboard");
         return modelAndView;
