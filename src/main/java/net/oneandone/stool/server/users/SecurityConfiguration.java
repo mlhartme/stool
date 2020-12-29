@@ -66,6 +66,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private Server server;
 
+    @Autowired
+    private UserManager userManager;
+
     protected boolean enabled() {
         return server.configuration.auth();
     }
@@ -92,7 +95,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .headers()
                     .httpStrictTransportSecurity().disable()  // because sub-domains (or different ports might include http links
                     .and()
-                .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
+                .addFilterAfter(new TokenAuthenticationFilter(userManager), BasicAuthenticationFilter.class)
                 .addFilter(casAuthenticationFilter())
                 .exceptionHandling()
                     .authenticationEntryPoint(entryPoints())

@@ -203,7 +203,7 @@ public class LocalClient extends Client {
         List<String> output;
 
         try (Engine engine = engine()) {
-            output = new Validation(server, engine).run(stage, email, repair);
+            output = new Validation(server, server.configuration.createUserManager() /* TODO */, engine).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }

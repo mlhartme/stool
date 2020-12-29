@@ -22,6 +22,7 @@ import net.oneandone.stool.core.Type;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
+import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -38,11 +39,13 @@ public class Validation {
     private static final Logger LOGGER = LoggerFactory.getLogger(Validation.class);
 
     private final Server server;
+    private final UserManager userManager;
     private final Engine engine;
     private final Caller caller;
 
-    public Validation(Server server, Engine engine) {
+    public Validation(Server server, UserManager userManager, Engine engine) {
         this.server = server;
+        this.userManager = userManager;
         this.engine = engine;
         this.caller = new Caller("todo", "todo", "validate cron job");
     }
@@ -125,7 +128,7 @@ public class Validation {
             return user;
         }
         try {
-            userobj = server.userManager.byLogin(user);
+            userobj = userManager.byLogin(user);
             email = userobj.email == null ? server.configuration.admin : userobj.email;
         } catch (UserNotFound e) {
             email = server.configuration.admin;

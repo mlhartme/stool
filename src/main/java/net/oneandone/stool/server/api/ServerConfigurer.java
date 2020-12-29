@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.api;
 
 import net.oneandone.stool.core.Server;
+import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.sushi.fs.World;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,5 +34,10 @@ public class ServerConfigurer implements WebMvcConfigurer {
     @Bean
     public Server server(World world) throws IOException {
         return Server.create(world);
+    }
+
+    @Bean
+    public UserManager userManager(Server server) throws IOException {
+        return server.configuration.createUserManager();
     }
 }

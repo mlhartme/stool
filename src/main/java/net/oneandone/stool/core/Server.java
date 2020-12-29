@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.sushi.fs.World;
 import org.slf4j.Logger;
@@ -50,12 +49,9 @@ public class Server {
 
     public final Configuration configuration;
 
-    public final UserManager userManager;
-
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Server(Configuration configuration) throws IOException {
+    public Server(Configuration configuration) {
         this.configuration = configuration;
-        this.userManager = UserManager.loadOpt(configuration.lib.mkdirsOpt().join("users.json"));
     }
 
     //-- Stage access

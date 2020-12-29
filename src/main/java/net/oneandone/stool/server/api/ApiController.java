@@ -26,6 +26,7 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Server;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
+import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -60,12 +61,14 @@ import java.util.Map;
 public class ApiController {
     private final ObjectMapper json; // TODO: threading
     private final Server server;
+    private final UserManager userManager;
     private final LocalClient client;
 
     @Autowired
-    public ApiController(Server server) {
+    public ApiController(Server server, UserManager userManager) throws IOException {
         this.json = new ObjectMapper();
         this.server = server;
+        this.userManager = userManager;
         this.client = new LocalClient("server", null, server);
     }
 
@@ -180,7 +183,7 @@ public class ApiController {
         if (user == null) {
             throw new IllegalStateException();
         }
-        result = server.userManager.generateToken(user);
+        result = userManager.generateToken(user);
         return new TextNode(result).toString();
     }
 

@@ -13,6 +13,7 @@ import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
+import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.UsernamePassword;
@@ -211,6 +212,10 @@ public class Configuration {
 
     public String stageFqdn(String stage) {
         return stage + "." + fqdn;
+    }
+
+    public UserManager createUserManager() throws IOException {
+        return UserManager.loadOpt(lib.mkdirsOpt().join("users.json"));
     }
 
     public Registry createRegistry(World registryWorld, String image) throws IOException {
