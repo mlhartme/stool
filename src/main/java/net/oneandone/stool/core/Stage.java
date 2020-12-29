@@ -197,7 +197,7 @@ public class Stage {
 
     public Registry registry() throws IOException {
         if (lazyRegistry == null) {
-            lazyRegistry = server.createRegistry(World.create() /* TODO */, getImage());
+            lazyRegistry = server.configuration.createRegistry(World.create() /* TODO */, getImage());
         }
         return lazyRegistry;
     }

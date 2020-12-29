@@ -56,7 +56,7 @@ public final class Helm {
         Registry registry;
 
         validateRepository(Registry.toRepository(imageOrRepository));
-        registry = server.createRegistry(root.getWorld(), imageOrRepository);
+        registry = server.configuration.createRegistry(root.getWorld(), imageOrRepository);
         image = registry.resolve(imageOrRepository);
         return run(root, server, name, upgrade, map, image, clientValues);
     }

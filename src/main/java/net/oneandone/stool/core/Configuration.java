@@ -7,17 +7,25 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.Main;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Reference;
+import net.oneandone.stool.registry.PortusRegistry;
+import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.UsernamePassword;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -35,6 +43,8 @@ import static net.oneandone.stool.util.Json.string;
  * Stool configuration, represents sc.yaml
  */
 public class Configuration {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+
     public static FileNode scYaml(World world) {
         String str;
 
@@ -159,6 +169,58 @@ public class Configuration {
                 throw new IOException("enable ssl when running authenticated");
             }
         }
+    }
+
+    /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
+    public void reportException(String command, String exceptionContext, Throwable e) {
+        String subject;
+        StringWriter body;
+        PrintWriter writer;
+
+        LOGGER.error("[" + command + "] " + exceptionContext + ": " + e.getMessage(), e);
+        if (!admin.isEmpty()) {
+            subject = "[stool exception] " + e.getMessage();
+            body = new StringWriter();
+            body.write("stool: " + Main.versionString(world) + "\n");
+            body.write("command: " + command + "\n");
+            body.write("context: " + exceptionContext + "\n");
+            body.write("user: " + MDC.get("USER") + "\n"); // TODO
+            body.write("fqdn: " + fqdn + "\n");
+            writer = new PrintWriter(body);
+            while (true) {
+                e.printStackTrace(writer);
+                e = e.getCause();
+                if (e == null) {
+                    break;
+                }
+                body.append("Caused by:\n");
+            }
+            try {
+                mailer().send(admin, new String[] { admin }, subject, body.toString());
+            } catch (MessagingException suppressed) {
+                LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
+            }
+        }
+    }
+
+    public Registry createRegistry(World registryWorld, String image) throws IOException {
+        int idx;
+        String host;
+        UsernamePassword up;
+        String uri;
+
+        idx = image.indexOf('/');
+        if (idx == -1) {
+            throw new IllegalArgumentException(image);
+        }
+        host = image.substring(0, idx);
+        uri = "https://";
+        up = registryCredentials(host);
+        if (up != null) {
+            uri = uri + up.username + ":" + up.password + "@";
+        }
+        uri = uri + host;
+        return PortusRegistry.create(registryWorld, uri, null);
     }
 
     public Certificates certificates() {
