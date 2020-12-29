@@ -84,7 +84,6 @@ public class Configuration {
     //--
 
     private final World world;
-    private String version;
     public final Map<String, UsernamePassword> registryCredentials;
     public String charts;
     public String stageLogs;
@@ -143,7 +142,6 @@ public class Configuration {
 
     public Configuration(World world, FileNode configdir, FileNode wirelog) {
         this.world = world;
-        this.version = null;
         this.registryCredentials = new HashMap<>();
         this.currentContext = null;
         this.contexts = new LinkedHashMap<>();
@@ -314,14 +312,6 @@ public class Configuration {
 
     public Certificates certificates() {
         return new Certificates(lib, charts);
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String version() {
-        return version;
     }
 
     public void setRegistryCredentials(String str) {
