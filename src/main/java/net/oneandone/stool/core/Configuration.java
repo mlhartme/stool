@@ -96,12 +96,13 @@ public class Configuration {
     private final World world;
     private final ObjectMapper yaml;
 
-    public final Map<String, UsernamePassword> registryCredentials;
-    public String charts;
-    public final String stageLogs;
-    public FileNode lib;
     private String currentContext;
     public final Map<String, Context> contexts;
+
+    public final Map<String, UsernamePassword> registryCredentials;
+    public String charts;
+    public FileNode lib;
+    public final String stageLogs;
 
     //--
 
@@ -122,12 +123,6 @@ public class Configuration {
      */
     public final String admin;
 
-    public final String mailHost;
-
-    public final String mailUsername;
-
-    public final String mailPassword;
-
     public final String ldapUrl;
 
     public final String ldapPrincipal;
@@ -137,6 +132,12 @@ public class Configuration {
     public final String ldapUnit;
 
     public final String ldapSso;
+
+    public final String mailHost;
+
+    public final String mailUsername;
+
+    public final String mailPassword;
 
     /**
      * Number of days to wait before removing an expired stage.
@@ -150,17 +151,17 @@ public class Configuration {
         this.world = world;
         this.yaml = yaml;
 
-        this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
         this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
         this.contexts = parseContexts((ArrayNode) configuration.get("contexts"));
+
+        this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
         this.charts = string(configuration, "charts", world.getHome().join(".sc/charts").getAbsolute());
-        this.stageLogs = string(configuration, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.lib = file(configuration, configdir, "lib", configdir.join("lib"));
+        this.stageLogs = string(configuration, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
+        this.loglevel = Json.string(configuration, "loglevel", "ERROR");
         this.fqdn = Json.string(configuration, "fqdn", "localhost");
         this.kubernetes = Json.string(configuration, "kubernetes", "http://localhost");
-        this.loglevel = Json.string(configuration, "loglevel", "ERROR");
         this.admin = Json.string(configuration, "admin", "");
-        this.autoRemove = Json.number(configuration, "autoRemove", -1);
         this.ldapUrl = Json.string(configuration, "ldapUrl", "");
         this.ldapPrincipal = Json.string(configuration, "ldapPrincipal", "");
         this.ldapCredentials = Json.string(configuration, "ldapCredentials", "");
@@ -169,6 +170,7 @@ public class Configuration {
         this.mailHost = Json.string(configuration, "mailHost", "");
         this.mailUsername = Json.string(configuration, "mailUsername", "");
         this.mailPassword = Json.string(configuration, "mailPassword", "");
+        this.autoRemove = Json.number(configuration, "autoRemove", -1);
         this.defaultExpire = Json.number(configuration, "defaultExpire", 0);
     }
 

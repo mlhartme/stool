@@ -1,20 +1,46 @@
-# Fully qualified domain name of this server. Points to api and dashboard; used in stage urls and emails. Type string.
-fqdn: "localhost"
-
-# certificate for fqdn; empty for none; base64 encoded p12 keystore file
-cert: ""
-
-lib: "/var/lib/stool"
-stageLogs: "/var/log/stool/stages"
+#
+# Server Config
 
 # points to stool server image
 repositoryTag: "contargo.server.lan/cisoops-public/stool:${image.version}"
 
+# certificate for fqdn; empty for none; base64 encoded p12 keystore file
+cert: ""
+
+# set to fault user name to fetch fault secrets automatically; if not set, a host directory ~/.fault will be used
+# (TODO: only works on localhost)
+faultName: ""
+
+# for fault authentication
+faultHostkey: ""
+faultHostkeyPub: ""
+
+# script to generate stage certificate; empty generates a self-signed certificate
+certScript: ""
+
+
+#
+# sc.yaml inside the server
+
 # Comma-separated list with host=username:password entries. Type string.
 registryCredentials: ""
 
+# TODO
+charts: "https://bitbucket.1and1.org/scm/cisodevenv/helmcharts.git"
+lib: "/var/lib/stool"
+stageLogs: "/var/log/stool/stages"
+
+# For server logging. Type string, default INFO. Example value: DEBUG.
+loglevel: "INFO"
+
+# Fully qualified domain name of this server. Points to api and dashboard; used in stage urls and emails. Type string.
+fqdn: "localhost"
+
 # publicly reachable url pointing to kubernetes api
 kubernetes: "http://TODO-needed-for-port-forwarding-not-tested"
+
+# Email of the person to receive validation failures and exception mails. Empty to disable these emails.
+admin: ""
 
 # Ldap url for user information. Empty string to disable ldap. Type string, default empty.
 ldapUrl: ""
@@ -31,32 +57,6 @@ ldapCredentials: ""
 # Url for dashboard single sign on. Type string, default empty.
 ldapSso: ""
 
-# script to generate stage certificate; empty generates a self-signed certificate
-certScript: ""
-
-# set to fault user name to fetch fault secrets automatically; if not set, a host directory ~/.fault will be used
-# (TODO: only works on localhost)
-faultName: ""
-
-# for fault authentication
-faultHostkey: ""
-faultHostkeyPub: ""
-
-# Email of the person to receive validation failures and exception mails. Empty to disable these emails.
-admin: ""
-
-# Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1.
-autoRemove: -1
-
-# Defines the number of days to expire new stages (0 for never). Type number, default 0.
-defaultExpire: 0
-
-# Default values set automatically when installing charts, can be overwritten by the `start` command. Type map, default empty.
-values: "networkPolicy:, fluentd:stool"
-
-# For server logging. Type string, default INFO. Example value: DEBUG.
-loglevel: "INFO"
-
 # Smtp Host name to deliver emails. Empty to disable. Type string, default empty.
 mailHost: ""
 
@@ -66,5 +66,8 @@ mailUsername: ""
 # Password for mailHost. Type string, default empty.
 mailPassword: ""
 
-# TODO
-charts: "https://bitbucket.1and1.org/scm/cisodevenv/helmcharts.git"
+# Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1.
+autoRemove: -1
+
+# Defines the number of days to expire new stages (0 for never). Type number, default 0.
+defaultExpire: 0
