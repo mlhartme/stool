@@ -21,13 +21,13 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.PodConfig;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Info;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.Main;
-import net.oneandone.stool.core.Server;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.HistoryEntry;
 import net.oneandone.stool.server.users.User;
@@ -58,13 +58,13 @@ public class LocalClient extends Client {
     /** null for cluster */
     private final String kubernetesContext;
 
-    private final Server server;
+    private final Configuration configuration;
 
-    public LocalClient(String context, String kubernetesContext, Server server) {
+    public LocalClient(String context, String kubernetesContext, Configuration configuration) {
         super(context);
         this.json = new ObjectMapper();
         this.kubernetesContext = kubernetesContext;
-        this.server = server;
+        this.configuration = configuration;
     }
 
     public Engine engine() {
@@ -80,7 +80,7 @@ public class LocalClient extends Client {
         result = new HashMap<>();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            for (Stage stage : server.list(engine, new PredicateParser(engine).parse(filter), problems)) {
+            for (Stage stage : configuration.list(engine, new PredicateParser(engine).parse(filter), problems)) {
                 s = new HashMap<>();
                 result.put(stage.getName(), s);
                 for (Info info : stage.fields()) {
@@ -115,7 +115,7 @@ public class LocalClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(caller, engine, server, name, image, values);
+            stage = Stage.create(caller, engine, configuration, name, image, values);
             return stage.urlMap();
         }
     }
@@ -127,7 +127,7 @@ public class LocalClient extends Client {
         String imageOrRepository;
 
         try (Engine engine = engine()) {
-            stage = server.load(engine, name);
+            stage = configuration.load(engine, name);
             if (imageOpt != null) {
                 imageOrRepository = imageOpt;
             } else {
@@ -146,7 +146,7 @@ public class LocalClient extends Client {
     @Override
     public void delete(String stage) throws IOException {
         try (Engine engine = engine()) {
-            server.load(engine, stage).uninstall(engine);
+            configuration.load(engine, stage).uninstall(engine);
         }
     }
 
@@ -156,7 +156,7 @@ public class LocalClient extends Client {
 
         result = new HashMap<>();
         try (Engine engine = engine()) {
-            for (Value value : server.load(engine, stage).values()) {
+            for (Value value : configuration.load(engine, stage).values()) {
                 result.put(value.name(), disclose(value.name(), value.get(engine)));
             }
             return result;
@@ -183,7 +183,7 @@ public class LocalClient extends Client {
         Map<String, String> result;
 
         try (Engine engine = engine()) {
-            stage = server.load(engine, name);
+            stage = configuration.load(engine, name);
             result = new HashMap<>();
             clientValues = new HashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
@@ -203,7 +203,7 @@ public class LocalClient extends Client {
         List<String> output;
 
         try (Engine engine = engine()) {
-            output = new Validation(server, server.configuration.createUserManager() /* TODO */, engine).run(stage, email, repair);
+            output = new Validation(configuration, configuration.createUserManager() /* TODO */, engine).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }
@@ -220,7 +220,7 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             result = new ArrayList<>();
-            stage = server.load(engine, name);
+            stage = configuration.load(engine, name);
             all = stage.images();
             tagInfo = stage.tagInfo();
             for (TagInfo image : all) {
@@ -244,7 +244,7 @@ public class LocalClient extends Client {
         Stage stage;
 
         try (Engine engine = engine()) {
-            stage = server.load(engine, name);
+            stage = configuration.load(engine, name);
             stage.awaitAvailable(engine);
             return stage.urlMap();
         }
@@ -264,7 +264,7 @@ public class LocalClient extends Client {
         }
         currentWithPermissions(stage);
         try (Engine engine = engine()) {
-            pods = server.load(engine, stage).runningPods(engine).values();
+            pods = configuration.load(engine, stage).runningPods(engine).values();
             if (pods.isEmpty()) {
                 throw new IOException("no pods running for stage: " + stage);
             }
@@ -279,7 +279,7 @@ public class LocalClient extends Client {
             engine.createRole(roleName, pod.name);
             engine.createBinding(bindingName, saName, roleName);
 
-            return new PodConfig(server.configuration.kubernetes,
+            return new PodConfig(configuration.kubernetes,
                 engine.getNamespace(), engine.getServiceAccountToken(saName), pod.name);
         }
     }
@@ -306,7 +306,7 @@ public class LocalClient extends Client {
         TagInfo tagInfo;
 
         try (Engine engine = engine()) {
-            stage = server.load(engine, stageName);
+            stage = configuration.load(engine, stageName);
             tagInfo = stage.tagInfo();
         }
         Expressions.checkFaultPermissions(World.createMinimal() /* TODO */, User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
@@ -319,7 +319,7 @@ public class LocalClient extends Client {
         List<String> result;
 
         try (Engine engine = engine()) {
-            s = server.load(engine, name);
+            s = configuration.load(engine, name);
             result = new ArrayList<>(s.history.size());
             for (HistoryEntry entry : s.history) {
                 result.add(entry.toString());

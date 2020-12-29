@@ -16,7 +16,7 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.core.Server;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Type;
 import net.oneandone.stool.server.settings.Expire;
@@ -38,13 +38,13 @@ import java.util.Set;
 public class Validation {
     private static final Logger LOGGER = LoggerFactory.getLogger(Validation.class);
 
-    private final Server server;
+    private final Configuration configuration;
     private final UserManager userManager;
     private final Engine engine;
     private final Caller caller;
 
-    public Validation(Server server, UserManager userManager, Engine engine) {
-        this.server = server;
+    public Validation(Configuration configuration, UserManager userManager, Engine engine) {
+        this.configuration = configuration;
         this.userManager = userManager;
         this.engine = engine;
         this.caller = new Caller("todo", "todo", "validate cron job");
@@ -54,7 +54,7 @@ public class Validation {
         List<String> report;
         Stage stage;
 
-        stage = server.load(engine, name);
+        stage = configuration.load(engine, name);
         report = new ArrayList<>();
         doRun(stage, report, repair);
         LOGGER.info("Validation done (" + report.size() + " lines report)");
@@ -82,8 +82,8 @@ public class Validation {
                 report.add("replicas change failed: " + e.getMessage());
                 LOGGER.debug(e.getMessage(), e);
             }
-            if (server.configuration.autoRemove >= 0 && expire.expiredDays() >= 0) {
-                if (expire.expiredDays() >= server.configuration.autoRemove) {
+            if (configuration.autoRemove >= 0 && expire.expiredDays() >= 0) {
+                if (expire.expiredDays() >= configuration.autoRemove) {
                     try {
                         report.add("removing expired stage");
                         stage.uninstall(engine);
@@ -93,7 +93,7 @@ public class Validation {
                     }
                 } else {
                     report.add("CAUTION: This stage will be removed automatically in "
-                            + (server.configuration.autoRemove - expire.expiredDays()) + " day(s)");
+                            + (configuration.autoRemove - expire.expiredDays()) + " day(s)");
                 }
             }
         }
@@ -105,8 +105,8 @@ public class Validation {
         String email;
         String body;
 
-        fqdn = server.configuration.fqdn;
-        mailer = server.configuration.mailer();
+        fqdn = configuration.fqdn;
+        mailer = configuration.mailer();
         for (String user : users) {
             body = Separator.RAW_LINE.join(report);
             email = email(user);
@@ -129,9 +129,9 @@ public class Validation {
         }
         try {
             userobj = userManager.byLogin(user);
-            email = userobj.email == null ? server.configuration.admin : userobj.email;
+            email = userobj.email == null ? configuration.admin : userobj.email;
         } catch (UserNotFound e) {
-            email = server.configuration.admin;
+            email = configuration.admin;
         }
         return email.isEmpty() ? null : email;
     }

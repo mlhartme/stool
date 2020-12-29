@@ -50,14 +50,14 @@ import java.util.Set;
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
 
-    public static Stage create(Caller caller, Engine engine, Server server, String name, String image, Map<String, String> values) throws IOException {
+    public static Stage create(Caller caller, Engine engine, Configuration configuration, String name, String image, Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.run(World.create().file(server.configuration.charts), server, name, false, new HashMap<>(), image, values);
-        stage = Stage.create(server, name, engine.helmRead(name), history);
+        Helm.run(World.create().file(configuration.charts), configuration, name, false, new HashMap<>(), image, values);
+        stage = Stage.create(configuration, name, engine.helmRead(name), history);
         stage.saveHistory(engine);
         return stage;
     }
@@ -91,8 +91,8 @@ public class Stage {
     }
 
 
-    public static Stage create(Server server, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
-        return new Stage(server, name, values(helmObject), (ObjectNode) helmObject.get("info"), history);
+    public static Stage create(Configuration configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
+        return new Stage(configuration, name, values(helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
     private static Map<String, Object> values(ObjectNode helmObject) throws IOException {
@@ -119,7 +119,7 @@ public class Stage {
 
     //--
 
-    public final Server server;
+    public final Configuration configuration;
 
     /**
      * Has a very strict syntax, it's used:
@@ -135,8 +135,8 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(Server server, String name, Map<String, Object> values, ObjectNode info, List<HistoryEntry> history) {
-        this.server = server;
+    public Stage(Configuration configuration, String name, Map<String, Object> values, ObjectNode info, List<HistoryEntry> history) {
+        this.configuration = configuration;
         this.name = name;
         this.values = values;
         this.info = info;
@@ -191,14 +191,14 @@ public class Stage {
     //--
 
     public FileNode getLogs() throws MkdirException {
-        return server.configuration.stageLogs(name);
+        return configuration.stageLogs(name);
     }
 
     private Registry lazyRegistry = null;
 
     public Registry registry() throws IOException {
         if (lazyRegistry == null) {
-            lazyRegistry = server.configuration.createRegistry(World.create() /* TODO */, getImage());
+            lazyRegistry = configuration.createRegistry(World.create() /* TODO */, getImage());
         }
         return lazyRegistry;
     }
@@ -365,8 +365,8 @@ public class Stage {
 
         map = new HashMap<>(values);
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
-        result = Helm.run(World.create().file(server.configuration.charts) /* TODO */,
-                server, name, true, map, imageOrRepository, clientValues);
+        result = Helm.run(World.create().file(configuration.charts) /* TODO */,
+                configuration, name, true, map, imageOrRepository, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         return result;
@@ -430,7 +430,7 @@ public class Stage {
         String url;
         List<String> result;
 
-        fqdn = server.configuration.stageFqdn(name);
+        fqdn = configuration.stageFqdn(name);
         url = protocol + "://" + fqdn + "/" + tag.urlContext;
         if (!url.endsWith("/")) {
             url = url + "/";

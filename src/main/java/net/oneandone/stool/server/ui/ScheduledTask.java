@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.ui;
 
-import net.oneandone.stool.core.Server;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.util.Validation;
@@ -33,11 +33,11 @@ import java.util.List;
 public class ScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTask.class);
 
-    private final Server server;
+    private final Configuration configuration;
 
     @Autowired
-    public ScheduledTask(Server server) {
-        this.server = server;
+    public ScheduledTask(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     // second minute hour ...
@@ -47,9 +47,9 @@ public class ScheduledTask {
 
         LOGGER.info("scheduled stage validation");
         try (Engine engine = Engine.createCluster()) {
-            for (Stage stage : server.listAll(engine)) {
+            for (Stage stage : configuration.listAll(engine)) {
                 LOGGER.info("validate " + stage.getName() + ":");
-                output = new Validation(server, server.configuration.createUserManager() /* TODO */, engine).run(stage.getName(), !server.configuration.mailHost.isEmpty(), true);
+                output = new Validation(configuration, configuration.createUserManager() /* TODO */, engine).run(stage.getName(), !configuration.mailHost.isEmpty(), true);
                 for (String line : output) {
                     LOGGER.info("  " + line);
                 }

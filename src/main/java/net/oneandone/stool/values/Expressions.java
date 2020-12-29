@@ -16,8 +16,8 @@
 package net.oneandone.stool.values;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.core.Server;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.sushi.fs.World;
@@ -40,13 +40,13 @@ import java.util.zip.GZIPOutputStream;
 
 public class Expressions {
     private final World world;
-    private final Server server;
+    private final Configuration configuration;
     private final TagInfo image;
     private final String fqdn;
 
-    public Expressions(World world, Server server, TagInfo image, String fqdn) {
+    public Expressions(World world, Configuration configuration, TagInfo image, String fqdn) {
         this.world = world;
-        this.server = server;
+        this.configuration = configuration;
         this.image = image;
         this.fqdn = fqdn;
     }
@@ -81,7 +81,7 @@ public class Expressions {
         switch (call.get(0)) {
             case "defaultExpire":
                 arg(call, 0);
-                return Expire.fromNumber(server.configuration.defaultExpire).toString();
+                return Expire.fromNumber(configuration.defaultExpire).toString();
             case "defaultContact":
                 arg(call, 0);
                 return Stage.NOTIFY_FIRST_MODIFIER;
@@ -124,7 +124,7 @@ public class Expressions {
     private String cert() throws IOException {
         FileNode dir;
 
-        dir = server.configuration.certificates().generate(fqdn);
+        dir = configuration.certificates().generate(fqdn);
         return Base64.getEncoder().encodeToString(dir.join("keystore.p12").readBytes());
     }
 
@@ -140,7 +140,7 @@ public class Expressions {
         String result;
 
         missing = new ArrayList<>();
-        if (server.configuration.auth()) {
+        if (configuration.auth()) {
             checkFaultPermissions(world, image.author, faultProjects);
         }
         workspace = world.file("/etc/fault/workspace");

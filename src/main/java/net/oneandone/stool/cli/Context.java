@@ -18,7 +18,7 @@ package net.oneandone.stool.cli;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.oneandone.stool.core.Server;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.server.api.LocalClient;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -80,7 +80,7 @@ public class Context {
 
     public Client connect(World world) throws IOException {
         if (isLocal()) {
-            return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Server.create(world));
+            return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Configuration.create(world));
         } else {
             return RemoteClient.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
         }

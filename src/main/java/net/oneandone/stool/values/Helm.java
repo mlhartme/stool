@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
-import net.oneandone.stool.core.Server;
 import net.oneandone.stool.core.Type;
 import net.oneandone.stool.server.settings.Expire;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -49,22 +49,23 @@ public final class Helm {
     /**
      * @return imageOrRepository exact image or repository to publish latest tag from
      */
-    public static String run(FileNode root, Server server, String name,
+    public static String run(FileNode root, Configuration configuration, String name,
                              boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
             throws IOException {
         TagInfo image;
         Registry registry;
 
         validateRepository(Registry.toRepository(imageOrRepository));
-        registry = server.configuration.createRegistry(root.getWorld(), imageOrRepository);
+        registry = configuration.createRegistry(root.getWorld(), imageOrRepository);
         image = registry.resolve(imageOrRepository);
-        return run(root, server, name, upgrade, map, image, clientValues);
+        return run(root, configuration, name, upgrade, map, image, clientValues);
     }
 
     /**
      * @return imageOrRepository exact image or repository to publish latest image from
      */
-    public static String run(FileNode root, Server server, String name, boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
+    public static String run(FileNode root, Configuration configuration, String name,
+                             boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
             throws IOException {
         Expressions expressions;
         Application app;
@@ -73,7 +74,7 @@ public final class Helm {
         FileNode src;
         Expire expire;
 
-        expressions = new Expressions(root.getWorld(), server, image, server.configuration.stageFqdn(name));
+        expressions = new Expressions(root.getWorld(), configuration, image, configuration.stageFqdn(name));
         app = Application.load(expressions, root.join("app.yaml").readString());
         tmp = root.getWorld().getTemp().createTempDirectory();
         values = root.getWorld().getTemp().createTempFile();
@@ -85,7 +86,7 @@ public final class Helm {
         checkValues(clientValues, builtInValues(tmp).keySet());
         app.addValues(expressions, map);
         map.putAll(clientValues);
-        expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(server.configuration.defaultExpire)));
+        expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(configuration.defaultExpire)));
         if (expire.isExpired()) {
             throw new ArgumentException(name + ": stage expired: " + expire);
         }

@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.Main;
-import net.oneandone.stool.core.Server;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.sushi.fs.World;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class DashboardController {
     private static final Logger LOG = LoggerFactory.getLogger(DashboardController.class);
 
     @Autowired
-    private Server server;
+    private Configuration configuration;
 
     private final String version;
 
@@ -76,7 +76,7 @@ public class DashboardController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         subject = "[Stool] Feedback from " + SecurityContextHolder.getContext().getAuthentication().getName();
-        server.configuration.mailer().send(server.configuration.admin, new String[] { server.configuration.admin }, subject, message);
+        configuration.mailer().send(configuration.admin, new String[] { configuration.admin }, subject, message);
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
 

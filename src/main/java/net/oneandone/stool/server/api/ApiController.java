@@ -22,8 +22,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.core.Server;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserManager;
@@ -60,16 +60,16 @@ import java.util.Map;
 @RequestMapping("/api")
 public class ApiController {
     private final ObjectMapper json; // TODO: threading
-    private final Server server;
+    private final Configuration configuration;
     private final UserManager userManager;
     private final LocalClient client;
 
     @Autowired
-    public ApiController(Server server, UserManager userManager) throws IOException {
+    public ApiController(Configuration configuration, UserManager userManager) {
         this.json = new ObjectMapper();
-        this.server = server;
+        this.configuration = configuration;
         this.userManager = userManager;
-        this.client = new LocalClient("server", null, server);
+        this.client = new LocalClient("server", null, configuration);
     }
 
     //-- Client methods
@@ -176,7 +176,7 @@ public class ApiController {
         User user;
         String result;
 
-        if (server.configuration.ldapUrl.isEmpty()) {
+        if (configuration.ldapUrl.isEmpty()) {
             throw new IOException("authentication is disabled");
         }
         user = User.authenticatedOpt();
@@ -194,7 +194,7 @@ public class ApiController {
         Stage stage;
 
         try (Engine engine = client.engine()) {
-            stage = server.load(engine, stageName);
+            stage = configuration.load(engine, stageName);
         }
         dir = stage.getLogs(); // TODO: application logs
         result = json.createArrayNode();
@@ -216,7 +216,7 @@ public class ApiController {
         file = Strings.removeLeft(file, request.getContextPath());
         file = Strings.removeLeft(file, "/api/stages/" + stageName + "/logs/");
         try (Engine engine = client.engine()) {
-            stage = server.load(engine, stageName);
+            stage = configuration.load(engine, stageName);
         }
         resource = new FileSystemResource(stage.getLogs().join(file).toPath());
         return new ResponseEntity<>(resource, HttpStatus.OK);
