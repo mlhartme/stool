@@ -19,28 +19,44 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class Application {
-    public static Application load(Expressions expressions, String str) throws IOException {
-        ObjectMapper mapper;
+    public static Application load(FileNode valuesFile) throws IOException {
+        ObjectMapper yaml;
         ObjectNode root;
-        ObjectNode values;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
         Application result;
+        ObjectNode clazz;
 
-        mapper = new ObjectMapper(new YAMLFactory());
-        root = (ObjectNode) mapper.readTree(new StringReader(str));
-        result = new Application(expressions.eval(root.get("chart").asText()));
-        values = (ObjectNode) root.get("values");
-        iter = values.fields();
+        yaml = new ObjectMapper(new YAMLFactory());
+        try (Reader src = valuesFile.newReader()) {
+            root = (ObjectNode) yaml.readTree(src);
+        }
+        result = new Application();
+        clazz = null;
+        iter = root.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            if ("class".equals(entry.getKey())) {
+                clazz = (ObjectNode) entry.getValue();
+            } else {
+                result.values.put(entry.getKey(), entry.getValue().asText());
+            }
+        }
+        if (clazz == null) {
+            throw new IllegalStateException("missing class field: " + valuesFile);
+        }
+        iter = clazz.fields();
         while (iter.hasNext()) {
             entry = iter.next();
             result.fields.add(new Field(entry.getKey(), entry.getValue().asText()));
@@ -48,12 +64,13 @@ public class Application {
         return result;
     }
 
-    public final String chart;
+    // class fields
     private final List<Field> fields;
+    public final Map<String, String> values;
 
-    public Application(String chart) {
-        this.chart = chart;
+    public Application() {
         this.fields = new ArrayList<>();
+        this.values = new HashMap<>();
     }
 
     public void addValues(Expressions builder, Map<String, Object> map) throws IOException {

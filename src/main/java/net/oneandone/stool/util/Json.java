@@ -97,7 +97,7 @@ public final class Json {
         return element.asText();
     }
 
-    public static Map<String, Object> toStringMap(ObjectNode obj) {
+    public static Map<String, Object> toStringMap(ObjectNode obj, String... skip) {
         Map<String, Object> result;
         JsonNode value;
         Iterator<Map.Entry<String, JsonNode>> iter;
@@ -108,6 +108,9 @@ public final class Json {
         iter = obj.fields();
         while (iter.hasNext()) {
             entry = iter.next();
+            if (skip != null && contains(skip, entry.getKey())) {
+                continue;
+            }
             value = entry.getValue();
             if (value.isNumber()) {
                 v = value.asInt();
@@ -121,6 +124,15 @@ public final class Json {
             result.put(entry.getKey(), v);
         }
         return result;
+    }
+
+    private static boolean contains(String[] strings, String key) {
+        for (String str : strings) {
+            if (key.equals(str)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static ObjectNode obj(ObjectMapper json, Map<String, String> obj) {

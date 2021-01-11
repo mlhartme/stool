@@ -98,8 +98,8 @@ public class Stage {
     private static Map<String, Object> values(ObjectNode helmObject) throws IOException {
         Map<String, Object> result;
 
-        result = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"));
-        result.putAll(Json.toStringMap((ObjectNode) helmObject.get("config")));
+        result = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), "class");
+        result.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), "class"));
         check(result, Type.MANDATORY);
         return result;
     }

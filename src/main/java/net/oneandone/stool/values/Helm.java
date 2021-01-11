@@ -15,10 +15,6 @@
  */
 package net.oneandone.stool.values;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.Registry;
@@ -32,13 +28,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,13 +52,13 @@ public final class Helm {
         validateRepository(Registry.toRepository(imageOrRepository));
         registry = configuration.createRegistry(root.getWorld(), imageOrRepository);
         image = registry.resolve(imageOrRepository);
-        return run(root, configuration, name, upgrade, map, image, clientValues);
+        return run(root.join("kutter") /* TODO */, configuration, name, upgrade, map, image, clientValues);
     }
 
     /**
      * @return imageOrRepository exact image or repository to publish latest image from
      */
-    public static String run(FileNode root, Configuration configuration, String name,
+    public static String run(FileNode src, Configuration configuration, String name,
                              boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
             throws IOException {
         World world;
@@ -73,20 +66,18 @@ public final class Helm {
         Application app;
         FileNode chart;
         FileNode values;
-        FileNode src;
         Expire expire;
 
-        world = root.getWorld();
+        world = src.getWorld();
         expressions = new Expressions(world, configuration, image, configuration.stageFqdn(name));
-        app = Application.load(expressions, root.join("app.yaml").readString());
         chart = world.getTemp().createTempDirectory();
         values = world.getTemp().createTempFile();
-        src = root.join(app.chart);
         if (!src.isDirectory()) {
-            throw new ArgumentException("helm chart not found: " + app.chart);
+            throw new ArgumentException("helm class not found: " + src.getAbsolute());
         }
         src.copyDirectory(chart);
-        checkValues(clientValues, builtInValues(chart).keySet());
+        app = Application.load(valuesFile(chart));
+        checkValues(clientValues, app.values.keySet());
         app.addValues(expressions, map);
         map.putAll(clientValues);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(configuration.defaultExpire)));
@@ -119,24 +110,8 @@ public final class Helm {
         }
     }
 
-    public static Map<String, String> builtInValues(FileNode chart) throws IOException {
-        ObjectMapper yaml;
-        ObjectNode root;
-        Map<String, String> result;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Map.Entry<String, JsonNode> entry;
-
-        yaml = new ObjectMapper(new YAMLFactory());
-        try (Reader src = chart.join("values.yaml").newReader()) {
-            root = (ObjectNode) yaml.readTree(src);
-        }
-        result = new HashMap<>();
-        iter = root.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            result.put(entry.getKey(), entry.getValue().asText());
-        }
-        return result;
+    public static FileNode valuesFile(FileNode chart) {
+        return chart.join("values.yaml");
     }
 
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
