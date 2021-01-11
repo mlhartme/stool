@@ -25,7 +25,7 @@ import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.values.Helm;
+import net.oneandone.stool.values.HelmClass;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -56,7 +56,7 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.run(World.create().file(configuration.charts), configuration, name, false, new HashMap<>(), image, values);
+        HelmClass.run(World.create().file(configuration.charts), configuration, name, false, new HashMap<>(), image, values);
         stage = Stage.create(configuration, name, engine.helmRead(name), history);
         stage.saveHistory(engine);
         return stage;
@@ -353,7 +353,7 @@ public class Stage {
 
         map = new HashMap<>(values);
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
-        result = Helm.run(World.create().file(configuration.charts) /* TODO */,
+        result = HelmClass.run(World.create().file(configuration.charts) /* TODO */,
                 configuration, name, true, map, imageOrRepository, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
