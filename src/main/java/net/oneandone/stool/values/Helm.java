@@ -63,7 +63,7 @@ public final class Helm {
             throws IOException {
         World world;
         Expressions expressions;
-        Application app;
+        HelmClass app;
         FileNode chart;
         FileNode values;
         Expire expire;
@@ -76,7 +76,7 @@ public final class Helm {
             throw new ArgumentException("helm class not found: " + src.getAbsolute());
         }
         src.copyDirectory(chart);
-        app = Application.load(valuesFile(chart));
+        app = HelmClass.load(valuesFile(chart));
         checkValues(clientValues, app.values.keySet());
         app.addValues(expressions, map);
         map.putAll(clientValues);

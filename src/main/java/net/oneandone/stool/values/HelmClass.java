@@ -29,20 +29,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class Application {
-    public static Application load(FileNode valuesFile) throws IOException {
+public class HelmClass {
+    public static HelmClass load(FileNode valuesFile) throws IOException {
         ObjectMapper yaml;
         ObjectNode root;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
-        Application result;
+        HelmClass result;
         ObjectNode clazz;
 
         yaml = new ObjectMapper(new YAMLFactory());
         try (Reader src = valuesFile.newReader()) {
             root = (ObjectNode) yaml.readTree(src);
         }
-        result = new Application();
+        result = new HelmClass();
         clazz = null;
         iter = root.fields();
         while (iter.hasNext()) {
@@ -68,7 +68,7 @@ public class Application {
     private final List<Field> fields;
     public final Map<String, String> values;
 
-    public Application() {
+    public HelmClass() {
         this.fields = new ArrayList<>();
         this.values = new HashMap<>();
     }
