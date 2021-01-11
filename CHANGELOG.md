@@ -56,6 +56,8 @@
 * log validation report
 * readiness probe for stool server
 * dependency updates
+  * sushi 3.2.2 to 3.3.0
+  * fabric8 kubernetes client 4.10.2 to 5.0.0  
   * spring 5.2.9 to 5.3.2, springboot version 2.3.4 to 2.4.1, spring security 5.3.5 to 5.4.1
   * junit 5.7.0
 

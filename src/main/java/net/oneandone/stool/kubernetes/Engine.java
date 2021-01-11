@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerState;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -537,9 +538,10 @@ public class Engine implements AutoCloseable {
 
     public void secretAddAnnotations(String name, Map<String, String> map) throws IOException {
         try {
-            client.secrets().inNamespace(namespace).withName(name).edit().editMetadata()
-                    .addToAnnotations(map)
-                    .endMetadata().done();
+            client.secrets().inNamespace(namespace).withName(name).edit(
+                    ObjectMetaBuilder.class,
+                    omb -> omb.addToAnnotations(map)
+            );
         } catch (KubernetesClientException e) {
             throw wrap(e);
         }
