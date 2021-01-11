@@ -66,10 +66,14 @@
 
   <properties>
     <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
+    <springboot.version>2.4.1</springboot.version>
+    <spring.version>5.3.2</spring.version>
+    <spring.security.version>5.4.1</spring.security.version>
     <springboot.version>2.3.4.RELEASE</springboot.version>
     <spring.version>5.2.9.RELEASE</spring.version>
     <spring.security.version>5.3.5.RELEASE</spring.security.version>
   </properties>
+
 
   <dependencies>
     <!-- core libs -->

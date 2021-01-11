@@ -55,7 +55,9 @@
 * dumped memory quota handling, Kubernetes is responsible for that
 * log validation report
 * readiness probe for stool server
-* update to junit 5.7.0
+* dependency updates
+  * spring 5.2.9 to 5.3.2, springboot version 2.3.4 to 2.4.1, spring security 5.3.5 to 5.4.1
+  * junit 5.7.0
 
 
 ### 6.0.0 (2020-10-12)
