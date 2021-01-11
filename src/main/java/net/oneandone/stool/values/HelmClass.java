@@ -19,18 +19,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class HelmClass {
-    public static HelmClass load(FileNode valuesFile) throws IOException {
+    public static HelmClass load(FileNode directory) throws IOException {
         ObjectMapper yaml;
         ObjectNode root;
         Iterator<Map.Entry<String, JsonNode>> iter;
@@ -39,7 +42,7 @@ public class HelmClass {
         ObjectNode clazz;
 
         yaml = new ObjectMapper(new YAMLFactory());
-        try (Reader src = valuesFile.newReader()) {
+        try (Reader src = directory.join("values.yaml").newReader()) {
             root = (ObjectNode) yaml.readTree(src);
         }
         result = new HelmClass();
@@ -54,7 +57,7 @@ public class HelmClass {
             }
         }
         if (clazz == null) {
-            throw new IllegalStateException("missing class field: " + valuesFile);
+            throw new IllegalStateException("missing class field: " + directory);
         }
         iter = clazz.fields();
         while (iter.hasNext()) {
@@ -66,7 +69,7 @@ public class HelmClass {
 
     // class fields
     private final List<Field> fields;
-    public final Map<String, String> values;
+    private final Map<String, String> values;
 
     public HelmClass() {
         this.fields = new ArrayList<>();
@@ -78,4 +81,15 @@ public class HelmClass {
             map.put(field.name, builder.eval(field.macro));
         }
     }
+
+    public void checkValues(Map<String, String> clientValues) {
+        Set<String> unknown;
+
+        unknown = new HashSet<>(clientValues.keySet());
+        unknown.removeAll(values.keySet());
+        if (!unknown.isEmpty()) {
+            throw new ArgumentException("unknown value(s): " + unknown);
+        }
+    }
+
 }

@@ -30,10 +30,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
@@ -63,7 +60,7 @@ public final class Helm {
             throws IOException {
         World world;
         Expressions expressions;
-        HelmClass app;
+        HelmClass clazz;
         FileNode chart;
         FileNode values;
         Expire expire;
@@ -76,9 +73,9 @@ public final class Helm {
             throw new ArgumentException("helm class not found: " + src.getAbsolute());
         }
         src.copyDirectory(chart);
-        app = HelmClass.load(valuesFile(chart));
-        checkValues(clientValues, app.values.keySet());
-        app.addValues(expressions, map);
+        clazz = HelmClass.load(chart);
+        clazz.checkValues(clientValues);
+        clazz.addValues(expressions, map);
         map.putAll(clientValues);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(configuration.defaultExpire)));
         if (expire.isExpired()) {
@@ -98,20 +95,6 @@ public final class Helm {
             chart.deleteTree();
         }
         return image.repositoryTag;
-    }
-
-    public static void checkValues(Map<String, String> clientValues, Collection<String> builtIns) {
-        Set<String> unknown;
-
-        unknown = new HashSet<>(clientValues.keySet());
-        unknown.removeAll(builtIns);
-        if (!unknown.isEmpty()) {
-            throw new ArgumentException("unknown value(s): " + unknown);
-        }
-    }
-
-    public static FileNode valuesFile(FileNode chart) {
-        return chart.join("values.yaml");
     }
 
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
