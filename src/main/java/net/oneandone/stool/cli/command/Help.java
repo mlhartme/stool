@@ -86,7 +86,7 @@ public class Help {
     // I also tried writing the ansi sequences, but I was unable to capture the reported cursor position ...
     private int getColumns() {
         try {
-            return new UnixTerminal().findTerminalSize().getColumns();
+            return new UnixTerminal().getTerminalSize().getColumns();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

@@ -120,7 +120,7 @@
     <dependency><!-- for ansi codes -->
       <groupId>com.googlecode.lanterna</groupId>
       <artifactId>lanterna</artifactId>
-      <version>3.0.1</version>
+      <version>3.1.1</version>
     </dependency>
 
     <!-- spring -->
@@ -179,17 +179,17 @@
     <dependency>
       <groupId>org.thymeleaf</groupId>
       <artifactId>thymeleaf-spring5</artifactId>
-      <version>3.0.11.RELEASE</version>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>jquery</artifactId>
-      <version>3.4.1</version>
+      <version>3.0.12.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>bootstrap</artifactId>
-      <version>4.4.1</version>
+      <version>4.5.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery</artifactId>
+      <version>3.5.1</version>
     </dependency>
 
     <!-- logging -->
