@@ -36,6 +36,8 @@
     * renamed `uptime` field to `last-deployed`, it now reports the corresponding Helm status
     * dumped `created-at` and `created-by`; added `first-deployed`
     * dumped `last-modified-at`, and `last-modified-by`; use `last-deployed` or check the history instead
+    * dumped `images` field because it's very slow and deals to the registry, not kubernetes; 
+      use `sc images` instead
   * `create`
     * always starts the stage
     * type is gone, @ now prefixes images

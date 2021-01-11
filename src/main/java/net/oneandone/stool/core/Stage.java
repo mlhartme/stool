@@ -246,18 +246,6 @@ public class Stage {
                 return name;
             }
         });
-        fields.add(new Field("images") {
-            @Override
-            public Object get(Engine engine) throws IOException {
-                List<String> result;
-
-                result = new ArrayList<>();
-                for (TagInfo image : Stage.this.images()) {
-                    result.add(image.tag);
-                }
-                return result;
-            }
-        });
         fields.add(new Field("available") {
             @Override
             public Object get(Engine engine) throws IOException {
