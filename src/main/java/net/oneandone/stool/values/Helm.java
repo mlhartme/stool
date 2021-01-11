@@ -25,6 +25,7 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.core.Type;
 import net.oneandone.stool.util.Expire;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,23 +68,25 @@ public final class Helm {
     public static String run(FileNode root, Configuration configuration, String name,
                              boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
             throws IOException {
+        World world;
         Expressions expressions;
         Application app;
-        FileNode tmp;
+        FileNode chart;
         FileNode values;
         FileNode src;
         Expire expire;
 
-        expressions = new Expressions(root.getWorld(), configuration, image, configuration.stageFqdn(name));
+        world = root.getWorld();
+        expressions = new Expressions(world, configuration, image, configuration.stageFqdn(name));
         app = Application.load(expressions, root.join("app.yaml").readString());
-        tmp = root.getWorld().getTemp().createTempDirectory();
-        values = root.getWorld().getTemp().createTempFile();
+        chart = world.getTemp().createTempDirectory();
+        values = world.getTemp().createTempFile();
         src = root.join(app.chart);
         if (!src.isDirectory()) {
             throw new ArgumentException("helm chart not found: " + app.chart);
         }
-        src.copyDirectory(tmp);
-        checkValues(clientValues, builtInValues(tmp).keySet());
+        src.copyDirectory(chart);
+        checkValues(clientValues, builtInValues(chart).keySet());
         app.addValues(expressions, map);
         map.putAll(clientValues);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(configuration.defaultExpire)));
@@ -99,9 +102,9 @@ public final class Helm {
         }
         try {
             LOGGER.info("helm install upgrade=" + upgrade);
-            LOGGER.info(tmp.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, tmp.getAbsolute()));
+            LOGGER.info(chart.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute()));
         } finally {
-            tmp.deleteTree();
+            chart.deleteTree();
         }
         return image.repositoryTag;
     }
