@@ -46,10 +46,20 @@ import java.util.Set;
 /** represents the applications file */
 public class Application {
     private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+
+    public static String install(FileNode root, Configuration configuration, String name, String imageOrRepository,
+                                 String applicationOpt, Map<String, String> clientValues) throws IOException {
+        return helm(root, configuration, name, false, new HashMap<>(), imageOrRepository, applicationOpt, clientValues);
+    }
+
+    public static String upgrade(FileNode root, Configuration configuration, String name, Map<String, Object> map,
+                                 String imageOrRepository, String applicationOpt, Map<String, String> clientValues) throws IOException {
+        return helm(root, configuration, name, true, map, imageOrRepository, applicationOpt, clientValues);
+    }
     /**
      * @return imageOrRepository exact image or repository to publish latest tag from
      */
-    public static String helm(FileNode root, Configuration configuration, String name, boolean upgrade, Map<String, Object> map,
+    private static String helm(FileNode root, Configuration configuration, String name, boolean upgrade, Map<String, Object> map,
                               String imageOrRepository, String applicationOpt, Map<String, String> clientValues)
             throws IOException {
         TagInfo image;
@@ -64,7 +74,7 @@ public class Application {
     /**
      * @return image actually published
      */
-    public static String helm(FileNode root, Configuration configuration, String name,
+    private static String helm(FileNode root, Configuration configuration, String name,
                               boolean upgrade, Map<String, Object> map, TagInfo image, String applicationOpt,
                               Map<String, String> clientValues)
             throws IOException {
@@ -87,9 +97,9 @@ public class Application {
             throw new IOException("unknown application: " + applicationName);
         }
         LOGGER.info("chart: " + application.chart);
+        chart = root.join(application.chart).checkDirectory();
         application.checkValues(clientValues);
         application.addValues(expressions, map);
-        chart = root.join(application.chart).checkDirectory();
         map.putAll(clientValues);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(configuration.defaultExpire)));
         if (expire.isExpired()) {

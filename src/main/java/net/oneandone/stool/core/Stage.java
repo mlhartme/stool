@@ -57,7 +57,7 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Application.helm(World.create().file(configuration.charts), configuration, name, false, new HashMap<>(), image, applicationOpt, values);
+        Application.install(World.create().file(configuration.charts), configuration, name, image, applicationOpt, values);
         stage = Stage.create(configuration, name, engine.helmRead(name), history);
         stage.saveHistory(engine);
         return stage;
@@ -354,8 +354,8 @@ public class Stage {
 
         map = new HashMap<>(values);
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
-        result = Application.helm(World.create().file(configuration.charts) /* TODO */,
-                configuration, name, true, map, imageOrRepository, null, clientValues);
+        result = Application.upgrade(World.create().file(configuration.charts) /* TODO */,
+                configuration, name, map, imageOrRepository, null, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         return result;
