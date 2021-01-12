@@ -39,8 +39,8 @@ import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 public class Expressions {
-    private final World world;
-    private final Configuration configuration;
+    public final World world;
+    public final Configuration configuration;
     private final TagInfo image;
     private final String fqdn;
 

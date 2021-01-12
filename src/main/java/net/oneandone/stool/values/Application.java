@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 /** represents the applications file */
 public class Application {
@@ -85,7 +84,6 @@ public class Application {
         Application application;
         FileNode chart;
         FileNode values;
-        Expire expire;
 
         world = root.getWorld();
         expressions = new Expressions(world, configuration, image, configuration.stageFqdn(name));
@@ -96,25 +94,16 @@ public class Application {
         if (application == null) {
             throw new IOException("unknown application: " + applicationName);
         }
-        LOGGER.info("chart: " + application.chart);
         chart = root.join(application.chart).checkDirectory();
-        application.checkValues(clientValues);
-        application.addValues(expressions, map);
-        map.putAll(clientValues);
-        expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(configuration.defaultExpire)));
-        if (expire.isExpired()) {
-            throw new ArgumentException(name + ": stage expired: " + expire);
+        LOGGER.info("chart: " + application.chart);
+        values = application.createValues(expressions, clientValues, map);
+        try {
+            LOGGER.info("values: " + values.readString());
+            LOGGER.info("helm install upgrade=" + upgrade);
+            LOGGER.info(chart.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute()));
+        } finally {
+            values.deleteFile();
         }
-        map.put(Type.VALUE_EXPIRE, expire.toString()); // normalize
-        LOGGER.info("values: " + map);
-        values = world.getTemp().createTempFile();
-        try (PrintWriter v = new PrintWriter(values.newWriter())) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                v.println(entry.getKey() + ": " + toJson(entry.getValue()));
-            }
-        }
-        LOGGER.info("helm install upgrade=" + upgrade);
-        LOGGER.info(chart.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute()));
         return image.repositoryTag;
     }
 
@@ -246,21 +235,37 @@ public class Application {
         return new Application(chart, new HashMap<>(fields));
     }
 
-    public void addValues(Expressions builder, Map<String, Object> map) throws IOException {
+    public FileNode createValues(Expressions builder, Map<String, String> clientValues, Map<String, Object> dest) throws IOException {
+        String name;
+        Expire expire;
+        FileNode values;
+
         for (Field field : fields.values()) {
             if (field != null) {
-                map.put(field.name, builder.eval(field.macro));
+                dest.put(field.name, builder.eval(field.macro));
             }
         }
-    }
-
-    public void checkValues(Map<String, String> clientValues) {
-        Set<String> unknown;
-
-        unknown = new HashSet<>(clientValues.keySet());
-        unknown.removeAll(fields.keySet());
-        if (!unknown.isEmpty()) {
-            throw new ArgumentException("unknown value(s): " + unknown);
+        for (Map.Entry<String, String> entry : clientValues.entrySet()) {
+            name = entry.getKey();
+            if (!fields.containsKey(name)) {
+                throw new ArgumentException("unknown value: " + name);
+            }
+            dest.put(name, entry.getValue());
         }
+
+        // normalize expire
+        expire = Expire.fromHuman((String) dest.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(builder.configuration.defaultExpire)));
+        if (expire.isExpired()) {
+            throw new ArgumentException("stage expired: " + expire);
+        }
+        dest.put(Type.VALUE_EXPIRE, expire.toString()); // normalize
+
+        values = builder.world.getTemp().createTempFile();
+        try (PrintWriter v = new PrintWriter(values.newWriter())) {
+            for (Map.Entry<String, Object> entry : dest.entrySet()) {
+                v.println(entry.getKey() + ": " + toJson(entry.getValue()));
+            }
+        }
+        return values;
     }
 }
