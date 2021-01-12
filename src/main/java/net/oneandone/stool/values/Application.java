@@ -17,6 +17,7 @@ package net.oneandone.stool.values;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
@@ -43,13 +44,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class HelmClass {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HelmClass.class);
+/** represents the applications file */
+public class Application {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
     /**
      * @return imageOrRepository exact image or repository to publish latest tag from
      */
-    public static String run(FileNode root, Configuration configuration, String name,
-                             boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
+    public static String helm(FileNode root, Configuration configuration, String name,
+                              boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
             throws IOException {
         TagInfo image;
         Registry registry;
@@ -57,33 +59,37 @@ public class HelmClass {
         validateRepository(Registry.toRepository(imageOrRepository));
         registry = configuration.createRegistry(root.getWorld(), imageOrRepository);
         image = registry.resolve(imageOrRepository);
-        return run(root.join("kutter") /* TODO */, configuration, name, upgrade, map, image, clientValues);
+        return helm(root, configuration, name, upgrade, map, image, clientValues);
     }
 
     /**
-     * @return imageOrRepository exact image or repository to publish latest image from
+     * @return image actually published
      */
-    public static String run(FileNode src, Configuration configuration, String name,
-                             boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
+    public static String helm(FileNode root, Configuration configuration, String name,
+                              boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
             throws IOException {
         World world;
+        Map<String, Application> all;
         Expressions expressions;
-        HelmClass clazz;
+        String applicationName;
+        Application application;
         FileNode chart;
         FileNode values;
         Expire expire;
 
-        world = src.getWorld();
+        world = root.getWorld();
         expressions = new Expressions(world, configuration, image, configuration.stageFqdn(name));
-        chart = world.getTemp().createTempDirectory();
-        values = world.getTemp().createTempFile();
-        if (!src.isDirectory()) {
-            throw new ArgumentException("helm class not found: " + src.getAbsolute());
+        all = Application.loadAll(root);
+        applicationName = image.labels.getOrDefault("helm.application", "default");
+        LOGGER.info("application: " + applicationName);
+        application = all.get(applicationName);
+        if (application == null) {
+            throw new IOException("unknown application: " + applicationName);
         }
-        src.copyDirectory(chart);
-        clazz = HelmClass.load(chart);
-        clazz.checkValues(clientValues);
-        clazz.addValues(expressions, map);
+        LOGGER.info("chart: " + application.chart);
+        application.checkValues(clientValues);
+        application.addValues(expressions, map);
+        chart = root.join(application.chart).checkDirectory();
         map.putAll(clientValues);
         expire = Expire.fromHuman((String) map.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(configuration.defaultExpire)));
         if (expire.isExpired()) {
@@ -91,17 +97,14 @@ public class HelmClass {
         }
         map.put(Type.VALUE_EXPIRE, expire.toString()); // normalize
         LOGGER.info("values: " + map);
+        values = world.getTemp().createTempFile();
         try (PrintWriter v = new PrintWriter(values.newWriter())) {
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 v.println(entry.getKey() + ": " + toJson(entry.getValue()));
             }
         }
-        try {
-            LOGGER.info("helm install upgrade=" + upgrade);
-            LOGGER.info(chart.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute()));
-        } finally {
-            chart.deleteTree();
-        }
+        LOGGER.info("helm install upgrade=" + upgrade);
+        LOGGER.info(chart.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute()));
         return image.repositoryTag;
     }
 
@@ -141,45 +144,67 @@ public class HelmClass {
 
     //--
 
-    public static HelmClass load(FileNode directory) throws IOException {
+    public static Map<String, Application> loadAll(FileNode root) throws IOException {
         ObjectMapper yaml;
-        ObjectNode root;
+        ArrayNode all;
+        Iterator<JsonNode> charts;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
-        HelmClass result;
-        ObjectNode clazz;
+        Map<String, Application> result;
+        ObjectNode one;
+        String c;
+        Application app;
 
         yaml = new ObjectMapper(new YAMLFactory());
-        try (Reader src = directory.join("values.yaml").newReader()) {
-            root = (ObjectNode) yaml.readTree(src);
+        try (Reader src = root.join("applications.yaml").newReader()) {
+            all = (ArrayNode) yaml.readTree(src);
         }
-        result = new HelmClass();
-        clazz = null;
-        iter = root.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            if ("class".equals(entry.getKey())) {
-                clazz = (ObjectNode) entry.getValue();
-            } else {
-                result.values.put(entry.getKey(), entry.getValue().asText());
+        result = new HashMap<>();
+        charts = all.elements();
+        while (charts.hasNext()) {
+            one = (ObjectNode) charts.next();
+            c = one.get("chart").asText();
+            app = new Application(c);
+            loadValues(yaml, root.join(c, "values.yaml"), app.values);
+            iter = one.get("fields").fields();
+            while (iter.hasNext()) {
+                entry = iter.next();
+                app.fields.add(new Field(entry.getKey(), entry.getValue().asText()));
             }
-        }
-        if (clazz == null) {
-            throw new IllegalStateException("missing class field: " + directory);
-        }
-        iter = clazz.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            result.fields.add(new Field(entry.getKey(), entry.getValue().asText()));
+            iter = one.get("applications").fields();
+            while (iter.hasNext()) {
+                entry = iter.next();
+                if (result.put(entry.getKey(), app) != null) {
+                    throw new IOException("duplicate application: " + entry.getKey());
+                }
+            }
         }
         return result;
     }
 
-    // class fields
+    private static void loadValues(ObjectMapper yaml, FileNode valuesYaml, Map<String, String> dest) throws IOException {
+        ObjectNode values;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+
+        try (Reader src = valuesYaml.newReader()) {
+            values = (ObjectNode) yaml.readTree(src);
+        }
+        iter = values.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            dest.put(entry.getKey(), entry.getValue().asText());
+        }
+    }
+
+    //--
+
+    public final String chart;
     private final List<Field> fields;
     private final Map<String, String> values;
 
-    public HelmClass() {
+    public Application(String chart) {
+        this.chart = chart;
         this.fields = new ArrayList<>();
         this.values = new HashMap<>();
     }
@@ -199,5 +224,4 @@ public class HelmClass {
             throw new ArgumentException("unknown value(s): " + unknown);
         }
     }
-
 }

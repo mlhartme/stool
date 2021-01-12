@@ -25,7 +25,7 @@ import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.values.HelmClass;
+import net.oneandone.stool.values.Application;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -56,7 +56,7 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        HelmClass.run(World.create().file(configuration.charts), configuration, name, false, new HashMap<>(), image, values);
+        Application.helm(World.create().file(configuration.charts), configuration, name, false, new HashMap<>(), image, values);
         stage = Stage.create(configuration, name, engine.helmRead(name), history);
         stage.saveHistory(engine);
         return stage;
@@ -98,8 +98,8 @@ public class Stage {
     private static Map<String, Object> values(ObjectNode helmObject) throws IOException {
         Map<String, Object> result;
 
-        result = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), "class");
-        result.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), "class"));
+        result = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"));
+        result.putAll(Json.toStringMap((ObjectNode) helmObject.get("config")));
         check(result, Type.MANDATORY);
         return result;
     }
@@ -353,7 +353,7 @@ public class Stage {
 
         map = new HashMap<>(values);
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
-        result = HelmClass.run(World.create().file(configuration.charts) /* TODO */,
+        result = Application.helm(World.create().file(configuration.charts) /* TODO */,
                 configuration, name, true, map, imageOrRepository, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);

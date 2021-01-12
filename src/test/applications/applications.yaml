@@ -1,0 +1,11 @@
+- chart: foo
+  fields:
+    metadataExpire: "{{ defaultExpire }}"
+    metadataContact: "{{ defaultContact }} "
+    metadataComment: ""
+    image: "{{ image }}"
+    fqdn: "{{ fqdn }}"
+    cert: "{{ cert }}"
+    fault: "{{ fault {{ label net.oneandone.stool-fault }} }}"
+  applications:
+    default:
