@@ -36,6 +36,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -167,8 +168,7 @@ public class Application {
         while (charts.hasNext()) {
             one = (ObjectNode) charts.next();
             c = one.get("chart").asText();
-            base = new Application(c);
-            loadValues(yaml, root.join(c, "values.yaml"), base.values);
+            base = Application.create(c, loadValueKeys(yaml, root.join(c, "values.yaml")));
             iter = one.get("fields").fields();
             while (iter.hasNext()) {
                 entry = iter.next();
@@ -193,44 +193,53 @@ public class Application {
         return result;
     }
 
-    private static void loadValues(ObjectMapper yaml, FileNode valuesYaml, Map<String, String> dest) throws IOException {
+    private static Collection<String> loadValueKeys(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
         ObjectNode values;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
+        Collection<String> result;
 
         try (Reader src = valuesYaml.newReader()) {
             values = (ObjectNode) yaml.readTree(src);
         }
+        result = new HashSet();
         iter = values.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            dest.put(entry.getKey(), entry.getValue().asText());
+            result.add(entry.getKey());
         }
+        return result;
     }
 
     //--
 
     public final String chart;
-    private final Map<String, String> values;
     public final Map<String, Field> fields;
 
-    public Application(String chart) {
-        this(chart, new HashMap<>(), new HashMap<>());
+    public static Application create(String chart, Collection<String> valueKeys) {
+        Map<String, Field> fields;
+
+        fields = new HashMap<>();
+        for (String key : valueKeys) {
+            fields.put(key, null);
+        }
+        return new Application(chart, fields);
     }
 
-    private Application(String chart, Map<String, String> values, Map<String, Field> fields) {
+    private Application(String chart, Map<String, Field> fields) {
         this.chart = chart;
-        this.values = values;
         this.fields = fields;
     }
 
     public Application newInstance() {
-        return new Application(chart, new HashMap<>(values), new HashMap<>(fields));
+        return new Application(chart, new HashMap<>(fields));
     }
 
     public void addValues(Expressions builder, Map<String, Object> map) throws IOException {
         for (Field field : fields.values()) {
-            map.put(field.name, builder.eval(field.macro));
+            if (field != null) {
+                map.put(field.name, builder.eval(field.macro));
+            }
         }
     }
 
@@ -238,7 +247,7 @@ public class Application {
         Set<String> unknown;
 
         unknown = new HashSet<>(clientValues.keySet());
-        unknown.removeAll(values.keySet());
+        unknown.removeAll(fields.keySet());
         if (!unknown.isEmpty()) {
             throw new ArgumentException("unknown value(s): " + unknown);
         }
