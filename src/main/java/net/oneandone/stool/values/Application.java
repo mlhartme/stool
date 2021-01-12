@@ -49,8 +49,8 @@ public class Application {
     /**
      * @return imageOrRepository exact image or repository to publish latest tag from
      */
-    public static String helm(FileNode root, Configuration configuration, String name,
-                              boolean upgrade, Map<String, Object> map, String imageOrRepository, Map<String, String> clientValues)
+    public static String helm(FileNode root, Configuration configuration, String name, boolean upgrade, Map<String, Object> map,
+                              String imageOrRepository, String applicationOpt, Map<String, String> clientValues)
             throws IOException {
         TagInfo image;
         Registry registry;
@@ -58,14 +58,15 @@ public class Application {
         validateRepository(Registry.toRepository(imageOrRepository));
         registry = configuration.createRegistry(root.getWorld(), imageOrRepository);
         image = registry.resolve(imageOrRepository);
-        return helm(root, configuration, name, upgrade, map, image, clientValues);
+        return helm(root, configuration, name, upgrade, map, image, applicationOpt, clientValues);
     }
 
     /**
      * @return image actually published
      */
     public static String helm(FileNode root, Configuration configuration, String name,
-                              boolean upgrade, Map<String, Object> map, TagInfo image, Map<String, String> clientValues)
+                              boolean upgrade, Map<String, Object> map, TagInfo image, String applicationOpt,
+                              Map<String, String> clientValues)
             throws IOException {
         World world;
         Map<String, Application> all;
@@ -79,7 +80,7 @@ public class Application {
         world = root.getWorld();
         expressions = new Expressions(world, configuration, image, configuration.stageFqdn(name));
         all = Application.loadAll(root);
-        applicationName = image.labels.getOrDefault("helm.application", "default");
+        applicationName = applicationOpt != null ? applicationOpt : image.labels.getOrDefault("helm.application", "default");
         LOGGER.info("application: " + applicationName);
         application = all.get(applicationName);
         if (application == null) {

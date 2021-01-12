@@ -50,13 +50,14 @@ import java.util.Set;
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
 
-    public static Stage create(Caller caller, Engine engine, Configuration configuration, String name, String image, Map<String, String> values) throws IOException {
+    public static Stage create(Caller caller, Engine engine, Configuration configuration, String name, String image, String applicationOpt,
+                               Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Application.helm(World.create().file(configuration.charts), configuration, name, false, new HashMap<>(), image, values);
+        Application.helm(World.create().file(configuration.charts), configuration, name, false, new HashMap<>(), image, applicationOpt, values);
         stage = Stage.create(configuration, name, engine.helmRead(name), history);
         stage.saveHistory(engine);
         return stage;
@@ -354,7 +355,7 @@ public class Stage {
         map = new HashMap<>(values);
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
         result = Application.helm(World.create().file(configuration.charts) /* TODO */,
-                configuration, name, true, map, imageOrRepository, clientValues);
+                configuration, name, true, map, imageOrRepository, null, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         return result;

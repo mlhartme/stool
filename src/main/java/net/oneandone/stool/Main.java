@@ -110,7 +110,7 @@ public class Main {
               cli.add(Auth.class, "auth -batch");
               cli.add(ConfigContext.class, "context -offline -q name?");
               cli.add(ShellInc.class, "shell-inc");
-              cli.add(Create.class, "create -optional -detached -wait args*");
+              cli.add(Create.class, "create -optional -detached -wait -application args*");
               cli.add(Attach.class, "attach stage");
               cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                 cli.add(Detach.class, "detach");

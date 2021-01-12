@@ -102,12 +102,13 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}")
     public String create(@PathVariable("stage") String name, @RequestParam(value = "image", required = true) String image,
-                       HttpServletRequest request, HttpServletResponse response) throws IOException {
+                         @RequestParam(value = "application", required = false) String applicationOpt,
+                         HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> values;
 
         values = map(request, "value.");
         try {
-            return Json.obj(json, client(request).create(name, image, values)).toString();
+            return Json.obj(json, client(request).create(name, image, applicationOpt, values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);

@@ -125,17 +125,20 @@ public class RemoteClient extends Client {
         return result;
     }
 
-    //-- create, start, stop, remove
+    //--
 
     /**
-     * @return image actually started
+     * @return url map
      * @throws FileAlreadyExistsException if the stage already exists */
     @Override
-    public Map<String, String> create(String stage, String image, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stage, String image, String applicationOpt, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node("stages/" + stage);
         node = node.withParameter("image", image);
+        if (applicationOpt != null) {
+            node = node.withParameter("application", applicationOpt);
+        }
         node = node.withParameters("value.", values);
         return Json.stringMap((ObjectNode) postJson(node, ""));
     }

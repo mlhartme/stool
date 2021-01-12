@@ -102,7 +102,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> create(String name, String image, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String name, String image, String applicationOpt, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
@@ -112,7 +112,7 @@ public class LocalClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(caller, engine, configuration, name, image, values);
+            stage = Stage.create(caller, engine, configuration, name, image, applicationOpt, values);
             return stage.urlMap();
         }
     }

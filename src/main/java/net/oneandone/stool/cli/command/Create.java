@@ -34,10 +34,11 @@ public class Create extends ClientCommand {
     private final boolean optional;
     private final boolean detached;
     private final boolean wait;
+    private final String applicationOpt;
     private final List<String> images;
     private final Map<String, String> values;
 
-    public Create(Globals globals, boolean optional, boolean detached, boolean wait, List<String> args) throws IOException {
+    public Create(Globals globals, boolean optional, boolean detached, boolean wait, String applicationOpt, List<String> args) throws IOException {
         super(globals);
 
         int nameIdx;
@@ -46,6 +47,7 @@ public class Create extends ClientCommand {
         this.detached = detached;
         this.optional = optional;
         this.wait = wait;
+        this.applicationOpt = applicationOpt;
         this.name = args.get(nameIdx);
         this.images = new ArrayList<>();
         this.values = new LinkedHashMap<>();
@@ -186,7 +188,7 @@ public class Create extends ClientCommand {
         client = globals.configuration().currentContext().connect(world, globals.caller());
         reference = new Reference(client, resolvedName);
         try {
-            urls = client.create(resolvedName, image, values);
+            urls = client.create(resolvedName, image, applicationOpt, values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {
