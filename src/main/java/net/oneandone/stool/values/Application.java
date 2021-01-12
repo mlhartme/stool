@@ -36,11 +36,9 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -149,11 +147,16 @@ public class Application {
         ArrayNode all;
         Iterator<JsonNode> charts;
         Iterator<Map.Entry<String, JsonNode>> iter;
+        Iterator<Map.Entry<String, JsonNode>> derived;
         Map.Entry<String, JsonNode> entry;
+        Map.Entry<String, JsonNode> derivedEntry;
         Map<String, Application> result;
         ObjectNode one;
         String c;
+        Application base;
         Application app;
+        String name;
+
 
         yaml = new ObjectMapper(new YAMLFactory());
         try (Reader src = root.join("applications.yaml").newReader()) {
@@ -164,18 +167,26 @@ public class Application {
         while (charts.hasNext()) {
             one = (ObjectNode) charts.next();
             c = one.get("chart").asText();
-            app = new Application(c);
-            loadValues(yaml, root.join(c, "values.yaml"), app.values);
+            base = new Application(c);
+            loadValues(yaml, root.join(c, "values.yaml"), base.values);
             iter = one.get("fields").fields();
             while (iter.hasNext()) {
                 entry = iter.next();
-                app.fields.add(new Field(entry.getKey(), entry.getValue().asText()));
+                name = entry.getKey();
+                base.fields.put(name, new Field(name, entry.getValue().asText()));
             }
             iter = one.get("applications").fields();
             while (iter.hasNext()) {
                 entry = iter.next();
+                app = base.newInstance();
                 if (result.put(entry.getKey(), app) != null) {
                     throw new IOException("duplicate application: " + entry.getKey());
+                }
+                derived = entry.getValue().fields();
+                while (derived.hasNext()) {
+                    derivedEntry = derived.next();
+                    name = derivedEntry.getKey();
+                    app.fields.put(name, new Field(name, derivedEntry.getValue().asText()));
                 }
             }
         }
@@ -200,17 +211,25 @@ public class Application {
     //--
 
     public final String chart;
-    private final List<Field> fields;
     private final Map<String, String> values;
+    public final Map<String, Field> fields;
 
     public Application(String chart) {
+        this(chart, new HashMap<>(), new HashMap<>());
+    }
+
+    private Application(String chart, Map<String, String> values, Map<String, Field> fields) {
         this.chart = chart;
-        this.fields = new ArrayList<>();
-        this.values = new HashMap<>();
+        this.values = values;
+        this.fields = fields;
+    }
+
+    public Application newInstance() {
+        return new Application(chart, new HashMap<>(values), new HashMap<>(fields));
     }
 
     public void addValues(Expressions builder, Map<String, Object> map) throws IOException {
-        for (Field field : fields) {
+        for (Field field : fields.values()) {
             map.put(field.name, builder.eval(field.macro));
         }
     }

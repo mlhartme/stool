@@ -34,6 +34,8 @@ public class ApplicationTest {
         all = Application.loadAll(world.guessProjectHome(getClass()).join("src/test/applications").checkDirectory());
         assertEquals(1, all.size());
         a = all.get("default");
-        assertEquals("foo", a.chart);
+        assertEquals("42", a.fields.get("asis").macro);
+        assertEquals("modified", a.fields.get("base").macro);
+        assertEquals("3", a.fields.get("added").macro);
     }
 }
