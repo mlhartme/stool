@@ -53,11 +53,11 @@ public abstract class StageCommand extends ClientCommand {
                 throw new ArgumentException("failed to loaded workspace: " + e.getMessage(), e);
             }
             stageClause = "";
-            for (Reference r : workspaceOpt.references()) { // TODO: multiple contexts
-                if (!stageClause.isEmpty()) {
+            for (Reference r : workspaceOpt.references()) { // TODO: different contexts
+                if (stageClause.isEmpty()) {
                     stageClause = stageClause + ",";
                 }
-                stageClause = r.stage;
+                stageClause = stageClause + r.stage;
             }
         } else {
             stageClause = clause;

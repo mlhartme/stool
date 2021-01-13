@@ -60,14 +60,7 @@ public class Globals {
     }
 
     public Workspace workspaceLoad(String name) throws IOException {
-        FileNode file;
-
-        file = workspaceFile(name);
-        if (file.exists()) {
-            return Workspace.load(file, configuration(), caller());
-        } else {
-            return new Workspace(file);
-        }
+        return Workspace.load(workspaceFile(name), configuration(), caller());
     }
 
     /** param @name has to start with an @ */

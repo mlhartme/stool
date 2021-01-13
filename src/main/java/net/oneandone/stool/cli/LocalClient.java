@@ -73,6 +73,7 @@ public class LocalClient extends Client {
         Map<String, Map<String, JsonNode>> result;
         Map<String, IOException> problems;
         Map<String, JsonNode> s;
+        List<String> remaining;
 
         result = new HashMap<>();
         problems = new HashMap<>();
@@ -80,18 +81,19 @@ public class LocalClient extends Client {
             for (Stage stage : configuration.list(engine, new PredicateParser(engine).parse(filter), problems)) {
                 s = new HashMap<>();
                 result.put(stage.getName(), s);
+                remaining = new ArrayList<>(select);
                 for (Info info : stage.fields()) {
-                    if (select.isEmpty() || select.remove(info.name())) {
+                    if (select.isEmpty() || remaining.remove(info.name())) {
                         s.put(info.name(), info.getAsJson(json, engine));
                     }
                 }
                 for (Value value : stage.values()) {
-                    if (select != null && select.remove(value.name())) {
+                    if (select.isEmpty() || remaining.remove(value.name())) {
                         s.put(value.name(), new TextNode(value.get(engine)));
                     }
                 }
-                if (select != null && !select.isEmpty()) {
-                    throw new IOException("select argument: unknown value/field(s): " + select);
+                if (!remaining.isEmpty()) {
+                    throw new IOException("select argument: unknown value/field(s): " + remaining);
                 }
             }
             if (!problems.isEmpty()) {

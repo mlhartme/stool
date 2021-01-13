@@ -23,6 +23,10 @@
   * created a separate `maven-dockerbuild-plugin` that contains the formder `sc build` functionality
   * stool no longer wipes stages
   * dumped registryPrefix from the configuration
+* explicit stage arguments
+  * stage commands now take an explicit stage argument
+  * the former implicit workspace has been replaced by explicit workspace referenced with '@' name
+  * rational: more helm-like commands
 * dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
 * changed `images` command to display generic values only  
