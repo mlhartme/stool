@@ -112,22 +112,22 @@ public class MainIT {
             helm(local, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
             sc(clientYaml, "setup", "localhost=http://localhost:31000/api");
         }
-        sc(clientYaml, working, "context", "localhost");
-        sc(clientYaml, working, "list", "%all");
-        sc(clientYaml, working,"create", "-e", "-wait", '@' + REPOSITORY, stage);
-        sc(clientYaml, working,"list", "%all");
-        sc(clientYaml, working,"status", stage);
-        sc(clientYaml, working, "attach", "$ws", stage);
-        sc(clientYaml, working, "detach", "$ws", stage);
-        sc(clientYaml, working, "validate", stage);
-        sc(clientYaml, working, "config", stage, "metadataComment");
-        sc(clientYaml, working, "config", stage, "metadataComment=42");
-        sc(clientYaml, working, "images", stage);
-        sc(clientYaml, working, "publish", stage);
-        sc(clientYaml, working, "list", stage);
-        sc(clientYaml, working, "validate", stage);
-        sc(clientYaml, working, "history", stage);
-        sc(clientYaml, working, "delete", "-batch", stage);
+        sc(clientYaml, "context", "localhost");
+        sc(clientYaml, "list", "%all");
+        sc(clientYaml, "create", "-e", "-wait", '@' + REPOSITORY, stage);
+        sc(clientYaml, "list", "%all");
+        sc(clientYaml, "status", stage);
+        sc(clientYaml, "attach", "$ws", stage);
+        sc(clientYaml, "detach", "$ws", stage);
+        sc(clientYaml, "validate", stage);
+        sc(clientYaml, "config", stage, "metadataComment");
+        sc(clientYaml, "config", stage, "metadataComment=42");
+        sc(clientYaml, "images", stage);
+        sc(clientYaml, "publish", stage);
+        sc(clientYaml, "list", stage);
+        sc(clientYaml, "validate", stage);
+        sc(clientYaml, "history", stage);
+        sc(clientYaml, "delete", "-batch", stage);
         working.deleteTree();
     }
 
@@ -157,29 +157,18 @@ public class MainIT {
     private static int id = 0;
 
     private void sc(FileNode clientYaml, String... args) throws IOException {
-        sc(clientYaml, WORLD.getWorking(), args);
-    }
-
-    private void sc(FileNode clientYaml, FileNode working, String... args) throws IOException {
         int result;
         String command;
-        FileNode old;
 
         id++;
         command = command(args);
         System.out.print("  " + command);
-        old = WORLD.getWorking();
-        WORLD.setWorking(working);
-        try {
-            result = Main.run(WORLD, clientYaml, args);
-            if (result == 0) {
-                System.out.println();
-            } else {
-                System.out.println(" -> failed: " + result + "(id " + id + ")");
-                fail(command + " -> " + result);
-            }
-        } finally {
-            WORLD.setWorking(old);
+        result = Main.run(WORLD, clientYaml, args);
+        if (result == 0) {
+            System.out.println();
+        } else {
+            System.out.println(" -> failed: " + result + "(id " + id + ")");
+            fail(command + " -> " + result);
         }
     }
 
