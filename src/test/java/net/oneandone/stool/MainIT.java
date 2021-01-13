@@ -117,8 +117,8 @@ public class MainIT {
         sc(clientYaml, working,"create", "-e", "-wait", '@' + REPOSITORY, stage);
         sc(clientYaml, working,"list", "%all");
         sc(clientYaml, working,"status", stage);
-        // TODO sc(clientYaml, working, "detach", stage);
-        // TODO sc(clientYaml, working, "attach", stage);
+        sc(clientYaml, working, "attach", "$ws", stage);
+        sc(clientYaml, working, "detach", "$ws", stage);
         sc(clientYaml, working, "validate", stage);
         sc(clientYaml, working, "config", stage, "metadataComment");
         sc(clientYaml, working, "config", stage, "metadataComment=42");
