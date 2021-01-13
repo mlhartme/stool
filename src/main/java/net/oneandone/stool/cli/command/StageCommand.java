@@ -32,21 +32,15 @@ public abstract class StageCommand extends ClientCommand {
     public StageCommand(Globals globals, String clause) {
         super(globals);
 
-        char c;
-
         workspaceOpt = null;
 
-        if (clause.isEmpty()) {
-            throw new ArgumentException("empty stage argument");
-        }
-        c = clause.charAt(0);
-        if (c == '%') {
+        if (clause.startsWith("%")) {
             if ("%all".equals(clause)) {
                 stageClause = "";
             } else {
                 stageClause = clause.substring(1);
             }
-        } else if (c == '@') {
+        } else if (clause.startsWith("@")) {
             try {
                 workspaceOpt = globals.workspaceLoad(clause);
             } catch (IOException e) {

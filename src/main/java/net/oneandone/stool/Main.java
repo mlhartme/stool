@@ -117,7 +117,7 @@ public class Main {
                 cli.add(Config.class, "config stage value* { value*(value) }");
                 cli.add(History.class, "history stage");
                 cli.add(Images.class, "images stage");
-                cli.add(Ls.class, "list stage info* { select*(info) }");
+                cli.add(Ls.class, "list stage?= info* { select*(info) }");
                 cli.add(Delete.class, "delete -batch stage");
                 cli.add(Remove.class, "remove stage");
                 cli.add(Publish.class, "publish stage imageOptValues*");
