@@ -21,7 +21,6 @@ import net.oneandone.stool.cli.Reference;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
 
-import java.io.IOException;
 import java.util.List;
 
 public abstract class IteratedStageCommand extends StageCommand {
@@ -39,7 +38,7 @@ public abstract class IteratedStageCommand extends StageCommand {
         CompoundResult failures;
         Worker worker;
 
-        lst = selectedList();
+        lst = globals.configuration().list(stageClause, globals.caller());
         width = 0;
         for (Reference reference : lst) {
             width = Math.max(width, reference.toString().length());
@@ -59,10 +58,6 @@ public abstract class IteratedStageCommand extends StageCommand {
             }
         }
         return failures;
-    }
-
-    private List<Reference> selectedList() throws IOException {
-        return globals.configuration().list(stageClause.isEmpty() ? null : stageClause, globals.caller());
     }
 
     //--
