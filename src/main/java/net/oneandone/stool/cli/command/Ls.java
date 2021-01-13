@@ -31,8 +31,8 @@ public class Ls extends InfoCommand {
     /** to delay output until I can determine column widths*/
     private final LinkedHashMap<String, List<String>> columns;
 
-    public Ls(Globals globals) {
-        super(globals);
+    public Ls(Globals globals, String stage) {
+        super(globals, stage);
         columns = new LinkedHashMap<>();
     }
 

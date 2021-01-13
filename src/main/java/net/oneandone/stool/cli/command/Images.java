@@ -19,8 +19,8 @@ import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 
 public class Images extends IteratedStageCommand {
-    public Images(Globals globals) {
-        super(globals);
+    public Images(Globals globals, String stage) {
+        super(globals, stage);
     }
 
     @Override

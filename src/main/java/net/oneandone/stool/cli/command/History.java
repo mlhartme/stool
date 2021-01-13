@@ -19,8 +19,8 @@ import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 
 public class History extends IteratedStageCommand {
-    public History(Globals globals) {
-        super(globals);
+    public History(Globals globals, String stage) {
+        super(globals, stage);
     }
 
     @Override

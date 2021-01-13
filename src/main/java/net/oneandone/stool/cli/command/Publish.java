@@ -19,7 +19,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +27,9 @@ public class Publish extends IteratedStageCommand {
     private final String imageOpt;
     private final Map<String, String> values;
 
-    public Publish(Globals globals, String stage, List<String> args) throws IOException {
-        super(globals);
+    public Publish(Globals globals, String stage, List<String> args) {
+        super(globals, stage);
         this.values = new LinkedHashMap<>();
-        setStage(stage);
         eatValues(args);
         switch (args.size()) {
             case 0:

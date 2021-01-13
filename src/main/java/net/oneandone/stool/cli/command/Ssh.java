@@ -28,8 +28,8 @@ public class Ssh extends IteratedStageCommand {
     private final int timeout;
     private final String shell;
 
-    public Ssh(Globals globals, int timeout, String shell) {
-        super(globals);
+    public Ssh(Globals globals, int timeout, String stage, String shell) {
+        super(globals, stage);
         this.timeout = timeout;
         this.shell = shell == null ? "/bin/sh" : shell;
     }

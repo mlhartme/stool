@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.List;
 
 public abstract class IteratedStageCommand extends StageCommand {
-    public IteratedStageCommand(Globals globals) {
-        super(globals);
+    public IteratedStageCommand(Globals globals, String stage) {
+        super(globals, stage);
     }
 
     //--

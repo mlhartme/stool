@@ -25,8 +25,7 @@ public class Delete extends IteratedStageCommand {
     private final boolean batch;
 
     public Delete(Globals globals, boolean batch, String stage) throws IOException {
-        super(globals);
-        setStage(stage);
+        super(globals, stage);
         this.batch = batch;
     }
 

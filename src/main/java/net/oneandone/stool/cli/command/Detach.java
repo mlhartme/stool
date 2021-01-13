@@ -23,8 +23,8 @@ import net.oneandone.stool.cli.Reference;
 import java.io.IOException;
 
 public class Detach extends IteratedStageCommand {
-    public Detach(Globals globals) {
-        super(globals);
+    public Detach(Globals globals, String stage) {
+        super(globals, stage);
     }
 
     @Override

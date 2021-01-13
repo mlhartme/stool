@@ -112,20 +112,19 @@ public class Main {
               cli.add(ShellInc.class, "shell-inc");
               cli.add(Create.class, "create -optional -detached -wait -application args*");
               cli.add(Attach.class, "attach stage");
-              // TODO: mandatory stage argument doesn't work for publish etc
               cli.base(StageCommand.class, "-fail { setFail(fail) }");
-                cli.add(Detach.class, "detach stage { setStage(stage) }");
-                cli.add(Config.class, "config stage value* { setStage(stage) value*(value) }");
-                cli.add(History.class, "history stage { setStage(stage) }");
-                cli.add(Images.class, "images stage { setStage(stage) }");
-                cli.add(Ls.class, "list stage info* { setStage(stage) select*(info) }");
+                cli.add(Detach.class, "detach stage");
+                cli.add(Config.class, "config stage value* { value*(value) }");
+                cli.add(History.class, "history stage");
+                cli.add(Images.class, "images stage");
+                cli.add(Ls.class, "list stage info* { select*(info) }");
                 cli.add(Delete.class, "delete -batch stage");
-                cli.add(Remove.class, "remove stage { setStage(stage) }");
+                cli.add(Remove.class, "remove stage");
                 cli.add(Publish.class, "publish stage imageOptValues*");
-                cli.add(Status.class, "status stage info* { setStage(stage) select*(info) }");
-                cli.add(PortForward.class, "port-forward -timeout=30 stage port toPort? { setStage(stage) }");
-                cli.add(Ssh.class, "ssh -timeout=30 stage shell? { setStage(stage) }");
-                cli.add(Validate.class, "validate -email -repair stage { setStage(stage) }");
+                cli.add(Status.class, "status stage info* { select*(info) }");
+                cli.add(PortForward.class, "port-forward -timeout=30 stage port toPort?");
+                cli.add(Ssh.class, "ssh -timeout=30 stage shell?");
+                cli.add(Validate.class, "validate -email -repair stage");
 
         return cli.run(args);
     }

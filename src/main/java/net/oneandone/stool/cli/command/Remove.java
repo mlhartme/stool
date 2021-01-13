@@ -21,8 +21,8 @@ import net.oneandone.stool.cli.Reference;
 import java.io.IOException;
 
 public class Remove extends IteratedStageCommand {
-    public Remove(Globals globals) {
-        super(globals);
+    public Remove(Globals globals, String stage) {
+        super(globals, stage);
     }
 
     @Override

@@ -29,8 +29,8 @@ public class Config extends IteratedStageCommand {
     private boolean get;
     private boolean set;
 
-    public Config(Globals globals) {
-        super(globals);
+    public Config(Globals globals, String stage) {
+        super(globals, stage);
         values = new LinkedHashMap<>();
     }
 

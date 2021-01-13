@@ -28,11 +28,9 @@ public abstract class StageCommand extends ClientCommand {
     protected boolean all;
     protected Fail fail = Fail.NORMAL;
 
-    public StageCommand(Globals globals) {
+    public StageCommand(Globals globals, String clause) {
         super(globals);
-    }
 
-    public void setStage(String clause) throws IOException {
         char c;
         Workspace ws;
 
@@ -47,7 +45,11 @@ public abstract class StageCommand extends ClientCommand {
                 stageClause = clause.substring(1);
             }
         } else if (c == '@') {
-            ws = Workspace.load(globals.workspace(clause.substring(1)), globals.configuration(), globals.caller());
+            try {
+                ws = Workspace.load(globals.workspace(clause.substring(1)), globals.configuration(), globals.caller());
+            } catch (IOException e) {
+                throw new ArgumentException("failed to loaded workspace: " + e.getMessage(), e);
+            }
             stageClause = "";
             for (Reference r : ws.references()) { // TODO: multiple contexts
                 if (!stageClause.isEmpty()) {

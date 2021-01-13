@@ -29,8 +29,8 @@ public class PortForward extends IteratedStageCommand {
     private final int localPort;
     private final int podPort;
 
-    public PortForward(Globals globals, int timeout, int port, Integer toPort) {
-        super(globals);
+    public PortForward(Globals globals, int timeout, String stage, int port, Integer toPort) {
+        super(globals, stage);
         this.timeout = timeout;
         this.localPort = port;
         this.podPort = toPort == null ? port : toPort.intValue();

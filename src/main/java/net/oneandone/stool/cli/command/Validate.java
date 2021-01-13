@@ -24,8 +24,8 @@ public class Validate extends IteratedStageCommand {
     private final boolean email;
     private final boolean repair;
 
-    public Validate(Globals globals, boolean email, boolean repair) {
-        super(globals);
+    public Validate(Globals globals, boolean email, boolean repair, String stage) {
+        super(globals, stage);
         this.email = email;
         this.repair = repair;
     }

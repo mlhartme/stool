@@ -31,8 +31,8 @@ import java.util.Map;
 public abstract class InfoCommand extends StageCommand {
     protected final List<String> selected = new ArrayList<>();
 
-    public InfoCommand(Globals globals) {
-        super(globals);
+    public InfoCommand(Globals globals, String stage) {
+        super(globals, stage);
     }
 
     public void select(String str) {

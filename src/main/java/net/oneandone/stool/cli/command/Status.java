@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.Map;
 
 public class Status extends InfoCommand {
-    public Status(Globals globals) {
-        super(globals);
+    public Status(Globals globals, String stage) {
+        super(globals, stage);
     }
 
     @Override
