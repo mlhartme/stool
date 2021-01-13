@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
-import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.core.Configuration;
 
 import java.util.ArrayList;
@@ -43,8 +42,6 @@ public abstract class InfoCommand extends StageCommand {
     public CompoundResult runAll() throws Exception {
         Map<Client, String> clientFilters;
         Configuration configuration;
-        List<Reference> references;
-        String clientFilter;
         CompoundResult result;
 
         if (stageClause != null && all) {

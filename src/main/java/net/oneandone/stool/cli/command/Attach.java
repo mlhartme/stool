@@ -37,7 +37,7 @@ public class Attach extends ClientCommand {
         Workspace workspace;
         Reference reference;
 
-        workspace = Workspace.loadOrCreate(globals.workspace(workspaceName), globals.configuration(), globals.caller());
+        workspace = globals.workspaceLoadOrCreate(workspaceName);
         reference = resolve(stage);
         try {
             workspace.add(reference);

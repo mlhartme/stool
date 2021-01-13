@@ -33,7 +33,7 @@ public class Detach extends IteratedStageCommand {
     public void doMain(Reference reference) throws Exception {
         Workspace workspace;
 
-        workspace = Workspace.load(globals.workspace(workspaceName), globals.configuration(), globals.caller());
+        workspace = globals.workspaceLoad(workspaceName);
         if (!workspace.remove(reference)) {
             throw new IOException("stage is not attached: " + reference);
         }

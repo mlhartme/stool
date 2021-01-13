@@ -51,7 +51,25 @@ public class Globals {
         this.wirelog = null;
     }
 
-    public FileNode workspace(String name) throws MkdirException {
+    public Workspace workspaceLoadOrCreate(String name) throws IOException {
+        FileNode file;
+
+        file = workspaceFile(name);
+        return file.exists() ? workspaceLoad(name) : new Workspace(file);
+    }
+
+    public Workspace workspaceLoad(String name) throws IOException {
+        FileNode file;
+
+        file = workspaceFile(name);
+        if (file.exists()) {
+            return Workspace.load(file, configuration(), caller());
+        } else {
+            return new Workspace(file);
+        }
+    }
+
+    public FileNode workspaceFile(String name) throws MkdirException {
         return scYaml().getParent().join("workspaces").mkdirOpt() /* TODO */.join(name + ".yaml");
     }
 

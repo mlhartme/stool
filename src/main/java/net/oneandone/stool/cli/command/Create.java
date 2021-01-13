@@ -20,7 +20,6 @@ import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.cli.Workspace;
-import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class Create extends ClientCommand {
     private final boolean optional;
     private final boolean wait;
     private final String applicationOpt;
-    private final FileNode workspaceFileOpt;
+    private final String workspaceNameOpt;
     private final List<String> images;
     private final Map<String, String> values;
 
@@ -50,7 +49,7 @@ public class Create extends ClientCommand {
         this.wait = wait;
         this.applicationOpt = applicationOpt;
         this.name = args.get(nameIdx);
-        this.workspaceFileOpt = eatWorkspaceOpt(globals, args);
+        this.workspaceNameOpt = eatWorkspaceNameOpt(args);
         this.images = new ArrayList<>();
         this.values = new LinkedHashMap<>();
         images(args, nameIdx);
@@ -63,7 +62,7 @@ public class Create extends ClientCommand {
         values(args, nameIdx);
     }
 
-    private static FileNode eatWorkspaceOpt(Globals globals, List<String> args) {
+    private static String eatWorkspaceNameOpt(List<String> args) {
         Iterator<String> iter;
         String str;
 
@@ -71,12 +70,8 @@ public class Create extends ClientCommand {
         while (iter.hasNext()) {
             str = iter.next();
             if (str.startsWith("$")) {
-                try {
-                    iter.remove();
-                    return globals.workspace(str.substring(1));
-                } catch (MkdirException e) {
-                    throw new ArgumentException("failed to create workspace directory: " + e.getMessage(), e);
-                }
+                iter.remove();
+                return str;
             }
         }
         return null;
@@ -146,10 +141,10 @@ public class Create extends ClientCommand {
         Workspace workspaceOpt;
         Reference reference;
 
-        if (workspaceFileOpt == null) {
+        if (workspaceNameOpt == null) {
             workspaceOpt = null;
         } else {
-            workspaceOpt = new Workspace(workspaceFileOpt);
+            workspaceOpt = globals.workspaceLoadOrCreate(workspaceNameOpt);
         }
         try {
             for (String image : images) {

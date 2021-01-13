@@ -32,19 +32,19 @@ import java.util.List;
 
 /** Maps apps to stages. Represents .backstage/workspace.yaml */
 public class Workspace {
-    public static Workspace loadOrCreate(FileNode file, Configuration configuration, Caller caller) throws IOException {
-        if (file.exists()) {
-            return load(file, configuration, caller);
-        } else {
-            return new Workspace(file);
-        }
-    }
-
     public static Workspace load(FileNode file, Configuration configuration, Caller caller) throws IOException {
         Workspace result;
+        ObjectNode root;
+        ArrayNode array;
 
         result = new Workspace(file);
-        result.load(configuration, caller);
+        try (Reader src = file.newReader()) {
+            root = (ObjectNode) result.yaml.readTree(src);
+        }
+        array = (ArrayNode) root.get("stages");
+        for (JsonNode node : array) {
+            result.stages.add(configuration.reference(node.asText(), caller));
+        }
         return result;
     }
 
@@ -60,20 +60,6 @@ public class Workspace {
         this.directory = workspaceYaml.getParent().getParent();
         this.workspaceYaml = workspaceYaml;
         this.stages = new ArrayList<>();
-    }
-
-    public void load(Configuration configuration, Caller caller) throws IOException {
-        ObjectNode root;
-        ArrayNode array;
-
-        try (Reader src = workspaceYaml.newReader()) {
-            root = (ObjectNode) yaml.readTree(src);
-        }
-        array = (ArrayNode) root.get("stages");
-        stages.clear();
-        for (JsonNode node : array) {
-            stages.add(configuration.reference(node.asText(), caller));
-        }
     }
 
     public int size() {

@@ -48,7 +48,7 @@ public abstract class StageCommand extends ClientCommand {
             }
         } else if (c == '@') {
             try {
-                workspaceOpt = Workspace.load(globals.workspace(clause.substring(1)), globals.configuration(), globals.caller());
+                workspaceOpt = globals.workspaceLoad(clause);
             } catch (IOException e) {
                 throw new ArgumentException("failed to loaded workspace: " + e.getMessage(), e);
             }
