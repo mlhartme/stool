@@ -20,6 +20,7 @@ import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -69,8 +70,9 @@ public class Globals {
         }
     }
 
+    /** param @name has to start with an @ */
     public FileNode workspaceFile(String name) throws MkdirException {
-        return scYaml().getParent().join("workspaces").mkdirOpt() /* TODO */.join(name + ".yaml");
+        return scYaml().getParent().join("workspaces").mkdirOpt() /* TODO */.join(Strings.removeLeft(name, "@") + ".yaml");
     }
 
     public Caller caller() {

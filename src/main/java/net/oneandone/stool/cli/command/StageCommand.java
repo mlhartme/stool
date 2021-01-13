@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.List;
 
 public abstract class StageCommand extends ClientCommand {
+    /** empty for all */
     protected String stageClause;
-    protected boolean all;
     protected Fail fail = Fail.NORMAL;
     protected Workspace workspaceOpt;
 
@@ -42,7 +42,7 @@ public abstract class StageCommand extends ClientCommand {
         c = clause.charAt(0);
         if (c == '%') {
             if ("%all".equals(clause)) {
-                all = true;
+                stageClause = "";
             } else {
                 stageClause = clause.substring(1);
             }

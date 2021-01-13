@@ -62,13 +62,7 @@ public abstract class IteratedStageCommand extends StageCommand {
     }
 
     private List<Reference> selectedList() throws IOException {
-        int count;
-
-        count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
-        if (count != 1) {
-            throw new IllegalStateException();
-        }
-        return globals.configuration().list(all ? null : stageClause, globals.caller());
+        return globals.configuration().list(stageClause.isEmpty() ? null : stageClause, globals.caller());
     }
 
     //--

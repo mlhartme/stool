@@ -117,8 +117,8 @@ public class MainIT {
         sc(clientYaml, "create", "-e", "-wait", '@' + REPOSITORY, stage);
         sc(clientYaml, "list", "%all");
         sc(clientYaml, "status", stage);
-        sc(clientYaml, "attach", "$ws", stage);
-        sc(clientYaml, "detach", "$ws", stage);
+        sc(clientYaml, "attach", "@ws", stage);
+        sc(clientYaml, "detach", "@ws", stage);
         sc(clientYaml, "validate", stage);
         sc(clientYaml, "config", stage, "metadataComment");
         sc(clientYaml, "config", stage, "metadataComment=42");
@@ -163,7 +163,12 @@ public class MainIT {
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = Main.run(WORLD, clientYaml, args);
+        try {
+            result = Main.run(WORLD, clientYaml, args);
+        } catch (Exception e) {
+            System.out.println(" -> exception: " + e.getMessage());
+            throw e;
+        }
         if (result == 0) {
             System.out.println();
         } else {

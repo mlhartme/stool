@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli.command;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.core.Configuration;
@@ -44,16 +43,9 @@ public abstract class InfoCommand extends StageCommand {
         Configuration configuration;
         CompoundResult result;
 
-        if (stageClause != null && all) {
-            throw new ArgumentException("too many select options");
-        }
         configuration = globals.configuration();
         clientFilters = new LinkedHashMap<>();
-        if (all) {
-            clientFilters.put(configuration.currentContextConnect(globals.caller()), "");
-        } else {
-            clientFilters.put(configuration.currentContextConnect(globals.caller()), stageClause);
-        }
+        clientFilters.put(configuration.currentContextConnect(globals.caller()), stageClause);
         result = new CompoundResult();
         for (Map.Entry<Client, String> entry : clientFilters.entrySet()) {
             doRun(entry.getKey(), entry.getValue(), result);

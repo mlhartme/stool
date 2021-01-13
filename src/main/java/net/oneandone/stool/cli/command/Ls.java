@@ -41,7 +41,7 @@ public class Ls extends InfoCommand {
         CompoundResult result;
 
         if (stageClause == null) { // list command has an implicit -all switch
-            all = true;
+            stageClause = "";
         }
         doBefore();
         result = super.runAll();
