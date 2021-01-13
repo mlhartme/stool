@@ -112,7 +112,7 @@ public class Main {
               cli.add(ShellInc.class, "shell-inc");
               cli.add(Create.class, "create -optional -detached -wait -application args*");
               cli.add(Attach.class, "attach stage");
-              cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
+              cli.base(StageCommand.class, "-fail stage { setFail(fail) setStage(stage) }");
                 cli.add(Detach.class, "detach");
                 cli.add(Config.class, "config value* { value*(value) }");
                 cli.add(History.class, "history");

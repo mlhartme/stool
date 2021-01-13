@@ -30,11 +30,21 @@ public abstract class StageCommand extends ClientCommand {
     }
 
     public void setStage(String clause) {
-        this.stageClause = clause;
-    }
+        char c;
 
-    public void setAll(boolean all) {
-        this.all = all;
+        if (clause.isEmpty()) {
+            throw new ArgumentException("empty stage argument");
+        }
+        c = clause.charAt(0);
+        if (c == '%') {
+            if ("%all".equals(clause)) {
+                all = true;
+            } else {
+                stageClause = clause.substring(1);
+            }
+        } else {
+            stageClause = clause;
+        }
     }
 
     public void setFail(Fail fail) {
