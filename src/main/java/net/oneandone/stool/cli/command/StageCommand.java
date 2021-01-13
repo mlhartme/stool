@@ -17,7 +17,10 @@ package net.oneandone.stool.cli.command;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
+import net.oneandone.stool.cli.Reference;
+import net.oneandone.stool.cli.Workspace;
 
+import java.io.IOException;
 import java.util.List;
 
 public abstract class StageCommand extends ClientCommand {
@@ -29,8 +32,9 @@ public abstract class StageCommand extends ClientCommand {
         super(globals);
     }
 
-    public void setStage(String clause) {
+    public void setStage(String clause) throws IOException {
         char c;
+        Workspace ws;
 
         if (clause.isEmpty()) {
             throw new ArgumentException("empty stage argument");
@@ -41,6 +45,15 @@ public abstract class StageCommand extends ClientCommand {
                 all = true;
             } else {
                 stageClause = clause.substring(1);
+            }
+        } else if (c == '@') {
+            ws = Workspace.load(globals.workspace(clause.substring(1)), globals.configuration(), globals.caller());
+            stageClause = "";
+            for (Reference r : ws.references()) { // TODO: multiple contexts
+                if (!stageClause.isEmpty()) {
+                    stageClause = stageClause + ",";
+                }
+                stageClause = r.stage;
             }
         } else {
             stageClause = clause;

@@ -17,6 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.core.Configuration;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -48,6 +49,10 @@ public class Globals {
         this.command = command;
         this.context = null;
         this.wirelog = null;
+    }
+
+    public FileNode workspace(String name) throws MkdirException {
+        return scYaml().getParent().join("workspaces").mkdirOpt() /* TODO */.join(name + ".yaml");
     }
 
     public Caller caller() {

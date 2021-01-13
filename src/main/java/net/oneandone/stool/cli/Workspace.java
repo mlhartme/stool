@@ -67,6 +67,14 @@ public class Workspace {
         return directory.join(".backstage/workspace.yaml");
     }
 
+    public static Workspace load(FileNode file, Configuration configuration, Caller caller) throws IOException {
+        Workspace result;
+
+        result = new Workspace(file);
+        result.load(configuration, caller);
+        return result;
+    }
+
     //--
 
     private final ObjectMapper yaml;
