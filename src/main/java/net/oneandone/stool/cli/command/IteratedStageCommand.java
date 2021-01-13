@@ -65,14 +65,10 @@ public abstract class IteratedStageCommand extends StageCommand {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
-        switch (count) {
-            case 0:
-                return workspaceReferences();
-            case 1:
-                return globals.configuration().list(all ? null : stageClause, globals.caller());
-            default:
-                throw new ArgumentException("too many select options");
+        if (count != 1) {
+            throw new IllegalStateException();
         }
+        return globals.configuration().list(all ? null : stageClause, globals.caller());
     }
 
     //--

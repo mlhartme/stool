@@ -20,11 +20,13 @@ import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.cli.Workspace;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,23 +34,23 @@ import java.util.Map;
 public class Create extends ClientCommand {
     private final String name;
     private final boolean optional;
-    private final boolean detached;
     private final boolean wait;
     private final String applicationOpt;
+    private final FileNode workspaceFileOpt;
     private final List<String> images;
     private final Map<String, String> values;
 
-    public Create(Globals globals, boolean optional, boolean detached, boolean wait, String applicationOpt, List<String> args) throws IOException {
+    public Create(Globals globals, boolean optional, boolean wait, String applicationOpt, List<String> args) throws IOException {
         super(globals);
 
         int nameIdx;
 
         nameIdx = nameIdx(args);
-        this.detached = detached;
         this.optional = optional;
         this.wait = wait;
         this.applicationOpt = applicationOpt;
         this.name = args.get(nameIdx);
+        this.workspaceFileOpt = eatWorkspaceOpt(globals, args);
         this.images = new ArrayList<>();
         this.values = new LinkedHashMap<>();
         images(args, nameIdx);
@@ -59,6 +61,25 @@ public class Create extends ClientCommand {
             }
         }
         values(args, nameIdx);
+    }
+
+    private static FileNode eatWorkspaceOpt(Globals globals, List<String> args) {
+        Iterator<String> iter;
+        String str;
+
+        iter = args.iterator();
+        while (iter.hasNext()) {
+            str = iter.next();
+            if (str.startsWith("$")) {
+                try {
+                    iter.remove();
+                    return globals.workspace(str.substring(1));
+                } catch (MkdirException e) {
+                    throw new ArgumentException("failed to create workspace directory: " + e.getMessage(), e);
+                }
+            }
+        }
+        return null;
     }
 
     private static int nameIdx(List<String> args) {
@@ -125,13 +146,10 @@ public class Create extends ClientCommand {
         Workspace workspaceOpt;
         Reference reference;
 
-        if (detached) {
+        if (workspaceFileOpt == null) {
             workspaceOpt = null;
         } else {
-            workspaceOpt = lookupWorkspace();
-            if (workspaceOpt == null) {
-                workspaceOpt = Workspace.create(world.getWorking());
-            }
+            workspaceOpt = new Workspace(workspaceFileOpt);
         }
         try {
             for (String image : images) {

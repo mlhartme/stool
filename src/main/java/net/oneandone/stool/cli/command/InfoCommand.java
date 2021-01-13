@@ -54,23 +54,8 @@ public abstract class InfoCommand extends StageCommand {
         clientFilters = new LinkedHashMap<>();
         if (all) {
             clientFilters.put(configuration.currentContextConnect(globals.caller()), "");
-        } else if (stageClause != null) {
-            clientFilters.put(configuration.currentContextConnect(globals.caller()), stageClause);
         } else {
-            references = workspaceReferences();
-            if (references.isEmpty()) {
-                clientFilters.put(configuration.currentContextConnect(globals.caller()), "");
-            } else {
-                for (Reference reference : references) {
-                    clientFilter = clientFilters.get(reference.client);
-                    if (clientFilter != null) {
-                        clientFilter = clientFilter + "," + reference.stage;
-                    } else {
-                        clientFilter = reference.stage;
-                    }
-                    clientFilters.put(reference.client, clientFilter);
-                }
-            }
+            clientFilters.put(configuration.currentContextConnect(globals.caller()), stageClause);
         }
         result = new CompoundResult();
         for (Map.Entry<Client, String> entry : clientFilters.entrySet()) {

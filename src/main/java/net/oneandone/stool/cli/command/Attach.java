@@ -23,10 +23,12 @@ import java.io.IOException;
 import java.util.List;
 
 public class Attach extends ClientCommand {
-    protected final String stage;
+    private final String workspaceName;
+    private final String stage;
 
-    public Attach(Globals globals, String stage) {
+    public Attach(Globals globals, String workspace, String stage) {
         super(globals);
+        this.workspaceName = workspace;
         this.stage = stage;
     }
 
@@ -35,10 +37,7 @@ public class Attach extends ClientCommand {
         Workspace workspace;
         Reference reference;
 
-        workspace = lookupWorkspace();
-        if (workspace == null) {
-            workspace = Workspace.create(world.getWorking());
-        }
+        workspace = Workspace.loadOrCreate(globals.workspace(workspaceName), globals.configuration(), globals.caller());
         reference = resolve(stage);
         try {
             workspace.add(reference);

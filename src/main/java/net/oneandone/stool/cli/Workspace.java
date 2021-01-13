@@ -32,39 +32,12 @@ import java.util.List;
 
 /** Maps apps to stages. Represents .backstage/workspace.yaml */
 public class Workspace {
-    public static Workspace create(FileNode directory) throws IOException {
-        FileNode workspaceYaml;
-        Workspace result;
-
-        workspaceYaml = workspaceYaml(directory);
-        workspaceYaml.getParent().checkNotExists();
-        workspaceYaml.checkNotExists();
-        result = new Workspace(workspaceYaml);
-        return result;
-    }
-
-    public static Workspace lookup(FileNode dir, Configuration configuration, Caller caller) throws IOException {
-        FileNode workspaceYaml;
-        Workspace result;
-
-        while (dir != null) {
-            workspaceYaml = workspaceYaml(dir);
-            if (workspaceYaml.isFile()) {
-                result = new Workspace(workspaceYaml);
-                result.load(configuration, caller);
-                return result;
-            }
-            dir = dir.getParent();
+    public static Workspace loadOrCreate(FileNode file, Configuration configuration, Caller caller) throws IOException {
+        if (file.exists()) {
+            return load(file, configuration, caller);
+        } else {
+            return new Workspace(file);
         }
-        return null;
-    }
-
-    /**
-     * The name backstage is legacy - I keep it because applications have it in their .gitignores.
-     * I create a directory to store the actual data to co-exist with Stool 5
-     */
-    private static FileNode workspaceYaml(FileNode directory) {
-        return directory.join(".backstage/workspace.yaml");
     }
 
     public static Workspace load(FileNode file, Configuration configuration, Caller caller) throws IOException {
@@ -82,7 +55,7 @@ public class Workspace {
     private final FileNode workspaceYaml;
     private final List<Reference> stages;
 
-    private Workspace(FileNode workspaceYaml) {
+    public Workspace(FileNode workspaceYaml) {
         this.yaml = new ObjectMapper(new YAMLFactory());
         this.directory = workspaceYaml.getParent().getParent();
         this.workspaceYaml = workspaceYaml;

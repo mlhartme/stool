@@ -29,12 +29,12 @@ public class WorkspaceTest {
     @Test
     public void yaml() throws IOException {
         World world;
-        FileNode dir;
+        FileNode file;
         Workspace workspace;
 
         world = World.createMinimal();
-        dir = world.getTemp().createTempDirectory();
-        workspace = Workspace.create(dir);
+        file = world.getTemp().createTempFile();
+        workspace = new Workspace(file);
         workspace.add(new Reference(new RemoteClient("ctx", null /* TODO */, new Caller("a", "b", "c", null)), "stage"));
         workspace.save();
     }

@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli.command;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Workspace;
 import net.oneandone.stool.cli.Reference;
@@ -23,18 +22,18 @@ import net.oneandone.stool.cli.Reference;
 import java.io.IOException;
 
 public class Detach extends IteratedStageCommand {
-    public Detach(Globals globals, String stage) {
+    private final String workspaceName;
+
+    public Detach(Globals globals, String workspace, String stage) {
         super(globals, stage);
+        this.workspaceName = workspace;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
         Workspace workspace;
 
-        workspace = lookupWorkspace();
-        if (workspace == null) {
-            throw new ArgumentException("no workspace to detach from");
-        }
+        workspace = Workspace.load(globals.workspace(workspaceName), globals.configuration(), globals.caller());
         if (!workspace.remove(reference)) {
             throw new IOException("stage is not attached: " + reference);
         }

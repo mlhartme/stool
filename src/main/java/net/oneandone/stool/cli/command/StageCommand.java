@@ -27,12 +27,14 @@ public abstract class StageCommand extends ClientCommand {
     protected String stageClause;
     protected boolean all;
     protected Fail fail = Fail.NORMAL;
+    protected Workspace workspaceOpt;
 
     public StageCommand(Globals globals, String clause) {
         super(globals);
 
         char c;
-        Workspace ws;
+
+        workspaceOpt = null;
 
         if (clause.isEmpty()) {
             throw new ArgumentException("empty stage argument");
@@ -46,12 +48,12 @@ public abstract class StageCommand extends ClientCommand {
             }
         } else if (c == '@') {
             try {
-                ws = Workspace.load(globals.workspace(clause.substring(1)), globals.configuration(), globals.caller());
+                workspaceOpt = Workspace.load(globals.workspace(clause.substring(1)), globals.configuration(), globals.caller());
             } catch (IOException e) {
                 throw new ArgumentException("failed to loaded workspace: " + e.getMessage(), e);
             }
             stageClause = "";
-            for (Reference r : ws.references()) { // TODO: multiple contexts
+            for (Reference r : workspaceOpt.references()) { // TODO: multiple contexts
                 if (!stageClause.isEmpty()) {
                     stageClause = stageClause + ",";
                 }

@@ -114,7 +114,7 @@ public class MainIT {
         }
         sc(clientYaml, working, "context", "localhost");
         sc(clientYaml, working, "list", "%all");
-        sc(clientYaml, working,"create", "-e", "-wait", "-detached", '@' + REPOSITORY, stage);
+        sc(clientYaml, working,"create", "-e", "-wait", '@' + REPOSITORY, stage);
         sc(clientYaml, working,"list", "%all");
         sc(clientYaml, working,"status", stage);
         // TODO sc(clientYaml, working, "detach", stage);

@@ -18,8 +18,6 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Globals;
-import net.oneandone.stool.cli.Workspace;
-import net.oneandone.stool.cli.Reference;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -29,8 +27,6 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class ClientCommand {
     protected final Globals globals;
@@ -48,26 +44,6 @@ public abstract class ClientCommand {
         if (!scYaml.exists()) {
             throw new ArgumentException("client configuration not found: " + scYaml + "\nRun 'sc setup' to create it.");
         }
-    }
-
-    public Workspace lookupWorkspace() throws IOException {
-        return lookupWorkspace(world.getWorking());
-    }
-
-    public Workspace lookupWorkspace(FileNode directory) throws IOException {
-        return Workspace.lookup(directory, globals.configuration(), globals.caller());
-    }
-
-    public List<Reference> workspaceReferences() throws IOException {
-        Workspace workspace;
-        List<Reference> result;
-
-        workspace = lookupWorkspace();
-        result = new ArrayList<>();
-        if (workspace != null) {
-            result.addAll(workspace.references());
-        }
-        return result;
     }
 
     public abstract void run() throws Exception;

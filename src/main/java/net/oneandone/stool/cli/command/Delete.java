@@ -16,23 +16,18 @@
 package net.oneandone.stool.cli.command;
 
 import net.oneandone.stool.cli.Globals;
-import net.oneandone.stool.cli.Workspace;
 import net.oneandone.stool.cli.Reference;
-
-import java.io.IOException;
 
 public class Delete extends IteratedStageCommand {
     private final boolean batch;
 
-    public Delete(Globals globals, boolean batch, String stage) throws IOException {
+    public Delete(Globals globals, boolean batch, String stage) {
         super(globals, stage);
         this.batch = batch;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Workspace workspace;
-
         if (!batch) {
             console.info.println("Ready to delete stage " + reference + "?");
             console.pressReturn();
@@ -40,12 +35,11 @@ public class Delete extends IteratedStageCommand {
 
         reference.client.delete(reference.stage);
 
-        workspace = lookupWorkspace();
-        if (workspace != null) {
-            if (workspace.remove(reference)) {
+        if (workspaceOpt != null) {
+            if (workspaceOpt.remove(reference)) {
                 console.info.println("detaching stage: " + reference);
             }
-            workspace.save();
+            workspaceOpt.save();
         }
     }
 }
