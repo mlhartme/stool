@@ -44,12 +44,12 @@ public class Create extends ClientCommand {
 
         int nameIdx;
 
+        this.workspaceNameOpt = eatWorkspaceNameOpt(args);
         nameIdx = nameIdx(args);
         this.optional = optional;
         this.wait = wait;
         this.applicationOpt = applicationOpt;
         this.name = args.get(nameIdx);
-        this.workspaceNameOpt = eatWorkspaceNameOpt(args);
         this.images = new ArrayList<>();
         this.values = new LinkedHashMap<>();
         images(args, nameIdx);
@@ -69,9 +69,9 @@ public class Create extends ClientCommand {
         iter = args.iterator();
         while (iter.hasNext()) {
             str = iter.next();
-            if (str.startsWith("$")) {
+            if (str.startsWith("@@")) {
                 iter.remove();
-                return str;
+                return str.substring(1); // CAUTION: keep one @
             }
         }
         return null;

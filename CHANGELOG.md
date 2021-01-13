@@ -26,7 +26,8 @@
 * explicit stage arguments
   * stage commands now take an explicit stage argument
   * the former implicit workspace has been replaced by explicit workspace referenced with '@' name
-  * rational: more helm-like commands
+  * rational: more helm-like commands; and the use case to create stages from source becomes less commond, 
+    it more often without sources
 * dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
 * changed `images` command to display generic values only  
