@@ -36,7 +36,6 @@ import net.oneandone.stool.cli.command.Server;
 import net.oneandone.stool.cli.command.Setup;
 import net.oneandone.stool.cli.command.ShellInc;
 import net.oneandone.stool.cli.command.Ssh;
-import net.oneandone.stool.cli.command.StageCommand;
 import net.oneandone.stool.cli.command.Status;
 import net.oneandone.stool.cli.command.Validate;
 import net.oneandone.stool.cli.command.Version;
@@ -112,19 +111,20 @@ public class Main {
               cli.add(ShellInc.class, "shell-inc");
               cli.add(Create.class, "create -optional -detached -wait -application args*");
               cli.add(Attach.class, "attach stage");
-              cli.base(StageCommand.class, "-fail stage { setFail(fail) setStage(stage) }");
-                cli.add(Detach.class, "detach");
-                cli.add(Config.class, "config value* { value*(value) }");
-                cli.add(History.class, "history");
-                cli.add(Images.class, "images");
-                cli.add(Ls.class, "list info* { select*(info) }");
-                cli.add(Delete.class, "delete -batch");
-                cli.add(Remove.class, "remove");
-                cli.add(Publish.class, "publish imageOptValues*");
-                cli.add(Status.class, "status info* { select*(info) }");
-                cli.add(PortForward.class, "port-forward -timeout=30 port toPort?");
-                cli.add(Ssh.class, "ssh -timeout=30 shell?");
-                cli.add(Validate.class, "validate -email -repair");
+              // TODO: mandatory stage argument doesn't work for publish etc
+              // TODO cli.base(StageCommand.class, "-fail { setFail(fail) }");
+                cli.add(Detach.class, "detach stage { setStage(stage) }");
+                cli.add(Config.class, "config stage value* { setStage(stage) value*(value) }");
+                cli.add(History.class, "history stage { setStage(stage) }");
+                cli.add(Images.class, "images stage { setStage(stage) }");
+                cli.add(Ls.class, "list stage info* { setStage(stage) select*(info) }");
+                cli.add(Delete.class, "delete -batch stage");
+                cli.add(Remove.class, "remove stage { setStage(stage) }");
+                cli.add(Publish.class, "publish stage imageOptValues*");
+                cli.add(Status.class, "status stage info* { setStage(stage) select*(info) }");
+                cli.add(PortForward.class, "port-forward -timeout=30 stage port toPort? { setStage(stage) }");
+                cli.add(Ssh.class, "ssh -timeout=30 stage shell? { setStage(stage) }");
+                cli.add(Validate.class, "validate -email -repair stage { setStage(stage) }");
 
         return cli.run(args);
     }

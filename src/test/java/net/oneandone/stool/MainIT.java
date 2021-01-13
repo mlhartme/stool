@@ -113,21 +113,21 @@ public class MainIT {
             sc(clientYaml, "setup", "localhost=http://localhost:31000/api");
         }
         sc(clientYaml, working, "context", "localhost");
-        sc(clientYaml, working, "list");
-        sc(clientYaml, working,"create", "-e", "-wait", '@' + REPOSITORY, stage);
-        sc(clientYaml, working,"list");
-        sc(clientYaml, working,"status", "-stage", stage);
-        sc(clientYaml, working, "detach", "-stage", stage);
-        sc(clientYaml, working, "attach", stage);
-        sc(clientYaml, working, "validate", "-stage", stage);
-        sc(clientYaml, working, "config", "-stage", stage, "metadataComment");
-        sc(clientYaml, working, "config", "-stage", stage, "metadataComment=42");
-        sc(clientYaml, working, "images", "-stage", stage);
-        sc(clientYaml, working, "publish", "-e", "-stage", stage);
-        sc(clientYaml, working, "list", "-stage", stage);
-        sc(clientYaml, working, "validate", "-stage", stage);
-        sc(clientYaml, working, "history", "-stage", stage);
-        sc(clientYaml, working, "delete", "-e", "-stage", stage, "-batch");
+        sc(clientYaml, working, "list", "%all");
+        sc(clientYaml, working,"create", "-e", "-wait", "-detached", '@' + REPOSITORY, stage);
+        sc(clientYaml, working,"list", "%all");
+        sc(clientYaml, working,"status", stage);
+        // TODO sc(clientYaml, working, "detach", stage);
+        // TODO sc(clientYaml, working, "attach", stage);
+        sc(clientYaml, working, "validate", stage);
+        sc(clientYaml, working, "config", stage, "metadataComment");
+        sc(clientYaml, working, "config", stage, "metadataComment=42");
+        sc(clientYaml, working, "images", stage);
+        sc(clientYaml, working, "publish", stage);
+        sc(clientYaml, working, "list", stage);
+        sc(clientYaml, working, "validate", stage);
+        sc(clientYaml, working, "history", stage);
+        sc(clientYaml, working, "delete", "-batch", stage);
         working.deleteTree();
     }
 

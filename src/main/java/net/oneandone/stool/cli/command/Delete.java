@@ -19,11 +19,14 @@ import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Workspace;
 import net.oneandone.stool.cli.Reference;
 
+import java.io.IOException;
+
 public class Delete extends IteratedStageCommand {
     private final boolean batch;
 
-    public Delete(Globals globals, boolean batch) {
+    public Delete(Globals globals, boolean batch, String stage) throws IOException {
         super(globals);
+        setStage(stage);
         this.batch = batch;
     }
 
