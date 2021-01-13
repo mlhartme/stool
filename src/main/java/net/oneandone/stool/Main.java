@@ -36,6 +36,7 @@ import net.oneandone.stool.cli.command.Server;
 import net.oneandone.stool.cli.command.Setup;
 import net.oneandone.stool.cli.command.ShellInc;
 import net.oneandone.stool.cli.command.Ssh;
+import net.oneandone.stool.cli.command.StageCommand;
 import net.oneandone.stool.cli.command.Status;
 import net.oneandone.stool.cli.command.Validate;
 import net.oneandone.stool.cli.command.Version;
@@ -112,7 +113,7 @@ public class Main {
               cli.add(Create.class, "create -optional -detached -wait -application args*");
               cli.add(Attach.class, "attach stage");
               // TODO: mandatory stage argument doesn't work for publish etc
-              // TODO cli.base(StageCommand.class, "-fail { setFail(fail) }");
+              cli.base(StageCommand.class, "-fail { setFail(fail) }");
                 cli.add(Detach.class, "detach stage { setStage(stage) }");
                 cli.add(Config.class, "config stage value* { setStage(stage) value*(value) }");
                 cli.add(History.class, "history stage { setStage(stage) }");
