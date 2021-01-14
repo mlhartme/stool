@@ -36,9 +36,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -174,7 +172,7 @@ public class Clazz {
                 throw new IOException("chart and extends cannot be combined");
             }
             if (chart != null) {
-                app = new Clazz(name, chart, new HashMap<>());
+                app = new Clazz(name, chart, loadChartValues(yaml, root.join(chart, "values.yaml")));
             } else {
                 base = result.get(extendz);
                 if (base == null) {
@@ -193,21 +191,20 @@ public class Clazz {
         return result;
     }
 
-    // TODO
-    private static Collection<String> loadValueKeys(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
+    private static Map<String, Value> loadChartValues(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
         ObjectNode values;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
-        Collection<String> result;
+        Map<String, Value> result;
 
         try (Reader src = valuesYaml.newReader()) {
             values = (ObjectNode) yaml.readTree(src);
         }
-        result = new HashSet();
+        result = new HashMap();
         iter = values.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            result.add(entry.getKey());
+            result.put(entry.getKey(), null);
         }
         return result;
     }
