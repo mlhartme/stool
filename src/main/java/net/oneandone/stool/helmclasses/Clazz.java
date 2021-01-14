@@ -43,8 +43,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /** represents the applications file */
-public class HelmClass {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HelmClass.class);
+public class Clazz {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Clazz.class);
 
     public static String install(FileNode root, Configuration configuration, String name, String imageOrRepository,
                                  String applicationOpt, Map<String, String> clientValues) throws IOException {
@@ -78,16 +78,16 @@ public class HelmClass {
                               Map<String, String> clientValues)
             throws IOException {
         World world;
-        Map<String, HelmClass> all;
+        Map<String, Clazz> all;
         Expressions expressions;
         String applicationName;
-        HelmClass application;
+        Clazz application;
         FileNode chart;
         FileNode values;
 
         world = root.getWorld();
         expressions = new Expressions(world, configuration, image, configuration.stageFqdn(name));
-        all = HelmClass.loadAll(root);
+        all = Clazz.loadAll(root);
         applicationName = applicationOpt != null ? applicationOpt : image.labels.getOrDefault("helm.application", "default");
         LOGGER.info("application: " + applicationName);
         application = all.get(applicationName);
@@ -143,17 +143,17 @@ public class HelmClass {
 
     //--
 
-    public static Map<String, HelmClass> loadAll(FileNode root) throws IOException {
+    public static Map<String, Clazz> loadAll(FileNode root) throws IOException {
         ObjectMapper yaml;
         Iterator<JsonNode> classes;
         Iterator<Map.Entry<String, JsonNode>> values;
         Map.Entry<String, JsonNode> entry;
-        Map<String, HelmClass> result;
+        Map<String, Clazz> result;
         ObjectNode clazz;
         String extendz;
         String chart;
-        HelmClass base;
-        HelmClass app;
+        Clazz base;
+        Clazz app;
         String name;
 
 
@@ -174,7 +174,7 @@ public class HelmClass {
                 throw new IOException("chart and extends cannot be combined");
             }
             if (chart != null) {
-                app = new HelmClass(name, chart, new HashMap<>());
+                app = new Clazz(name, chart, new HashMap<>());
             } else {
                 base = result.get(extendz);
                 if (base == null) {
@@ -217,14 +217,14 @@ public class HelmClass {
     public final String chart;
     public final Map<String, Value> values;
 
-    private HelmClass(String name, String chart, Map<String, Value> values) {
+    private Clazz(String name, String chart, Map<String, Value> values) {
         this.name = name;
         this.chart = chart;
         this.values = values;
     }
 
-    public HelmClass newInstance(String withName) {
-        return new HelmClass(withName, chart, new HashMap<>(values));
+    public Clazz newInstance(String withName) {
+        return new Clazz(withName, chart, new HashMap<>(values));
     }
 
     public FileNode createValuesFile(Expressions builder, Map<String, String> clientValues, Map<String, Object> dest) throws IOException {

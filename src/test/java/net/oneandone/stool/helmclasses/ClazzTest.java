@@ -23,15 +23,15 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class HelmClassTest {
+public class ClazzTest {
     @Test
     public void normal() throws IOException {
         World world;
-        Map<String, HelmClass> all;
-        HelmClass a;
+        Map<String, Clazz> all;
+        Clazz a;
 
         world = World.create();
-        all = HelmClass.loadAll(world.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
+        all = Clazz.loadAll(world.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
         assertEquals(2, all.size());
         a = all.get("derived");
         assertEquals("42", a.values.get("asis").macro);
