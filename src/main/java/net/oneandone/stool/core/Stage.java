@@ -18,6 +18,7 @@ package net.oneandone.stool.core;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
+import net.oneandone.stool.helmclasses.Helm;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
@@ -25,7 +26,6 @@ import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.helmclasses.Clazz;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -57,7 +57,7 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Clazz.install(World.create().file(configuration.charts), configuration, name, image, applicationOpt, values);
+        Helm.install(World.create().file(configuration.charts), configuration, name, image, applicationOpt, values);
         stage = Stage.create(configuration, name, engine.helmRead(name), history);
         stage.saveHistory(engine);
         return stage;
@@ -354,7 +354,7 @@ public class Stage {
 
         map = new HashMap<>(values);
         imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
-        result = Clazz.upgrade(World.create().file(configuration.charts) /* TODO */,
+        result = Helm.upgrade(World.create().file(configuration.charts) /* TODO */,
                 configuration, name, map, imageOrRepository, null, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);

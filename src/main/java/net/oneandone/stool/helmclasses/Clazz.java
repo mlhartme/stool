@@ -20,127 +20,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Type;
-import net.oneandone.stool.registry.Registry;
-import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/** represents the applications file */
 public class Clazz {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Clazz.class);
-
-    public static String install(FileNode root, Configuration configuration, String name, String imageOrRepository,
-                                 String applicationOpt, Map<String, String> clientValues) throws IOException {
-        return helm(root, configuration, name, false, new HashMap<>(), imageOrRepository, applicationOpt, clientValues);
-    }
-
-    public static String upgrade(FileNode root, Configuration configuration, String name, Map<String, Object> map,
-                                 String imageOrRepository, String applicationOpt, Map<String, String> clientValues) throws IOException {
-        return helm(root, configuration, name, true, map, imageOrRepository, applicationOpt, clientValues);
-    }
-    /**
-     * @return imageOrRepository exact image or repository to publish latest tag from
-     */
-    private static String helm(FileNode root, Configuration configuration, String name, boolean upgrade, Map<String, Object> map,
-                              String imageOrRepository, String applicationOpt, Map<String, String> clientValues)
-            throws IOException {
-        TagInfo image;
-        Registry registry;
-
-        validateRepository(Registry.toRepository(imageOrRepository));
-        registry = configuration.createRegistry(root.getWorld(), imageOrRepository);
-        image = registry.resolve(imageOrRepository);
-        return helm(root, configuration, name, upgrade, map, image, applicationOpt, clientValues);
-    }
-
-    /**
-     * @return image actually published
-     */
-    private static String helm(FileNode root, Configuration configuration, String name,
-                              boolean upgrade, Map<String, Object> map, TagInfo image, String applicationOpt,
-                              Map<String, String> clientValues)
-            throws IOException {
-        World world;
-        Map<String, Clazz> all;
-        Expressions expressions;
-        String applicationName;
-        Clazz application;
-        FileNode chart;
-        FileNode values;
-
-        world = root.getWorld();
-        expressions = new Expressions(world, configuration, image, configuration.stageFqdn(name));
-        all = Clazz.loadAll(root);
-        applicationName = applicationOpt != null ? applicationOpt : image.labels.getOrDefault("helm.application", "default");
-        LOGGER.info("application: " + applicationName);
-        application = all.get(applicationName);
-        if (application == null) {
-            throw new IOException("unknown application: " + applicationName);
-        }
-        chart = root.join(application.chart).checkDirectory();
-        LOGGER.info("chart: " + application.chart);
-        values = application.createValuesFile(expressions, clientValues, map);
-        try {
-            LOGGER.info("values: " + values.readString());
-            LOGGER.info("helm install upgrade=" + upgrade);
-            LOGGER.info(chart.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute()));
-        } finally {
-            values.deleteFile();
-        }
-        return image.repositoryTag;
-    }
-
-    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public static void validateRepository(String repository) {
-        URI uri;
-
-        if (repository.endsWith("/")) {
-            throw new ArgumentException("invalid repository: " + repository);
-        }
-        try {
-            uri = new URI(repository);
-        } catch (URISyntaxException e) {
-            throw new ArgumentException("invalid repository: " + repository);
-        }
-        if (uri.getHost() != null) {
-            checkLowercase(uri.getHost());
-        }
-        checkLowercase(uri.getPath());
-    }
-
-    private static void checkLowercase(String str) {
-        for (int i = 0, length = str.length(); i < length; i++) {
-            if (Character.isUpperCase(str.charAt(i))) {
-                throw new ArgumentException("invalid registry prefix: " + str);
-            }
-        }
-    }
-
-    private static String toJson(Object obj) {
-        if (obj instanceof String) {
-            return "\"" + obj + '"';
-        } else {
-            return obj.toString(); // ok für boolean and integer
-        }
-    }
-
-    //--
-
     public static Map<String, Clazz> loadAll(FileNode root) throws IOException {
         ObjectMapper yaml;
         Iterator<JsonNode> classes;
@@ -151,9 +43,8 @@ public class Clazz {
         String extendz;
         String chart;
         Clazz base;
-        Clazz app;
+        Clazz derived;
         String name;
-
 
         yaml = new ObjectMapper(new YAMLFactory());
         try (Reader src = root.join("classes.yaml").newReader()) {
@@ -172,20 +63,19 @@ public class Clazz {
                 throw new IOException("chart and extends cannot be combined");
             }
             if (chart != null) {
-                app = new Clazz(name, chart, loadChartValues(yaml, root.join(chart, "values.yaml")));
+                derived = new Clazz(name, chart, loadChartValues(yaml, root.join(chart, "values.yaml")));
             } else {
                 base = result.get(extendz);
                 if (base == null) {
                     throw new IOException("class not found: " + extendz);
                 }
-                app = base.newInstance(name);
+                derived = base.derive(name);
             }
-            result.put(app.name, app);
+            result.put(derived.name, derived);
             values = clazz.get("values").fields();
             while (values.hasNext()) {
                 entry = values.next();
-                name = entry.getKey();
-                app.values.put(name, Value.forYaml(name, entry.getValue()));
+                derived.define(Value.forYaml(entry.getKey(), entry.getValue()));
             }
         }
         return result;
@@ -221,8 +111,15 @@ public class Clazz {
         this.values = values;
     }
 
-    public Clazz newInstance(String withName) {
+    public Clazz derive(String withName) {
         return new Clazz(withName, chart, new HashMap<>(values));
+    }
+
+    public void define(Value value) throws IOException {
+        if (!values.containsKey(value.name)) {
+            throw new IOException("unknown value: " + value.name);
+        }
+        values.put(value.name, value);
     }
 
     public FileNode createValuesFile(Expressions builder, Map<String, String> clientValues, Map<String, Object> dest) throws IOException {
@@ -257,5 +154,13 @@ public class Clazz {
             }
         }
         return file;
+    }
+
+    private static String toJson(Object obj) {
+        if (obj instanceof String) {
+            return "\"" + obj + '"';
+        } else {
+            return obj.toString(); // ok für boolean and integer
+        }
     }
 }
