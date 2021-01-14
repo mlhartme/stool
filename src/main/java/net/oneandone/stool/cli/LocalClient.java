@@ -31,7 +31,7 @@ import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.util.PredicateParser;
 import net.oneandone.stool.util.Validation;
 import net.oneandone.stool.core.Value;
-import net.oneandone.stool.values.Expressions;
+import net.oneandone.stool.helmclasses.Expressions;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 

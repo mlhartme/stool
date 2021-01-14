@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.values;
+package net.oneandone.stool.helmclasses;
 
 import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ public class HelmClassTest {
         HelmClass a;
 
         world = World.create();
-        all = HelmClass.loadAll(world.guessProjectHome(getClass()).join("src/test/classes").checkDirectory());
+        all = HelmClass.loadAll(world.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
         assertEquals(2, all.size());
         a = all.get("derived");
         assertEquals("42", a.values.get("asis").macro);

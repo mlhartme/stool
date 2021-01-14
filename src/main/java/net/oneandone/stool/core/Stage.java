@@ -25,7 +25,7 @@ import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.values.HelmClass;
+import net.oneandone.stool.helmclasses.HelmClass;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.values;
+package net.oneandone.stool.helmclasses;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
