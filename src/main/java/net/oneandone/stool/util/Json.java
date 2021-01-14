@@ -83,6 +83,10 @@ public final class Json {
         }
     }
 
+    public static boolean bool(ObjectNode node, String field, boolean dflt) {
+        return node.has(field) ? node.get(field).asBoolean() : dflt;
+    }
+
     public static String stringOpt(ObjectNode node, String field) {
         return string(node, field, null);
     }

@@ -164,7 +164,7 @@ public class Clazz {
         result = new HashMap<>();
         while (classes.hasNext()) {
             clazz = (ObjectNode) classes.next();
-            name = clazz.get("name").asText();
+            name = Json.string(clazz, "name");
             chart = Json.stringOpt(clazz, "chart");
             extendz = Json.stringOpt(clazz, "extends");
             if (chart == null && extendz == null) {
@@ -193,6 +193,7 @@ public class Clazz {
         return result;
     }
 
+    // TODO
     private static Collection<String> loadValueKeys(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
         ObjectNode values;
         Iterator<Map.Entry<String, JsonNode>> iter;

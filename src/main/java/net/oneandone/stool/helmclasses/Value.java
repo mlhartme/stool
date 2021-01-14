@@ -16,23 +16,34 @@
 package net.oneandone.stool.helmclasses;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import java.io.IOException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.stool.util.Json;
 
 /** Immutable */
 public class Value {
-    public static Value forYaml(String name, JsonNode yaml) throws IOException {
-        if (yaml.isValueNode()) {
-            return new Value(name, yaml.asText());
+    public static Value forYaml(String name, JsonNode yaml) {
+        boolean abstrct;
+        String value;
+        ObjectNode obj;
+
+        abstrct = false;
+        if (yaml.isObject()) {
+            obj = (ObjectNode) yaml;
+            value = Json.string(obj, "value", "");
+            abstrct = Json.bool(obj, "abstract", abstrct);
         } else {
-            throw new IOException("invalid value: " + yaml);
+            value = yaml.asText();
         }
+        return new Value(name, abstrct, value);
+
     }
     public final String name;
+    public final boolean abstrct;
     public final String macro;
 
-    public Value(String name, String macro) {
+    public Value(String name, boolean abstrct, String macro) {
         this.name = name;
+        this.abstrct = abstrct;
         this.macro = macro;
     }
 }
