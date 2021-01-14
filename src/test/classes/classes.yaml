@@ -1,0 +1,10 @@
+- name: base
+  chart: foo
+  values:
+    asis: 42
+    base: ""
+- name: derived
+  extends: base
+  values:
+    base: modified
+    added: 3

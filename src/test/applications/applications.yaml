@@ -1,8 +1,0 @@
-- chart: foo
-  fields:
-    asis: 42
-    base: ""
-  applications:
-    default:
-      base: modified
-      added: 3

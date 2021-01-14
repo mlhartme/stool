@@ -17,7 +17,6 @@ package net.oneandone.stool.values;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
@@ -26,6 +25,7 @@ import net.oneandone.stool.core.Type;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.util.Expire;
+import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
@@ -43,8 +43,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /** represents the applications file */
-public class Application {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+public class HelmClass {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HelmClass.class);
 
     public static String install(FileNode root, Configuration configuration, String name, String imageOrRepository,
                                  String applicationOpt, Map<String, String> clientValues) throws IOException {
@@ -78,16 +78,16 @@ public class Application {
                               Map<String, String> clientValues)
             throws IOException {
         World world;
-        Map<String, Application> all;
+        Map<String, HelmClass> all;
         Expressions expressions;
         String applicationName;
-        Application application;
+        HelmClass application;
         FileNode chart;
         FileNode values;
 
         world = root.getWorld();
         expressions = new Expressions(world, configuration, image, configuration.stageFqdn(name));
-        all = Application.loadAll(root);
+        all = HelmClass.loadAll(root);
         applicationName = applicationOpt != null ? applicationOpt : image.labels.getOrDefault("helm.application", "default");
         LOGGER.info("application: " + applicationName);
         application = all.get(applicationName);
@@ -96,7 +96,7 @@ public class Application {
         }
         chart = root.join(application.chart).checkDirectory();
         LOGGER.info("chart: " + application.chart);
-        values = application.createValues(expressions, clientValues, map);
+        values = application.createValuesFile(expressions, clientValues, map);
         try {
             LOGGER.info("values: " + values.readString());
             LOGGER.info("helm install upgrade=" + upgrade);
@@ -143,51 +143,51 @@ public class Application {
 
     //--
 
-    public static Map<String, Application> loadAll(FileNode root) throws IOException {
+    public static Map<String, HelmClass> loadAll(FileNode root) throws IOException {
         ObjectMapper yaml;
-        ArrayNode all;
-        Iterator<JsonNode> charts;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Iterator<Map.Entry<String, JsonNode>> derived;
+        Iterator<JsonNode> classes;
+        Iterator<Map.Entry<String, JsonNode>> values;
         Map.Entry<String, JsonNode> entry;
-        Map.Entry<String, JsonNode> derivedEntry;
-        Map<String, Application> result;
-        ObjectNode one;
-        String c;
-        Application base;
-        Application app;
+        Map<String, HelmClass> result;
+        ObjectNode clazz;
+        String extendz;
+        String chart;
+        HelmClass base;
+        HelmClass app;
         String name;
 
 
         yaml = new ObjectMapper(new YAMLFactory());
-        try (Reader src = root.join("applications.yaml").newReader()) {
-            all = (ArrayNode) yaml.readTree(src);
+        try (Reader src = root.join("classes.yaml").newReader()) {
+            classes = yaml.readTree(src).elements();
         }
         result = new HashMap<>();
-        charts = all.elements();
-        while (charts.hasNext()) {
-            one = (ObjectNode) charts.next();
-            c = one.get("chart").asText();
-            base = Application.create(c, loadValueKeys(yaml, root.join(c, "values.yaml")));
-            iter = one.get("fields").fields();
-            while (iter.hasNext()) {
-                entry = iter.next();
-                name = entry.getKey();
-                base.fields.put(name, new Field(name, entry.getValue().asText()));
+        while (classes.hasNext()) {
+            clazz = (ObjectNode) classes.next();
+            name = clazz.get("name").asText();
+            chart = Json.stringOpt(clazz, "chart");
+            extendz = Json.stringOpt(clazz, "extends");
+            if (chart == null && extendz == null) {
+                throw new IOException("chart or extends expected");
             }
-            iter = one.get("applications").fields();
-            while (iter.hasNext()) {
-                entry = iter.next();
-                app = base.newInstance();
-                if (result.put(entry.getKey(), app) != null) {
-                    throw new IOException("duplicate application: " + entry.getKey());
+            if (chart != null && extendz != null) {
+                throw new IOException("chart and extends cannot be combined");
+            }
+            if (chart != null) {
+                app = new HelmClass(name, chart, new HashMap<>());
+            } else {
+                base = result.get(extendz);
+                if (base == null) {
+                    throw new IOException("class not found: " + extendz);
                 }
-                derived = entry.getValue().fields();
-                while (derived.hasNext()) {
-                    derivedEntry = derived.next();
-                    name = derivedEntry.getKey();
-                    app.fields.put(name, new Field(name, derivedEntry.getValue().asText()));
-                }
+                app = base.newInstance(name);
+            }
+            result.put(app.name, app);
+            values = clazz.get("values").fields();
+            while (values.hasNext()) {
+                entry = values.next();
+                name = entry.getKey();
+                app.values.put(name, Value.forYaml(name, entry.getValue()));
             }
         }
         return result;
@@ -213,44 +213,36 @@ public class Application {
 
     //--
 
+    public final String name;
     public final String chart;
-    public final Map<String, Field> fields;
+    public final Map<String, Value> values;
 
-    public static Application create(String chart, Collection<String> valueKeys) {
-        Map<String, Field> fields;
-
-        fields = new HashMap<>();
-        for (String key : valueKeys) {
-            fields.put(key, null);
-        }
-        return new Application(chart, fields);
-    }
-
-    private Application(String chart, Map<String, Field> fields) {
+    private HelmClass(String name, String chart, Map<String, Value> values) {
+        this.name = name;
         this.chart = chart;
-        this.fields = fields;
+        this.values = values;
     }
 
-    public Application newInstance() {
-        return new Application(chart, new HashMap<>(fields));
+    public HelmClass newInstance(String withName) {
+        return new HelmClass(withName, chart, new HashMap<>(values));
     }
 
-    public FileNode createValues(Expressions builder, Map<String, String> clientValues, Map<String, Object> dest) throws IOException {
-        String name;
+    public FileNode createValuesFile(Expressions builder, Map<String, String> clientValues, Map<String, Object> dest) throws IOException {
+        String key;
         Expire expire;
-        FileNode values;
+        FileNode file;
 
-        for (Field field : fields.values()) {
+        for (Value field : this.values.values()) {
             if (field != null) {
                 dest.put(field.name, builder.eval(field.macro));
             }
         }
         for (Map.Entry<String, String> entry : clientValues.entrySet()) {
-            name = entry.getKey();
-            if (!fields.containsKey(name)) {
-                throw new ArgumentException("unknown value: " + name);
+            key = entry.getKey();
+            if (!this.values.containsKey(key)) {
+                throw new ArgumentException("unknown value: " + key);
             }
-            dest.put(name, entry.getValue());
+            dest.put(key, entry.getValue());
         }
 
         // normalize expire
@@ -260,12 +252,12 @@ public class Application {
         }
         dest.put(Type.VALUE_EXPIRE, expire.toString()); // normalize
 
-        values = builder.world.getTemp().createTempFile();
-        try (PrintWriter v = new PrintWriter(values.newWriter())) {
+        file = builder.world.getTemp().createTempFile();
+        try (PrintWriter v = new PrintWriter(file.newWriter())) {
             for (Map.Entry<String, Object> entry : dest.entrySet()) {
                 v.println(entry.getKey() + ": " + toJson(entry.getValue()));
             }
         }
-        return values;
+        return file;
     }
 }

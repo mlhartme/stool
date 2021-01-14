@@ -83,6 +83,9 @@ public final class Json {
         }
     }
 
+    public static String stringOpt(ObjectNode node, String field) {
+        return string(node, field, null);
+    }
     public static String string(ObjectNode node, String field, String dflt) {
         return node.has(field) ? node.get(field).asText() : dflt;
     }

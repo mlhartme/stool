@@ -15,11 +15,23 @@
  */
 package net.oneandone.stool.values;
 
-public class Field {
+import com.fasterxml.jackson.databind.JsonNode;
+
+import java.io.IOException;
+
+/** Immutable */
+public class Value {
+    public static Value forYaml(String name, JsonNode yaml) throws IOException {
+        if (yaml.isValueNode()) {
+            return new Value(name, yaml.asText());
+        } else {
+            throw new IOException("invalid value: " + yaml);
+        }
+    }
     public final String name;
     public final String macro;
 
-    public Field(String name, String macro) {
+    public Value(String name, String macro) {
         this.name = name;
         this.macro = macro;
     }
