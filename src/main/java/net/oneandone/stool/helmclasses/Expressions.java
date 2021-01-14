@@ -17,7 +17,7 @@ package net.oneandone.stool.helmclasses;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
-import net.oneandone.stool.registry.TagInfo;
+import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.sushi.fs.World;
@@ -41,13 +41,11 @@ import java.util.zip.GZIPOutputStream;
 public class Expressions {
     public final World world;
     public final Configuration configuration;
-    private final TagInfo image;
     private final String fqdn;
 
-    public Expressions(World world, Configuration configuration, TagInfo image, String fqdn) {
+    public Expressions(World world, Configuration configuration, String fqdn) {
         this.world = world;
         this.configuration = configuration;
-        this.image = image;
         this.fqdn = fqdn;
     }
 
@@ -88,15 +86,18 @@ public class Expressions {
             case "label":
                 arg(call, 1);
                 return label(eval(call.get(1)));
-            case "image":
-                arg(call, 0);
-                return image.repositoryTag;
+            case "latest":
+                arg(call, 1);
+                return latest(eval(call.get(1)));
             case "fqdn":
                 arg(call, 0);
                 return fqdn;
             case "cert":
                 arg(call, 0);
                 return cert();
+            case "empty":
+                arg(call, 0);
+                return "";
             case "fault":
                 arg(call, 1);
                 return fault(Separator.COMMA.split(eval(call.get(1))));
@@ -112,13 +113,15 @@ public class Expressions {
     }
 
     private String label(String name) throws IOException {
-        String result;
+        throw new IOException("TODO: label not found: " + name);
+    }
 
-        result = image.labels.get(name);
-        if (result == null) {
-            throw new IOException("label not found: " + name);
-        }
-        return result;
+    private String latest(String imageOrRepository) throws IOException {
+        Registry registry;
+
+        Helm.validateRepository(Registry.toRepository(imageOrRepository));
+        registry = configuration.createRegistry(world, imageOrRepository);
+        return registry.resolve(imageOrRepository).repositoryTag;
     }
 
     private String cert() throws IOException {
@@ -141,7 +144,8 @@ public class Expressions {
 
         missing = new ArrayList<>();
         if (configuration.auth()) {
-            checkFaultPermissions(world, image.author, faultProjects);
+            // TODO:
+            // checkFaultPermissions(world, image.author, faultProjects);
         }
         workspace = world.file("/etc/fault/workspace");
         buffer = new byte[64 * 1024];

@@ -52,6 +52,7 @@ public class MainIT {
         return PROJECT_ROOT.join("target/it-" + local).mkdirOpt();
 
     }
+
     // run this to get a sample image deployed
     public static void main(String[] args) throws IOException {
         FileNode working;
@@ -97,6 +98,7 @@ public class MainIT {
     }
 
     private void run(boolean local) throws IOException {
+        String clazz = "hellowar";
         FileNode working;
         FileNode clientYaml;
         String stage;
@@ -114,7 +116,7 @@ public class MainIT {
         }
         sc(clientYaml, "context", "localhost");
         sc(clientYaml, "list", "%all");
-        sc(clientYaml, "create", "-e", "-wait", '@' + REPOSITORY, stage);
+        sc(clientYaml, "create", "-e", "-wait", stage, clazz);
         sc(clientYaml, "list", "%all");
         sc(clientYaml, "status", stage);
         sc(clientYaml, "attach", "@ws", stage);
@@ -123,7 +125,7 @@ public class MainIT {
         sc(clientYaml, "config", stage, "metadataComment");
         sc(clientYaml, "config", stage, "metadataComment=42");
         sc(clientYaml, "images", stage);
-        sc(clientYaml, "publish", stage);
+        sc(clientYaml, "publish", stage, clazz);
         sc(clientYaml, "list", stage);
         sc(clientYaml, "validate", stage);
         sc(clientYaml, "history", stage);

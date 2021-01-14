@@ -131,31 +131,23 @@ public class RemoteClient extends Client {
      * @return url map
      * @throws FileAlreadyExistsException if the stage already exists */
     @Override
-    public Map<String, String> create(String stage, String image, String applicationOpt, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, String className, Map<String, String> values) throws IOException {
         HttpNode node;
 
-        node = node("stages/" + stage);
-        node = node.withParameter("image", image);
-        if (applicationOpt != null) {
-            node = node.withParameter("application", applicationOpt);
-        }
+        node = node("stages/" + stageName);
+        node = node.withParameter("class", className);
         node = node.withParameters("value.", values);
         return Json.stringMap((ObjectNode) postJson(node, ""));
     }
 
-    /** @return tag actually started */
     @Override
-    public String publish(String stage, String imageOpt, Map<String, String> values) throws IOException {
+    public void publish(String stage, String clazz, Map<String, String> values) throws IOException {
         HttpNode node;
-        JsonNode started;
 
         node = node(stage, "publish");
-        if (imageOpt != null) {
-            node = node.withParameters("image", imageOpt);
-        }
+        node = node.withParameters("class", clazz);
         node = node.withParameters("value.", values);
-        started = postJson(node, "");
-        return started.asText();
+        postJson(node, "");
     }
 
     @Override

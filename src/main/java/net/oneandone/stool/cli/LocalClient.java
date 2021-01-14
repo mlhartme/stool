@@ -22,7 +22,6 @@ import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Info;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.core.Stage;
@@ -104,36 +103,28 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> create(String name, String image, String applicationOpt, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, String className, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
             try {
-                engine.helmRead(name);
-                throw new FileAlreadyExistsException(name);
+                engine.helmRead(stageName);
+                throw new FileAlreadyExistsException(stageName);
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(caller, engine, configuration, name, image, applicationOpt, values);
+            stage = Stage.create(caller, engine, configuration, stageName, className, values);
             return stage.urlMap();
         }
     }
 
     @Override
-    public String publish(String name, String imageOpt, Map<String, String> values) throws IOException {
-        String result;
+    public void publish(String name, String clazz, Map<String, String> values) throws IOException {
         Stage stage;
-        String imageOrRepository;
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            if (imageOpt != null) {
-                imageOrRepository = imageOpt;
-            } else {
-                imageOrRepository = Registry.toRepository(stage.getImage());
-            }
-            result = stage.publish(caller, engine, imageOrRepository, values);
-            return result;
+            stage.publish(caller, engine, clazz, values);
         }
     }
 
@@ -192,7 +183,7 @@ public class LocalClient extends Client {
                 clientValues.put(entry.getKey(), value);
                 result.put(prop.name(), disclose(prop.name(), value));
             }
-            stage.publish(caller, engine, null, clientValues);
+            stage.publish(caller, engine, "hellowar" /* TODO */, clientValues);
             return result;
         }
     }

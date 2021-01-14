@@ -50,15 +50,15 @@ import java.util.Set;
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
 
-    public static Stage create(Caller caller, Engine engine, Configuration configuration, String name, String image, String applicationOpt,
+    public static Stage create(Caller caller, Engine engine, Configuration configuration, String stageName, String className,
                                Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(World.create().file(configuration.charts), configuration, name, image, applicationOpt, values);
-        stage = Stage.create(configuration, name, engine.helmRead(name), history);
+        Helm.install(World.create().file(configuration.charts), configuration, stageName, className, values);
+        stage = Stage.create(configuration, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
     }
@@ -344,21 +344,14 @@ public class Stage {
         return registry().list(path);
     }
 
-    /** CAUTION: values are not updated!
-     * @param imageOrRepositoryOpt null to keep current image
-     */
-    public String publish(Caller caller, Engine engine, String imageOrRepositoryOpt, Map<String, String> clientValues) throws IOException {
+    /** CAUTION: values are not updated! */
+    public void publish(Caller caller, Engine engine, String clazz, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
-        String imageOrRepository;
-        String result;
 
         map = new HashMap<>(values);
-        imageOrRepository = imageOrRepositoryOpt == null ? (String) map.get("image") : imageOrRepositoryOpt;
-        result = Helm.upgrade(World.create().file(configuration.charts) /* TODO */,
-                configuration, name, map, imageOrRepository, null, clientValues);
+        Helm.upgrade(World.create().file(configuration.charts) /* TODO */, configuration, name, map, clazz, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
-        return result;
     }
 
     private void saveHistory(Engine engine) throws IOException {

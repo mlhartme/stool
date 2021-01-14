@@ -17,8 +17,6 @@ package net.oneandone.stool.helmclasses;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
-import net.oneandone.stool.registry.Registry;
-import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
@@ -34,57 +32,37 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static String install(FileNode root, Configuration configuration, String name, String imageOrRepository,
-                                 String applicationOpt, Map<String, String> clientValues) throws IOException {
-        return helm(root, configuration, name, false, new HashMap<>(), imageOrRepository, applicationOpt, clientValues);
-    }
-
-    public static String upgrade(FileNode root, Configuration configuration, String name, Map<String, Object> map,
-                                 String imageOrRepository, String applicationOpt, Map<String, String> clientValues) throws IOException {
-        return helm(root, configuration, name, true, map, imageOrRepository, applicationOpt, clientValues);
-    }
-    /**
-     * @return imageOrRepository exact image or repository to publish latest tag from
-     */
-    private static String helm(FileNode root, Configuration configuration, String name, boolean upgrade, Map<String, Object> map,
-                              String imageOrRepository, String applicationOpt, Map<String, String> clientValues)
+    public static void install(FileNode root, Configuration configuration, String name, String clazz, Map<String, String> values)
             throws IOException {
-        TagInfo image;
-        Registry registry;
-
-        validateRepository(Registry.toRepository(imageOrRepository));
-        registry = configuration.createRegistry(root.getWorld(), imageOrRepository);
-        image = registry.resolve(imageOrRepository);
-        return helm(root, configuration, name, upgrade, map, image, applicationOpt, clientValues);
+        helm(root, configuration, name, false, new HashMap<>(), clazz, values);
     }
 
-    /**
-     * @return image actually published
-     */
-    private static String helm(FileNode root, Configuration configuration, String name,
-                              boolean upgrade, Map<String, Object> map, TagInfo image, String applicationOpt,
-                              Map<String, String> clientValues)
+    public static void upgrade(FileNode root, Configuration configuration, String name, Map<String, Object> map,
+                                 String clazz, Map<String, String> values) throws IOException {
+        helm(root, configuration, name, true, map, clazz, values);
+    }
+
+    private static void helm(FileNode root, Configuration configuration, String name, boolean upgrade, Map<String, Object> map,
+                               String className, Map<String, String> clientValues)
             throws IOException {
         World world;
         Map<String, Clazz> all;
         Expressions expressions;
-        String applicationName;
-        Clazz application;
+        Clazz clazz;
         FileNode chart;
         FileNode values;
 
         world = root.getWorld();
-        expressions = new Expressions(world, configuration, image, configuration.stageFqdn(name));
+        expressions = new Expressions(world, configuration, configuration.stageFqdn(name));
         all = Clazz.loadAll(root);
-        applicationName = applicationOpt != null ? applicationOpt : image.labels.getOrDefault("helm.application", "default");
-        LOGGER.info("application: " + applicationName);
-        application = all.get(applicationName);
-        if (application == null) {
-            throw new IOException("unknown application: " + applicationName);
+        LOGGER.info("class: " + className);
+        clazz = all.get(className);
+        if (clazz == null) {
+            throw new IOException("unknown application: " + className);
         }
-        chart = root.join(application.chart).checkDirectory();
-        LOGGER.info("chart: " + application.chart);
-        values = application.createValuesFile(expressions, clientValues, map);
+        chart = root.join(clazz.chart).checkDirectory();
+        LOGGER.info("chart: " + clazz.chart);
+        values = clazz.createValuesFile(expressions, clientValues, map);
         try {
             LOGGER.info("values: " + values.readString());
             LOGGER.info("helm install upgrade=" + upgrade);
@@ -92,7 +70,6 @@ public final class Helm {
         } finally {
             values.deleteFile();
         }
-        return image.repositoryTag;
     }
 
     // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"

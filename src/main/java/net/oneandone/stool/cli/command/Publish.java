@@ -24,23 +24,14 @@ import java.util.List;
 import java.util.Map;
 
 public class Publish extends IteratedStageCommand {
-    private final String imageOpt;
+    private final String clazz;
     private final Map<String, String> values;
 
-    public Publish(Globals globals, String stage, List<String> args) {
+    public Publish(Globals globals, String stage, String clazz, List<String> args) {
         super(globals, stage);
+        this.clazz = clazz;
         this.values = new LinkedHashMap<>();
         eatValues(args);
-        switch (args.size()) {
-            case 0:
-                imageOpt = null;
-                break;
-            case 1:
-                imageOpt = args.get(0);
-                break;
-            default:
-                throw new ArgumentException("unknown arguments: " + args);
-        }
     }
 
     private void eatValues(List<String> args) {
@@ -62,10 +53,13 @@ public class Publish extends IteratedStageCommand {
             }
             args.remove(i);
         }
+        if (!args.isEmpty()) {
+            throw new ArgumentException("unknown arguments: " + args);
+        }
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        reference.client.publish(reference.stage, imageOpt, values);
+        reference.client.publish(reference.stage, clazz, values);
     }
 }

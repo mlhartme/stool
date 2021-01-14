@@ -101,14 +101,13 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}")
-    public String create(@PathVariable("stage") String name, @RequestParam(value = "image", required = true) String image,
-                         @RequestParam(value = "application", required = false) String applicationOpt,
+    public String create(@PathVariable("stage") String name, @RequestParam(value = "class") String clazz,
                          HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> values;
 
         values = map(request, "value.");
         try {
-            return Json.obj(json, client(request).create(name, image, applicationOpt, values)).toString();
+            return Json.obj(json, client(request).create(name, clazz, values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
@@ -126,12 +125,9 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public String publish(@PathVariable(value = "stage") String stageName,
-                          @RequestParam(value = "image", required = false) String explicitImage, HttpServletRequest request) throws IOException {
-        String result;
-
-        result = client(request).publish(stageName, explicitImage, map(request, "value."));
-        return new TextNode(result).toString();
+    public void publish(@PathVariable(value = "stage") String stageName,
+                          @RequestParam(value = "class") String className, HttpServletRequest request) throws IOException {
+        client(request).publish(stageName, className, map(request, "value."));
     }
 
     @GetMapping("/stages//{stage}/await-available")

@@ -20,46 +20,32 @@ import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.cli.Workspace;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Create extends ClientCommand {
-    private final String name;
+    private final String stageName;
+    private final String className;
     private final boolean optional;
     private final boolean wait;
-    private final String applicationOpt;
     private final String workspaceNameOpt;
-    private final List<String> images;
     private final Map<String, String> values;
 
-    public Create(Globals globals, boolean optional, boolean wait, String applicationOpt, List<String> args) throws IOException {
+    public Create(Globals globals, boolean optional, boolean wait, String stageName, String className, List<String> args) throws IOException {
         super(globals);
 
-        int nameIdx;
-
-        this.workspaceNameOpt = eatWorkspaceNameOpt(args);
-        nameIdx = nameIdx(args);
         this.optional = optional;
         this.wait = wait;
-        this.applicationOpt = applicationOpt;
-        this.name = args.get(nameIdx);
-        this.images = new ArrayList<>();
+        this.stageName = stageName;
+        this.className = className;
+        this.workspaceNameOpt = eatWorkspaceNameOpt(args);
         this.values = new LinkedHashMap<>();
-        images(args, nameIdx);
-        if (images.isEmpty()) {
-            image(".");
-            if (images.isEmpty()) {
-                throw new IllegalStateException();
-            }
-        }
-        values(args, nameIdx);
+        values(args);
     }
 
     private static String eatWorkspaceNameOpt(List<String> args) {
@@ -69,61 +55,26 @@ public class Create extends ClientCommand {
         iter = args.iterator();
         while (iter.hasNext()) {
             str = iter.next();
-            if (str.startsWith("@@")) {
+            if (str.startsWith("@")) {
                 iter.remove();
-                return str.substring(1); // CAUTION: keep one @
+                return str;
             }
         }
         return null;
     }
 
-    private static int nameIdx(List<String> args) {
-        String arg;
-
-        for (int i = args.size() - 1; i >= 0; i--) {
-            arg = args.get(i);
-            if (arg.indexOf('=') == -1) {
-                return i;
-            }
-        }
-        throw new ArgumentException("missing name argument");
-    }
-
-    private void images(List<String> args, int nameIdx) throws IOException {
-        for (int i = 0; i < nameIdx; i++) {
-            image(args.get(i));
-        }
-    }
-
-    private void image(String str) throws IOException {
-        boolean found;
-
-        if (str.startsWith("@")) {
-            images.add(str.substring(1));
-        } else {
-            found = false;
-            for (FileNode child : world.getWorking().join(str).checkDirectory().find("**/target/dockerbuild/image")) {
-                images.add(child.readString().trim());
-                found = true;
-            }
-            if (!found) {
-                throw new ArgumentException(str + ": no image file(s) in path");
-            }
-        }
-    }
-
     /** return name */
-    private void values(List<String> args, int nameIdx) {
+    private void values(List<String> args) {
         int idx;
         String arg;
         String key;
         String value;
 
-        for (int i = nameIdx + 1; i < args.size(); i++) {
+        for (int i = 0; i < args.size(); i++) {
             arg = args.get(i);
             idx = arg.indexOf('=');
             if (idx == -1) {
-                throw new IllegalStateException(args + " " + name);
+                throw new IllegalStateException(args + " " + arg);
             }
             key = arg.substring(0, idx);
             value = arg.substring(idx + 1);
@@ -147,17 +98,15 @@ public class Create extends ClientCommand {
             workspaceOpt = globals.workspaceLoadOrCreate(workspaceNameOpt);
         }
         try {
-            for (String image : images) {
-                reference = create(image);
-                if (workspaceOpt != null) {
-                    try {
-                        workspaceOpt.add(reference);
-                    } catch (IOException e) {
-                        throw new IOException("failed to attach stage: " + e.getMessage(), e);
-                    }
-                } else {
-                    // -detached
+            reference = doCreate();
+            if (workspaceOpt != null) {
+                try {
+                    workspaceOpt.add(reference);
+                } catch (IOException e) {
+                    throw new IOException("failed to attach stage: " + e.getMessage(), e);
                 }
+            } else {
+                // -detached
             }
             if (workspaceOpt != null) {
                 workspaceOpt.save();
@@ -174,34 +123,16 @@ public class Create extends ClientCommand {
         }
     }
 
-    protected Reference create(String image) throws IOException {
-        return doCreate(image, resolvedName(image));
-    }
-
-    private String resolvedName(String image) {
-        int idx;
-
-        idx = image.lastIndexOf(':');
-        if (idx >= 0) {
-            image = image.substring(0, idx);
-        }
-        idx = image.lastIndexOf('/');
-        if (idx != 0) {
-            image = image.substring(idx + 1);
-        }
-        return name.replace("_", image);
-    }
-
-    protected Reference doCreate(String image, String resolvedName) throws IOException {
+    protected Reference doCreate() throws IOException {
         Client client;
         Reference reference;
         Map<String, String> urls;
 
-        checkName(resolvedName);
+        checkName(stageName);
         client = globals.configuration().currentContext().connect(world, globals.caller());
-        reference = new Reference(client, resolvedName);
+        reference = new Reference(client, stageName);
         try {
-            urls = client.create(resolvedName, image, applicationOpt, values);
+            urls = client.create(stageName, className, values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {
