@@ -187,11 +187,11 @@ public class Stage {
     //-- important values
 
     public Expire getMetadataExpire() {
-        return Expire.fromHuman(values.get(Type.VALUE_EXPIRE).toString());
+        return Expire.fromHuman(values.get(Type.VALUE_EXPIRE).get());
     }
 
     public List<String> getMetadataNotify() {
-        return Separator.COMMA.split(values.get(Type.VALUE_CONTACT).toString());
+        return Separator.COMMA.split(values.get(Type.VALUE_CONTACT).get());
     }
 
     //--
