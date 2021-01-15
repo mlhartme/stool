@@ -22,6 +22,7 @@ import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Info;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
+import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.core.Stage;
@@ -189,32 +190,28 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public List<String> images(String name) throws IOException {
-        Stage stage;
+    public List<String> images(String imageName) throws IOException {
+        Registry registry;
         List<TagInfo> all;
-        TagInfo tagInfo;
-        String marker;
         List<String> result;
+        String path;
 
-        try (Engine engine = engine()) {
-            result = new ArrayList<>();
-            stage = configuration.load(engine, name);
-            all = stage.images();
-            tagInfo = stage.tagInfo();
-            for (TagInfo image : all) {
-                marker = image.repositoryTag.equals(tagInfo.repositoryTag) ? "<==" : "";
-                result.add(image.tag + "  " + marker);
-                result.add("   id:            " + image.id);
-                result.add("   repositoryTag: " + image.repositoryTag);
-                result.add("   created-at:    " + image.createdAt);
-                result.add("   created-by:    " + image.author);
-                result.add("   labels:");
-                for (Map.Entry<String, String> labels : image.labels.entrySet()) {
-                    result.add("     " + labels.getKey() + "\t: " + labels.getValue());
-                }
+        registry = configuration.createRegistry(World.create() /* TODO */, imageName);
+        path = Registry.getRepositoryPath(Registry.toRepository(imageName));
+        all = registry.list(path);
+        result = new ArrayList<>();
+        for (TagInfo image : all) {
+            result.add(image.tag);
+            result.add("   id:            " + image.id);
+            result.add("   repositoryTag: " + image.repositoryTag);
+            result.add("   created-at:    " + image.createdAt);
+            result.add("   created-by:    " + image.author);
+            result.add("   labels:");
+            for (Map.Entry<String, String> labels : image.labels.entrySet()) {
+                result.add("     " + labels.getKey() + "\t: " + labels.getValue());
             }
-            return result;
         }
+        return result;
     }
 
     @Override

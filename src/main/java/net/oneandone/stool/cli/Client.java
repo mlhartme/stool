@@ -70,5 +70,6 @@ public abstract class Client {
     public abstract List<String> history(String stage) throws IOException;
     public abstract List<String> validate(String stage, boolean email, boolean repair) throws IOException;
     public abstract PodConfig podToken(String stage, int timeout) throws IOException;
-    public abstract List<String> images(String stage) throws Exception;
+
+    public abstract List<String> images(String image) throws Exception;
 }

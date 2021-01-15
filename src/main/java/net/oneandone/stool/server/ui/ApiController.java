@@ -166,8 +166,8 @@ public class ApiController {
         return client(request).podToken(stageName, timeout).toObject(json).toString();
     }
 
-    @GetMapping("/stages/{stage}/images")
-    public String images(@PathVariable("stage") String name, HttpServletRequest request) throws Exception {
+    @GetMapping("/images/{image}")
+    public String images(@PathVariable("image") String name, HttpServletRequest request) throws Exception {
         return array(json, client(request).images(name)).toString();
     }
 

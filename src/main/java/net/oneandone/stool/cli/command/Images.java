@@ -15,17 +15,22 @@
  */
 package net.oneandone.stool.cli.command;
 
+import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
-import net.oneandone.stool.cli.Reference;
 
-public class Images extends IteratedStageCommand {
-    public Images(Globals globals, String stage) {
-        super(globals, stage);
+public class Images extends ClientCommand {
+    private final String image;
+
+    public Images(Globals globals, String image) {
+        super(globals);
+        this.image = image;
     }
 
-    @Override
-    public void doMain(Reference reference) throws Exception {
-        for (String line : reference.client.images(reference.stage)) {
+    public void run() throws Exception {
+        Client client;
+
+        client = globals.configuration().currentContext().connect(globals.getWorld(), globals.caller());
+        for (String line : client.images(image)) {
             console.info.println(line);
         }
     }

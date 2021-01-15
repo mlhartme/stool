@@ -110,13 +110,13 @@ public class Main {
               cli.add(Auth.class, "auth -batch");
               cli.add(ConfigContext.class, "context -offline -q name?");
               cli.add(ShellInc.class, "shell-inc");
+              cli.add(Images.class, "images image");
               cli.add(Create.class, "create -optional -wait stage class values*");
               cli.add(Attach.class, "attach workspace stage");
               cli.base(StageCommand.class, "-fail { setFail(fail) }");
                 cli.add(Detach.class, "detach workspace stage");
                 cli.add(Config.class, "config stage value* { value*(value) }");
                 cli.add(History.class, "history stage");
-                cli.add(Images.class, "images stage");
                 cli.add(Ls.class, "list stage?= info* { select*(info) }");
                 cli.add(Delete.class, "delete -batch stage");
                 cli.add(Remove.class, "remove stage");

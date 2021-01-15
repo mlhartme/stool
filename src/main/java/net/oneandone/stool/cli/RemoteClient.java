@@ -214,8 +214,8 @@ public class RemoteClient extends Client {
     //-- images
 
     @Override
-    public List<String> images(String stage) throws Exception {
-        return Json.list((ArrayNode) getJson(node(stage, "images")));
+    public List<String> images(String image) throws Exception {
+        return Json.list((ArrayNode) getJson(node("images", image)));
     }
 
 
