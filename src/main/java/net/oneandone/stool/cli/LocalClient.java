@@ -32,7 +32,6 @@ import net.oneandone.stool.util.Validation;
 import net.oneandone.stool.core.Value;
 import net.oneandone.stool.helmclasses.Expressions;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.util.Strings;
 
 import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
@@ -141,34 +140,25 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> getValues(String stage) throws IOException {
+    public Map<String, String> getValues(String stageName) throws IOException {
         Map<String, String> result;
+        Stage stage;
 
         result = new HashMap<>();
         try (Engine engine = engine()) {
-            for (Value value : configuration.load(engine, stage).values()) {
-                result.put(value.name(), disclose(value.name(), value.get(engine)));
+            stage = configuration.load(engine, stageName);
+            for (Value value : stage.values()) {
+                result.put(value.name(), stage.clazz.disclose(value.name(), value.get(engine)));
             }
             return result;
-        }
-    }
-
-    // TODO: configurable
-    private static final List<String> DISCLOSE = Strings.toList("cert", "fault");
-
-    private static String disclose(String name, String value) {
-        if (DISCLOSE.contains(name)) {
-            return "(undisclosed)";
-        } else {
-            return value;
         }
     }
 
     @Override
     public Map<String, String> setValues(String name, Map<String, String> values) throws IOException {
         Stage stage;
-        Value prop;
-        String value;
+        Value value;
+        String valueString;
         Map<String, String> clientValues;
         Map<String, String> result;
 
@@ -177,11 +167,11 @@ public class LocalClient extends Client {
             result = new HashMap<>();
             clientValues = new HashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
-                prop = stage.value(entry.getKey());
-                value = entry.getValue();
-                value = value.replace("{}", prop.get(engine));
-                clientValues.put(entry.getKey(), value);
-                result.put(prop.name(), disclose(prop.name(), value));
+                value = stage.value(entry.getKey());
+                valueString = entry.getValue();
+                valueString = valueString.replace("{}", value.get(engine));
+                clientValues.put(entry.getKey(), valueString);
+                result.put(value.name(), stage.clazz.disclose(value.name(), valueString));
             }
             stage.publish(caller, engine, clientValues);
             return result;

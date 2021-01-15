@@ -26,27 +26,32 @@ import net.oneandone.stool.util.Json;
 public class Value {
     public static Value forYaml(String name, JsonNode yaml) {
         boolean abstrct;
+        boolean privt;
         String value;
         ObjectNode obj;
 
         abstrct = false;
+        privt = false;
         if (yaml.isObject()) {
             obj = (ObjectNode) yaml;
             value = Json.string(obj, "value", "");
             abstrct = Json.bool(obj, "abstract", abstrct);
+            privt = Json.bool(obj, "private", privt);
         } else {
             value = yaml.asText();
         }
-        return new Value(name, abstrct, value);
+        return new Value(name, abstrct, privt, value);
 
     }
     public final String name;
     public final boolean abstrct;
+    public final boolean privt;
     public final String value;
 
-    public Value(String name, boolean abstrct, String value) {
+    public Value(String name, boolean abstrct, boolean privt, String value) {
         this.name = name;
         this.abstrct = abstrct;
+        this.privt = privt;
         this.value = value;
     }
 
@@ -57,6 +62,7 @@ public class Value {
         result.set("name", new TextNode(name));
         result.set("value", new TextNode(value));
         result.set("abstract", BooleanNode.valueOf(abstrct));
+        result.set("private", BooleanNode.valueOf(privt));
         return result;
     }
 }

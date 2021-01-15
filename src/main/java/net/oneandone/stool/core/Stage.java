@@ -138,7 +138,7 @@ public class Stage {
      */
     private final String name;
 
-    private final Clazz clazz;
+    public final Clazz clazz;
 
     private final Map<String, Object> values;
 

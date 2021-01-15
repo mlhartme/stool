@@ -187,6 +187,15 @@ public class Clazz {
         return file;
     }
 
+    public String disclose(String valueName, String value) {
+        if (values.get(valueName).privt) {
+            return "(private)";
+        } else {
+            return value;
+        }
+    }
+
+
     private static JsonNode toJson(Object obj) {
         if (obj == null) {
             return NullNode.getInstance();
