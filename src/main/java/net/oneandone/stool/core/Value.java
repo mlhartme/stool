@@ -15,24 +15,30 @@
  */
 package net.oneandone.stool.core;
 
+import net.oneandone.stool.helmclasses.ValueType;
 import net.oneandone.stool.kubernetes.Engine;
-
-import java.util.Map;
 
 /** A stored value representing one aspect of the stage status. */
 public class Value extends Info {
-    public static Value create(String name, Map<String, Object> values, String dflt) {
-        Object result;
-
-        result = values.get(name);
-        return new Value(name, result == null ? dflt : result.toString());
-    }
-
+    private final ValueType type;
     private final String value;
 
-    public Value(String name, String value) {
+    public Value(String name, ValueType type, String value) {
         super(name);
+        this.type = type;
         this.value = value;
+    }
+
+    public Value withNewValue(String str) {
+        return new Value(name(), type, str.replace("{}", value));
+    }
+
+    public String disclose() {
+        if (type.privt) {
+            return "(private)";
+        } else {
+            return value;
+        }
     }
 
     public String get(Engine engine) {

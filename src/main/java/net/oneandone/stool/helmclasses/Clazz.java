@@ -85,17 +85,17 @@ public class Clazz {
         values = clazz.get("values").fields();
         while (values.hasNext()) {
             entry = values.next();
-            derived.define(Value.forYaml(entry.getKey(), entry.getValue()));
+            derived.define(ValueType.forYaml(entry.getKey(), entry.getValue()));
         }
 
         return derived;
     }
 
-    private static Map<String, Value> loadChartValues(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
+    private static Map<String, ValueType> loadChartValues(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
         ObjectNode values;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
-        Map<String, Value> result;
+        Map<String, ValueType> result;
 
         try (Reader src = valuesYaml.newReader()) {
             values = (ObjectNode) yaml.readTree(src);
@@ -104,7 +104,7 @@ public class Clazz {
         iter = values.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            result.put(entry.getKey(), new Value(entry.getKey(), false, false, entry.getValue().asText()));
+            result.put(entry.getKey(), new ValueType(entry.getKey(), false, false, entry.getValue().asText()));
         }
         return result;
     }
@@ -113,12 +113,22 @@ public class Clazz {
 
     public final String name;
     public final String chart;
-    public final Map<String, Value> values;
+    public final Map<String, ValueType> values;
 
-    private Clazz(String name, String chart, Map<String, Value> values) {
+    private Clazz(String name, String chart, Map<String, ValueType> values) {
         this.name = name;
         this.chart = chart;
         this.values = values;
+    }
+
+    public ValueType get(String value) {
+        ValueType result;
+
+        result = values.get(value);
+        if (result == null) {
+            throw new IllegalStateException(value);
+        }
+        return result;
     }
 
     public ObjectNode toObject(ObjectMapper yaml) {
@@ -130,7 +140,7 @@ public class Clazz {
         node.set("chart", new TextNode(chart));
         v = yaml.createObjectNode();
         node.set("values", v);
-        for (Value value : values.values()) {
+        for (ValueType value : values.values()) {
             if (value == null) {
                 // ignore
             } else {
@@ -144,7 +154,7 @@ public class Clazz {
         return new Clazz(withName, chart, new HashMap<>(values));
     }
 
-    public void define(Value value) throws IOException {
+    public void define(ValueType value) throws IOException {
         if (!values.containsKey(value.name)) {
             throw new IOException("unknown value: " + value.name);
         }
@@ -161,7 +171,7 @@ public class Clazz {
         for (Map.Entry<String, Object> entry : initial.entrySet()) {
             dest.set(entry.getKey(), toJson(entry.getValue()));
         }
-        for (Value field : this.values.values()) {
+        for (ValueType field : this.values.values()) {
             if (field != null) {
                 dest.put(field.name, builder.eval(field.value));
             }
@@ -186,15 +196,6 @@ public class Clazz {
         file = builder.world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;
     }
-
-    public String disclose(String valueName, String value) {
-        if (values.get(valueName).privt) {
-            return "(private)";
-        } else {
-            return value;
-        }
-    }
-
 
     private static JsonNode toJson(Object obj) {
         if (obj == null) {

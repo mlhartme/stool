@@ -183,7 +183,7 @@ public class Stage {
         Object obj;
 
         obj = values.get(value);
-        return obj == null ? null : new Value(value, obj.toString());
+        return obj == null ? null : new Value(value, clazz.get(value), obj.toString());
     }
 
     //-- important values

@@ -148,7 +148,7 @@ public class LocalClient extends Client {
         try (Engine engine = engine()) {
             stage = configuration.load(engine, stageName);
             for (Value value : stage.values()) {
-                result.put(value.name(), stage.clazz.disclose(value.name(), value.get(engine)));
+                result.put(value.name(), value.disclose());
             }
             return result;
         }
@@ -158,7 +158,6 @@ public class LocalClient extends Client {
     public Map<String, String> setValues(String name, Map<String, String> values) throws IOException {
         Stage stage;
         Value value;
-        String valueString;
         Map<String, String> clientValues;
         Map<String, String> result;
 
@@ -168,10 +167,9 @@ public class LocalClient extends Client {
             clientValues = new HashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 value = stage.value(entry.getKey());
-                valueString = entry.getValue();
-                valueString = valueString.replace("{}", value.get(engine));
-                clientValues.put(entry.getKey(), valueString);
-                result.put(value.name(), stage.clazz.disclose(value.name(), valueString));
+                value = value.withNewValue(entry.getValue());
+                clientValues.put(entry.getKey(), value.get());
+                result.put(value.name(), value.disclose());
             }
             stage.publish(caller, engine, clientValues);
             return result;

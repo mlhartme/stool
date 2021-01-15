@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.util.Json;
 
 /** Immutable */
-public class Value {
-    public static Value forYaml(String name, JsonNode yaml) {
+public class ValueType {
+    public static ValueType forYaml(String name, JsonNode yaml) {
         boolean abstrct;
         boolean privt;
         String value;
@@ -40,7 +40,7 @@ public class Value {
         } else {
             value = yaml.asText();
         }
-        return new Value(name, abstrct, privt, value);
+        return new ValueType(name, abstrct, privt, value);
 
     }
     public final String name;
@@ -48,7 +48,7 @@ public class Value {
     public final boolean privt;
     public final String value;
 
-    public Value(String name, boolean abstrct, boolean privt, String value) {
+    public ValueType(String name, boolean abstrct, boolean privt, String value) {
         this.name = name;
         this.abstrct = abstrct;
         this.privt = privt;
