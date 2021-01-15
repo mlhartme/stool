@@ -18,6 +18,7 @@ package net.oneandone.stool.helmclasses;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Type;
@@ -111,6 +112,25 @@ public class Clazz {
         this.values = values;
     }
 
+    public ObjectNode toObject(ObjectMapper yaml) {
+        ObjectNode node;
+        ObjectNode v;
+
+        node = yaml.createObjectNode();
+        node.set("name", new TextNode(name));
+        node.set("chart", new TextNode(chart));
+        v = yaml.createObjectNode();
+        node.set("values", v);
+        for (Value value : values.values()) {
+            if (value == null) {
+                // ignore
+            } else {
+                v.set(value.name, value.toObject(yaml));
+            }
+        }
+        return node;
+    }
+
     public Clazz derive(String withName) {
         return new Clazz(withName, chart, new HashMap<>(values));
     }
@@ -129,7 +149,7 @@ public class Clazz {
 
         for (Value field : this.values.values()) {
             if (field != null) {
-                dest.put(field.name, builder.eval(field.macro));
+                dest.put(field.name, builder.eval(field.value));
             }
         }
         for (Map.Entry<String, String> entry : clientValues.entrySet()) {

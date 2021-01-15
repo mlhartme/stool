@@ -16,7 +16,10 @@
 package net.oneandone.stool.helmclasses;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.util.Json;
 
 /** Immutable */
@@ -39,11 +42,21 @@ public class Value {
     }
     public final String name;
     public final boolean abstrct;
-    public final String macro;
+    public final String value;
 
-    public Value(String name, boolean abstrct, String macro) {
+    public Value(String name, boolean abstrct, String value) {
         this.name = name;
         this.abstrct = abstrct;
-        this.macro = macro;
+        this.value = value;
+    }
+
+    public ObjectNode toObject(ObjectMapper yaml) {
+        ObjectNode result;
+
+        result = yaml.createObjectNode();
+        result.set("name", new TextNode(name));
+        result.set("value", new TextNode(value));
+        result.set("abstract", BooleanNode.valueOf(abstrct));
+        return result;
     }
 }

@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.helmclasses;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
@@ -34,8 +36,9 @@ public class ClazzTest {
         all = Clazz.loadAll(world.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
         assertEquals(2, all.size());
         a = all.get("derived");
-        assertEquals("42", a.values.get("asis").macro);
-        assertEquals("modified", a.values.get("base").macro);
-        assertEquals("3", a.values.get("added").macro);
+        assertEquals("42", a.values.get("asis").value);
+        assertEquals("modified", a.values.get("base").value);
+        assertEquals("3", a.values.get("added").value);
+        System.out.println(a.toObject(new ObjectMapper(new YAMLFactory())));
     }
 }
