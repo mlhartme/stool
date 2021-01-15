@@ -124,7 +124,7 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            stage.publish(caller, engine, clazz, values);
+            stage.publish(caller, engine, /* TODO clazz, */ values);
         }
     }
 
@@ -183,7 +183,7 @@ public class LocalClient extends Client {
                 clientValues.put(entry.getKey(), value);
                 result.put(prop.name(), disclose(prop.name(), value));
             }
-            stage.publish(caller, engine, "hellowar" /* TODO */, clientValues);
+            stage.publish(caller, engine, clientValues);
             return result;
         }
     }

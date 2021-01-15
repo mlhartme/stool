@@ -32,50 +32,60 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Clazz {
+    public static final String HELM_CLASS = "helmClass";
+
     public static Map<String, Clazz> loadAll(ObjectMapper yaml, FileNode root) throws IOException {
         Iterator<JsonNode> classes;
-        Iterator<Map.Entry<String, JsonNode>> values;
-        Map.Entry<String, JsonNode> entry;
         Map<String, Clazz> result;
-        ObjectNode clazz;
-        String extendz;
-        String chart;
-        Clazz base;
-        Clazz derived;
-        String name;
+        Clazz clazz;
 
         try (Reader src = root.join("classes.yaml").newReader()) {
             classes = yaml.readTree(src).elements();
         }
         result = new HashMap<>();
         while (classes.hasNext()) {
-            clazz = (ObjectNode) classes.next();
-            name = Json.string(clazz, "name");
-            chart = Json.stringOpt(clazz, "chart");
-            extendz = Json.stringOpt(clazz, "extends");
-            if (chart == null && extendz == null) {
-                throw new IOException("chart or extends expected");
-            }
-            if (chart != null && extendz != null) {
-                throw new IOException("chart and extends cannot be combined");
-            }
-            if (chart != null) {
-                derived = new Clazz(name, chart, loadChartValues(yaml, root.join(chart, "values.yaml")));
-            } else {
-                base = result.get(extendz);
-                if (base == null) {
-                    throw new IOException("class not found: " + extendz);
-                }
-                derived = base.derive(name);
-            }
-            result.put(derived.name, derived);
-            values = clazz.get("values").fields();
-            while (values.hasNext()) {
-                entry = values.next();
-                derived.define(Value.forYaml(entry.getKey(), entry.getValue()));
+            clazz = load(yaml, result, (ObjectNode) classes.next(), root);
+            if (result.put(clazz.name, clazz) != null) {
+                throw new IOException("duplicate class: " + clazz.name);
             }
         }
         return result;
+    }
+
+    public static Clazz load(ObjectMapper yaml, Map<String, Clazz> existing, ObjectNode clazz, FileNode root) throws IOException {
+        Iterator<Map.Entry<String, JsonNode>> values;
+        Map.Entry<String, JsonNode> entry;
+        String extendz;
+        String chart;
+        Clazz base;
+        Clazz derived;
+        String name;
+
+        name = Json.string(clazz, "name");
+        chart = Json.stringOpt(clazz, "chart");
+        extendz = Json.stringOpt(clazz, "extends");
+        if (chart == null && extendz == null) {
+            throw new IOException("chart or extends expected");
+        }
+        if (chart != null && extendz != null) {
+            throw new IOException("chart and extends cannot be combined");
+        }
+        if (chart != null) {
+            derived = new Clazz(name, chart, loadChartValues(yaml, root.join(chart, "values.yaml")));
+        } else {
+            base = existing.get(extendz);
+            if (base == null) {
+                throw new IOException("class not found: " + extendz);
+            }
+            derived = base.derive(name);
+        }
+        values = clazz.get("values").fields();
+        while (values.hasNext()) {
+            entry = values.next();
+            derived.define(Value.forYaml(entry.getKey(), entry.getValue()));
+        }
+
+        return derived;
     }
 
     private static Map<String, Value> loadChartValues(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
@@ -160,6 +170,8 @@ public class Clazz {
             }
             dest.put(key, entry.getValue());
         }
+
+        dest.set(HELM_CLASS, toObject(mapper));
 
         // normalize expire
         expire = Expire.fromHuman(Json.string(dest, Type.VALUE_EXPIRE, Expire.fromNumber(builder.configuration.defaultExpire).toString()));

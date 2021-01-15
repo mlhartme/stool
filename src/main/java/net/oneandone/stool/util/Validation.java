@@ -75,7 +75,7 @@ public class Validation {
         }
         if (repair) {
             try {
-                stage.publish(caller, engine, null, Strings.toMap(Type.VALUE_REPLICAS, "0"));
+                stage.publish(caller, engine, Strings.toMap(Type.VALUE_REPLICAS, "0"));
                 report.add("replicas set to 0");
             } catch (Exception e) {
                 report.add("replicas change failed: " + e.getMessage());

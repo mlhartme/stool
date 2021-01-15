@@ -15,9 +15,12 @@
  */
 package net.oneandone.stool.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
+import net.oneandone.stool.helmclasses.Clazz;
 import net.oneandone.stool.helmclasses.Helm;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.registry.Registry;
@@ -93,7 +96,12 @@ public class Stage {
 
 
     public static Stage create(Configuration configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
-        return new Stage(configuration, name, values(helmObject), (ObjectNode) helmObject.get("info"), history);
+        Clazz cl;
+
+        cl = Clazz.load(new ObjectMapper(new YAMLFactory()) /* TODO */,
+                new HashMap<>(), (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS),
+                World.create().file(configuration.charts) /* TODO */);
+        return new Stage(configuration, name, cl, values(helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
     private static Map<String, Object> values(ObjectNode helmObject) throws IOException {
@@ -130,15 +138,18 @@ public class Stage {
      */
     private final String name;
 
+    private final Clazz clazz;
+
     private final Map<String, Object> values;
 
     private final ObjectNode info;
 
     public final List<HistoryEntry> history;
 
-    public Stage(Configuration configuration, String name, Map<String, Object> values, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(Configuration configuration, String name, Clazz clazz, Map<String, Object> values, ObjectNode info, List<HistoryEntry> history) {
         this.configuration = configuration;
         this.name = name;
+        this.clazz = clazz;
         this.values = values;
         this.info = info;
         this.history = history;
@@ -345,11 +356,11 @@ public class Stage {
     }
 
     /** CAUTION: values are not updated! */
-    public void publish(Caller caller, Engine engine, String clazz, Map<String, String> clientValues) throws IOException {
+    public void publish(Caller caller, Engine engine, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
 
         map = new HashMap<>(values);
-        Helm.upgrade(World.create().file(configuration.charts) /* TODO */, configuration, name, map, clazz, clientValues);
+        Helm.upgrade(World.create().file(configuration.charts) /* TODO */, configuration, name, map, clazz.name, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
     }
