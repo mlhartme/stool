@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Type;
 import net.oneandone.stool.util.Expire;
@@ -27,15 +26,13 @@ import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public class Clazz {
-    public static Map<String, Clazz> loadAll(FileNode root) throws IOException {
-        ObjectMapper yaml;
+    public static Map<String, Clazz> loadAll(ObjectMapper yaml, FileNode root) throws IOException {
         Iterator<JsonNode> classes;
         Iterator<Map.Entry<String, JsonNode>> values;
         Map.Entry<String, JsonNode> entry;
@@ -47,7 +44,6 @@ public class Clazz {
         Clazz derived;
         String name;
 
-        yaml = new ObjectMapper(new YAMLFactory());
         try (Reader src = root.join("classes.yaml").newReader()) {
             classes = yaml.readTree(src).elements();
         }
@@ -142,11 +138,16 @@ public class Clazz {
         values.put(value.name, value);
     }
 
-    public FileNode createValuesFile(Expressions builder, Map<String, String> clientValues, Map<String, Object> dest) throws IOException {
+    public FileNode createValuesFile(ObjectMapper mapper, Expressions builder, Map<String, String> clientValues, Map<String, Object> initial) throws IOException {
+        ObjectNode dest;
         String key;
         Expire expire;
         FileNode file;
 
+        dest = mapper.createObjectNode();
+        for (Map.Entry<String, Object> entry : initial.entrySet()) {
+            dest.put(entry.getKey(), (String) entry.getValue());
+        }
         for (Value field : this.values.values()) {
             if (field != null) {
                 dest.put(field.name, builder.eval(field.value));
@@ -161,26 +162,13 @@ public class Clazz {
         }
 
         // normalize expire
-        expire = Expire.fromHuman((String) dest.getOrDefault(Type.VALUE_EXPIRE, Integer.toString(builder.configuration.defaultExpire)));
+        expire = Expire.fromHuman(Json.string(dest, Type.VALUE_EXPIRE, Expire.fromNumber(builder.configuration.defaultExpire).toString()));
         if (expire.isExpired()) {
             throw new ArgumentException("stage expired: " + expire);
         }
-        dest.put(Type.VALUE_EXPIRE, expire.toString()); // normalize
+        dest.put(Type.VALUE_EXPIRE, expire.toString());
 
-        file = builder.world.getTemp().createTempFile();
-        try (PrintWriter v = new PrintWriter(file.newWriter())) {
-            for (Map.Entry<String, Object> entry : dest.entrySet()) {
-                v.println(entry.getKey() + ": " + toJson(entry.getValue()));
-            }
-        }
+        file = builder.world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;
-    }
-
-    private static String toJson(Object obj) {
-        if (obj instanceof String) {
-            return "\"" + obj + '"';
-        } else {
-            return obj.toString(); // ok für boolean and integer
-        }
     }
 }

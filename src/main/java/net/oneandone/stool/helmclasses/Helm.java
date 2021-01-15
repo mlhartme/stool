@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.helmclasses;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
@@ -46,15 +48,17 @@ public final class Helm {
                                String className, Map<String, String> clientValues)
             throws IOException {
         World world;
+        ObjectMapper yaml;
         Map<String, Clazz> all;
         Expressions expressions;
         Clazz clazz;
         FileNode chart;
         FileNode values;
 
+        yaml = new ObjectMapper(new YAMLFactory());
         world = root.getWorld();
         expressions = new Expressions(world, configuration, configuration.stageFqdn(name));
-        all = Clazz.loadAll(root);
+        all = Clazz.loadAll(yaml, root);
         LOGGER.info("class: " + className);
         clazz = all.get(className);
         if (clazz == null) {
@@ -62,7 +66,7 @@ public final class Helm {
         }
         chart = root.join(clazz.chart).checkDirectory();
         LOGGER.info("chart: " + clazz.chart);
-        values = clazz.createValuesFile(expressions, clientValues, map);
+        values = clazz.createValuesFile(yaml, expressions, clientValues, map);
         try {
             LOGGER.info("values: " + values.readString());
             LOGGER.info("helm install upgrade=" + upgrade);

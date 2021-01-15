@@ -28,17 +28,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ClazzTest {
     @Test
     public void normal() throws IOException {
+        ObjectMapper yaml;
         World world;
         Map<String, Clazz> all;
         Clazz a;
 
+        yaml = new ObjectMapper(new YAMLFactory());
         world = World.create();
-        all = Clazz.loadAll(world.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
+        all = Clazz.loadAll(yaml, world.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
         assertEquals(2, all.size());
         a = all.get("derived");
         assertEquals("42", a.values.get("asis").value);
         assertEquals("modified", a.values.get("base").value);
         assertEquals("3", a.values.get("added").value);
-        System.out.println(a.toObject(new ObjectMapper(new YAMLFactory())));
+        System.out.println(a.toObject(yaml).toPrettyString());
     }
 }
