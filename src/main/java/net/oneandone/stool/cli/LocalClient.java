@@ -282,7 +282,7 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, stageName);
-            tagInfo = stage.tagInfo();
+            tagInfo =  null; //  TODO stage.tagInfo();
         }
         Expressions.checkFaultPermissions(World.createMinimal() /* TODO */, User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
         return tagInfo;

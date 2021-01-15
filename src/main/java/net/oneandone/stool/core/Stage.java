@@ -23,8 +23,6 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.helmclasses.Clazz;
 import net.oneandone.stool.helmclasses.Helm;
 import net.oneandone.stool.kubernetes.Stats;
-import net.oneandone.stool.registry.Registry;
-import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
@@ -196,23 +194,10 @@ public class Stage {
         return Separator.COMMA.split(values.get(Type.VALUE_CONTACT).toString());
     }
 
-    public String getImage() {
-        return values.get(Type.VALUE_IMAGE).toString();
-    }
-
     //--
 
     public FileNode getLogs() throws MkdirException {
         return configuration.stageLogs(name);
-    }
-
-    private Registry lazyRegistry = null;
-
-    public Registry registry() throws IOException {
-        if (lazyRegistry == null) {
-            lazyRegistry = configuration.createRegistry(World.create() /* TODO */, getImage());
-        }
-        return lazyRegistry;
     }
 
     //-- fields
@@ -347,14 +332,6 @@ public class Stage {
 
     //-- docker
 
-    /** @return sorted list, oldest first */
-    public List<TagInfo> images() throws IOException {
-        String path;
-
-        path = Registry.getRepositoryPath(Registry.toRepository(getImage()));
-        return registry().list(path);
-    }
-
     /** CAUTION: values are not updated! */
     public void publish(Caller caller, Engine engine, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
@@ -396,14 +373,12 @@ public class Stage {
     /**
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap() throws IOException {
+    public Map<String, String> urlMap() {
         Map<String, String> result;
-        TagInfo tag;
 
         result = new LinkedHashMap<>();
-        tag = tagInfo();
-        addNamed("http", url(tag, "http"), result);
-        addNamed("https", url(tag, "https"), result);
+        addNamed("http", url("http"), result);
+        addNamed("https", url("https"), result);
         return result;
     }
 
@@ -421,20 +396,22 @@ public class Stage {
         }
     }
 
-    private List<String> url(TagInfo tag, String protocol) {
+    private List<String> url(String protocol) {
         String fqdn;
         String url;
         List<String> result;
 
         fqdn = configuration.stageFqdn(name);
-        url = protocol + "://" + fqdn + "/" + tag.urlContext;
+        url = protocol + "://" + fqdn + "/" + "" /* TODO tag.urlContext */;
         if (!url.endsWith("/")) {
             url = url + "/";
         }
         result = new ArrayList<>();
+        result.add(url);
+        /* TODO
         for (String suffix : tag.urlSuffixes) {
             result.add(url + suffix);
-        }
+        }*/
         return result;
     }
 
@@ -442,11 +419,6 @@ public class Stage {
 
     public Map<String, PodInfo> runningPods(Engine engine) throws IOException {
         return engine.podList(engine.deploymentProbe(Type.deploymentName(name)).selector);
-    }
-
-    /** @return never null */
-    public TagInfo tagInfo() throws IOException {
-        return registry().tagInfo(getImage());
     }
 
     /** @return null if unknown */
