@@ -104,7 +104,7 @@ public class Clazz {
         iter = values.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            result.put(entry.getKey(), null);
+            result.put(entry.getKey(), new Value(entry.getKey(), false, false, entry.getValue().asText()));
         }
         return result;
     }

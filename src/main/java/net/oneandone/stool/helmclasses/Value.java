@@ -60,9 +60,9 @@ public class Value {
 
         result = yaml.createObjectNode();
         result.set("name", new TextNode(name));
-        result.set("value", new TextNode(value));
         result.set("abstract", BooleanNode.valueOf(abstrct));
         result.set("private", BooleanNode.valueOf(privt));
+        result.set("value", new TextNode(value));
         return result;
     }
 }
