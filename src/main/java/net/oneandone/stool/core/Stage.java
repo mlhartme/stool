@@ -101,15 +101,22 @@ public class Stage {
         cl = Clazz.load(new ObjectMapper(new YAMLFactory()) /* TODO */,
                 new HashMap<>(), (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS),
                 World.create().file(configuration.charts) /* TODO */);
-        return new Stage(configuration, name, cl, values(helmObject), (ObjectNode) helmObject.get("info"), history);
+        return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
-    private static Map<String, Object> values(ObjectNode helmObject) throws IOException {
-        Map<String, Object> result;
+    private static Map<String, Value> values(Clazz clazz, ObjectNode helmObject) throws IOException {
+        Map<String, Object> raw;
+        Map<String, Value> result;
+        String key;
 
-        result = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"));
-        result.putAll(Json.toStringMap((ObjectNode) helmObject.get("config")));
-        check(result, Type.MANDATORY);
+        raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"));
+        raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config")));
+        check(raw, Type.MANDATORY);
+        result = new HashMap<>();
+        for (Map.Entry<String, Object> entry : raw.entrySet()) {
+            key = entry.getKey();
+            result.put(key, new Value(entry.getKey(), clazz.get(key), entry.getValue().toString()));
+        }
         return result;
     }
 
@@ -140,13 +147,13 @@ public class Stage {
 
     public final Clazz clazz;
 
-    private final Map<String, Object> values;
+    private final Map<String, Value> values;
 
     private final ObjectNode info;
 
     public final List<HistoryEntry> history;
 
-    public Stage(Configuration configuration, String name, Clazz clazz, Map<String, Object> values, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(Configuration configuration, String name, Clazz clazz, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
         this.configuration = configuration;
         this.name = name;
         this.clazz = clazz;
@@ -162,14 +169,9 @@ public class Stage {
     //-- values
 
     public List<Value> values() {
-        List<Value> result;
-
-        result = new ArrayList<>();
-        for (String key : values.keySet()) {
-            result.add(value(key));
-        }
-        return result;
+        return new ArrayList<>(values.values());
     }
+
     public Value value(String key) {
         Value result;
 
@@ -179,11 +181,9 @@ public class Stage {
         }
         return result;
     }
-    public Value valueOpt(String value) {
-        Object obj;
 
-        obj = values.get(value);
-        return obj == null ? null : new Value(value, clazz.get(value), obj.toString());
+    public Value valueOpt(String value) {
+        return values.get(value);
     }
 
     //-- important values
@@ -359,7 +359,10 @@ public class Stage {
     public void publish(Caller caller, Engine engine, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
 
-        map = new HashMap<>(values);
+        map = new HashMap<>();
+        for (Map.Entry<String, Value> entry : values.entrySet()) {
+            map.put(entry.getKey(), entry.getValue().get());
+        }
         Helm.upgrade(World.create().file(configuration.charts) /* TODO */, configuration, name, map, clazz.name, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
