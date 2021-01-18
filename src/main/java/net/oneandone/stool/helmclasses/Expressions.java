@@ -174,6 +174,19 @@ public class Expressions {
                 }
             }
         });
+        result.put("labelOpt", new TemplateMethodModelEx() {
+            @Override
+            public Object exec(List list) throws TemplateModelException {
+                if (list.size() != 2) {
+                    throw new ArgumentException(list.toString());
+                }
+                try {
+                    return labelOpt(list.get(0).toString(), list.get(0).toString());
+                } catch (IOException e) {
+                    throw new TemplateModelException(e.getMessage(), e);
+                }
+            }
+        });
         result.put("cert", new TemplateMethodModelEx() {
             @Override
             public Object exec(List list) throws TemplateModelException {
@@ -213,16 +226,23 @@ public class Expressions {
     }
 
     private String label(String imageOrRepository, String label) throws IOException, TemplateModelException {
+        String result;
+
+        result = labelOpt(imageOrRepository, label);
+        if (result == null) {
+            throw new TemplateModelException("label not found: " + label);
+        }
+        return result;
+    }
+
+    private String labelOpt(String imageOrRepository, String label) throws IOException {
         Registry registry;
         String result;
 
         Helm.validateRepository(Registry.toRepository(imageOrRepository));
         registry = configuration.createRegistry(world, imageOrRepository);
         result = registry.resolve(imageOrRepository).labels.get(label);
-        if (result == null) {
-            throw new TemplateModelException("label not found: " + label);
-        }
-        return result;
+        return result == null ? "" : result;
     }
 
     private String latest(String imageOrRepository) throws IOException {

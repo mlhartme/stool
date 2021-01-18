@@ -169,9 +169,9 @@ public class Clazz {
     }
 
     public void define(ValueType value) throws IOException {
-        if (!values.containsKey(value.name)) {
+        /* TODO: if (!values.containsKey(value.name)) {
             throw new IOException("unknown value: " + value.name);
-        }
+        }*/
         values.put(value.name, value);
     }
 

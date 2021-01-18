@@ -184,6 +184,13 @@ public class Stage {
         return values.get(value);
     }
 
+    public String valueOptString(String key, String dflt) {
+        Value result;
+
+        result = valueOpt(key);
+        return result == null ? dflt : result.get();
+    }
+
     //-- important values
 
     public Expire getMetadataExpire() {
@@ -403,22 +410,53 @@ public class Stage {
         }
     }
 
+    //--
+
     private List<String> url(String protocol) {
         String fqdn;
         String url;
         List<String> result;
 
         fqdn = configuration.stageFqdn(name);
-        url = protocol + "://" + fqdn + "/" + "" /* TODO tag.urlContext */;
+        url = protocol + "://" + fqdn + "/" + urlContext();
         if (!url.endsWith("/")) {
             url = url + "/";
         }
         result = new ArrayList<>();
         result.add(url);
-        /* TODO
-        for (String suffix : tag.urlSuffixes) {
+        for (String suffix : urlSuffixes()) {
             result.add(url + suffix);
-        }*/
+        }
+        return result;
+    }
+
+    private static final Separator SUFFIXES_SEP = Separator.on(',').trim();
+
+    private List<String> urlSuffixes() {
+        String suffixes;
+        List<String> result;
+
+        suffixes = valueOptString("urlSuffixes", "");
+        result = new ArrayList<>();
+        if (suffixes != null) {
+            result.addAll(SUFFIXES_SEP.split(suffixes));
+        }
+        if (result.isEmpty()) {
+            result.add("");
+        }
+        return result;
+    }
+
+    private String urlContext() {
+        String result;
+
+        result = valueOptString("urlContext", "");
+        if (result.startsWith("/")) {
+            throw new ArithmeticException("server must not start with '/': " + result);
+        }
+        if (!result.isEmpty() && result.endsWith("/")) {
+            throw new ArithmeticException("server must not end with '/': " + result);
+        }
         return result;
     }
 

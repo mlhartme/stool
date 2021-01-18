@@ -15,50 +15,12 @@
  */
 package net.oneandone.stool.registry;
 
-import net.oneandone.sushi.util.Separator;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class TagInfo implements Comparable<TagInfo> {
-    public static final String IMAGE_LABEL_URL_CONTEXT = "LABEL net.oneandone.stool-url.context";
-    public static final String IMAGE_LABEL_URL_SUFFIXES = "LABEL net.oneandone.stool-url.suffixes";
-
     public static TagInfo create(String id, String repositoryTag, String tag, String author, LocalDateTime created, Map<String, String> labels) {
-        return new TagInfo(id, repositoryTag, tag, author,
-                context(labels.get(IMAGE_LABEL_URL_CONTEXT)),
-                suffixes(labels.get(IMAGE_LABEL_URL_SUFFIXES)),
-                created, labels);
-    }
-
-    private static String context(String context) {
-        String result;
-
-        result = context == null ? "" : context;
-        if (result.startsWith("/")) {
-            throw new ArithmeticException("server must not start with '/': " + result);
-        }
-        if (!result.isEmpty() && result.endsWith("/")) {
-            throw new ArithmeticException("server must not end with '/': " + result);
-        }
-        return result;
-    }
-
-    private static final Separator SUFFIXES_SEP = Separator.on(',').trim();
-
-    private static List<String> suffixes(String suffixes) {
-        List<String> result;
-
-        result = new ArrayList<>();
-        if (suffixes != null) {
-            result.addAll(SUFFIXES_SEP.split(suffixes));
-        }
-        if (result.isEmpty()) {
-            result.add("");
-        }
-        return result;
+        return new TagInfo(id, repositoryTag, tag, author, created, labels);
     }
 
     //--
@@ -75,25 +37,13 @@ public class TagInfo implements Comparable<TagInfo> {
 
     //-- meta data
 
-    public final String urlContext;
-    public final List<String> urlSuffixes;
-
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public TagInfo(String id, String repositoryTag, String tag, String author, String urlContext, List<String> urlSuffixes,
-                   LocalDateTime createdAt, Map<String, String> labels) {
-        if (!urlContext.isEmpty()) {
-            if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
-                throw new IllegalArgumentException(urlContext);
-            }
-        }
+    public TagInfo(String id, String repositoryTag, String tag, String author, LocalDateTime createdAt, Map<String, String> labels) {
         this.id = id;
         this.repositoryTag = repositoryTag;
         this.tag = tag;
         this.tagNumber = parseOpt(tag);
         this.author = author;
-
-        this.urlContext = urlContext;
-        this.urlSuffixes = urlSuffixes;
         this.createdAt = createdAt;
         this.labels = labels;
     }

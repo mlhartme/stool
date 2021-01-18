@@ -63,6 +63,7 @@
 * log validation report
 * readiness probe for stool server
 * no longer use application files, use springboot instead  
+* freemarker to define values 
 * dependency updates
   * sushi 3.2.2 to 3.3.0
   * fabric8 kubernetes client 4.10.2 to 5.0.0  
