@@ -23,11 +23,9 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Type;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;

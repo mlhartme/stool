@@ -21,7 +21,6 @@ import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
-import net.oneandone.stool.core.Value;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.sushi.fs.World;
