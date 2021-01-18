@@ -289,8 +289,15 @@ public class Stage {
         });
         fields.add(new Field("urls") {
             @Override
-            public Object get(Engine engine) throws IOException {
+            public Object get(Engine engine) {
                 return Stage.this.urlMap();
+            }
+        });
+        fields.add(new Field("class") {
+            @Override
+            public Object get(Engine engine) {
+                // TODO
+                return Stage.this.clazz.toObject(new ObjectMapper(new YAMLFactory())).toPrettyString();
             }
         });
         return fields;
