@@ -15,6 +15,9 @@
  */
 package net.oneandone.stool.helmclasses;
 
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateMethodModelEx;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.Registry;
@@ -31,10 +34,13 @@ import org.kamranzafar.jtar.TarOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
@@ -47,6 +53,52 @@ public class Expressions {
         this.world = world;
         this.configuration = configuration;
         this.fqdn = fqdn;
+    }
+
+    public String compute(String str) throws IOException, TemplateException {
+        freemarker.template.Configuration fm;
+        FileNode srcfile;
+        FileNode destfile;
+        Template template;
+        StringWriter tmp;
+
+        fm = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
+        fm.setDefaultEncoding("UTF-8");
+
+        srcfile = world.getTemp().createTempFile();
+        srcfile.writeString(str);
+        destfile = world.getTemp().createTempFile();
+        try {
+            fm.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
+            template = fm.getTemplate(srcfile.getName());
+            tmp = new StringWriter();
+            template.process(templateEnv(), tmp);
+            destfile.writeString(tmp.getBuffer().toString());
+            return destfile.readString();
+        } finally {
+            destfile.deleteFile();
+            srcfile.deleteFile();
+        }
+    }
+
+    private Map<String, Object> templateEnv() throws IOException {
+        Map<String, Object> result;
+
+        result = new HashMap<>();
+        result.put("test", 42);
+        result.put("concat", new TemplateMethodModelEx() {
+            @Override
+            public Object exec(List list) {
+                StringBuilder b;
+
+                b = new StringBuilder();
+                for (Object o : list) {
+                    b.append(o.toString());
+                }
+                return b.toString();
+            }
+        });
+        return result;
     }
 
     public String eval(String expr) throws IOException {

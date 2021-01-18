@@ -23,14 +23,17 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FreemarkerTest {
+public class ExpressionsTest {
     @Test
     public void normal() throws IOException, TemplateException {
-        Freemarker m;
+        Expressions m;
 
-        m = new Freemarker(World.create());
+        m = new Expressions(World.create(), null /* TODO */, "fqdn");
         assertEquals("", m.compute(""));
         assertEquals("hello", m.compute("hello"));
         assertEquals("42", m.compute("${test}"));
+        assertEquals("", m.compute("${concat()}"));
+        assertEquals("1", m.compute("${concat(1)}"));
+        assertEquals("13", m.compute("${concat(1, 3)}"));
     }
 }
