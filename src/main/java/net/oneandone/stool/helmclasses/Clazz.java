@@ -172,9 +172,7 @@ public class Clazz {
             dest.set(entry.getKey(), toJson(entry.getValue()));
         }
         for (ValueType field : this.values.values()) {
-            if (field != null) {
-                dest.put(field.name, builder.eval(field.value));
-            }
+            dest.put(field.name, builder.eval(field.value));
         }
         for (Map.Entry<String, String> entry : clientValues.entrySet()) {
             key = entry.getKey();
