@@ -18,6 +18,7 @@ package net.oneandone.stool.helmclasses;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateMethodModelEx;
+import freemarker.template.TemplateModelException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.Registry;
@@ -81,21 +82,17 @@ public class Expressions {
         }
     }
 
-    private Map<String, Object> templateEnv() throws IOException {
+    private Map<String, Object> templateEnv() {
         Map<String, Object> result;
 
         result = new HashMap<>();
-        result.put("test", 42);
-        result.put("concat", new TemplateMethodModelEx() {
+        result.put("defaultExpire", new TemplateMethodModelEx() {
             @Override
-            public Object exec(List list) {
-                StringBuilder b;
-
-                b = new StringBuilder();
-                for (Object o : list) {
-                    b.append(o.toString());
+            public Object exec(List list) throws TemplateModelException {
+                if (list.size() != 0) {
+                    throw new ArgumentException(list.toString());
                 }
-                return b.toString();
+                return configuration.defaultExpire;
             }
         });
         return result;

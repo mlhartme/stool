@@ -16,6 +16,7 @@
 package net.oneandone.stool.helmclasses;
 
 import freemarker.template.TemplateException;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
@@ -26,14 +27,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ExpressionsTest {
     @Test
     public void normal() throws IOException, TemplateException {
+        World world;
+        Configuration c;
         Expressions m;
 
-        m = new Expressions(World.create(), null /* TODO */, "fqdn");
+        world = World.create();
+        c = Configuration.create(world); // TODO
+        m = new Expressions(world, c, "fqdn");
         assertEquals("", m.compute(""));
         assertEquals("hello", m.compute("hello"));
-        assertEquals("42", m.compute("${test}"));
-        assertEquals("", m.compute("${concat()}"));
-        assertEquals("1", m.compute("${concat(1)}"));
-        assertEquals("13", m.compute("${concat(1, 3)}"));
+        assertEquals("0", m.compute("${defaultExpire()}"));
     }
 }
