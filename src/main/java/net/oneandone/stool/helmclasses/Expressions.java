@@ -21,6 +21,7 @@ import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Value;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.sushi.fs.World;
@@ -48,10 +49,69 @@ public class Expressions {
     public final Configuration configuration;
     private final String fqdn;
 
+    /** value is
+     *   string when ready
+     *   valuetype when to do
+     *   null when recursion started
+     */
+    private Map<String, Object> context;
+
     public Expressions(World world, Configuration configuration, String fqdn) {
         this.world = world;
         this.configuration = configuration;
         this.fqdn = fqdn;
+        this.context = null;
+    }
+
+    public Map<String, String> eval(Clazz clazz) throws IOException {
+        Map<String, String> result;
+
+        if (context != null) {
+            throw new IllegalStateException();
+        }
+        context = new HashMap<>();
+        try {
+            for (ValueType type : clazz.values.values()) {
+                context.put(type.name, type);
+            }
+            for (ValueType type : clazz.values.values()) {
+                evalValue(type.name);
+            }
+            result = new HashMap<>();
+            for (Map.Entry<String, Object> entry : context.entrySet()) {
+                result.put(entry.getKey(), (String) entry.getValue());
+            }
+            return result;
+        } finally {
+            context = null;
+        }
+    }
+
+    private String evalValue(String name) {
+        Object obj;
+        String result;
+
+        if (!context.containsKey(name)) {
+            throw new ArgumentException("unknown field: " + name);
+        }
+        obj = context.get(name);
+        if (obj == null) {
+            throw new ArgumentException("invalid recursion on field " + name);
+        }
+        if (obj instanceof String) {
+            return (String) obj;
+        }
+        if (obj instanceof ValueType) {
+            context.put(name, null);
+            try {
+                result = eval(((ValueType) obj).value);
+            } catch (IOException e) {
+                throw new ArgumentException("failed to compute value: " + name, e);
+            }
+            context.put(name, result);
+            return result;
+        }
+        throw new IllegalStateException(obj.getClass().toString());
     }
 
     public String eval(String str) throws IOException {
@@ -139,6 +199,15 @@ public class Expressions {
                 } catch (IOException e) {
                     throw new TemplateModelException(e.getMessage(), e);
                 }
+            }
+        });
+        result.put("value", new TemplateMethodModelEx() {
+            @Override
+            public Object exec(List list) throws TemplateModelException {
+                if (list.size() != 1) {
+                    throw new ArgumentException(list.toString());
+                }
+                return evalValue(list.get(0).toString());
             }
         });
         return result;

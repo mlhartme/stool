@@ -23,9 +23,11 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Type;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -109,6 +111,20 @@ public class Clazz {
         return result;
     }
 
+    public static Clazz forTest(String name, String... nameValues) {
+        Map<String, ValueType> map;
+        ValueType v;
+
+        map = new HashMap<>();
+        for (int i = 0; i < nameValues.length; i += 2) {
+            v = new ValueType(nameValues[i], false, false, nameValues[i + 1]);
+            if (map.put(v.name, v) != null) {
+                throw new IllegalArgumentException("duplicate field: " + v.name);
+            }
+        }
+        return new Clazz(name, "unusedChart", map);
+    }
+
     //--
 
     public final String name;
@@ -171,8 +187,9 @@ public class Clazz {
         for (Map.Entry<String, Object> entry : initial.entrySet()) {
             dest.set(entry.getKey(), toJson(entry.getValue()));
         }
-        for (ValueType field : this.values.values()) {
-            dest.put(field.name, builder.eval(field.value));
+        // TODO: overwrites ...
+        for (Map.Entry<String, String> entry : builder.eval(this).entrySet()) {
+            dest.put(entry.getKey(), entry.getValue());
         }
         for (Map.Entry<String, String> entry : clientValues.entrySet()) {
             key = entry.getKey();
