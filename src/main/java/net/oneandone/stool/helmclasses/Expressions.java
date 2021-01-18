@@ -23,11 +23,9 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.core.Stage;
-import net.oneandone.stool.util.Expire;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
@@ -56,7 +54,7 @@ public class Expressions {
         this.fqdn = fqdn;
     }
 
-    public String compute(String str) throws IOException, TemplateException {
+    public String eval(String str) throws IOException {
         freemarker.template.Configuration fm;
         FileNode srcfile;
         FileNode destfile;
@@ -76,6 +74,8 @@ public class Expressions {
             template.process(templateEnv(), tmp);
             destfile.writeString(tmp.getBuffer().toString());
             return destfile.readString();
+        } catch (TemplateException e) {
+            throw new IOException("freemarker error: " + e.getMessage(), e);
         } finally {
             destfile.deleteFile();
             srcfile.deleteFile();
@@ -86,83 +86,75 @@ public class Expressions {
         Map<String, Object> result;
 
         result = new HashMap<>();
-        result.put("defaultExpire", new TemplateMethodModelEx() {
+        result.put("fqdn", fqdn);
+        result.put("defaultExpire", configuration.defaultExpire);
+        result.put("defaultContact", Stage.NOTIFY_FIRST_MODIFIER);
+        result.put("latest", new TemplateMethodModelEx() {
+            @Override
+            public Object exec(List list) throws TemplateModelException {
+                if (list.size() != 1) {
+                    throw new ArgumentException(list.toString());
+                }
+                try {
+                    return latest(list.get(0).toString());
+                } catch (IOException e) {
+                    throw new TemplateModelException(e.getMessage(), e);
+                }
+            }
+        });
+        result.put("label", new TemplateMethodModelEx() {
+            @Override
+            public Object exec(List list) throws TemplateModelException {
+                if (list.size() != 2) {
+                    throw new ArgumentException(list.toString());
+                }
+                try {
+                    return label(list.get(0).toString(), list.get(0).toString());
+                } catch (IOException e) {
+                    throw new TemplateModelException(e.getMessage(), e);
+                }
+            }
+        });
+        result.put("cert", new TemplateMethodModelEx() {
             @Override
             public Object exec(List list) throws TemplateModelException {
                 if (list.size() != 0) {
                     throw new ArgumentException(list.toString());
                 }
-                return configuration.defaultExpire;
+                try {
+                    return cert();
+                } catch (IOException e) {
+                    throw new TemplateModelException(e.getMessage(), e);
+                }
+            }
+        });
+        result.put("fault", new TemplateMethodModelEx() {
+            @Override
+            public Object exec(List list) throws TemplateModelException {
+                if (list.size() != 1) {
+                    throw new ArgumentException(list.toString());
+                }
+                try {
+                    return fault(Separator.COMMA.split(list.get(0).toString()));
+                } catch (IOException e) {
+                    throw new TemplateModelException(e.getMessage(), e);
+                }
             }
         });
         return result;
     }
 
-    public String eval(String expr) throws IOException {
-        int start;
-        int end;
+    private String label(String imageOrRepository, String label) throws IOException, TemplateModelException {
+        Registry registry;
+        String result;
 
-        start = expr.indexOf("{{");
-        if (start < 0) {
-            return expr;
+        Helm.validateRepository(Registry.toRepository(imageOrRepository));
+        registry = configuration.createRegistry(world, imageOrRepository);
+        result = registry.resolve(imageOrRepository).labels.get(label);
+        if (result == null) {
+            throw new TemplateModelException("label not found: " + label);
         }
-        end = expr.lastIndexOf("}}");
-        if (end < 0) {
-            throw new IOException("missing closing brackets: " + expr);
-        }
-        return expr.substring(0, start) + macro(expr.substring(start + 2, end)) + expr.substring(end + 2);
-    }
-
-    private String macro(String macro) throws IOException {
-        int idx;
-        List<String> call;
-
-        macro = macro.trim();
-        // TODO: just 1 arg ...
-        idx = macro.indexOf(' ');
-        if (idx < 0) {
-            call = Strings.toList(macro);
-        } else {
-            call = Strings.toList(macro.substring(0, idx), macro.substring(idx + 1));
-        }
-        switch (call.get(0)) {
-            case "defaultExpire":
-                arg(call, 0);
-                return Expire.fromNumber(configuration.defaultExpire).toString();
-            case "defaultContact":
-                arg(call, 0);
-                return Stage.NOTIFY_FIRST_MODIFIER;
-            case "label":
-                arg(call, 1);
-                return label(eval(call.get(1)));
-            case "latest":
-                arg(call, 1);
-                return latest(eval(call.get(1)));
-            case "fqdn":
-                arg(call, 0);
-                return fqdn;
-            case "cert":
-                arg(call, 0);
-                return cert();
-            case "empty":
-                arg(call, 0);
-                return "";
-            case "fault":
-                arg(call, 1);
-                return fault(Separator.COMMA.split(eval(call.get(1))));
-            default:
-                throw new IOException("unknown macro: " + macro);
-        }
-    }
-
-    private void arg(List<String> call, int size) throws IOException {
-        if (call.size() - 1 != size) {
-            throw new IOException(call.get(0) + ": argument count mismatch, expected " + size + ", got " + (call.size() - 1));
-        }
-    }
-
-    private String label(String name) throws IOException {
-        throw new IOException("TODO: label not found: " + name);
+        return result;
     }
 
     private String latest(String imageOrRepository) throws IOException {
