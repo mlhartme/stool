@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 6.5.0 (pending)
+### 7.0.0 (pending)
 
 * merged client and server
   * all functionality is in `sc` now; use `sc server` to start a server

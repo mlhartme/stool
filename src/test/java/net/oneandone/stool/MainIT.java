@@ -92,7 +92,7 @@ public class MainIT {
         run(true);
     }
 
-    @Test
+    // TODO
     public void proxy() throws IOException {
         run(false);
     }
@@ -124,7 +124,7 @@ public class MainIT {
         sc(clientYaml, "validate", stage);
         sc(clientYaml, "config", stage, "metadataComment");
         sc(clientYaml, "config", stage, "metadataComment=42");
-        sc(clientYaml, "images", stage);
+        // TODO: sc(clientYaml, "images", repository);
         sc(clientYaml, "publish", stage, clazz);
         sc(clientYaml, "list", stage);
         sc(clientYaml, "validate", stage);
