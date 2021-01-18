@@ -18,6 +18,15 @@
     * creating a new stage internally executes `helm install`
     * deleting a stage internally executes `helm uninstall`
     * store all stage configuration as helm values; the separate ConfigMap is gone
+  * helm-like cli: 
+    * create is similar to helm install: `sc create <name> <class>`
+    * other commands references stages explicitly, e.g. `sc status hellowar`
+    * dumped implicit workspaces derived from current directory because
+      * you rarely have the sources 
+      * you need extra value that's better supplied with classes
+      * simplified setup because the stage indicator is gone
+    * added named workspaces to accomodate for missing implicit workspaces
+  
 * image handling changes
   * dumped `sc build`, configure an image build in your Maven build instead
   * created a separate `maven-dockerbuild-plugin` that contains the formder `sc build` functionality
