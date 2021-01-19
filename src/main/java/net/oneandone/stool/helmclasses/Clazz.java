@@ -30,8 +30,10 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class Clazz {
@@ -104,7 +106,7 @@ public class Clazz {
         iter = values.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            result.put(entry.getKey(), new ValueType(entry.getKey(), false, false, entry.getValue().asText()));
+            result.put(entry.getKey(), new ValueType(entry.getKey(), false, false, null, entry.getValue().asText()));
         }
         return result;
     }
@@ -115,7 +117,7 @@ public class Clazz {
 
         map = new HashMap<>();
         for (int i = 0; i < nameValues.length; i += 2) {
-            v = new ValueType(nameValues[i], false, false, nameValues[i + 1]);
+            v = new ValueType(nameValues[i], false, false, null, nameValues[i + 1]);
             if (map.put(v.name, v) != null) {
                 throw new IllegalArgumentException("duplicate field: " + v.name);
             }
@@ -133,6 +135,20 @@ public class Clazz {
         this.name = name;
         this.chart = chart;
         this.values = values;
+    }
+
+    public void checkNotAbstract() throws IOException {
+        List<String> names;
+
+        names = new ArrayList<>();
+        for (ValueType value : values.values()) {
+            if (value.abstrct) {
+                names.add(value.name);
+            }
+        }
+        if (!names.isEmpty()) {
+            throw new IOException("class " + name + " has abstract values: " + names);
+        }
     }
 
     public ValueType get(String value) {

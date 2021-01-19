@@ -62,8 +62,9 @@ public final class Helm {
         LOGGER.info("class: " + className);
         clazz = all.get(className);
         if (clazz == null) {
-            throw new IOException("unknown application: " + className);
+            throw new IOException("unknown class: " + className);
         }
+        clazz.checkNotAbstract();
         chart = root.join(clazz.chart).checkDirectory();
         LOGGER.info("chart: " + clazz.chart);
         values = clazz.createValuesFile(yaml, expressions, clientValues, map);

@@ -29,29 +29,34 @@ public class ValueType {
         boolean privt;
         String value;
         ObjectNode obj;
+        String publish;
 
         abstrct = false;
         privt = false;
+        publish = null;
         if (yaml.isObject()) {
             obj = (ObjectNode) yaml;
             value = Json.string(obj, "value", "");
             abstrct = Json.bool(obj, "abstract", abstrct);
             privt = Json.bool(obj, "private", privt);
+            publish = Json.string(obj, "publish", publish);
         } else {
             value = yaml.asText();
         }
-        return new ValueType(name, abstrct, privt, value);
+        return new ValueType(name, abstrct, privt, publish, value);
 
     }
     public final String name;
     public final boolean abstrct;
     public final boolean privt;
+    public final String publish;
     public final String value;
 
-    public ValueType(String name, boolean abstrct, boolean privt, String value) {
+    public ValueType(String name, boolean abstrct, boolean privt, String publish, String value) {
         this.name = name;
         this.abstrct = abstrct;
         this.privt = privt;
+        this.publish = publish;
         this.value = value;
     }
 
@@ -62,6 +67,9 @@ public class ValueType {
         result.set("name", new TextNode(name));
         result.set("abstract", BooleanNode.valueOf(abstrct));
         result.set("private", BooleanNode.valueOf(privt));
+        if (publish != null) {
+            result.set("publish", new TextNode(publish));
+        }
         result.set("value", new TextNode(value));
         return result;
     }
