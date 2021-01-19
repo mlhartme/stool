@@ -15,20 +15,24 @@
  */
 package net.oneandone.stool.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.stool.util.Json;
 
 import java.io.IOException;
 
 /** A computable value representing one aspect of the stage status. */
-public abstract class Field extends Info {
+public abstract class Field {
     public final boolean hidden;
+    private final String name;
 
     protected Field(String name) {
         this(name, false);
     }
 
     protected Field(String name, boolean hidden) {
-        super(name);
+        this.name = name;
         this.hidden = hidden;
     }
 
@@ -36,5 +40,13 @@ public abstract class Field extends Info {
         return name();
     }
 
+    public String name() {
+        return name;
+    }
+
     public abstract Object get(Engine engine) throws IOException;
+
+    public JsonNode getAsJson(ObjectMapper json, Engine engine) throws IOException {
+        return Json.valueToJson(json, get(engine));
+    }
 }

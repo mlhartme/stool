@@ -107,7 +107,7 @@ public class PredicateParser {
             return new Predicate() {
                 @Override
                 public boolean matches(Stage stage) {
-                    return stage.getName().toLowerCase().equals(string.toLowerCase());
+                    return stage.getName().equalsIgnoreCase(string);
                 }
             };
         }
@@ -155,7 +155,7 @@ public class PredicateParser {
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }
-                    obj = p.get(engine);
+                    obj = p.get();
                 }
                 if (obj == null) {
                     str = "";

@@ -18,7 +18,10 @@ package net.oneandone.stool.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.ArrayList;
@@ -138,6 +141,36 @@ public final class Json {
             result.put(entry.getKey(), entry.getValue());
         }
         return result;
+    }
+
+    public static JsonNode valueToJson(ObjectMapper json, Object value) {
+        if (value == null) {
+            return NullNode.getInstance();
+        } else if (value instanceof List) {
+            ArrayNode result;
+            List<Object> lst;
+
+            result = json.createArrayNode();
+            lst = (List) value;
+            for (Object item : lst) {
+                result.add(valueToJson(json, item));
+            }
+            return result;
+        } else if (value instanceof Map) {
+            ObjectNode result;
+            Map<Object, Object> map;
+
+            result = json.createObjectNode();
+            map = (Map) value;
+            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                result.put((String) entry.getKey(), valueToJson(json, entry.getValue()));
+            }
+            return result;
+        } else if (value instanceof Integer) {
+            return new IntNode((Integer) value);
+        } else {
+            return new TextNode(value.toString());
+        }
     }
 
     private Json() {

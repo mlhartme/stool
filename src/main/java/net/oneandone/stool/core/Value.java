@@ -16,21 +16,25 @@
 package net.oneandone.stool.core;
 
 import net.oneandone.stool.helmclasses.ValueType;
-import net.oneandone.stool.kubernetes.Engine;
 
 /** A stored value representing one aspect of the stage status. */
-public class Value extends Info {
+public class Value {
+    private final String name;
     private final ValueType type;
     private final String value;
 
     public Value(String name, ValueType type, String value) {
-        super(name);
+        this.name = name;
         this.type = type;
         this.value = value;
     }
 
+    public String name() {
+        return name;
+    }
+
     public Value withNewValue(String str) {
-        return new Value(name(), type, str.replace("{}", value));
+        return new Value(name, type, str.replace("{}", value));
     }
 
     public String disclose() {
@@ -41,15 +45,11 @@ public class Value extends Info {
         }
     }
 
-    public String get(Engine engine) {
-        return get();
-    }
-
     public String get() {
         return value;
     }
 
     public String toString() {
-        return name() + ": " + get();
+        return name + ": " + get();
     }
 }
