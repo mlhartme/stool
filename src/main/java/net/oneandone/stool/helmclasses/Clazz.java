@@ -33,6 +33,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,7 +77,8 @@ public class Clazz {
             throw new IOException("chart and extends cannot be combined");
         }
         if (chart != null) {
-            derived = new Clazz(name, chart, loadChartValues(yaml, root.join(chart, "values.yaml")));
+            derived = new Clazz(name, chart);
+            derived.addChartValues(yaml, root.join(chart, "values.yaml"));
         } else {
             base = existing.get(extendz);
             if (base == null) {
@@ -93,36 +95,29 @@ public class Clazz {
         return derived;
     }
 
-    private static Map<String, ValueType> loadChartValues(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
-        ObjectNode values;
+    private void addChartValues(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
+        ObjectNode loaded;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
-        Map<String, ValueType> result;
 
         try (Reader src = valuesYaml.newReader()) {
-            values = (ObjectNode) yaml.readTree(src);
+            loaded = (ObjectNode) yaml.readTree(src);
         }
-        result = new HashMap();
-        iter = values.fields();
+        iter = loaded.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            result.put(entry.getKey(), new ValueType(entry.getKey(), false, false, null, entry.getValue().asText()));
+            add(new ValueType(entry.getKey(), false, false, null, entry.getValue().asText()));
         }
-        return result;
     }
 
     public static Clazz forTest(String name, String... nameValues) {
-        Map<String, ValueType> map;
-        ValueType v;
+        Clazz result;
 
-        map = new HashMap<>();
+        result = new Clazz(name, "unusedChart");
         for (int i = 0; i < nameValues.length; i += 2) {
-            v = new ValueType(nameValues[i], false, false, null, nameValues[i + 1]);
-            if (map.put(v.name, v) != null) {
-                throw new IllegalArgumentException("duplicate field: " + v.name);
-            }
+            result.add(new ValueType(nameValues[i], false, false, null, nameValues[i + 1]));
         }
-        return new Clazz(name, "unusedChart", map);
+        return result;
     }
 
     //--
@@ -131,10 +126,14 @@ public class Clazz {
     public final String chart;
     public final Map<String, ValueType> values;
 
-    private Clazz(String name, String chart, Map<String, ValueType> values) {
+    private Clazz(String name, String chart) {
         this.name = name;
         this.chart = chart;
-        this.values = values;
+        this.values = new LinkedHashMap<>();
+    }
+
+    public void add(ValueType value) {
+        values.put(value.name, value);
     }
 
     public void checkNotAbstract() throws IOException {
@@ -181,7 +180,13 @@ public class Clazz {
     }
 
     public Clazz derive(String withName) {
-        return new Clazz(withName, chart, new HashMap<>(values));
+        Clazz result;
+
+        result = new Clazz(withName, chart);
+        for (ValueType value : values.values()) {
+            result.add(value);
+        }
+        return result;
     }
 
     public void define(ValueType value) throws IOException {
