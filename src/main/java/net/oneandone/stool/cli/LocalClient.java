@@ -41,6 +41,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -146,7 +147,7 @@ public class LocalClient extends Client {
         Map<String, String> result;
         Stage stage;
 
-        result = new HashMap<>();
+        result = new LinkedHashMap<>();
         try (Engine engine = engine()) {
             stage = configuration.load(engine, stageName);
             for (Value value : stage.values()) {

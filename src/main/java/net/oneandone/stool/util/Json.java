@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -114,7 +113,7 @@ public final class Json {
         Map.Entry<String, JsonNode> entry;
         Object v;
 
-        result = new HashMap<>();
+        result = new LinkedHashMap<>();
         iter = obj.fields();
         while (iter.hasNext()) {
             entry = iter.next();
