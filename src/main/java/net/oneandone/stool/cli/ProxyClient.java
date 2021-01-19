@@ -144,11 +144,10 @@ public class ProxyClient extends Client {
     }
 
     @Override
-    public void publish(String stage, String clazz, Map<String, String> values) throws IOException {
+    public void publish(String stage, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node(stage, "publish");
-        node = node.withParameters("class", clazz);
         node = node.withParameters("value.", values);
         postJson(node, "");
     }

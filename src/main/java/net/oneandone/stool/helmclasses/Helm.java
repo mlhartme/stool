@@ -34,36 +34,38 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(FileNode root, Configuration configuration, String name, String clazz, Map<String, String> values)
+    public static void install(FileNode root, Configuration configuration, String name, String className, Map<String, String> values)
             throws IOException {
-        helm(root, configuration, name, false, false, new HashMap<>(), clazz, values);
-    }
-
-    public static void upgrade(FileNode root, Configuration configuration, String name, Map<String, Object> map, boolean publish,
-                                 String clazz, Map<String, String> values) throws IOException {
-        helm(root, configuration, name, true, publish, map, clazz, values);
-    }
-
-    private static void helm(FileNode root, Configuration configuration, String name, boolean upgrade, boolean publish, Map<String, Object> map,
-                               String className, Map<String, String> clientValues)
-            throws IOException {
-        World world;
         ObjectMapper yaml;
         Map<String, Clazz> all;
-        Expressions expressions;
         Clazz clazz;
-        FileNode chart;
-        FileNode values;
 
         yaml = new ObjectMapper(new YAMLFactory());
-        world = root.getWorld();
-        expressions = new Expressions(world, configuration, configuration.stageFqdn(name));
         all = Clazz.loadAll(yaml, root);
         LOGGER.info("class: " + className);
         clazz = all.get(className);
         if (clazz == null) {
             throw new IOException("unknown class: " + className);
         }
+
+        helm(yaml, root, configuration, name, false, false, new HashMap<>(), clazz, values);
+    }
+
+    public static void upgrade(FileNode root, Configuration configuration, String name, Map<String, Object> map, boolean publish,
+                               Clazz clazz, Map<String, String> values) throws IOException {
+        helm(new ObjectMapper(new YAMLFactory()), root, configuration, name, true, publish, map, clazz, values);
+    }
+
+    private static void helm(ObjectMapper yaml, FileNode root, Configuration configuration, String name, boolean upgrade, boolean publish, Map<String, Object> map,
+                             Clazz clazz, Map<String, String> clientValues)
+            throws IOException {
+        World world;
+        Expressions expressions;
+        FileNode chart;
+        FileNode values;
+
+        world = root.getWorld();
+        expressions = new Expressions(world, configuration, configuration.stageFqdn(name));
         if (publish) {
             for (ValueType vt : clazz.values.values()) {
                 map.put(vt.name, vt.publish(expressions, (String) map.get(vt.name)));

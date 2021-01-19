@@ -24,12 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Publish extends IteratedStageCommand {
-    private final String clazz;
     private final Map<String, String> values;
 
-    public Publish(Globals globals, String stage, String clazz, List<String> args) {
+    public Publish(Globals globals, String stage, List<String> args) {
         super(globals, stage);
-        this.clazz = clazz;
         this.values = new LinkedHashMap<>();
         eatValues(args);
     }
@@ -60,6 +58,6 @@ public class Publish extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        reference.client.publish(reference.stage, clazz, values);
+        reference.client.publish(reference.stage, values);
     }
 }

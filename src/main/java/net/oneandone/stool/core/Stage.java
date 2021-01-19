@@ -354,7 +354,7 @@ public class Stage {
         for (Map.Entry<String, Value> entry : values.entrySet()) {
             map.put(entry.getKey(), entry.getValue().get());
         }
-        Helm.upgrade(World.create().file(configuration.charts) /* TODO */, configuration, name, map, publish, clazz.name, clientValues);
+        Helm.upgrade(World.create().file(configuration.charts) /* TODO */, configuration, name, map, publish, clazz, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
     }

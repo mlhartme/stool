@@ -98,7 +98,6 @@ public class MainIT {
     }
 
     private void run(boolean local) throws IOException {
-        String clazz = "hellowar";
         FileNode working;
         FileNode clientYaml;
         String stage;
@@ -116,7 +115,7 @@ public class MainIT {
         }
         sc(clientYaml, "context", "localhost");
         sc(clientYaml, "list", "%all");
-        sc(clientYaml, "create", "-e", "-wait", stage, clazz);
+        sc(clientYaml, "create", "-e", "-wait", stage, "hellowar");
         sc(clientYaml, "list", "%all");
         sc(clientYaml, "status", stage);
         sc(clientYaml, "attach", "@ws", stage);
@@ -125,7 +124,7 @@ public class MainIT {
         sc(clientYaml, "config", stage, "metadataComment");
         sc(clientYaml, "config", stage, "metadataComment=42");
         // TODO: sc(clientYaml, "images", repository);
-        sc(clientYaml, "publish", stage, clazz);
+        sc(clientYaml, "publish", stage);
         sc(clientYaml, "list", stage);
         sc(clientYaml, "validate", stage);
         sc(clientYaml, "history", stage);

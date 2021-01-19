@@ -120,7 +120,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public void publish(String name, String clazz, Map<String, String> values) throws IOException {
+    public void publish(String name, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
