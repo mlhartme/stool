@@ -168,7 +168,7 @@ public class Expressions {
                     throw new ArgumentException(list.toString());
                 }
                 try {
-                    return label(list.get(0).toString(), list.get(0).toString());
+                    return label(list.get(0).toString(), list.get(1).toString());
                 } catch (IOException e) {
                     throw new TemplateModelException(e.getMessage(), e);
                 }
@@ -181,7 +181,7 @@ public class Expressions {
                     throw new ArgumentException(list.toString());
                 }
                 try {
-                    return labelOpt(list.get(0).toString(), list.get(0).toString());
+                    return labelOpt(list.get(0).toString(), list.get(1).toString());
                 } catch (IOException e) {
                     throw new TemplateModelException(e.getMessage(), e);
                 }
