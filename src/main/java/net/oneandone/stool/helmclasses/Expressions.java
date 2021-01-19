@@ -245,7 +245,7 @@ public class Expressions {
         return result == null ? "" : result;
     }
 
-    private String latest(String imageOrRepository) throws IOException {
+    public String latest(String imageOrRepository) throws IOException {
         Registry registry;
 
         Helm.validateRepository(Registry.toRepository(imageOrRepository));

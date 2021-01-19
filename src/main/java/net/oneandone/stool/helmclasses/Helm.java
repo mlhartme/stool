@@ -64,6 +64,13 @@ public final class Helm {
         if (clazz == null) {
             throw new IOException("unknown class: " + className);
         }
+        if (upgrade) {
+            for (ValueType vt : clazz.values.values()) {
+                System.out.println(vt.name + " before: " + map.get(vt.name));
+                map.put(vt.name, vt.publish(expressions, (String) map.get(vt.name)));
+                System.out.println(vt.name + " after: " + map.get(vt.name));
+            }
+        }
         clazz.checkNotAbstract();
         chart = root.join(clazz.chart).checkDirectory();
         LOGGER.info("chart: " + clazz.chart);

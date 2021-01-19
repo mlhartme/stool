@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.util.Json;
 
+import java.io.IOException;
+
 /** Immutable */
 public class ValueType {
     public static ValueType forYaml(String name, JsonNode yaml) {
@@ -60,6 +62,18 @@ public class ValueType {
         this.value = value;
     }
 
+    public String publish(Expressions expressions, String old) throws IOException {
+        if (publish == null) {
+            return old;
+        } else {
+            switch (publish) {
+                case "latest":
+                    return expressions.latest(old);
+                default:
+                    throw new IOException("unknown publish function: " + publish);
+            }
+        }
+    }
     public JsonNode toObject(ObjectMapper yaml) {
         ObjectNode result;
 
