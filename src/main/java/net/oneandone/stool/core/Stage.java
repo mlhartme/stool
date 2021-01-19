@@ -218,28 +218,6 @@ public class Stage {
         return null;
     }
 
-    public Info info(String str) {
-        Info result;
-        List<String> lst;
-
-        result = valueOpt(str);
-        if (result != null) {
-            return result;
-        }
-        result = fieldOpt(str);
-        if (result != null) {
-            return result;
-        }
-        lst = new ArrayList<>();
-        for (Field f : fields()) {
-            lst.add(f.name());
-        }
-        for (Value v : values()) {
-            lst.add(v.name());
-        }
-        throw new ArgumentException(str + ": no such status field or value, choose one of " + lst);
-    }
-
     public List<Field> fields() {
         List<Field> fields;
 
