@@ -401,7 +401,6 @@ public class Stage {
             url = url + "/";
         }
         result = new ArrayList<>();
-        result.add(url);
         for (String suffix : urlSuffixes()) {
             result.add(url + suffix);
         }
