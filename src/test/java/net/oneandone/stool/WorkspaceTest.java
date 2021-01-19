@@ -16,7 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.cli.RemoteClient;
+import net.oneandone.stool.cli.ProxyClient;
 import net.oneandone.stool.cli.Workspace;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.sushi.fs.World;
@@ -35,7 +35,7 @@ public class WorkspaceTest {
         world = World.createMinimal();
         file = world.getTemp().createTempFile();
         workspace = new Workspace(file);
-        workspace.add(new Reference(new RemoteClient("ctx", null /* TODO */, new Caller("a", "b", "c", null)), "stage"));
+        workspace.add(new Reference(new ProxyClient("ctx", null /* TODO */, new Caller("a", "b", "c", null)), "stage"));
         workspace.save();
     }
 }

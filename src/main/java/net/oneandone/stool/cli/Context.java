@@ -58,12 +58,12 @@ public class Context {
     }
 
     public void auth(World world, Caller caller, String username, String password) throws IOException {
-        RemoteClient client;
+        ProxyClient client;
 
         if (isLocal()) {
             this.token = null;
         } else {
-            client = RemoteClient.basicAuth(world, name, url, caller, username, password);
+            client = ProxyClient.basicAuth(world, name, url, caller, username, password);
             this.token = client.auth();
         }
     }
@@ -72,7 +72,7 @@ public class Context {
         if (isLocal()) {
             return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), Configuration.load(world), caller);
         } else {
-            return RemoteClient.token(world, name, url, caller, token);
+            return ProxyClient.token(world, name, url, caller, token);
         }
     }
 

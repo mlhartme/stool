@@ -86,9 +86,10 @@ public class LocalClient extends Client {
                         s.put(field.name(), field.getAsJson(json, engine));
                     }
                 }
+                // add values explictly selected
                 for (Value value : stage.values()) {
-                    if (select.isEmpty() || remaining.remove(value.name())) {
-                        s.put(value.name(), new TextNode(value.get(engine)));
+                    if (!select.isEmpty() && remaining.remove(value.name())) {
+                        s.put(value.name(), new TextNode(value.disclose()));
                     }
                 }
                 if (!remaining.isEmpty()) {

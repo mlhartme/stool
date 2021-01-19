@@ -45,22 +45,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RemoteClient extends Client {
+public class ProxyClient extends Client {
     /** @param token null to work anonymously */
-    public static RemoteClient token(World world, String context, String url, Caller caller,
-                                     String token) throws NodeInstantiationException {
+    public static ProxyClient token(World world, String context, String url, Caller caller,
+                                    String token) throws NodeInstantiationException {
         return doCreate(world, context, url, caller, token, null, null);
 
     }
 
-    public static RemoteClient basicAuth(World world, String context, String url, Caller caller,
-                                         String username, String password) throws NodeInstantiationException {
+    public static ProxyClient basicAuth(World world, String context, String url, Caller caller,
+                                        String username, String password) throws NodeInstantiationException {
         return doCreate(world, context, url, caller, null, username, password);
 
     }
 
-    private static RemoteClient doCreate(World world, String context, String url, Caller caller,
-                                         String token, String username, String password) throws NodeInstantiationException {
+    private static ProxyClient doCreate(World world, String context, String url, Caller caller,
+                                        String token, String username, String password) throws NodeInstantiationException {
         HttpNode node;
 
         if (caller.wirelog != null) {
@@ -75,13 +75,13 @@ public class RemoteClient extends Client {
         if (username != null) {
             node.getRoot().setCredentials(username, password);
         }
-        return new RemoteClient(context, node, caller);
+        return new ProxyClient(context, node, caller);
     }
 
     private final ObjectMapper json;
     private final HttpNode root;
 
-    public RemoteClient(String context, HttpNode root, Caller caller) {
+    public ProxyClient(String context, HttpNode root, Caller caller) {
         super(context, caller);
         this.json = new ObjectMapper();
         this.root = root;
