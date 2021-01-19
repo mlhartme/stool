@@ -94,9 +94,8 @@ public class Main {
             console = new Console(out, out, System.in);
         }
         globals = Globals.create(console, world, clientYaml, "stool " + Separator.SPACE.join(args));
-
-        // TDDO: ugly side-effect
-        System.setProperty("loglevel", globals.configurationOrDefaults().loglevel);
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        root.setLevel(ch.qos.logback.classic.Level.toLevel(globals.configuration().loglevel));
 
         cli = new Cli(globals.getConsole()::handleException);
         cli.primitive(FileNode.class, "file name", null, world::file);
