@@ -347,14 +347,14 @@ public class Stage {
     //-- docker
 
     /** CAUTION: values are not updated! */
-    public void publish(Caller caller, Engine engine, Map<String, String> clientValues) throws IOException {
+    public void upgrade(Caller caller, Engine engine, boolean publish, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
 
         map = new HashMap<>();
         for (Map.Entry<String, Value> entry : values.entrySet()) {
             map.put(entry.getKey(), entry.getValue().get());
         }
-        Helm.upgrade(World.create().file(configuration.charts) /* TODO */, configuration, name, map, clazz.name, clientValues);
+        Helm.upgrade(World.create().file(configuration.charts) /* TODO */, configuration, name, map, publish, clazz.name, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
     }

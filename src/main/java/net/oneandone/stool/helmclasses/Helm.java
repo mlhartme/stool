@@ -36,15 +36,15 @@ public final class Helm {
 
     public static void install(FileNode root, Configuration configuration, String name, String clazz, Map<String, String> values)
             throws IOException {
-        helm(root, configuration, name, false, new HashMap<>(), clazz, values);
+        helm(root, configuration, name, false, false, new HashMap<>(), clazz, values);
     }
 
-    public static void upgrade(FileNode root, Configuration configuration, String name, Map<String, Object> map,
+    public static void upgrade(FileNode root, Configuration configuration, String name, Map<String, Object> map, boolean publish,
                                  String clazz, Map<String, String> values) throws IOException {
-        helm(root, configuration, name, true, map, clazz, values);
+        helm(root, configuration, name, true, publish, map, clazz, values);
     }
 
-    private static void helm(FileNode root, Configuration configuration, String name, boolean upgrade, Map<String, Object> map,
+    private static void helm(FileNode root, Configuration configuration, String name, boolean upgrade, boolean publish, Map<String, Object> map,
                                String className, Map<String, String> clientValues)
             throws IOException {
         World world;
@@ -64,11 +64,9 @@ public final class Helm {
         if (clazz == null) {
             throw new IOException("unknown class: " + className);
         }
-        if (upgrade) {
+        if (publish) {
             for (ValueType vt : clazz.values.values()) {
-                System.out.println(vt.name + " before: " + map.get(vt.name));
                 map.put(vt.name, vt.publish(expressions, (String) map.get(vt.name)));
-                System.out.println(vt.name + " after: " + map.get(vt.name));
             }
         }
         clazz.checkNotAbstract();
