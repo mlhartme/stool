@@ -25,8 +25,11 @@ import java.util.Collection;
 import java.util.Map;
 
 public class Status extends InfoCommand {
-    public Status(Globals globals, String stage) {
+    private final boolean hidden;
+
+    public Status(Globals globals, boolean hidden, String stage) {
         super(globals, stage);
+        this.hidden = hidden;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class Status extends InfoCommand {
         String prefix;
         String name;
 
-        response = client.list(clientFilter, selected);
+        response = client.list(clientFilter, selected, hidden);
         withPrefix = response.size() != 1;
         prefixWidth = maxWidth(response.keySet());
         for (Map.Entry<String, Map<String, JsonNode>> stage : response.entrySet()) {

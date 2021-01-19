@@ -52,6 +52,7 @@
     * dumped `last-modified-at`, and `last-modified-by`; use `last-deployed` or check the history instead
     * dumped `images` field because it's very slow and deals to the registry, not kubernetes; 
       use `sc images` instead
+    * added `class` field, but its hidden unless you invoke with `-hidden`
   * `create`
     * always starts the stage
     * type is gone, @ now prefixes images

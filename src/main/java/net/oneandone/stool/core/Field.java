@@ -21,8 +21,15 @@ import java.io.IOException;
 
 /** A computable value representing one aspect of the stage status. */
 public abstract class Field extends Info {
+    public final boolean hidden;
+
     protected Field(String name) {
+        this(name, false);
+    }
+
+    protected Field(String name, boolean hidden) {
         super(name);
+        this.hidden = hidden;
     }
 
     public String toString() {

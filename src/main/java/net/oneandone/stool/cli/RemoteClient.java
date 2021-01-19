@@ -103,7 +103,7 @@ public class RemoteClient extends Client {
      * @return stage -&gt; (field -&gt; value)
      */
     @Override
-    public Map<String, Map<String, JsonNode>> list(String filter, List<String> select) throws IOException {
+    public Map<String, Map<String, JsonNode>> list(String filter, List<String> select, boolean hidden) throws IOException {
         HttpNode node;
         ObjectNode response;
         Map<String, Map<String, JsonNode>> result;
@@ -113,6 +113,9 @@ public class RemoteClient extends Client {
         node = node("stages");
         if (filter != null) {
             node = node.withParameter("filter", filter);
+        }
+        if (hidden) {
+            node = node.withParameter("hidden", hidden);
         }
         node = node.withParameter("select", select.isEmpty() ? "*" : Separator.COMMA.join(select));
         response = (ObjectNode) getJson(node);

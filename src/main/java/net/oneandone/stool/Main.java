@@ -117,11 +117,11 @@ public class Main {
                 cli.add(Detach.class, "detach workspace stage");
                 cli.add(Config.class, "config stage value* { value*(value) }");
                 cli.add(History.class, "history stage");
-                cli.add(Ls.class, "list stage?= info* { select*(info) }");
+                cli.add(Ls.class, "list -hidden stage?= info* { select*(info) }");
+                cli.add(Status.class, "status -hidden stage info* { select*(info) }");
                 cli.add(Delete.class, "delete -batch stage");
                 cli.add(Remove.class, "remove stage");
                 cli.add(Publish.class, "publish stage class values*");
-                cli.add(Status.class, "status stage info* { select*(info) }");
                 cli.add(PortForward.class, "port-forward -timeout=30 stage port toPort?");
                 cli.add(Ssh.class, "ssh -timeout=30 stage shell?");
                 cli.add(Validate.class, "validate -email -repair stage");

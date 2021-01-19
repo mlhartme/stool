@@ -60,17 +60,24 @@ public class ValueType {
         this.value = value;
     }
 
-    public ObjectNode toObject(ObjectMapper yaml) {
+    public JsonNode toObject(ObjectMapper yaml) {
         ObjectNode result;
 
         result = yaml.createObjectNode();
-        result.set("name", new TextNode(name));
-        result.set("abstract", BooleanNode.valueOf(abstrct));
-        result.set("private", BooleanNode.valueOf(privt));
+        if (abstrct) {
+            result.set("abstract", BooleanNode.valueOf(abstrct));
+        }
+        if (privt) {
+            result.set("private", BooleanNode.valueOf(privt));
+        }
         if (publish != null) {
             result.set("publish", new TextNode(publish));
         }
-        result.set("value", new TextNode(value));
-        return result;
+        if (result.isEmpty()) {
+            return new TextNode(value);
+        } else {
+            result.set("value", new TextNode(value));
+            return result;
+        }
     }
 }

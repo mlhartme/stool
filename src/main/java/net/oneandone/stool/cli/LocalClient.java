@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.core.Configuration;
-import net.oneandone.stool.core.Info;
+import net.oneandone.stool.core.Field;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
@@ -68,7 +68,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, Map<String, JsonNode>> list(String filter, List<String> select) throws IOException {
+    public Map<String, Map<String, JsonNode>> list(String filter, List<String> select, boolean hidden) throws IOException {
         Map<String, Map<String, JsonNode>> result;
         Map<String, IOException> problems;
         Map<String, JsonNode> s;
@@ -81,9 +81,9 @@ public class LocalClient extends Client {
                 s = new HashMap<>();
                 result.put(stage.getName(), s);
                 remaining = new ArrayList<>(select);
-                for (Info info : stage.fields()) {
-                    if (select.isEmpty() || remaining.remove(info.name())) {
-                        s.put(info.name(), info.getAsJson(json, engine));
+                for (Field field : stage.fields()) {
+                    if ((select.isEmpty() && (hidden || !field.hidden)) || remaining.remove(field.name())) {
+                        s.put(field.name(), field.getAsJson(json, engine));
                     }
                 }
                 for (Value value : stage.values()) {

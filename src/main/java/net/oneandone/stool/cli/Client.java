@@ -52,10 +52,10 @@ public abstract class Client {
     public abstract String version() throws IOException;
 
     public List<String> list(String filter) throws IOException {
-        return new ArrayList<>(list(filter, Collections.emptyList()).keySet());
+        return new ArrayList<>(list(filter, Collections.emptyList(), false).keySet());
     }
     /** @param select  empty list to select all fields */
-    public abstract Map<String, Map<String, JsonNode>> list(String filter, List<String> select) throws IOException;
+    public abstract Map<String, Map<String, JsonNode>> list(String filter, List<String> select, boolean hidden) throws IOException;
 
     /**
      * @return image actually started

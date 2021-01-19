@@ -83,12 +83,13 @@ public class ApiController {
     @GetMapping("/stages")
     public String list(@RequestParam(value = "filter", required = false, defaultValue = "") String filter,
                        @RequestParam(value = "select", required = false, defaultValue = "") String selectStr,
+                       @RequestParam(value = "hidden", required = false) boolean hidden,
                        HttpServletRequest request) throws IOException {
         Map<String, Map<String, JsonNode>> map;
         ObjectNode obj;
         ObjectNode result;
 
-        map = client(request).list(filter, "*".equals(selectStr) ? Collections.emptyList() : Separator.COMMA.split(selectStr));
+        map = client(request).list(filter, "*".equals(selectStr) ? Collections.emptyList() : Separator.COMMA.split(selectStr), hidden);
         result = json.createObjectNode();
         for (Map.Entry<String, Map<String, JsonNode>> stage : map.entrySet()) {
             obj = json.createObjectNode();

@@ -300,7 +300,7 @@ public class Stage {
                 return Stage.this.urlMap();
             }
         });
-        fields.add(new Field("class") {
+        fields.add(new Field("class", true) {
             @Override
             public Object get(Engine engine) {
                 // TODO

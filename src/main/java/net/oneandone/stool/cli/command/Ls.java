@@ -30,10 +30,12 @@ import java.util.Map;
 public class Ls extends InfoCommand {
     /** to delay output until I can determine column widths*/
     private final LinkedHashMap<String, List<String>> columns;
+    private final boolean hidden;
 
-    public Ls(Globals globals, String stage) {
+    public Ls(Globals globals, boolean hidden, String stage) {
         super(globals, stage);
-        columns = new LinkedHashMap<>();
+        this.hidden = hidden;
+        this.columns = new LinkedHashMap<>();
     }
 
     @Override
@@ -88,7 +90,7 @@ public class Ls extends InfoCommand {
     public void doRun(Client client, String clientFilter, CompoundResult result) throws Exception {
         Map<String, Map<String, JsonNode>> response;
 
-        response = client.list(clientFilter, selected);
+        response = client.list(clientFilter, selected, hidden);
         for (Map.Entry<String, Map<String, JsonNode>> stage : response.entrySet()) {
             for (Map.Entry<String, JsonNode> entry : stage.getValue().entrySet()) {
                 columns.get(entry.getKey()).add(infoToString(entry.getValue()));
