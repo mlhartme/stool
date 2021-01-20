@@ -103,10 +103,10 @@ public class MainIT {
         String stage;
 
         stage = "de.wq-ta"; // with some special characters
-        working = itRoot(local).join("projects/it-" + local).mkdirsOpt();
+        working = itRoot(local).join("projects/" + (local ? "it-local" : "it-proxy")).mkdirsOpt();
         home = working.join("home").checkNotExists();
         if (local) {
-            URI uri = Secrets.load(WORLD).portus.resolve("it-todo"); // TODO: include hostname in prefix
+            URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
             sc(home, "setup", "-charts=/Users/mhm/Projects/helmcharts" /* TODO */, "-registryCredentials=" + registryCredentials, "localhost=local:local");
         } else {
