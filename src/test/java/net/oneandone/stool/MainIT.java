@@ -87,12 +87,12 @@ public class MainIT {
         kubectl(false, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
     }
 
-    // TODO
+    @Test
     public void local() throws IOException {
         run(true);
     }
 
-    @Test
+    // TODO
     public void proxy() throws IOException {
         run(false);
     }
