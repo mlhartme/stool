@@ -36,7 +36,7 @@ public class Setup {
     }
 
     private final World world;
-    private final FileNode scYaml;
+    private final FileNode scHome;
     private final String charts;
     private final String lib;
     private final Console console;
@@ -45,7 +45,7 @@ public class Setup {
 
     public Setup(Globals globals, String charts, String lib, String spec) {
         this.world = globals.getWorld();
-        this.scYaml = globals.scYaml();
+        this.scHome = globals.scHome();
         this.charts = charts;
         this.lib = lib;
         this.console = globals.getConsole();
@@ -56,18 +56,18 @@ public class Setup {
     public void run() throws IOException {
         Configuration configuration;
 
-        if (scYaml.exists()) {
-            throw new IOException("Stool is already set up in " + scYaml.getAbsolute());
+        if (scHome.exists()) {
+            throw new IOException("Stool is already set up in " + scHome.getAbsolute());
         }
         configuration = configuration();
         if (charts != null) {
             configuration.charts = charts;
         }
         if (lib != null) {
-            configuration.lib = world.file(scYaml.getParent(), lib);
+            configuration.lib = world.file(scHome, lib);
         }
-        configuration.save(scYaml);
-        console.info.println("Done - created " + scYaml.getAbsolute() + " for Stool version " + version);
+        configuration.save(Configuration.scYaml(scHome));
+        console.info.println("Done - created " + scHome.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
         for (Context c : configuration.contexts.values()) {
             console.info.println("  " + c.name + " " + c.url);
@@ -105,7 +105,7 @@ public class Setup {
         FileNode template;
 
         template = cisotoolsEnvironment(world);
-        return template == null ? Configuration.create(world) : Configuration.load(template);
+        return template == null ? Configuration.create(world) : Configuration.load(scHome, template);
     }
 
     public static FileNode cisotoolsEnvironment(World world) throws FileNotFoundException, ExistsException {

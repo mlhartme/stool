@@ -27,25 +27,25 @@ import java.util.UUID;
 
 /** Global client stuff */
 public class Globals {
-    public static Globals create(Console console, World world, FileNode stoolYamlOpt, String command) {
-        FileNode scYaml;
+    public static Globals create(Console console, World world, FileNode scHomeOpt, String command) {
+        FileNode scHome;
 
-        scYaml = stoolYamlOpt != null ?  stoolYamlOpt : Configuration.scYaml(world);
-        return new Globals(console, world, scYaml, UUID.randomUUID().toString(), command);
+        scHome = scHomeOpt != null ?  scHomeOpt : Configuration.scHome(world);
+        return new Globals(console, world, scHome, UUID.randomUUID().toString(), command);
     }
 
     private final Console console;
     private final World world;
-    private final FileNode scYaml;
+    private final FileNode scHome;
     private final String invocation;
     private final String command;
     private String context;
     private FileNode wirelog;
 
-    public Globals(Console console, World world, FileNode scYaml, String invocation, String command) {
+    public Globals(Console console, World world, FileNode scHome, String invocation, String command) {
         this.console = console;
         this.world = world;
-        this.scYaml = scYaml;
+        this.scHome = scHome;
         this.invocation = invocation;
         this.command = command;
         this.context = null;
@@ -65,15 +65,19 @@ public class Globals {
 
     /** param @name has to start with an @ */
     public FileNode workspaceFile(String name) throws MkdirException {
-        return scYaml().getParent().join("workspaces").mkdirOpt() /* TODO */.join(Strings.removeLeft(name, "@") + ".yaml");
+        return scHome().join("workspaces").mkdirOpt() /* TODO */.join(Strings.removeLeft(name, "@") + ".yaml");
     }
 
     public Caller caller() {
         return new Caller(invocation, "todoUser", command, wirelog); // TODO: immutable instance
     }
 
+    public FileNode scHome() {
+        return scHome;
+    }
+
     public FileNode scYaml() {
-        return scYaml;
+        return Configuration.scYaml(scHome);
     }
 
     public void setWirelog(String wirelog) {
@@ -101,7 +105,7 @@ public class Globals {
     public Configuration configuration() throws IOException {
         Configuration result;
 
-        result = Configuration.load(world);
+        result = Configuration.load(scHome, Configuration.scYaml(scHome));
         if (context != null) {
             result.setCurrentContext(context);
         }
@@ -109,6 +113,6 @@ public class Globals {
     }
 
     public Configuration configurationOrDefaults() throws IOException {
-        return scYaml().exists() ? configuration() : Configuration.create(world);
+        return scHome().exists() ? configuration() : Configuration.create(world);
     }
 }

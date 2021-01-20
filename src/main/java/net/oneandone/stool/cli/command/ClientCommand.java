@@ -34,15 +34,15 @@ public abstract class ClientCommand {
     protected final Console console;
 
     public ClientCommand(Globals globals) {
-        FileNode scYaml;
+        FileNode home;
 
         this.globals = globals;
         this.world = globals.getWorld();
         this.console = globals.getConsole();
 
-        scYaml = globals.scYaml();
-        if (!scYaml.exists()) {
-            throw new ArgumentException("client configuration not found: " + scYaml + "\nRun 'sc setup' to create it.");
+        home = globals.scHome();
+        if (!home.exists()) {
+            throw new ArgumentException("home directory not found: " + home + "\nRun 'sc setup' to create it.");
         }
     }
 

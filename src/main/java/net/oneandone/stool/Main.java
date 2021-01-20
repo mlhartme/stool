@@ -79,21 +79,21 @@ public class Main {
 
     //--
 
-    public static int run(World world, FileNode clientYaml, String[] args) throws IOException {
+    public static int run(World world, FileNode scHome, String[] args) throws IOException {
         Cli cli;
         Globals globals;
 
         Console console;
         PrintWriter out;
 
-        if (clientYaml != null) {
-            out = new PrefixWriter(clientYaml.getParent().join("client.log").newAppender());
+        if (scHome != null) {
+            out = new PrefixWriter(scHome.getParent().join("client.log").newAppender());
             console = new Console(out, out, System.in);
         } else {
             out = new PrefixWriter(new PrintWriter(System.out));
             console = new Console(out, out, System.in);
         }
-        globals = Globals.create(console, world, clientYaml, "stool " + Separator.SPACE.join(args));
+        globals = Globals.create(console, world, scHome, "stool " + Separator.SPACE.join(args));
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         root.setLevel(ch.qos.logback.classic.Level.toLevel(globals.configuration().loglevel));
 

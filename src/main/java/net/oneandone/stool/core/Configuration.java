@@ -52,10 +52,13 @@ public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
     public static Configuration load(World world) throws IOException {
-        return Configuration.load(Configuration.scYaml(world));
+        FileNode home;
+
+        home = Configuration.scHome(world);
+        return Configuration.load(home, Configuration.scYaml(home));
     }
 
-    public static Configuration load(FileNode file) throws IOException {
+    public static Configuration load(FileNode home, FileNode file) throws IOException {
         ObjectMapper yaml;
         ObjectNode configuration;
         Configuration result;
@@ -64,7 +67,7 @@ public class Configuration {
         try (Reader src = file.newReader()) {
             configuration = (ObjectNode) yaml.readTree(src);
         }
-        result = new Configuration(file.getWorld(), yaml, file.getParent(), configuration);
+        result = new Configuration(file.getWorld(), yaml, home, configuration);
         result.validate();
         return result;
     }
@@ -74,19 +77,22 @@ public class Configuration {
         Configuration result;
 
         yaml = yaml();
-        result = new Configuration(world, yaml, scYaml(world).getParent(), yaml.createObjectNode());
+        result = new Configuration(world, yaml, scHome(world), yaml.createObjectNode());
         result.validate();
         return result;
     }
 
-    public static FileNode scYaml(World world) {
+    public static FileNode scHome(World world) {
         String str;
-        FileNode file;
 
         str = System.getenv("SC_HOME");
-        file = str == null ? world.getHome().join(".sc") : world.file(str);
-        return file.join("configuration.yaml");
+        return str == null ? world.getHome().join(".sc") : world.file(str);
     }
+
+    public static FileNode scYaml(FileNode home) {
+        return home.join("configuration.yaml");
+    }
+
 
     private static ObjectMapper yaml() {
         return new ObjectMapper(new YAMLFactory());
@@ -96,6 +102,7 @@ public class Configuration {
 
     private final World world;
     private final ObjectMapper yaml;
+    private final FileNode home;
 
     private String currentContext;
     public final Map<String, Context> contexts;
@@ -148,16 +155,17 @@ public class Configuration {
     public final int defaultExpire;
 
 
-    public Configuration(World world, ObjectMapper yaml, FileNode configdir, ObjectNode configuration) {
+    public Configuration(World world, ObjectMapper yaml, FileNode home, ObjectNode configuration) {
         this.world = world;
         this.yaml = yaml;
+        this.home = home;
 
         this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
         this.contexts = parseContexts((ArrayNode) configuration.get("contexts"));
 
         this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
         this.charts = string(configuration, "charts", world.getHome().join(".sc/charts").getAbsolute());
-        this.lib = file(configuration, configdir, "lib", configdir.join("lib"));
+        this.lib = file(configuration, home, "lib", home.join("lib"));
         this.stageLogs = string(configuration, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(configuration, "loglevel", "ERROR");
         this.fqdn = Json.string(configuration, "fqdn", "localhost");

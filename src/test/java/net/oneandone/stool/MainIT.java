@@ -157,7 +157,7 @@ public class MainIT {
     }
     private static int id = 0;
 
-    private void sc(FileNode clientYaml, String... args) throws IOException {
+    private void sc(FileNode scHome, String... args) throws IOException {
         int result;
         String command;
 
@@ -165,7 +165,7 @@ public class MainIT {
         command = command(args);
         System.out.print("  " + command);
         try {
-            result = Main.run(WORLD, clientYaml, args);
+            result = Main.run(WORLD, scHome, args);
         } catch (Exception e) {
             System.out.println(" -> exception: " + e.getMessage());
             throw e;
