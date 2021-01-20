@@ -79,25 +79,28 @@ public class Main {
 
     //--
 
-    public static int run(World world, FileNode scHome, String[] args) throws IOException {
+    public static int run(World world, FileNode testHome, String[] args) throws IOException {
         Cli cli;
         Globals globals;
 
         Console console;
         PrintWriter out;
 
-        if (scHome != null) {
-            out = new PrefixWriter(scHome.getParent().join("client.log").newAppender());
+        if (testHome != null) {
+            out = new PrefixWriter(testHome.getParent().join("client.log").newAppender());
             console = new Console(out, out, System.in);
         } else {
             out = new PrefixWriter(new PrintWriter(System.out));
             console = new Console(out, out, System.in);
         }
-        globals = Globals.create(console, world, scHome, "stool " + Separator.SPACE.join(args));
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-        root.setLevel(ch.qos.logback.classic.Level.toLevel(globals.configuration().loglevel));
-
-        cli = new Cli(globals.getConsole()::handleException);
+        globals = Globals.create(console, world, testHome, "stool " + Separator.SPACE.join(args));
+        if (globals.home().exists()) {
+            ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+            root.setLevel(ch.qos.logback.classic.Level.toLevel(globals.configuration().loglevel));
+        }
+        cli = new Cli(testHome == null ? globals.getConsole()::handleException : e -> {
+            throw new IllegalStateException(e);
+        });
         cli.primitive(FileNode.class, "file name", null, world::file);
         cli.begin(globals.getConsole(), "-v -e  { setVerbose(v) setStacktraces(e) }");
           cli.begin("globals", globals,  "-context -wirelog -exception { setContext(context) setWirelog(wirelog) setException(exception) }");

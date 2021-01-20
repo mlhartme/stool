@@ -99,36 +99,35 @@ public class MainIT {
 
     private void run(boolean local) throws IOException {
         FileNode working;
-        FileNode clientYaml;
+        FileNode home;
         String stage;
 
         stage = "de.wq-ta"; // with some special characters
         working = itRoot(local).join("projects/it-" + local).mkdirsOpt();
-        clientYaml = working.join("sc.yaml");
+        home = working.join("home").checkNotExists();
         if (local) {
             // TODO
-            sc(clientYaml, "setup", "-charts=/Users/mhm/Projects/helmcharts", "-lib=" + working.join("lib").getAbsolute(),
-                    "localhost=local:local");
+            sc(home, "setup", "-charts=/Users/mhm/Projects/helmcharts", "localhost=local:local");
         } else {
             helm(local, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
-            sc(clientYaml, "setup", "localhost=http://localhost:31000/api");
+            sc(home, "setup", "localhost=http://localhost:31000/api");
         }
-        sc(clientYaml, "context", "localhost");
-        sc(clientYaml, "list", "%all");
-        sc(clientYaml, "create", "-e", "-wait", stage, "hellowar");
-        sc(clientYaml, "list", "%all");
-        sc(clientYaml, "status", stage);
-        sc(clientYaml, "attach", "@ws", stage);
-        sc(clientYaml, "detach", "@ws", stage);
-        sc(clientYaml, "validate", stage);
-        sc(clientYaml, "config", stage, "metadataComment");
-        sc(clientYaml, "config", stage, "metadataComment=42");
-        // TODO: sc(clientYaml, "images", repository);
-        sc(clientYaml, "publish", stage);
-        sc(clientYaml, "list", stage);
-        sc(clientYaml, "validate", stage);
-        sc(clientYaml, "history", stage);
-        sc(clientYaml, "delete", "-batch", stage);
+        sc(home, "context", "localhost");
+        sc(home, "list", "%all");
+        sc(home, "create", "-e", "-wait", stage, "hellowar");
+        sc(home, "list", "%all");
+        sc(home, "status", stage);
+        sc(home, "attach", "@ws", stage);
+        sc(home, "detach", "@ws", stage);
+        sc(home, "validate", stage);
+        sc(home, "config", stage, "metadataComment");
+        sc(home, "config", stage, "metadataComment=42");
+        // TODO: sc(home, "images", repository);
+        sc(home, "publish", stage);
+        sc(home, "list", stage);
+        sc(home, "validate", stage);
+        sc(home, "history", stage);
+        sc(home, "delete", "-batch", stage);
         working.deleteTree();
     }
 
@@ -157,7 +156,7 @@ public class MainIT {
     }
     private static int id = 0;
 
-    private void sc(FileNode scHome, String... args) throws IOException {
+    private void sc(FileNode home, String... args) throws IOException {
         int result;
         String command;
 
@@ -165,9 +164,10 @@ public class MainIT {
         command = command(args);
         System.out.print("  " + command);
         try {
-            result = Main.run(WORLD, scHome, args);
+            result = Main.run(WORLD, home, args);
         } catch (Exception e) {
             System.out.println(" -> exception: " + e.getMessage());
+            e.printStackTrace();
             throw e;
         }
         if (result == 0) {

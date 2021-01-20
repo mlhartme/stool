@@ -165,7 +165,7 @@ public class Configuration {
 
         this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
         this.charts = string(configuration, "charts", world.getHome().join(".sc/charts").getAbsolute());
-        this.lib = file(configuration, home, "lib", home.join("lib"));
+        this.lib = home.join("lib");
         this.stageLogs = string(configuration, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(configuration, "loglevel", "ERROR");
         this.fqdn = Json.string(configuration, "fqdn", "localhost");
@@ -338,7 +338,7 @@ public class Configuration {
     }
 
     public UserManager createUserManager() throws IOException {
-        return UserManager.loadOpt(lib.mkdirsOpt().join("users.json"));
+        return UserManager.loadOpt(lib.join("users.json"));
     }
 
     public Registry createRegistry(World registryWorld, String image) throws IOException {
@@ -475,7 +475,6 @@ public class Configuration {
         obj.put("registryCredentials", registryCredentialsString());
         obj.put("charts", charts);
         obj.put("stageLog", stageLogs);
-        obj.put("lib", lib.getAbsolute());
 
         //--
 

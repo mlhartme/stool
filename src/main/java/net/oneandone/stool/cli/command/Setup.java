@@ -36,7 +36,7 @@ public class Setup {
     }
 
     private final World world;
-    private final FileNode scHome;
+    private final FileNode home;
     private final String charts;
     private final String lib;
     private final Console console;
@@ -45,7 +45,7 @@ public class Setup {
 
     public Setup(Globals globals, String charts, String lib, String spec) {
         this.world = globals.getWorld();
-        this.scHome = globals.home();
+        this.home = globals.home();
         this.charts = charts;
         this.lib = lib;
         this.console = globals.getConsole();
@@ -55,19 +55,24 @@ public class Setup {
 
     public void run() throws IOException {
         Configuration configuration;
+        FileNode libdir;
 
-        if (scHome.exists()) {
-            throw new IOException("Stool is already set up in " + scHome.getAbsolute());
+        if (home.exists()) {
+            throw new IOException("Stool is already set up in " + home.getAbsolute());
         }
+        home.mkdir();
         configuration = configuration();
         if (charts != null) {
             configuration.charts = charts;
         }
+        libdir = home.join("lib");
         if (lib != null) {
-            configuration.lib = world.file(scHome, lib);
+            world.file(home, lib).checkDirectory().link(libdir);
+        } else {
+            libdir.mkdir();
         }
-        configuration.save(Configuration.configurationYaml(scHome));
-        console.info.println("Done - created " + scHome.getAbsolute() + " for Stool version " + version);
+        configuration.save(Configuration.configurationYaml(home));
+        console.info.println("Done - created " + home.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
         for (Context c : configuration.contexts.values()) {
             console.info.println("  " + c.name + " " + c.url);
@@ -105,7 +110,7 @@ public class Setup {
         FileNode template;
 
         template = cisotoolsEnvironment(world);
-        return template == null ? Configuration.create(world) : Configuration.load(scHome, template);
+        return template == null ? Configuration.create(world) : Configuration.load(home, template);
     }
 
     public static FileNode cisotoolsEnvironment(World world) throws FileNotFoundException, ExistsException {
