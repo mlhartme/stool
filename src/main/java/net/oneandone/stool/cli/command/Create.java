@@ -129,7 +129,7 @@ public class Create extends ClientCommand {
         Map<String, String> urls;
 
         checkName(stageName);
-        client = globals.configuration().currentContext().connect(world, globals.caller());
+        client = globals.configuration().currentContext().connect(world, globals.configuration(), globals.caller());
         reference = new Reference(client, stageName);
         try {
             urls = client.create(stageName, className, values);

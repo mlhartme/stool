@@ -106,8 +106,9 @@ public class MainIT {
         working = itRoot(local).join("projects/it-" + local).mkdirsOpt();
         home = working.join("home").checkNotExists();
         if (local) {
-            // TODO
-            sc(home, "setup", "-charts=/Users/mhm/Projects/helmcharts", "localhost=local:local");
+            URI uri = Secrets.load(WORLD).portus.resolve("it-todo"); // TODO: include hostname in prefix
+            String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
+            sc(home, "setup", "-charts=/Users/mhm/Projects/helmcharts" /* TODO */, "-registryCredentials=" + registryCredentials, "localhost=local:local");
         } else {
             helm(local, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "localhost=http://localhost:31000/api");

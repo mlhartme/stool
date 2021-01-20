@@ -58,7 +58,7 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(World.create().file(configuration.charts), configuration, stageName, className, values);
+        Helm.install(configuration.charts, configuration, stageName, className, values);
         stage = Stage.create(configuration, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -97,8 +97,7 @@ public class Stage {
         Clazz cl;
 
         cl = Clazz.load(new ObjectMapper(new YAMLFactory()) /* TODO */,
-                new HashMap<>(), (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS),
-                World.create().file(configuration.charts) /* TODO */);
+                new HashMap<>(), (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS), configuration.charts);
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
@@ -332,7 +331,7 @@ public class Stage {
         for (Map.Entry<String, Value> entry : values.entrySet()) {
             map.put(entry.getKey(), entry.getValue().get());
         }
-        Helm.upgrade(World.create().file(configuration.charts) /* TODO */, configuration, name, map, publish, clazz, clientValues);
+        Helm.upgrade(configuration.charts, configuration, name, map, publish, clazz, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
     }

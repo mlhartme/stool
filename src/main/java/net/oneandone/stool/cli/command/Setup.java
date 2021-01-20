@@ -39,15 +39,17 @@ public class Setup {
     private final FileNode home;
     private final String charts;
     private final String lib;
+    private final String registryCredentials;
     private final Console console;
     private final String version;
     private final String spec;
 
-    public Setup(Globals globals, String charts, String lib, String spec) {
+    public Setup(Globals globals, String charts, String lib, String registryCredentials, String spec) {
         this.world = globals.getWorld();
         this.home = globals.home();
         this.charts = charts;
         this.lib = lib;
+        this.registryCredentials = registryCredentials;
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.spec = spec;
@@ -61,10 +63,11 @@ public class Setup {
         }
         configuration = configuration();
         home.mkdir();
-        if (charts != null) {
-            configuration.charts = charts;
-        }
+        create("charts", charts);
         create("lib", lib);
+        if (registryCredentials != null) {
+            configuration.registryCredentials.putAll(Configuration.parseRegistryCredentials(registryCredentials));
+        }
         configuration.save(Configuration.configurationYaml(home));
         console.info.println("Done - created " + home.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");

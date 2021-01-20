@@ -42,7 +42,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.oneandone.stool.util.Json.file;
 import static net.oneandone.stool.util.Json.string;
 
 /**
@@ -108,8 +107,8 @@ public class Configuration {
     public final Map<String, Context> contexts;
 
     public final Map<String, UsernamePassword> registryCredentials;
-    public String charts;
-    public FileNode lib;
+    public final FileNode charts;
+    public final FileNode lib;
     public final String stageLogs;
 
     //--
@@ -164,7 +163,7 @@ public class Configuration {
         this.contexts = parseContexts((ArrayNode) configuration.get("contexts"));
 
         this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
-        this.charts = string(configuration, "charts", world.getHome().join(".sc/charts").getAbsolute());
+        this.charts = home.join("charts");
         this.lib = home.join("lib");
         this.stageLogs = string(configuration, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(configuration, "loglevel", "ERROR");
@@ -201,7 +200,7 @@ public class Configuration {
         return result;
     }
 
-    private static Map<String, UsernamePassword> parseRegistryCredentials(String str) {
+    public static Map<String, UsernamePassword> parseRegistryCredentials(String str) {
         Map<String, UsernamePassword> result;
         int idx;
         String host;
@@ -362,7 +361,7 @@ public class Configuration {
     }
 
     public Certificates certificates() {
-        return new Certificates(lib, charts);
+        return new Certificates(lib, fqdn);
     }
 
     public UsernamePassword registryCredentials(String registry) {
@@ -424,10 +423,10 @@ public class Configuration {
     }
 
     public Client currentContextConnect(Caller caller) throws IOException {
-        return currentContext().connect(world, caller);
+        return currentContext().connect(world, this, caller);
     }
 
-    public Reference reference(String str, Caller caller) throws IOException {
+    public Reference reference(String str, Configuration configuration, Caller caller) throws IOException {
         int idx;
         String contextName;
         Context context;
@@ -441,7 +440,7 @@ public class Configuration {
         if (context == null) {
             throw new ArgumentException("context not found: " + str);
         }
-        return new Reference(context.connect(world, caller), str.substring(0, idx));
+        return new Reference(context.connect(world, configuration, caller), str.substring(0, idx));
     }
 
     public List<Reference> list(String filter, Caller caller) throws IOException {
@@ -473,7 +472,6 @@ public class Configuration {
             obj.put("currentContext", currentContext);
         }
         obj.put("registryCredentials", registryCredentialsString());
-        obj.put("charts", charts);
         obj.put("stageLog", stageLogs);
 
         //--
