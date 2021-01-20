@@ -75,7 +75,7 @@ public class Setup {
             console.info.println("  " + c.name + " " + c.url);
         }
         console.info.println();
-        console.info.println("Use 'stool context <name>' to choose a current context.");
+        console.info.println("Use 'sc context <name>' to choose a current context.");
         console.info.println();
         console.info.println();
         console.info.println("If you want shell completion and a stage indicator in prompt: ");

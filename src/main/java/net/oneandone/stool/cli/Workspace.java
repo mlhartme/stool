@@ -92,7 +92,6 @@ public class Workspace {
         if (stages.isEmpty()) {
             // prune
             workspaceYaml.deleteFile();
-            workspaceYaml.getParent().deleteDirectory();
         } else {
             root = yaml.createObjectNode();
             array = yaml.createArrayNode();
