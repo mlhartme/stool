@@ -40,7 +40,7 @@ public abstract class ClientCommand {
         this.world = globals.getWorld();
         this.console = globals.getConsole();
 
-        home = globals.scHome();
+        home = globals.home();
         if (!home.exists()) {
             throw new ArgumentException("home directory not found: " + home + "\nRun 'sc setup' to create it.");
         }

@@ -54,8 +54,8 @@ public class Configuration {
     public static Configuration load(World world) throws IOException {
         FileNode home;
 
-        home = Configuration.scHome(world);
-        return Configuration.load(home, Configuration.scYaml(home));
+        home = Configuration.home(world);
+        return Configuration.load(home, Configuration.configurationYaml(home));
     }
 
     public static Configuration load(FileNode home, FileNode file) throws IOException {
@@ -77,19 +77,19 @@ public class Configuration {
         Configuration result;
 
         yaml = yaml();
-        result = new Configuration(world, yaml, scHome(world), yaml.createObjectNode());
+        result = new Configuration(world, yaml, home(world), yaml.createObjectNode());
         result.validate();
         return result;
     }
 
-    public static FileNode scHome(World world) {
+    public static FileNode home(World world) {
         String str;
 
         str = System.getenv("SC_HOME");
         return str == null ? world.getHome().join(".sc") : world.file(str);
     }
 
-    public static FileNode scYaml(FileNode home) {
+    public static FileNode configurationYaml(FileNode home) {
         return home.join("configuration.yaml");
     }
 

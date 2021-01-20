@@ -67,7 +67,7 @@ public class Auth {
                 throw e;
             }
         }
-        configuration.save(globals.scYaml());
+        configuration.save(globals.configurationYaml());
         console.info.println("Successfully updated token for " + context.name);
     }
 

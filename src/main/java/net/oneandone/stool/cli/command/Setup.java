@@ -45,7 +45,7 @@ public class Setup {
 
     public Setup(Globals globals, String charts, String lib, String spec) {
         this.world = globals.getWorld();
-        this.scHome = globals.scHome();
+        this.scHome = globals.home();
         this.charts = charts;
         this.lib = lib;
         this.console = globals.getConsole();
@@ -66,7 +66,7 @@ public class Setup {
         if (lib != null) {
             configuration.lib = world.file(scHome, lib);
         }
-        configuration.save(Configuration.scYaml(scHome));
+        configuration.save(Configuration.configurationYaml(scHome));
         console.info.println("Done - created " + scHome.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
         for (Context c : configuration.contexts.values()) {
