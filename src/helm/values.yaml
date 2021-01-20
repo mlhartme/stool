@@ -27,8 +27,6 @@ registryCredentials: ""
 
 # TODO
 charts: "https://bitbucket.1and1.org/scm/cisodevenv/helmcharts.git"
-lib: "/var/lib/stool"
-stageLogs: "/var/log/stool/stages"
 
 # For server logging. Type string, default INFO. Example value: DEBUG.
 loglevel: "INFO"

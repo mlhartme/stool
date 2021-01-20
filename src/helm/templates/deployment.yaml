@@ -94,14 +94,14 @@ spec:
           requests:
             cpu: 200m
         volumeMounts:
-          - mountPath: /root/.sc.yaml
-            subPath: .sc.yaml
-            name: sc-yaml
+          - mountPath: /usr/local/sc/configuration.yaml
+            subPath: configuration.yaml
+            name: configuration
           - mountPath: /etc/fault
             name: fault
-          - mountPath: /etc/charts
+          - mountPath: /usr/local/sc/charts
             name: charts
-          - mountPath: /var/log/stages
+          - mountPath: /usr/local/sc/logs
             name: fluentd-logs
       {{- if .Values.cert }}
           - mountPath: /usr/local/tomcat/conf/tomcat.p12
@@ -170,12 +170,12 @@ spec:
             name: hostkey-volume
 {{- end }}
       volumes:
-      - name: sc-yaml
+      - name: configuration
         configMap:
-          name: sc-yaml
+          name: configuration
           items:
-            - key: .sc.yaml
-              path: .sc.yaml
+            - key: configuration.yaml
+              path: configuration.yaml
       - name: charts
         emptyDir: {}
       - name: fluentd-config
