@@ -81,9 +81,11 @@ public class Configuration {
 
     public static FileNode scYaml(World world) {
         String str;
+        FileNode file;
 
-        str = System.getenv("SC_YAML");
-        return str != null ? world.file(str) : world.getHome().join(".sc.yaml");
+        str = System.getenv("SC_HOME");
+        file = str == null ? world.getHome().join(".sc") : world.file(str);
+        return file.join("configuration.yaml");
     }
 
     private static ObjectMapper yaml() {

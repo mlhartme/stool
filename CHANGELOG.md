@@ -2,6 +2,7 @@
 
 ### 7.0.0 (pending)
 
+* SC_HOME replaces SC_YAML for basic configuratsion
 * merged client and server
   * all functionality is in `sc` now; use `sc server` to start a server
   * sc.yaml now also contains server configuration

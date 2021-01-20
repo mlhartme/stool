@@ -295,7 +295,7 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 #### Environment
 
 `SC_OPTS` to configure arguments passed to the underlying JVM. 
-`SC_YAML` to configure the location of the client configuration file. Defaults to `$HOME/.sc.yaml`
+`SC_HOME` to configure Stool configration directory. Defaults to `$HOME/.sc`
 
 
 #### See Also
@@ -370,8 +370,7 @@ Setup Stool client
 #### DESCRIPTION
 
 Creates a fresh client configuration file or reports an error if it already exists.
-The location of the client configuration file is configured with the `SC_YAML` environment variable, 
-defaults is `~/.sc.yaml`.
+The location of the client configuration file is `${SC_HOME}/configuration.yaml`.
 
 Use *spec* to specify a context name and an api url to configure. If not specified, this is guessed from the
 local machine (TODO: cisotools).
