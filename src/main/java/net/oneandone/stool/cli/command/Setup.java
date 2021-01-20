@@ -55,22 +55,16 @@ public class Setup {
 
     public void run() throws IOException {
         Configuration configuration;
-        FileNode libdir;
 
         if (home.exists()) {
             throw new IOException("Stool is already set up in " + home.getAbsolute());
         }
-        home.mkdir();
         configuration = configuration();
+        home.mkdir();
         if (charts != null) {
             configuration.charts = charts;
         }
-        libdir = home.join("lib");
-        if (lib != null) {
-            world.file(home, lib).checkDirectory().link(libdir);
-        } else {
-            libdir.mkdir();
-        }
+        create("lib", lib);
         configuration.save(Configuration.configurationYaml(home));
         console.info.println("Done - created " + home.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
@@ -84,6 +78,17 @@ public class Setup {
         console.info.println("If you want shell completion and a stage indicator in prompt: ");
         console.info.println("  Make sure to run 'eval \"$(sc shell-inc)\"' in your shell profile.");
         console.info.println("  Don't forget to restart your terminal.");
+    }
+
+    private void create(String name, String linkTo) throws IOException {
+        FileNode dir;
+
+        dir = home.join(name);
+        if (linkTo != null) {
+            world.file(home, linkTo).checkDirectory().link(dir);
+        } else {
+            dir.mkdir();
+        }
     }
 
     private Configuration configuration() throws IOException {
