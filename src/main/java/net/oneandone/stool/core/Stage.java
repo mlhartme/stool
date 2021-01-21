@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
+import net.oneandone.stool.helmclasses.ClassRef;
 import net.oneandone.stool.helmclasses.Clazz;
 import net.oneandone.stool.helmclasses.Helm;
 import net.oneandone.stool.kubernetes.Stats;
@@ -51,14 +52,14 @@ import java.util.Set;
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
 
-    public static Stage create(Caller caller, Engine engine, Configuration configuration, String stageName, String className,
+    public static Stage create(Caller caller, Engine engine, Configuration configuration, String stageName, ClassRef classRef,
                                Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(configuration.charts, configuration, stageName, className, values);
+        Helm.install(configuration.charts, configuration, stageName, classRef, values);
         stage = Stage.create(configuration, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -97,7 +98,7 @@ public class Stage {
         Clazz cl;
 
         cl = Clazz.load(new ObjectMapper(new YAMLFactory()) /* TODO */,
-                new HashMap<>(), (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS), configuration.charts);
+                new HashMap<>(), null /* TODO */, (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS), configuration.charts);
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 

@@ -20,6 +20,7 @@ import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.cli.Workspace;
+import net.oneandone.stool.helmclasses.ClassRef;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -30,19 +31,19 @@ import java.util.Map;
 
 public class Create extends ClientCommand {
     private final String stageName;
-    private final String className;
+    private final String classRef; // image with class label or local file
     private final boolean optional;
     private final boolean wait;
     private final String workspaceNameOpt;
     private final Map<String, String> values;
 
-    public Create(Globals globals, boolean optional, boolean wait, String stageName, String className, List<String> args) throws IOException {
+    public Create(Globals globals, boolean optional, boolean wait, String stageName, String classRef, List<String> args) {
         super(globals);
 
         this.optional = optional;
         this.wait = wait;
         this.stageName = stageName;
-        this.className = className;
+        this.classRef = classRef;
         this.workspaceNameOpt = eatWorkspaceNameOpt(args);
         this.values = new LinkedHashMap<>();
         values(args);
@@ -132,7 +133,7 @@ public class Create extends ClientCommand {
         client = globals.configuration().currentContext().connect(world, globals.configuration(), globals.caller());
         reference = new Reference(client, stageName);
         try {
-            urls = client.create(stageName, className, values);
+            urls = client.create(stageName, ClassRef.create(world, classRef), values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {

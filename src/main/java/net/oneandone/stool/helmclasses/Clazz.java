@@ -31,7 +31,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,25 +39,7 @@ import java.util.Map;
 public class Clazz {
     public static final String HELM_CLASS = "helmClass";
 
-    public static Map<String, Clazz> loadAll(ObjectMapper yaml, FileNode root) throws IOException {
-        Iterator<JsonNode> classes;
-        Map<String, Clazz> result;
-        Clazz clazz;
-
-        try (Reader src = root.join("classes.yaml").newReader()) {
-            classes = yaml.readTree(src).elements();
-        }
-        result = new HashMap<>();
-        while (classes.hasNext()) {
-            clazz = load(yaml, result, (ObjectNode) classes.next(), root);
-            if (result.put(clazz.name, clazz) != null) {
-                throw new IOException("duplicate class: " + clazz.name);
-            }
-        }
-        return result;
-    }
-
-    public static Clazz load(ObjectMapper yaml, Map<String, Clazz> existing, ObjectNode clazz, FileNode root) throws IOException {
+    public static Clazz load(ObjectMapper yaml, Map<String, Clazz> existing, String author, ObjectNode clazz, FileNode root) throws IOException {
         Iterator<Map.Entry<String, JsonNode>> values;
         Map.Entry<String, JsonNode> entry;
         String extendz;
@@ -77,14 +58,14 @@ public class Clazz {
             throw new IOException("chart and extends cannot be combined");
         }
         if (chart != null) {
-            derived = new Clazz(name, chart);
+            derived = new Clazz(author, name, chart);
             derived.addChartValues(yaml, root.join(chart, "values.yaml"));
         } else {
             base = existing.get(extendz);
             if (base == null) {
                 throw new IOException("class not found: " + extendz);
             }
-            derived = base.derive(name);
+            derived = base.derive(author, name);
         }
         values = clazz.get("values").fields();
         while (values.hasNext()) {
@@ -113,7 +94,7 @@ public class Clazz {
     public static Clazz forTest(String name, String... nameValues) {
         Clazz result;
 
-        result = new Clazz(name, "unusedChart");
+        result = new Clazz(null, name, "unusedChart");
         for (int i = 0; i < nameValues.length; i += 2) {
             result.add(new ValueType(nameValues[i], false, false, null, nameValues[i + 1]));
         }
@@ -122,11 +103,13 @@ public class Clazz {
 
     //--
 
+    public final String author; // null (from file), LIB, or image author
     public final String name;
     public final String chart;
     public final Map<String, ValueType> values;
 
-    private Clazz(String name, String chart) {
+    private Clazz(String author, String name, String chart) {
+        this.author = author;
         this.name = name;
         this.chart = chart;
         this.values = new LinkedHashMap<>();
@@ -179,10 +162,10 @@ public class Clazz {
         return node;
     }
 
-    public Clazz derive(String withName) {
+    public Clazz derive(String derivedAuthor, String withName) {
         Clazz result;
 
-        result = new Clazz(withName, chart);
+        result = new Clazz(derivedAuthor, withName, chart);
         for (ValueType value : values.values()) {
             result.add(value);
         }

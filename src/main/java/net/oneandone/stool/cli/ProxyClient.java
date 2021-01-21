@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.helmclasses.ClassRef;
 import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
@@ -134,11 +135,11 @@ public class ProxyClient extends Client {
      * @return url map
      * @throws FileAlreadyExistsException if the stage already exists */
     @Override
-    public Map<String, String> create(String stageName, String className, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, ClassRef classRef, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node("stages/" + stageName);
-        node = node.withParameter("class", className);
+        node = node.withParameter("classref", classRef.serialize());
         node = node.withParameters("value.", values);
         return Json.stringMap((ObjectNode) postJson(node, ""));
     }

@@ -25,6 +25,7 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.LocalClient;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.StageNotFoundException;
+import net.oneandone.stool.helmclasses.ClassRef;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
@@ -102,13 +103,13 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}")
-    public String create(@PathVariable("stage") String name, @RequestParam(value = "class") String clazz,
+    public String create(@PathVariable("stage") String name, @RequestParam(value = "classref") String classref,
                          HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> values;
 
         values = map(request, "value.");
         try {
-            return Json.obj(json, client(request).create(name, clazz, values)).toString();
+            return Json.obj(json, client(request).create(name, ClassRef.parse(classref), values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);

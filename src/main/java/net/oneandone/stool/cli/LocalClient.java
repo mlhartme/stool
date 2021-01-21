@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Field;
+import net.oneandone.stool.helmclasses.ClassRef;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
@@ -105,7 +106,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> create(String stageName, String className, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, ClassRef classRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
@@ -115,7 +116,7 @@ public class LocalClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(caller, engine, configuration, stageName, className, values);
+            stage = Stage.create(caller, engine, configuration, stageName, classRef, values);
             return stage.urlMap();
         }
     }

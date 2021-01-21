@@ -34,20 +34,13 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(FileNode root, Configuration configuration, String name, String className, Map<String, String> values)
+    public static void install(FileNode root, Configuration configuration, String name, ClassRef classRef, Map<String, String> values)
             throws IOException {
         ObjectMapper yaml;
-        Map<String, Clazz> all;
         Clazz clazz;
 
         yaml = new ObjectMapper(new YAMLFactory());
-        all = Clazz.loadAll(yaml, root);
-        LOGGER.info("class: " + className);
-        clazz = all.get(className);
-        if (clazz == null) {
-            throw new IOException("unknown class: " + className);
-        }
-
+        clazz = classRef.resolve(configuration, root.getWorld(), yaml, root);
         helm(yaml, root, configuration, name, false, false, new HashMap<>(), clazz, values);
     }
 

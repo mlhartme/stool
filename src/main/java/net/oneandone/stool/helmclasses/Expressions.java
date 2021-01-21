@@ -62,7 +62,7 @@ public class Expressions {
         this.context = null;
     }
 
-    public Map<String, String> eval(Clazz clazz) throws IOException {
+    public Map<String, String> eval(Clazz clazz) {
         Map<String, String> result;
 
         if (context != null) {
