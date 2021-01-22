@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /** represents the applications file */
@@ -38,17 +37,16 @@ public final class Helm {
 
         yaml = new ObjectMapper(new YAMLFactory());  //  TODO
         clazz = classRef.resolve(configuration, yaml);
-        helm(yaml, configuration, name, false, new HashMap<>(), clazz, values);
+        helm(yaml, configuration, name, false, clazz, values);
     }
 
     public static void upgrade(Configuration configuration, String name,
                                Clazz clazz, Map<String, String> values) throws IOException {
-        helm(new ObjectMapper(new YAMLFactory()) /* TODO */, configuration, name, true,
-                new HashMap<>(), clazz, values);
+        helm(new ObjectMapper(new YAMLFactory()) /* TODO */, configuration, name, true, clazz, values);
     }
 
     private static void helm(ObjectMapper yaml, Configuration configuration, String name, boolean upgrade,
-                             Map<String, Object> map, Clazz clazz, Map<String, String> clientValues)
+                             Clazz clazz, Map<String, String> clientValues)
             throws IOException {
         World world;
         FileNode root;
@@ -62,7 +60,7 @@ public final class Helm {
         clazz.checkNotAbstract();
         chart = root.join(clazz.chart).checkDirectory();
         LOGGER.info("chart: " + clazz.chart);
-        values = clazz.createValuesFile(yaml, expressions, clientValues, map);
+        values = clazz.createValuesFile(yaml, expressions, clientValues);
         try {
             LOGGER.info("values: " + values.readString());
             LOGGER.info("helm install upgrade=" + upgrade);

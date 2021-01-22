@@ -179,17 +179,13 @@ public class Clazz {
         values.put(value.name, value);
     }
 
-    public FileNode createValuesFile(ObjectMapper mapper, Expressions builder, Map<String, String> clientValues, Map<String, Object> initial) throws IOException {
+    public FileNode createValuesFile(ObjectMapper mapper, Expressions builder, Map<String, String> clientValues) throws IOException {
         ObjectNode dest;
         String key;
         Expire expire;
         FileNode file;
 
         dest = mapper.createObjectNode();
-        for (Map.Entry<String, Object> entry : initial.entrySet()) {
-            dest.set(entry.getKey(), toJson(entry.getValue()));
-        }
-        // TODO: overwrites ...
         for (Map.Entry<String, String> entry : builder.eval(this).entrySet()) {
             dest.put(entry.getKey(), entry.getValue());
         }
