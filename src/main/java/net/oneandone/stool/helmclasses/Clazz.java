@@ -17,9 +17,6 @@ package net.oneandone.stool.helmclasses;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
@@ -163,6 +160,10 @@ public class Clazz {
         ObjectNode v;
 
         node = yaml.createObjectNode();
+        node.set("origin", new TextNode(origin));  // TODO: saved only, not loaded
+        if (author != null) {
+            node.set("author", new TextNode(author)); // TODO: saved only, not loaded
+        }
         node.set("name", new TextNode(name));
         node.set("chart", new TextNode(chart));
         v = yaml.createObjectNode();
@@ -215,21 +216,5 @@ public class Clazz {
 
         file = builder.world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;
-    }
-
-    private static JsonNode toJson(Object obj) {
-        if (obj == null) {
-            return NullNode.getInstance();
-        }
-        if (obj instanceof String) {
-            return new TextNode((String) obj);
-        }
-        if (obj instanceof Integer) {
-            return new IntNode((Integer) obj);
-        }
-        if (obj instanceof Boolean) {
-            return BooleanNode.valueOf((Boolean) obj);
-        }
-        throw new IllegalStateException(obj.getClass().toString());
     }
 }
