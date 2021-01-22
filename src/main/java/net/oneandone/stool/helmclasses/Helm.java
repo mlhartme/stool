@@ -46,21 +46,24 @@ public final class Helm {
     }
 
     private static void helm(ObjectMapper yaml, Configuration configuration, String name, boolean upgrade,
-                             Clazz clazz, Map<String, String> clientValues)
+                             Clazz originalClass, Map<String, String> clientValues)
             throws IOException {
         World world;
         FileNode root;
         Expressions expressions;
         FileNode chart;
         FileNode values;
+        Clazz modifiedClass;
 
         root = configuration.charts;
         world = root.getWorld();
         expressions = new Expressions(world, configuration, configuration.stageFqdn(name));
-        clazz.checkNotAbstract();
-        chart = root.join(clazz.chart).checkDirectory();
-        LOGGER.info("chart: " + clazz.chart);
-        values = clazz.createValuesFile(yaml, expressions, clientValues);
+        modifiedClass = originalClass.derive(originalClass.author, originalClass.name);
+        modifiedClass.setValues(clientValues);
+        modifiedClass.checkNotAbstract();
+        chart = root.join(modifiedClass.chart).checkDirectory();
+        LOGGER.info("chart: " + modifiedClass.chart);
+        values = modifiedClass.createValuesFile(yaml, expressions);
         try {
             LOGGER.info("values: " + values.readString());
             LOGGER.info("helm install upgrade=" + upgrade);

@@ -119,6 +119,17 @@ public class Clazz {
         values.put(value.name, value);
     }
 
+    public void setValues(Map<String, String> clientValues) {
+        ValueType v;
+
+        for (Map.Entry<String, String> entry : clientValues.entrySet()) {
+            v = new ValueType(entry.getKey(), false, false, entry.getValue());
+            if (values.put(v.name, v) == null) {
+                throw new ArgumentException("unknown value: " + v.name);
+            }
+        }
+    }
+
     public void checkNotAbstract() throws IOException {
         List<String> names;
 
@@ -179,22 +190,14 @@ public class Clazz {
         values.put(value.name, value);
     }
 
-    public FileNode createValuesFile(ObjectMapper mapper, Expressions builder, Map<String, String> clientValues) throws IOException {
+    public FileNode createValuesFile(ObjectMapper mapper, Expressions builder) throws IOException {
         ObjectNode dest;
-        String key;
         Expire expire;
         FileNode file;
 
         dest = mapper.createObjectNode();
         for (Map.Entry<String, String> entry : builder.eval(this).entrySet()) {
             dest.put(entry.getKey(), entry.getValue());
-        }
-        for (Map.Entry<String, String> entry : clientValues.entrySet()) {
-            key = entry.getKey();
-            if (!this.values.containsKey(key)) {
-                throw new ArgumentException("unknown value: " + key);
-            }
-            dest.put(key, entry.getValue());
         }
 
         dest.set(HELM_CLASS, toObject(mapper));
