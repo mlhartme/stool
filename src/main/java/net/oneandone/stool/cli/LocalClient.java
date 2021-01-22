@@ -128,7 +128,7 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            stage.upgrade(caller, engine, classRef.resolve(configuration, new ObjectMapper(new YAMLFactory()) /* TODO */), values);
+            stage.publish(caller, engine, classRef.resolve(configuration, new ObjectMapper(new YAMLFactory()) /* TODO */), values);
         }
     }
 
@@ -163,20 +163,20 @@ public class LocalClient extends Client {
     public Map<String, String> setValues(String name, Map<String, String> values) throws IOException {
         Stage stage;
         Value value;
-        Map<String, String> clientValues;
+        Map<String, String> changes;
         Map<String, String> result;
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
             result = new HashMap<>();
-            clientValues = new HashMap<>();
+            changes = new HashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 value = stage.value(entry.getKey());
                 value = value.withNewValue(entry.getValue());
-                clientValues.put(entry.getKey(), value.get());
+                changes.put(entry.getKey(), value.get());
                 result.put(value.name(), value.disclose());
             }
-            stage.upgrade(caller, engine, stage.clazz, clientValues);
+            stage.setValues(caller, engine, changes);
             return result;
         }
     }

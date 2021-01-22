@@ -325,7 +325,7 @@ public class Stage {
     //-- docker
 
     /** CAUTION: values are not updated! */
-    public void upgrade(Caller caller, Engine engine, Clazz withClazz, Map<String, String> clientValues) throws IOException {
+    public void publish(Caller caller, Engine engine, Clazz withClazz, Map<String, String> clientValues) throws IOException {
         Map<String, Object> map;
 
         map = new HashMap<>();
@@ -333,6 +333,21 @@ public class Stage {
             map.put(entry.getKey(), entry.getValue().get());
         }
         Helm.upgrade(configuration, name, map, withClazz, clientValues);
+        history.add(HistoryEntry.create(caller));
+        saveHistory(engine);
+        // TODO: update values in this stage instance? or return new instance?
+    }
+
+    /** CAUTION: values are not updated! */
+    public void setValues(Caller caller, Engine engine, Map<String, String> changes) throws IOException {
+        Map<String, String> map;
+
+        map = new HashMap<>();
+        for (Map.Entry<String, Value> entry : values.entrySet()) {
+            map.put(entry.getKey(), entry.getValue().get());
+        }
+        map.putAll(changes);
+        Helm.upgrade(configuration, name, new HashMap<>(), clazz, map);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
