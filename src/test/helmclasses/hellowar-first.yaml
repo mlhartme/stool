@@ -1,0 +1,5 @@
+name: "hellowar"
+extends: "stage"
+values:
+  image:
+    value: "contargo.server.lan/cisoops-public/hellowar:1.0.6-20210122-091801-087"

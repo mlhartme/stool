@@ -1,5 +1,0 @@
-name: "hellowar"
-extends: "stage"
-values:
-  image:
-    value: "${latest('contargo.server.lan/cisoops-public/hellowar')}"
