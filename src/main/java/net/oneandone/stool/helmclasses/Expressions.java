@@ -21,7 +21,6 @@ import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -148,45 +147,6 @@ public class Expressions {
         result.put("fqdn", fqdn);
         result.put("defaultExpire", configuration.defaultExpire);
         result.put("defaultContact", Stage.NOTIFY_FIRST_MODIFIER);
-        result.put("latest", new TemplateMethodModelEx() {
-            @Override
-            public Object exec(List list) throws TemplateModelException {
-                if (list.size() != 1) {
-                    throw new ArgumentException(list.toString());
-                }
-                try {
-                    return latest(list.get(0).toString());
-                } catch (IOException e) {
-                    throw new TemplateModelException(e.getMessage(), e);
-                }
-            }
-        });
-        result.put("label", new TemplateMethodModelEx() {
-            @Override
-            public Object exec(List list) throws TemplateModelException {
-                if (list.size() != 2) {
-                    throw new ArgumentException(list.toString());
-                }
-                try {
-                    return label(list.get(0).toString(), list.get(1).toString());
-                } catch (IOException e) {
-                    throw new TemplateModelException(e.getMessage(), e);
-                }
-            }
-        });
-        result.put("labelOpt", new TemplateMethodModelEx() {
-            @Override
-            public Object exec(List list) throws TemplateModelException {
-                if (list.size() != 2) {
-                    throw new ArgumentException(list.toString());
-                }
-                try {
-                    return labelOpt(list.get(0).toString(), list.get(1).toString());
-                } catch (IOException e) {
-                    throw new TemplateModelException(e.getMessage(), e);
-                }
-            }
-        });
         result.put("cert", new TemplateMethodModelEx() {
             @Override
             public Object exec(List list) throws TemplateModelException {
@@ -223,34 +183,6 @@ public class Expressions {
             }
         });
         return result;
-    }
-
-    private String label(String imageOrRepository, String label) throws IOException, TemplateModelException {
-        String result;
-
-        result = labelOpt(imageOrRepository, label);
-        if (result == null) {
-            throw new TemplateModelException("label not found: " + label);
-        }
-        return result;
-    }
-
-    private String labelOpt(String imageOrRepository, String label) throws IOException {
-        Registry registry;
-        String result;
-
-        Helm.validateRepository(Registry.toRepository(imageOrRepository));
-        registry = configuration.createRegistry(world, imageOrRepository);
-        result = registry.resolve(imageOrRepository).labels.get(label);
-        return result == null ? "" : result;
-    }
-
-    public String latest(String imageOrRepository) throws IOException {
-        Registry registry;
-
-        Helm.validateRepository(Registry.toRepository(imageOrRepository));
-        registry = configuration.createRegistry(world, imageOrRepository);
-        return registry.resolve(imageOrRepository).repositoryTag;
     }
 
     private String cert() throws IOException {
