@@ -17,7 +17,6 @@ package net.oneandone.stool.helmclasses;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -25,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +43,7 @@ public final class Helm {
 
     public static void upgrade(Configuration configuration, String name, Map<String, Object> map,
                                Clazz clazz, Map<String, String> values) throws IOException {
-        helm(new ObjectMapper(new YAMLFactory()), configuration, name, true, map, clazz, values);
+        helm(new ObjectMapper(new YAMLFactory()) /* TODO */, configuration, name, true, map, clazz, values);
     }
 
     private static void helm(ObjectMapper yaml, Configuration configuration, String name, boolean upgrade,
@@ -71,32 +68,6 @@ public final class Helm {
             LOGGER.info(chart.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute()));
         } finally {
             values.deleteFile();
-        }
-    }
-
-    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
-    public static void validateRepository(String repository) {
-        URI uri;
-
-        if (repository.endsWith("/")) {
-            throw new ArgumentException("invalid repository: " + repository);
-        }
-        try {
-            uri = new URI(repository);
-        } catch (URISyntaxException e) {
-            throw new ArgumentException("invalid repository: " + repository);
-        }
-        if (uri.getHost() != null) {
-            checkLowercase(uri.getHost());
-        }
-        checkLowercase(uri.getPath());
-    }
-
-    private static void checkLowercase(String str) {
-        for (int i = 0, length = str.length(); i < length; i++) {
-            if (Character.isUpperCase(str.charAt(i))) {
-                throw new ArgumentException("invalid registry prefix: " + str);
-            }
         }
     }
 
