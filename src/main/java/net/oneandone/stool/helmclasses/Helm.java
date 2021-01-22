@@ -41,9 +41,10 @@ public final class Helm {
         helm(yaml, configuration, name, false, new HashMap<>(), clazz, values);
     }
 
-    public static void upgrade(Configuration configuration, String name, Map<String, Object> map,
+    public static void upgrade(Configuration configuration, String name,
                                Clazz clazz, Map<String, String> values) throws IOException {
-        helm(new ObjectMapper(new YAMLFactory()) /* TODO */, configuration, name, true, map, clazz, values);
+        helm(new ObjectMapper(new YAMLFactory()) /* TODO */, configuration, name, true,
+                new HashMap<>(), clazz, values);
     }
 
     private static void helm(ObjectMapper yaml, Configuration configuration, String name, boolean upgrade,

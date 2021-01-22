@@ -326,13 +326,7 @@ public class Stage {
 
     /** CAUTION: values are not updated! */
     public void publish(Caller caller, Engine engine, Clazz withClazz, Map<String, String> clientValues) throws IOException {
-        Map<String, Object> map;
-
-        map = new HashMap<>();
-        for (Map.Entry<String, Value> entry : values.entrySet()) {
-            map.put(entry.getKey(), entry.getValue().get());
-        }
-        Helm.upgrade(configuration, name, map, withClazz, clientValues);
+        Helm.upgrade(configuration, name, withClazz, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -347,7 +341,7 @@ public class Stage {
             map.put(entry.getKey(), entry.getValue().get());
         }
         map.putAll(changes);
-        Helm.upgrade(configuration, name, new HashMap<>(), clazz, map);
+        Helm.upgrade(configuration, name, clazz, map);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
