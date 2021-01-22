@@ -39,7 +39,7 @@ import java.util.Map;
 public class Clazz {
     public static final String HELM_CLASS = "helmClass";
 
-    public static Clazz load(ObjectMapper yaml, Map<String, Clazz> existing, String author, ObjectNode clazz, FileNode root) throws IOException {
+    public static Clazz load(ObjectMapper yaml, Map<String, Clazz> existing, String origin, String author, ObjectNode clazz, FileNode root) throws IOException {
         Iterator<Map.Entry<String, JsonNode>> values;
         Map.Entry<String, JsonNode> entry;
         String extendz;
@@ -58,14 +58,14 @@ public class Clazz {
             throw new IOException("chart and extends cannot be combined");
         }
         if (chart != null) {
-            derived = new Clazz(author, name, chart);
+            derived = new Clazz(origin, author, name, chart);
             derived.addChartValues(yaml, root.join(chart, "values.yaml"));
         } else {
             base = existing.get(extendz);
             if (base == null) {
                 throw new IOException("class not found: " + extendz);
             }
-            derived = base.derive(author, name);
+            derived = base.derive(origin, author, name);
         }
         values = clazz.get("values").fields();
         while (values.hasNext()) {
@@ -94,7 +94,7 @@ public class Clazz {
     public static Clazz forTest(String name, String... nameValues) {
         Clazz result;
 
-        result = new Clazz(null, name, "unusedChart");
+        result = new Clazz("synthetic", null, name, "unusedChart");
         for (int i = 0; i < nameValues.length; i += 2) {
             result.add(new ValueType(nameValues[i], false, false, nameValues[i + 1]));
         }
@@ -103,12 +103,16 @@ public class Clazz {
 
     //--
 
+    // metadata
+    public final String origin;
     public final String author; // null (from file), LIB, or image author
+
     public final String name;
     public final String chart;
     public final Map<String, ValueType> values;
 
-    private Clazz(String author, String name, String chart) {
+    private Clazz(String origin, String author, String name, String chart) {
+        this.origin = origin;
         this.author = author;
         this.name = name;
         this.chart = chart;
@@ -173,10 +177,10 @@ public class Clazz {
         return node;
     }
 
-    public Clazz derive(String derivedAuthor, String withName) {
+    public Clazz derive(String derivedOrigin, String derivedAuthor, String withName) {
         Clazz result;
 
-        result = new Clazz(derivedAuthor, withName, chart);
+        result = new Clazz(derivedOrigin, derivedAuthor, withName, chart);
         for (ValueType value : values.values()) {
             result.add(value);
         }

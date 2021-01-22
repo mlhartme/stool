@@ -58,7 +58,7 @@ public final class Helm {
         root = configuration.charts;
         world = root.getWorld();
         expressions = new Expressions(world, configuration, configuration.stageFqdn(name));
-        modifiedClass = originalClass.derive(originalClass.author, originalClass.name);
+        modifiedClass = originalClass.derive(originalClass.origin, originalClass.author, originalClass.name);
         modifiedClass.setValues(clientValues);
         modifiedClass.checkNotAbstract();
         chart = root.join(modifiedClass.chart).checkDirectory();

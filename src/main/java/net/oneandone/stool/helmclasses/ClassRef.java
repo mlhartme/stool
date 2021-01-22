@@ -29,6 +29,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -40,12 +41,19 @@ public class ClassRef {
 
     public static ClassRef parse(String str) {
         int idx;
+        Type type;
 
         idx = str.indexOf('+');
         if (idx == -1) {
             throw new IllegalStateException(str);
         }
-        return new ClassRef(Type.valueOf(str.substring(0, idx)), decode(str.substring(idx + 1)));
+        type = Type.valueOf(str.substring(0, idx));
+        str = str.substring(idx + 1);
+        idx = str.indexOf('+');
+        if (idx == -1) {
+            throw new IllegalStateException(str);
+        }
+        return new ClassRef(type, decode(str.substring(0, idx)), decode(str.substring(idx + 1)));
     }
 
 
@@ -62,25 +70,27 @@ public class ClassRef {
 
         file = world.file(str);
         if (file.exists()) {
-            return new ClassRef(Type.INLINE, file.readString());
+            return new ClassRef(Type.INLINE, file.readString(), str + "@" + new Date(file.getLastModified()));
         }
         if (str.contains("/")) {
-            return new ClassRef(Type.IMAGE, str);
+            return new ClassRef(Type.IMAGE, str, str);
         } else {
-            return new ClassRef(Type.BUILTIN, str);
+            return new ClassRef(Type.BUILTIN, str, "builtin");
         }
     }
 
     private final Type type;
     private final String value;
+    private final String origin;
 
-    public ClassRef(Type type, String value) {
+    public ClassRef(Type type, String value, String origin) {
         this.type = type;
         this.value = value;
+        this.origin = origin;
     }
 
     public String serialize() {
-        return type.toString() + "+" + encode(value);
+        return type.toString() + "+" + encode(value) + "+" + encode(origin);
     }
 
     public static final String BUILDIN = "_buildin_";
@@ -102,7 +112,7 @@ public class ClassRef {
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {
-                    result = Clazz.load(yaml, all, null, object(yaml.readTree(src)), root);
+                    result = Clazz.load(yaml, all, origin, null, object(yaml.readTree(src)), root);
                 }
                 break;
             case IMAGE:
@@ -116,7 +126,7 @@ public class ClassRef {
                     throw new IOException("image does not have a class label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
-                    result = Clazz.load(yaml, all, tag.author, object(yaml.readTree(src)), root);
+                    result = Clazz.load(yaml, all, origin, tag.author, object(yaml.readTree(src)), root);
                 }
                 break;
             default:
@@ -143,7 +153,7 @@ public class ClassRef {
         }
         result = new HashMap<>();
         while (classes.hasNext()) {
-            clazz = Clazz.load(yaml, result, BUILDIN, (ObjectNode) classes.next(), root);
+            clazz = Clazz.load(yaml, result, "builtin", BUILDIN, (ObjectNode) classes.next(), root);
             if (result.put(clazz.name, clazz) != null) {
                 throw new IOException("duplicate class: " + clazz.name);
             }
