@@ -41,6 +41,5 @@ public class ClazzTest {
         assertEquals("42", a.values.get("asis").value);
         assertEquals("modified", a.values.get("base").value);
         assertEquals("3", a.values.get("added").value);
-        System.out.println(a.toObject(yaml).toPrettyString());
     }
 }
