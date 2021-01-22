@@ -124,7 +124,7 @@ public class MainIT {
         sc(home, "config", stage, "metadataComment");
         sc(home, "config", stage, "metadataComment=42");
         // TODO: sc(home, "images", repository);
-        sc(home, "publish", stage);
+        sc(home, "publish", stage, "hellowar" /* TODO: no changes */);
         sc(home, "list", stage);
         sc(home, "validate", stage);
         sc(home, "history", stage);

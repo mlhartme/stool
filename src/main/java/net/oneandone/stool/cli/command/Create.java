@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class Create extends ClientCommand {
     private final String stageName;
-    private final String classRef; // image with class label or local file
+    private final String classRef;
     private final boolean optional;
     private final boolean wait;
     private final String workspaceNameOpt;

@@ -127,8 +127,9 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public void publish(@PathVariable(value = "stage") String stageName, HttpServletRequest request) throws IOException {
-        client(request).publish(stageName, map(request, "value."));
+    public void publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String classref,
+                        HttpServletRequest request) throws IOException {
+        client(request).publish(stageName, ClassRef.parse(classref), map(request, "value."));
     }
 
     @GetMapping("/stages//{stage}/await-available")

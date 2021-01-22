@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.util.Json;
 
-import java.io.IOException;
-
 /** Immutable */
 public class ValueType {
     public static ValueType forYaml(String name, JsonNode yaml) {
@@ -31,49 +29,32 @@ public class ValueType {
         boolean privt;
         String value;
         ObjectNode obj;
-        String publish;
 
         abstrct = false;
         privt = false;
-        publish = null;
         if (yaml.isObject()) {
             obj = (ObjectNode) yaml;
             value = Json.string(obj, "value", "");
             abstrct = Json.bool(obj, "abstract", abstrct);
             privt = Json.bool(obj, "private", privt);
-            publish = Json.string(obj, "publish", publish);
         } else {
             value = yaml.asText();
         }
-        return new ValueType(name, abstrct, privt, publish, value);
+        return new ValueType(name, abstrct, privt, value);
 
     }
     public final String name;
     public final boolean abstrct;
     public final boolean privt;
-    public final String publish;
     public final String value;
 
-    public ValueType(String name, boolean abstrct, boolean privt, String publish, String value) {
+    public ValueType(String name, boolean abstrct, boolean privt, String value) {
         this.name = name;
         this.abstrct = abstrct;
         this.privt = privt;
-        this.publish = publish;
         this.value = value;
     }
 
-    public String publish(Expressions expressions, String old) throws IOException {
-        if (publish == null) {
-            return old;
-        } else {
-            switch (publish) {
-                case "latest":
-                    return expressions.latest(old);
-                default:
-                    throw new IOException("unknown publish function: " + publish);
-            }
-        }
-    }
     public JsonNode toObject(ObjectMapper yaml) {
         ObjectNode result;
 
@@ -83,9 +64,6 @@ public class ValueType {
         }
         if (privt) {
             result.set("private", BooleanNode.valueOf(privt));
-        }
-        if (publish != null) {
-            result.set("publish", new TextNode(publish));
         }
         if (result.isEmpty()) {
             return new TextNode(value);

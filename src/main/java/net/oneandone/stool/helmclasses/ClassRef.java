@@ -86,7 +86,7 @@ public class ClassRef {
 
     public static final String BUILDIN = "_buildin_";
 
-    public Clazz resolve(Configuration configuration, World world, ObjectMapper yaml, FileNode root) throws IOException {
+    public Clazz resolve(Configuration configuration, ObjectMapper yaml, FileNode root) throws IOException {
         Map<String, Clazz> all;
         Clazz result;
         String str;
@@ -108,7 +108,7 @@ public class ClassRef {
                 Registry registry;
                 TagInfo tag;
 
-                registry = configuration.createRegistry(world, value);
+                registry = configuration.createRegistry(root.getWorld(), value);
                 tag = registry.resolve(value);
                 str = tag.labels.get("class");
                 if (str == null) {

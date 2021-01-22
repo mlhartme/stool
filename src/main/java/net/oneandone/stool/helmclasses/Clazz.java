@@ -87,7 +87,7 @@ public class Clazz {
         iter = loaded.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            add(new ValueType(entry.getKey(), false, false, null, entry.getValue().asText()));
+            add(new ValueType(entry.getKey(), false, false, entry.getValue().asText()));
         }
     }
 
@@ -96,7 +96,7 @@ public class Clazz {
 
         result = new Clazz(null, name, "unusedChart");
         for (int i = 0; i < nameValues.length; i += 2) {
-            result.add(new ValueType(nameValues[i], false, false, null, nameValues[i + 1]));
+            result.add(new ValueType(nameValues[i], false, false, nameValues[i + 1]));
         }
         return result;
     }

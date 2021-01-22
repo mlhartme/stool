@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Field;
 import net.oneandone.stool.helmclasses.ClassRef;
@@ -122,12 +123,12 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public void publish(String name, Map<String, String> values) throws IOException {
+    public void publish(String name, ClassRef classRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            stage.upgrade(caller, engine, true, /* TODO clazz, */ values);
+            stage.upgrade(caller, engine, classRef.resolve(configuration, new ObjectMapper(new YAMLFactory()) /* TODO */, configuration.charts), values);
         }
     }
 
@@ -175,7 +176,7 @@ public class LocalClient extends Client {
                 clientValues.put(entry.getKey(), value.get());
                 result.put(value.name(), value.disclose());
             }
-            stage.upgrade(caller, engine, false, clientValues);
+            stage.upgrade(caller, engine, stage.clazz, clientValues);
             return result;
         }
     }

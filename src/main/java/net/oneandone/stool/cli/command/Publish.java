@@ -18,17 +18,21 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
+import net.oneandone.stool.helmclasses.ClassRef;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Publish extends IteratedStageCommand {
+    private final ClassRef classRef;
     private final Map<String, String> values;
 
-    public Publish(Globals globals, String stage, List<String> args) {
+    public Publish(Globals globals, String stage, String classRef, List<String> args) throws IOException {
         super(globals, stage);
         this.values = new LinkedHashMap<>();
+        this.classRef = ClassRef.create(globals.getWorld(), classRef);
         eatValues(args);
     }
 
@@ -58,6 +62,6 @@ public class Publish extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        reference.client.publish(reference.stage, values);
+        reference.client.publish(reference.stage, classRef, values);
     }
 }
