@@ -99,9 +99,11 @@ public class MainIT {
 
     private void run(boolean local) throws IOException {
         FileNode working;
+        FileNode clazz;
         FileNode home;
         String stage;
 
+        clazz = WORLD.guessProjectHome(getClass()).join("src/test/helmclasses/hellowar.yaml");
         stage = "de.wq-ta"; // with some special characters
         working = itRoot(local).join("projects/" + (local ? "it-local" : "it-proxy")).mkdirsOpt();
         home = working.join("home").checkNotExists();
@@ -115,7 +117,7 @@ public class MainIT {
         }
         sc(home, "context", "localhost");
         sc(home, "list", "%all");
-        sc(home, "create", "-e", "-wait", stage, "hellowar");
+        sc(home, "create", "-e", "-wait", stage, clazz.getAbsolute());
         sc(home, "list", "%all");
         sc(home, "status", stage);
         sc(home, "attach", "@ws", stage);
@@ -124,7 +126,7 @@ public class MainIT {
         sc(home, "config", stage, "metadataComment");
         sc(home, "config", stage, "metadataComment=42");
         // TODO: sc(home, "images", repository);
-        sc(home, "publish", stage, "hellowar" /* TODO: no changes */);
+        sc(home, "publish", stage, clazz.getAbsolute() /* TODO: no changes */);
         sc(home, "list", stage);
         sc(home, "validate", stage);
         sc(home, "history", stage);
