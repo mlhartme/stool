@@ -17,7 +17,6 @@ package net.oneandone.stool.helmclasses;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.Registry;
@@ -129,11 +128,6 @@ public class ClassRef {
     private static ObjectNode object(JsonNode raw) throws IOException {
         if (raw instanceof ObjectNode) {
             return (ObjectNode) raw;
-        } else if (raw instanceof ArrayNode) {
-            if (raw.size() != 1) {
-                throw new IOException("1 element expected, got " + raw.size());
-            }
-            return (ObjectNode) raw.get(0);
         } else {
             throw new IOException("object expected, got  " + raw.getNodeType());
         }

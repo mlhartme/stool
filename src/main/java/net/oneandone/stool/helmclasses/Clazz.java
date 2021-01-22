@@ -140,7 +140,7 @@ public class Clazz {
             }
         }
         if (!names.isEmpty()) {
-            throw new IOException("class " + name + " has abstract values: " + names);
+            throw new IOException("class " + name + " has abstract value(s): " + names);
         }
     }
 
