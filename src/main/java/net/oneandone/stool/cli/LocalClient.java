@@ -128,7 +128,7 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            stage.upgrade(caller, engine, classRef.resolve(configuration, new ObjectMapper(new YAMLFactory()) /* TODO */, configuration.charts), values);
+            stage.upgrade(caller, engine, classRef.resolve(configuration, new ObjectMapper(new YAMLFactory()) /* TODO */), values);
         }
     }
 

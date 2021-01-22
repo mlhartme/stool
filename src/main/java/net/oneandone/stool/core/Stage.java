@@ -59,7 +59,7 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(configuration.charts, configuration, stageName, classRef, values);
+        Helm.install(configuration, stageName, classRef, values);
         stage = Stage.create(configuration, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -332,7 +332,7 @@ public class Stage {
         for (Map.Entry<String, Value> entry : values.entrySet()) {
             map.put(entry.getKey(), entry.getValue().get());
         }
-        Helm.upgrade(configuration.charts, configuration, name, map, withClazz, clientValues);
+        Helm.upgrade(configuration, name, map, withClazz, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

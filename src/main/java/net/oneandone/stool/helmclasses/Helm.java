@@ -34,29 +34,31 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(FileNode root, Configuration configuration, String name, ClassRef classRef, Map<String, String> values)
+    public static void install(Configuration configuration, String name, ClassRef classRef, Map<String, String> values)
             throws IOException {
         ObjectMapper yaml;
         Clazz clazz;
 
         yaml = new ObjectMapper(new YAMLFactory());  //  TODO
-        clazz = classRef.resolve(configuration, yaml, root);
-        helm(yaml, root, configuration, name, false, new HashMap<>(), clazz, values);
+        clazz = classRef.resolve(configuration, yaml);
+        helm(yaml, configuration, name, false, new HashMap<>(), clazz, values);
     }
 
-    public static void upgrade(FileNode root, Configuration configuration, String name, Map<String, Object> map,
+    public static void upgrade(Configuration configuration, String name, Map<String, Object> map,
                                Clazz clazz, Map<String, String> values) throws IOException {
-        helm(new ObjectMapper(new YAMLFactory()), root, configuration, name, true, map, clazz, values);
+        helm(new ObjectMapper(new YAMLFactory()), configuration, name, true, map, clazz, values);
     }
 
-    private static void helm(ObjectMapper yaml, FileNode root, Configuration configuration, String name, boolean upgrade,
+    private static void helm(ObjectMapper yaml, Configuration configuration, String name, boolean upgrade,
                              Map<String, Object> map, Clazz clazz, Map<String, String> clientValues)
             throws IOException {
         World world;
+        FileNode root;
         Expressions expressions;
         FileNode chart;
         FileNode values;
 
+        root = configuration.charts;
         world = root.getWorld();
         expressions = new Expressions(world, configuration, configuration.stageFqdn(name));
         clazz.checkNotAbstract();

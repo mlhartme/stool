@@ -86,11 +86,13 @@ public class ClassRef {
 
     public static final String BUILDIN = "_buildin_";
 
-    public Clazz resolve(Configuration configuration, ObjectMapper yaml, FileNode root) throws IOException {
+    public Clazz resolve(Configuration configuration, ObjectMapper yaml) throws IOException {
+        FileNode root;
         Map<String, Clazz> all;
         Clazz result;
         String str;
 
+        root = configuration.charts;
         all = loadAll(yaml, root);
         switch (type) {
             case BUILTIN:
