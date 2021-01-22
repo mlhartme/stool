@@ -40,30 +40,17 @@ public class EngineIT {
         engine.namespaceReset();
     }
 
-    //-- pods
-
     @Test
     public void podImplicitHostname() throws IOException {
-        doHostnameTest("podimplicit", null, "podimplicit");
-    }
-
-    @Test
-    public void podExplicitHostname() throws IOException {
-        doHostnameTest("podexplicit", "ex", "ex");
-    }
-
-    private void doHostnameTest(String pod, String hostname, String expected) throws IOException {
         try (Engine engine = create()) {
             assertFalse(engine.isOpenShift());
-            assertFalse(engine.podCreate(pod, "debian:stretch-slim", new String[] { "hostname" },
-                    hostname, false, Strings.toMap()));
-            assertEquals(false, engine.podContainerRunning(pod, "noname"));
-            assertEquals(expected + "\n", engine.podLogs(pod));
-            engine.podDelete(pod);
+            assertFalse(engine.podCreate("podimplicit", "debian:stretch-slim", new String[] { "hostname" },
+                    null, false, Strings.toMap()));
+            assertEquals(false, engine.podContainerRunning("podimplicit", "noname"));
+            assertEquals("podimplicit" + "\n", engine.podLogs("podimplicit"));
+            engine.podDelete("podimplicit");
         }
     }
-
-    //-- misc
 
     @Test
     public void deployment() throws IOException {
