@@ -17,6 +17,7 @@ package net.oneandone.stool.helmclasses;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.Registry;
@@ -100,7 +101,7 @@ public class ClassRef {
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {
-                    result = Clazz.load(yaml, all, null, (ObjectNode) yaml.readTree(src), root);
+                    result = Clazz.load(yaml, all, null, object(yaml.readTree(src)), root);
                 }
                 break;
             case IMAGE:
@@ -114,13 +115,26 @@ public class ClassRef {
                     throw new IOException("image does not have a class label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
-                    result = Clazz.load(yaml, all, tag.author, (ObjectNode) yaml.readTree(src), root);
+                    result = Clazz.load(yaml, all, tag.author, object(yaml.readTree(src)), root);
                 }
                 break;
             default:
                 throw new IllegalStateException(type.toString());
         }
         return result;
+    }
+
+    private static ObjectNode object(JsonNode raw) throws IOException {
+        if (raw instanceof ObjectNode) {
+            return (ObjectNode) raw;
+        } else if (raw instanceof ArrayNode) {
+            if (raw.size() != 1) {
+                throw new IOException("1 element expected, got " + raw.size());
+            }
+            return (ObjectNode) raw.get(0);
+        } else {
+            throw new IOException("object expected, got  " + raw.getNodeType());
+        }
     }
 
     public static Map<String, Clazz> loadAll(ObjectMapper yaml, FileNode root) throws IOException {
