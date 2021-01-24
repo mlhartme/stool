@@ -80,7 +80,6 @@ public class RegistryIT {
     public void portus() throws IOException {
         URI registryUri;
         Registry registry;
-        Properties p;
         String registryPrefix;
         String repository;
 
@@ -96,6 +95,21 @@ public class RegistryIT {
         try (Daemon docker = Daemon.create(/* "target/registry-wire.log" */ null)) {
             run(docker, registry, registryPrefix, repository, true);
         }
+    }
+
+    @Test // TODO
+    public void portusChart() throws IOException {
+        URI registryUri;
+        PortusRegistry registry;
+        String repository;
+
+        registryUri = Secrets.load(WORLD).portus.resolve("/");
+        repository = "cisoops-public/charts/kutter";
+        registry = PortusRegistry.create(WORLD, registryUri.toString(), "target/portus-wire.log");
+        System.out.println("uri: " + registryUri);
+        System.out.println("repo: " + repository);
+        System.out.println("tags: " + registry.tags(repository));
+        System.out.println("dockerTags: " + registry.helmTags(repository));
     }
 
     private void run(Daemon docker, Registry registry, String registryPrefix, String repository, boolean testDelete) throws IOException {
