@@ -83,10 +83,10 @@ public abstract class Registry {
 
     //--
 
-    private final ObjectMapper json;
+    protected final ObjectMapper json;
 
-    protected Registry() {
-        this.json = new ObjectMapper();
+    protected Registry(ObjectMapper json) {
+        this.json = json;
     }
 
     protected ObjectNode getJsonObject(HttpNode node) throws IOException {

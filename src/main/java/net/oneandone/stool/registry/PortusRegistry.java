@@ -16,6 +16,7 @@
 package net.oneandone.stool.registry;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.util.Json;
@@ -38,7 +39,7 @@ import java.util.Map;
  * Registry implementation with Portus API http://port.us.org/docs/API.html.
  */
 public class PortusRegistry extends Registry {
-    public static PortusRegistry create(World world, String uri, String wirelog) throws NodeInstantiationException {
+    public static PortusRegistry create(ObjectMapper json, World world, String uri, String wirelog) throws NodeInstantiationException {
         HttpNode root;
         String ui;
         int idx;
@@ -62,7 +63,7 @@ public class PortusRegistry extends Registry {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new PortusRegistry(root.getRoot().getHostname(), username, password, root);
+        return new PortusRegistry(json, root.getRoot().getHostname(), username, password, root);
     }
 
     private final String host;
@@ -73,7 +74,8 @@ public class PortusRegistry extends Registry {
     private String authRepository;
     private String authToken;
 
-    private PortusRegistry(String host, String username, String password, HttpNode root) {
+    private PortusRegistry(ObjectMapper json, String host, String username, String password, HttpNode root) {
+        super(json);
         if (host.contains("/")) {
             throw new IllegalArgumentException(host);
         }
@@ -137,7 +139,7 @@ public class PortusRegistry extends Registry {
         if (authRepository == null || !authRepository.equals(repository)) {
             // auth for docker registry api
             try {
-                DockerRegistry.create(root).list();
+                DockerRegistry.create(json, root).list();
                 throw new IllegalStateException(root.getUri().toString());
             } catch (AuthException e) {
                 realm = e.realm;

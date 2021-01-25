@@ -16,6 +16,7 @@
 package net.oneandone.stool.registry;
 
 import net.oneandone.stool.docker.Daemon;
+import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Secrets;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -67,7 +68,7 @@ public class RegistryIT {
             docker.containerStart(container);
             try {
                 root = (HttpNode) WORLD.validNode("http://" + registryPrefix);
-                registry = DockerRegistry.create(root, "target/docker-registry.log");
+                registry = DockerRegistry.create(Json.newJson(), root, "target/docker-registry.log");
                 run(docker, registry, registryPrefix, "registrytest", false /* TODO */);
             } finally {
                 docker.containerStop(container, 5);
@@ -86,7 +87,7 @@ public class RegistryIT {
         registryUri = Secrets.load(WORLD).portus.resolve("it-todo"); // TODO: include hostname in prefix
         registryPrefix = registryUri.getHost() + registryUri.getPath();
         repository = registryPrefix.substring(registryPrefix.indexOf('/') + 1) + "/registrytest";
-        registry = PortusRegistry.create(WORLD, registryUri.toString(), "target/portus-wire.log");
+        registry = PortusRegistry.create(Json.newJson(), WORLD, registryUri.toString(), "target/portus-wire.log");
         try {
             registry.delete(repository);
         } catch (PortusRegistry.RepositoryNotFoundException e) {
@@ -105,7 +106,7 @@ public class RegistryIT {
 
         registryUri = Secrets.load(WORLD).portus.resolve("/");
         repository = "cisoops-public/charts/kutter";
-        registry = PortusRegistry.create(WORLD, registryUri.toString(), "target/portus-wire.log");
+        registry = PortusRegistry.create(Json.newJson(), WORLD, registryUri.toString(), "target/portus-wire.log");
         System.out.println("uri: " + registryUri);
         System.out.println("repo: " + repository);
         System.out.println("tags: " + registry.tags(repository));

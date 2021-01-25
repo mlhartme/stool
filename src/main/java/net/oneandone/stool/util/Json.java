@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.ArrayList;
@@ -31,6 +32,16 @@ import java.util.List;
 import java.util.Map;
 
 public final class Json {
+    public static ObjectMapper newYaml() {
+        return new ObjectMapper(new YAMLFactory());
+    }
+
+    public static ObjectMapper newJson() {
+        return new ObjectMapper();
+    }
+
+    //--
+
     public static List<String> list(ArrayNode json) {
         List<String> result;
         Iterator<JsonNode> iter;

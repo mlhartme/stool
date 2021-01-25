@@ -16,6 +16,7 @@
 package net.oneandone.stool.registry;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.util.Json;
@@ -37,21 +38,22 @@ import java.util.Map;
  * I didn't find any official V1 Docs - this was closest: https://tuhrig.de/docker-registry-rest-api/
  */
 public class DockerRegistry extends Registry {
-    public static DockerRegistry create(HttpNode root) {
-        return create(root, null);
+    public static DockerRegistry create(ObjectMapper json, HttpNode root) {
+        return create(json, root, null);
     }
 
-    public static DockerRegistry create(HttpNode root, String wirelog) {
+    public static DockerRegistry create(ObjectMapper json, HttpNode root, String wirelog) {
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
         }
-        return new DockerRegistry(root.getRoot().getHostname(), root);
+        return new DockerRegistry(json, root.getRoot().getHostname(), root);
     }
 
     private final String host;
     private final HttpNode root;
 
-    private DockerRegistry(String host, HttpNode root) {
+    private DockerRegistry(ObjectMapper json, String host, HttpNode root) {
+        super(json);
         if (host.contains("/")) {
             throw new IllegalArgumentException(host);
         }

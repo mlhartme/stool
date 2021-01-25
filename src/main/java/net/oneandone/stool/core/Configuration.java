@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.cli.Caller;
@@ -62,11 +61,11 @@ public class Configuration {
         ObjectNode configuration;
         Configuration result;
 
-        yaml = yaml();
+        yaml = Json.newYaml();
         try (Reader src = file.newReader()) {
             configuration = (ObjectNode) yaml.readTree(src);
         }
-        result = new Configuration(file.getWorld(), yaml, json(), home, configuration);
+        result = new Configuration(file.getWorld(), yaml, Json.newJson(), home, configuration);
         result.validate();
         return result;
     }
@@ -75,8 +74,8 @@ public class Configuration {
         ObjectMapper yaml;
         Configuration result;
 
-        yaml = yaml();
-        result = new Configuration(world, yaml, json(), home(world), yaml.createObjectNode());
+        yaml = Json.newYaml();
+        result = new Configuration(world, yaml, Json.newJson(), home(world), yaml.createObjectNode());
         result.validate();
         return result;
     }
@@ -92,14 +91,6 @@ public class Configuration {
         return home.join("configuration.yaml");
     }
 
-
-    private static ObjectMapper yaml() {
-        return new ObjectMapper(new YAMLFactory());
-    }
-
-    private static ObjectMapper json() {
-        return new ObjectMapper();
-    }
 
     //--
 
@@ -188,8 +179,8 @@ public class Configuration {
 
     public Configuration(Configuration from) throws IOException {
         this.world = World.create();
-        this.yaml = new ObjectMapper(new YAMLFactory());
-        this.json = new ObjectMapper();
+        this.yaml = Json.newYaml();
+        this.json = Json.newJson();
         this.currentContext = from.currentContext;
         this.contexts = new HashMap<>();
         for (Map.Entry<String, Context> entry : from.contexts.entrySet()) {
@@ -390,7 +381,7 @@ public class Configuration {
             uri = uri + up.username + ":" + up.password + "@";
         }
         uri = uri + host;
-        return PortusRegistry.create(world, uri, null);
+        return PortusRegistry.create(json, world, uri, null);
     }
 
     public Certificates certificates() {
