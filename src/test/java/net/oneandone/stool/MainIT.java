@@ -92,7 +92,7 @@ public class MainIT {
         run(true);
     }
 
-    // TODO @Test
+    @Test
     public void proxy() throws IOException {
         run(false);
     }
