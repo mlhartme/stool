@@ -66,7 +66,7 @@ public class Configuration {
         try (Reader src = file.newReader()) {
             configuration = (ObjectNode) yaml.readTree(src);
         }
-        result = new Configuration(file.getWorld(), yaml, home, configuration);
+        result = new Configuration(file.getWorld(), yaml, json(), home, configuration);
         result.validate();
         return result;
     }
@@ -76,7 +76,7 @@ public class Configuration {
         Configuration result;
 
         yaml = yaml();
-        result = new Configuration(world, yaml, home(world), yaml.createObjectNode());
+        result = new Configuration(world, yaml, json(), home(world), yaml.createObjectNode());
         result.validate();
         return result;
     }
@@ -97,10 +97,15 @@ public class Configuration {
         return new ObjectMapper(new YAMLFactory());
     }
 
+    private static ObjectMapper json() {
+        return new ObjectMapper();
+    }
+
     //--
 
     public final World world;
     public final ObjectMapper yaml;
+    public final ObjectMapper json;
 
     private String currentContext;
     public final Map<String, Context> contexts;
@@ -153,9 +158,10 @@ public class Configuration {
     public final int defaultExpire;
 
 
-    public Configuration(World world, ObjectMapper yaml, FileNode home, ObjectNode configuration) {
+    public Configuration(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode configuration) {
         this.world = world;
         this.yaml = yaml;
+        this.json = json;
 
         this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
         this.contexts = parseContexts((ArrayNode) configuration.get("contexts"));
@@ -183,6 +189,7 @@ public class Configuration {
     public Configuration(Configuration from) throws IOException {
         this.world = World.create();
         this.yaml = new ObjectMapper(new YAMLFactory());
+        this.json = new ObjectMapper();
         this.currentContext = from.currentContext;
         this.contexts = new HashMap<>();
         for (Map.Entry<String, Context> entry : from.contexts.entrySet()) {

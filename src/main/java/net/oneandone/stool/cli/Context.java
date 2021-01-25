@@ -70,7 +70,7 @@ public class Context {
 
     public Client connect(World world, Configuration configuration, Caller caller) throws IOException {
         if (isLocal()) {
-            return new LocalClient(name, url.substring(LOCAL_PREFIX.length()), configuration, caller);
+            return new LocalClient(configuration.json, name, url.substring(LOCAL_PREFIX.length()), configuration, caller);
         } else {
             return ProxyClient.token(world, name, url, caller, token);
         }

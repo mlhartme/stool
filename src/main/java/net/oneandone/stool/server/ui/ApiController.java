@@ -105,7 +105,7 @@ public class ApiController {
         }
 
         private LocalClient client(HttpServletRequest request) {
-            return new LocalClient("server", null, configuration,
+            return new LocalClient(json, "server", null, configuration,
                     new Caller(
                             request.getHeader("X-stool-client-invocation"),
                             User.authenticatedOrAnonymous().login,

@@ -18,7 +18,6 @@ package net.oneandone.stool.server.ui;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.server.users.User;
-import net.oneandone.sushi.fs.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.mail.MessagingException;
-import java.io.IOException;
 
 @Controller
 @Scope(WebApplicationContext.SCOPE_REQUEST)
@@ -43,13 +41,14 @@ import java.io.IOException;
 public class DashboardController {
     private static final Logger LOG = LoggerFactory.getLogger(DashboardController.class);
 
-    @Autowired
-    private Configuration configuration;
+    private final Configuration configuration;
 
     private final String version;
 
-    public DashboardController() throws IOException {
-        version = Main.versionString(World.create() /* TODO */);
+    @Autowired
+    public DashboardController(Configuration configuration) {
+        this.configuration = configuration;
+        this.version = Main.versionString(configuration.world);
     }
 
     @GetMapping("dashboard")
