@@ -53,12 +53,14 @@ public class Expressions {
      *   null when recursion started
      */
     private Map<String, Object> context;
+    private Clazz contextClass;
 
     public Expressions(World world, Configuration configuration, String fqdn) {
         this.world = world;
         this.configuration = configuration;
         this.fqdn = fqdn;
         this.context = null;
+        this.contextClass = null;
     }
 
     public Map<String, String> eval(Clazz clazz) {
@@ -68,6 +70,7 @@ public class Expressions {
             throw new IllegalStateException();
         }
         context = new HashMap<>();
+        contextClass = clazz;
         try {
             for (ValueType type : clazz.values.values()) {
                 context.put(type.name, type);
@@ -82,6 +85,7 @@ public class Expressions {
             return result;
         } finally {
             context = null;
+            contextClass = null;
         }
     }
 
@@ -204,9 +208,11 @@ public class Expressions {
         String result;
 
         missing = new ArrayList<>();
-        if (configuration.auth()) {
-            // TODO:
-            // checkFaultPermissions(world, image.author, faultProjects);
+        if (configuration.auth() && !faultProjects.isEmpty()) {
+            if (contextClass == null || contextClass.author == null) {
+                throw new ArgumentException("fault is not accessible without class context");  // TODO: error message
+            }
+            checkFaultPermissions(world, contextClass.author, faultProjects);
         }
         workspace = world.file("/etc/fault/workspace");
         buffer = new byte[64 * 1024];

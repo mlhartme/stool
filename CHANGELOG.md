@@ -27,7 +27,8 @@
       * you need extra value that's better supplied with classes
       * simplified setup because the stage indicator is gone
     * added named workspaces to accomodate for missing implicit workspaces
-  
+
+* dumped jmxmp/5555 knowledge in stool  
 * image handling changes
   * dumped `sc build`, configure an image build in your Maven build instead
   * created a separate `maven-dockerbuild-plugin` that contains the formder `sc build` functionality
