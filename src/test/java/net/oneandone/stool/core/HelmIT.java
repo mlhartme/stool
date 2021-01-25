@@ -33,15 +33,15 @@ public class HelmIT {
     public void classRef() throws IOException {
         World world;
         PortusRegistry portus;
-        FileNode dir;
+        FileNode root;
         FileNode chart;
 
         world = World.create();
-        dir = world.getTemp().createTempDirectory();
+        root = world.getTemp().createTempDirectory();
         portus = PortusRegistry.create(Json.newJson(), world, Secrets.load(world).portus.resolve("/").toString(), null);
-        chart = Helm.resolveChart(portus, "contargo.server.lan/cisoops-public/charts/kutter", world.getWorking().join("dir").mkdirOpt());
+        chart = Helm.resolveChart(portus, "contargo.server.lan/cisoops-public/charts/kutter", root);
         assertTrue(chart.isDirectory());
-        assertEquals(dir, chart.getParent());
+        assertEquals(root.getAbsolute(), chart.getAbsolute());
     }
 
 }

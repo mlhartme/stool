@@ -24,6 +24,7 @@ import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 
@@ -63,7 +64,6 @@ public class Setup {
         }
         configuration = configuration();
         home.mkdir();
-        create("charts", charts);
         create("lib", lib);
         if (registryCredentials != null) {
             configuration.registryCredentials.putAll(Configuration.parseRegistryCredentials(registryCredentials));
@@ -101,6 +101,10 @@ public class Setup {
         String url;
 
         result = initialConfiguration();
+        if (charts != null) {
+            result.chartReferences.clear();
+            result.chartReferences.addAll(Separator.COMMA.split(charts));
+        }
         if (spec != null) {
             idx = spec.indexOf('=');
             if (idx == -1) {

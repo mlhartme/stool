@@ -102,7 +102,7 @@ public class Configuration {
     public final Map<String, Context> contexts;
 
     public final Map<String, UsernamePassword> registryCredentials;
-    public final List<String> chartTags;
+    public final List<String> chartReferences;
     public final FileNode lib;
     public final String stageLogs;
 
@@ -159,7 +159,7 @@ public class Configuration {
 
         this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
         this.lib = home.join("lib");
-        this.chartTags = Separator.COMMA.split(Json.string(configuration, "charts", ""));
+        this.chartReferences = Separator.COMMA.split(Json.string(configuration, "charts", ""));
         this.stageLogs = string(configuration, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(configuration, "loglevel", "ERROR");
         this.fqdn = Json.string(configuration, "fqdn", "localhost");
@@ -187,7 +187,7 @@ public class Configuration {
             contexts.put(entry.getKey(), entry.getValue().newInstance());
         }
         this.registryCredentials = new HashMap<>(from.registryCredentials);
-        this.chartTags = from.chartTags;
+        this.chartReferences = new ArrayList<>(from.chartReferences);
         this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
         this.loglevel = from.loglevel;
@@ -552,9 +552,9 @@ public class Configuration {
         PortusRegistry portus;
 
         root = lib.join("charts").mkdirOpt();
-        for (String ref : chartTags) {
-            portus = createRegistry(ref);
-            Helm.resolveChart(portus, ref, root).checkDirectory();
+        for (String reference : chartReferences) {
+            portus = createRegistry(reference);
+            Helm.resolveChart(portus, reference, root).checkDirectory();
         }
         return root;
     }
