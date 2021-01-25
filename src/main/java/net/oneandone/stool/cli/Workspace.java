@@ -51,7 +51,7 @@ public class Workspace {
     //--
 
     private final ObjectMapper yaml;
-    public final FileNode directory;
+    public final FileNode directory; // TODO: dump?
     private final FileNode workspaceYaml;
     private final List<Reference> stages;
 
