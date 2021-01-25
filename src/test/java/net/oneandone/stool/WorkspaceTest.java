@@ -39,7 +39,7 @@ public class WorkspaceTest {
         file = world.getTemp().createTempFile();
         workspace = new Workspace(new ObjectMapper(new YAMLFactory()), file);
         workspace.add(new Reference(new ProxyClient(new ObjectMapper(new JsonFactory()),
-                "ctx", null /* TODO */, new Caller("a", "b", "c", null)), "stage"));
+                "ctx", null /* hack ... */, new Caller("a", "b", "c", null)), "stage"));
         workspace.save();
     }
 }

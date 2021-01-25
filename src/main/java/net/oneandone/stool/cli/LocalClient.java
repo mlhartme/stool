@@ -278,16 +278,14 @@ public class LocalClient extends Client {
         ex.schedule(cleanup, timeout, TimeUnit.MINUTES);
     }
 
-    private TagInfo currentWithPermissions(String stageName) throws IOException {
+    private void currentWithPermissions(String stageName) throws IOException {
         Stage stage;
-        TagInfo tagInfo;
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, stageName);
-            tagInfo =  null; //  TODO stage.tagInfo();
+            Expressions.checkFaultPermissions(configuration.world, User.authenticatedOrAnonymous().login,
+                    /* TODO: stage.getFaultProjects() */ new ArrayList<>());
         }
-        Expressions.checkFaultPermissions(configuration.world, User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
-        return tagInfo;
     }
 
     @Override

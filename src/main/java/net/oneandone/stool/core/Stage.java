@@ -279,7 +279,6 @@ public class Stage {
         fields.add(new Field("class", true) {
             @Override
             public Object get(Engine engine) {
-                // TODO
                 return Stage.this.clazz.toObject(configuration.yaml).toPrettyString();
             }
         });

@@ -65,7 +65,7 @@ public class Globals {
 
     /** param @name has to start with an @ */
     public FileNode workspaceFile(String name) throws MkdirException {
-        return home().join("workspaces").mkdirOpt() /* TODO */.join(Strings.removeLeft(name, "@") + ".yaml");
+        return home().join("workspaces").mkdirOpt().join(Strings.removeLeft(name, "@") + ".yaml");
     }
 
     public Caller caller() {
