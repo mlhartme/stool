@@ -41,10 +41,10 @@ public class UserManager {
 
     public static final User ANONYMOUS = new User("anonymous", "Anonymous", null);
 
-    public static UserManager loadOpt(FileNode file) throws IOException {
+    public static UserManager loadOpt(ObjectMapper json, FileNode file) throws IOException {
         UserManager result;
 
-        result = new UserManager(file);
+        result = new UserManager(json, file);
         if (file.exists()) {
             result.load();
         }
@@ -58,13 +58,13 @@ public class UserManager {
 
     private final Random random;
 
-    private final ObjectMapper mapper;
+    private final ObjectMapper json;
 
-    public UserManager(FileNode file) {
+    public UserManager(ObjectMapper json, FileNode file) {
         this.file = file;
         this.tokens = new HashMap<>();
         this.random = new SecureRandom();
-        this.mapper = new ObjectMapper();
+        this.json = json;
     }
 
     public synchronized User byLogin(String login) throws UserNotFound {
@@ -133,13 +133,13 @@ public class UserManager {
 
 
     private synchronized void save() throws IOException {
-        ObjectNode json;
+        ObjectNode obj;
 
-        json = mapper.createObjectNode();
+        obj = json.createObjectNode();
         for (Pair pair : tokens.values()) {
-            json.set(pair.token.toString(), pair.user.toObject(mapper));
+            obj.set(pair.token.toString(), pair.user.toObject(json));
         }
-        file.writeString(json.toString());
+        file.writeString(obj.toString());
     }
 
     private synchronized void load() throws IOException {
@@ -150,7 +150,7 @@ public class UserManager {
 
         tokens.clear();
         try (Reader in = file.newReader()) {
-            obj = (ObjectNode) mapper.readTree(in);
+            obj = (ObjectNode) json.readTree(in);
         }
         iter = obj.fields();
         while (iter.hasNext()) {

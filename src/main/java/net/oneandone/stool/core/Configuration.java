@@ -361,7 +361,7 @@ public class Configuration {
     }
 
     public UserManager createUserManager() throws IOException {
-        return UserManager.loadOpt(lib.join("users.json"));
+        return UserManager.loadOpt(json, lib.join("users.json"));
     }
 
     public Registry createRegistry(String image) throws IOException {
