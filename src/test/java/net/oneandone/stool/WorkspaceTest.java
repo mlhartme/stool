@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.ProxyClient;
 import net.oneandone.stool.cli.Workspace;
@@ -35,7 +37,8 @@ public class WorkspaceTest {
         world = World.createMinimal();
         file = world.getTemp().createTempFile();
         workspace = new Workspace(file);
-        workspace.add(new Reference(new ProxyClient("ctx", null /* TODO */, new Caller("a", "b", "c", null)), "stage"));
+        workspace.add(new Reference(new ProxyClient(new ObjectMapper(new JsonFactory()),
+                "ctx", null /* TODO */, new Caller("a", "b", "c", null)), "stage"));
         workspace.save();
     }
 }

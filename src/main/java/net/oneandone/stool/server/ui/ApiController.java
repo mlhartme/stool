@@ -80,7 +80,7 @@ public class ApiController {
     public Session openSession() throws IOException {
         synchronized (pool) {
             if (pool.isEmpty()) {
-                return new Session(new ObjectMapper(), new Configuration(globalConfiguration));
+                return new Session(new Configuration(globalConfiguration));
             } else {
                 return pool.remove(0);
             }
@@ -96,16 +96,14 @@ public class ApiController {
     }
 
     private class Session implements Closeable {
-        public final ObjectMapper json;
         public final Configuration configuration;
 
-        Session(ObjectMapper json, Configuration configuration) {
-            this.json = json;
+        Session(Configuration configuration) {
             this.configuration = configuration;
         }
 
         private LocalClient client(HttpServletRequest request) {
-            return new LocalClient(json, "server", null, configuration,
+            return new LocalClient(configuration.json, "server", null, configuration,
                     new Caller(
                             request.getHeader("X-stool-client-invocation"),
                             User.authenticatedOrAnonymous().login,
@@ -139,9 +137,9 @@ public class ApiController {
 
         try (Session session = openSession()) {
             map = session.client(request).list(filter, "*".equals(selectStr) ? Collections.emptyList() : Separator.COMMA.split(selectStr), hidden);
-            result = session.json.createObjectNode();
+            result = session.configuration.json.createObjectNode();
             for (Map.Entry<String, Map<String, JsonNode>> stage : map.entrySet()) {
-                obj = session.json.createObjectNode();
+                obj = session.configuration.json.createObjectNode();
                 for (Map.Entry<String, JsonNode> o : stage.getValue().entrySet()) {
                     obj.set(o.getKey(), o.getValue());
                 }
@@ -158,7 +156,7 @@ public class ApiController {
 
         values = map(request, "value.");
         try (Session session = openSession()) {
-            return Json.obj(session.json, session.client(request).create(name, ClassRef.parse(classref), values)).toString();
+            return Json.obj(session.configuration.json, session.client(request).create(name, ClassRef.parse(classref), values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
@@ -177,7 +175,7 @@ public class ApiController {
     @GetMapping("/stages//{stage}/await-available")
     public String awaitAvailable(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
         try (Session session = openSession()) {
-            return Json.obj(session.json, session.client(request).awaitAvailable(stage)).toString();
+            return Json.obj(session.configuration.json, session.client(request).awaitAvailable(stage)).toString();
         }
     }
 
@@ -191,21 +189,21 @@ public class ApiController {
     @GetMapping("/stages/{stage}/values")
     public String values(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
         try (Session session = openSession()) {
-            return Json.obj(session.json, session.client(request).getValues(stage)).toString();
+            return Json.obj(session.configuration.json, session.client(request).getValues(stage)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/set-values")
     public String setValues(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
         try (Session session = openSession()) {
-            return Json.obj(session.json, session.client(request).setValues(stage, map(request, ""))).toString();
+            return Json.obj(session.configuration.json, session.client(request).setValues(stage, map(request, ""))).toString();
         }
     }
 
     @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
         try (Session session = openSession()) {
-            return array(session.json, session.client(request).history(stage)).toString();
+            return array(session.configuration.json, session.client(request).history(stage)).toString();
         }
     }
 
@@ -213,21 +211,21 @@ public class ApiController {
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair,
                            HttpServletRequest request) throws IOException {
         try (Session session = openSession()) {
-            return array(session.json, session.client(request).validate(stage, email, repair)).toString();
+            return array(session.configuration.json, session.client(request).validate(stage, email, repair)).toString();
         }
     }
 
     @GetMapping("/stages/{stage}/pod-token")
     public String podToken(@PathVariable(value = "stage") String stageName, @RequestParam("timeout") int timeout, HttpServletRequest request) throws IOException {
         try (Session session = openSession()) {
-            return session.client(request).podToken(stageName, timeout).toObject(session.json).toString();
+            return session.client(request).podToken(stageName, timeout).toObject(session.configuration.json).toString();
         }
     }
 
     @GetMapping("/images/{image}")
     public String images(@PathVariable("image") String name, HttpServletRequest request) throws Exception {
         try (Session session = openSession()) {
-            return array(session.json, session.client(request).images(name)).toString();
+            return array(session.configuration.json, session.client(request).images(name)).toString();
         }
     }
 
@@ -260,7 +258,7 @@ public class ApiController {
         try (Session session = openSession(); Engine engine = session.client(request).engine()) {
             stage = session.configuration.load(engine, stageName);
             dir = stage.getLogs(); // TODO: application logs
-            result = session.json.createArrayNode();
+            result = session.configuration.json.createArrayNode();
             for (FileNode file : dir.find("**/*")) {
                 if (!file.isDirectory()) {
                     result.add(new TextNode(file.getRelative(dir)));

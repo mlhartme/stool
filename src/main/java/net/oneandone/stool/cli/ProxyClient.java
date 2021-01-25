@@ -48,19 +48,19 @@ import java.util.Map;
 
 public class ProxyClient extends Client {
     /** @param token null to work anonymously */
-    public static ProxyClient token(World world, String context, String url, Caller caller,
+    public static ProxyClient token(World world, ObjectMapper json, String context, String url, Caller caller,
                                     String token) throws NodeInstantiationException {
-        return doCreate(world, context, url, caller, token, null, null);
+        return doCreate(world, json, context, url, caller, token, null, null);
 
     }
 
-    public static ProxyClient basicAuth(World world, String context, String url, Caller caller,
+    public static ProxyClient basicAuth(World world, ObjectMapper json, String context, String url, Caller caller,
                                         String username, String password) throws NodeInstantiationException {
-        return doCreate(world, context, url, caller, null, username, password);
+        return doCreate(world, json, context, url, caller, null, username, password);
 
     }
 
-    private static ProxyClient doCreate(World world, String context, String url, Caller caller,
+    private static ProxyClient doCreate(World world, ObjectMapper json, String context, String url, Caller caller,
                                         String token, String username, String password) throws NodeInstantiationException {
         HttpNode node;
 
@@ -76,15 +76,15 @@ public class ProxyClient extends Client {
         if (username != null) {
             node.getRoot().setCredentials(username, password);
         }
-        return new ProxyClient(context, node, caller);
+        return new ProxyClient(json, context, node, caller);
     }
 
     private final ObjectMapper json;
     private final HttpNode root;
 
-    public ProxyClient(String context, HttpNode root, Caller caller) {
+    public ProxyClient(ObjectMapper json, String context, HttpNode root, Caller caller) {
         super(context, caller);
-        this.json = new ObjectMapper();
+        this.json = json;
         this.root = root;
     }
 

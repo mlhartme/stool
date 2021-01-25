@@ -57,13 +57,13 @@ public class Context {
         return url.startsWith(LOCAL_PREFIX);
     }
 
-    public void auth(World world, Caller caller, String username, String password) throws IOException {
+    public void auth(World world, ObjectMapper json, Caller caller, String username, String password) throws IOException {
         ProxyClient client;
 
         if (isLocal()) {
             this.token = null;
         } else {
-            client = ProxyClient.basicAuth(world, name, url, caller, username, password);
+            client = ProxyClient.basicAuth(world, json, name, url, caller, username, password);
             this.token = client.auth();
         }
     }
@@ -72,7 +72,7 @@ public class Context {
         if (isLocal()) {
             return new LocalClient(configuration.json, name, url.substring(LOCAL_PREFIX.length()), configuration, caller);
         } else {
-            return ProxyClient.token(world, name, url, caller, token);
+            return ProxyClient.token(world, configuration.json, name, url, caller, token);
         }
     }
 
