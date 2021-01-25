@@ -101,7 +101,6 @@ public class Configuration {
 
     private final World world;
     private final ObjectMapper yaml;
-    private final FileNode home;
 
     private String currentContext;
     public final Map<String, Context> contexts;
@@ -157,7 +156,6 @@ public class Configuration {
     public Configuration(World world, ObjectMapper yaml, FileNode home, ObjectNode configuration) {
         this.world = world;
         this.yaml = yaml;
-        this.home = home;
 
         this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
         this.contexts = parseContexts((ArrayNode) configuration.get("contexts"));
@@ -180,6 +178,34 @@ public class Configuration {
         this.mailPassword = Json.string(configuration, "mailPassword", "");
         this.autoRemove = Json.number(configuration, "autoRemove", -1);
         this.defaultExpire = Json.number(configuration, "defaultExpire", 0);
+    }
+
+    public Configuration(Configuration from) throws IOException {
+        this.world = World.create();
+        this.yaml = new ObjectMapper(new YAMLFactory());
+        this.currentContext = from.currentContext;
+        this.contexts = new HashMap<>();
+        for (Map.Entry<String, Context> entry : from.contexts.entrySet()) {
+            contexts.put(entry.getKey(), entry.getValue().newInstance());
+        }
+        this.registryCredentials = new HashMap<>(from.registryCredentials);
+        this.charts = world.file(from.charts.toPath().toFile());
+        this.lib = world.file(from.lib.toPath().toFile());
+        this.stageLogs = from.stageLogs;
+        this.loglevel = from.loglevel;
+        this.fqdn = from.fqdn;
+        this.kubernetes = from.kubernetes;
+        this.admin = from.admin;
+        this.ldapUrl = from.ldapUrl;
+        this.ldapPrincipal = from.ldapPrincipal;
+        this.ldapCredentials = from.ldapCredentials;
+        this.ldapUnit = from.ldapUnit;
+        this.ldapSso = from.ldapSso;
+        this.mailHost = from.mailHost;
+        this.mailUsername = from.mailUsername;
+        this.mailPassword = from.mailPassword;
+        this.autoRemove = from.autoRemove;
+        this.defaultExpire = from.defaultExpire;
     }
 
     private static Map<String, Context> parseContexts(ArrayNode contextsOpt) {

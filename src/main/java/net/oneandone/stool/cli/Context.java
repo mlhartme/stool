@@ -99,4 +99,8 @@ public class Context {
             return false;
         }
     }
+
+    public Context newInstance() {
+        return new Context(name, url, token);
+    }
 }
