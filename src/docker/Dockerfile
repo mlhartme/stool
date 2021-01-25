@@ -14,6 +14,7 @@ ENV MAIL_USERNAME=
 ENV MAIL_PASSWORD=
 ENV CERTIFICATE=
 ENV SC_HOME=/usr/local/sc
+ENV HELM_EXPERIMENTAL_OCI=1
 ENV SC_OPTS=
 
 RUN curl -o /tmp/helm.tgz https://get.helm.sh/helm-v3.3.4-linux-amd64.tar.gz && \
