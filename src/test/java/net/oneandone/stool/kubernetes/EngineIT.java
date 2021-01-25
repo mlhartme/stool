@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.kubernetes;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EngineIT {
     private static Engine create() throws IOException {
-        return Engine.createLocal("stool-engine-it" /* TODO */);
+        return Engine.createLocal(new ObjectMapper(),"stool-engine-it" /* TODO */);
     }
 
     @BeforeAll

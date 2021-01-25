@@ -65,7 +65,7 @@ public class LocalClient extends Client {
     }
 
     public Engine engine() {
-        return Engine.createClusterOrLocal(kubernetesContext);
+        return Engine.createClusterOrLocal(configuration.json, kubernetesContext);
     }
 
     @Override
@@ -266,7 +266,7 @@ public class LocalClient extends Client {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable cleanup = new Runnable() {
             public void run() {
-                try (Engine engine = Engine.createClusterOrLocal(kubernetesContext)) {
+                try (Engine engine = Engine.createClusterOrLocal(configuration.json, kubernetesContext)) {
                     engine.deleteServiceAccount(saName);
                     engine.deleteRole(roleName);
                     engine.deleteBinding(bindingName);

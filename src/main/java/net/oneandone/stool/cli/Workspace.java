@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -37,7 +36,7 @@ public class Workspace {
         ObjectNode root;
         ArrayNode array;
 
-        result = new Workspace(file);
+        result = new Workspace(configuration.yaml, file);
         try (Reader src = file.newReader()) {
             root = (ObjectNode) result.yaml.readTree(src);
         }
@@ -51,13 +50,11 @@ public class Workspace {
     //--
 
     private final ObjectMapper yaml;
-    public final FileNode directory; // TODO: dump?
     private final FileNode workspaceYaml;
     private final List<Reference> stages;
 
-    public Workspace(FileNode workspaceYaml) {
-        this.yaml = new ObjectMapper(new YAMLFactory());
-        this.directory = workspaceYaml.getParent().getParent();
+    public Workspace(ObjectMapper yaml, FileNode workspaceYaml) {
+        this.yaml = yaml;
         this.workspaceYaml = workspaceYaml;
         this.stages = new ArrayList<>();
     }
@@ -111,6 +108,6 @@ public class Workspace {
 
     @Override
     public String toString() {
-        return directory.getAbsolute();
+        return workspaceYaml.getAbsolute();
     }
 }

@@ -65,31 +65,31 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 public class Engine implements AutoCloseable {
-    public static Engine createCluster() {
-        return createClusterOrLocal(null);
+    public static Engine createCluster(ObjectMapper json) {
+        return createClusterOrLocal(json, null);
     }
 
-    public static Engine createLocal(String context) {
-        return createClusterOrLocal(context);
+    public static Engine createLocal(ObjectMapper json, String context) {
+        return createClusterOrLocal(json, context);
     }
 
-    public static Engine createClusterOrLocal(String contextOpt) {
+    public static Engine createClusterOrLocal(ObjectMapper json, String contextOpt) {
         if (contextOpt == null) {
-            return new Engine(new DefaultOpenShiftClient());
+            return new Engine(json, new DefaultOpenShiftClient());
         } else {
             Config config;
 
             config = Config.autoConfigure(contextOpt);
-            return new Engine(new DefaultOpenShiftClient(config));
+            return new Engine(json, new DefaultOpenShiftClient(config));
         }
     }
 
 
-    public static Engine create(PodConfig config) {
-        return create(config.server, config.namespace, config.token);
+    public static Engine create(ObjectMapper json, PodConfig config) {
+        return create(json, config.server, config.namespace, config.token);
     }
 
-    public static Engine create(String masterUrl, String namespace, String token) {
+    public static Engine create(ObjectMapper json, String masterUrl, String namespace, String token) {
         Config config;
         String old;
 
@@ -103,15 +103,15 @@ public class Engine implements AutoCloseable {
             System.setProperty(Config.KUBERNETES_DISABLE_AUTO_CONFIG_SYSTEM_PROPERTY, old);
         }
 
-        return new Engine(new DefaultOpenShiftClient(config));
+        return new Engine(json, new DefaultOpenShiftClient(config));
     }
 
     private final ObjectMapper json;
     private final OpenShiftClient client;
     private final String namespace;
 
-    private Engine(OpenShiftClient client) {
-        this.json = new ObjectMapper();
+    private Engine(ObjectMapper json, OpenShiftClient client) {
+        this.json = json;
         this.client = client;
         this.namespace = client.getNamespace();
     }

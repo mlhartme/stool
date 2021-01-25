@@ -47,7 +47,7 @@ public class ScheduledTask {
         List<String> output;
 
         LOGGER.info("scheduled stage validation");
-        try (Engine engine = Engine.createCluster()) {
+        try (Engine engine = Engine.createCluster(configuration.json)) {
             for (Stage stage : configuration.listAll(engine)) {
                 LOGGER.info("validate " + stage.getName() + ":");
                 output = new Validation(configuration, configuration.createUserManager() /* TODO */, engine,
