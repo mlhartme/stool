@@ -15,9 +15,7 @@
  */
 package net.oneandone.stool.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.helmclasses.ClassRef;
@@ -29,7 +27,6 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.MkdirException;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import org.slf4j.Logger;
@@ -97,7 +94,7 @@ public class Stage {
     public static Stage create(Configuration configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
         Clazz cl;
 
-        cl = Clazz.load(new ObjectMapper(new YAMLFactory()) /* TODO */,
+        cl = Clazz.load(configuration.yaml,
                 new HashMap<>(), "loaded", null /* TODO */, (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS), configuration.charts);
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
@@ -282,7 +279,7 @@ public class Stage {
             @Override
             public Object get(Engine engine) {
                 // TODO
-                return Stage.this.clazz.toObject(new ObjectMapper(new YAMLFactory())).toPrettyString();
+                return Stage.this.clazz.toObject(configuration.yaml).toPrettyString();
             }
         });
         return fields;
@@ -352,7 +349,7 @@ public class Stage {
     }
 
     public void uninstall(Engine engine) throws IOException {
-        LOGGER.info(World.createMinimal().getWorking().exec("helm", "uninstall", getName()));
+        LOGGER.info(configuration.world.getWorking().exec("helm", "uninstall", getName()));
         engine.deploymentAwaitGone(getName());
     }
 

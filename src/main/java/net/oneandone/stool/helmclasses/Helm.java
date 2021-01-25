@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.helmclasses;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -32,21 +30,17 @@ public final class Helm {
 
     public static void install(Configuration configuration, String name, ClassRef classRef, Map<String, String> values)
             throws IOException {
-        ObjectMapper yaml;
         Clazz clazz;
 
-        yaml = new ObjectMapper(new YAMLFactory());  //  TODO
-        clazz = classRef.resolve(configuration, yaml);
-        helm(yaml, configuration, name, false, clazz, values);
+        clazz = classRef.resolve(configuration);
+        helm(configuration, name, false, clazz, values);
     }
 
-    public static void upgrade(Configuration configuration, String name,
-                               Clazz clazz, Map<String, String> values) throws IOException {
-        helm(new ObjectMapper(new YAMLFactory()) /* TODO */, configuration, name, true, clazz, values);
+    public static void upgrade(Configuration configuration, String name, Clazz clazz, Map<String, String> values) throws IOException {
+        helm(configuration, name, true, clazz, values);
     }
 
-    private static void helm(ObjectMapper yaml, Configuration configuration, String name, boolean upgrade,
-                             Clazz originalClass, Map<String, String> clientValues)
+    private static void helm(Configuration configuration, String name, boolean upgrade, Clazz originalClass, Map<String, String> clientValues)
             throws IOException {
         World world;
         FileNode root;
@@ -63,7 +57,7 @@ public final class Helm {
         modifiedClass.checkNotAbstract();
         chart = root.join(modifiedClass.chart).checkDirectory();
         LOGGER.info("chart: " + modifiedClass.chart);
-        values = modifiedClass.createValuesFile(yaml, expressions);
+        values = modifiedClass.createValuesFile(configuration.yaml, expressions);
         try {
             LOGGER.info("values: " + values.readString());
             LOGGER.info("helm install upgrade=" + upgrade);

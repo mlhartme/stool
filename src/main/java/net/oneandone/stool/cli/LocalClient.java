@@ -18,7 +18,6 @@ package net.oneandone.stool.cli;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Field;
 import net.oneandone.stool.helmclasses.ClassRef;
@@ -34,7 +33,6 @@ import net.oneandone.stool.util.PredicateParser;
 import net.oneandone.stool.util.Validation;
 import net.oneandone.stool.core.Value;
 import net.oneandone.stool.helmclasses.Expressions;
-import net.oneandone.sushi.fs.World;
 
 import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
@@ -128,13 +126,13 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            stage.publish(caller, engine, classRef.resolve(configuration, new ObjectMapper(new YAMLFactory()) /* TODO */), values);
+            stage.publish(caller, engine, classRef.resolve(configuration), values);
         }
     }
 
     @Override
     public String version() throws IOException {
-        return Main.versionString(World.create() /* TODO */);
+        return Main.versionString(configuration.world);
     }
 
     @Override
@@ -200,7 +198,7 @@ public class LocalClient extends Client {
         List<String> result;
         String path;
 
-        registry = configuration.createRegistry(World.create() /* TODO */, imageName);
+        registry = configuration.createRegistry(imageName);
         path = Registry.getRepositoryPath(Registry.toRepository(imageName));
         all = registry.list(path);
         result = new ArrayList<>();
@@ -288,7 +286,7 @@ public class LocalClient extends Client {
             stage = configuration.load(engine, stageName);
             tagInfo =  null; //  TODO stage.tagInfo();
         }
-        Expressions.checkFaultPermissions(World.createMinimal() /* TODO */, User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
+        Expressions.checkFaultPermissions(configuration.world, User.authenticatedOrAnonymous().login, new ArrayList<>() /* TODO */);
         return tagInfo;
     }
 

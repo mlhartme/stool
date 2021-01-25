@@ -95,13 +95,15 @@ public class ClassRef {
 
     public static final String BUILDIN = "_buildin_";
 
-    public Clazz resolve(Configuration configuration, ObjectMapper yaml) throws IOException {
+    public Clazz resolve(Configuration configuration) throws IOException {
+        ObjectMapper yaml;
         FileNode root;
         Map<String, Clazz> all;
         Clazz result;
         String str;
 
         root = configuration.charts;
+        yaml = configuration.yaml;
         all = loadAll(yaml, root);
         switch (type) {
             case BUILTIN:
@@ -119,7 +121,7 @@ public class ClassRef {
                 Registry registry;
                 TagInfo tag;
 
-                registry = configuration.createRegistry(root.getWorld(), value);
+                registry = configuration.createRegistry(value);
                 tag = registry.resolve(value);
                 str = tag.labels.get("class");
                 if (str == null) {

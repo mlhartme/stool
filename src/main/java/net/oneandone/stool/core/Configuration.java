@@ -99,8 +99,8 @@ public class Configuration {
 
     //--
 
-    private final World world;
-    private final ObjectMapper yaml;
+    public final World world;
+    public final ObjectMapper yaml;
 
     private String currentContext;
     public final Map<String, Context> contexts;
@@ -366,7 +366,7 @@ public class Configuration {
         return UserManager.loadOpt(lib.join("users.json"));
     }
 
-    public Registry createRegistry(World registryWorld, String image) throws IOException {
+    public Registry createRegistry(String image) throws IOException {
         int idx;
         String host;
         UsernamePassword up;
@@ -383,7 +383,7 @@ public class Configuration {
             uri = uri + up.username + ":" + up.password + "@";
         }
         uri = uri + host;
-        return PortusRegistry.create(registryWorld, uri, null);
+        return PortusRegistry.create(world, uri, null);
     }
 
     public Certificates certificates() {
