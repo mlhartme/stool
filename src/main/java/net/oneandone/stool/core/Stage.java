@@ -95,7 +95,8 @@ public class Stage {
         Clazz cl;
 
         cl = Clazz.load(configuration.yaml,
-                new HashMap<>(), "loaded", null /* TODO */, (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS), /* TODO configuration.charts */ null);
+                new HashMap<>(), "loaded", null /* TODO */, (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS),
+                configuration.resolvedCharts());
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 

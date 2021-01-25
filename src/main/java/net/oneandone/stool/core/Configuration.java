@@ -11,9 +11,9 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Reference;
+import net.oneandone.stool.helmclasses.Helm;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
@@ -364,7 +364,7 @@ public class Configuration {
         return UserManager.loadOpt(json, lib.join("users.json"));
     }
 
-    public Registry createRegistry(String image) throws IOException {
+    public PortusRegistry createRegistry(String image) throws IOException {
         int idx;
         String host;
         UsernamePassword up;
@@ -547,4 +547,15 @@ public class Configuration {
         return !ldapUrl.isEmpty();
     }
 
+    public FileNode resolvedCharts() throws IOException {
+        FileNode root;
+        PortusRegistry portus;
+
+        root = lib.join("charts").mkdirOpt();
+        for (String ref : chartTags) {
+            portus = createRegistry(ref);
+            Helm.resolveChart(portus, ref, root).checkDirectory();
+        }
+        return root;
+    }
 }

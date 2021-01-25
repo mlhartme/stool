@@ -36,7 +36,7 @@ import java.util.Map;
 public class Clazz {
     public static final String HELM_CLASS = "helmClass";
 
-    public static Clazz load(ObjectMapper yaml, Map<String, Clazz> existing, String origin, String author, ObjectNode clazz, FileNode root) throws IOException {
+    public static Clazz load(ObjectMapper yaml, Map<String, Clazz> existing, String origin, String author, ObjectNode clazz, FileNode charts) throws IOException {
         Iterator<Map.Entry<String, JsonNode>> values;
         Map.Entry<String, JsonNode> entry;
         String extendz;
@@ -56,7 +56,7 @@ public class Clazz {
         }
         if (chart != null) {
             derived = new Clazz(origin, author, name, chart);
-            derived.addChartValues(yaml, root.join(chart, "values.yaml"));
+            derived.addChartValues(yaml, charts.join(chart, "values.yaml"));
         } else {
             base = existing.get(extendz);
             if (base == null) {

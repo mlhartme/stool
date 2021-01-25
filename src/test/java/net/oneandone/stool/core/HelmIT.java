@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.core;
 
+import net.oneandone.stool.helmclasses.Helm;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Secrets;
@@ -24,11 +25,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static net.oneandone.stool.helmclasses.ClassRef.resolveChart;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ClassRefITTest {
+public class HelmIT {
     @Test
     public void classRef() throws IOException {
         World world;
@@ -39,7 +39,7 @@ public class ClassRefITTest {
         world = World.create();
         dir = world.getTemp().createTempDirectory();
         portus = PortusRegistry.create(Json.newJson(), world, Secrets.load(world).portus.resolve("/").toString(), null);
-        chart = resolveChart(portus, "contargo.server.lan/cisoops-public/charts/kutter", world.getWorking().join("dir").mkdirOpt());
+        chart = Helm.resolveChart(portus, "contargo.server.lan/cisoops-public/charts/kutter", world.getWorking().join("dir").mkdirOpt());
         assertTrue(chart.isDirectory());
         assertEquals(dir, chart.getParent());
     }

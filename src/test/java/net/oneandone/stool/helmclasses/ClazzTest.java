@@ -35,7 +35,7 @@ public class ClazzTest {
 
         yaml = new ObjectMapper(new YAMLFactory());
         world = World.create();
-        all = ClassRef.loadAll(yaml, world.guessProjectHome(getClass()).join("src/test/helmclasses/kutter").checkDirectory()); // TODO
+        all = ClassRef.loadAll(yaml, world.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
         assertEquals(2, all.size());
         a = all.get("derived");
         assertEquals("42", a.values.get("asis").value);
