@@ -18,11 +18,15 @@ package net.oneandone.stool.helmclasses;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -32,9 +36,12 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class ClassRef {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassRef.class);
+
     private enum Type {
         INLINE, IMAGE, BUILTIN
     }
@@ -102,12 +109,12 @@ public class ClassRef {
         Clazz result;
         String str;
 
-        root = configuration.charts;
+        root = null; // TODO configuration.charts;
         yaml = configuration.yaml;
         all = loadAll(yaml, root);
         switch (type) {
             case BUILTIN:
-                result = loadAll(yaml, root).get(value);
+                result = all.get(value);
                 if (result == null) {
                     throw new IOException("class not found: " + value);
                 }
@@ -145,17 +152,17 @@ public class ClassRef {
         }
     }
 
-    public static Map<String, Clazz> loadAll(ObjectMapper yaml, FileNode root) throws IOException {
+    public static Map<String, Clazz> loadAll(ObjectMapper yaml, FileNode chart) throws IOException {
         Iterator<JsonNode> classes;
         Map<String, Clazz> result;
         Clazz clazz;
 
-        try (Reader src = root.join("classes.yaml").newReader()) {
+        try (Reader src = chart.join("classes.yaml").newReader()) {
             classes = yaml.readTree(src).elements();
         }
         result = new HashMap<>();
         while (classes.hasNext()) {
-            clazz = Clazz.load(yaml, result, "builtin", BUILDIN, (ObjectNode) classes.next(), root);
+            clazz = Clazz.load(yaml, result, "builtin", BUILDIN, (ObjectNode) classes.next(), chart);
             if (result.put(clazz.name, clazz) != null) {
                 throw new IOException("duplicate class: " + clazz.name);
             }
@@ -163,4 +170,52 @@ public class ClassRef {
         return result;
     }
 
+    public static FileNode resolveChart(PortusRegistry registry, String repository, FileNode root) throws IOException {
+        String chart;
+        List<String> tags;
+        String tag;
+        String existing;
+        FileNode chartDir;
+        FileNode tagFile;
+
+        chart = chart(repository);
+        tags = sortTags(registry.helmTags(Registry.getRepositoryPath(repository)));
+        if (tags.isEmpty()) {
+            throw new IOException("no tag for repository " + repository);
+        }
+        tag = tags.get(tags.size() - 1);
+        chartDir = root.join(chart);
+        tagFile = chartDir.join(".tag");
+        if (chartDir.exists()) {
+            existing = chartDir.join(".tag").readString().trim();
+            if (!tag.equals(existing)) {
+                LOGGER.info("updating chart " + chart + " " + existing + " -> " + tag);
+                chartDir.deleteTree();
+            }
+        } else {
+            LOGGER.info("loading chart " + chart + " " + tag);
+        }
+        if (!chartDir.exists()) {
+            Helm.exec(root, "chart", "export", repository + ":" + tag, "-d", chartDir.getParent().getAbsolute());
+            if (!chartDir.exists()) {
+                throw new IllegalStateException(chartDir.getAbsolute());
+            }
+            tagFile.writeString(tag);
+        }
+        return chartDir;
+    }
+
+    private static String chart(String repository) {
+        int idx;
+
+        idx = repository.lastIndexOf('/');
+        if (repository.contains(":") || idx < 0 || idx + 1 == repository.length()) {
+            throw new ArgumentException("invalid chart repository: " + repository);
+        }
+        return repository.substring(idx + 1);
+    }
+
+    private static List<String> sortTags(List<String> lst) { // TODO: also use for taginfo sorting, that's still based on numbers
+        return lst; // TODO
+    }
 }

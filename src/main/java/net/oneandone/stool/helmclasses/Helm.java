@@ -18,10 +18,12 @@ package net.oneandone.stool.helmclasses;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 /** represents the applications file */
@@ -49,7 +51,7 @@ public final class Helm {
         FileNode values;
         Clazz modifiedClass;
 
-        root = configuration.charts;
+        root = null; // TODO configuration.charts;
         world = root.getWorld();
         expressions = new Expressions(world, configuration, configuration.stageFqdn(name));
         modifiedClass = originalClass.derive(originalClass.origin, originalClass.author, originalClass.name);
@@ -60,11 +62,18 @@ public final class Helm {
         values = modifiedClass.createValuesFile(configuration.yaml, expressions);
         try {
             LOGGER.info("values: " + values.readString());
-            LOGGER.info("helm install upgrade=" + upgrade);
-            LOGGER.info(chart.exec("helm", upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute()));
+            exec(chart, upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute());
         } finally {
             values.deleteFile();
         }
+    }
+
+    public static void exec(FileNode dir, String... args) throws IOException {
+        String[] cmd;
+
+        cmd = Strings.cons("helm", args);
+        LOGGER.debug(Arrays.asList(cmd).toString());
+        LOGGER.info(dir.exec(cmd));
     }
 
     private Helm() {
