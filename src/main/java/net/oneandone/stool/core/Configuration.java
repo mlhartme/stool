@@ -552,7 +552,7 @@ public class Configuration {
         FileNode root;
         PortusRegistry portus;
 
-        root = lib.join("charts").mkdirOpt();
+        root = lib.join("charts").mkdirsOpt();
         for (String reference : chartReferences) {
             portus = createRegistry(reference);
             Helm.resolveChart(portus, reference, root).checkDirectory();

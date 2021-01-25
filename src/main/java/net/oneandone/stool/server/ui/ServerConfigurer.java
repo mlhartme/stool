@@ -39,8 +39,8 @@ public class ServerConfigurer implements WebMvcConfigurer {
     public net.oneandone.stool.core.Configuration configuration(World world) throws IOException {
         net.oneandone.stool.core.Configuration result;
 
+        LOGGER.info("server version " + Main.versionString(world));
         result = net.oneandone.stool.core.Configuration.load(world);
-        LOGGER.info("server version " + Main.versionString(result.lib.getWorld()));
         LOGGER.info("server configuration:");
         LOGGER.info(result.toYaml().toPrettyString());
         return result;
