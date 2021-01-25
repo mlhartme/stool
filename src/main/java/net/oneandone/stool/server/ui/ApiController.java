@@ -53,6 +53,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -63,18 +64,35 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class ApiController {
+    private static final int POOL_SIZE = 1;
+
     private final Configuration globalConfiguration;
     private final UserManager globalUserManager;
+    private final List<Session> pool;
 
     @Autowired
     public ApiController(Configuration configuration, UserManager userManager) {
         this.globalConfiguration = configuration;
         this.globalUserManager = userManager;
-
+        this.pool = new ArrayList<>();  // starts empty, filled when giving back session
     }
 
-    public Session withSession() throws IOException {
-        return new Session(new ObjectMapper(), new Configuration(globalConfiguration));
+    public Session openSession() throws IOException {
+        synchronized (pool) {
+            if (pool.isEmpty()) {
+                return new Session(new ObjectMapper(), new Configuration(globalConfiguration));
+            } else {
+                return pool.remove(0);
+            }
+        }
+    }
+
+    public void closeSession(Session session) {
+        synchronized (pool) {
+            if (pool.size() < POOL_SIZE) {
+                pool.add(session);
+            }
+        }
     }
 
     private class Session implements Closeable {
@@ -97,7 +115,7 @@ public class ApiController {
 
         @Override
         public void close() {
-            // TODO: pick from pool
+            closeSession(this);
         }
     }
 
@@ -105,7 +123,7 @@ public class ApiController {
 
     @GetMapping("/version")
     public String version(HttpServletRequest request) throws IOException {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             return session.client(request).version();
         }
     }
@@ -119,7 +137,7 @@ public class ApiController {
         ObjectNode obj;
         ObjectNode result;
 
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             map = session.client(request).list(filter, "*".equals(selectStr) ? Collections.emptyList() : Separator.COMMA.split(selectStr), hidden);
             result = session.json.createObjectNode();
             for (Map.Entry<String, Map<String, JsonNode>> stage : map.entrySet()) {
@@ -139,7 +157,7 @@ public class ApiController {
         Map<String, String> values;
 
         values = map(request, "value.");
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             return Json.obj(session.json, session.client(request).create(name, ClassRef.parse(classref), values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
@@ -151,42 +169,42 @@ public class ApiController {
     @PostMapping("/stages/{stage}/publish")
     public void publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String classref,
                         HttpServletRequest request) throws IOException {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             session.client(request).publish(stageName, ClassRef.parse(classref), map(request, "value."));
         }
     }
 
     @GetMapping("/stages//{stage}/await-available")
     public String awaitAvailable(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             return Json.obj(session.json, session.client(request).awaitAvailable(stage)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/delete")
     public void delete(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             session.client(request).delete(stage);
         }
     }
 
     @GetMapping("/stages/{stage}/values")
     public String values(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             return Json.obj(session.json, session.client(request).getValues(stage)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/set-values")
     public String setValues(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             return Json.obj(session.json, session.client(request).setValues(stage, map(request, ""))).toString();
         }
     }
 
     @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             return array(session.json, session.client(request).history(stage)).toString();
         }
     }
@@ -194,21 +212,21 @@ public class ApiController {
     @PostMapping("/stages/{stage}/validate")
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair,
                            HttpServletRequest request) throws IOException {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             return array(session.json, session.client(request).validate(stage, email, repair)).toString();
         }
     }
 
     @GetMapping("/stages/{stage}/pod-token")
     public String podToken(@PathVariable(value = "stage") String stageName, @RequestParam("timeout") int timeout, HttpServletRequest request) throws IOException {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             return session.client(request).podToken(stageName, timeout).toObject(session.json).toString();
         }
     }
 
     @GetMapping("/images/{image}")
     public String images(@PathVariable("image") String name, HttpServletRequest request) throws Exception {
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             return array(session.json, session.client(request).images(name)).toString();
         }
     }
@@ -220,7 +238,7 @@ public class ApiController {
         User user;
         String result;
 
-        try (Session session = withSession()) {
+        try (Session session = openSession()) {
             if (session.configuration.ldapUrl.isEmpty()) {
                 throw new IOException("authentication is disabled");
             }
@@ -239,7 +257,7 @@ public class ApiController {
         FileNode dir;
         Stage stage;
 
-        try (Session session = withSession(); Engine engine = session.client(request).engine()) {
+        try (Session session = openSession(); Engine engine = session.client(request).engine()) {
             stage = session.configuration.load(engine, stageName);
             dir = stage.getLogs(); // TODO: application logs
             result = session.json.createArrayNode();
@@ -261,7 +279,7 @@ public class ApiController {
         file = request.getRequestURI();
         file = Strings.removeLeft(file, request.getContextPath());
         file = Strings.removeLeft(file, "/api/stages/" + stageName + "/logs/");
-        try (Session session = withSession(); Engine engine = session.client(request).engine()) {
+        try (Session session = openSession(); Engine engine = session.client(request).engine()) {
             stage = session.configuration.load(engine, stageName);
         }
         resource = new FileSystemResource(stage.getLogs().join(file).toPath());
