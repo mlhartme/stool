@@ -99,8 +99,6 @@ spec:
             name: configuration
           - mountPath: /etc/fault
             name: fault
-          - mountPath: /usr/local/sc/charts
-            name: charts
           - mountPath: /usr/local/sc/logs
             name: fluentd-logs
       {{- if .Values.cert }}
@@ -141,18 +139,6 @@ spec:
           - name: fluentd-logs
             mountPath: /fluentd/log
       initContainers:
-      - name: init-charts
-        image: {{ .Values.repositoryTag }}
-        command: ["sh"]
-        args: ["-c", "cd /tmp && git clone {{ .Values.charts }} charts && cp -r charts /etc"]
-        resources:
-          limits:
-            cpu: 1
-          requests:
-            cpu: 200m
-        volumeMounts:
-        - mountPath: /etc/charts
-          name: charts
 {{- if .Values.faultName }}
       - name: init-fault
         image: {{ .Values.repositoryTag }}
@@ -176,8 +162,6 @@ spec:
           items:
             - key: configuration.yaml
               path: configuration.yaml
-      - name: charts
-        emptyDir: {}
       - name: fluentd-config
         configMap:
           name: stool-log-collector

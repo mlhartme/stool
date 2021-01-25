@@ -100,6 +100,7 @@ public final class Helm {
             LOGGER.info("loading chart " + chart + " " + tag);
         }
         if (!chartDir.exists()) {
+            Helm.exec(root, "chart", "pull", repository + ":" + tag);
             Helm.exec(root, "chart", "export", repository + ":" + tag, "-d", chartDir.getParent().getAbsolute());
             if (!chartDir.exists()) {
                 throw new IllegalStateException(chartDir.getAbsolute());
