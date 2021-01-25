@@ -497,6 +497,7 @@ public class Configuration {
         }
         obj.put("registryCredentials", registryCredentialsString());
         obj.put("stageLog", stageLogs);
+        obj.put("charts", Separator.COMMA.join(chartReferences));
 
         //--
 
