@@ -19,6 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
+import net.oneandone.stool.util.Versions;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -121,7 +123,8 @@ public final class Helm {
     }
 
     private static List<String> sortTags(List<String> lst) { // TODO: also use for taginfo sorting, that's still based on numbers
-        return lst; // TODO
+        Collections.sort(lst, Versions.CMP);
+        return lst;
     }
 
     //--

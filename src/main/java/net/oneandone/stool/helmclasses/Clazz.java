@@ -84,7 +84,7 @@ public class Clazz {
         iter = loaded.fields();
         while (iter.hasNext()) {
             entry = iter.next();
-            add(new ValueType(entry.getKey(), false, false, entry.getValue().asText()));
+            add(new ValueType(entry.getKey(), false, false, null, entry.getValue().asText()));
         }
     }
 
@@ -93,7 +93,7 @@ public class Clazz {
 
         result = new Clazz("synthetic", null, name, "unusedChart");
         for (int i = 0; i < nameValues.length; i += 2) {
-            result.add(new ValueType(nameValues[i], false, false, nameValues[i + 1]));
+            result.add(new ValueType(nameValues[i], false, false, null, nameValues[i + 1]));
         }
         return result;
     }
@@ -121,13 +121,16 @@ public class Clazz {
     }
 
     public void setValues(Map<String, String> clientValues) {
-        ValueType v;
+        String key;
+        ValueType old;
 
         for (Map.Entry<String, String> entry : clientValues.entrySet()) {
-            v = new ValueType(entry.getKey(), false, false, entry.getValue());
-            if (values.put(v.name, v) == null) {
-                throw new ArgumentException("unknown value: " + v.name);
+            key = entry.getKey();
+            old = values.get(key);
+            if (old == null) {
+                throw new ArgumentException("unknown value: " + key);
             }
+            values.put(name, new ValueType(key, false, false, old.doc, entry.getValue()));
         }
     }
 
@@ -189,6 +192,12 @@ public class Clazz {
     }
 
     public void define(ValueType value) throws IOException {
+        ValueType old;
+
+        old = values.get(value.name);
+        if (old != null && old.doc != null) {
+            value = value.withDoc(old.doc);
+        }
         /* TODO: if (!values.containsKey(value.name)) {
             throw new IOException("unknown value: " + value.name);
         }*/
