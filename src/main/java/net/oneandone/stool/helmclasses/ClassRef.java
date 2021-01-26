@@ -23,8 +23,6 @@ import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -37,8 +35,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class ClassRef {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassRef.class);
-
     private enum Type {
         INLINE, IMAGE, BUILTIN
     }
@@ -118,7 +114,7 @@ public class ClassRef {
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {
-                    result = Clazz.load(yaml, all, origin, null, object(yaml.readTree(src)), root);
+                    result = Clazz.load(all, origin, null, object(yaml.readTree(src)));
                 }
                 break;
             case IMAGE:
@@ -132,7 +128,7 @@ public class ClassRef {
                     throw new IOException("image does not have a class label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
-                    result = Clazz.load(yaml, all, origin, tag.author, object(yaml.readTree(src)), root);
+                    result = Clazz.load(all, origin, tag.author, object(yaml.readTree(src)));
                 }
                 break;
             default:
@@ -152,20 +148,30 @@ public class ClassRef {
     public static Map<String, Clazz> loadAll(ObjectMapper yaml, FileNode charts) throws IOException {
         Iterator<JsonNode> classes;
         Map<String, Clazz> result;
-        Clazz clazz;
+        FileNode file;
 
         result = new HashMap<>();
-        for (FileNode file : charts.find("*/classes.yaml")) {
-            try (Reader src = file.newReader()) {
-                classes = yaml.readTree(src).elements();
+        for (FileNode dir : charts.find("*")) {
+            if (!dir.isDirectory()) {
+                continue;
             }
-            while (classes.hasNext()) {
-                clazz = Clazz.load(yaml, result, "builtin", BUILDIN, (ObjectNode) classes.next(), charts);
-                if (result.put(clazz.name, clazz) != null) {
-                    throw new IOException("duplicate class: " + clazz.name);
+            add(result, Clazz.loadBase(yaml, dir));
+            file = dir.join("classes.yaml");
+            if (file.exists()) {
+                try (Reader src = file.newReader()) {
+                    classes = yaml.readTree(src).elements();
+                }
+                while (classes.hasNext()) {
+                    add(result, Clazz.load(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
                 }
             }
         }
         return result;
+    }
+
+    private static void add(Map<String, Clazz> all, Clazz clazz) throws IOException {
+        if (all.put(clazz.name, clazz) != null) {
+            throw new IOException("duplicate class: " + clazz.name);
+        }
     }
 }

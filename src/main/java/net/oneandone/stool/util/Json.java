@@ -87,8 +87,6 @@ public final class Json {
     }
 
     public static FileNode file(ObjectNode node, FileNode basedir, String field, FileNode dflt) {
-        String path;
-
         if (node.has(field)) {
             return basedir.getWorld().file(basedir, node.get(field).asText());
         } else {

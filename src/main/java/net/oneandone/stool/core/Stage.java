@@ -92,11 +92,13 @@ public class Stage {
 
 
     public static Stage create(Configuration configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
+        Map<String, Clazz> all;
         Clazz cl;
 
-        cl = Clazz.load(configuration.yaml,
-                new HashMap<>(), "loaded", null /* TODO */, (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS),
-                configuration.resolvedCharts());
+        // TODO: expensive
+        all = ClassRef.loadAll(configuration.yaml, configuration.resolvedCharts());
+        cl = Clazz.load(all, "loaded", null /* TODO */,
+                (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS));
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 

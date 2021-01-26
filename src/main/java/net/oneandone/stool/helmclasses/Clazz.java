@@ -36,56 +36,69 @@ import java.util.Map;
 public class Clazz {
     public static final String HELM_CLASS = "helmClass";
 
-    public static Clazz load(ObjectMapper yaml, Map<String, Clazz> existing, String origin, String author, ObjectNode clazz, FileNode charts) throws IOException {
+    public static Clazz loadBase(ObjectMapper yaml, FileNode dir) throws IOException {
+        Map.Entry<String, JsonNode> entry;
+        String nameAndChart;
+        Clazz result;
+        String name;
+        ValueType old;
+        ValueType n;
+        ObjectNode obj;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+
+        try (Reader src = dir.join("values.yaml").newReader()) {
+            obj = (ObjectNode) yaml.readTree(src);
+        }
+        nameAndChart = dir.getName();
+        result = new Clazz("TODO", "TODO", nameAndChart, nameAndChart, "TODO");
+        iter = obj.fields();
+        obj = null;
+        while (iter.hasNext()) {
+            entry = iter.next();
+            name = entry.getKey();
+            if (name.equals("class")) {
+                obj = (ObjectNode) entry.getValue();
+            } else {
+                result.add(new ValueType(entry.getKey(), false, false, null, entry.getValue().asText()));
+            }
+        }
+        if (obj != null) {
+            iter = obj.fields();
+            while (iter.hasNext()) {
+                entry = iter.next();
+                name = entry.getKey();
+                n = ValueType.forYaml(entry.getKey(), entry.getValue());
+                old = result.values.get(name);
+                if (old != null && !old.value.isEmpty() && n.value.isEmpty()) {
+                    n = n.withValue(old.value);
+                }
+                result.values.put(name, n);
+            }
+        }
+        return result;
+    }
+
+    public static Clazz load(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
         Iterator<Map.Entry<String, JsonNode>> values;
         Map.Entry<String, JsonNode> entry;
         String extendz;
-        String chart;
         Clazz base;
         Clazz derived;
         String name;
 
         name = Json.string(clazz, "name");
-        chart = Json.stringOpt(clazz, "chart");
-        extendz = Json.stringOpt(clazz, "extends");
-        if (chart == null && extendz == null) {
-            throw new IOException("chart or extends expected");
+        extendz = Json.string(clazz, "extends");
+        base = existing.get(extendz);
+        if (base == null) {
+            throw new IOException("class not found: " + extendz);
         }
-        if (chart != null && extendz != null) {
-            throw new IOException("chart and extends cannot be combined");
-        }
-        if (chart != null) {
-            derived = new Clazz(origin, author, name, chart, charts.join(chart, ".tag").readString().trim());
-            derived.addChartValues(yaml, charts.join(chart, "values.yaml"));
-        } else {
-            base = existing.get(extendz);
-            if (base == null) {
-                throw new IOException("class not found: " + extendz);
-            }
-            derived = base.derive(origin, author, name);
-        }
+        derived = base.derive(origin, author, name);
         values = clazz.get("values").fields();
         while (values.hasNext()) {
             entry = values.next();
             derived.define(ValueType.forYaml(entry.getKey(), entry.getValue()));
         }
-
         return derived;
-    }
-
-    private void addChartValues(ObjectMapper yaml, FileNode valuesYaml) throws IOException {
-        ObjectNode loaded;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Map.Entry<String, JsonNode> entry;
-
-        try (Reader src = valuesYaml.newReader()) {
-            loaded = (ObjectNode) yaml.readTree(src);
-        }
-        iter = loaded.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            add(new ValueType(entry.getKey(), false, false, null, entry.getValue().asText()));
-        }
     }
 
     public static Clazz forTest(String name, String... nameValues) {

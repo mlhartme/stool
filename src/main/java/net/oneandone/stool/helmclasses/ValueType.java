@@ -60,6 +60,10 @@ public class ValueType {
         this.value = value;
     }
 
+    public ValueType withValue(String withValue) {
+        return new ValueType(name, abstrct, privt, doc, withValue);
+    }
+
     public ValueType withDoc(String withDoc) {
         return new ValueType(name, abstrct, privt, withDoc, value);
     }

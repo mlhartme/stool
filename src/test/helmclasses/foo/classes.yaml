@@ -1,10 +1,5 @@
-- name: base
-  chart: foo
-  values:
-    asis: 42
-    base: ""
 - name: derived
-  extends: base
+  extends: foo
   values:
     base: modified
     added: 3
