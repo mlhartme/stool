@@ -55,7 +55,7 @@ public class Clazz {
             throw new IOException("chart and extends cannot be combined");
         }
         if (chart != null) {
-            derived = new Clazz(origin, author, name, chart);
+            derived = new Clazz(origin, author, name, chart, charts.join(chart, ".tag").readString().trim());
             derived.addChartValues(yaml, charts.join(chart, "values.yaml"));
         } else {
             base = existing.get(extendz);
@@ -91,7 +91,7 @@ public class Clazz {
     public static Clazz forTest(String name, String... nameValues) {
         Clazz result;
 
-        result = new Clazz("synthetic", null, name, "unusedChart");
+        result = new Clazz("synthetic", null, name, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
             result.add(new ValueType(nameValues[i], false, false, null, nameValues[i + 1]));
         }
@@ -106,13 +106,15 @@ public class Clazz {
 
     public final String name;
     public final String chart;
+    public final String chartVersion;
     public final Map<String, ValueType> values;
 
-    private Clazz(String origin, String author, String name, String chart) {
+    private Clazz(String origin, String author, String name, String chart, String chartVersion) {
         this.origin = origin;
         this.author = author;
         this.name = name;
         this.chart = chart;
+        this.chartVersion = chartVersion;
         this.values = new LinkedHashMap<>();
     }
 
@@ -184,7 +186,7 @@ public class Clazz {
     public Clazz derive(String derivedOrigin, String derivedAuthor, String withName) {
         Clazz result;
 
-        result = new Clazz(derivedOrigin, derivedAuthor, withName, chart);
+        result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
         for (ValueType value : values.values()) {
             result.add(value);
         }

@@ -276,6 +276,12 @@ public class Stage {
                 return Stage.this.urlMap();
             }
         });
+        fields.add(new Field("chart") {
+            @Override
+            public Object get(Engine engine) {
+                return Stage.this.clazz.chart + ":" + Stage.this.clazz.chartVersion;
+            }
+        });
         fields.add(new Field("class", true) {
             @Override
             public Object get(Engine engine) {
