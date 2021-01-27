@@ -81,7 +81,7 @@ public class Clazz {
         String name;
 
         name = Json.string(clazz, "name");
-        result = new Clazz("(helm)", Json.string(clazz, "author", "TODO:author"), name, Json.string(clazz, "chart"),
+        result = new Clazz(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name, Json.string(clazz, "chart"),
                 Json.string(clazz, "chartVersion", "TODO:version"));
         result.defineAll(clazz.get("values").fields());
         return result;
@@ -186,7 +186,7 @@ public class Clazz {
         ObjectNode v;
 
         node = yaml.createObjectNode();
-        node.set("origin", new TextNode(origin));  // TODO: saved only, not loaded
+        node.set("origin", new TextNode(origin)); // TODO: saved only, not loaded
         if (author != null) {
             node.set("author", new TextNode(author)); // TODO: saved only, not loaded
         }
