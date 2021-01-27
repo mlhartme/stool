@@ -2,4 +2,4 @@ name: "hellowar"
 extends: "kutter"
 values:
   image:
-    value: "contargo.server.lan/cisoops-public/hellowar:1.0.6-20210122-093225-948"
+    value: "contargo.server.lan/cisoops-public/hellowar:1.0.6-20210127-112024-393"
