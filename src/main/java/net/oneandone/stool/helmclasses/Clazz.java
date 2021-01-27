@@ -76,6 +76,17 @@ public class Clazz {
         return derived;
     }
 
+    public static Clazz loadHelm(ObjectNode clazz) {
+        Clazz result;
+        String name;
+
+        name = Json.string(clazz, "name");
+        result = new Clazz("(helm)", Json.string(clazz, "author", "TODO:author"), name, Json.string(clazz, "chart"),
+                Json.string(clazz, "chartVersion", "TODO:version"));
+        result.defineAll(clazz.get("values").fields());
+        return result;
+    }
+
     public static Clazz forTest(String name, String... nameValues) {
         Clazz result;
 
@@ -181,6 +192,7 @@ public class Clazz {
         }
         node.set("name", new TextNode(name));
         node.set("chart", new TextNode(chart));
+        // TODO: node.set("chartVersion", new TextNode(chartVersion));
         v = yaml.createObjectNode();
         node.set("values", v);
         for (ValueType value : values.values()) {

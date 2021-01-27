@@ -97,9 +97,7 @@ public class Stage {
         Clazz cl;
 
         // TODO: expensive
-        all = ClassRef.loadAll(configuration.yaml, configuration.resolvedCharts());
-        cl = Clazz.load(all, "loaded", null /* TODO */,
-                (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS));
+        cl = Clazz.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS));
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
