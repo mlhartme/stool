@@ -48,9 +48,9 @@ public class Clazz {
         result = new Clazz("TODO", "TODO", name, name, Helm.tagFile(chart).readString().trim());
         classValue = (ObjectNode) loaded.remove("class");
         // normal values are value class field definitions
-        result.extendFields(loaded.fields());
+        result.defineAll(loaded.fields());
         if (classValue != null) {
-            result.extendFields(classValue.fields());
+            result.defineAll(classValue.fields());
         }
         return result;
     }
@@ -113,22 +113,30 @@ public class Clazz {
         this.values = new LinkedHashMap<>();
     }
 
-    public void extendFields(Iterator<Map.Entry<String, JsonNode>> iter) {
+    public void defineAll(Iterator<Map.Entry<String, JsonNode>> iter) {
         Map.Entry<String, JsonNode> entry;
         String key;
-        ValueType n;
-        ValueType old;
 
         while (iter.hasNext()) {
             entry = iter.next();
             key = entry.getKey();
-            n = ValueType.forYaml(key, entry.getValue());
-            old = values.get(key);
-            if (old != null && !old.value.isEmpty() && n.value.isEmpty()) {
-                n = n.withValue(old.value);
-            }
-            values.put(key, n);
+            define(ValueType.forYaml(key, entry.getValue()));
         }
+    }
+
+    public void define(ValueType value) {
+        ValueType old;
+
+        old = values.get(value.name);
+        if (old != null) {
+            if (old.doc != null && value.doc == null) {
+                value = value.withDoc(old.doc);
+            }
+            if (!old.value.isEmpty() && value.value.isEmpty()) {
+                value = value.withValue(old.value);
+            }
+        }
+        values.put(value.name, value);
     }
 
     public void add(ValueType value) {
@@ -204,19 +212,6 @@ public class Clazz {
             result.add(value);
         }
         return result;
-    }
-
-    public void define(ValueType value) throws IOException {
-        ValueType old;
-
-        old = values.get(value.name);
-        if (old != null && old.doc != null) {
-            value = value.withDoc(old.doc);
-        }
-        /* TODO: if (!values.containsKey(value.name)) {
-            throw new IOException("unknown value: " + value.name);
-        }*/
-        values.put(value.name, value);
     }
 
     public FileNode createValuesFile(ObjectMapper mapper, Expressions builder) throws IOException {
