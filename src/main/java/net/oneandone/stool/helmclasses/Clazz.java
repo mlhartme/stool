@@ -56,8 +56,6 @@ public class Clazz {
     }
 
     public static Clazz load(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
-        Iterator<Map.Entry<String, JsonNode>> values;
-        Map.Entry<String, JsonNode> entry;
         String extendz;
         Clazz base;
         Clazz derived;
@@ -74,12 +72,7 @@ public class Clazz {
         } else {
             derived = new Clazz(origin, author, name, Json.string(clazz, "chart"), "TODO:version");
         }
-        values = clazz.get("values").fields();
-        while (values.hasNext()) {
-            entry = values.next();
-            derived.define(ValueType.forYaml(entry.getKey(), entry.getValue()));
-        }
-
+        derived.defineAll(clazz.get("values").fields());
         return derived;
     }
 
