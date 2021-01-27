@@ -114,7 +114,7 @@ public class ClassRef {
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {
-                    result = Clazz.load(all, origin, null, object(yaml.readTree(src)));
+                    result = Clazz.loadExtending(all, origin, null, object(yaml.readTree(src)));
                 }
                 break;
             case IMAGE:
@@ -128,7 +128,7 @@ public class ClassRef {
                     throw new IOException("image does not have a class label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
-                    result = Clazz.load(all, origin, tag.author, object(yaml.readTree(src)));
+                    result = Clazz.loadExtending(all, origin, tag.author, object(yaml.readTree(src)));
                 }
                 break;
             default:
@@ -162,7 +162,7 @@ public class ClassRef {
                     classes = yaml.readTree(src).elements();
                 }
                 while (classes.hasNext()) {
-                    add(result, Clazz.load(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
+                    add(result, Clazz.loadExtending(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
                 }
             }
         }

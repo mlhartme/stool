@@ -55,23 +55,19 @@ public class Clazz {
         return result;
     }
 
-    public static Clazz load(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
+    public static Clazz loadExtending(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
         String extendz;
         Clazz base;
         Clazz derived;
         String name;
 
         name = Json.string(clazz, "name");
-        extendz = Json.stringOpt(clazz, "extends");
-        if (extendz != null) {
-            base = existing.get(extendz);
-            if (base == null) {
-                throw new IOException("class not found: " + extendz);
-            }
-            derived = base.derive(origin, author, name);
-        } else {
-            derived = new Clazz(origin, author, name, Json.string(clazz, "chart"), "TODO:version");
+        extendz = Json.string(clazz, "extends");
+        base = existing.get(extendz);
+        if (base == null) {
+            throw new IOException("class not found: " + extendz);
         }
+        derived = base.derive(origin, author, name);
         derived.defineAll(clazz.get("values").fields());
         return derived;
     }
