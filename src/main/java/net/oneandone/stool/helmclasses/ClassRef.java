@@ -155,7 +155,7 @@ public class ClassRef {
             if (!dir.isDirectory()) {
                 continue;
             }
-            add(result, Clazz.loadBase(yaml, dir));
+            add(result, Clazz.loadChartClass(yaml, dir.getName(), dir));
             file = dir.join("classes.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {

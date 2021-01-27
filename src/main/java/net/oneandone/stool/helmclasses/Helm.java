@@ -76,6 +76,10 @@ public final class Helm {
 
     //--
 
+    public static FileNode tagFile(FileNode chart) {
+        return chart.join(".tag");
+    }
+
     public static FileNode resolveChart(PortusRegistry registry, String repository, FileNode root) throws IOException {
         String chart;
         List<String> tags;
@@ -91,9 +95,9 @@ public final class Helm {
         }
         tag = tags.get(tags.size() - 1);
         chartDir = root.join(chart);
-        tagFile = chartDir.join(".tag");
+        tagFile = tagFile(chartDir);
         if (chartDir.exists()) {
-            existing = chartDir.join(".tag").readString().trim();
+            existing = tagFile.readString().trim();
             if (!tag.equals(existing)) {
                 LOGGER.info("updating chart " + chart + " " + existing + " -> " + tag);
                 chartDir.deleteTree();

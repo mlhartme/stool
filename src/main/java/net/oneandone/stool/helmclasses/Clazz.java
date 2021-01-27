@@ -36,18 +36,18 @@ import java.util.Map;
 public class Clazz {
     public static final String HELM_CLASS = "helmClass";
 
-    public static Clazz loadBase(ObjectMapper yaml, FileNode dir) throws IOException {
-        String nameAndChart;
+    /** loads the class ex- or implicitly definded by a chart */
+    public static Clazz loadChartClass(ObjectMapper yaml, String name, FileNode chart) throws IOException {
         Clazz result;
         ObjectNode loaded;
         ObjectNode classValue;
 
-        try (Reader src = dir.join("values.yaml").newReader()) {
+        try (Reader src = chart.join("values.yaml").newReader()) {
             loaded = (ObjectNode) yaml.readTree(src);
         }
-        nameAndChart = dir.getName();
-        result = new Clazz("TODO", "TODO", nameAndChart, nameAndChart, "TODO");
+        result = new Clazz("TODO", "TODO", name, name, Helm.tagFile(chart).readString().trim());
         classValue = (ObjectNode) loaded.remove("class");
+        // normal values are value class field definitions
         result.extendFields(loaded.fields());
         if (classValue != null) {
             result.extendFields(classValue.fields());
