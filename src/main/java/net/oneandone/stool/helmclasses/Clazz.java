@@ -192,7 +192,7 @@ public class Clazz {
         }
         node.set("name", new TextNode(name));
         node.set("chart", new TextNode(chart));
-        // TODO: node.set("chartVersion", new TextNode(chartVersion));
+        node.set("chartVersion", new TextNode(chartVersion));
         v = yaml.createObjectNode();
         node.set("values", v);
         for (ValueType value : values.values()) {
