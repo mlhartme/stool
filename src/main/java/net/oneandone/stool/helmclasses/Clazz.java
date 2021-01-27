@@ -37,43 +37,20 @@ public class Clazz {
     public static final String HELM_CLASS = "helmClass";
 
     public static Clazz loadBase(ObjectMapper yaml, FileNode dir) throws IOException {
-        Map.Entry<String, JsonNode> entry;
         String nameAndChart;
         Clazz result;
-        String name;
-        ValueType old;
-        ValueType n;
-        ObjectNode obj;
-        Iterator<Map.Entry<String, JsonNode>> iter;
+        ObjectNode loaded;
+        ObjectNode classValue;
 
         try (Reader src = dir.join("values.yaml").newReader()) {
-            obj = (ObjectNode) yaml.readTree(src);
+            loaded = (ObjectNode) yaml.readTree(src);
         }
         nameAndChart = dir.getName();
         result = new Clazz("TODO", "TODO", nameAndChart, nameAndChart, "TODO");
-        iter = obj.fields();
-        obj = null;
-        while (iter.hasNext()) {
-            entry = iter.next();
-            name = entry.getKey();
-            if (name.equals("class")) {
-                obj = (ObjectNode) entry.getValue();
-            } else {
-                result.add(new ValueType(entry.getKey(), false, false, null, entry.getValue().asText()));
-            }
-        }
-        if (obj != null) {
-            iter = obj.fields();
-            while (iter.hasNext()) {
-                entry = iter.next();
-                name = entry.getKey();
-                n = ValueType.forYaml(entry.getKey(), entry.getValue());
-                old = result.values.get(name);
-                if (old != null && !old.value.isEmpty() && n.value.isEmpty()) {
-                    n = n.withValue(old.value);
-                }
-                result.values.put(name, n);
-            }
+        classValue = (ObjectNode) loaded.remove("class");
+        result.extendFields(loaded.fields());
+        if (classValue != null) {
+            result.extendFields(classValue.fields());
         }
         return result;
     }
@@ -134,6 +111,24 @@ public class Clazz {
         this.chart = chart;
         this.chartVersion = chartVersion;
         this.values = new LinkedHashMap<>();
+    }
+
+    public void extendFields(Iterator<Map.Entry<String, JsonNode>> iter) {
+        Map.Entry<String, JsonNode> entry;
+        String key;
+        ValueType n;
+        ValueType old;
+
+        while (iter.hasNext()) {
+            entry = iter.next();
+            key = entry.getKey();
+            n = ValueType.forYaml(key, entry.getValue());
+            old = values.get(key);
+            if (old != null && !old.value.isEmpty() && n.value.isEmpty()) {
+                n = n.withValue(old.value);
+            }
+            values.put(key, n);
+        }
     }
 
     public void add(ValueType value) {
