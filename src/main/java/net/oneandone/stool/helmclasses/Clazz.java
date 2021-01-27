@@ -88,7 +88,7 @@ public class Clazz {
 
         result = new Clazz("synthetic", null, name, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
-            result.add(new ValueType(nameValues[i], false, false, null, nameValues[i + 1]));
+            result.define(new ValueType(nameValues[i], nameValues[i + 1]));
         }
         return result;
     }
@@ -136,10 +136,6 @@ public class Clazz {
                 value = value.withValue(old.value);
             }
         }
-        values.put(value.name, value);
-    }
-
-    public void add(ValueType value) {
         values.put(value.name, value);
     }
 
@@ -209,7 +205,7 @@ public class Clazz {
 
         result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
         for (ValueType value : values.values()) {
-            result.add(value);
+            result.define(value);
         }
         return result;
     }

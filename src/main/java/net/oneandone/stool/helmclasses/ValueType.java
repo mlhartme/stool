@@ -52,6 +52,9 @@ public class ValueType {
     public final String doc;
     public final String value;
 
+    public ValueType(String name, String value) {
+        this(name, false, false, null, value);
+    }
     public ValueType(String name, boolean abstrct, boolean privt, String doc, String value) {
         this.name = name;
         this.abstrct = abstrct;
