@@ -87,17 +87,22 @@ public class Clazz {
         String name;
 
         name = Json.string(clazz, "name");
-        extendz = Json.string(clazz, "extends");
-        base = existing.get(extendz);
-        if (base == null) {
-            throw new IOException("class not found: " + extendz);
+        extendz = Json.stringOpt(clazz, "extends");
+        if (extendz != null) {
+            base = existing.get(extendz);
+            if (base == null) {
+                throw new IOException("class not found: " + extendz);
+            }
+            derived = base.derive(origin, author, name);
+        } else {
+            derived = new Clazz(origin, author, name, Json.string(clazz, "chart"), "TODO:version");
         }
-        derived = base.derive(origin, author, name);
         values = clazz.get("values").fields();
         while (values.hasNext()) {
             entry = values.next();
             derived.define(ValueType.forYaml(entry.getKey(), entry.getValue()));
         }
+
         return derived;
     }
 

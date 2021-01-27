@@ -115,8 +115,9 @@ public final class Json {
         return element.asText();
     }
 
-    public static Map<String, Object> toStringMap(ObjectNode obj) {
+    public static Map<String, Object> toStringMap(ObjectNode obj, List<String> ignores) {
         Map<String, Object> result;
+        String key;
         JsonNode value;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
@@ -126,6 +127,10 @@ public final class Json {
         iter = obj.fields();
         while (iter.hasNext()) {
             entry = iter.next();
+            key = entry.getKey();
+            if (ignores.contains(key)) {
+                continue;
+            }
             value = entry.getValue();
             if (value.isNumber()) {
                 v = value.asInt();
@@ -136,7 +141,7 @@ public final class Json {
             } else {
                 throw new IllegalStateException(value.toString());
             }
-            result.put(entry.getKey(), v);
+            result.put(key, v);
         }
         return result;
     }
