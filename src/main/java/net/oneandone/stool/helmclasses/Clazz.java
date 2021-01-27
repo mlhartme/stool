@@ -82,7 +82,7 @@ public class Clazz {
 
         name = Json.string(clazz, "name");
         result = new Clazz(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name, Json.string(clazz, "chart"),
-                Json.string(clazz, "chartVersion", "TODO:version"));
+                Json.string(clazz, "chartVersion"));
         result.defineAll(clazz.get("values").fields());
         return result;
     }
