@@ -23,23 +23,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class PairTest {
+public class DiffTest {
     @Test
-    public void empty() {
-        check(Strings.toMap(), Strings.toMap());
-        check(Strings.toMap("a", "b"), Strings.toMap("a", "b"));
-        check(Strings.toMap("a", "b", "x", "1"), Strings.toMap("a", "b", "x", "2"), "x", "1", "2");
-        check(Strings.toMap("a", "b"), Strings.toMap(), "a", "b", Pair.NIL);
-        check(Strings.toMap(), Strings.toMap("a", "b"), "a", Pair.NIL, "b");
+    public void tests() {
+        check("", Strings.toMap(), Strings.toMap());
+        check("", Strings.toMap("a", "b"), Strings.toMap("a", "b"));
+        check("+ x=1\n- x=2\n", Strings.toMap("a", "b", "x", "1"), Strings.toMap("a", "b", "x", "2"), "x", "1", "2");
+        check("- a=b\n", Strings.toMap("a", "b"), Strings.toMap(), "a", "b", Diff.NIL);
+        check("+ a=b\n", Strings.toMap(), Strings.toMap("a", "b"), "a", Diff.NIL, "b");
     }
 
-    public void check(Map<String, String> left, Map<String, String> right, String... expected) {
-        Map<String, Pair> diff;
+    public void check(String diffStr, Map<String, String> left, Map<String, String> right, String... expected) {
+        Diff diff;
         List<String> lst;
 
-        diff = Pair.diff(left, right);
-        lst = Pair.toList(diff);
+        diff = Diff.diff(left, right);
+        Assertions.assertEquals(diffStr, diff.toString());
+        lst = diff.toList();
         Assertions.assertEquals(Arrays.asList(expected), lst);
-        Assertions.assertEquals(diff, Pair.fromList(lst));
+        Assertions.assertEquals(diff, Diff.fromList(lst));
     }
 }

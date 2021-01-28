@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import net.oneandone.stool.helmclasses.ClassRef;
-import net.oneandone.stool.util.Pair;
+import net.oneandone.stool.util.Diff;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -64,7 +64,7 @@ public abstract class Client {
      * @throws FileAlreadyExistsException if the stage already exists */
     public abstract Map<String, String> create(String stageName, ClassRef classRef, Map<String, String> values) throws IOException;
 
-    public abstract Map<String, Pair> publish(String stage, ClassRef classRef, Map<String, String> values) throws IOException;
+    public abstract Diff publish(String stage, ClassRef classRef, Map<String, String> values) throws IOException;
     public abstract Map<String, String> awaitAvailable(String stage) throws IOException;
     public abstract void delete(String stage) throws IOException;
     public abstract Map<String, String> getValues(String stage) throws IOException;

@@ -19,7 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.helmclasses.ClassRef;
-import net.oneandone.stool.util.Pair;
+import net.oneandone.stool.util.Diff;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -63,9 +63,10 @@ public class Publish extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Map<String, Pair> result;
+        Diff result;
 
         result = reference.client.publish(reference.stage, classRef, values);
+        console.info.println("done:");
         console.info.println(result.toString());
     }
 }

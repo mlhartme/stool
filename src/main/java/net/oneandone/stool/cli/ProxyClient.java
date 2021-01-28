@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.helmclasses.ClassRef;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.util.Pair;
+import net.oneandone.stool.util.Diff;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
@@ -146,13 +146,13 @@ public class ProxyClient extends Client {
     }
 
     @Override
-    public Map<String, Pair> publish(String stage, ClassRef classRef, Map<String, String> values) throws IOException {
+    public Diff publish(String stage, ClassRef classRef, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node(stage, "publish");
         node = node.withParameter("classref", classRef.serialize());
         node = node.withParameters("value.", values);
-        return Pair.fromList(Json.list((ArrayNode) postJson(node, "")));
+        return Diff.fromList(Json.list((ArrayNode) postJson(node, "")));
     }
 
     @Override

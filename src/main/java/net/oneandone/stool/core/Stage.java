@@ -26,7 +26,7 @@ import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.util.Pair;
+import net.oneandone.stool.util.Diff;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -332,7 +332,7 @@ public class Stage {
     //-- docker
 
     /** CAUTION: values are not updated! */
-    public Map<String, Pair> publish(Caller caller, Engine engine, Clazz withClazz, Map<String, String> clientValues) throws IOException {
+    public Diff publish(Caller caller, Engine engine, Clazz withClazz, Map<String, String> clientValues) throws IOException {
         Map<String, String> prev;
         Map<String, String> next;
 
@@ -344,7 +344,7 @@ public class Stage {
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
-        return Pair.diff(prev, next);
+        return Diff.diff(prev, next);
     }
 
     /** CAUTION: values are not updated! */
