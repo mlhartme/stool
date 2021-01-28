@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Type;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
@@ -212,26 +213,26 @@ public class Clazz {
         return result;
     }
 
-    public FileNode createValuesFile(ObjectMapper mapper, Expressions builder) throws IOException {
+    public FileNode createValuesFile(Configuration configuration, Map<String, String> actuals) throws IOException {
         ObjectNode dest;
         Expire expire;
         FileNode file;
 
-        dest = mapper.createObjectNode();
-        for (Map.Entry<String, String> entry : builder.eval(this).entrySet()) {
+        dest = configuration.yaml.createObjectNode();
+        for (Map.Entry<String, String> entry : actuals.entrySet()) {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(HELM_CLASS, toObject(mapper));
+        dest.set(HELM_CLASS, toObject(configuration.yaml));
 
         // normalize expire
-        expire = Expire.fromHuman(Json.string(dest, Type.VALUE_EXPIRE, Expire.fromNumber(builder.configuration.defaultExpire).toString()));
+        expire = Expire.fromHuman(Json.string(dest, Type.VALUE_EXPIRE, Expire.fromNumber(configuration.defaultExpire).toString()));
         if (expire.isExpired()) {
             throw new ArgumentException("stage expired: " + expire);
         }
         dest.put(Type.VALUE_EXPIRE, expire.toString());
 
-        file = builder.world.getTemp().createTempFile().writeString(dest.toPrettyString());
+        file = configuration.world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;
     }
 }

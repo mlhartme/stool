@@ -64,8 +64,8 @@ public final class Helm {
         modifiedClass.setValues(clientValues);
         modifiedClass.checkNotAbstract();
         chart = root.join(modifiedClass.chart).checkDirectory();
-        LOGGER.info("chart: " + modifiedClass.chart);
-        values = modifiedClass.createValuesFile(configuration.yaml, expressions);
+        LOGGER.info("chart: " + modifiedClass.chart + ":" + modifiedClass.chartVersion);
+        values = modifiedClass.createValuesFile(configuration, expressions.eval(modifiedClass));
         try {
             LOGGER.info("values: " + values.readString());
             exec(chart, upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute());

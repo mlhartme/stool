@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -78,7 +79,7 @@ public class Expressions {
             for (ValueType type : clazz.values.values()) {
                 evalValue(type.name);
             }
-            result = new HashMap<>();
+            result = new LinkedHashMap<>();
             for (Map.Entry<String, Object> entry : context.entrySet()) {
                 result.put(entry.getKey(), (String) entry.getValue());
             }
