@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 public final class Diff {
@@ -128,31 +127,6 @@ public final class Diff {
     }
 
     //--
-
-    public static class Pair {
-        public final String left;
-        public final String right;
-
-        public Pair(String left, String right) {
-            this.left = left;
-            this.right = right;
-        }
-
-        public int hashCode() {
-            return left == null ? right.hashCode() : left.hashCode();
-        }
-
-        public boolean equals(Object obj) {
-            Pair p;
-
-            if (obj instanceof Pair) {
-                p = (Pair) obj;
-                return Objects.equals(p.left, left) && Objects.equals(p.right, right);
-            } else {
-                return false;
-            }
-        }
-    }
 
 
     public static final String NIL = "__null__";

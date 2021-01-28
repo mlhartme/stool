@@ -18,7 +18,7 @@ import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Predicate;
-import net.oneandone.stool.util.UsernamePassword;
+import net.oneandone.stool.util.Pair;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -101,7 +101,7 @@ public class Configuration {
     private String currentContext;
     public final Map<String, Context> contexts;
 
-    public final Map<String, UsernamePassword> registryCredentials;
+    public final Map<String, Pair> registryCredentials;
     public final List<String> chartReferences;
     public final FileNode lib;
     public final String stageLogs;
@@ -224,8 +224,8 @@ public class Configuration {
         return result;
     }
 
-    public static Map<String, UsernamePassword> parseRegistryCredentials(String str) {
-        Map<String, UsernamePassword> result;
+    public static Map<String, Pair> parseRegistryCredentials(String str) {
+        Map<String, Pair> result;
         int idx;
         String host;
 
@@ -241,7 +241,7 @@ public class Configuration {
             if (idx < 0) {
                 throw new IllegalStateException(entry);
             }
-            result.put(host, new UsernamePassword(entry.substring(0, idx), entry.substring(idx + 1)));
+            result.put(host, new Pair(entry.substring(0, idx), entry.substring(idx + 1)));
         }
         return result;
     }
@@ -367,7 +367,7 @@ public class Configuration {
     public PortusRegistry createRegistry(String image) throws IOException {
         int idx;
         String host;
-        UsernamePassword up;
+        Pair up;
         String uri;
 
         idx = image.indexOf('/');
@@ -378,7 +378,7 @@ public class Configuration {
         uri = "https://";
         up = registryCredentials(host);
         if (up != null) {
-            uri = uri + up.username + ":" + up.password + "@";
+            uri = uri + up.left + ":" + up.right + "@";
         }
         uri = uri + host;
         return PortusRegistry.create(json, world, uri, null);
@@ -388,7 +388,7 @@ public class Configuration {
         return new Certificates(lib, fqdn);
     }
 
-    public UsernamePassword registryCredentials(String registry) {
+    public Pair registryCredentials(String registry) {
         return registryCredentials.get(registry);
     }
 
@@ -396,11 +396,11 @@ public class Configuration {
         StringBuilder result;
 
         result = new StringBuilder();
-        for (Map.Entry<String, UsernamePassword> entry : registryCredentials.entrySet()) {
+        for (Map.Entry<String, Pair> entry : registryCredentials.entrySet()) {
             if (result.length() > 0) {
                 result.append(',');
             }
-            result.append(entry.getKey() + "=" + entry.getValue().username + ":" + entry.getValue().password);
+            result.append(entry.getKey() + "=" + entry.getValue().left + ":" + entry.getValue().right);
         }
         return result.toString();
     }
