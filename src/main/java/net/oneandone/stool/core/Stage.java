@@ -26,6 +26,7 @@ import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.util.Json;
+import net.oneandone.stool.util.Pair;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -331,11 +332,19 @@ public class Stage {
     //-- docker
 
     /** CAUTION: values are not updated! */
-    public void publish(Caller caller, Engine engine, Clazz withClazz, Map<String, String> clientValues) throws IOException {
-        Helm.upgrade(configuration, name, withClazz, clientValues);
+    public Map<String, Pair> publish(Caller caller, Engine engine, Clazz withClazz, Map<String, String> clientValues) throws IOException {
+        Map<String, String> prev;
+        Map<String, String> next;
+
+        prev = new LinkedHashMap<>();
+        for (Map.Entry<String, Value> entry : values.entrySet()) {
+            prev.put(entry.getKey(), entry.getValue().get());
+        }
+        next = Helm.upgrade(configuration, name, withClazz, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
+        return Pair.diff(prev, next);
     }
 
     /** CAUTION: values are not updated! */

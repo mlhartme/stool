@@ -29,6 +29,7 @@ import net.oneandone.stool.Main;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.HistoryEntry;
 import net.oneandone.stool.server.users.User;
+import net.oneandone.stool.util.Pair;
 import net.oneandone.stool.util.PredicateParser;
 import net.oneandone.stool.util.Validation;
 import net.oneandone.stool.core.Value;
@@ -121,12 +122,12 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public void publish(String name, ClassRef classRef, Map<String, String> values) throws IOException {
+    public Map<String, Pair> publish(String name, ClassRef classRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            stage.publish(caller, engine, classRef.resolve(configuration), values);
+            return stage.publish(caller, engine, classRef.resolve(configuration), values);
         }
     }
 

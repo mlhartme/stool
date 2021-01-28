@@ -31,6 +31,7 @@ import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
+import net.oneandone.stool.util.Pair;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -163,10 +164,11 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public void publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String classref,
+    public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String classref,
                         HttpServletRequest request) throws IOException {
         try (RequestConfiguration configuration = openConfiguration()) {
-            configuration.client(request).publish(stageName, ClassRef.parse(classref), map(request, "value."));
+            return array(configuration.json, Pair.toList(configuration.client(request)
+                    .publish(stageName, ClassRef.parse(classref), map(request, "value.")))).toString();
         }
     }
 

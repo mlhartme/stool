@@ -44,11 +44,11 @@ public final class Helm {
         helm(configuration, name, false, clazz, values);
     }
 
-    public static void upgrade(Configuration configuration, String name, Clazz clazz, Map<String, String> values) throws IOException {
-        helm(configuration, name, true, clazz, values);
+    public static Map<String, String> upgrade(Configuration configuration, String name, Clazz clazz, Map<String, String> values) throws IOException {
+        return helm(configuration, name, true, clazz, values);
     }
 
-    private static void helm(Configuration configuration, String name, boolean upgrade, Clazz originalClass, Map<String, String> clientValues)
+    private static Map<String, String> helm(Configuration configuration, String name, boolean upgrade, Clazz originalClass, Map<String, String> clientValues)
             throws IOException {
         World world;
         FileNode root;
@@ -56,6 +56,7 @@ public final class Helm {
         FileNode chart;
         FileNode values;
         Clazz modifiedClass;
+        Map<String, String> result;
 
         root = configuration.resolvedCharts();
         world = root.getWorld();
@@ -65,10 +66,12 @@ public final class Helm {
         modifiedClass.checkNotAbstract();
         chart = root.join(modifiedClass.chart).checkDirectory();
         LOGGER.info("chart: " + modifiedClass.chart + ":" + modifiedClass.chartVersion);
-        values = modifiedClass.createValuesFile(configuration, expressions.eval(modifiedClass));
+        result = expressions.eval(modifiedClass);
+        values = modifiedClass.createValuesFile(configuration, result);
         try {
             LOGGER.info("values: " + values.readString());
             exec(chart, upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute());
+            return result;
         } finally {
             values.deleteFile();
         }
