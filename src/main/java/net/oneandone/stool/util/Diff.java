@@ -46,12 +46,12 @@ public final class Diff {
     public static Diff fromList(List<String> list) {
         Diff result;
 
-        if (list.size() % 3 != 0) {
+        if (list.size() % 2 != 0) {
             throw new IllegalArgumentException(list.toString());
         }
         result = new Diff();
-        for (int i = 0, max = list.size(); i < max; i += 3) {
-            result.map.put(list.get(i), new Pair(decode(list.get(i + 1)), decode(list.get(i + 2))));
+        for (int i = 0, max = list.size(); i < max; i += 2) {
+            result.map.put(list.get(i), Pair.decode(list.get(i + 1)));
         }
         return result;
     }
@@ -86,8 +86,7 @@ public final class Diff {
         result = new ArrayList<>();
         for (Map.Entry<String, Pair> entry : map.entrySet()) {
             result.add(entry.getKey());
-            result.add(encode(entry.getValue().left));
-            result.add(encode(entry.getValue().right));
+            result.add(entry.getValue().encode());
         }
         return result;
     }
@@ -124,17 +123,5 @@ public final class Diff {
             }
         }
         return result.toString();
-    }
-
-    //--
-
-
-    public static final String NIL = "__null__";
-
-    private static String encode(String str) {
-        return str == null ? NIL : str;
-    }
-    private static String decode(String str) {
-        return NIL.equals(str) ? null : str;
     }
 }

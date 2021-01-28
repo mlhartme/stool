@@ -28,19 +28,18 @@ public class DiffTest {
     public void tests() {
         check("", Strings.toMap(), Strings.toMap());
         check("", Strings.toMap("a", "b"), Strings.toMap("a", "b"));
-        check("+ x=1\n- x=2\n", Strings.toMap("a", "b", "x", "1"), Strings.toMap("a", "b", "x", "2"), "x", "1", "2");
-        check("- a=b\n", Strings.toMap("a", "b"), Strings.toMap(), "a", "b", Diff.NIL);
-        check("+ a=b\n", Strings.toMap(), Strings.toMap("a", "b"), "a", Diff.NIL, "b");
+        check("+ x=1\n- x=2\n", Strings.toMap("a", "b", "x", "1"), Strings.toMap("a", "b", "x", "2"));
+        check("- a=b\n", Strings.toMap("a", "b"), Strings.toMap());
+        check("+ a=b\n", Strings.toMap(), Strings.toMap("a", "b"));
     }
 
-    public void check(String diffStr, Map<String, String> left, Map<String, String> right, String... expected) {
+    public void check(String diffStr, Map<String, String> left, Map<String, String> right) {
         Diff diff;
         List<String> lst;
 
         diff = Diff.diff(left, right);
         Assertions.assertEquals(diffStr, diff.toString());
         lst = diff.toList();
-        Assertions.assertEquals(Arrays.asList(expected), lst);
         Assertions.assertEquals(diff, Diff.fromList(lst));
     }
 }
