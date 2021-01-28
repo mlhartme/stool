@@ -76,7 +76,7 @@ public final class Helm {
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
             if (!forbidden.isEmpty()) {
-                throw new IOException("change is forbidden: " + forbidden);
+                throw new IOException("change is forbidden:\n" + forbidden);
             }
         }
         values = modifiedClass.createValuesFile(configuration, next);
