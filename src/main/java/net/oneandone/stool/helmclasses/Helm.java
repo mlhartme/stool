@@ -19,6 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
+import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Versions;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -41,15 +42,16 @@ public final class Helm {
         Clazz clazz;
 
         clazz = classRef.resolve(configuration);
-        helm(configuration, name, false, false, null, clazz, values);
+        helm(configuration, name, false, false, null, clazz, values, Collections.emptyMap());
     }
 
-    public static Map<String, String> upgrade(Configuration configuration, String name, boolean dryrun, String allow, Clazz clazz, Map<String, String> values) throws IOException {
-        return helm(configuration, name, true, dryrun, allow, clazz, values);
+    public static Diff upgrade(Configuration configuration, String name, boolean dryrun, List<String> allow,
+                               Clazz clazz, Map<String, String> values, Map<String, String> prev) throws IOException {
+        return helm(configuration, name, true, dryrun, allow, clazz, values, prev);
     }
 
-    private static Map<String, String> helm(Configuration configuration, String name, boolean upgrade, boolean dryrun, String allow,
-                                            Clazz originalClass, Map<String, String> clientValues)
+    private static Diff helm(Configuration configuration, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
+                             Clazz originalClass, Map<String, String> clientValues, Map<String, String> prev)
             throws IOException {
         World world;
         FileNode root;
@@ -57,7 +59,9 @@ public final class Helm {
         FileNode chart;
         FileNode values;
         Clazz modifiedClass;
-        Map<String, String> result;
+        Map<String, String> next;
+        Diff result;
+        Diff forbidden;
 
         root = configuration.resolvedCharts();
         world = root.getWorld();
@@ -67,8 +71,15 @@ public final class Helm {
         modifiedClass.checkNotAbstract();
         chart = root.join(modifiedClass.chart).checkDirectory();
         LOGGER.info("chart: " + modifiedClass.chart + ":" + modifiedClass.chartVersion);
-        result = expressions.eval(modifiedClass);
-        values = modifiedClass.createValuesFile(configuration, result);
+        next = expressions.eval(modifiedClass);
+        result = Diff.diff(prev, next);
+        if (allowOpt != null) {
+            forbidden = result.withoutKeys(allowOpt);
+            if (!forbidden.isEmpty()) {
+                throw new IOException("change is forbidden: " + forbidden);
+            }
+        }
+        values = modifiedClass.createValuesFile(configuration, next);
         try {
             LOGGER.info("values: " + values.readString());
             exec(dryrun, chart, upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute());

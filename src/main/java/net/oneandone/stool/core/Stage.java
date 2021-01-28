@@ -329,20 +329,16 @@ public class Stage {
         return done;
     }
 
-    //-- docker
-
     /** CAUTION: values are not updated! */
     public Diff publish(Caller caller, Engine engine, boolean dryrun, String allow,
                         Clazz withClazz, Map<String, String> clientValues) throws IOException {
-        Map<String, String> prev;
-        Map<String, String> next;
+        Diff diff;
 
-        prev = valuesMap();
-        next = Helm.upgrade(configuration, name, dryrun, allow, withClazz, clientValues);
+        diff = Helm.upgrade(configuration, name, dryrun, allow == null ? null : Separator.COMMA.split(allow), withClazz, clientValues, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
-        return Diff.diff(prev, next);
+        return diff;
     }
 
     private Map<String, String> valuesMap() {
@@ -364,7 +360,7 @@ public class Stage {
             map.put(entry.getKey(), entry.getValue().get());
         }
         map.putAll(changes);
-        Helm.upgrade(configuration, name, false, null, clazz, map);
+        Helm.upgrade(configuration, name, false, null, clazz, map, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

@@ -65,6 +65,22 @@ public final class Diff {
         map = new LinkedHashMap<>();
     }
 
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    public Diff withoutKeys(List<String> keys) {
+        Diff result;
+
+        result = new Diff();
+        for (Map.Entry<String, Pair> entry : map.entrySet()) {
+            if (!keys.contains(entry.getKey())) {
+                result.map.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
+    }
+
     public List<String> toList() {
         List<String> result;
 
