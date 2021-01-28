@@ -262,7 +262,7 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `delete` *stage-option*... [`-batch`]
 
 
-`sc` *global-option*... `publish` *stage-option*... [*key*`=`*object*...] [*image*]
+`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *class* [*key*`=`*object*...]
 
 
 `sc` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
@@ -589,12 +589,11 @@ Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `publish` *stage-option*... [*key*`=`*object*...] [*image*]
+`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *class* [*key*`=`*object*...]
 
 #### Description
 
-Updates the stage with the specified values. *image* specifies the image to actually start, it defaults to the latest. Use `sc images`
-to see available images.
+Updates the stage with the specified values. *class* specifies the class to actually start
 
 Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
 

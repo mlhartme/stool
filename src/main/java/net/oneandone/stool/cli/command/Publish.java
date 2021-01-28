@@ -27,11 +27,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Publish extends IteratedStageCommand {
+    private final boolean dryrun;
+    private final String allow;
     private final ClassRef classRef;
     private final Map<String, String> values;
 
-    public Publish(Globals globals, String stage, String classRef, List<String> args) throws IOException {
+    public Publish(Globals globals, boolean dryrun, String allow, String stage, String classRef, List<String> args) throws IOException {
         super(globals, stage);
+        this.dryrun = dryrun;
+        this.allow = allow;
         this.values = new LinkedHashMap<>();
         this.classRef = ClassRef.create(globals.getWorld(), classRef);
         eatValues(args);
@@ -65,8 +69,8 @@ public class Publish extends IteratedStageCommand {
     public void doMain(Reference reference) throws Exception {
         Diff result;
 
-        result = reference.client.publish(reference.stage, classRef, values);
-        console.info.println("done:");
+        result = reference.client.publish(reference.stage, dryrun, allow, classRef, values);
+        console.info.println(dryrun ? "dryrun, changes would be:" : "done:");
         console.info.println(result.toString());
     }
 }

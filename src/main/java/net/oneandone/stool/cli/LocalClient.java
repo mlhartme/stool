@@ -122,12 +122,12 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Diff publish(String name, ClassRef classRef, Map<String, String> values) throws IOException {
+    public Diff publish(String name, boolean dryrun, String allow, ClassRef classRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            return stage.publish(caller, engine, classRef.resolve(configuration), values);
+            return stage.publish(caller, engine, dryrun, allow, classRef.resolve(configuration), values);
         }
     }
 

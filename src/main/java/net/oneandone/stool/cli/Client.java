@@ -64,7 +64,7 @@ public abstract class Client {
      * @throws FileAlreadyExistsException if the stage already exists */
     public abstract Map<String, String> create(String stageName, ClassRef classRef, Map<String, String> values) throws IOException;
 
-    public abstract Diff publish(String stage, ClassRef classRef, Map<String, String> values) throws IOException;
+    public abstract Diff publish(String stage, boolean dryrun, String allow, ClassRef classRef, Map<String, String> values) throws IOException;
     public abstract Map<String, String> awaitAvailable(String stage) throws IOException;
     public abstract void delete(String stage) throws IOException;
     public abstract Map<String, String> getValues(String stage) throws IOException;

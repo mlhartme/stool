@@ -146,11 +146,17 @@ public class ProxyClient extends Client {
     }
 
     @Override
-    public Diff publish(String stage, ClassRef classRef, Map<String, String> values) throws IOException {
+    public Diff publish(String stage, boolean dryrun, String allow, ClassRef classRef, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node(stage, "publish");
         node = node.withParameter("classref", classRef.serialize());
+        if (dryrun) {
+            node = node.withParameter("dryrun", dryrun);
+        }
+        if (allow != null) {
+            node = node.withParameter("allow", allow);
+        }
         node = node.withParameters("value.", values);
         return Diff.fromList(Json.list((ArrayNode) postJson(node, "")));
     }

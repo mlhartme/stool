@@ -164,10 +164,11 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/publish")
     public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String classref,
-                        HttpServletRequest request) throws IOException {
+                          @RequestParam(value = "dryrun", required = false, defaultValue = "false") boolean dryrun,
+                          @RequestParam(value = "allow", required = false) String allow, HttpServletRequest request) throws IOException {
         try (RequestConfiguration configuration = openConfiguration()) {
             return array(configuration.json, configuration.client(request)
-                    .publish(stageName, ClassRef.parse(classref), map(request, "value.")).toList()).toString();
+                    .publish(stageName, dryrun, allow, ClassRef.parse(classref), map(request, "value.")).toList()).toString();
         }
     }
 

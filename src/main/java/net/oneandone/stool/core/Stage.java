@@ -332,19 +332,27 @@ public class Stage {
     //-- docker
 
     /** CAUTION: values are not updated! */
-    public Diff publish(Caller caller, Engine engine, Clazz withClazz, Map<String, String> clientValues) throws IOException {
+    public Diff publish(Caller caller, Engine engine, boolean dryrun, String allow,
+                        Clazz withClazz, Map<String, String> clientValues) throws IOException {
         Map<String, String> prev;
         Map<String, String> next;
 
-        prev = new LinkedHashMap<>();
-        for (Map.Entry<String, Value> entry : values.entrySet()) {
-            prev.put(entry.getKey(), entry.getValue().get());
-        }
-        next = Helm.upgrade(configuration, name, withClazz, clientValues);
+        prev = valuesMap();
+        next = Helm.upgrade(configuration, name, dryrun, allow, withClazz, clientValues);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
         return Diff.diff(prev, next);
+    }
+
+    private Map<String, String> valuesMap() {
+        Map<String, String> result;
+
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, Value> entry : values.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().get());
+        }
+        return result;
     }
 
     /** CAUTION: values are not updated! */
@@ -356,7 +364,7 @@ public class Stage {
             map.put(entry.getKey(), entry.getValue().get());
         }
         map.putAll(changes);
-        Helm.upgrade(configuration, name, clazz, map);
+        Helm.upgrade(configuration, name, false, null, clazz, map);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

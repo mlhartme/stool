@@ -41,14 +41,15 @@ public final class Helm {
         Clazz clazz;
 
         clazz = classRef.resolve(configuration);
-        helm(configuration, name, false, clazz, values);
+        helm(configuration, name, false, false, null, clazz, values);
     }
 
-    public static Map<String, String> upgrade(Configuration configuration, String name, Clazz clazz, Map<String, String> values) throws IOException {
-        return helm(configuration, name, true, clazz, values);
+    public static Map<String, String> upgrade(Configuration configuration, String name, boolean dryrun, String allow, Clazz clazz, Map<String, String> values) throws IOException {
+        return helm(configuration, name, true, dryrun, allow, clazz, values);
     }
 
-    private static Map<String, String> helm(Configuration configuration, String name, boolean upgrade, Clazz originalClass, Map<String, String> clientValues)
+    private static Map<String, String> helm(Configuration configuration, String name, boolean upgrade, boolean dryrun, String allow,
+                                            Clazz originalClass, Map<String, String> clientValues)
             throws IOException {
         World world;
         FileNode root;
@@ -70,7 +71,7 @@ public final class Helm {
         values = modifiedClass.createValuesFile(configuration, result);
         try {
             LOGGER.info("values: " + values.readString());
-            exec(chart, upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute());
+            exec(dryrun, chart, upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute());
             return result;
         } finally {
             values.deleteFile();
@@ -109,8 +110,8 @@ public final class Helm {
             LOGGER.info("loading chart " + chart + " " + tag);
         }
         if (!chartDir.exists()) {
-            Helm.exec(root, "chart", "pull", repository + ":" + tag);
-            Helm.exec(root, "chart", "export", repository + ":" + tag, "-d", chartDir.getParent().getAbsolute());
+            Helm.exec(false, root, "chart", "pull", repository + ":" + tag);
+            Helm.exec(false, root, "chart", "export", repository + ":" + tag, "-d", chartDir.getParent().getAbsolute());
             if (!chartDir.exists()) {
                 throw new IllegalStateException(chartDir.getAbsolute());
             }
@@ -136,12 +137,16 @@ public final class Helm {
 
     //--
 
-    public static void exec(FileNode dir, String... args) throws IOException {
+    public static void exec(boolean dryrun, FileNode dir, String... args) throws IOException {
         String[] cmd;
 
         cmd = Strings.cons("helm", args);
         LOGGER.debug(Arrays.asList(cmd).toString());
-        LOGGER.info(dir.exec(cmd));
+        if (dryrun) {
+            LOGGER.info("dryrun - skipped");
+        } else {
+            LOGGER.info(dir.exec(cmd));
+        }
     }
 
     private Helm() {
