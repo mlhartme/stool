@@ -55,7 +55,8 @@ public class Clazz {
         return result;
     }
 
-    public static Clazz loadExtending(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
+    /** from inline, label or classes; always extends */
+    public static Clazz loadLiteral(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
         String extendz;
         Clazz base;
         Clazz derived;
