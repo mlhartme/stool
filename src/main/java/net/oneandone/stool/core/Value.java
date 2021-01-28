@@ -20,7 +20,7 @@ import net.oneandone.stool.helmclasses.ValueType;
 /** A stored value representing one aspect of the stage status. */
 public class Value {
     private final String name;
-    private final ValueType type;
+    public final ValueType type;
     private final String value;
 
     public Value(String name, ValueType type, String value) {

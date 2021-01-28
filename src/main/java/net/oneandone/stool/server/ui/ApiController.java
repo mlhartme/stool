@@ -189,7 +189,7 @@ public class ApiController {
     @GetMapping("/stages/{stage}/values")
     public String values(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
         try (RequestConfiguration configuration = openConfiguration()) {
-            return Json.obj(configuration.json, configuration.client(request).getValues(stage)).toString();
+            return Json.objPairs(configuration.json, configuration.client(request).getValues(stage)).toString();
         }
     }
 

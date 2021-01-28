@@ -23,8 +23,9 @@ public class PairTest {
     public void tests() {
         check(null, null);
         check("a", null);
-        check("a", "b");
         check(null, "b");
+        check("a", "b");
+        check("abcd", "123");
     }
 
     public void check(String left, String right) {

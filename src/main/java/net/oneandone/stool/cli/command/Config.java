@@ -18,6 +18,7 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
+import net.oneandone.stool.util.Pair;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.LinkedHashMap;
@@ -62,8 +63,9 @@ public class Config extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Map<String, String> loaded;
+        Map<String, Pair> loaded;
         int width;
+        Pair pair;
 
         if (set) {
             for (Map.Entry<String, String> entry : reference.client.setValues(reference.stage, values).entrySet()) {
@@ -83,23 +85,27 @@ public class Config extends IteratedStageCommand {
                 }
                 width += 3;
             }
-            for (Map.Entry<String, String> entry : loaded.entrySet()) {
-                console.info.println(Strings.padLeft(entry.getKey(), width) + " : " + entry.getValue());
+            for (Map.Entry<String, Pair> entry : loaded.entrySet()) {
+                pair = entry.getValue();
+                console.info.println(Strings.padLeft(entry.getKey(), width) + " : " + pair.left);
+                if (pair.right != null) {
+                    console.info.println(Strings.padLeft("", width) + " : " + pair.right);
+                }
             }
         }
     }
 
-    private Map<String, String> selectedValues(Map<String, String> all) {
-        Map<String, String> result;
-        String value;
+    private Map<String, Pair> selectedValues(Map<String, Pair> all) {
+        Map<String, Pair> result;
+        Pair pair;
 
         result = new LinkedHashMap<>();
         for (String name : values.keySet()) {
-            value = all.get(name);
-            if (value == null) {
+            pair = all.get(name);
+            if (pair == null) {
                 throw new ArgumentException("unknown value: " + name);
             }
-            result.put(name, value);
+            result.put(name, pair);
         }
         return result;
     }

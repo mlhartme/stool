@@ -82,6 +82,20 @@ public final class Json {
         return result;
     }
 
+    public static Map<String, Pair> stringPairMap(ObjectNode obj) {
+        Map<String, Pair> result;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+
+        result = new LinkedHashMap<>();
+        iter = obj.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            result.put(entry.getKey(), Pair.decode(entry.getValue().asText()));
+        }
+        return result;
+    }
+
     public static int number(ObjectNode node, String field, int dflt) {
         return node.has(field) ? node.get(field).asInt() : dflt;
     }
@@ -152,6 +166,16 @@ public final class Json {
         result = json.createObjectNode();
         for (Map.Entry<String, String> entry : obj.entrySet()) {
             result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
+
+    public static ObjectNode objPairs(ObjectMapper json, Map<String, Pair> obj) {
+        ObjectNode result;
+
+        result = json.createObjectNode();
+        for (Map.Entry<String, Pair> entry : obj.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().encode());
         }
         return result;
     }

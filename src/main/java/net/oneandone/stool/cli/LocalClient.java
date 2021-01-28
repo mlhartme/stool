@@ -30,6 +30,7 @@ import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.HistoryEntry;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.util.Diff;
+import net.oneandone.stool.util.Pair;
 import net.oneandone.stool.util.PredicateParser;
 import net.oneandone.stool.util.Validation;
 import net.oneandone.stool.core.Value;
@@ -144,15 +145,15 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> getValues(String stageName) throws IOException {
-        Map<String, String> result;
+    public Map<String, Pair> getValues(String stageName) throws IOException {
+        Map<String, Pair> result;
         Stage stage;
 
         result = new LinkedHashMap<>();
         try (Engine engine = engine()) {
             stage = configuration.load(engine, stageName);
             for (Value value : stage.values()) {
-                result.put(value.name(), value.disclose());
+                result.put(value.name(), new Pair(value.disclose(), value.type.doc));
             }
             return result;
         }
