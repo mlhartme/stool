@@ -21,6 +21,7 @@ import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,14 +52,14 @@ public class ExpressionsTest {
     }
 
     @Test
-    public void clazz() throws IOException {
+    public void clazz() {
         Expressions e;
         Clazz clazz;
         Map<String, String> values;
 
         clazz = Clazz.forTest("name", "one", "1", "two", "${'2' + value('one')}");
         e = expressions();
-        values = e.eval(clazz);
+        values = e.eval(new HashMap<>(), clazz);
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
     }
 }

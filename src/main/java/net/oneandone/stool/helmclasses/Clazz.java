@@ -151,7 +151,7 @@ public class Clazz {
             if (old == null) {
                 throw new ArgumentException("unknown value: " + key);
             }
-            values.put(key, new ValueType(key, false, false, old.doc, entry.getValue()));
+            values.put(key, new ValueType(key, false, old.privt, old.doc, entry.getValue()));
         }
     }
 

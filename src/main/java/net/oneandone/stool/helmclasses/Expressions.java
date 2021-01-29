@@ -55,6 +55,7 @@ public class Expressions {
      */
     private Map<String, Object> context;
     private Clazz contextClass;
+    private Map<String, String> contextPrevious;
 
     public Expressions(World world, Configuration configuration, String fqdn) {
         this.world = world;
@@ -62,9 +63,10 @@ public class Expressions {
         this.fqdn = fqdn;
         this.context = null;
         this.contextClass = null;
+        this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Clazz clazz) {
+    public Map<String, String> eval(Map<String, String> previous, Clazz clazz) {
         Map<String, String> result;
 
         if (context != null) {
@@ -72,6 +74,7 @@ public class Expressions {
         }
         context = new HashMap<>();
         contextClass = clazz;
+        contextPrevious = previous;
         try {
             for (ValueType type : clazz.values.values()) {
                 context.put(type.name, type);
@@ -87,6 +90,7 @@ public class Expressions {
         } finally {
             context = null;
             contextClass = null;
+            contextPrevious = null;
         }
     }
 
@@ -152,40 +156,51 @@ public class Expressions {
         result.put("fqdn", fqdn);
         result.put("defaultExpire", configuration.defaultExpire);
         result.put("defaultContact", Stage.NOTIFY_FIRST_MODIFIER);
-        result.put("cert", new TemplateMethodModelEx() {
-            @Override
-            public Object exec(List list) throws TemplateModelException {
-                if (list.size() != 0) {
-                    throw new ArgumentException(list.toString());
-                }
-                try {
-                    return cert();
-                } catch (IOException e) {
-                    throw new TemplateModelException(e.getMessage(), e);
-                }
+        result.put("cert", (TemplateMethodModelEx) list -> {
+            if (list.size() != 0) {
+                throw new ArgumentException(list.toString());
+            }
+            try {
+                return cert();
+            } catch (IOException e) {
+                throw new TemplateModelException(e.getMessage(), e);
             }
         });
-        result.put("fault", new TemplateMethodModelEx() {
-            @Override
-            public Object exec(List list) throws TemplateModelException {
-                if (list.size() != 1) {
-                    throw new ArgumentException(list.toString());
-                }
-                try {
-                    return fault(Separator.COMMA.split(list.get(0).toString()));
-                } catch (IOException e) {
-                    throw new TemplateModelException(e.getMessage(), e);
-                }
+        result.put("fault", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            try {
+                return fault(Separator.COMMA.split(list.get(0).toString()));
+            } catch (IOException e) {
+                throw new TemplateModelException(e.getMessage(), e);
             }
         });
-        result.put("value", new TemplateMethodModelEx() {
-            @Override
-            public Object exec(List list) throws TemplateModelException {
-                if (list.size() != 1) {
-                    throw new ArgumentException(list.toString());
-                }
-                return evalValue(list.get(0).toString());
+        result.put("value", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
             }
+            return evalValue(list.get(0).toString());
+        });
+        result.put("prev", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            if (contextPrevious == null) {
+                throw new IllegalStateException("missing context");
+            }
+            return contextPrevious.get(list.get(0).toString());
+        });
+        result.put("first", (TemplateMethodModelEx) list -> {
+            if (contextPrevious == null) {
+                throw new IllegalStateException("missing context");
+            }
+            for (Object obj : list) {
+                if (obj != null) {
+                    return obj;
+                }
+            }
+            return null;
         });
         return result;
     }

@@ -71,7 +71,7 @@ public final class Helm {
         modifiedClass.checkNotAbstract();
         chart = root.join(modifiedClass.chart).checkDirectory();
         LOGGER.info("chart: " + modifiedClass.chart + ":" + modifiedClass.chartVersion);
-        next = expressions.eval(modifiedClass);
+        next = expressions.eval(prev, modifiedClass);
         result = Diff.diff(prev, next);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
