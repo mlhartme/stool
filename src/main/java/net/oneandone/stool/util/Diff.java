@@ -118,8 +118,8 @@ public final class Diff {
             } else if (pair.right == null) {
                 result.append("- " + entry.getKey() + "=" + pair.left + "\n");
             } else {
-                result.append("+ " + entry.getKey() + "=" + pair.left + "\n");
-                result.append("- " + entry.getKey() + "=" + pair.right + "\n");
+                result.append("- " + entry.getKey() + "=" + pair.left + "\n");
+                result.append("+ " + entry.getKey() + "=" + pair.right + "\n");
             }
         }
         return result.toString();

@@ -28,7 +28,7 @@ public class DiffTest {
     public void tests() {
         check("", Strings.toMap(), Strings.toMap());
         check("", Strings.toMap("a", "b"), Strings.toMap("a", "b"));
-        check("+ x=1\n- x=2\n", Strings.toMap("a", "b", "x", "1"), Strings.toMap("a", "b", "x", "2"));
+        check("- x=1\n+ x=2\n", Strings.toMap("a", "b", "x", "1"), Strings.toMap("a", "b", "x", "2"));
         check("- a=b\n", Strings.toMap("a", "b"), Strings.toMap());
         check("+ a=b\n", Strings.toMap(), Strings.toMap("a", "b"));
     }

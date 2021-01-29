@@ -292,6 +292,12 @@ public class Stage {
                 return Stage.this.clazz.toObject(configuration.yaml).toPrettyString();
             }
         });
+        fields.add(new Field("origin", true) {
+            @Override
+            public Object get(Engine engine) {
+                return Stage.this.clazz.origin;
+            }
+        });
         return fields;
     }
 
