@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Field;
 import net.oneandone.stool.helmclasses.ClassRef;
@@ -92,7 +93,9 @@ public class LocalClient extends Client {
                 // add values explictly selected
                 for (Value value : stage.values()) {
                     if (!select.isEmpty() && remaining.remove(value.name())) {
-                        s.put(value.name(), new TextNode(value.disclose()));
+                        if (!value.isPrivate()) {
+                            s.put(value.name(), new TextNode(value.get()));
+                        }
                     }
                 }
                 if (!remaining.isEmpty()) {
@@ -153,7 +156,9 @@ public class LocalClient extends Client {
         try (Engine engine = engine()) {
             stage = configuration.load(engine, stageName);
             for (Value value : stage.values()) {
-                result.put(value.name(), new Pair(value.disclose(), value.type.doc));
+                if (!value.isPrivate()) {
+                    result.put(value.name(), new Pair(value.get(), value.type.doc));
+                }
             }
             return result;
         }
@@ -172,9 +177,12 @@ public class LocalClient extends Client {
             changes = new HashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 value = stage.value(entry.getKey());
+                if (value.isPrivate()) {
+                    throw new ArgumentException("cannot set private value: " + value.name());
+                }
                 value = value.withNewValue(entry.getValue());
                 changes.put(entry.getKey(), value.get());
-                result.put(value.name(), value.disclose());
+                result.put(value.name(), value.get());
             }
             stage.setValues(caller, engine, changes);
             return result;

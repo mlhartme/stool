@@ -29,20 +29,16 @@ public class Value {
         this.value = value;
     }
 
+    public boolean isPrivate() {
+        return type.privt;
+    }
+
     public String name() {
         return name;
     }
 
     public Value withNewValue(String str) {
         return new Value(name, type, str.replace("{}", value));
-    }
-
-    public String disclose() {
-        if (type.privt) {
-            return "(private)";
-        } else {
-            return value;
-        }
     }
 
     public String get() {
