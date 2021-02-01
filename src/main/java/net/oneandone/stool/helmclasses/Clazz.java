@@ -87,12 +87,10 @@ public class Clazz {
 
     public static Clazz forTest(String name, String... nameValues) {
         Clazz result;
-        ValueType v;
 
         result = new Clazz("synthetic", null, name, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
-            v = new ValueType(nameValues[i], nameValues[i + 1]);
-            result.values.put(v.name, v);
+            result.defineBase(new ValueType(nameValues[i], nameValues[i + 1]));
         }
         return result;
     }
@@ -167,10 +165,6 @@ public class Clazz {
         values.put(value.name, value);
     }
 
-    public void add(ValueType valueType) {
-        values.put(valueType.name, valueType);
-    }
-
     public void setValues(Map<String, String> clientValues) {
         String key;
         ValueType old;
@@ -238,8 +232,7 @@ public class Clazz {
 
         result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
         for (ValueType value : values.values()) {
-            // do not define ...
-            result.values.put(value.name, value);
+            result.defineBase(value);
         }
         return result;
     }
