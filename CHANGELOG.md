@@ -28,6 +28,7 @@
       * simplified setup because the stage indicator is gone
     * added named workspaces to accomodate for missing implicit workspaces
 
+* added `mode` 
 * added origin field, shown by default in `list`
 * dumped jmxmp/5555 knowledge in stool  
 * image handling changes
