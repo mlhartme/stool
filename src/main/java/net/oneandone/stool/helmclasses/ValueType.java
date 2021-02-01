@@ -27,48 +27,53 @@ public class ValueType {
     public static ValueType forYaml(String name, JsonNode yaml) {
         boolean abstrct;
         boolean privt;
+        boolean extra;
         String doc;
         String value;
         ObjectNode obj;
 
         abstrct = false;
         privt = false;
+        extra = false;
         doc = null;
         if (yaml.isObject()) {
             obj = (ObjectNode) yaml;
             abstrct = Json.bool(obj, "abstract", abstrct);
             privt = Json.bool(obj, "private", privt);
+            extra = Json.bool(obj, "extra", extra);
             doc = Json.string(obj, "doc", null);
             value = Json.string(obj, "value", "");
         } else {
             value = yaml.asText();
         }
-        return new ValueType(name, abstrct, privt, doc, value);
+        return new ValueType(name, abstrct, privt, extra, doc, value);
 
     }
     public final String name;
     public final boolean abstrct;
     public final boolean privt;
+    public final boolean extra;
     public final String doc;
     public final String value;
 
     public ValueType(String name, String value) {
-        this(name, false, false, null, value);
+        this(name, false, false, false, null, value);
     }
-    public ValueType(String name, boolean abstrct, boolean privt, String doc, String value) {
+    public ValueType(String name, boolean abstrct, boolean privt, boolean extra, String doc, String value) {
         this.name = name;
         this.abstrct = abstrct;
         this.privt = privt;
+        this.extra = extra;
         this.doc = doc;
         this.value = value;
     }
 
     public ValueType withValue(String withValue) {
-        return new ValueType(name, abstrct, privt, doc, withValue);
+        return new ValueType(name, abstrct, privt, extra, doc, withValue);
     }
 
     public ValueType withDoc(String withDoc) {
-        return new ValueType(name, abstrct, privt, withDoc, value);
+        return new ValueType(name, abstrct, privt, extra, withDoc, value);
     }
 
     public JsonNode toObject(ObjectMapper yaml) {
@@ -80,6 +85,9 @@ public class ValueType {
         }
         if (privt) {
             result.set("private", BooleanNode.valueOf(privt));
+        }
+        if (extra) {
+            result.set("extra", BooleanNode.valueOf(extra));
         }
         if (doc != null) {
             result.set("doc", new TextNode(doc));
