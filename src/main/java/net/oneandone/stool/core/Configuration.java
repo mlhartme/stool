@@ -108,6 +108,8 @@ public class Configuration {
 
     //--
 
+    public final String mode;
+
     public final String loglevel;
 
     /**
@@ -157,6 +159,7 @@ public class Configuration {
         this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
         this.contexts = parseContexts((ArrayNode) configuration.get("contexts"));
 
+        this.mode = Json.string(configuration, "mode", "dev");
         this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
         this.lib = home.join("lib");
         this.chartReferences = Separator.COMMA.split(Json.string(configuration, "charts", ""));
@@ -181,6 +184,7 @@ public class Configuration {
         this.world = World.create();
         this.yaml = Json.newYaml();
         this.json = Json.newJson();
+        this.mode = from.mode;
         this.currentContext = from.currentContext;
         this.contexts = new HashMap<>();
         for (Map.Entry<String, Context> entry : from.contexts.entrySet()) {
@@ -503,6 +507,7 @@ public class Configuration {
 
         obj.put("fqdn", fqdn);
         obj.put("kubernetes", kubernetes);
+        obj.put("mode", mode);
         obj.put("loglevel", loglevel);
         obj.put("admin", admin);
         obj.put("autoRemove", autoRemove);

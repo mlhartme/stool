@@ -24,7 +24,7 @@ import net.oneandone.stool.util.Json;
 
 /** Immutable */
 public class ValueType {
-    public static ValueType forYaml(String name, JsonNode yaml) {
+    public static ValueType forYaml(String modeOpt, String name, JsonNode yaml) {
         boolean abstrct;
         boolean privt;
         boolean extra;
@@ -42,13 +42,20 @@ public class ValueType {
             privt = Json.bool(obj, "private", privt);
             extra = Json.bool(obj, "extra", extra);
             doc = Json.string(obj, "doc", null);
-            value = Json.string(obj, "value", "");
+            value = getValue(obj, modeOpt);
         } else {
             value = yaml.asText();
         }
         return new ValueType(name, abstrct, privt, extra, doc, value);
-
     }
+
+    private static String getValue(ObjectNode obj, String modeOpt) {
+        String result;
+
+        result = modeOpt == null ? null : Json.string(obj, "value-" + modeOpt, null);
+        return result != null ? result : Json.string(obj, "value", "");
+    }
+
     public final String name;
     public final boolean abstrct;
     public final boolean privt;

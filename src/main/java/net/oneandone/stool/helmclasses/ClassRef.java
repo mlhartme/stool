@@ -104,7 +104,7 @@ public class ClassRef {
 
         root = configuration.resolvedCharts();
         yaml = configuration.yaml;
-        all = loadAll(yaml, root);
+        all = loadAll(configuration.mode, yaml, root);
         switch (type) {
             case BUILTIN:
                 result = all.get(value);
@@ -114,7 +114,7 @@ public class ClassRef {
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {
-                    result = Clazz.loadLiteral(all, origin, null, object(yaml.readTree(src)));
+                    result = Clazz.loadLiteral(configuration.mode, all, origin, null, object(yaml.readTree(src)));
                 }
                 break;
             case IMAGE:
@@ -128,7 +128,7 @@ public class ClassRef {
                     throw new IOException("image does not have a class label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
-                    result = Clazz.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
+                    result = Clazz.loadLiteral(configuration.mode, all, origin, tag.author, object(yaml.readTree(src)));
                 }
                 break;
             default:
@@ -145,7 +145,7 @@ public class ClassRef {
         }
     }
 
-    public static Map<String, Clazz> loadAll(ObjectMapper yaml, FileNode charts) throws IOException {
+    public static Map<String, Clazz> loadAll(String mode, ObjectMapper yaml, FileNode charts) throws IOException {
         Iterator<JsonNode> classes;
         Map<String, Clazz> result;
         FileNode file;
@@ -155,14 +155,14 @@ public class ClassRef {
             if (!dir.isDirectory()) {
                 continue;
             }
-            add(result, Clazz.loadChartClass(yaml, dir.getName(), dir));
+            add(result, Clazz.loadChartClass(yaml, mode, dir.getName(), dir));
             file = dir.join("classes.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
                     classes = yaml.readTree(src).elements();
                 }
                 while (classes.hasNext()) {
-                    add(result, Clazz.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
+                    add(result, Clazz.loadLiteral(mode, result, "builtin", BUILDIN, (ObjectNode) classes.next()));
                 }
             }
         }
