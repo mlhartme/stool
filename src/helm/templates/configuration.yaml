@@ -17,6 +17,7 @@ data:
     admin: "{{ .Values.admin }}"
     autoRemove: "{{ .Values.autoRemove }}"
     defaultExpire: "{{ .Values.defaultExpire }}"
+    mode: "{{ .Values.mode }}"
     loglevel: "{{ .Values.loglevel }}"
     mailHost: "{{ .Values.mailHost }}"
     mailUsername: "{{ .Values.username }}"

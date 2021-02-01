@@ -28,6 +28,8 @@ registryCredentials: ""
 # TODO
 charts: "contargo.server.lan/cisoops-public/charts/kutter"
 
+mode: "dev"
+
 # For server logging. Type string, default INFO. Example value: DEBUG.
 loglevel: "INFO"
 
