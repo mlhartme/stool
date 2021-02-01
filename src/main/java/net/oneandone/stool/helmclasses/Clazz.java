@@ -49,7 +49,7 @@ public class Clazz {
         result = new Clazz("TODO", "TODO", name, name, Helm.tagFile(chart).readString().trim());
         classValue = (ObjectNode) loaded.remove("class");
         // normal values are value class field definitions
-        result.defineAll(loaded.fields());
+        result.defineBaseAll(loaded.fields());
         if (classValue != null) {
             result.defineAll(classValue.fields());
         }
@@ -81,16 +81,18 @@ public class Clazz {
         name = Json.string(clazz, "name");
         result = new Clazz(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name, Json.string(clazz, "chart"),
                 Json.string(clazz, "chartVersion"));
-        result.defineAll(clazz.get("values").fields());
+        result.defineBaseAll(clazz.get("values").fields());
         return result;
     }
 
     public static Clazz forTest(String name, String... nameValues) {
         Clazz result;
+        ValueType v;
 
         result = new Clazz("synthetic", null, name, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
-            result.define(new ValueType(nameValues[i], nameValues[i + 1]));
+            v = new ValueType(nameValues[i], nameValues[i + 1]);
+            result.values.put(v.name, v);
         }
         return result;
     }
@@ -115,6 +117,20 @@ public class Clazz {
         this.values = new LinkedHashMap<>();
     }
 
+    public void defineBaseAll(Iterator<Map.Entry<String, JsonNode>> iter) {
+        Map.Entry<String, JsonNode> entry;
+
+        while (iter.hasNext()) {
+            entry = iter.next();
+            defineBase(ValueType.forYaml(entry.getKey(), entry.getValue()));
+        }
+    }
+    public void defineBase(ValueType value) {
+        if (values.put(value.name, value) != null) {
+            throw new IllegalStateException(value.name);
+        }
+    }
+
     public void defineAll(Iterator<Map.Entry<String, JsonNode>> iter) {
         Map.Entry<String, JsonNode> entry;
         String key;
@@ -131,14 +147,28 @@ public class Clazz {
 
         old = values.get(value.name);
         if (old != null) {
+            if (old.privt) {
+                throw new IllegalStateException("you cannot override private values: " + value.name);
+            }
+            if (value.extra) {
+                throw new IllegalStateException("extra value overrides existing value: " + value.name);
+            }
             if (old.doc != null && value.doc == null) {
                 value = value.withDoc(old.doc);
             }
             if (!old.value.isEmpty() && value.value.isEmpty()) {
                 value = value.withValue(old.value);
             }
+        } else {
+            if (!value.extra) {
+                throw new IllegalStateException("extra value expected: " + value.name);
+            }
         }
         values.put(value.name, value);
+    }
+
+    public void add(ValueType valueType) {
+        values.put(valueType.name, valueType);
     }
 
     public void setValues(Map<String, String> clientValues) {
@@ -208,7 +238,8 @@ public class Clazz {
 
         result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
         for (ValueType value : values.values()) {
-            result.define(value);
+            // do not define ...
+            result.values.put(value.name, value);
         }
         return result;
     }
