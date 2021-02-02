@@ -72,7 +72,7 @@ public class Expressions {
         if (context != null) {
             throw new IllegalStateException();
         }
-        context = new HashMap<>();
+        context = new LinkedHashMap<>();
         contextClass = clazz;
         contextPrevious = previous;
         try {

@@ -2,31 +2,30 @@
 
 ### 7.0.0 (pending)
 
-* SC_HOME replaces SC_YAML for basic configuratsion
+* SC_HOME replaces SC_YAML to configure the location of configuration files
+* stages are helm releases now
+  * classes define helm values and how to set their values
+  * `sc create <stage> <class>` installs a Helm chart now, resulting in a Helm release; `sc delete <stage>` 
+    uninstalls this release; thus, the formed hard-wired Kubernetes resources representing a stage are now 
+    configurable helm charts
+  * generalized `config` command to get/set arbitrary (Helm chart) values; former properties are values
+    with a `metadata` prefix (namely `metadataNotify`, `metadataComment`, and `metadataExpire`); dumped status field `environment`
+  * renamed *environment* to *value*
+  * split "properties" in to configuration (from sc.yaml) and values (applied to individual stages)
+  * helm-like cli:
+    * create is similar to helm install: `sc create <name> <class>`
+    * other commands references stages explicitly, e.g. `sc status hellowar`
+    * dumped implicit workspaces derived from current directory because
+      * you rarely have the sources
+      * you need extra value that's better supplied with classes
+      * simplified setup because the stage indicator is gone
+    * added named workspaces to accomodate for missing implicit workspaces
+  
 * merged client and server
   * all functionality is in `sc` now; use `sc server` to start a server
   * sc.yaml now also contains server configuration
   * the big benefit is: you no longer need a running server, `sc` can now work with a local Kubernetes
   * Maven: merged all modules into one
-* stages are helm releases now
-  * `sc create` installs a Helm chart now, resulting in a Helm release; `sc delete` uninstalls this release
-  * stage configuration is stored in Helm Release values, replacing the previous config maps
-  * renamed *environment* to *value*
-  * split "properties" in to configuration (from sc.yaml) and values (applied to individual stages)
-  * generalized `config` command to get/set arbitrary (Helm chart) values; former properties are values 
-    with a `metadata` prefix (namely `metadataNotify`, `metadataComment`, and `metadataExpire`); dumped status field `environment`
-  * implementation: instead of calling Kubernetes APIs, Stool now invokes Helm to managed stage resources
-    * creating a new stage internally executes `helm install`
-    * deleting a stage internally executes `helm uninstall`
-    * store all stage configuration as helm values; the separate ConfigMap is gone
-  * helm-like cli: 
-    * create is similar to helm install: `sc create <name> <class>`
-    * other commands references stages explicitly, e.g. `sc status hellowar`
-    * dumped implicit workspaces derived from current directory because
-      * you rarely have the sources 
-      * you need extra value that's better supplied with classes
-      * simplified setup because the stage indicator is gone
-    * added named workspaces to accomodate for missing implicit workspaces
 
 * added `mode` 
 * added origin field, shown by default in `list`
@@ -89,7 +88,8 @@
 
 ### 6.0.0 (2020-10-12)
 
-Stool 6 switches from Docker hosts to Kubernetes: Stool server itself executes in Kubernetes, and it talks to Kubernetes to manage stages.
+Stool 6 switches from Docker hosts to Kubernetes: Stool server itself executes in Kubernetes, and it talks to Kubernetes 
+to manage stages.
 
 A *stage* in Stool 6 holds exactly one *app*. To deal with multiple apps in multi module projects, it provides *workspaces* to 
 create/attach multiple stages with a singlle command. 

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,6 +49,7 @@ public class ClazzTest {
         c = create("name: 'foo'\nextends: 'base'\nvalues:\n  f:\n    value: 2\n");
         assertEquals("foo", c.name);
         assertEquals(1, c.size());
+        System.out.println(c.toObject(YAML));
     }
 
     @Test
