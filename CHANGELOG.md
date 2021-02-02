@@ -2,47 +2,44 @@
 
 ### 7.0.0 (pending)
 
-* SC_HOME replaces SC_YAML to configure the location of configuration files
+* SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is not $SC_HOME/configuration.yaml
 * stages are helm releases now
-  * classes define helm values and how to set their values
-  * `sc create <stage> <class>` installs a Helm chart now, resulting in a Helm release; `sc delete <stage>` 
-    uninstalls this release; thus, the formed hard-wired Kubernetes resources representing a stage are now 
-    configurable helm charts
-  * generalized `config` command to get/set arbitrary (Helm chart) values; former properties are values
-    with a `metadata` prefix (namely `metadataNotify`, `metadataComment`, and `metadataExpire`); dumped status field `environment`
-  * renamed *environment* to *value*
-  * split "properties" in to configuration (from sc.yaml) and values (applied to individual stages)
-  * helm-like cli:
-    * create is similar to helm install: `sc create <name> <class>`
-    * other commands references stages explicitly, e.g. `sc status hellowar`
-    * dumped implicit workspaces derived from current directory because
-      * you rarely have the sources
-      * you need extra value that's better supplied with classes
-      * simplified setup because the stage indicator is gone
-    * added named workspaces to accomodate for missing implicit workspaces
-  
+  * Kubernetes resources for a stage are now defined by a Helm chart; this replaced the former hard-wired api calls
+  * introduced classes to define values for helm charts
+    * define values with built-in scripts, e.g. to fetch vault secrets or generate credentials
+    * provide inheritance to re-use common definitions
+    * every Stool setup has a `mode` to select different value for different environments
+    * use freemarker for macros
+  * `sc create <stage> <class>` installs a Helm chart with the values as defined by the class, resulting in a Helm release;
+    note that the stage is readily started, the separate `start` command is gone
+  * `sc delete <stage>` uninstalls this release; not that the stage is autoamtically stopped, the separate `stop` command is gone
+  * the former "properties" that configure a stage are called "values", adjust them with the `config` command;
+    former properties are values with a `metadata` prefix (namely `metadataNotify`, `metadataComment`, and `metadataExpire`)
+    
+* helm-like cli:
+  * create is similar to helm install: `sc create <name> <class>`
+  * stage commands now take an explicit stage argument, e.g. `sc status hellowar`
+    * the former implicit workspace has been replaced by names workspace referenced with '@' name
+  * dumped implicit workspaces derived from current directory because
+    * you rarely have the sources
+    * you need extra value that's better supplied with classes
+    * simplified setup because the stage indicator is gone
+
 * merged client and server
-  * all functionality is in `sc` now; use `sc server` to start a server
-  * sc.yaml now also contains server configuration
+  * all functionality is in `sc` now; use `sc server` to start a server; adjusted image accordingly
   * the big benefit is: you no longer need a running server, `sc` can now work with a local Kubernetes
+  * sc.yaml/configuration.yaml now also contains server configuration
   * Maven: merged all modules into one
 
-* added `mode` 
 * added origin field, shown by default in `list`
 * dumped jmxmp/5555 knowledge in stool  
 * image handling changes
   * dumped `sc build`, configure an image build in your Maven build instead
-  * created a separate `maven-dockerbuild-plugin` that contains the formder `sc build` functionality
-  * stool no longer wipes stages
+  * created a separate `maven-dockerbuild-plugin` with the former `sc build` functionality
+  * stool no longer wipes images
   * dumped registryPrefix from the configuration
-* explicit stage arguments
-  * stage commands now take an explicit stage argument
-  * the former implicit workspace has been replaced by explicit workspace referenced with '@' name
-  * rational: more helm-like commands; and the use case to create stages from source becomes less commond, 
-    it more often without sources
 * dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
-* changed `images` command to display generic values only  
 * commands
   * `history`: dumped `-max` and `-details` options
   * `status`, `list`:  
@@ -70,13 +67,13 @@
   * dumped separate `start`/`stop` commands; the stopped status is gone;
     instead of stopping a stage, you can now set replicas to 0 (if suppored by the underlying Helm chart)
   * changed `restart` to `publish`
+  * changed `images` command, it takes a repository argument instead of a stage now, and it displays generic labels only
 * dumped config.environment -- publish automatically preserves previous configuration
-* dumped disk quota handling; I might use Kubernetes euphemeral quotas later
+* dumped disk quota handling; I might use Kubernetes ephemeral quotas later
 * dumped memory quota handling, Kubernetes is responsible for that
-* log validation report
+* log validation report result
 * readiness probe for stool server
 * no longer use application files, use springboot instead  
-* freemarker to define values 
 * dependency updates
   * sushi 3.2.2 to 3.3.0
   * fabric8 kubernetes client 4.10.2 to 5.0.0  
