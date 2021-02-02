@@ -56,7 +56,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -319,7 +319,7 @@ public class ApiController {
         Enumeration<String> parameters;
         String parameter;
 
-        result = new HashMap<>();
+        result = new LinkedHashMap<>();
         parameters = request.getParameterNames();
         while (parameters.hasMoreElements()) {
             parameter = parameters.nextElement();

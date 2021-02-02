@@ -173,8 +173,8 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            result = new HashMap<>();
-            changes = new HashMap<>();
+            result = new LinkedHashMap<>();
+            changes = new LinkedHashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 value = stage.value(entry.getKey());
                 if (value.isPrivate()) {

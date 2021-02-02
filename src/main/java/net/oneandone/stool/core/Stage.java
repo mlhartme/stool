@@ -112,7 +112,7 @@ public class Stage {
         raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), WITHOUT_CLASS);
         raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
         check(raw, Type.MANDATORY);
-        result = new HashMap<>();
+        result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
             result.put(key, new Value(entry.getKey(), clazz.get(key), entry.getValue().toString()));
@@ -361,7 +361,7 @@ public class Stage {
     public void setValues(Caller caller, Engine engine, Map<String, String> changes) throws IOException {
         Map<String, String> map;
 
-        map = new HashMap<>();
+        map = new LinkedHashMap<>();
         for (Map.Entry<String, Value> entry : values.entrySet()) {
             map.put(entry.getKey(), entry.getValue().get());
         }
