@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/** sort-lived, created per request/cli invocation */
+/** short-lived, created per request/cli invocation */
 public abstract class Client {
     private final String context;
     protected final Caller caller;
