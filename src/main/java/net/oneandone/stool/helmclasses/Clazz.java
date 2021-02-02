@@ -193,6 +193,10 @@ public class Clazz {
         }
     }
 
+    public int size() {
+        return values.size();
+    }
+
     public ValueType get(String value) {
         ValueType result;
 
