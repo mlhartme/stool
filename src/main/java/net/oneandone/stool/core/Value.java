@@ -19,26 +19,20 @@ import net.oneandone.stool.helmclasses.Field;
 
 /** Element of a class; to can get and set values. */
 public class Value {
-    private final String name;
-    public final Field type;
+    public final Field field;
     private final String value;
 
-    public Value(String name, Field type, String value) {
-        this.name = name;
-        this.type = type;
+    public Value(Field field, String value) {
+        this.field = field;
         this.value = value;
     }
 
-    public boolean isPrivate() {
-        return type.privt;
-    }
-
     public String name() {
-        return name;
+        return field.name;
     }
 
     public Value withNewValue(String str) {
-        return new Value(name, type, str.replace("{}", value));
+        return new Value(field, str.replace("{}", value));
     }
 
     public String get() {
@@ -46,6 +40,6 @@ public class Value {
     }
 
     public String toString() {
-        return name + ": " + get();
+        return name() + ": " + get();
     }
 }

@@ -90,10 +90,10 @@ public class LocalClient extends Client {
                         s.put(property.name(), property.getAsJson(json, engine));
                     }
                 }
-                // add values explictly selected
+                // add values explicitly selected
                 for (Value value : stage.values()) {
                     if (!select.isEmpty() && remaining.remove(value.name())) {
-                        if (!value.isPrivate()) {
+                        if (!value.field.privt) {
                             s.put(value.name(), new TextNode(value.get()));
                         }
                     }
@@ -156,8 +156,8 @@ public class LocalClient extends Client {
         try (Engine engine = engine()) {
             stage = configuration.load(engine, stageName);
             for (Value value : stage.values()) {
-                if (!value.isPrivate()) {
-                    result.put(value.name(), new Pair(value.get(), value.type.doc));
+                if (!value.field.privt) {
+                    result.put(value.name(), new Pair(value.get(), value.field.doc));
                 }
             }
             return result;
@@ -177,7 +177,7 @@ public class LocalClient extends Client {
             changes = new LinkedHashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 value = stage.value(entry.getKey());
-                if (value.isPrivate()) {
+                if (value.field.privt) {
                     throw new ArgumentException("cannot set private value: " + value.name());
                 }
                 value = value.withNewValue(entry.getValue());

@@ -115,7 +115,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
-            result.put(key, new Value(entry.getKey(), clazz.get(key), entry.getValue().toString()));
+            result.put(key, new Value(clazz.get(key), entry.getValue().toString()));
         }
         return result;
     }
