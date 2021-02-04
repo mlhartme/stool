@@ -92,9 +92,9 @@ public class LocalClient extends Client {
                 }
                 // add values explicitly selected
                 for (Value value : stage.values()) {
-                    if (!select.isEmpty() && remaining.remove(value.name())) {
+                    if (!select.isEmpty() && remaining.remove(value.field.name)) {
                         if (!value.field.privt) {
-                            s.put(value.name(), new TextNode(value.get()));
+                            s.put(value.field.name, new TextNode(value.get()));
                         }
                     }
                 }
@@ -157,7 +157,7 @@ public class LocalClient extends Client {
             stage = configuration.load(engine, stageName);
             for (Value value : stage.values()) {
                 if (!value.field.privt) {
-                    result.put(value.name(), new Pair(value.get(), value.field.doc));
+                    result.put(value.field.name, new Pair(value.get(), value.field.doc));
                 }
             }
             return result;
@@ -178,11 +178,11 @@ public class LocalClient extends Client {
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 value = stage.value(entry.getKey());
                 if (value.field.privt) {
-                    throw new ArgumentException("cannot set private value: " + value.name());
+                    throw new ArgumentException("cannot set private value: " + value.field.name);
                 }
                 value = value.withNewValue(entry.getValue());
                 changes.put(entry.getKey(), value.get());
-                result.put(value.name(), value.get());
+                result.put(value.field.name, value.get());
             }
             stage.setValues(caller, engine, changes);
             return result;

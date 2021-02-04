@@ -17,18 +17,13 @@ package net.oneandone.stool.core;
 
 import net.oneandone.stool.helmclasses.Field;
 
-/** Element of a class; to can get and set values. */
 public class Value {
     public final Field field;
-    private final String value;
+    public final String value;
 
     public Value(Field field, String value) {
         this.field = field;
         this.value = value;
-    }
-
-    public String name() {
-        return field.name;
     }
 
     public Value withNewValue(String str) {
@@ -40,6 +35,6 @@ public class Value {
     }
 
     public String toString() {
-        return name() + ": " + get();
+        return field.name + ": " + get();
     }
 }

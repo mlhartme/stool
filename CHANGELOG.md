@@ -12,10 +12,10 @@
   * `sc create <stage> <class>` installs a Helm chart with the values as defined by the class, resulting in a Helm release
   * `sc delete <stage>` uninstalls this release
   * `start` and `stop` commands are gone, create results in a running stage, and delete stops the stage first
-  * terminology: swapped meaning of fields and properties:
+  * terminology: swapped the meaning of *field* and *property*:
     * properties are now the read-only part of the stage status
     * fields are now the configurable part of a stage, namely `metadataNotify`, `metadataComment`, and `metadataExpire`,
-      and whatever else the helm chart defines; fields have a name and value and correspond to helm chart values; 
+      and whatever else the helm chart defines; fields have a name and define how to compute (helm chart) values; 
       inspect or change fields with `sc config`.
 
 * helm-like cli:
