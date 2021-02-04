@@ -114,8 +114,8 @@ public class Main {
               cli.add(ShellInc.class, "shell-inc");
               cli.add(Images.class, "images image");
               cli.add(Create.class, "create -optional -wait stage class values*");
-              cli.add(Attach.class, "attach stage workspace");
               cli.base(StageCommand.class, "-fail { setFail(fail) }");
+                cli.add(Attach.class, "attach stage workspace");
                 cli.add(Detach.class, "detach stage workspace");
                 cli.add(Config.class, "config stage value* { value*(value) }");
                 cli.add(History.class, "history stage");

@@ -20,44 +20,25 @@ import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.cli.Workspace;
 
 import java.io.IOException;
-import java.util.List;
 
-public class Attach extends ClientCommand {
+public class Attach extends IteratedStageCommand {
     private final String workspaceName;
-    private final String stage;
 
     public Attach(Globals globals, String stage, String workspace) {
-        super(globals);
-        this.stage = stage;
+        super(globals, stage);
         this.workspaceName = workspace;
     }
 
     @Override
-    public void run() throws IOException {
+    public void doMain(Reference reference) throws Exception {
         Workspace workspace;
-        Reference reference;
 
         workspace = globals.workspaceLoadOrCreate(workspaceName);
-        reference = resolve(stage);
         try {
             workspace.add(reference);
         } catch (IOException e) {
             throw new IOException("failed to attach stage: " + e.getMessage(), e);
         }
         workspace.save();
-    }
-
-    protected Reference resolve(String name) throws IOException {
-        List<Reference> found;
-
-        found = globals.configuration().list(name, globals.caller());
-        switch (found.size()) {
-            case 0:
-                throw new IOException("no such stage: " + name);
-            case 1:
-                return found.get(0);
-            default:
-                throw new IOException("stage ambiguous: " + name);
-        }
     }
 }
