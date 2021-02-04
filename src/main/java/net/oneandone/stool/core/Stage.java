@@ -111,7 +111,7 @@ public class Stage {
 
         raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), WITHOUT_CLASS);
         raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
-        check(raw, Type.MANDATORY);
+        check(raw, Dependencies.MANDATORY);
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
@@ -196,11 +196,11 @@ public class Stage {
     //-- important values
 
     public Expire getMetadataExpire() {
-        return Expire.fromHuman(values.get(Type.VALUE_EXPIRE).get());
+        return Expire.fromHuman(values.get(Dependencies.VALUE_EXPIRE).get());
     }
 
     public List<String> getMetadataNotify() {
-        return Separator.COMMA.split(values.get(Type.VALUE_CONTACT).get());
+        return Separator.COMMA.split(values.get(Dependencies.VALUE_CONTACT).get());
     }
 
     //--
@@ -233,7 +233,7 @@ public class Stage {
         properties.add(new Property("available") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return engine.deploymentProbe(Type.deploymentName(name)).statusAvailable;
+                return engine.deploymentProbe(Dependencies.deploymentName(name)).statusAvailable;
             }
         });
         properties.add(new Property("last-deployed") {
@@ -308,7 +308,7 @@ public class Stage {
         if (running.isEmpty()) {
             return null;
         }
-        return engine.statsOpt(running.iterator().next() /* TODO */.name, Type.MAIN_CONTAINER);
+        return engine.statsOpt(running.iterator().next() /* TODO */.name, Dependencies.MAIN_CONTAINER);
     }
 
     /** @return logins */
@@ -382,7 +382,7 @@ public class Stage {
     }
 
     public void awaitAvailable(Engine engine) throws IOException {
-        engine.deploymentAwaitAvailable(Type.deploymentName(name));
+        engine.deploymentAwaitAvailable(Dependencies.deploymentName(name));
     }
 
     //--
@@ -475,7 +475,7 @@ public class Stage {
     //--
 
     public Map<String, PodInfo> runningPods(Engine engine) throws IOException {
-        return engine.podList(engine.deploymentProbe(Type.deploymentName(name)).selector);
+        return engine.podList(engine.deploymentProbe(Dependencies.deploymentName(name)).selector);
     }
 
     /** @return null if unknown */

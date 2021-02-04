@@ -18,7 +18,7 @@ package net.oneandone.stool.core;
 /**
  * Things that Stool assumes about helm charts.
  */
-public final class Type {
+public final class Dependencies {
     public static final String VALUE_REPLICAS = "replicas";
 
     public static final String VALUE_CONTACT = "metadataContact";
@@ -37,7 +37,7 @@ public final class Type {
         return name.replace(".", "--");
     }
 
-    private Type() {
+    private Dependencies() {
     }
 
 }

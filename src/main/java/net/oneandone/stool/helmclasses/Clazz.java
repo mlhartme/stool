@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
-import net.oneandone.stool.core.Type;
+import net.oneandone.stool.core.Dependencies;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -254,11 +254,11 @@ public class Clazz {
         dest.set(HELM_CLASS, toObject(configuration.yaml));
 
         // normalize expire
-        expire = Expire.fromHuman(Json.string(dest, Type.VALUE_EXPIRE, Expire.fromNumber(configuration.defaultExpire).toString()));
+        expire = Expire.fromHuman(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(configuration.defaultExpire).toString()));
         if (expire.isExpired()) {
             throw new ArgumentException("stage expired: " + expire);
         }
-        dest.put(Type.VALUE_EXPIRE, expire.toString());
+        dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
 
         file = configuration.world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;

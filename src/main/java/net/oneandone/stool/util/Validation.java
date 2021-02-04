@@ -18,7 +18,7 @@ package net.oneandone.stool.util;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.core.Type;
+import net.oneandone.stool.core.Dependencies;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserManager;
@@ -75,7 +75,7 @@ public class Validation {
         }
         if (repair) {
             try {
-                stage.setValues(caller, engine, Strings.toMap(Type.VALUE_REPLICAS, "0"));
+                stage.setValues(caller, engine, Strings.toMap(Dependencies.VALUE_REPLICAS, "0"));
                 report.add("replicas set to 0");
             } catch (Exception e) {
                 report.add("replicas change failed: " + e.getMessage());
