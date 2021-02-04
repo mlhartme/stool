@@ -15,15 +15,15 @@
  */
 package net.oneandone.stool.core;
 
-import net.oneandone.stool.helmclasses.ValueType;
+import net.oneandone.stool.helmclasses.Field;
 
-/** A stored value representing one aspect of the stage status. */
+/** Element of a class; to can get and set values. */
 public class Value {
     private final String name;
-    public final ValueType type;
+    public final Field type;
     private final String value;
 
-    public Value(String name, ValueType type, String value) {
+    public Value(String name, Field type, String value) {
         this.name = name;
         this.type = type;
         this.value = value;

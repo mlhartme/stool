@@ -22,9 +22,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.stool.util.Json;
 
-/** Immutable */
-public class ValueType {
-    public static ValueType forYaml(String modeOpt, String name, JsonNode yaml) {
+/** Immutable building block of a class, defines how to compute values. */
+public class Field {
+    public static Field forYaml(String modeOpt, String name, JsonNode yaml) {
         boolean abstrct;
         boolean privt;
         boolean extra;
@@ -46,7 +46,7 @@ public class ValueType {
         } else {
             value = yaml.asText();
         }
-        return new ValueType(name, abstrct, privt, extra, doc, value);
+        return new Field(name, abstrct, privt, extra, doc, value);
     }
 
     private static String getValue(ObjectNode obj, String modeOpt) {
@@ -63,10 +63,10 @@ public class ValueType {
     public final String doc;
     public final String value;
 
-    public ValueType(String name, String value) {
+    public Field(String name, String value) {
         this(name, false, false, false, null, value);
     }
-    public ValueType(String name, boolean abstrct, boolean privt, boolean extra, String doc, String value) {
+    public Field(String name, boolean abstrct, boolean privt, boolean extra, String doc, String value) {
         this.name = name;
         this.abstrct = abstrct;
         this.privt = privt;
@@ -75,12 +75,12 @@ public class ValueType {
         this.value = value;
     }
 
-    public ValueType withValue(String withValue) {
-        return new ValueType(name, abstrct, privt, extra, doc, withValue);
+    public Field withValue(String withValue) {
+        return new Field(name, abstrct, privt, extra, doc, withValue);
     }
 
-    public ValueType withDoc(String withDoc) {
-        return new ValueType(name, abstrct, privt, extra, withDoc, value);
+    public Field withDoc(String withDoc) {
+        return new Field(name, abstrct, privt, extra, withDoc, value);
     }
 
     public JsonNode toObject(ObjectMapper yaml) {

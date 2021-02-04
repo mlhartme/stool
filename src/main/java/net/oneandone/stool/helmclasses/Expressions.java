@@ -76,10 +76,10 @@ public class Expressions {
         contextClass = clazz;
         contextPrevious = previous;
         try {
-            for (ValueType type : clazz.values.values()) {
+            for (Field type : clazz.values.values()) {
                 context.put(type.name, type);
             }
-            for (ValueType type : clazz.values.values()) {
+            for (Field type : clazz.values.values()) {
                 evalValue(type.name);
             }
             result = new LinkedHashMap<>();
@@ -108,10 +108,10 @@ public class Expressions {
         if (obj instanceof String) {
             return (String) obj;
         }
-        if (obj instanceof ValueType) {
+        if (obj instanceof Field) {
             context.put(name, null);
             try {
-                result = eval(((ValueType) obj).value);
+                result = eval(((Field) obj).value);
             } catch (IOException e) {
                 throw new ArgumentException("failed to compute value: " + name, e);
             }

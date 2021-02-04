@@ -90,7 +90,7 @@ public class Clazz {
 
         result = new Clazz("synthetic", null, name, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
-            result.defineBase(new ValueType(nameValues[i], nameValues[i + 1]));
+            result.defineBase(new Field(nameValues[i], nameValues[i + 1]));
         }
         return result;
     }
@@ -104,7 +104,7 @@ public class Clazz {
     public final String name;
     public final String chart;
     public final String chartVersion;
-    public final Map<String, ValueType> values;
+    public final Map<String, Field> values;
 
     private Clazz(String origin, String author, String name, String chart, String chartVersion) {
         this.origin = origin;
@@ -120,10 +120,10 @@ public class Clazz {
 
         while (iter.hasNext()) {
             entry = iter.next();
-            defineBase(ValueType.forYaml(null, entry.getKey(), entry.getValue()));
+            defineBase(Field.forYaml(null, entry.getKey(), entry.getValue()));
         }
     }
-    public void defineBase(ValueType value) {
+    public void defineBase(Field value) {
         if (values.put(value.name, value) != null) {
             throw new IllegalStateException(value.name);
         }
@@ -136,12 +136,12 @@ public class Clazz {
         while (iter.hasNext()) {
             entry = iter.next();
             key = entry.getKey();
-            define(ValueType.forYaml(mode, key, entry.getValue()));
+            define(Field.forYaml(mode, key, entry.getValue()));
         }
     }
 
-    public void define(ValueType value) {
-        ValueType old;
+    public void define(Field value) {
+        Field old;
 
         old = values.get(value.name);
         if (old != null) {
@@ -167,7 +167,7 @@ public class Clazz {
 
     public void setValues(Map<String, String> clientValues) {
         String key;
-        ValueType old;
+        Field old;
 
         for (Map.Entry<String, String> entry : clientValues.entrySet()) {
             key = entry.getKey();
@@ -175,7 +175,7 @@ public class Clazz {
             if (old == null) {
                 throw new ArgumentException("unknown value: " + key);
             }
-            values.put(key, new ValueType(key, false, old.privt, false, old.doc, entry.getValue()));
+            values.put(key, new Field(key, false, old.privt, false, old.doc, entry.getValue()));
         }
     }
 
@@ -183,7 +183,7 @@ public class Clazz {
         List<String> names;
 
         names = new ArrayList<>();
-        for (ValueType value : values.values()) {
+        for (Field value : values.values()) {
             if (value.abstrct) {
                 names.add(value.name);
             }
@@ -197,8 +197,8 @@ public class Clazz {
         return values.size();
     }
 
-    public ValueType get(String value) {
-        ValueType result;
+    public Field get(String value) {
+        Field result;
 
         result = values.get(value);
         if (result == null) {
@@ -221,7 +221,7 @@ public class Clazz {
         node.set("chartVersion", new TextNode(chartVersion));
         v = yaml.createObjectNode();
         node.set("values", v);
-        for (ValueType value : values.values()) {
+        for (Field value : values.values()) {
             if (value == null) {
                 // ignore
             } else {
@@ -235,7 +235,7 @@ public class Clazz {
         Clazz result;
 
         result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
-        for (ValueType value : values.values()) {
+        for (Field value : values.values()) {
             result.defineBase(value);
         }
         return result;
