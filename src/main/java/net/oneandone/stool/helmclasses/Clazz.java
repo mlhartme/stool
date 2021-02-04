@@ -104,7 +104,7 @@ public class Clazz {
     public final String name;
     public final String chart;
     public final String chartVersion;
-    public final Map<String, Field> values;
+    public final Map<String, Field> fields;
 
     private Clazz(String origin, String author, String name, String chart, String chartVersion) {
         this.origin = origin;
@@ -112,7 +112,7 @@ public class Clazz {
         this.name = name;
         this.chart = chart;
         this.chartVersion = chartVersion;
-        this.values = new LinkedHashMap<>();
+        this.fields = new LinkedHashMap<>();
     }
 
     public void defineBaseAll(Iterator<Map.Entry<String, JsonNode>> iter) {
@@ -124,7 +124,7 @@ public class Clazz {
         }
     }
     public void defineBase(Field value) {
-        if (values.put(value.name, value) != null) {
+        if (fields.put(value.name, value) != null) {
             throw new IllegalStateException(value.name);
         }
     }
@@ -143,10 +143,10 @@ public class Clazz {
     public void define(Field value) {
         Field old;
 
-        old = values.get(value.name);
+        old = fields.get(value.name);
         if (old != null) {
             if (old.privt) {
-                throw new IllegalStateException("you cannot override private values: " + value.name);
+                throw new IllegalStateException("you cannot override private field: " + value.name);
             }
             if (value.extra) {
                 throw new IllegalStateException("extra value overrides existing value: " + value.name);
@@ -162,7 +162,7 @@ public class Clazz {
                 throw new IllegalStateException("extra value expected: " + value.name);
             }
         }
-        values.put(value.name, value);
+        fields.put(value.name, value);
     }
 
     public void setValues(Map<String, String> clientValues) {
@@ -171,11 +171,11 @@ public class Clazz {
 
         for (Map.Entry<String, String> entry : clientValues.entrySet()) {
             key = entry.getKey();
-            old = values.get(key);
+            old = fields.get(key);
             if (old == null) {
                 throw new ArgumentException("unknown value: " + key);
             }
-            values.put(key, new Field(key, false, old.privt, false, old.doc, entry.getValue()));
+            fields.put(key, new Field(key, false, old.privt, false, old.doc, entry.getValue()));
         }
     }
 
@@ -183,7 +183,7 @@ public class Clazz {
         List<String> names;
 
         names = new ArrayList<>();
-        for (Field value : values.values()) {
+        for (Field value : fields.values()) {
             if (value.abstrct) {
                 names.add(value.name);
             }
@@ -194,13 +194,13 @@ public class Clazz {
     }
 
     public int size() {
-        return values.size();
+        return fields.size();
     }
 
     public Field get(String value) {
         Field result;
 
-        result = values.get(value);
+        result = fields.get(value);
         if (result == null) {
             throw new IllegalStateException(value);
         }
@@ -221,7 +221,7 @@ public class Clazz {
         node.set("chartVersion", new TextNode(chartVersion));
         v = yaml.createObjectNode();
         node.set("values", v);
-        for (Field value : values.values()) {
+        for (Field value : fields.values()) {
             if (value == null) {
                 // ignore
             } else {
@@ -235,7 +235,7 @@ public class Clazz {
         Clazz result;
 
         result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
-        for (Field value : values.values()) {
+        for (Field value : fields.values()) {
             result.defineBase(value);
         }
         return result;

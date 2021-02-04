@@ -102,8 +102,8 @@ public class ClazzTest {
         all = ClassRef.loadAll(null, YAML, WORLD.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
         assertEquals(2, all.size());
         a = all.get("derived");
-        assertEquals("42", a.values.get("asis").value);
-        assertEquals("modified", a.values.get("base").value);
-        assertEquals("3", a.values.get("added").value);
+        assertEquals("42", a.fields.get("asis").value);
+        assertEquals("modified", a.fields.get("base").value);
+        assertEquals("3", a.fields.get("added").value);
     }
 }

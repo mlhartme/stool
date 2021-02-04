@@ -76,11 +76,11 @@ public class Expressions {
         contextClass = clazz;
         contextPrevious = previous;
         try {
-            for (Field type : clazz.values.values()) {
-                context.put(type.name, type);
+            for (Field field : clazz.fields.values()) {
+                context.put(field.name, field);
             }
-            for (Field type : clazz.values.values()) {
-                evalValue(type.name);
+            for (Field field : clazz.fields.values()) {
+                evalValue(field.name);
             }
             result = new LinkedHashMap<>();
             for (Map.Entry<String, Object> entry : context.entrySet()) {
