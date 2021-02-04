@@ -3,46 +3,45 @@
 ### 7.0.0 (pending)
 
 * SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is not $SC_HOME/configuration.yaml
-* stages are helm releases now
+* stages are define by helm charts now
   * Kubernetes resources for a stage are now defined by a Helm chart; this replaced the former hard-wired api calls
-  * introduced classes to define values for helm charts
-    * define values with built-in scripts, e.g. to fetch vault secrets or generate credentials
-    * provide inheritance to re-use common definitions
+  * classes define values for helm charts
+    * directly with template expressions (freemarker, with built-in scripts, e.g. to fetch vault secrets or generate credentials)
+    * indirectly by extending a base class
     * every Stool setup has a `mode` to select different value for different environments
-    * use freemarker for macros
-  * `sc create <stage> <class>` installs a Helm chart with the values as defined by the class, resulting in a Helm release;
-    note that the stage is readily started, the separate `start` command is gone
-  * `sc delete <stage>` uninstalls this release; not that the stage is autoamtically stopped, the separate `stop` command is gone
-  * the former "properties" that configure a stage are called "values", adjust them with the `config` command;
-    former properties are values with a `metadata` prefix (namely `metadataNotify`, `metadataComment`, and `metadataExpire`)
-    
-* helm-like cli:
-  * create is similar to helm install: `sc create <name> <class>`
-  * stage commands now take an explicit stage argument, e.g. `sc status hellowar`
-    * the former implicit workspace has been replaced by names workspace referenced with '@' name
-  * dumped implicit workspaces derived from current directory because
-    * you rarely have the sources
-    * you need extra value that's better supplied with classes
-    * simplified setup because the stage indicator is gone
+  * `sc create <stage> <class>` installs a Helm chart with the values as defined by the class, resulting in a Helm release
+  * `sc delete <stage>` uninstalls this release
+  * `start` and `stop` commands are gone, create results in a running stage, and delete stops the stage first
+  * the former stage "properties" to configure a stage are now called "values", namely `metadataNotify`, `metadataComment`, 
+    and `metadataExpire`; the environment property is gone. Values are helm chart values, depending on you chart there are
+    arbitrary other values; inspect or change values with `sc config`.
 
+* helm-like cli:
+  * `create` command line arguments are similar to helm's install argument: `sc create <name> <class>`
+  * stage commands now take an explicit stage argument, e.g. `sc status hellowar`
+  * dumped implicit workspaces derived from current directory because
+    * use the new named workspace (referenced with '@' *name*) instead
+    * also dumped the stage indicator
+  
 * merged client and server
   * all functionality is in `sc` now; use `sc server` to start a server; adjusted image accordingly
   * the big benefit is: you no longer need a running server, `sc` can now work with a local Kubernetes
   * sc.yaml/configuration.yaml now also contains server configuration
   * Maven: merged all modules into one
 
-* added origin field, shown by default in `list`
-* dumped jmxmp/5555 knowledge in stool  
 * image handling changes
   * dumped `sc build`, configure an image build in your Maven build instead
   * created a separate `maven-dockerbuild-plugin` with the former `sc build` functionality
-  * stool no longer wipes images
+  * Stool no longer wipes images
   * dumped registryPrefix from the configuration
-* dumped jmxmp, rely on readyness probes instead; also dumped `heap` field
+
+* image/chart changes
+  * dumped jmxmp/5555, rely on readyness probes instead; also dumped `heap` field
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
-* commands
+* other command changes
   * `history`: dumped `-max` and `-details` options
   * `status`, `list`:  
+    * added origin field, shown by default in `list`
     * added `available` field
     * dumped `origin-scm` field, check `sc images` instead
     * dumped `pod` field, that's too low-level
@@ -53,20 +52,9 @@
     * dumped `images` field because it's very slow and deals to the registry, not kubernetes; 
       use `sc images` instead
     * added `class` field, but its hidden unless you invoke with `-hidden`
-  * `create`
-    * always starts the stage
-    * type is gone, @ now prefixes images
-    * paths now point to image files
-    * can now be used in an existing workspace
-    * add `-wait` option
-  * `delete`
-    * always stops the stage, the explicit -stop option is gone
   * `attach`
     * now takes a single name argument
     * can be used in an existing workspace
-  * dumped separate `start`/`stop` commands; the stopped status is gone;
-    instead of stopping a stage, you can now set replicas to 0 (if suppored by the underlying Helm chart)
-  * changed `restart` to `publish`
   * changed `images` command, it takes a repository argument instead of a stage now, and it displays generic labels only
 * dumped config.environment -- publish automatically preserves previous configuration
 * dumped disk quota handling; I might use Kubernetes ephemeral quotas later
