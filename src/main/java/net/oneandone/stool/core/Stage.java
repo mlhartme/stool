@@ -209,10 +209,10 @@ public class Stage {
         return configuration.stageLogs(name);
     }
 
-    //-- fields
+    //-- properties
 
-    public Field fieldOpt(String str) {
-        for (Field f : fields()) {
+    public Property propertyOpt(String str) {
+        for (Property f : properties()) {
             if (str.equals(f.name())) {
                 return f;
             }
@@ -220,35 +220,35 @@ public class Stage {
         return null;
     }
 
-    public List<Field> fields() {
-        List<Field> fields;
+    public List<Property> properties() {
+        List<Property> properties;
 
-        fields = new ArrayList<>();
-        fields.add(new Field("name") {
+        properties = new ArrayList<>();
+        properties.add(new Property("name") {
             @Override
             public Object get(Engine engine) {
                 return name;
             }
         });
-        fields.add(new Field("available") {
+        properties.add(new Property("available") {
             @Override
             public Object get(Engine engine) throws IOException {
                 return engine.deploymentProbe(Type.deploymentName(name)).statusAvailable;
             }
         });
-        fields.add(new Field("last-deployed") {
+        properties.add(new Property("last-deployed") {
             @Override
             public Object get(Engine engine) {
                 return info.get("last_deployed").asText();
             }
         });
-        fields.add(new Field("first-deployed") {
+        properties.add(new Property("first-deployed") {
             @Override
             public Object get(Engine engine) {
                 return info.get("first_deployed").asText();
             }
         });
-        fields.add(new Field("cpu") {
+        properties.add(new Property("cpu") {
             @Override
             public Object get(Engine engine) throws IOException {
                 Stats stats;
@@ -261,7 +261,7 @@ public class Stage {
                 }
             }
         });
-        fields.add(new Field("mem") {
+        properties.add(new Property("mem") {
             @Override
             public Object get(Engine engine) throws IOException {
                 Stats stats;
@@ -274,31 +274,31 @@ public class Stage {
                 }
             }
         });
-        fields.add(new Field("urls") {
+        properties.add(new Property("urls") {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.urlMap();
             }
         });
-        fields.add(new Field("chart") {
+        properties.add(new Property("chart") {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.clazz.chart + ":" + Stage.this.clazz.chartVersion;
             }
         });
-        fields.add(new Field("class", true) {
+        properties.add(new Property("class", true) {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.clazz.toObject(configuration.yaml).toPrettyString();
             }
         });
-        fields.add(new Field("origin", true) {
+        properties.add(new Property("origin", true) {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.clazz.origin;
             }
         });
-        return fields;
+        return properties;
     }
 
     private Stats statsOpt(Engine engine) throws IOException {
