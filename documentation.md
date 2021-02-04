@@ -206,7 +206,7 @@ The dashboard is the UI that's part of Stool server.
 
 ### sc
 
-Stool client
+Stage control
 
 #### SYNOPSIS
 
@@ -214,9 +214,10 @@ Stool client
 
 #### DESCRIPTION
 
-`sc` is a command line tool to manage stages. A stage is a web application running in a container.
-*command* defaults to `help`. Stages can be hosted on Kubernetes namespaces that run a Stool server. `sc` stands for Stool client. 
-Technically, `sc` is a rest client for Stool servers, and Stool server talks to Kubernetes to manage stages.
+`sc` is a command line tool to manage stages. A stage is a Kubernetes workload, typically a web application.
+*command* defaults to `help`. `sc` stands for stage control. 
+Technically, a stage  is a Helm release, and `sc` is a wrapper for Helm with powerful value definitions
+and some addional features like proxying and a dashboard.
 
 
 #### Commands
@@ -244,12 +245,12 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` [`-optional`][`-detached`][`-wait`] [['@'image | *path*] ...] *name* [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*object*...]
 
 
 
 
-`sc` *global-option*... `attach` *name*
+`sc` *global-option*... `attach` *name* '@' *workspace'
 
 
 `sc` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
@@ -294,8 +295,8 @@ Technically, `sc` is a rest client for Stool servers, and Stool server talks to 
 
 #### Environment
 
-`SC_OPTS` to configure arguments passed to the underlying JVM. 
-`SC_HOME` to configure Stool configration directory. Defaults to `$HOME/.sc`
+`SC_OPTS` to configure arguments `sc` passes to the underlying JVM. 
+`SC_HOME` to configure Stool configuration directory. Defaults to `$HOME/.sc`
 
 
 #### See Also
@@ -350,7 +351,7 @@ Display version info
 
 #### DESCRIPTION
 
-Prints client version and, if there's a current context, the server version.
+Prints `sc`'s version info and, if the current context is a proxy context, the server version.
 
 [//]: # (include globalOptions.md)
 
@@ -361,7 +362,7 @@ See `sc help global-options` for available [global options](#sc-global-options)
 
 ### sc-setup
 
-Setup Stool client
+Setup Stool
 
 #### SYNOPSIS
 
@@ -369,11 +370,12 @@ Setup Stool client
 
 #### DESCRIPTION
 
-Creates a fresh client configuration file or reports an error if it already exists.
-The location of the client configuration file is `${SC_HOME}/configuration.yaml`.
+Creates a fresh configuration directory or reports an error if it already exists.
+The location of the configuration directory is configurable with the `SC_HOME` environment
+variable, it defaults to `~/.sc`. The  main  configuration  file inside this  directory is
+`configuration.yaml`.
 
-Use *spec* to specify a context name and an api url to configure. If not specified, this is guessed from the
-local machine (TODO: cisotools).
+Use *spec* to set up a context name + api url. If not specified, this is guessed from the local machine (TODO: cisotools).
 
 
 ### sc-context
@@ -422,25 +424,23 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-detached`][`-wait`] [['@'image | *path*] ...] *name* [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*object*...]
 
 
 
 #### DESCRIPTION
 
-Creates stages for all specified images. You specify images either explicitly with a '@' prefixing the repositoryTag or by a path to be 
-searched for `image` files containing the image repositoryTag. It's fine to have multiple image files in one path. If neither image nor 
-path is specified, images default to the path `.`. *name* specifies the name for new stages. It must contain only lower case ascii 
-characters or digit or dashes, it's rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the 
-name. *name* may also include an underscore `_`, which will be substituted by the last segment of the image; this is required if you create
-multiple stages and the command-line can only specify a single name.
+Creates a new stage: computes all fields of *class* and its base classes, except those key-values pair specified explicitly.
+The resulting values are passed to Helm to install the chart of the class.
+
+*name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes, it's 
+rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name. 
+
+If a *workspace* is specified, the resulting stage is added to it.
 
 Specify `-wait` to wait for pods to become available before returning from this command.
 
 Reports an error if a stage already exists. Or omits stages creation if the `-optional` option is specified.
-
-New stages are configured with the specified *key*/*object* pairs. Specifying a *key*/*object* pair is equivalent to running 
-[stool config](#sc-config) with these arguments.
 
 [//]: # (include globalOptions.md)
 
@@ -450,8 +450,8 @@ See `sc help global-options` for available [global options](#sc-global-options)
 
 #### Examples
 
-Create one stage `foo` for one image file somewhere below the current directory: `sc create foo`
-Create stages for all images in a multi-module Maven Project: `sc create _.foo`
+Create one stage `foo` as defined by class `hello`: `sc create foo hello`
+
 
 ### sc-attach
 
@@ -459,11 +459,11 @@ Attach stage to a workspace
 
 #### SYNOPSIS
 
-`sc` *global-option*... `attach` *name*
+`sc` *global-option*... `attach` *name* '@' *workspace'
 
 #### DESCRIPTION
 
-Attaches the specified stage to the current workspace. Creates a new workspace if there is no current.
+Attaches the specified stage to *workspace*. Creates a new workspace if the specified one does not exist.
 
 
 [//]: # (include globalOptions.md)

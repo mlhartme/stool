@@ -120,8 +120,8 @@ public class MainIT {
         sc(home, "create", "-e", "-wait", stage, classdir.join("hellowar-first.yaml").getAbsolute());
         sc(home, "list", "%all");
         sc(home, "status", stage);
-        sc(home, "attach", "@ws", stage);
-        sc(home, "detach", "@ws", stage);
+        sc(home, "attach", stage, "@ws");
+        sc(home, "detach", stage, "@ws");
         sc(home, "validate", stage);
         sc(home, "config", stage, "metadataComment");
         sc(home, "config", stage, "metadataComment=42");

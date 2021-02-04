@@ -26,10 +26,10 @@ public class Attach extends ClientCommand {
     private final String workspaceName;
     private final String stage;
 
-    public Attach(Globals globals, String workspace, String stage) {
+    public Attach(Globals globals, String stage, String workspace) {
         super(globals);
-        this.workspaceName = workspace;
         this.stage = stage;
+        this.workspaceName = workspace;
     }
 
     @Override

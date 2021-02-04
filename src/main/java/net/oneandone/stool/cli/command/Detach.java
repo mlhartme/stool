@@ -24,7 +24,7 @@ import java.io.IOException;
 public class Detach extends IteratedStageCommand {
     private final String workspaceName;
 
-    public Detach(Globals globals, String workspace, String stage) {
+    public Detach(Globals globals, String stage, String workspace) {
         super(globals, stage);
         this.workspaceName = workspace;
     }
