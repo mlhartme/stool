@@ -453,25 +453,6 @@ See `sc help global-options` for available [global options](#sc-global-options)
 Create one stage `foo` as defined by class `hello`: `sc create foo hello`
 
 
-### sc-attach
-
-Attach stage to a workspace
-
-#### SYNOPSIS
-
-`sc` *global-option*... `attach` *name* '@' *workspace'
-
-#### DESCRIPTION
-
-Attaches the specified stage to *workspace*. Creates a new workspace if the specified one does not exist.
-
-
-[//]: # (include globalOptions.md)
-
-See `sc help global-options` for available [global options](#sc-global-options)
-
-[//]: # (-)
-
 
 ## Stage Commands
 
@@ -484,17 +465,16 @@ Options available for all stage commands
 
 #### SYNOPSIS
 
-`sc` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
+`sc` *global-option*... *stage-command* (*predicate* | '%all' | '@' *workspace*) [`-fail` *mode*] *command-options*...
 
 
-#### Selection options
+#### Stage selection
 
-By default, stage commands operate on the attached stage (as shown in the stage indicator). You can change this by specifying one of the
-following selection option:
+Stage commands operate on the stage(s) selected by the first argument:
 
-`-all` operates on all stages in the current context
+`%all` operates on all stages in the current context
 
-`-stage` *predicate* operates on all matching stages in the current context. The syntax for predicates is as follows:
+*predicate* operates on all matching stages in the current context. The syntax for predicates is as follows:
 
               or = and {',' and}
               and = expr {'+' expr}
@@ -537,19 +517,37 @@ after the first stage that cannot be started (e.g. because it's already running)
 `sc stop -stage up=true` stops all stages currently up, but aborts immediately if one stage fails to stop.
 
 
+### sc-attach
+
+Attach stage to a workspace
+
+#### SYNOPSIS
+
+`sc` *global-option*... `attach` *stage-option*... *stage* '@' *workspace'
+
+#### DESCRIPTION
+
+Attaches the specified stage to *workspace*. Creates a new workspace if the specified one does not exist.
+
+
+[//]: # (include stageOptions.md)
+
+Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
+Use `sc help global-options` for available [global options](#sc-global-options)
+
+[//]: # (-)
+
 ### sc-detach
 
 Detach a stage from a workspace
 
 #### SYNOPSIS
 
-`sc` *global-option*... `detach` *stage-option*... 
+`sc` *global-option*... `detach` *stage-option*... *stage* '@' *workspace'
 
 #### DESCRIPTION
 
-Removes stages from the current workspace without modifying the stage itself. Technically, `detach` simplify removes app- to stage mappings 
-from`.backstage/workspace.yaml` file.
-
+Removes stages from *workspace* without modifying the stage itself. Removes the workspace if it becomes empty.
 
 [//]: # (include stageOptions.md)
 
