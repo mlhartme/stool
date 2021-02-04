@@ -70,7 +70,7 @@ public class Clazz {
             throw new IOException("class not found: " + extendz);
         }
         derived = base.derive(origin, author, name);
-        derived.defineAll(mode, clazz.get("values").fields());
+        derived.defineAll(mode, clazz.get("fields").fields());
         return derived;
     }
 
@@ -81,7 +81,7 @@ public class Clazz {
         name = Json.string(clazz, "name");
         result = new Clazz(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name, Json.string(clazz, "chart"),
                 Json.string(clazz, "chartVersion"));
-        result.defineBaseAll(clazz.get("values").fields());
+        result.defineBaseAll(clazz.get("fields").fields());
         return result;
     }
 
@@ -209,7 +209,7 @@ public class Clazz {
 
     public ObjectNode toObject(ObjectMapper yaml) {
         ObjectNode node;
-        ObjectNode v;
+        ObjectNode f;
 
         node = yaml.createObjectNode();
         node.set("origin", new TextNode(origin)); // TODO: saved only, not loaded
@@ -219,14 +219,10 @@ public class Clazz {
         node.set("name", new TextNode(name));
         node.set("chart", new TextNode(chart));
         node.set("chartVersion", new TextNode(chartVersion));
-        v = yaml.createObjectNode();
-        node.set("values", v);
-        for (Field value : fields.values()) {
-            if (value == null) {
-                // ignore
-            } else {
-                v.set(value.name, value.toObject(yaml));
-            }
+        f = yaml.createObjectNode();
+        node.set("fields", f);
+        for (Field field : fields.values()) {
+            f.set(field.name, field.toObject(yaml));
         }
         return node;
     }
@@ -235,8 +231,8 @@ public class Clazz {
         Clazz result;
 
         result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
-        for (Field value : fields.values()) {
-            result.defineBase(value);
+        for (Field field : fields.values()) {
+            result.defineBase(field);
         }
         return result;
     }

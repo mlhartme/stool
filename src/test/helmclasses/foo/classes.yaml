@@ -1,5 +1,5 @@
 - name: derived
   extends: foo
-  values:
+  fields:
     base: modified
     added: 3
