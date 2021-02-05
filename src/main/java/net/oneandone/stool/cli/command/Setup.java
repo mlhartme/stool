@@ -24,7 +24,6 @@ import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 
@@ -38,17 +37,17 @@ public class Setup {
 
     private final World world;
     private final FileNode home;
-    private final String charts;
+    private final String classpath;
     private final String lib;
     private final String registryCredentials;
     private final Console console;
     private final String version;
     private final String spec;
 
-    public Setup(Globals globals, String charts, String lib, String registryCredentials, String spec) {
+    public Setup(Globals globals, String classpath, String lib, String registryCredentials, String spec) {
         this.world = globals.getWorld();
         this.home = globals.home();
-        this.charts = charts;
+        this.classpath = classpath;
         this.lib = lib;
         this.registryCredentials = registryCredentials;
         this.console = globals.getConsole();
@@ -101,9 +100,9 @@ public class Setup {
         String url;
 
         result = initialConfiguration();
-        if (charts != null) {
-            result.chartReferences.clear();
-            result.chartReferences.addAll(Separator.COMMA.split(charts));
+        if (classpath != null) {
+            result.classpath.clear();
+            result.classpath.addAll(Configuration.COLON.split(classpath));
         }
         if (spec != null) {
             idx = spec.indexOf('=');

@@ -2,14 +2,15 @@
 
 ## Introduction
 
-Stool is a tool to manage stages: create, build, start, stop, delete. A stage is a Web application packaged a container running in Kubernetes.
-Technically, Stool is a simple Helm frontend that simplifies value handling.
+Stool is a tool to manage stages - create, publish, configure, delete. A stage is a Kubernetes workload, typically a web application.
+Technically, a stage is a Helm release, and Stool is a Helm wrapper that adds powerful value management and features 
+like proxying and a dashboard.
 
 ### Quick Tour
 
-Here's an example what you can do with Stool. 
+Here's an example what you can do with Stool. TODO: assumes hello-world class
 
-You generally invoke Stool from the command-line with `sc` followed by a Stool command and arguments for the respective command. 
+You generally invoke Stool from the command-line with `sc` followed by a command and specific arguments. 
 
 Open a terminal and run 
 
@@ -18,7 +19,7 @@ Open a terminal and run
 to see available contexts, i.e. places where you can host stages. Notes:
 *  if you get an `command not found: sc` error message: Stool is not installed on your machine. 
    Please refer to the install section below. 
-*  if you get an `client configuration not found` error message: Stool is properly installed on your machine,
+*  if you get an `configuration not found` error message: Stool is properly installed on your machine,
    but it's not yet set-up (i.e. configured). Please run `sc setup` and follow the instructions.
 
 Choose one of the available contexts by running
@@ -27,51 +28,33 @@ Choose one of the available contexts by running
     
 Depending on your context you'll be asked to authenticate.
 
-Enter a source directory with a readily built Web application of yours (i.e. `cd` into the directory) - or get a sample application with
-
-    git clone ssh://git@github.com/mlhartme/hellowar.git
-    cd hellowar
-    mvn clean package
-    
 Create a new stage with
 
-    sc create hello
+    sc create mystage hello
 
-and build an image with
-
-    sc build   TODO: that's changed ...
-    
-Start it:
-
-    sc start
-
-To see the running application, point your browser to the url printed by the `start` command.
+To see the running application, point your browser to the url printed by the `create` command.
 
 You can run
 
-    sc status
+    sc status mystage
 
 to see if your stage is running and to see the stage urls.
 
-To delete the stage, stop it with
+Use
 
-    sc stop
+    sc history mystage
 
-and wipe it with
+to see the Stool commands executed for this stage.
 
-    sc delete
+To delete the stage, wipe it with
+
+    sc delete mystage
 
 You can create an arbitrary number of stages. Invoke
 
     sc list
 
 to see what you have created and not yet deleted. 
-
-Use 
-
-    sc history
-    
-to see the Stool commands executed for the current stage.
 
 You can get help with
 
@@ -98,9 +81,8 @@ prints help about `create`.
 
 ### Stool
 
-This term is overloaded, depending on the context it may refer to the command line client `sc`, the server application running in Kubernetes, 
+This term is overloaded, depending on the context it may refer to the command line client `sc`, `sc server` in Kubernetes, 
 or the whole Github project. 
-
 
 ### Context
 
@@ -113,9 +95,9 @@ Advanced note: The concept of a context is similar to `kubectl`s context.
 
 ### Stage
 
-A *stage* is a running web application, for example a Tomcat servlet container (http://tomcat.apache.org) with a Java web application
-(https://en.wikipedia.org/wiki/Java_Servlet). This application is packaged into a Docker image and installed as a Helm chart in the 
-current context. Stage configuration is the set of Helm values use for this release. 
+A *stage* is a Kubernetes workload, typically running a web application like a Tomcat servlet container (http://tomcat.apache.org) with 
+a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). This application is packaged into a Docker image and installed as a 
+Helm chart in the current context. Stage configuration is the set of Helm values use for this release. 
 
 Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it. It's also safe to `helm uninstall`
 instead of `sc delete`.
@@ -250,14 +232,14 @@ and some addional features like proxying and a dashboard.
 
 
 
-`sc` *global-option*... `attach` *name* '@' *workspace'
-
-
-`sc` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
+`sc` *global-option*... *stage-command* (*predicate* | '%all' | '@' *workspace*) [`-fail` *mode*] *command-options*...
 
 
 
-`sc` *global-option*... `detach` *stage-option*... 
+`sc` *global-option*... `attach` *stage-option*... *stage* '@' *workspace'
+
+
+`sc` *global-option*... `detach` *stage-option*... *stage* '@' *workspace'
 
 
 `sc` *global-option*... `delete` *stage-option*... [`-batch`]

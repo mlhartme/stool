@@ -102,7 +102,7 @@ public class Configuration {
     public final Map<String, Context> contexts;
 
     public final Map<String, Pair> registryCredentials;
-    public final List<String> chartReferences;
+    public final List<String> classpath;
     public final FileNode lib;
     public final String stageLogs;
 
@@ -150,6 +150,7 @@ public class Configuration {
 
     public final int defaultExpire;
 
+    public static final Separator COLON = Separator.on(":").trim().skipEmpty();
 
     public Configuration(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode configuration) {
         this.world = world;
@@ -162,7 +163,7 @@ public class Configuration {
         this.mode = Json.string(configuration, "mode", "dev");
         this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
         this.lib = home.join("lib");
-        this.chartReferences = Separator.COMMA.split(Json.string(configuration, "charts", ""));
+        this.classpath = COLON.split(Json.string(configuration, "classpath", ""));
         this.stageLogs = string(configuration, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(configuration, "loglevel", "ERROR");
         this.fqdn = Json.string(configuration, "fqdn", "localhost");
@@ -191,7 +192,7 @@ public class Configuration {
             contexts.put(entry.getKey(), entry.getValue().newInstance());
         }
         this.registryCredentials = new HashMap<>(from.registryCredentials);
-        this.chartReferences = new ArrayList<>(from.chartReferences);
+        this.classpath = new ArrayList<>(from.classpath);
         this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
         this.loglevel = from.loglevel;
@@ -501,7 +502,7 @@ public class Configuration {
         }
         obj.put("registryCredentials", registryCredentialsString());
         obj.put("stageLog", stageLogs);
-        obj.put("charts", Separator.COMMA.join(chartReferences));
+        obj.put("classpath", COLON.join(classpath));
 
         //--
 
@@ -558,9 +559,9 @@ public class Configuration {
         PortusRegistry portus;
 
         root = lib.join("charts").mkdirsOpt();
-        for (String reference : chartReferences) {
-            portus = createRegistry(reference);
-            Helm.resolveChart(portus, reference, root).checkDirectory();
+        for (String entry : classpath) {
+            portus = createRegistry(entry);
+            Helm.resolveChart(portus, entry, root).checkDirectory();
         }
         return root;
     }

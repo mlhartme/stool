@@ -6,7 +6,7 @@ data:
   configuration.yaml: |
     registryCredentials: "{{ .Values.registryCredentials }}"
     stageLogs: "{{ .Values.stageLogs }}"
-    charts: "{{ .Values.charts }}"
+    classpath: "{{ .Values.classpath }}"
     fqdn: "{{ .Values.fqdn }}"
     kubernetes: "{{ .Values.kubernetes }}"
     ldapUrl: "{{ .Values.ldapUrl }}"
