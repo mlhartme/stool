@@ -78,8 +78,9 @@ public class ConfigContext extends ClientCommand {
         Client client;
 
         client = context.connect(globals.getWorld(), globals.configuration(), globals.caller());
+        console.verbose.println("server info: " + client.version());
         try {
-            console.verbose.println("server info: " + client.version());
+            client.list("arbitraryStageNameFilter");
         } catch (AuthenticationException e) {
             console.verbose.println("authentication needed: " + e);
             e.printStackTrace(console.verbose);
