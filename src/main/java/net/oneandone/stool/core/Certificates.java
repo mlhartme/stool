@@ -46,8 +46,8 @@ public class Certificates {
         if (!script.isFile()) {
             world.resource("cert-selfsigned.sh").copyFile(script);
             script.setPermissions("rwxr-xr-x");
-            base.join("certs").mkdirsOpt();
         }
+        base.join("certs").mkdirsOpt();
         dir = base.join("certs", certname);
         try {
             LOGGER.info(world.getTemp().exec(script.getAbsolute(), certname, dir.getAbsolute(), fqdn));

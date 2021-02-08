@@ -107,7 +107,7 @@ spec:
             subPath: tomcat.p12
       {{- end }}
       {{- if .Values.certScript }}
-          - mountPath: /var/lib/stool/cert.sh
+          - mountPath: /usr/local/sc/lib/cert.sh
             name: cert-script-volume
             subPath: cert.sh
       {{- end }}
