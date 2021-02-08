@@ -78,14 +78,15 @@ public class ConfigContext extends ClientCommand {
         Client client;
 
         client = context.connect(globals.getWorld(), globals.configuration(), globals.caller());
-        console.verbose.println("server info: " + client.version());
         try {
+            // check if we need authentication; CAUTION: don't use version because it doesn't need credentials
             client.list("arbitraryStageNameFilter");
         } catch (AuthenticationException e) {
-            console.verbose.println("authentication needed: " + e);
+            console.info.println("authentication required: " + e);
+            console.verbose.println(e);
             e.printStackTrace(console.verbose);
             new Auth(globals, false).run();
-            console.verbose.println("server info: " + globals.configuration().currentContext().connect(globals.getWorld(), globals.configuration(), globals.caller()).version());
         }
+        console.verbose.println("server info: " + globals.configuration().currentContext().connect(globals.getWorld(), globals.configuration(), globals.caller()).version());
     }
 }
