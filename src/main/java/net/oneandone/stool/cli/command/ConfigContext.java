@@ -82,7 +82,7 @@ public class ConfigContext extends ClientCommand {
             // check if we need authentication; CAUTION: don't use version because it doesn't need credentials
             client.list("arbitraryStageNameFilter");
         } catch (AuthenticationException e) {
-            console.info.println("authentication required: " + e);
+            console.info.println("authentication required");
             console.verbose.println(e);
             e.printStackTrace(console.verbose);
             new Auth(globals, false).run();
