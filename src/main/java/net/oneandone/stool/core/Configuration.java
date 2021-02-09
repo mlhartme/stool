@@ -251,6 +251,10 @@ public class Configuration {
         return result;
     }
 
+    public String kubeContext() {
+        return null;
+    }
+
     //-- Stage access
 
     public List<Stage> list(Engine engine, Predicate predicate, Map<String, IOException> problems) throws IOException {
@@ -359,7 +363,6 @@ public class Configuration {
     public FileNode stageLogs(String name) throws MkdirException {
         return world.file(stageLogs).mkdirsOpt().join(name);
     }
-
 
     public String stageFqdn(String stage) {
         return stage + "." + fqdn;
@@ -561,7 +564,7 @@ public class Configuration {
         root = lib.join("charts").mkdirsOpt();
         for (String entry : classpath) {
             portus = createRegistry(entry);
-            Helm.resolveChart(portus, entry, root).checkDirectory();
+            Helm.resolveChart(kubeContext(), portus, entry, root).checkDirectory();
         }
         return root;
     }

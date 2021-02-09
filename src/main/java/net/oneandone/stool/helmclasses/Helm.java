@@ -82,7 +82,8 @@ public final class Helm {
         values = modifiedClass.createValuesFile(configuration, next);
         try {
             LOGGER.info("values: " + values.readString());
-            exec(dryrun, chart, upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute());
+            exec(dryrun, configuration.kubeContext(),
+                    chart, upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute());
             return result;
         } finally {
             values.deleteFile();
@@ -95,7 +96,7 @@ public final class Helm {
         return chart.join(".tag");
     }
 
-    public static FileNode resolveChart(PortusRegistry registry, String repository, FileNode root) throws IOException {
+    public static FileNode resolveChart(String kubeContext, PortusRegistry registry, String repository, FileNode root) throws IOException {
         String chart;
         List<String> tags;
         String tag;
@@ -121,8 +122,8 @@ public final class Helm {
             LOGGER.info("loading chart " + chart + " " + tag);
         }
         if (!chartDir.exists()) {
-            Helm.exec(false, root, "chart", "pull", repository + ":" + tag);
-            Helm.exec(false, root, "chart", "export", repository + ":" + tag, "-d", chartDir.getParent().getAbsolute());
+            Helm.exec(false, kubeContext, root, "chart", "pull", repository + ":" + tag);
+            Helm.exec(false, kubeContext, root, "chart", "export", repository + ":" + tag, "-d", chartDir.getParent().getAbsolute());
             if (!chartDir.exists()) {
                 throw new IllegalStateException(chartDir.getAbsolute());
             }
@@ -148,10 +149,15 @@ public final class Helm {
 
     //--
 
-    public static void exec(boolean dryrun, FileNode dir, String... args) throws IOException {
+    public static void exec(boolean dryrun, String kubeContext, FileNode dir, String... args) throws IOException {
         String[] cmd;
 
-        cmd = Strings.cons("helm", args);
+        if (kubeContext != null) {
+            cmd = Strings.cons("--kube-context", Strings.cons(kubeContext, args));
+        } else {
+            cmd = args;
+        }
+        cmd = Strings.cons("helm", cmd);
         LOGGER.debug(Arrays.asList(cmd).toString());
         if (dryrun) {
             LOGGER.info("dryrun - skipped");

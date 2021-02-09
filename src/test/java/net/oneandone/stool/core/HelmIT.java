@@ -39,7 +39,7 @@ public class HelmIT {
         world = World.create();
         root = world.getTemp().createTempDirectory();
         portus = PortusRegistry.create(Json.newJson(), world, Secrets.load(world).portus.resolve("/").toString(), null);
-        chart = Helm.resolveChart(portus, "contargo.server.lan/cisoops-public/charts/kutter", root);
+        chart = Helm.resolveChart(null, portus, "contargo.server.lan/cisoops-public/charts/kutter", root);
         assertTrue(chart.isDirectory());
         assertEquals(root.getAbsolute(), chart.getParent().getAbsolute());
     }
