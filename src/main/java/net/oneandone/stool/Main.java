@@ -96,6 +96,7 @@ public class Main {
         globals = Globals.create(console, world, testHome, "stool " + Separator.SPACE.join(args));
         if (globals.home().exists()) {
             ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+            root.getLoggerContext().reset(); // reset already loaded stuff, in particular spring logging
             root.setLevel(ch.qos.logback.classic.Level.toLevel(globals.configuration().loglevel));
         }
         cli = new Cli(testHome == null ? globals.getConsole()::handleException : e -> {
