@@ -32,13 +32,11 @@ public class Field {
         String value;
         ObjectNode obj;
 
-        abstrct = false;
         privt = false;
         extra = false;
         doc = null;
         if (yaml.isObject()) {
             obj = (ObjectNode) yaml;
-            abstrct = Json.bool(obj, "abstract", abstrct);
             privt = Json.bool(obj, "private", privt);
             extra = Json.bool(obj, "extra", extra);
             doc = Json.string(obj, "doc", null);
@@ -46,7 +44,7 @@ public class Field {
         } else {
             value = yaml.asText();
         }
-        return new Field(name, abstrct, privt, extra, doc, value);
+        return new Field(name, privt, extra, doc, value);
     }
 
     private static String getValue(ObjectNode obj, String modeOpt) {
@@ -57,18 +55,16 @@ public class Field {
     }
 
     public final String name;
-    public final boolean abstrct;
     public final boolean privt;
     public final boolean extra;
     public final String doc;
     public final String value;
 
     public Field(String name, String value) {
-        this(name, false, false, false, null, value);
+        this(name, false, false, null, value);
     }
-    public Field(String name, boolean abstrct, boolean privt, boolean extra, String doc, String value) {
+    public Field(String name, boolean privt, boolean extra, String doc, String value) {
         this.name = name;
-        this.abstrct = abstrct;
         this.privt = privt;
         this.extra = extra;
         this.doc = doc;
@@ -76,20 +72,17 @@ public class Field {
     }
 
     public Field withValue(String withValue) {
-        return new Field(name, abstrct, privt, extra, doc, withValue);
+        return new Field(name, privt, extra, doc, withValue);
     }
 
     public Field withDoc(String withDoc) {
-        return new Field(name, abstrct, privt, extra, withDoc, value);
+        return new Field(name, privt, extra, withDoc, value);
     }
 
     public JsonNode toObject(ObjectMapper yaml) {
         ObjectNode result;
 
         result = yaml.createObjectNode();
-        if (abstrct) {
-            result.set("abstract", BooleanNode.valueOf(abstrct));
-        }
         if (privt) {
             result.set("private", BooleanNode.valueOf(privt));
         }

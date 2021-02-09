@@ -28,10 +28,8 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Clazz {
@@ -175,21 +173,7 @@ public class Clazz {
             if (old == null) {
                 throw new ArgumentException("unknown value: " + key);
             }
-            fields.put(key, new Field(key, false, old.privt, false, old.doc, entry.getValue()));
-        }
-    }
-
-    public void checkNotAbstract() throws IOException {
-        List<String> names;
-
-        names = new ArrayList<>();
-        for (Field value : fields.values()) {
-            if (value.abstrct) {
-                names.add(value.name);
-            }
-        }
-        if (!names.isEmpty()) {
-            throw new IOException("class " + name + " has abstract value(s): " + names);
+            fields.put(key, new Field(key, old.privt, false, old.doc, entry.getValue()));
         }
     }
 
