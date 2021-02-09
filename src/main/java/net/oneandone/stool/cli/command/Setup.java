@@ -128,6 +128,6 @@ public class Setup {
         FileNode cisotools;
 
         cisotools = cisotools(world);
-        return cisotools == null ? null : cisotools.join("stool/sc.yaml").checkFile();
+        return cisotools == null ? null : cisotools.join("stool/environment.yaml").checkFile();
     }
 }

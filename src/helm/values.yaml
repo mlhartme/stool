@@ -26,7 +26,7 @@ certScript: ""
 registryCredentials: ""
 
 # TODO
-classpath: "contargo.server.lan/cisoops-public/charts/kutter:contargo.server.lan/cisoops-public/charts/node"
+classpath: "contargo.server.lan/cisoops-public/charts/kutter:contargo.server.lan/cisoops-public/charts/nache"
 
 mode: "dev"
 
