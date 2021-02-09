@@ -95,14 +95,14 @@ public class ClassRef {
 
     public static final String BUILDIN = "_buildin_";
 
-    public Clazz resolve(Configuration configuration) throws IOException {
+    public Clazz resolve(String kubeContext, Configuration configuration) throws IOException {
         ObjectMapper yaml;
         FileNode root;
         Map<String, Clazz> all;
         Clazz result;
         String str;
 
-        root = configuration.resolvedCharts();
+        root = configuration.resolvedCharts(kubeContext);
         yaml = configuration.yaml;
         all = loadAll(configuration.mode, yaml, root);
         switch (type) {

@@ -120,7 +120,7 @@ public class LocalClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(caller, engine, configuration, stageName, classRef, values);
+            stage = Stage.create(caller, kubernetesContext, engine, configuration, stageName, classRef, values);
             return stage.urlMap();
         }
     }
@@ -131,7 +131,7 @@ public class LocalClient extends Client {
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            return stage.publish(caller, engine, dryrun, allow, classRef.resolve(configuration), values);
+            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, classRef.resolve(kubernetesContext, configuration), values);
         }
     }
 
@@ -143,7 +143,7 @@ public class LocalClient extends Client {
     @Override
     public void delete(String stage) throws IOException {
         try (Engine engine = engine()) {
-            configuration.load(engine, stage).uninstall(engine);
+            configuration.load(engine, stage).uninstall(kubernetesContext, engine);
         }
     }
 
@@ -184,7 +184,7 @@ public class LocalClient extends Client {
                 changes.put(entry.getKey(), value.get());
                 result.put(value.field.name, value.get());
             }
-            stage.setValues(caller, engine, changes);
+            stage.setValues(caller, kubernetesContext, engine, changes);
             return result;
         }
     }
@@ -194,7 +194,7 @@ public class LocalClient extends Client {
         List<String> output;
 
         try (Engine engine = engine()) {
-            output = new Validation(configuration, configuration.createUserManager() /* TODO */, engine, caller).run(stage, email, repair);
+            output = new Validation(kubernetesContext, configuration, configuration.createUserManager() /* TODO */, engine, caller).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }

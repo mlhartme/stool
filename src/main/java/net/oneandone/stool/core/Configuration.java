@@ -251,10 +251,6 @@ public class Configuration {
         return result;
     }
 
-    public String kubeContext() {
-        return null;
-    }
-
     //-- Stage access
 
     public List<Stage> list(Engine engine, Predicate predicate, Map<String, IOException> problems) throws IOException {
@@ -557,14 +553,14 @@ public class Configuration {
         return !ldapUrl.isEmpty();
     }
 
-    public FileNode resolvedCharts() throws IOException {
+    public FileNode resolvedCharts(String kubeContext) throws IOException {
         FileNode root;
         PortusRegistry portus;
 
         root = lib.join("charts").mkdirsOpt();
         for (String entry : classpath) {
             portus = createRegistry(entry);
-            Helm.resolveChart(kubeContext(), portus, entry, root).checkDirectory();
+            Helm.resolveChart(kubeContext, portus, entry, root).checkDirectory();
         }
         return root;
     }

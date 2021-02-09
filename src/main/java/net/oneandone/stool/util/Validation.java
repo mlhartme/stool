@@ -37,12 +37,14 @@ import java.util.Set;
 public class Validation {
     private static final Logger LOGGER = LoggerFactory.getLogger(Validation.class);
 
+    private final String kubeContext;
     private final Configuration configuration;
     private final UserManager userManager;
     private final Engine engine;
     private final Caller caller;
 
-    public Validation(Configuration configuration, UserManager userManager, Engine engine, Caller caller) {
+    public Validation(String kubeContext, Configuration configuration, UserManager userManager, Engine engine, Caller caller) {
+        this.kubeContext = kubeContext;
         this.configuration = configuration;
         this.userManager = userManager;
         this.engine = engine;
@@ -75,7 +77,7 @@ public class Validation {
         }
         if (repair) {
             try {
-                stage.setValues(caller, engine, Strings.toMap(Dependencies.VALUE_REPLICAS, "0"));
+                stage.setValues(caller, kubeContext, engine, Strings.toMap(Dependencies.VALUE_REPLICAS, "0"));
                 report.add("replicas set to 0");
             } catch (Exception e) {
                 report.add("replicas change failed: " + e.getMessage());
@@ -85,7 +87,7 @@ public class Validation {
                 if (expire.expiredDays() >= configuration.autoRemove) {
                     try {
                         report.add("removing expired stage");
-                        stage.uninstall(engine);
+                        stage.uninstall(kubeContext, engine);
                     } catch (Exception e) {
                         report.add("failed to remove expired stage: " + e.getMessage());
                         LOGGER.debug(e.getMessage(), e);

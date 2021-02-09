@@ -51,14 +51,14 @@ import java.util.Set;
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
 
-    public static Stage create(Caller caller, Engine engine, Configuration configuration, String stageName, ClassRef classRef,
+    public static Stage create(Caller caller, String kubeContext, Engine engine, Configuration configuration, String stageName, ClassRef classRef,
                                Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(configuration, stageName, classRef, values);
+        Helm.install(kubeContext, configuration, stageName, classRef, values);
         stage = Stage.create(configuration, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -94,10 +94,8 @@ public class Stage {
 
 
     public static Stage create(Configuration configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
-        Map<String, Clazz> all;
         Clazz cl;
 
-        // TODO: expensive
         cl = Clazz.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS));
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
@@ -336,11 +334,11 @@ public class Stage {
     }
 
     /** CAUTION: values are not updated! */
-    public Diff publish(Caller caller, Engine engine, boolean dryrun, String allow,
+    public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
                         Clazz withClazz, Map<String, String> clientValues) throws IOException {
         Diff diff;
 
-        diff = Helm.upgrade(configuration, name, dryrun, allow == null ? null : Separator.COMMA.split(allow), withClazz, clientValues, valuesMap());
+        diff = Helm.upgrade(kubeContext, configuration, name, dryrun, allow == null ? null : Separator.COMMA.split(allow), withClazz, clientValues, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -358,7 +356,7 @@ public class Stage {
     }
 
     /** CAUTION: values are not updated! */
-    public void setValues(Caller caller, Engine engine, Map<String, String> changes) throws IOException {
+    public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
         Map<String, String> map;
 
         map = new LinkedHashMap<>();
@@ -366,7 +364,7 @@ public class Stage {
             map.put(entry.getKey(), entry.getValue().get());
         }
         map.putAll(changes);
-        Helm.upgrade(configuration, name, false, null, clazz, map, valuesMap());
+        Helm.upgrade(kubeContext, configuration, name, false, null, clazz, map, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -376,8 +374,8 @@ public class Stage {
         engine.secretAddAnnotations(engine.helmSecretName(name), historyToMap(history));
     }
 
-    public void uninstall(Engine engine) throws IOException {
-        LOGGER.info(configuration.world.getWorking().exec("helm", "uninstall", getName()));
+    public void uninstall(String kubeContext, Engine engine) throws IOException {
+        Helm.exec(false, kubeContext, configuration.world.getWorking(), "uninstall", getName());
         engine.deploymentAwaitGone(getName());
     }
 
