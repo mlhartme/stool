@@ -55,6 +55,7 @@ public class Expressions {
      */
     private Map<String, Object> context;
     private Clazz contextClass;
+    private FileNode contextChart;
     private Map<String, String> contextPrevious;
 
     public Expressions(World world, Configuration configuration, String fqdn) {
@@ -63,10 +64,11 @@ public class Expressions {
         this.fqdn = fqdn;
         this.context = null;
         this.contextClass = null;
+        this.contextChart = null;
         this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Map<String, String> previous, Clazz clazz) {
+    public Map<String, String> eval(Map<String, String> previous, Clazz clazz, FileNode chart) {
         Map<String, String> result;
 
         if (context != null) {
@@ -74,6 +76,7 @@ public class Expressions {
         }
         context = new LinkedHashMap<>();
         contextClass = clazz;
+        contextChart = chart;
         contextPrevious = previous;
         try {
             for (Field field : clazz.fields.values()) {
@@ -90,6 +93,7 @@ public class Expressions {
         } finally {
             context = null;
             contextClass = null;
+            contextChart = null;
             contextPrevious = null;
         }
     }
@@ -166,6 +170,13 @@ public class Expressions {
                 throw new TemplateModelException(e.getMessage(), e);
             }
         });
+        result.put("exec", (TemplateMethodModelEx) list -> {
+            try {
+                return exec(list);
+            } catch (IOException e) {
+                throw new TemplateModelException(e.getMessage(), e);
+            }
+        });
         result.put("fault", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
@@ -203,6 +214,29 @@ public class Expressions {
             return null;
         });
         return result;
+    }
+
+    private String exec(List lst) throws IOException {
+        String[] array;
+        FileNode cmd;
+
+        array = new String[lst.size()];
+        if (array.length == 0) {
+            throw new ArgumentException("exec without command");
+        }
+        if (contextChart == null) {
+            throw new ArgumentException("missing chart context");
+        }
+        cmd = contextChart.join(array[0]);
+        if (!cmd.isFile()) {
+            throw new ArgumentException("command not found: " + cmd.getAbsolute());
+        }
+        if (!cmd.toPath().toFile().canExecute()) {
+            System.out.println("set executable: " + cmd.getAbsolute());
+            cmd.setPermissions("--x--x--x");
+        }
+        array[0] = cmd.getAbsolute();
+        return configuration.world.getWorking().exec(array);
     }
 
     private String cert() throws IOException {

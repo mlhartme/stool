@@ -70,7 +70,7 @@ public final class Helm {
         modifiedClass.setValues(clientValues);
         chart = root.join(modifiedClass.chart).checkDirectory();
         LOGGER.info("chart: " + modifiedClass.chart + ":" + modifiedClass.chartVersion);
-        next = expressions.eval(prev, modifiedClass);
+        next = expressions.eval(prev, modifiedClass, chart);
         result = Diff.diff(prev, next);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
