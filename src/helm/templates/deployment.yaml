@@ -7,15 +7,6 @@ kind: ConfigMap
 metadata:
   name: stool-cert
 {{ end }}
-{{ if .Values.certScript }}
----
-apiVersion: v1
-binaryData:
-  cert.sh: {{ .Values.certScript }}
-kind: ConfigMap
-metadata:
-  name: stool-cert-script
-{{ end }}
 {{ if .Values.faultName }}
 ---
 apiVersion: v1
@@ -106,11 +97,6 @@ spec:
             name: cert-volume
             subPath: tomcat.p12
       {{- end }}
-      {{- if .Values.certScript }}
-          - mountPath: /usr/local/sc/lib/cert.sh
-            name: cert-script-volume
-            subPath: cert.sh
-      {{- end }}
         env:
         - name: SC_OPTS
           value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005{{ if .Values.cert }} -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true{{ end }}"
@@ -188,13 +174,4 @@ spec:
             - key: tomcat.p12
               path: tomcat.p12
           name: stool-cert
-{{- end}}
-{{- if .Values.certScript }}
-      - name: cert-script-volume
-        configMap:
-          items:
-            - key: cert.sh
-              path: cert.sh
-              mode: 0755
-          name: stool-cert-script
 {{- end}}

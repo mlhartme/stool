@@ -77,6 +77,15 @@ public class Expressions {
         context = new LinkedHashMap<>();
         contextClass = clazz;
         contextChart = chart;
+        try {
+            for (FileNode file : contextChart.find("scripts/*.sh")) {
+                if (file.isFile() && !file.toPath().toFile().canExecute()) {
+                    file.setPermissions("rwxr-xr-x");
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("TODO", e);
+        }
         contextPrevious = previous;
         try {
             for (Field field : clazz.fields.values()) {
@@ -160,12 +169,12 @@ public class Expressions {
         result.put("fqdn", fqdn);
         result.put("defaultExpire", configuration.defaultExpire);
         result.put("defaultContact", Stage.NOTIFY_FIRST_MODIFIER);
-        result.put("cert", (TemplateMethodModelEx) list -> {
-            if (list.size() != 0) {
+        result.put("workdir", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
             }
             try {
-                return cert();
+                return configuration.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
             } catch (IOException e) {
                 throw new TemplateModelException(e.getMessage(), e);
             }
@@ -232,24 +241,13 @@ public class Expressions {
         for (Object obj: lst) {
             array[i++] = obj.toString();
         }
-        cmd = contextChart.join(array[0]);
+        cmd = contextChart.join("scripts", array[0]);
         if (!cmd.isFile()) {
             throw new ArgumentException("command not found: " + cmd.getAbsolute());
         }
-        if (!cmd.toPath().toFile().canExecute()) {
-            cmd.setPermissions("rwxrwx--x");
-        }
         array[0] = cmd.getAbsolute();
-        return configuration.world.getWorking().exec(array);
+        return cmd.getParent().exec(array);
     }
-
-    private String cert() throws IOException {
-        FileNode dir;
-
-        dir = configuration.certificates().generate(fqdn);
-        return Base64.getEncoder().encodeToString(dir.join("keystore.p12").readBytes());
-    }
-
 
     /** tar directory into byte array */
     private String fault(List<String> faultProjects) throws IOException {

@@ -73,8 +73,8 @@ public class ExpressionsTest {
 
 
         dir = world.getTemp().createTempDirectory();
-        dir.join("script").writeString("#!/bin/sh\necho \"arg:$1\"");
-        clazz = Clazz.forTest("name", "one", "${exec('script', 'hello')}");
+        dir.join("scripts").mkdir().join("script.sh").writeString("#!/bin/sh\necho \"arg:$1\"");
+        clazz = Clazz.forTest("name", "one", "${exec('script.sh', 'hello')}");
         e = expressions();
         values = e.eval(new HashMap<>(), clazz, dir);
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);

@@ -15,10 +15,6 @@ faultName: ""
 faultHostkey: ""
 faultHostkeyPub: ""
 
-# script to generate stage certificate; empty generates a self-signed certificate
-certScript: ""
-
-
 #
 # sc.yaml inside the server
 

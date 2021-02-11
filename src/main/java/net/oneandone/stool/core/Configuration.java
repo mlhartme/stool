@@ -388,10 +388,6 @@ public class Configuration {
         return PortusRegistry.create(json, world, uri, null);
     }
 
-    public Certificates certificates() {
-        return new Certificates(lib, fqdn);
-    }
-
     public Pair registryCredentials(String registry) {
         return registryCredentials.get(registry);
     }
