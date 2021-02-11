@@ -219,6 +219,7 @@ public class Expressions {
     private String exec(List lst) throws IOException {
         String[] array;
         FileNode cmd;
+        int i;
 
         array = new String[lst.size()];
         if (array.length == 0) {
@@ -227,13 +228,16 @@ public class Expressions {
         if (contextChart == null) {
             throw new ArgumentException("missing chart context");
         }
+        i = 0;
+        for (Object obj: lst) {
+            array[i++] = obj.toString();
+        }
         cmd = contextChart.join(array[0]);
         if (!cmd.isFile()) {
             throw new ArgumentException("command not found: " + cmd.getAbsolute());
         }
         if (!cmd.toPath().toFile().canExecute()) {
-            System.out.println("set executable: " + cmd.getAbsolute());
-            cmd.setPermissions("--x--x--x");
+            cmd.setPermissions("rwxrwx--x");
         }
         array[0] = cmd.getAbsolute();
         return configuration.world.getWorking().exec(array);

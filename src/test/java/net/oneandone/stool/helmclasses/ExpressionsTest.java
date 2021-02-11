@@ -17,6 +17,7 @@ package net.oneandone.stool.helmclasses;
 
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.Test;
 
@@ -61,5 +62,21 @@ public class ExpressionsTest {
         e = expressions();
         values = e.eval(new HashMap<>(), clazz, world.getTemp().createTempDirectory());
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
+    }
+
+    @Test
+    public void exec() throws IOException {
+        Expressions e;
+        Clazz clazz;
+        Map<String, String> values;
+        FileNode dir;
+
+
+        dir = world.getTemp().createTempDirectory();
+        dir.join("script").writeString("#!/bin/sh\necho \"arg:$1\"");
+        clazz = Clazz.forTest("name", "one", "${exec('script', 'hello')}");
+        e = expressions();
+        values = e.eval(new HashMap<>(), clazz, dir);
+        assertEquals(Strings.toMap("one", "arg:hello\n"), values);
     }
 }
