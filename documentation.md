@@ -3,8 +3,6 @@
 ## Introduction
 
 Stool is a tool to manage stages - create, publish, configure, delete. A stage is a Kubernetes workload, typically a web application.
-Technically, a stage is a Helm release, and Stool is a Helm wrapper that adds powerful value management and features 
-like proxying and a dashboard.
 
 ### Quick Tour
 
@@ -65,6 +63,12 @@ to see a list of available commands. You can append a command to get more help o
     sc help create
     
 prints help about `create`.
+
+### Rationale
+
+Technically, stool is a front-end to Helm, stages are helm releases, and classes define values passed to helm charts.
+So in some sense, stool could be called 'helmclass', and it's purpose is somehow comparable to `helmfile`: simplify helm
+usage, avoid tedious shell scripts.
 
 
 ### Conventions
