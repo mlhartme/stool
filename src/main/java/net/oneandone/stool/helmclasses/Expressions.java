@@ -186,6 +186,19 @@ public class Expressions {
                 throw new TemplateModelException(e.getMessage(), e);
             }
         });
+        result.put("switch", (TemplateMethodModelEx) list -> {
+                    List<String> lst;
+                    String var;
+                    String dflt;
+
+                    if (list.size() < 2) {
+                        throw new ArgumentException(list.toString());
+                    }
+                    lst = strings(list);
+                    var = lst.remove(0);
+                    dflt = lst.remove(0);
+                    return swtch(var, dflt, lst);
+                });
         result.put("env", (TemplateMethodModelEx) list -> {
             String name;
             String value;
@@ -245,6 +258,30 @@ public class Expressions {
             }
             return null;
         });
+        return result;
+    }
+
+    private String swtch(String var, String dflt, List<String> keyValues) throws TemplateModelException {
+        String v;
+
+        v = configuration.environment.get(var);
+        if (v == null) {
+            throw new TemplateModelException("env variable not found: " + var);
+        }
+        for (int i = 0; i < keyValues.size(); i += 2) {
+            if (v.equals(keyValues.get(i))) {
+                return keyValues.get(i + 1);
+            }
+        }
+        return dflt;
+    }
+    private List<String> strings(List lst) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (Object object : lst) {
+            result.add(object.toString());
+        }
         return result;
     }
 

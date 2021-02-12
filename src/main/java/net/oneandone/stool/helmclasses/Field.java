@@ -58,7 +58,9 @@ public class Field {
         StringBuilder result;
 
         v = root.get("value");
-        if (v.isTextual()) {
+        if (v == null) {
+            return "";
+        } else if (v.isTextual() || v.isNumber()) {
             return v.asText();
         } else if (v.isObject()) {
             obj = (ObjectNode) v;
@@ -78,7 +80,7 @@ public class Field {
             result.append(") }");
             return result.toString();
         } else {
-            throw new ArgumentException("malformed value definition: " + root.toString());
+            throw new ArgumentException("malformed value definition: " + v.toString());
         }
     }
 

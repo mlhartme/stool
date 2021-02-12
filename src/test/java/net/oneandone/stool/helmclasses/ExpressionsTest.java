@@ -36,11 +36,14 @@ public class ExpressionsTest {
     private static final World world = World.createMinimal();
 
     private static Configuration configuration() {
+        Configuration c;
         try {
-            return Configuration.create(world); // TODO
+            c = Configuration.create(world); // TODO
+            c.environment.put("MOD", "a");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+        return c;
     }
 
     private static Expressions expressions() {
@@ -86,12 +89,20 @@ public class ExpressionsTest {
     }
 
     @Test
-    public void swtch() throws JsonProcessingException {
+    public void swtchValue() throws JsonProcessingException {
         ObjectMapper yaml;
         JsonNode n;
 
         yaml = new ObjectMapper(new YAMLFactory());
         n = yaml.readTree("value:\n  default: '0'\n  a: '1'\n  b: '2'");
         assertEquals("${ switch('MODE','0','a','1','b','2') }", Field.getValue((ObjectNode) n));
+    }
+
+    @Test
+    public void swtch() throws IOException {
+        Expressions e;
+
+        e = expressions();
+        assertEquals("1", e.eval("${ switch('MOD', '0', 'a', '1', 'b', '2') }"));
     }
 }
