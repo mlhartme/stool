@@ -186,6 +186,21 @@ public class Expressions {
                 throw new TemplateModelException(e.getMessage(), e);
             }
         });
+        result.put("env", (TemplateMethodModelEx) list -> {
+            String name;
+            String value;
+
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            name = list.get(0).toString();
+            value = configuration.environment.get(name);
+            if (value == null) {
+                throw new TemplateModelException("env variable not found: " + name);
+
+            }
+            return value;
+        });
         result.put("fault", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
