@@ -87,11 +87,6 @@
       <artifactId>jackson-databind</artifactId>
       <version>2.11.2</version>
     </dependency>
-    <dependency>
-      <groupId>org.kamranzafar</groupId>
-      <artifactId>jtar</artifactId>
-      <version>2.3</version>
-    </dependency>
     <dependency><!-- https://java.net/projects/javamail/pages/Home -->
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
