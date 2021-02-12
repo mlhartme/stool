@@ -24,7 +24,7 @@ registryCredentials: ""
 # TODO
 classpath: "contargo.server.lan/cisoops-public/charts/kutter:contargo.server.lan/cisoops-public/charts/nache"
 
-environment: {}
+environment:
 
 # For server logging. Type string, default INFO. Example value: DEBUG.
 loglevel: "INFO"

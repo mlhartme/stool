@@ -85,12 +85,12 @@ spec:
           requests:
             cpu: 200m
         volumeMounts:
-          - mountPath: /usr/local/sc/configuration.yaml
+          - mountPath: /usr/local/stool/configuration.yaml
             subPath: configuration.yaml
             name: configuration
           - mountPath: /etc/fault
             name: fault
-          - mountPath: /usr/local/sc/logs
+          - mountPath: /usr/local/stool/logs
             name: fluentd-logs
       {{- if .Values.cert }}
           - mountPath: /usr/local/tomcat/conf/tomcat.p12

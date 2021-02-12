@@ -1,7 +1,7 @@
 FROM contargo.server.lan/cisoops-public/java-14:1.2.0
 
 ENV HELM_EXPERIMENTAL_OCI=1
-ENV SC_HOME=/usr/local/sc
+ENV SC_HOME=/usr/local/stool
 ENV SC_OPTS=
 
 RUN curl -o /tmp/helm.tgz https://get.helm.sh/helm-v3.5.0-linux-amd64.tar.gz && \
