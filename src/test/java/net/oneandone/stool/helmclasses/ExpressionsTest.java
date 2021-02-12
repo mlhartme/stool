@@ -15,6 +15,11 @@
  */
 package net.oneandone.stool.helmclasses;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -78,5 +83,15 @@ public class ExpressionsTest {
         e = expressions();
         values = e.eval(new HashMap<>(), clazz, dir);
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
+    }
+
+    @Test
+    public void swtch() throws JsonProcessingException {
+        ObjectMapper yaml;
+        JsonNode n;
+
+        yaml = new ObjectMapper(new YAMLFactory());
+        n = yaml.readTree("value:\n  default: '0'\n  a: '1'\n  b: '2'");
+        assertEquals("${ switch('MODE','0','a','1','b','2') }", Field.getValue((ObjectNode) n));
     }
 }

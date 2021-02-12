@@ -20,7 +20,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.util.Json;
+import net.oneandone.sushi.util.Strings;
+
+import java.util.Map;
 
 /** Immutable building block of a class, defines how to compute values. */
 public class Field {
@@ -46,8 +50,40 @@ public class Field {
         return new Field(name, privt, extra, doc, value);
     }
 
-    private static String getValue(ObjectNode obj) {
-        return Json.string(obj, "value", "");
+    public static String getValue(ObjectNode root) {
+        JsonNode v;
+        ObjectNode obj;
+        String var;
+        String dflt;
+        StringBuilder result;
+
+        v = root.get("value");
+        if (v.isTextual()) {
+            return v.asText();
+        } else if (v.isObject()) {
+            obj = (ObjectNode) v;
+            var = Json.string(obj, "var", "MODE");
+            dflt = Json.string(obj, "default");
+            result = new StringBuilder();
+            result.append("${ switch(");
+            str(result, var);
+            result.append(',');
+            str(result, dflt);
+            for (Map.Entry<String, Object> entry : Json.toStringMap(obj, Strings.toList("default", "var")).entrySet()) {
+                result.append(',');
+                str(result, entry.getKey());
+                result.append(',');
+                str(result, entry.getValue().toString());
+            }
+            result.append(") }");
+            return result.toString();
+        } else {
+            throw new ArgumentException("malformed value definition: " + root.toString());
+        }
+    }
+
+    private static void str(StringBuilder builder, String str) {
+        builder.append('\'').append(str.replace("'", "\\'")).append('\'');
     }
 
     public final String name;
