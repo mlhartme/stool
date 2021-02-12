@@ -29,13 +29,11 @@ import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.HistoryEntry;
-import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Pair;
 import net.oneandone.stool.util.PredicateParser;
 import net.oneandone.stool.util.Validation;
 import net.oneandone.stool.core.Value;
-import net.oneandone.stool.helmclasses.Expressions;
 
 import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
@@ -249,7 +247,6 @@ public class LocalClient extends Client {
         if (timeout > 240) {
             throw new IOException("timeout to big: " + timeout);
         }
-        currentWithPermissions(stage);
         try (Engine engine = engine()) {
             pods = configuration.load(engine, stage).runningPods(engine).values();
             if (pods.isEmpty()) {
@@ -286,16 +283,6 @@ public class LocalClient extends Client {
             }
         };
         ex.schedule(cleanup, timeout, TimeUnit.MINUTES);
-    }
-
-    private void currentWithPermissions(String stageName) throws IOException {
-        Stage stage;
-
-        try (Engine engine = engine()) {
-            stage = configuration.load(engine, stageName);
-            Expressions.checkFaultPermissions(configuration.world, User.authenticatedOrAnonymous().login,
-                    /* TODO: stage.getFaultProjects() */ new ArrayList<>());
-        }
     }
 
     @Override

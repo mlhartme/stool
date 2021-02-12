@@ -88,8 +88,6 @@ spec:
           - mountPath: /usr/local/stool/configuration.yaml
             subPath: configuration.yaml
             name: configuration
-          - mountPath: /etc/fault
-            name: fault
           - mountPath: /usr/local/stool/logs
             name: fluentd-logs
       {{- if .Values.cert }}
@@ -100,23 +98,6 @@ spec:
         env:
         - name: SC_OPTS
           value: "--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --illegal-access=deny -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=*:5005{{ if .Values.cert }} -Dserver.ssl.key-store-type=PKCS12 -Dserver.ssl.key-store=/usr/local/tomcat/conf/tomcat.p12 -Dserver.ssl.key-store-password=changeit -Dserver.ssl.key-alias=tomcat -Dsecurity.require-ssl=true{{ end }}"
-{{- if .Values.faultName }}
-      - name: fault-update
-        image: contargo.server.lan/cisoops-public/mavenbuild-java-14:1.2.2
-        command: ["sh"]
-        args: ["-c", "while true; do sleep 7200; fault '-user=[{{ .Values.faultName }}:/etc/ssh/ssh_host_rsa_key]' auth && fault install -dest=/etc/fault/workspace -permissions=/etc/fault/workspace.permissions -batch @ >/etc/fault/install.log 2>&1; done"]
-        resources:
-          limits:
-            cpu: 1
-          requests:
-            cpu: 200m
-        volumeMounts:
-          - mountPath: /etc/fault
-            name: fault
-            readOnly: true
-          - mountPath: /etc/ssh
-            name: hostkey-volume
-{{- end }}
       - name: collector
         image: contargo.server.lan/cisoops-public/github/fluent/fluentd:v1.11.2-1.0
         volumeMounts:
@@ -124,23 +105,6 @@ spec:
             mountPath: /fluentd/etc
           - name: fluentd-logs
             mountPath: /fluentd/log
-{{- if .Values.faultName }}
-      initContainers:
-      - name: init-fault
-        image: contargo.server.lan/cisoops-public/mavenbuild-java-14:1.2.2
-        command: ["sh"]
-        args: ["-c", "ls -laR /etc/fault && mkdir -p /etc/fault/workspace && fault '-user=[{{ .Values.faultName }}:/etc/ssh/ssh_host_rsa_key]' auth && fault install -dest=/etc/fault/workspace -permissions=/etc/fault/workspace.permissions -batch @"]
-        resources:
-          limits:
-            cpu: 1
-          requests:
-            cpu: 200m
-        volumeMounts:
-          - mountPath: /etc/fault
-            name: fault
-          - mountPath: /etc/ssh
-            name: hostkey-volume
-{{- end }}
       volumes:
       - name: configuration
         configMap:
@@ -153,20 +117,6 @@ spec:
           name: stool-log-collector
       - name: fluentd-logs
         emptyDir: {}
-{{- if eq .Values.fqdn "localhost" }}
-      - name: fault
-        hostPath:
-          path: /Users/mhm/.fault
-          type: Directory
-{{- else }}
-      - name: fault
-        emptyDir: {}
-{{- end }}
-{{- if .Values.faultName }}
-      - name: hostkey-volume
-        secret:
-          secretName: stool-hostkey
-{{- end }}
 {{- if .Values.cert }}
       - name: cert-volume
         configMap:

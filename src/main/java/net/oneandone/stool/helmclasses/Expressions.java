@@ -24,24 +24,14 @@ import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
-import org.kamranzafar.jtar.TarEntry;
-import org.kamranzafar.jtar.TarHeader;
-import org.kamranzafar.jtar.TarOutputStream;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.zip.GZIPOutputStream;
 
 public class Expressions {
     public final World world;
@@ -222,16 +212,6 @@ public class Expressions {
             }
             return value;
         });
-        result.put("fault", (TemplateMethodModelEx) list -> {
-            if (list.size() != 1) {
-                throw new ArgumentException(list.toString());
-            }
-            try {
-                return fault(Separator.COMMA.split(list.get(0).toString()));
-            } catch (IOException e) {
-                throw new TemplateModelException(e.getMessage(), e);
-            }
-        });
         result.put("value", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
@@ -307,97 +287,5 @@ public class Expressions {
         }
         array[0] = cmd.getAbsolute();
         return cmd.getParent().exec(array);
-    }
-
-    /** tar directory into byte array */
-    private String fault(List<String> faultProjects) throws IOException {
-        List<String> missing;
-        FileNode workspace;
-        FileNode project;
-        TarOutputStream tar;
-        byte[] buffer;
-        long now;
-        String result;
-
-        missing = new ArrayList<>();
-        if (configuration.auth() && !faultProjects.isEmpty()) {
-            if (contextClass == null || contextClass.author == null) {
-                throw new ArgumentException("fault is not accessible without class context");  // TODO: error message
-            }
-            checkFaultPermissions(world, contextClass.author, faultProjects);
-        }
-        workspace = world.file("/etc/fault/workspace");
-        buffer = new byte[64 * 1024];
-        try (ByteArrayOutputStream dest = new ByteArrayOutputStream()) {
-            tar = new TarOutputStream(new GZIPOutputStream(dest));
-            now = System.currentTimeMillis();
-            for (String projectName : faultProjects) {
-                project = workspace.join(projectName);
-                if (project.isDirectory()) {
-                    faultTarAdd(now, buffer, workspace, project, tar);
-                } else {
-                    missing.add(projectName);
-                }
-            }
-            tar.close();
-            result = Base64.getEncoder().encodeToString(dest.toByteArray());
-        }
-        if (!missing.isEmpty()) {
-            throw new ArgumentException("missing secret directories: " + missing);
-        }
-        return result;
-    }
-
-    /** tar directory into byte array */
-    private void faultTarAdd(long now, byte[] buffer, FileNode workspace, FileNode project, TarOutputStream tar) throws IOException {
-        List<FileNode> all;
-        Iterator<FileNode> iter;
-        FileNode file;
-        int count;
-
-        all = project.find("**/*");
-        iter = all.iterator();
-        while (iter.hasNext()) {
-            file = iter.next();
-            if (file.isDirectory()) {
-                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(workspace), 0, now, true, 0700)));
-                iter.remove();
-            }
-        }
-        iter = all.iterator();
-        while (iter.hasNext()) {
-            file = iter.next();
-            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(workspace), file.size(), now, false, 0700)));
-            try (InputStream src = file.newInputStream()) {
-                while (true) {
-                    count = src.read(buffer);
-                    if (count == -1) {
-                        break;
-                    }
-                    tar.write(buffer, 0, count);
-                }
-            }
-        }
-    }
-
-    //--
-
-    public static void checkFaultPermissions(World world, String user, List<String> projects) throws IOException {
-        Properties permissions;
-        String lst;
-
-        if (projects.isEmpty()) {
-            return;
-        }
-        permissions = world.file("/etc/fault/workspace.permissions").readProperties();
-        for (String project : projects) {
-            lst = permissions.getProperty(project);
-            if (lst == null) {
-                throw new ArgumentException("fault project unknown or not accessible on this host: " + project);
-            }
-            if (!Separator.COMMA.split(lst).contains(user)) {
-                throw new ArgumentException("fault project " + project + ": permission denied for user " + user);
-            }
-        }
     }
 }

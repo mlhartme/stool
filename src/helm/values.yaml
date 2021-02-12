@@ -7,14 +7,6 @@ repositoryTag: "contargo.server.lan/cisoops-public/stool:${image.version}"
 # certificate for fqdn; empty for none; base64 encoded p12 keystore file
 cert: ""
 
-# set to fault user name to fetch fault secrets automatically; if not set, a host directory ~/.fault will be used
-# (TODO: only works on localhost)
-faultName: ""
-
-# for fault authentication
-faultHostkey: ""
-faultHostkeyPub: ""
-
 #
 # sc.yaml inside the server
 
