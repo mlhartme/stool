@@ -89,7 +89,7 @@ public class ClazzTest {
         obj = (ObjectNode) YAML.readTree(str);
         all = new HashMap<>();
         all.put("base", Clazz.forTest("base", "f", "1"));
-        return Clazz.loadLiteral(null, all, "", null, obj);
+        return Clazz.loadLiteral(all, "", null, obj);
     }
 
     //--
@@ -99,7 +99,7 @@ public class ClazzTest {
         Map<String, Clazz> all;
         Clazz a;
 
-        all = ClassRef.loadAll(null, YAML, WORLD.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
+        all = ClassRef.loadAll(YAML, WORLD.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
         assertEquals(2, all.size());
         a = all.get("derived");
         assertEquals("42", a.fields.get("asis").value);

@@ -36,7 +36,7 @@ public class Clazz {
     public static final String HELM_CLASS = "helmClass";
 
     /** loads the class ex- or implicitly definded by a chart */
-    public static Clazz loadChartClass(ObjectMapper yaml, String mode, String name, FileNode chart) throws IOException {
+    public static Clazz loadChartClass(ObjectMapper yaml, String name, FileNode chart) throws IOException {
         Clazz result;
         ObjectNode loaded;
         ObjectNode classValue;
@@ -49,13 +49,13 @@ public class Clazz {
         // normal values are value class field definitions
         result.defineBaseAll(loaded.fields());
         if (classValue != null) {
-            result.defineAll(mode, classValue.fields());
+            result.defineAll(classValue.fields());
         }
         return result;
     }
 
     /** from inline, label or classes; always extends */
-    public static Clazz loadLiteral(String mode, Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
+    public static Clazz loadLiteral(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
         String extendz;
         Clazz base;
         Clazz derived;
@@ -68,7 +68,7 @@ public class Clazz {
             throw new IOException("class not found: " + extendz);
         }
         derived = base.derive(origin, author, name);
-        derived.defineAll(mode, clazz.get("fields").fields());
+        derived.defineAll(clazz.get("fields").fields());
         return derived;
     }
 
@@ -118,7 +118,7 @@ public class Clazz {
 
         while (iter.hasNext()) {
             entry = iter.next();
-            defineBase(Field.forYaml(null, entry.getKey(), entry.getValue()));
+            defineBase(Field.forYaml(entry.getKey(), entry.getValue()));
         }
     }
     public void defineBase(Field value) {
@@ -127,14 +127,14 @@ public class Clazz {
         }
     }
 
-    public void defineAll(String mode, Iterator<Map.Entry<String, JsonNode>> iter) {
+    public void defineAll(Iterator<Map.Entry<String, JsonNode>> iter) {
         Map.Entry<String, JsonNode> entry;
         String key;
 
         while (iter.hasNext()) {
             entry = iter.next();
             key = entry.getKey();
-            define(Field.forYaml(mode, key, entry.getValue()));
+            define(Field.forYaml(key, entry.getValue()));
         }
     }
 

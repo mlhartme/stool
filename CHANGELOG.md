@@ -8,7 +8,6 @@
   * classes define values for helm charts
     * directly with template expressions (freemarker, with built-in scripts, e.g. to fetch vault secrets or generate credentials)
     * indirectly by extending a base class
-    * every Stool setup has a `mode` to select different value for different environments
   * `sc create <stage> <class>` installs a Helm chart with the values as defined by the class, resulting in a Helm release
   * `sc delete <stage>` uninstalls this release
   * `start` and `stop` commands are gone, create results in a running stage, and delete stops the stage first
@@ -58,7 +57,7 @@
     * now takes a single name argument
     * can be used in an existing workspace
   * changed `images` command, it takes a repository argument instead of a stage now, and it displays generic labels only
-* dumped config.environment -- publish automatically preserves previous configuration
+* config environment is now meant for use in field values
 * dumped disk quota handling; I might use Kubernetes ephemeral quotas later
 * dumped memory quota handling, Kubernetes is responsible for that
 * log validation report result

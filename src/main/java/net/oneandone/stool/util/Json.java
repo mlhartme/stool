@@ -68,6 +68,13 @@ public final class Json {
         return result;
     }
 
+    public static Map<String, String> stringMapOpt(ObjectNode obj, String name) {
+        ObjectNode entries;
+
+        entries = (ObjectNode) obj.get(name);
+        return entries == null ? new LinkedHashMap<>() : stringMap(obj);
+    }
+
     public static Map<String, String> stringMap(ObjectNode obj) {
         Map<String, String> result;
         Iterator<Map.Entry<String, JsonNode>> iter;

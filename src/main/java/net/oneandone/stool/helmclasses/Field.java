@@ -24,8 +24,7 @@ import net.oneandone.stool.util.Json;
 
 /** Immutable building block of a class, defines how to compute values. */
 public class Field {
-    public static Field forYaml(String modeOpt, String name, JsonNode yaml) {
-        boolean abstrct;
+    public static Field forYaml(String name, JsonNode yaml) {
         boolean privt;
         boolean extra;
         String doc;
@@ -40,18 +39,15 @@ public class Field {
             privt = Json.bool(obj, "private", privt);
             extra = Json.bool(obj, "extra", extra);
             doc = Json.string(obj, "doc", null);
-            value = getValue(obj, modeOpt);
+            value = getValue(obj);
         } else {
             value = yaml.asText();
         }
         return new Field(name, privt, extra, doc, value);
     }
 
-    private static String getValue(ObjectNode obj, String modeOpt) {
-        String result;
-
-        result = modeOpt == null ? null : Json.string(obj, "value-" + modeOpt, null);
-        return result != null ? result : Json.string(obj, "value", "");
+    private static String getValue(ObjectNode obj) {
+        return Json.string(obj, "value", "");
     }
 
     public final String name;
