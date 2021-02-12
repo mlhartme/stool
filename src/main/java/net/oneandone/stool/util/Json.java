@@ -74,11 +74,6 @@ public final class Json {
         entries = obj.get(name);
         if (entries == null || entries.isNull()) {
             return new LinkedHashMap<>();
-        } else if (entries.isTextual()) {
-            if (!entries.asText().isEmpty()) {
-                throw new IllegalStateException(obj.toString() + " " + entries.asText());
-            }
-            return new LinkedHashMap<>();
         } else {
             return stringMap((ObjectNode) entries);
         }
