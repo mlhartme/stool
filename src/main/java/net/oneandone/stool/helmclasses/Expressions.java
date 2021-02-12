@@ -189,15 +189,23 @@ public class Expressions {
         result.put("env", (TemplateMethodModelEx) list -> {
             String name;
             String value;
+            String dflt;
 
-            if (list.size() != 1) {
-                throw new ArgumentException(list.toString());
+            if (list.size() == 2) {
+                dflt = list.get(1).toString();
+            } else {
+                dflt = null;
+                if (list.size() != 1) {
+                    throw new ArgumentException(list.toString());
+                }
             }
             name = list.get(0).toString();
             value = configuration.environment.get(name);
             if (value == null) {
-                throw new TemplateModelException("env variable not found: " + name);
-
+                if (dflt == null) {
+                    throw new TemplateModelException("env variable not found: " + name);
+                }
+                value = dflt;
             }
             return value;
         });
