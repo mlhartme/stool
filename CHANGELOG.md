@@ -36,6 +36,7 @@
   * Stool no longer wipes images
   * dumped registryPrefix from the configuration
 
+* dumped fault support, use chart scripts instead
 * image/chart changes
   * dumped jmxmp/5555, rely on readyness probes instead; also dumped `heap` field
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
