@@ -17,7 +17,7 @@ data:
     admin: "{{ .Values.admin }}"
     autoRemove: "{{ .Values.autoRemove }}"
     defaultExpire: "{{ .Values.defaultExpire }}"
-    environmentmode: "{{ .Values.environment }}"
+    environment: {{ .Values.environment.toYaml }}
     loglevel: "{{ .Values.loglevel }}"
     mailHost: "{{ .Values.mailHost }}"
     mailUsername: "{{ .Values.username }}"

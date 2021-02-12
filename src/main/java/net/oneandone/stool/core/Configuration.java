@@ -503,7 +503,7 @@ public class Configuration {
 
         obj.put("fqdn", fqdn);
         obj.put("kubernetes", kubernetes);
-        obj.put("environment", Json.obj(json, environment));
+        obj.set("environment", Json.obj(json, environment));
         obj.put("loglevel", loglevel);
         obj.put("admin", admin);
         obj.put("autoRemove", autoRemove);

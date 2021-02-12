@@ -69,10 +69,19 @@ public final class Json {
     }
 
     public static Map<String, String> stringMapOpt(ObjectNode obj, String name) {
-        ObjectNode entries;
+        JsonNode entries;
 
-        entries = (ObjectNode) obj.get(name);
-        return entries == null ? new LinkedHashMap<>() : stringMap(obj);
+        entries = obj.get(name);
+        if (entries == null || entries.isNull()) {
+            return new LinkedHashMap<>();
+        } else if (entries.isTextual()) {
+            if (!entries.asText().isEmpty()) {
+                throw new IllegalStateException(obj.toString() + " " + entries.asText());
+            }
+            return new LinkedHashMap<>();
+        } else {
+            return stringMap((ObjectNode) entries);
+        }
     }
 
     public static Map<String, String> stringMap(ObjectNode obj) {
