@@ -24,6 +24,8 @@ import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -176,6 +178,12 @@ public class Expressions {
                 throw new TemplateModelException(e.getMessage(), e);
             }
         });
+        result.put("commaList", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            return Separator.COMMA.split(list.get(1).toString());
+        });
         result.put("switch", (TemplateMethodModelEx) list -> {
                     List<String> lst;
                     String var;
@@ -266,26 +274,32 @@ public class Expressions {
     }
 
     private String exec(List lst) throws IOException {
-        String[] array;
         FileNode cmd;
-        int i;
+        Launcher script;
 
-        array = new String[lst.size()];
-        if (array.length == 0) {
+        if (lst.isEmpty()) {
             throw new ArgumentException("exec without command");
         }
         if (contextChart == null) {
             throw new ArgumentException("missing chart context");
         }
-        i = 0;
-        for (Object obj: lst) {
-            array[i++] = obj.toString();
-        }
-        cmd = contextChart.join("scripts", array[0]);
+        cmd = contextChart.join("scripts", lst.get(0).toString());
         if (!cmd.isFile()) {
             throw new ArgumentException("command not found: " + cmd.getAbsolute());
         }
-        array[0] = cmd.getAbsolute();
-        return cmd.getParent().exec(array);
+        script = cmd.getParent().launcher();
+        script.arg(cmd.getAbsolute());
+        add(script, lst.subList(1, lst.size()));
+        return script.exec();
+    }
+
+    private static void add(Launcher launcher, List lst) {
+        for (Object obj : lst) {
+            if (obj instanceof List) {
+                add(launcher, (List) obj);
+            } else {
+                launcher.arg(obj.toString());
+            }
+        }
     }
 }
