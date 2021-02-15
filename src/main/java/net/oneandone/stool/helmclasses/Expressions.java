@@ -19,6 +19,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import freemarker.template.TemplateSequenceModel;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Stage;
@@ -182,7 +183,7 @@ public class Expressions {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
             }
-            return Separator.COMMA.split(list.get(1).toString());
+            return Separator.COMMA.split(list.get(0).toString());
         });
         result.put("switch", (TemplateMethodModelEx) list -> {
                     List<String> lst;
@@ -297,9 +298,26 @@ public class Expressions {
         for (Object obj : lst) {
             if (obj instanceof List) {
                 add(launcher, (List) obj);
+            } else if (obj instanceof TemplateSequenceModel) {
+                add(launcher, toList((TemplateSequenceModel) obj));
             } else {
                 launcher.arg(obj.toString());
             }
         }
+    }
+    private static List toList(TemplateSequenceModel lst) {
+        List result;
+        int max;
+
+        try {
+            max = lst.size();
+        } catch (TemplateModelException e) {
+            throw new IllegalStateException(e);
+        }
+        result = new ArrayList<>(max);
+        for (int i = 0; i < max; i++) {
+            result.add(result.get(i));
+        }
+        return result;
     }
 }

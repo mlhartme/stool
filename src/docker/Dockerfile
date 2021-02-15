@@ -1,4 +1,4 @@
-FROM contargo.server.lan/cisoops-public/java-14:1.2.0
+FROM contargo.server.lan/cisoops-public/mavenbuild-java-14:1.2.3
 
 ENV HELM_EXPERIMENTAL_OCI=1
 ENV SC_HOME=/usr/local/stool
