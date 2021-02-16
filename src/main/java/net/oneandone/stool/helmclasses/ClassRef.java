@@ -29,9 +29,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class ClassRef {
@@ -97,14 +99,13 @@ public class ClassRef {
 
     public Clazz resolve(String kubeContext, Configuration configuration) throws IOException {
         ObjectMapper yaml;
-        FileNode root;
+        List<FileNode> charts;
         Map<String, Clazz> all;
         Clazz result;
         String str;
 
-        root = configuration.resolvedCharts(kubeContext);
         yaml = configuration.yaml;
-        all = loadAll(yaml, root);
+        all = loadAll(yaml, configuration.resolvedCharts(kubeContext).values());
         switch (type) {
             case BUILTIN:
                 result = all.get(value);
@@ -145,18 +146,15 @@ public class ClassRef {
         }
     }
 
-    public static Map<String, Clazz> loadAll(ObjectMapper yaml, FileNode charts) throws IOException {
+    public static Map<String, Clazz> loadAll(ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
         Iterator<JsonNode> classes;
         Map<String, Clazz> result;
         FileNode file;
 
         result = new HashMap<>();
-        for (FileNode dir : charts.find("*")) {
-            if (!dir.isDirectory()) {
-                continue;
-            }
-            add(result, Clazz.loadChartClass(yaml, dir.getName(), dir));
-            file = dir.join("classes.yaml");
+        for (FileNode chart : charts) {
+            add(result, Clazz.loadChartClass(yaml, chart.getName(), chart));
+            file = chart.join("classes.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
                     classes = yaml.readTree(src).elements();

@@ -54,7 +54,7 @@ public final class Helm {
                              Clazz originalClass, Map<String, String> clientValues, Map<String, String> prev)
             throws IOException {
         World world;
-        FileNode root;
+        Map<String, FileNode> charts;
         Expressions expressions;
         FileNode chart;
         FileNode values;
@@ -63,12 +63,12 @@ public final class Helm {
         Diff result;
         Diff forbidden;
 
-        root = configuration.resolvedCharts(kubeContext);
-        world = root.getWorld();
+        charts = configuration.resolvedCharts(kubeContext);
+        world = configuration.world;
         expressions = new Expressions(world, configuration, configuration.stageFqdn(name));
         modifiedClass = originalClass.derive(originalClass.origin, originalClass.author, originalClass.name);
         modifiedClass.setValues(clientValues);
-        chart = root.join(modifiedClass.chart).checkDirectory();
+        chart = charts.get(modifiedClass.chart).checkDirectory();
         LOGGER.info("chart: " + modifiedClass.chart + ":" + modifiedClass.chartVersion);
         next = expressions.eval(prev, modifiedClass, chart);
         result = Diff.diff(prev, next);

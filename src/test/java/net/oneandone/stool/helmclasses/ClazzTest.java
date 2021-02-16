@@ -22,6 +22,7 @@ import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -99,7 +100,7 @@ public class ClazzTest {
         Map<String, Clazz> all;
         Clazz a;
 
-        all = ClassRef.loadAll(YAML, WORLD.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory());
+        all = ClassRef.loadAll(YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/helmclasses/foo").checkDirectory()));
         assertEquals(2, all.size());
         a = all.get("derived");
         assertEquals("42", a.fields.get("asis").value);

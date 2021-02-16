@@ -549,15 +549,19 @@ public class Configuration {
         return !ldapUrl.isEmpty();
     }
 
-    public FileNode resolvedCharts(String kubeContext) throws IOException {
+    public Map<String, FileNode> resolvedCharts(String kubeContext) throws IOException {
         FileNode root;
         PortusRegistry portus;
+        Map<String, FileNode> result;
+        FileNode resolved;
 
         root = lib.join("charts").mkdirsOpt();
+        result = new LinkedHashMap<>();
         for (String entry : classpath) {
             portus = createRegistry(entry);
-            Helm.resolveRepositoryChart(kubeContext, portus, entry, root).checkDirectory();
+            resolved = Helm.resolveRepositoryChart(kubeContext, portus, entry, root).checkDirectory();
+            result.put(resolved.getName(), resolved);
         }
-        return root;
+        return result;
     }
 }
