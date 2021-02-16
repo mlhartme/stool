@@ -30,7 +30,9 @@ import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -185,6 +187,18 @@ public class Expressions {
             }
             return Separator.COMMA.split(list.get(0).toString());
         });
+        result.put("toBase64", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            return Base64.getEncoder().encodeToString(list.get(0).toString().getBytes(StandardCharsets.UTF_8));
+        });
+        result.put("fromBase64", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            return Base64.getDecoder().decode(list.get(0).toString());
+        });
         result.put("switch", (TemplateMethodModelEx) list -> {
                     List<String> lst;
                     String var;
@@ -305,19 +319,20 @@ public class Expressions {
             }
         }
     }
+
     private static List toList(TemplateSequenceModel lst) {
         List result;
         int max;
 
         try {
             max = lst.size();
+            result = new ArrayList<>(max);
+            for (int i = 0; i < max; i++) {
+                result.add(lst.get(i));
+            }
+            return result;
         } catch (TemplateModelException e) {
-            throw new IllegalStateException(e);
+            throw new ArgumentException(e.getMessage(), e);
         }
-        result = new ArrayList<>(max);
-        for (int i = 0; i < max; i++) {
-            result.add(result.get(i));
-        }
-        return result;
     }
 }
