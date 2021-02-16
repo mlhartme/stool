@@ -95,7 +95,7 @@ public final class Helm {
         return chart.join(".tag");
     }
 
-    public static FileNode resolveChart(String kubeContext, PortusRegistry registry, String repository, FileNode root) throws IOException {
+    public static FileNode resolveRepositoryChart(String kubeContext, PortusRegistry registry, String repository, FileNode root) throws IOException {
         String chart;
         List<String> tags;
         String tag;

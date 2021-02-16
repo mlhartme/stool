@@ -556,7 +556,7 @@ public class Configuration {
         root = lib.join("charts").mkdirsOpt();
         for (String entry : classpath) {
             portus = createRegistry(entry);
-            Helm.resolveChart(kubeContext, portus, entry, root).checkDirectory();
+            Helm.resolveRepositoryChart(kubeContext, portus, entry, root).checkDirectory();
         }
         return root;
     }
