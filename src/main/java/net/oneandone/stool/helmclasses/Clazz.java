@@ -40,11 +40,13 @@ public class Clazz {
         Clazz result;
         ObjectNode loaded;
         ObjectNode classValue;
+        FileNode tagFile;
 
         try (Reader src = chart.join("values.yaml").newReader()) {
             loaded = (ObjectNode) yaml.readTree(src);
         }
-        result = new Clazz("TODO", "TODO", name, name, Helm.tagFile(chart).readString().trim());
+        tagFile = Helm.tagFile(chart);
+        result = new Clazz("TODO", "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
         classValue = (ObjectNode) loaded.remove("class");
         // normal values are value class field definitions
         result.defineBaseAll(loaded.fields());

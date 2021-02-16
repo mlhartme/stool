@@ -110,7 +110,7 @@ public class MainIT {
         if (local) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "-charts=contargo.server.lan/cisoops-public/charts/kutter" /* TODO */, "-registryCredentials=" + registryCredentials, "localhost=local:local");
+            sc(home, "setup", "-classpath=/Users/mhm/Projects/helmcharts/kutter" /* TODO */, "-registryCredentials=" + registryCredentials, "localhost=local:local");
         } else {
             helm(local, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "localhost=http://localhost:31000/api");

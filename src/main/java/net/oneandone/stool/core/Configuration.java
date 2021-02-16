@@ -558,9 +558,9 @@ public class Configuration {
         root = lib.join("charts").mkdirsOpt();
         result = new LinkedHashMap<>();
         for (String entry : classpath) {
-            portus = createRegistry(entry);
             resolved = directoryChartOpt(entry);
             if (resolved == null) {
+                portus = createRegistry(entry);
                 resolved = Helm.resolveRepositoryChart(kubeContext, portus, entry, root).checkDirectory();
             }
             result.put(resolved.getName(), resolved);
