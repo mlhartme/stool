@@ -559,9 +559,20 @@ public class Configuration {
         result = new LinkedHashMap<>();
         for (String entry : classpath) {
             portus = createRegistry(entry);
-            resolved = Helm.resolveRepositoryChart(kubeContext, portus, entry, root).checkDirectory();
+            resolved = directoryChartOpt(entry);
+            if (resolved == null) {
+                resolved = Helm.resolveRepositoryChart(kubeContext, portus, entry, root).checkDirectory();
+            }
             result.put(resolved.getName(), resolved);
         }
         return result;
+    }
+
+    private FileNode directoryChartOpt(String classpathEntry) throws IOException {
+        if (classpathEntry.startsWith("/")) {
+            return world.file(classpathEntry).checkDirectory();
+        } else {
+            return null;
+        }
     }
 }

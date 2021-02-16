@@ -95,7 +95,7 @@ public final class Helm {
         return chart.join(".tag");
     }
 
-    public static FileNode resolveRepositoryChart(String kubeContext, PortusRegistry registry, String repository, FileNode root) throws IOException {
+    public static FileNode resolveRepositoryChart(String kubeContext, PortusRegistry registry, String repository, FileNode exports) throws IOException {
         String chart;
         List<String> tags;
         String tag;
@@ -109,7 +109,7 @@ public final class Helm {
             throw new IOException("no tag for repository " + repository);
         }
         tag = tags.get(tags.size() - 1);
-        chartDir = root.join(chart);
+        chartDir = exports.join(chart);
         tagFile = tagFile(chartDir);
         if (chartDir.exists()) {
             existing = tagFile.readString().trim();
@@ -121,8 +121,8 @@ public final class Helm {
             LOGGER.info("loading chart " + chart + " " + tag);
         }
         if (!chartDir.exists()) {
-            Helm.exec(false, kubeContext, root, "chart", "pull", repository + ":" + tag);
-            Helm.exec(false, kubeContext, root, "chart", "export", repository + ":" + tag, "-d", chartDir.getParent().getAbsolute());
+            Helm.exec(false, kubeContext, exports, "chart", "pull", repository + ":" + tag);
+            Helm.exec(false, kubeContext, exports, "chart", "export", repository + ":" + tag, "-d", chartDir.getParent().getAbsolute());
             if (!chartDir.exists()) {
                 throw new IllegalStateException(chartDir.getAbsolute());
             }
