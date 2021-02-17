@@ -153,32 +153,39 @@ public class Configuration {
     public static final Separator COLON = Separator.on(":").trim().skipEmpty();
 
     public Configuration(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode configuration) {
+        ObjectNode local;
+
         this.world = world;
         this.yaml = yaml;
         this.json = json;
 
         this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
-        this.contexts = parseContexts((ArrayNode) configuration.get("contexts"));
 
-        this.environment = Json.stringMapOpt(configuration, "environment");
-        this.registryCredentials = parseRegistryCredentials(string(configuration, "registryCredentials", ""));
+        this.contexts = parseContexts((ArrayNode) configuration.get("proxies"));
+
+        local = (ObjectNode) configuration.get("local");
+        if (local == null) {
+            local = yaml.createObjectNode();
+        }
+        this.environment = Json.stringMapOpt(local, "environment");
+        this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.lib = home.join("lib");
-        this.classpath = COLON.split(Json.string(configuration, "classpath", ""));
-        this.stageLogs = string(configuration, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
-        this.loglevel = Json.string(configuration, "loglevel", "ERROR");
-        this.fqdn = Json.string(configuration, "fqdn", "localhost");
-        this.kubernetes = Json.string(configuration, "kubernetes", "http://localhost");
-        this.admin = Json.string(configuration, "admin", "");
-        this.ldapUrl = Json.string(configuration, "ldapUrl", "");
-        this.ldapPrincipal = Json.string(configuration, "ldapPrincipal", "");
-        this.ldapCredentials = Json.string(configuration, "ldapCredentials", "");
-        this.ldapUnit = Json.string(configuration, "ldapUnit", "");
-        this.ldapSso = Json.string(configuration, "ldapSso", "");
-        this.mailHost = Json.string(configuration, "mailHost", "");
-        this.mailUsername = Json.string(configuration, "mailUsername", "");
-        this.mailPassword = Json.string(configuration, "mailPassword", "");
-        this.autoRemove = Json.number(configuration, "autoRemove", -1);
-        this.defaultExpire = Json.number(configuration, "defaultExpire", 0);
+        this.classpath = COLON.split(Json.string(local, "classpath", ""));
+        this.stageLogs = string(local, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
+        this.loglevel = Json.string(local, "loglevel", "ERROR");
+        this.fqdn = Json.string(local, "fqdn", "localhost");
+        this.kubernetes = Json.string(local, "kubernetes", "http://localhost");
+        this.admin = Json.string(local, "admin", "");
+        this.ldapUrl = Json.string(local, "ldapUrl", "");
+        this.ldapPrincipal = Json.string(local, "ldapPrincipal", "");
+        this.ldapCredentials = Json.string(local, "ldapCredentials", "");
+        this.ldapUnit = Json.string(local, "ldapUnit", "");
+        this.ldapSso = Json.string(local, "ldapSso", "");
+        this.mailHost = Json.string(local, "mailHost", "");
+        this.mailUsername = Json.string(local, "mailUsername", "");
+        this.mailPassword = Json.string(local, "mailPassword", "");
+        this.autoRemove = Json.number(local, "autoRemove", -1);
+        this.defaultExpire = Json.number(local, "defaultExpire", 0);
     }
 
     public Configuration(Configuration from) throws IOException {
@@ -489,37 +496,43 @@ public class Configuration {
 
     public ObjectNode toYaml() {
         ObjectNode obj;
+        ObjectNode local;
         ArrayNode array;
 
         obj = yaml.createObjectNode();
         if (currentContext != null) {
             obj.put("currentContext", currentContext);
         }
-        obj.put("registryCredentials", registryCredentialsString());
-        obj.put("stageLog", stageLogs);
-        obj.put("classpath", COLON.join(classpath));
+        local = yaml.createObjectNode();
+        obj.set("local", local);
+
+        local.put("registryCredentials", registryCredentialsString());
+        local.put("stageLog", stageLogs);
+        local.put("classpath", COLON.join(classpath));
 
         //--
 
-        obj.put("fqdn", fqdn);
-        obj.put("kubernetes", kubernetes);
-        obj.set("environment", Json.obj(json, environment));
-        obj.put("loglevel", loglevel);
-        obj.put("admin", admin);
-        obj.put("autoRemove", autoRemove);
-        obj.put("ldapUrl", ldapUrl);
-        obj.put("ldapPrincipal", ldapPrincipal);
-        obj.put("ldapCredentials", ldapCredentials);
-        obj.put("ldapUnit", ldapUnit);
-        obj.put("ldapSso", ldapSso);
-        obj.put("mailHost", mailHost);
-        obj.put("mailUsername", mailUsername);
-        obj.put("mailPassword", mailPassword);
-        obj.put("defaultExpire", defaultExpire);
+        local.put("fqdn", fqdn);
+        local.put("kubernetes", kubernetes);
+        local.set("environment", Json.obj(json, environment));
+        local.put("loglevel", loglevel);
+        local.put("admin", admin);
+        local.put("autoRemove", autoRemove);
+        if (auth()) {
+            local.put("ldapUrl", ldapUrl);
+            local.put("ldapPrincipal", ldapPrincipal);
+            local.put("ldapCredentials", ldapCredentials);
+            local.put("ldapUnit", ldapUnit);
+            local.put("ldapSso", ldapSso);
+        }
+        local.put("mailHost", mailHost);
+        local.put("mailUsername", mailUsername);
+        local.put("mailPassword", mailPassword);
+        local.put("defaultExpire", defaultExpire);
 
         //--
 
-        array = obj.putArray("contexts");
+        array = obj.putArray("proxies");
         for (Context context : contexts.values()) {
             array.add(context.toObject(yaml));
         }

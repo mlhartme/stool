@@ -4,28 +4,29 @@ metadata:
   name: configuration
 data:
   configuration.yaml: |
-    registryCredentials: "{{ .Values.registryCredentials }}"
-    stageLogs: "{{ .Values.stageLogs }}"
-    classpath: "{{ .Values.classpath }}"
-    fqdn: "{{ .Values.fqdn }}"
-    kubernetes: "{{ .Values.kubernetes }}"
-    ldapUrl: "{{ .Values.ldapUrl }}"
-    ldapUnit: "{{ .Values.ldapUnit }}"
-    ldapPrincipal: "{{ .Values.ldapPrincipal }}"
-    ldapCredentials: "{{ .Values.ldapCredentials }}"
-    ldapSso: "{{ .Values.ldapSso }}"
-    admin: "{{ .Values.admin }}"
-    autoRemove: "{{ .Values.autoRemove }}"
-    defaultExpire: "{{ .Values.defaultExpire }}"
-    environment:
-      {{- range $key, $val := .Values.environment }}
-      {{ $key }}: {{ $val | quote }}
-      {{- end }}
-    loglevel: "{{ .Values.loglevel }}"
-    mailHost: "{{ .Values.mailHost }}"
-    mailUsername: "{{ .Values.username }}"
-    mailPassword: "{{ .Values.password }}"
     currentContext: "localhost"
-    contexts:
+    local:
+      registryCredentials: "{{ .Values.registryCredentials }}"
+      stageLogs: "{{ .Values.stageLogs }}"
+      classpath: "{{ .Values.classpath }}"
+      fqdn: "{{ .Values.fqdn }}"
+      kubernetes: "{{ .Values.kubernetes }}"
+      ldapUrl: "{{ .Values.ldapUrl }}"
+      ldapUnit: "{{ .Values.ldapUnit }}"
+      ldapPrincipal: "{{ .Values.ldapPrincipal }}"
+      ldapCredentials: "{{ .Values.ldapCredentials }}"
+      ldapSso: "{{ .Values.ldapSso }}"
+      admin: "{{ .Values.admin }}"
+      autoRemove: "{{ .Values.autoRemove }}"
+      defaultExpire: "{{ .Values.defaultExpire }}"
+      environment:
+        {{- range $key, $val := .Values.environment }}
+        {{ $key }}: {{ $val | quote }}
+        {{- end }}
+      loglevel: "{{ .Values.loglevel }}"
+      mailHost: "{{ .Values.mailHost }}"
+      mailUsername: "{{ .Values.username }}"
+      mailPassword: "{{ .Values.password }}"
+    proxies:
       - name: "localhost"
         url: "local:local"
