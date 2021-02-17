@@ -70,7 +70,7 @@ public class Setup {
         configuration.save(Configuration.configurationYaml(home));
         console.info.println("Done - created " + home.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
-        for (Context c : configuration.contexts.values()) {
+        for (Context c : configuration.proxies.values()) {
             console.info.println("  " + c.name + " " + c.url);
         }
         console.info.println();
@@ -111,7 +111,7 @@ public class Setup {
             }
             name = spec.substring(0, idx);
             url = spec.substring(idx + 1);
-            result.contexts.clear();
+            result.proxies.clear();
             result.addContext(name, url, null);
         }
         return result;

@@ -99,7 +99,7 @@ public class Configuration {
     public final ObjectMapper json;
 
     private String currentContext;
-    public final Map<String, Context> contexts;
+    public final Map<String, Context> proxies;
 
     public final Map<String, Pair> registryCredentials;
     public final List<String> classpath;
@@ -161,7 +161,7 @@ public class Configuration {
 
         this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
 
-        this.contexts = parseContexts((ArrayNode) configuration.get("proxies"));
+        this.proxies = parseContexts((ArrayNode) configuration.get("proxies"));
 
         local = (ObjectNode) configuration.get("local");
         if (local == null) {
@@ -194,9 +194,9 @@ public class Configuration {
         this.json = Json.newJson();
         this.environment = new LinkedHashMap<>(from.environment);
         this.currentContext = from.currentContext;
-        this.contexts = new HashMap<>();
-        for (Map.Entry<String, Context> entry : from.contexts.entrySet()) {
-            contexts.put(entry.getKey(), entry.getValue().newInstance());
+        this.proxies = new LinkedHashMap<>();
+        for (Map.Entry<String, Context> entry : from.proxies.entrySet()) {
+            proxies.put(entry.getKey(), entry.getValue().newInstance());
         }
         this.registryCredentials = new HashMap<>(from.registryCredentials);
         this.classpath = new ArrayList<>(from.classpath);
@@ -430,7 +430,7 @@ public class Configuration {
         if (currentContext == null) {
             result = null;
         } else {
-            result = contexts.get(currentContext);
+            result = proxies.get(currentContext);
             if (result == null) {
                 throw new ArgumentException("current context not found: " + currentContext);
             }
@@ -446,11 +446,11 @@ public class Configuration {
     }
 
     public void addContext(String name, String url, String token) {
-        contexts.put(name, new Context(name, url, token));
+        proxies.put(name, new Context(name, url, token));
     }
 
     public Context contextLookup(String context) {
-        return contexts.get(context);
+        return proxies.get(context);
     }
 
     public Client currentContextConnect(Caller caller) throws IOException {
@@ -533,7 +533,7 @@ public class Configuration {
         //--
 
         array = obj.putArray("proxies");
-        for (Context context : contexts.values()) {
+        for (Context context : proxies.values()) {
             array.add(context.toObject(yaml));
         }
         return obj;

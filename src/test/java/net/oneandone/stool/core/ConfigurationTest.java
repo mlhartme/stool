@@ -30,6 +30,6 @@ public class ConfigurationTest {
 
         world = World.createMinimal();
         c = Configuration.create(world);
-        assertTrue(c.contexts.isEmpty());
+        assertTrue(c.proxies.isEmpty());
     }
 }

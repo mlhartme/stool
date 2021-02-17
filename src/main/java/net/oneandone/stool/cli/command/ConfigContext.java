@@ -49,7 +49,7 @@ public class ConfigContext extends ClientCommand {
             } else {
                 found = configuration.currentContextOpt();
                 current = found == null ? null : found.name;
-                for (String name : configuration.contexts.keySet()) {
+                for (String name : configuration.proxies.keySet()) {
                     console.info.print(name.equals(current) ? "=> " : "   ");
                     console.info.println(name);
                 }
@@ -57,7 +57,7 @@ public class ConfigContext extends ClientCommand {
         } else {
             found = configuration.contextLookup(setOpt);
             if (found == null) {
-                throw new IOException(setOpt + ": context not found, available contexts: " + configuration.contexts.keySet());
+                throw new IOException(setOpt + ": context not found, available contexts: " + configuration.proxies.keySet());
             }
             old = configuration.currentContextOpt();
             oldName = old == null ? "(none)" : old.name;
