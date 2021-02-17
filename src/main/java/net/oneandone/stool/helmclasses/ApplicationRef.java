@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 public class ApplicationRef {
@@ -99,7 +98,6 @@ public class ApplicationRef {
 
     public Application resolve(String kubeContext, Configuration configuration) throws IOException {
         ObjectMapper yaml;
-        List<FileNode> charts;
         Map<String, Application> all;
         Application result;
         String str;
@@ -125,7 +123,7 @@ public class ApplicationRef {
                 registry = configuration.createRegistry(value);
                 tag = registry.resolve(value);
                 str = tag.labels.get("application");
-                if (str == null) {
+                if (str == null || str.isEmpty()) {
                     throw new IOException("image does not have an 'application' label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
