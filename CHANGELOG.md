@@ -5,10 +5,10 @@
 * SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is not $SC_HOME/configuration.yaml
 * stages are define by helm charts now
   * Kubernetes resources for a stage are now defined by a Helm chart; this replaced the former hard-wired api calls
-  * classes define values for helm charts
+  * applications define values for helm charts
     * directly with template expressions (freemarker, with built-in scripts, e.g. to fetch vault secrets or generate credentials)
-    * indirectly by extending a base class
-  * `sc create <stage> <class>` installs a Helm chart with the values as defined by the class, resulting in a Helm release
+    * indirectly by extending a base applications
+  * `sc create <stage> <application>` installs a Helm chart with the values as defined by the application, resulting in a Helm release
   * `sc delete <stage>` uninstalls this release
   * `start` and `stop` commands are gone, create results in a running stage, and delete stops the stage first
   * terminology: swapped the meaning of *field* and *property*:
@@ -18,7 +18,7 @@
       inspect or change fields with `sc config`.
 
 * helm-like cli:
-  * `create` command line arguments are similar to helm's install argument: `sc create <name> <class>`
+  * `create` command line arguments are similar to helm's install argument: `sc create <name> <application>`
   * stage commands now take an explicit stage argument, e.g. `sc status hellowar`
   * dumped implicit workspaces derived from current directory because
     * use the new named workspace (referenced with '@' *name*) instead
@@ -53,7 +53,7 @@
     * dumped `last-modified-at`, and `last-modified-by`; use `last-deployed` or check the history instead
     * dumped `images` field because it's very slow and deals to the registry, not kubernetes; 
       use `sc images` instead
-    * added `class` field, but its hidden unless you invoke with `-hidden`
+    * added `application` field, but it's hidden unless you invoke with `-hidden`
   * `attach`
     * now takes a single name argument
     * can be used in an existing workspace
