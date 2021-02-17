@@ -108,7 +108,7 @@ public class LocalClient extends Client {
     }
 
     @Override
-    public Map<String, String> create(String stageName, ApplicationRef classRef, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, ApplicationRef applicationRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
@@ -118,18 +118,18 @@ public class LocalClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(caller, kubernetesContext, engine, configuration, stageName, classRef, values);
+            stage = Stage.create(caller, kubernetesContext, engine, configuration, stageName, applicationRef, values);
             return stage.urlMap();
         }
     }
 
     @Override
-    public Diff publish(String name, boolean dryrun, String allow, ApplicationRef classRef, Map<String, String> values) throws IOException {
+    public Diff publish(String name, boolean dryrun, String allow, ApplicationRef applicationRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
             stage = configuration.load(engine, name);
-            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, classRef.resolve(kubernetesContext, configuration), values);
+            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, applicationRef.resolve(kubernetesContext, configuration), values);
         }
     }
 

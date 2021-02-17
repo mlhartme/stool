@@ -37,11 +37,11 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(String kubernetesContext, Configuration configuration, String name, ApplicationRef classRef, Map<String, String> values)
+    public static void install(String kubernetesContext, Configuration configuration, String name, ApplicationRef applicationRef, Map<String, String> values)
             throws IOException {
         Application clazz;
 
-        clazz = classRef.resolve(kubernetesContext, configuration);
+        clazz = applicationRef.resolve(kubernetesContext, configuration);
         helm(kubernetesContext, configuration, name, false, false, null, clazz, values, Collections.emptyMap());
     }
 

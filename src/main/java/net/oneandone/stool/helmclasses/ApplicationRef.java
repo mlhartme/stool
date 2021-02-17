@@ -124,7 +124,7 @@ public class ApplicationRef {
 
                 registry = configuration.createRegistry(value);
                 tag = registry.resolve(value);
-                str = tag.labels.get("class");
+                str = tag.labels.get("application");
                 if (str == null) {
                     throw new IOException("image does not have a class label: " + value);
                 }
@@ -154,7 +154,7 @@ public class ApplicationRef {
         result = new HashMap<>();
         for (FileNode chart : charts) {
             add(result, Application.loadChartApplication(yaml, chart.getName(), chart));
-            file = chart.join("classes.yaml");
+            file = chart.join("applications.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
                     classes = yaml.readTree(src).elements();

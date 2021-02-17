@@ -172,7 +172,7 @@ public class Configuration {
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.lib = home.join("lib");
-        this.classpath = COLON.split(Json.string(local, "classpath", ""));
+        this.classpath = COLON.split(Json.string(local, "applicationpath", ""));
         this.stageLogs = string(local, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(local, "loglevel", "ERROR");
         this.fqdn = Json.string(local, "fqdn", "localhost");
@@ -531,7 +531,7 @@ public class Configuration {
 
         local.put("registryCredentials", registryCredentialsString());
         local.put("stageLog", stageLogs);
-        local.put("classpath", COLON.join(classpath));
+        local.put("applicationpath", COLON.join(classpath));
 
         //--
 

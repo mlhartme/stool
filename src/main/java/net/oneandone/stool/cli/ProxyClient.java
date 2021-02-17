@@ -137,21 +137,21 @@ public class ProxyClient extends Client {
      * @return url map
      * @throws FileAlreadyExistsException if the stage already exists */
     @Override
-    public Map<String, String> create(String stageName, ApplicationRef classRef, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, ApplicationRef applicationRef, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node("stages/" + stageName);
-        node = node.withParameter("classref", classRef.serialize());
+        node = node.withParameter("applicationref", applicationRef.serialize());
         node = node.withParameters("value.", values);
         return Json.stringMap((ObjectNode) postJson(node, ""));
     }
 
     @Override
-    public Diff publish(String stage, boolean dryrun, String allow, ApplicationRef classRef, Map<String, String> values) throws IOException {
+    public Diff publish(String stage, boolean dryrun, String allow, ApplicationRef applicationRef, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node(stage, "publish");
-        node = node.withParameter("classref", classRef.serialize());
+        node = node.withParameter("applicationref", applicationRef.serialize());
         if (dryrun) {
             node = node.withParameter("dryrun", dryrun);
         }

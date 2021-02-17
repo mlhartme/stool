@@ -51,14 +51,14 @@ import java.util.Set;
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
 
-    public static Stage create(Caller caller, String kubeContext, Engine engine, Configuration configuration, String stageName, ApplicationRef classRef,
+    public static Stage create(Caller caller, String kubeContext, Engine engine, Configuration configuration, String stageName, ApplicationRef applicationRef,
                                Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(kubeContext, configuration, stageName, classRef, values);
+        Helm.install(kubeContext, configuration, stageName, applicationRef, values);
         stage = Stage.create(configuration, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
