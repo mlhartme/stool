@@ -209,8 +209,8 @@ public class Stage {
 
     //-- fields
 
-    public StatusField fieldOpt(String str) {
-        for (StatusField f : fields()) {
+    public Field fieldOpt(String str) {
+        for (Field f : fields()) {
             if (str.equals(f.name())) {
                 return f;
             }
@@ -218,35 +218,35 @@ public class Stage {
         return null;
     }
 
-    public List<StatusField> fields() {
-        List<StatusField> fields;
+    public List<Field> fields() {
+        List<Field> fields;
 
         fields = new ArrayList<>();
-        fields.add(new StatusField("name") {
+        fields.add(new Field("name") {
             @Override
             public Object get(Engine engine) {
                 return name;
             }
         });
-        fields.add(new StatusField("available") {
+        fields.add(new Field("available") {
             @Override
             public Object get(Engine engine) throws IOException {
                 return engine.deploymentProbe(Dependencies.deploymentName(name)).statusAvailable;
             }
         });
-        fields.add(new StatusField("last-deployed") {
+        fields.add(new Field("last-deployed") {
             @Override
             public Object get(Engine engine) {
                 return info.get("last_deployed").asText();
             }
         });
-        fields.add(new StatusField("first-deployed") {
+        fields.add(new Field("first-deployed") {
             @Override
             public Object get(Engine engine) {
                 return info.get("first_deployed").asText();
             }
         });
-        fields.add(new StatusField("cpu") {
+        fields.add(new Field("cpu") {
             @Override
             public Object get(Engine engine) throws IOException {
                 Stats stats;
@@ -259,7 +259,7 @@ public class Stage {
                 }
             }
         });
-        fields.add(new StatusField("mem") {
+        fields.add(new Field("mem") {
             @Override
             public Object get(Engine engine) throws IOException {
                 Stats stats;
@@ -272,25 +272,25 @@ public class Stage {
                 }
             }
         });
-        fields.add(new StatusField("urls") {
+        fields.add(new Field("urls") {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.urlMap();
             }
         });
-        fields.add(new StatusField("chart") {
+        fields.add(new Field("chart") {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.clazz.chart + ":" + Stage.this.clazz.chartVersion;
             }
         });
-        fields.add(new StatusField("application", true) {
+        fields.add(new Field("application", true) {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.clazz.toObject(configuration.yaml).toPrettyString();
             }
         });
-        fields.add(new StatusField("origin", true) {
+        fields.add(new Field("origin", true) {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.clazz.origin;

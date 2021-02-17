@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
-import net.oneandone.stool.core.StatusField;
+import net.oneandone.stool.core.Field;
 import net.oneandone.stool.helmclasses.ApplicationRef;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
@@ -83,16 +83,16 @@ public class LocalClient extends Client {
                 s = new HashMap<>();
                 result.put(stage.getName(), s);
                 remaining = new ArrayList<>(select);
-                for (StatusField property : stage.fields()) {
+                for (Field property : stage.fields()) {
                     if ((select.isEmpty() && (hidden || !property.hidden)) || remaining.remove(property.name())) {
                         s.put(property.name(), property.getAsJson(json, engine));
                     }
                 }
                 // add values explicitly selected
                 for (Value value : stage.values()) {
-                    if (!select.isEmpty() && remaining.remove(value.field.name)) {
-                        if (!value.field.privt) {
-                            s.put(value.field.name, new TextNode(value.get()));
+                    if (!select.isEmpty() && remaining.remove(value.property.name)) {
+                        if (!value.property.privt) {
+                            s.put(value.property.name, new TextNode(value.get()));
                         }
                     }
                 }
@@ -154,8 +154,8 @@ public class LocalClient extends Client {
         try (Engine engine = engine()) {
             stage = configuration.load(engine, stageName);
             for (Value value : stage.values()) {
-                if (!value.field.privt) {
-                    result.put(value.field.name, new Pair(value.get(), value.field.doc));
+                if (!value.property.privt) {
+                    result.put(value.property.name, new Pair(value.get(), value.property.doc));
                 }
             }
             return result;
@@ -175,12 +175,12 @@ public class LocalClient extends Client {
             changes = new LinkedHashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 value = stage.value(entry.getKey());
-                if (value.field.privt) {
-                    throw new ArgumentException("cannot set private value: " + value.field.name);
+                if (value.property.privt) {
+                    throw new ArgumentException("cannot set private value: " + value.property.name);
                 }
                 value = value.withNewValue(entry.getValue());
                 changes.put(entry.getKey(), value.get());
-                result.put(value.field.name, value.get());
+                result.put(value.property.name, value.get());
             }
             stage.setValues(caller, kubernetesContext, engine, changes);
             return result;

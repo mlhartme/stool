@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.core.StatusField;
+import net.oneandone.stool.core.Field;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.Value;
 import net.oneandone.stool.kubernetes.Engine;
@@ -93,8 +93,8 @@ public class PredicateParser {
         int idx;
         String name;
         final boolean eq;
-        StatusField field;
-        final StatusField constField;
+        Field field;
+        final Field constField;
         String value;
         String property;
         final String constProperty;

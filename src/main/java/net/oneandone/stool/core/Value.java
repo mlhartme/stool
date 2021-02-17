@@ -18,16 +18,16 @@ package net.oneandone.stool.core;
 import net.oneandone.stool.helmclasses.Property;
 
 public class Value {
-    public final Property field;
+    public final Property property;
     public final String value;
 
-    public Value(Property field, String value) {
-        this.field = field;
+    public Value(Property property, String value) {
+        this.property = property;
         this.value = value;
     }
 
     public Value withNewValue(String str) {
-        return new Value(field, str.replace("{}", value));
+        return new Value(property, str.replace("{}", value));
     }
 
     public String get() {
@@ -35,6 +35,6 @@ public class Value {
     }
 
     public String toString() {
-        return field.name + ": " + get();
+        return property.name + ": " + get();
     }
 }
