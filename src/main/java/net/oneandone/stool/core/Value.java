@@ -15,13 +15,13 @@
  */
 package net.oneandone.stool.core;
 
-import net.oneandone.stool.helmclasses.Field;
+import net.oneandone.stool.helmclasses.Property;
 
 public class Value {
-    public final Field field;
+    public final Property field;
     public final String value;
 
-    public Value(Field field, String value) {
+    public Value(Property field, String value) {
         this.field = field;
         this.value = value;
     }

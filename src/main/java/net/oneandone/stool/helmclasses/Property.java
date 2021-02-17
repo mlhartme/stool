@@ -27,8 +27,8 @@ import net.oneandone.sushi.util.Strings;
 import java.util.Map;
 
 /** Immutable building block of a class, defines how to compute values. */
-public class Field {
-    public static Field forYaml(String name, JsonNode yaml) {
+public class Property {
+    public static Property forYaml(String name, JsonNode yaml) {
         boolean privt;
         boolean extra;
         String doc;
@@ -47,7 +47,7 @@ public class Field {
         } else {
             value = yaml.asText();
         }
-        return new Field(name, privt, extra, doc, value);
+        return new Property(name, privt, extra, doc, value);
     }
 
     public static String getValue(ObjectNode root) {
@@ -94,10 +94,10 @@ public class Field {
     public final String doc;
     public final String value;
 
-    public Field(String name, String value) {
+    public Property(String name, String value) {
         this(name, false, false, null, value);
     }
-    public Field(String name, boolean privt, boolean extra, String doc, String value) {
+    public Property(String name, boolean privt, boolean extra, String doc, String value) {
         this.name = name;
         this.privt = privt;
         this.extra = extra;
@@ -105,12 +105,12 @@ public class Field {
         this.value = value;
     }
 
-    public Field withValue(String withValue) {
-        return new Field(name, privt, extra, doc, withValue);
+    public Property withValue(String withValue) {
+        return new Property(name, privt, extra, doc, withValue);
     }
 
-    public Field withDoc(String withDoc) {
-        return new Field(name, privt, extra, withDoc, value);
+    public Property withDoc(String withDoc) {
+        return new Property(name, privt, extra, withDoc, value);
     }
 
     public JsonNode toObject(ObjectMapper yaml) {

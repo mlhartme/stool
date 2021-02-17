@@ -83,11 +83,11 @@ public class Expressions {
         }
         contextPrevious = previous;
         try {
-            for (Field field : clazz.fields.values()) {
-                context.put(field.name, field);
+            for (Property property : clazz.properties.values()) {
+                context.put(property.name, property);
             }
-            for (Field field : clazz.fields.values()) {
-                evalValue(field.name);
+            for (Property property : clazz.properties.values()) {
+                evalValue(property.name);
             }
             result = new LinkedHashMap<>();
             for (Map.Entry<String, Object> entry : context.entrySet()) {
@@ -107,19 +107,19 @@ public class Expressions {
         String result;
 
         if (!context.containsKey(name)) {
-            throw new ArgumentException("unknown field: " + name);
+            throw new ArgumentException("unknown property: " + name);
         }
         obj = context.get(name);
         if (obj == null) {
-            throw new ArgumentException("invalid recursion on field " + name);
+            throw new ArgumentException("invalid recursion on property " + name);
         }
         if (obj instanceof String) {
             return (String) obj;
         }
-        if (obj instanceof Field) {
+        if (obj instanceof Property) {
             context.put(name, null);
             try {
-                result = eval(((Field) obj).value);
+                result = eval(((Property) obj).value);
             } catch (IOException e) {
                 throw new ArgumentException("failed to compute value: " + name, e);
             }

@@ -48,7 +48,6 @@ public class Application {
         tagFile = Helm.tagFile(chart);
         result = new Application("TODO", "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
         applicationValue = (ObjectNode) loaded.remove("application");
-        // normal values are value application field definitions
         result.defineBaseAll(loaded.fields());
         if (applicationValue != null) {
             result.defineAll(applicationValue.fields());
@@ -90,7 +89,7 @@ public class Application {
 
         result = new Application("synthetic", null, name, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
-            result.defineBase(new Field(nameValues[i], nameValues[i + 1]));
+            result.defineBase(new Property(nameValues[i], nameValues[i + 1]));
         }
         return result;
     }
@@ -104,7 +103,7 @@ public class Application {
     public final String name;
     public final String chart;
     public final String chartVersion;
-    public final Map<String, Field> fields;
+    public final Map<String, Property> properties;
 
     private Application(String origin, String author, String name, String chart, String chartVersion) {
         this.origin = origin;
@@ -112,7 +111,7 @@ public class Application {
         this.name = name;
         this.chart = chart;
         this.chartVersion = chartVersion;
-        this.fields = new LinkedHashMap<>();
+        this.properties = new LinkedHashMap<>();
     }
 
     public void defineBaseAll(Iterator<Map.Entry<String, JsonNode>> iter) {
@@ -120,11 +119,11 @@ public class Application {
 
         while (iter.hasNext()) {
             entry = iter.next();
-            defineBase(Field.forYaml(entry.getKey(), entry.getValue()));
+            defineBase(Property.forYaml(entry.getKey(), entry.getValue()));
         }
     }
-    public void defineBase(Field value) {
-        if (fields.put(value.name, value) != null) {
+    public void defineBase(Property value) {
+        if (properties.put(value.name, value) != null) {
             throw new IllegalStateException(value.name);
         }
     }
@@ -136,57 +135,57 @@ public class Application {
         while (iter.hasNext()) {
             entry = iter.next();
             key = entry.getKey();
-            define(Field.forYaml(key, entry.getValue()));
+            define(Property.forYaml(key, entry.getValue()));
         }
     }
 
-    public void define(Field value) {
-        Field old;
+    public void define(Property property) {
+        Property old;
 
-        old = fields.get(value.name);
+        old = properties.get(property.name);
         if (old != null) {
             if (old.privt) {
-                throw new IllegalStateException("you cannot override private field: " + value.name);
+                throw new IllegalStateException("you cannot override private property: " + property.name);
             }
-            if (value.extra) {
-                throw new IllegalStateException("extra value overrides existing value: " + value.name);
+            if (property.extra) {
+                throw new IllegalStateException("extra property overrides base property: " + property.name);
             }
-            if (old.doc != null && value.doc == null) {
-                value = value.withDoc(old.doc);
+            if (old.doc != null && property.doc == null) {
+                property = property.withDoc(old.doc);
             }
-            if (!old.value.isEmpty() && value.value.isEmpty()) {
-                value = value.withValue(old.value);
+            if (!old.value.isEmpty() && property.value.isEmpty()) {
+                property = property.withValue(old.value);
             }
         } else {
-            if (!value.extra) {
-                throw new IllegalStateException("extra value expected: " + value.name);
+            if (!property.extra) {
+                throw new IllegalStateException("extra value expected: " + property.name);
             }
         }
-        fields.put(value.name, value);
+        properties.put(property.name, property);
     }
 
     public void setValues(Map<String, String> clientValues) {
         String key;
-        Field old;
+        Property old;
 
         for (Map.Entry<String, String> entry : clientValues.entrySet()) {
             key = entry.getKey();
-            old = fields.get(key);
+            old = properties.get(key);
             if (old == null) {
                 throw new ArgumentException("unknown value: " + key);
             }
-            fields.put(key, new Field(key, old.privt, false, old.doc, entry.getValue()));
+            properties.put(key, new Property(key, old.privt, false, old.doc, entry.getValue()));
         }
     }
 
     public int size() {
-        return fields.size();
+        return properties.size();
     }
 
-    public Field get(String value) {
-        Field result;
+    public Property get(String value) {
+        Property result;
 
-        result = fields.get(value);
+        result = properties.get(value);
         if (result == null) {
             throw new IllegalStateException(value);
         }
@@ -207,8 +206,8 @@ public class Application {
         node.set("chartVersion", new TextNode(chartVersion));
         p = yaml.createObjectNode();
         node.set("properties", p);
-        for (Field field : fields.values()) {
-            p.set(field.name, field.toObject(yaml));
+        for (Property property : properties.values()) {
+            p.set(property.name, property.toObject(yaml));
         }
         return node;
     }
@@ -217,8 +216,8 @@ public class Application {
         Application result;
 
         result = new Application(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
-        for (Field field : fields.values()) {
-            result.defineBase(field);
+        for (Property property : properties.values()) {
+            result.defineBase(property);
         }
         return result;
     }

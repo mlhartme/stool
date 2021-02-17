@@ -58,7 +58,7 @@ public class ApplicationTest {
             create("name: 'foo'\nextends: 'base'\nproperties:\n  f:\n    value: 2\n    extra: true");
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("extra value overrides existing value: f", e.getMessage());
+            assertEquals("extra property overrides base property: f", e.getMessage());
         }
     }
 
@@ -102,8 +102,8 @@ public class ApplicationTest {
         all = ApplicationRef.loadAll(YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/helmclasses/foo").checkDirectory()));
         assertEquals(2, all.size());
         a = all.get("derived");
-        assertEquals("42", a.fields.get("asis").value);
-        assertEquals("modified", a.fields.get("base").value);
-        assertEquals("3", a.fields.get("added").value);
+        assertEquals("42", a.properties.get("asis").value);
+        assertEquals("modified", a.properties.get("base").value);
+        assertEquals("3", a.properties.get("added").value);
     }
 }
