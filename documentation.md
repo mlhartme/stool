@@ -6,7 +6,7 @@ Stool is a tool to manage stages - create, publish, configure, delete. A stage i
 
 ### Quick Tour
 
-Here's an example what you can do with Stool. TODO: assumes hello-world class
+Here's an example what you can do with Stool. TODO: assumes hello-world application
 
 You generally invoke Stool from the command-line with `sc` followed by a command and specific arguments. 
 
@@ -66,8 +66,8 @@ prints help about `create`.
 
 ### Rationale
 
-Technically, stool is a front-end to Helm, stages are helm releases, and classes define values passed to helm charts.
-So in some sense, stool could be called 'helmclass', and it's purpose is somehow comparable to `helmfile`: simplify helm
+Technically, stool is a front-end to Helm, stages are helm releases, and applications define values passed to helm charts.
+So in some sense, stool could be called 'helmapplication', and it's purpose is somehow comparable to `helmfile`: simplify helm
 usage, avoid tedious shell scripts.
 
 
@@ -231,7 +231,7 @@ and some addional features like proxying and a dashboard.
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *application* ['@' *workspace*] [*key*`=`*object*...]
 
 
 
@@ -249,7 +249,7 @@ and some addional features like proxying and a dashboard.
 `sc` *global-option*... `delete` *stage-option*... [`-batch`]
 
 
-`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *class* [*key*`=`*object*...]
+`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *application* [*key*`=`*object*...]
 
 
 `sc` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
@@ -410,14 +410,14 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *application* ['@' *workspace*] [*key*`=`*object*...]
 
 
 
 #### DESCRIPTION
 
-Creates a new stage: computes all fields of *class* and its base classes, except those key-values pair specified explicitly.
-The resulting values are passed to Helm to install the chart of the class.
+Creates a new stage: computes all fields of *application* and its base applications, except those key-values pair specified explicitly.
+The resulting values are passed to Helm to install the chart of the applications.
 
 *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes, it's 
 rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name. 
@@ -436,7 +436,7 @@ See `sc help global-options` for available [global options](#sc-global-options)
 
 #### Examples
 
-Create one stage `foo` as defined by class `hello`: `sc create foo hello`
+Create one stage `foo` as defined by application `hello`: `sc create foo hello`
 
 
 
@@ -573,11 +573,11 @@ Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *class* [*key*`=`*object*...]
+`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *application* [*key*`=`*object*...]
 
 #### Description
 
-Updates the stage with the specified values. *class* specifies the class to actually start
+Updates the stage with the specified values. *application* specifies the application to actually start.
 
 Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
