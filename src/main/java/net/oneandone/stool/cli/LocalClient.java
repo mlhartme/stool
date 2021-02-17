@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
-import net.oneandone.stool.core.Property;
+import net.oneandone.stool.core.StatusField;
 import net.oneandone.stool.helmclasses.ApplicationRef;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
@@ -83,7 +83,7 @@ public class LocalClient extends Client {
                 s = new HashMap<>();
                 result.put(stage.getName(), s);
                 remaining = new ArrayList<>(select);
-                for (Property property : stage.properties()) {
+                for (StatusField property : stage.fields()) {
                     if ((select.isEmpty() && (hidden || !property.hidden)) || remaining.remove(property.name())) {
                         s.put(property.name(), property.getAsJson(json, engine));
                     }

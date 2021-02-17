@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.core.Property;
+import net.oneandone.stool.core.StatusField;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.Value;
 import net.oneandone.stool.kubernetes.Engine;
@@ -93,8 +93,8 @@ public class PredicateParser {
         int idx;
         String name;
         final boolean eq;
-        Property field;
-        final Property constField;
+        StatusField field;
+        final StatusField constField;
         String value;
         String property;
         final String constProperty;
@@ -118,7 +118,7 @@ public class PredicateParser {
             eq = true;
             name = string.substring(0, idx);
         }
-        field = stage.propertyOpt(name);
+        field = stage.fieldOpt(name);
         if (field != null) {
             property = null;
         } else {

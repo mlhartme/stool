@@ -37,7 +37,7 @@ public class ApplicationTest {
     public void empty() throws IOException {
         Application c;
 
-        c = create("name: 'foo'\nextends: 'base'\nfields:\n");
+        c = create("name: 'foo'\nextends: 'base'\nproperties:\n");
         assertEquals("foo", c.name);
         assertEquals(1, c.size());
     }
@@ -46,7 +46,7 @@ public class ApplicationTest {
     public void override() throws IOException {
         Application c;
 
-        c = create("name: 'foo'\nextends: 'base'\nfields:\n  f:\n    value: 2\n");
+        c = create("name: 'foo'\nextends: 'base'\nproperties:\n  f:\n    value: 2\n");
         assertEquals("foo", c.name);
         assertEquals(1, c.size());
         System.out.println(c.toObject(YAML));
@@ -55,7 +55,7 @@ public class ApplicationTest {
     @Test
     public void extraValueOverrides() throws IOException {
         try {
-            create("name: 'foo'\nextends: 'base'\nfields:\n  f:\n    value: 2\n    extra: true");
+            create("name: 'foo'\nextends: 'base'\nproperties:\n  f:\n    value: 2\n    extra: true");
             fail();
         } catch (IllegalStateException e) {
             assertEquals("extra value overrides existing value: f", e.getMessage());
@@ -66,7 +66,7 @@ public class ApplicationTest {
     public void extra() throws IOException {
         Application c;
 
-        c = create("name: 'foo'\nextends: 'base'\nfields:\n  v:\n    value: 2\n    extra: true");
+        c = create("name: 'foo'\nextends: 'base'\nproperties:\n  v:\n    value: 2\n    extra: true");
         assertEquals("foo", c.name);
         assertEquals(2, c.size());
     }
@@ -74,7 +74,7 @@ public class ApplicationTest {
     @Test
     public void extraValueExpected() throws IOException {
         try {
-            create("name: 'foo'\nextends: 'base'\nfields:\n  v: 2\n");
+            create("name: 'foo'\nextends: 'base'\nproperties:\n  v: 2\n");
             fail();
         } catch (IllegalStateException e) {
             assertEquals("extra value expected: v", e.getMessage());

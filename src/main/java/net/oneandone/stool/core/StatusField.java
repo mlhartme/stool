@@ -23,15 +23,15 @@ import net.oneandone.stool.util.Json;
 import java.io.IOException;
 
 /** A computable value representing one aspect of the stage status. */
-public abstract class Property {
+public abstract class StatusField {
     public final boolean hidden;
     private final String name;
 
-    protected Property(String name) {
+    protected StatusField(String name) {
         this(name, false);
     }
 
-    protected Property(String name, boolean hidden) {
+    protected StatusField(String name, boolean hidden) {
         this.name = name;
         this.hidden = hidden;
     }

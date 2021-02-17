@@ -70,7 +70,7 @@ public class Application {
             throw new IOException("application not found: " + extendz);
         }
         derived = base.derive(origin, author, name);
-        derived.defineAll(clazz.get("fields").fields());
+        derived.defineAll(clazz.get("properties").fields());
         return derived;
     }
 
@@ -81,7 +81,7 @@ public class Application {
         name = Json.string(application, "name");
         result = new Application(Json.stringOpt(application, "origin"), Json.stringOpt(application, "author"), name, Json.string(application, "chart"),
                 Json.string(application, "chartVersion"));
-        result.defineBaseAll(application.get("fields").fields());
+        result.defineBaseAll(application.get("properties").fields());
         return result;
     }
 
@@ -195,7 +195,7 @@ public class Application {
 
     public ObjectNode toObject(ObjectMapper yaml) {
         ObjectNode node;
-        ObjectNode f;
+        ObjectNode p;
 
         node = yaml.createObjectNode();
         node.set("origin", new TextNode(origin)); // TODO: saved only, not loaded
@@ -205,10 +205,10 @@ public class Application {
         node.set("name", new TextNode(name));
         node.set("chart", new TextNode(chart));
         node.set("chartVersion", new TextNode(chartVersion));
-        f = yaml.createObjectNode();
-        node.set("fields", f);
+        p = yaml.createObjectNode();
+        node.set("properties", p);
         for (Field field : fields.values()) {
-            f.set(field.name, field.toObject(yaml));
+            p.set(field.name, field.toObject(yaml));
         }
         return node;
     }
