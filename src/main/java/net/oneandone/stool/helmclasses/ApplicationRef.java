@@ -126,7 +126,7 @@ public class ApplicationRef {
                 tag = registry.resolve(value);
                 str = tag.labels.get("application");
                 if (str == null) {
-                    throw new IOException("image does not have a class label: " + value);
+                    throw new IOException("image does not have an 'application' label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     result = Application.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));

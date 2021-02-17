@@ -110,7 +110,7 @@ public class MainIT {
         if (local) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "-classpath=/Users/mhm/Projects/helmcharts/kutter" /* TODO */, "-registryCredentials=" + registryCredentials);
+            sc(home, "setup", "-applicationpath=/Users/mhm/Projects/helmcharts/kutter" /* TODO */, "-registryCredentials=" + registryCredentials);
             sc(home, "context", "local");
         } else {
             helm(local, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());

@@ -109,12 +109,12 @@ public class Main {
             cli.add(Server.class, "server");
             cli.addDefault(Help.class, "help command?");
             cli.begin("globals.getWorld", ""); cli.begin("globals.getConsole", "");
-              cli.add(Setup.class, "setup -classpath -lib -registryCredentials nameAndHost?");
+              cli.add(Setup.class, "setup -applicationpath -lib -registryCredentials nameAndHost?");
               cli.add(Auth.class, "auth -batch");
               cli.add(ConfigContext.class, "context -offline -q name?");
               cli.add(ShellInc.class, "shell-inc");
               cli.add(Images.class, "images image");
-              cli.add(Create.class, "create -optional -wait stage class values*");
+              cli.add(Create.class, "create -optional -wait stage application values*");
               cli.base(StageCommand.class, "-fail { setFail(fail) }");
                 cli.add(Attach.class, "attach stage workspace");
                 cli.add(Detach.class, "detach stage workspace");
@@ -124,7 +124,7 @@ public class Main {
                 cli.add(Status.class, "status -hidden stage info* { select*(info) }");
                 cli.add(Delete.class, "delete -batch stage");
                 cli.add(Remove.class, "remove stage");
-                cli.add(Publish.class, "publish -dryrun -allow stage class values*");
+                cli.add(Publish.class, "publish -dryrun -allow stage application values*");
                 cli.add(PortForward.class, "port-forward -timeout=30 stage port toPort?");
                 cli.add(Ssh.class, "ssh -timeout=30 stage shell?");
                 cli.add(Validate.class, "validate -email -repair stage");
