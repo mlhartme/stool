@@ -96,18 +96,18 @@ public class Stage {
     public static Stage create(Configuration configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
         Application cl;
 
-        cl = Application.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Application.HELM_CLASS));
+        cl = Application.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Application.HELM_APPLICATION));
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
-    private static final List<String> WITHOUT_CLASS = Collections.singletonList("class");
+    private static final List<String> WITHOUT_APPLICATION = Collections.singletonList("application");
 
     private static Map<String, Value> values(Application clazz, ObjectNode helmObject) throws IOException {
         Map<String, Object> raw;
         Map<String, Value> result;
         String key;
 
-        raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), WITHOUT_CLASS);
+        raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), WITHOUT_APPLICATION);
         raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
         check(raw, Dependencies.MANDATORY);
         result = new LinkedHashMap<>();
@@ -284,7 +284,7 @@ public class Stage {
                 return Stage.this.clazz.chart + ":" + Stage.this.clazz.chartVersion;
             }
         });
-        properties.add(new Property("class", true) {
+        properties.add(new Property("application", true) {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.clazz.toObject(configuration.yaml).toPrettyString();

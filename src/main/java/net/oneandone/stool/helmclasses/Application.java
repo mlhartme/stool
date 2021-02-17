@@ -33,13 +33,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Application {
-    public static final String HELM_CLASS = "helmClass";
+    public static final String HELM_APPLICATION = "helmApplication";
 
     /** loads the class ex- or implicitly definded by a chart */
     public static Application loadChartApplication(ObjectMapper yaml, String name, FileNode chart) throws IOException {
         Application result;
         ObjectNode loaded;
-        ObjectNode classValue;
+        ObjectNode applicationValue;
         FileNode tagFile;
 
         try (Reader src = chart.join("values.yaml").newReader()) {
@@ -47,11 +47,11 @@ public class Application {
         }
         tagFile = Helm.tagFile(chart);
         result = new Application("TODO", "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
-        classValue = (ObjectNode) loaded.remove("class");
-        // normal values are value class field definitions
+        applicationValue = (ObjectNode) loaded.remove("application");
+        // normal values are value application field definitions
         result.defineBaseAll(loaded.fields());
-        if (classValue != null) {
-            result.defineAll(classValue.fields());
+        if (applicationValue != null) {
+            result.defineAll(applicationValue.fields());
         }
         return result;
     }
@@ -67,21 +67,21 @@ public class Application {
         extendz = Json.string(clazz, "extends");
         base = existing.get(extendz);
         if (base == null) {
-            throw new IOException("class not found: " + extendz);
+            throw new IOException("application not found: " + extendz);
         }
         derived = base.derive(origin, author, name);
         derived.defineAll(clazz.get("fields").fields());
         return derived;
     }
 
-    public static Application loadHelm(ObjectNode clazz) {
+    public static Application loadHelm(ObjectNode application) {
         Application result;
         String name;
 
-        name = Json.string(clazz, "name");
-        result = new Application(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name, Json.string(clazz, "chart"),
-                Json.string(clazz, "chartVersion"));
-        result.defineBaseAll(clazz.get("fields").fields());
+        name = Json.string(application, "name");
+        result = new Application(Json.stringOpt(application, "origin"), Json.stringOpt(application, "author"), name, Json.string(application, "chart"),
+                Json.string(application, "chartVersion"));
+        result.defineBaseAll(application.get("fields").fields());
         return result;
     }
 
@@ -233,7 +233,7 @@ public class Application {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(HELM_CLASS, toObject(configuration.yaml));
+        dest.set(HELM_APPLICATION, toObject(configuration.yaml));
 
         // normalize expire
         expire = Expire.fromHuman(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(configuration.defaultExpire).toString()));

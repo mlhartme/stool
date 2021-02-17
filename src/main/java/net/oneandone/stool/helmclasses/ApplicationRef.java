@@ -110,7 +110,7 @@ public class ApplicationRef {
             case BUILTIN:
                 result = all.get(value);
                 if (result == null) {
-                    throw new IOException("class not found: " + value);
+                    throw new IOException("application not found: " + value);
                 }
                 break;
             case INLINE:
