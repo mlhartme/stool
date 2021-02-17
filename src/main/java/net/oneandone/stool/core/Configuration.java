@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.fabric8.kubernetes.api.model.NamedContext;
+import io.fabric8.kubernetes.client.Config;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.cli.Caller;
@@ -161,7 +163,7 @@ public class Configuration {
 
         this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
 
-        this.proxies = parseContexts((ArrayNode) configuration.get("proxies"));
+        this.proxies = parseProxies((ArrayNode) configuration.get("proxies"));
 
         local = (ObjectNode) configuration.get("local");
         if (local == null) {
@@ -218,18 +220,18 @@ public class Configuration {
         this.defaultExpire = from.defaultExpire;
     }
 
-    private static Map<String, Context> parseContexts(ArrayNode contextsOpt) {
+    private static Map<String, Context> parseProxies(ArrayNode proxiesOpt) {
         Context context;
         Iterator<JsonNode> iter;
         JsonNode one;
         Map<String, Context> result;
 
         result = new LinkedHashMap<>();
-        if (contextsOpt != null) {
-            iter = contextsOpt.elements();
+        if (proxiesOpt != null) {
+            iter = proxiesOpt.elements();
             while (iter.hasNext()) {
                 one = iter.next();
-                context = Context.fromYaml(one);
+                context = Context.fromProxyYaml(one);
                 result.put(context.name, context);
             }
         }
@@ -414,6 +416,18 @@ public class Configuration {
 
     //-- contexts
 
+    public Map<String, Context> localContexts() {
+        Config config;
+        Map<String, Context> result;
+
+        result = new LinkedHashMap<>();
+        config = Config.autoConfigure(null);
+        for (NamedContext c : config.getContexts()) {
+            result.put(c.getName(), Context.fromLocal(c));
+        }
+        return result;
+    }
+
     public Context currentContext() throws IOException {
         Context result;
 
@@ -432,7 +446,10 @@ public class Configuration {
         } else {
             result = proxies.get(currentContext);
             if (result == null) {
-                throw new ArgumentException("current context not found: " + currentContext);
+                result = localContexts().get(currentContext);
+                if (result == null) {
+                    throw new ArgumentException("current context not found: " + currentContext);
+                }
             }
         }
         return result;
@@ -450,7 +467,13 @@ public class Configuration {
     }
 
     public Context contextLookup(String context) {
-        return proxies.get(context);
+        Context result;
+
+        result = proxies.get(context);
+        if (result == null) {
+            result = localContexts().get(context);
+        }
+        return result;
     }
 
     public Client currentContextConnect(Caller caller) throws IOException {

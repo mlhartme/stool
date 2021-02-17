@@ -18,21 +18,34 @@ package net.oneandone.stool.cli;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.fabric8.kubernetes.api.model.NamedContext;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 
 public class Context {
-    public static Context fromYaml(JsonNode obj) {
+    public static Context fromLocal(NamedContext context) {
+        String name;
+
+        name = context.getName();
+        return new Context(name, LOCAL_PREFIX + name, null);
+    }
+
+    public static Context fromProxyYaml(JsonNode obj) {
         String token;
+        String url;
 
         if (obj.has("token")) {
             token = obj.get("token").asText();
         } else {
             token = null;
         }
-        return new Context(obj.get("name").asText(), obj.get("url").asText(), token);
+        url = obj.get("url").asText();
+        if (!url.startsWith("http")) {
+            throw new IllegalArgumentException(url);
+        }
+        return new Context(obj.get("name").asText(), url, token);
     }
 
     public final String name;

@@ -49,6 +49,12 @@ public class ConfigContext extends ClientCommand {
             } else {
                 found = configuration.currentContextOpt();
                 current = found == null ? null : found.name;
+                console.info.println("local contexts:");
+                for (String name : configuration.localContexts().keySet()) {
+                    console.info.print(name.equals(current) ? "=> " : "   ");
+                    console.info.println(name);
+                }
+                console.info.println("proxy contexts:");
                 for (String name : configuration.proxies.keySet()) {
                     console.info.print(name.equals(current) ? "=> " : "   ");
                     console.info.println(name);
@@ -57,7 +63,8 @@ public class ConfigContext extends ClientCommand {
         } else {
             found = configuration.contextLookup(setOpt);
             if (found == null) {
-                throw new IOException(setOpt + ": context not found, available contexts: " + configuration.proxies.keySet());
+                throw new IOException(setOpt + ": context not found, available context: local "
+                        + configuration.localContexts().keySet() + ", proxies " + configuration.proxies.keySet());
             }
             old = configuration.currentContextOpt();
             oldName = old == null ? "(none)" : old.name;

@@ -110,12 +110,13 @@ public class MainIT {
         if (local) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "-classpath=/Users/mhm/Projects/helmcharts/kutter" /* TODO */, "-registryCredentials=" + registryCredentials, "localhost=local:local");
+            sc(home, "setup", "-classpath=/Users/mhm/Projects/helmcharts/kutter" /* TODO */, "-registryCredentials=" + registryCredentials);
+            sc(home, "context", "local");
         } else {
             helm(local, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
-            sc(home, "setup", "localhost=http://localhost:31000/api");
+            sc(home, "setup", "localproxy=http://localhost:31000/api");
+            sc(home, "context", "localproxy");
         }
-        sc(home, "context", "localhost");
         sc(home, "list", "%all");
         sc(home, "create", "-e", "-wait", stage, classdir.join("hellowar-first.yaml").getAbsolute());
         sc(home, "list", "%all");

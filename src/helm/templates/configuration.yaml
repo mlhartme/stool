@@ -27,6 +27,3 @@ data:
       mailHost: "{{ .Values.mailHost }}"
       mailUsername: "{{ .Values.username }}"
       mailPassword: "{{ .Values.password }}"
-    proxies:
-      - name: "localhost"
-        url: "local:local"
