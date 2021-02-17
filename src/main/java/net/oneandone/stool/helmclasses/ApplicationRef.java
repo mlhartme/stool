@@ -36,12 +36,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class ClassRef {
+public class ApplicationRef {
     private enum Type {
         INLINE, IMAGE, BUILTIN
     }
 
-    public static ClassRef parse(String str) {
+    public static ApplicationRef parse(String str) {
         int idx;
         Type type;
 
@@ -55,7 +55,7 @@ public class ClassRef {
         if (idx == -1) {
             throw new IllegalStateException(str);
         }
-        return new ClassRef(type, decode(str.substring(0, idx)), decode(str.substring(idx + 1)));
+        return new ApplicationRef(type, decode(str.substring(0, idx)), decode(str.substring(idx + 1)));
     }
 
 
@@ -67,17 +67,17 @@ public class ClassRef {
         return Base64.getEncoder().encodeToString(str.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static ClassRef create(World world, String str) throws IOException {
+    public static ApplicationRef create(World world, String str) throws IOException {
         FileNode file;
 
         file = world.file(str);
         if (file.exists()) {
-            return new ClassRef(Type.INLINE, file.readString(), str + "@" + new Date(file.getLastModified()));
+            return new ApplicationRef(Type.INLINE, file.readString(), str + "@" + new Date(file.getLastModified()));
         }
         if (str.contains("/")) {
-            return new ClassRef(Type.IMAGE, str, str);
+            return new ApplicationRef(Type.IMAGE, str, str);
         } else {
-            return new ClassRef(Type.BUILTIN, str, "builtin");
+            return new ApplicationRef(Type.BUILTIN, str, "builtin");
         }
     }
 
@@ -85,7 +85,7 @@ public class ClassRef {
     private final String value;
     private final String origin;
 
-    public ClassRef(Type type, String value, String origin) {
+    public ApplicationRef(Type type, String value, String origin) {
         this.type = type;
         this.value = value;
         this.origin = origin;
@@ -97,11 +97,11 @@ public class ClassRef {
 
     public static final String BUILDIN = "_buildin_";
 
-    public Clazz resolve(String kubeContext, Configuration configuration) throws IOException {
+    public Application resolve(String kubeContext, Configuration configuration) throws IOException {
         ObjectMapper yaml;
         List<FileNode> charts;
-        Map<String, Clazz> all;
-        Clazz result;
+        Map<String, Application> all;
+        Application result;
         String str;
 
         yaml = configuration.yaml;
@@ -115,7 +115,7 @@ public class ClassRef {
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {
-                    result = Clazz.loadLiteral(all, origin, null, object(yaml.readTree(src)));
+                    result = Application.loadLiteral(all, origin, null, object(yaml.readTree(src)));
                 }
                 break;
             case IMAGE:
@@ -129,7 +129,7 @@ public class ClassRef {
                     throw new IOException("image does not have a class label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
-                    result = Clazz.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
+                    result = Application.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
                 }
                 break;
             default:
@@ -146,28 +146,28 @@ public class ClassRef {
         }
     }
 
-    public static Map<String, Clazz> loadAll(ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
+    public static Map<String, Application> loadAll(ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
         Iterator<JsonNode> classes;
-        Map<String, Clazz> result;
+        Map<String, Application> result;
         FileNode file;
 
         result = new HashMap<>();
         for (FileNode chart : charts) {
-            add(result, Clazz.loadChartClass(yaml, chart.getName(), chart));
+            add(result, Application.loadChartApplication(yaml, chart.getName(), chart));
             file = chart.join("classes.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
                     classes = yaml.readTree(src).elements();
                 }
                 while (classes.hasNext()) {
-                    add(result, Clazz.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
+                    add(result, Application.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
                 }
             }
         }
         return result;
     }
 
-    private static void add(Map<String, Clazz> all, Clazz clazz) throws IOException {
+    private static void add(Map<String, Application> all, Application clazz) throws IOException {
         if (all.put(clazz.name, clazz) != null) {
             throw new IOException("duplicate class: " + clazz.name);
         }

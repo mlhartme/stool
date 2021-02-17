@@ -24,19 +24,18 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ClazzTest {
+public class ApplicationTest {
     private static final World WORLD = World.createMinimal();
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     @Test
     public void empty() throws IOException {
-        Clazz c;
+        Application c;
 
         c = create("name: 'foo'\nextends: 'base'\nfields:\n");
         assertEquals("foo", c.name);
@@ -45,7 +44,7 @@ public class ClazzTest {
 
     @Test
     public void override() throws IOException {
-        Clazz c;
+        Application c;
 
         c = create("name: 'foo'\nextends: 'base'\nfields:\n  f:\n    value: 2\n");
         assertEquals("foo", c.name);
@@ -65,7 +64,7 @@ public class ClazzTest {
 
     @Test
     public void extra() throws IOException {
-        Clazz c;
+        Application c;
 
         c = create("name: 'foo'\nextends: 'base'\nfields:\n  v:\n    value: 2\n    extra: true");
         assertEquals("foo", c.name);
@@ -83,24 +82,24 @@ public class ClazzTest {
     }
 
     @Test
-    public Clazz create(String str) throws IOException {
-        Map<String, Clazz> all;
+    public Application create(String str) throws IOException {
+        Map<String, Application> all;
         ObjectNode obj;
 
         obj = (ObjectNode) YAML.readTree(str);
         all = new HashMap<>();
-        all.put("base", Clazz.forTest("base", "f", "1"));
-        return Clazz.loadLiteral(all, "", null, obj);
+        all.put("base", Application.forTest("base", "f", "1"));
+        return Application.loadLiteral(all, "", null, obj);
     }
 
     //--
 
     @Test
     public void loadAll() throws IOException {
-        Map<String, Clazz> all;
-        Clazz a;
+        Map<String, Application> all;
+        Application a;
 
-        all = ClassRef.loadAll(YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/helmclasses/foo").checkDirectory()));
+        all = ApplicationRef.loadAll(YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/helmclasses/foo").checkDirectory()));
         assertEquals(2, all.size());
         a = all.get("derived");
         assertEquals("42", a.fields.get("asis").value);

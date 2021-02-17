@@ -18,8 +18,8 @@ package net.oneandone.stool.core;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.helmclasses.ClassRef;
-import net.oneandone.stool.helmclasses.Clazz;
+import net.oneandone.stool.helmclasses.ApplicationRef;
+import net.oneandone.stool.helmclasses.Application;
 import net.oneandone.stool.helmclasses.Helm;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.util.Expire;
@@ -51,7 +51,7 @@ import java.util.Set;
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
 
-    public static Stage create(Caller caller, String kubeContext, Engine engine, Configuration configuration, String stageName, ClassRef classRef,
+    public static Stage create(Caller caller, String kubeContext, Engine engine, Configuration configuration, String stageName, ApplicationRef classRef,
                                Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
@@ -94,15 +94,15 @@ public class Stage {
 
 
     public static Stage create(Configuration configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
-        Clazz cl;
+        Application cl;
 
-        cl = Clazz.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS));
+        cl = Application.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Application.HELM_CLASS));
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
     private static final List<String> WITHOUT_CLASS = Collections.singletonList("class");
 
-    private static Map<String, Value> values(Clazz clazz, ObjectNode helmObject) throws IOException {
+    private static Map<String, Value> values(Application clazz, ObjectNode helmObject) throws IOException {
         Map<String, Object> raw;
         Map<String, Value> result;
         String key;
@@ -143,7 +143,7 @@ public class Stage {
      */
     private final String name;
 
-    public final Clazz clazz;
+    public final Application clazz;
 
     private final Map<String, Value> values;
 
@@ -151,7 +151,7 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(Configuration configuration, String name, Clazz clazz, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(Configuration configuration, String name, Application clazz, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
         this.configuration = configuration;
         this.name = name;
         this.clazz = clazz;
@@ -335,7 +335,7 @@ public class Stage {
 
     /** CAUTION: values are not updated! */
     public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
-                        Clazz withClazz, Map<String, String> clientValues) throws IOException {
+                        Application withClazz, Map<String, String> clientValues) throws IOException {
         Diff diff;
 
         diff = Helm.upgrade(kubeContext, configuration, name, dryrun, allow == null ? null : Separator.COMMA.split(allow), withClazz, clientValues, valuesMap());

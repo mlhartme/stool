@@ -32,12 +32,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Clazz {
+public class Application {
     public static final String HELM_CLASS = "helmClass";
 
     /** loads the class ex- or implicitly definded by a chart */
-    public static Clazz loadChartClass(ObjectMapper yaml, String name, FileNode chart) throws IOException {
-        Clazz result;
+    public static Application loadChartApplication(ObjectMapper yaml, String name, FileNode chart) throws IOException {
+        Application result;
         ObjectNode loaded;
         ObjectNode classValue;
         FileNode tagFile;
@@ -46,7 +46,7 @@ public class Clazz {
             loaded = (ObjectNode) yaml.readTree(src);
         }
         tagFile = Helm.tagFile(chart);
-        result = new Clazz("TODO", "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
+        result = new Application("TODO", "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
         classValue = (ObjectNode) loaded.remove("class");
         // normal values are value class field definitions
         result.defineBaseAll(loaded.fields());
@@ -57,10 +57,10 @@ public class Clazz {
     }
 
     /** from inline, label or classes; always extends */
-    public static Clazz loadLiteral(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
+    public static Application loadLiteral(Map<String, Application> existing, String origin, String author, ObjectNode clazz) throws IOException {
         String extendz;
-        Clazz base;
-        Clazz derived;
+        Application base;
+        Application derived;
         String name;
 
         name = Json.string(clazz, "name");
@@ -74,21 +74,21 @@ public class Clazz {
         return derived;
     }
 
-    public static Clazz loadHelm(ObjectNode clazz) {
-        Clazz result;
+    public static Application loadHelm(ObjectNode clazz) {
+        Application result;
         String name;
 
         name = Json.string(clazz, "name");
-        result = new Clazz(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name, Json.string(clazz, "chart"),
+        result = new Application(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name, Json.string(clazz, "chart"),
                 Json.string(clazz, "chartVersion"));
         result.defineBaseAll(clazz.get("fields").fields());
         return result;
     }
 
-    public static Clazz forTest(String name, String... nameValues) {
-        Clazz result;
+    public static Application forTest(String name, String... nameValues) {
+        Application result;
 
-        result = new Clazz("synthetic", null, name, "unusedChart", "noVersion");
+        result = new Application("synthetic", null, name, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
             result.defineBase(new Field(nameValues[i], nameValues[i + 1]));
         }
@@ -106,7 +106,7 @@ public class Clazz {
     public final String chartVersion;
     public final Map<String, Field> fields;
 
-    private Clazz(String origin, String author, String name, String chart, String chartVersion) {
+    private Application(String origin, String author, String name, String chart, String chartVersion) {
         this.origin = origin;
         this.author = author;
         this.name = name;
@@ -213,10 +213,10 @@ public class Clazz {
         return node;
     }
 
-    public Clazz derive(String derivedOrigin, String derivedAuthor, String withName) {
-        Clazz result;
+    public Application derive(String derivedOrigin, String derivedAuthor, String withName) {
+        Application result;
 
-        result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
+        result = new Application(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
         for (Field field : fields.values()) {
             result.defineBase(field);
         }

@@ -25,7 +25,7 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.LocalClient;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.StageNotFoundException;
-import net.oneandone.stool.helmclasses.ClassRef;
+import net.oneandone.stool.helmclasses.ApplicationRef;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
@@ -154,7 +154,7 @@ public class ApiController {
 
         values = map(request, "value.");
         try (RequestConfiguration configuration = openConfiguration()) {
-            return Json.obj(configuration.json, configuration.client(request).create(name, ClassRef.parse(classref), values)).toString();
+            return Json.obj(configuration.json, configuration.client(request).create(name, ApplicationRef.parse(classref), values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
@@ -168,7 +168,7 @@ public class ApiController {
                           @RequestParam(value = "allow", required = false) String allow, HttpServletRequest request) throws IOException {
         try (RequestConfiguration configuration = openConfiguration()) {
             return array(configuration.json, configuration.client(request)
-                    .publish(stageName, dryrun, allow, ClassRef.parse(classref), map(request, "value.")).toList()).toString();
+                    .publish(stageName, dryrun, allow, ApplicationRef.parse(classref), map(request, "value.")).toList()).toString();
         }
     }
 

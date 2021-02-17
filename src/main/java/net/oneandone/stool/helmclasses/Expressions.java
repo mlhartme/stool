@@ -49,7 +49,7 @@ public class Expressions {
      *   null when recursion started
      */
     private Map<String, Object> context;
-    private Clazz contextClass;
+    private Application contextClass;
     private FileNode contextChart;
     private Map<String, String> contextPrevious;
 
@@ -63,7 +63,7 @@ public class Expressions {
         this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Map<String, String> previous, Clazz clazz, FileNode chart) {
+    public Map<String, String> eval(Map<String, String> previous, Application clazz, FileNode chart) {
         Map<String, String> result;
 
         if (context != null) {

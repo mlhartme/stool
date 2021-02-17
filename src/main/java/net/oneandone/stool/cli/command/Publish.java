@@ -18,7 +18,7 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
-import net.oneandone.stool.helmclasses.ClassRef;
+import net.oneandone.stool.helmclasses.ApplicationRef;
 import net.oneandone.stool.util.Diff;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.util.Map;
 public class Publish extends IteratedStageCommand {
     private final boolean dryrun;
     private final String allow;
-    private final ClassRef classRef;
+    private final ApplicationRef classRef;
     private final Map<String, String> values;
 
     public Publish(Globals globals, boolean dryrun, String allow, String stage, String classRef, List<String> args) throws IOException {
@@ -37,7 +37,7 @@ public class Publish extends IteratedStageCommand {
         this.dryrun = dryrun;
         this.allow = allow;
         this.values = new LinkedHashMap<>();
-        this.classRef = ClassRef.create(globals.getWorld(), classRef);
+        this.classRef = ApplicationRef.create(globals.getWorld(), classRef);
         eatValues(args);
     }
 

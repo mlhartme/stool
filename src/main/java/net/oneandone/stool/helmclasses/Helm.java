@@ -37,28 +37,28 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(String kubernetesContext, Configuration configuration, String name, ClassRef classRef, Map<String, String> values)
+    public static void install(String kubernetesContext, Configuration configuration, String name, ApplicationRef classRef, Map<String, String> values)
             throws IOException {
-        Clazz clazz;
+        Application clazz;
 
         clazz = classRef.resolve(kubernetesContext, configuration);
         helm(kubernetesContext, configuration, name, false, false, null, clazz, values, Collections.emptyMap());
     }
 
     public static Diff upgrade(String kubeContext, Configuration configuration, String name, boolean dryrun, List<String> allow,
-                               Clazz clazz, Map<String, String> values, Map<String, String> prev) throws IOException {
+                               Application clazz, Map<String, String> values, Map<String, String> prev) throws IOException {
         return helm(kubeContext, configuration, name, true, dryrun, allow, clazz, values, prev);
     }
 
     private static Diff helm(String kubeContext, Configuration configuration, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                             Clazz originalClass, Map<String, String> clientValues, Map<String, String> prev)
+                             Application originalClass, Map<String, String> clientValues, Map<String, String> prev)
             throws IOException {
         World world;
         Map<String, FileNode> charts;
         Expressions expressions;
         FileNode chart;
         FileNode values;
-        Clazz modifiedClass;
+        Application modifiedClass;
         Map<String, String> next;
         Diff result;
         Diff forbidden;
