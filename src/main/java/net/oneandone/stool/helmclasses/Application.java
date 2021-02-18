@@ -56,20 +56,20 @@ public class Application {
     }
 
     /** from inline, label or classes; always extends */
-    public static Application loadLiteral(Map<String, Application> existing, String origin, String author, ObjectNode clazz) throws IOException {
+    public static Application loadLiteral(Map<String, Application> existing, String origin, String author, ObjectNode application) throws IOException {
         String extendz;
         Application base;
         Application derived;
         String name;
 
-        name = Json.string(clazz, "name");
-        extendz = Json.string(clazz, "extends");
+        name = Json.string(application, "name");
+        extendz = Json.string(application, "extends");
         base = existing.get(extendz);
         if (base == null) {
             throw new IOException("application not found: " + extendz);
         }
         derived = base.derive(origin, author, name);
-        derived.defineAll(clazz.get("properties").fields());
+        derived.defineAll(application.get("properties").fields());
         return derived;
     }
 

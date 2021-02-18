@@ -49,7 +49,6 @@ public class Expressions {
      *   null when recursion started
      */
     private Map<String, Object> context;
-    private Application contextClass;
     private FileNode contextChart;
     private Map<String, String> contextPrevious;
 
@@ -58,19 +57,17 @@ public class Expressions {
         this.configuration = configuration;
         this.fqdn = fqdn;
         this.context = null;
-        this.contextClass = null;
         this.contextChart = null;
         this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Map<String, String> previous, Application clazz, FileNode chart) {
+    public Map<String, String> eval(Map<String, String> previous, Application application, FileNode chart) {
         Map<String, String> result;
 
         if (context != null) {
             throw new IllegalStateException();
         }
         context = new LinkedHashMap<>();
-        contextClass = clazz;
         contextChart = chart;
         try {
             for (FileNode file : contextChart.find("scripts/*.sh")) {
@@ -83,10 +80,10 @@ public class Expressions {
         }
         contextPrevious = previous;
         try {
-            for (Property property : clazz.properties.values()) {
+            for (Property property : application.properties.values()) {
                 context.put(property.name, property);
             }
-            for (Property property : clazz.properties.values()) {
+            for (Property property : application.properties.values()) {
                 evalValue(property.name);
             }
             result = new LinkedHashMap<>();
@@ -96,7 +93,6 @@ public class Expressions {
             return result;
         } finally {
             context = null;
-            contextClass = null;
             contextChart = null;
             contextPrevious = null;
         }

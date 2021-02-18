@@ -39,15 +39,15 @@ public final class Helm {
 
     public static void install(String kubernetesContext, Configuration configuration, String name, ApplicationRef applicationRef, Map<String, String> values)
             throws IOException {
-        Application clazz;
+        Application application;
 
-        clazz = applicationRef.resolve(kubernetesContext, configuration);
-        helm(kubernetesContext, configuration, name, false, false, null, clazz, values, Collections.emptyMap());
+        application = applicationRef.resolve(kubernetesContext, configuration);
+        helm(kubernetesContext, configuration, name, false, false, null, application, values, Collections.emptyMap());
     }
 
     public static Diff upgrade(String kubeContext, Configuration configuration, String name, boolean dryrun, List<String> allow,
-                               Application clazz, Map<String, String> values, Map<String, String> prev) throws IOException {
-        return helm(kubeContext, configuration, name, true, dryrun, allow, clazz, values, prev);
+                               Application application, Map<String, String> values, Map<String, String> prev) throws IOException {
+        return helm(kubeContext, configuration, name, true, dryrun, allow, application, values, prev);
     }
 
     private static Diff helm(String kubeContext, Configuration configuration, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,

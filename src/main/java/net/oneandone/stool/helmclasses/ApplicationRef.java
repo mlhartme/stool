@@ -165,9 +165,9 @@ public class ApplicationRef {
         return result;
     }
 
-    private static void add(Map<String, Application> all, Application clazz) throws IOException {
-        if (all.put(clazz.name, clazz) != null) {
-            throw new IOException("duplicate class: " + clazz.name);
+    private static void add(Map<String, Application> all, Application application) throws IOException {
+        if (all.put(application.name, application) != null) {
+            throw new IOException("duplicate application: " + application.name);
         }
     }
 }
