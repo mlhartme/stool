@@ -220,8 +220,6 @@ public class Configuration {
         this.defaultExpire = from.defaultExpire;
     }
 
-    private static final String LOCAL_CONTEXT_PREFIX = "local-";
-
     private static Map<String, Context> parseProxies(ArrayNode proxiesOpt) {
         Context context;
         Iterator<JsonNode> iter;
@@ -234,9 +232,6 @@ public class Configuration {
             while (iter.hasNext()) {
                 one = iter.next();
                 context = Context.fromProxyYaml(one);
-                if (context.name.startsWith(LOCAL_CONTEXT_PREFIX)) {
-                    throw new ArgumentException("proxy context name may not start with '" + LOCAL_CONTEXT_PREFIX + "'");
-                }
                 result.put(context.name, context);
             }
         }
@@ -432,11 +427,13 @@ public class Configuration {
     private Map<String, Context> localContexts() {
         Config config;
         Map<String, Context> result;
+        Context context;
 
         result = new LinkedHashMap<>();
         config = Config.autoConfigure(null);
         for (NamedContext c : config.getContexts()) {
-            result.put(LOCAL_CONTEXT_PREFIX + c.getName(), Context.fromLocal(c));
+            context = Context.fromLocal(c);
+            result.put(context.name, context);
         }
         return result;
     }

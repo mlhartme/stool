@@ -19,22 +19,28 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.NamedContext;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 
 public class Context {
+    private static final String LOCAL_CONTEXT_PREFIX = "local-";
+    private static final String LOCAL_SCHEME = "local:";
+
+
     public static Context fromLocal(NamedContext context) {
         String name;
 
         name = context.getName();
-        return new Context(name, LOCAL_PREFIX + name, null);
+        return new Context(LOCAL_CONTEXT_PREFIX + name, LOCAL_SCHEME + name, null);
     }
 
     public static Context fromProxyYaml(JsonNode obj) {
         String token;
         String url;
+        String name;
 
         if (obj.has("token")) {
             token = obj.get("token").asText();
@@ -45,7 +51,11 @@ public class Context {
         if (!url.startsWith("http")) {
             throw new IllegalArgumentException(url);
         }
-        return new Context(obj.get("name").asText(), url, token);
+        name = obj.get("name").asText();
+        if (name.startsWith(LOCAL_CONTEXT_PREFIX)) {
+            throw new ArgumentException("proxy context name may not start with '" + LOCAL_CONTEXT_PREFIX + "'");
+        }
+        return new Context(name, url, token);
     }
 
     public final String name;
@@ -60,14 +70,12 @@ public class Context {
         this.token = token;
     }
 
-    public boolean hasToken() {
-        return token != null;
+    public boolean isLocal() {
+        return url.startsWith(LOCAL_SCHEME);
     }
 
-    private static final String LOCAL_PREFIX = "local:";
-
-    public boolean isLocal() {
-        return url.startsWith(LOCAL_PREFIX);
+    public boolean hasToken() {
+        return token != null;
     }
 
     public void auth(World world, ObjectMapper json, Caller caller, String username, String password) throws IOException {
@@ -83,7 +91,7 @@ public class Context {
 
     public Client connect(World world, Configuration configuration, Caller caller) throws IOException {
         if (isLocal()) {
-            return new LocalClient(configuration.json, name, url.substring(LOCAL_PREFIX.length()), configuration, caller);
+            return new LocalClient(configuration.json, name, url.substring(LOCAL_SCHEME.length()), configuration, caller);
         } else {
             return ProxyClient.token(world, configuration.json, name, url, caller, token);
         }
