@@ -38,6 +38,10 @@ public class VersionsTest {
         lt("1.0.9", "1.0.24-20210218-1125-345");
         lt("1.0.23", "1.0.24-20210218-1125-345");
 
+        // TODO:
+        //  lt("1.0.24-20210218-1125-345", "1.0.24");
+        //  lt("10.0.0-beta", "10.0.0");
+
         lt("9.0.30", "9.0.31");
         lt("9.0.30", "9.1.0");
         lt("9.0.30", "10.0.0-beta");
@@ -56,11 +60,11 @@ public class VersionsTest {
 
         result = Versions.compare(left, right);
         if (expected == 0) {
-            Assertions.assertEquals(0, result);
+            Assertions.assertEquals(0, result, left + " vs " + right);
         } else if (expected > 0) {
-            Assertions.assertTrue(result > 0);
+            Assertions.assertTrue(result > 0, left + " vs " + right);
         } else if (expected < 0) {
-            Assertions.assertTrue(result < 0);
+            Assertions.assertTrue(result < 0, left + " vs " + right);
         } else {
             throw new IllegalStateException();
         }
