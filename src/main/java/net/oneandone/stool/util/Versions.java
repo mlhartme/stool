@@ -35,7 +35,7 @@ public final class Versions {
             return 0; // end of recursion
         }
 
-        idx = leftAll.indexOf('.');
+        idx = nextSeparator(leftAll);
         if (idx < 0) {
             leftHead = leftAll;
             leftTail = "";
@@ -43,7 +43,7 @@ public final class Versions {
             leftHead = leftAll.substring(0, idx);
             leftTail = leftAll.substring(idx + 1);
         }
-        idx = rightAll.indexOf('.');
+        idx = nextSeparator(rightAll);
         if (idx < 0) {
             rightHead = rightAll;
             rightTail = "";
@@ -63,6 +63,18 @@ public final class Versions {
         } else {
             return compare(leftTail, rightTail);
         }
+    }
+
+    private static int nextSeparator(String str) {
+        char c;
+
+        for (int i = 0; i < str.length(); i++) {
+            c = str.charAt(i);
+            if (c == '.' || c == '-' || c == '_') {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private static Integer parseOpt(String str) {
