@@ -22,12 +22,11 @@ public class VersionsTest {
 
     @Test
     void compare() {
-        eq("", "");
-        eq("abc", "abc");
+        lt("", "a");
+        lt("", "1");
         lt("abc", "abd");
         lt("abc", "abcd");
 
-        eq("0", "0");
         lt("0", "1");
         lt("0", "1");
 
@@ -45,11 +44,9 @@ public class VersionsTest {
         lt("7.0.56", "9.0.31");
     }
 
-    private void eq(String left, String right) {
-        check(0, left, right);
-        check(0, right, left);
-    }
     private void lt(String left, String right) {
+        check(0, left, left);
+        check(0, right, right);
         check(-1, left, right);
         check(1, right, left);
     }
