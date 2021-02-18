@@ -111,7 +111,7 @@ public class MainIT {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
             sc(home, "setup", "-applicationpath=/Users/mhm/Projects/helmcharts/kutter" /* TODO */, "-registryCredentials=" + registryCredentials);
-            sc(home, "context", "local");
+            sc(home, "context", "local-local");
         } else {
             helm(local, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "localproxy=http://localhost:31000/api");

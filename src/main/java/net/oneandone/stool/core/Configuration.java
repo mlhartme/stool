@@ -220,6 +220,8 @@ public class Configuration {
         this.defaultExpire = from.defaultExpire;
     }
 
+    private static final String LOCAL_CONTEXT_PREFIX = "local-";
+
     private static Map<String, Context> parseProxies(ArrayNode proxiesOpt) {
         Context context;
         Iterator<JsonNode> iter;
@@ -232,6 +234,9 @@ public class Configuration {
             while (iter.hasNext()) {
                 one = iter.next();
                 context = Context.fromProxyYaml(one);
+                if (context.name.startsWith(LOCAL_CONTEXT_PREFIX)) {
+                    throw new ArgumentException("proxy context name may not start with '" + LOCAL_CONTEXT_PREFIX + "'");
+                }
                 result.put(context.name, context);
             }
         }
@@ -416,14 +421,22 @@ public class Configuration {
 
     //-- contexts
 
-    public Map<String, Context> localContexts() {
+    public Map<String, Context> contexts() {
+        Map<String, Context> result;
+
+        result = localContexts();
+        result.putAll(proxies);
+        return result;
+    }
+
+    private Map<String, Context> localContexts() {
         Config config;
         Map<String, Context> result;
 
         result = new LinkedHashMap<>();
         config = Config.autoConfigure(null);
         for (NamedContext c : config.getContexts()) {
-            result.put(c.getName(), Context.fromLocal(c));
+            result.put(LOCAL_CONTEXT_PREFIX + c.getName(), Context.fromLocal(c));
         }
         return result;
     }
@@ -444,12 +457,9 @@ public class Configuration {
         if (currentContext == null) {
             result = null;
         } else {
-            result = proxies.get(currentContext);
+            result = contextLookup(currentContext);
             if (result == null) {
-                result = localContexts().get(currentContext);
-                if (result == null) {
-                    throw new ArgumentException("current context not found: " + currentContext);
-                }
+                throw new ArgumentException("current context not found: " + currentContext);
             }
         }
         return result;
@@ -467,13 +477,7 @@ public class Configuration {
     }
 
     public Context contextLookup(String context) {
-        Context result;
-
-        result = proxies.get(context);
-        if (result == null) {
-            result = localContexts().get(context);
-        }
-        return result;
+        return contexts().get(context);
     }
 
     public Client currentContextConnect(Caller caller) throws IOException {
