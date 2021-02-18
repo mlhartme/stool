@@ -237,7 +237,7 @@ public class ApiController {
         String result;
 
         try (RequestConfiguration configuration = openConfiguration()) {
-            if (configuration.auth()) {
+            if (!configuration.auth()) {
                 throw new IOException("authentication is disabled");
             }
             user = User.authenticatedOpt();
