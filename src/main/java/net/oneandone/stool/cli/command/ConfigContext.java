@@ -47,7 +47,7 @@ public class ConfigContext extends ClientCommand {
             if (quiet) {
                 console.info.println(configuration.currentContext().name);
             } else {
-                found = configuration.currentContextOpt();
+                found = configuration.currentContextOptWarn(console.info);
                 current = found == null ? null : found.name;
                 for (String name : configuration.contexts().keySet()) {
                     console.info.print(name.equals(current) ? "=> " : "   ");
@@ -59,7 +59,7 @@ public class ConfigContext extends ClientCommand {
             if (found == null) {
                 throw new IOException(setOpt + ": context not found, available context: " + configuration.contexts().keySet());
             }
-            old = configuration.currentContextOpt();
+            old = configuration.currentContextOptWarn(console.info);
             oldName = old == null ? "(none)" : old.name;
             if (oldName.equals(setOpt)) {
                 console.info.println("not changed: " + oldName);

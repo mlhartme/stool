@@ -444,14 +444,17 @@ public class Configuration {
     public Context currentContext() throws IOException {
         Context result;
 
-        result = currentContextOpt();
-        if (result == null) {
+        if (currentContext == null) {
             throw new IOException("no current context");
+        }
+        result = contextLookup(currentContext);
+        if (result == null) {
+            throw new IOException("current context not found: " + currentContext);
         }
         return result;
     }
 
-    public Context currentContextOpt() {
+    public Context currentContextOptWarn(PrintWriter warn) {
         Context result;
 
         if (currentContext == null) {
@@ -459,7 +462,8 @@ public class Configuration {
         } else {
             result = contextLookup(currentContext);
             if (result == null) {
-                throw new ArgumentException("current context not found: " + currentContext);
+                warn.println("current context not found: " + currentContext);
+                return null;
             }
         }
         return result;
