@@ -6,7 +6,7 @@ Stool is a tool to manage stages - create, publish, configure, delete. A stage i
 
 ### Quick Tour
 
-Here's an example what you can do with Stool. TODO: assumes hello-world application
+Here's an example what you can do with Stool. TODO: assumes `hello` application
 
 You generally invoke Stool from the command-line with `sc` followed by a command and specific arguments. 
 
@@ -17,8 +17,8 @@ Open a terminal and run
 to see available contexts, i.e. places where you can host stages. Notes:
 *  if you get an `command not found: sc` error message: Stool is not installed on your machine. 
    Please refer to the install section below. 
-*  if you get an `configuration not found` error message: Stool is properly installed on your machine,
-   but it's not yet set-up (i.e. configured). Please run `sc setup` and follow the instructions.
+*  if you get an `configuration not found` error message: Stool is installed, but it's not yet
+   set up (i.e. configured). Please run `sc setup`.
 
 Choose one of the available contexts by running
 
@@ -26,17 +26,16 @@ Choose one of the available contexts by running
     
 Depending on your context you'll be asked to authenticate.
 
-Create a new stage with
+Create a new stage called `mystage` running the application `hello` with
 
     sc create mystage hello
-
-To see the running application, point your browser to the url printed by the `create` command.
 
 You can run
 
     sc status mystage
 
-to see if your stage is running and to see the stage urls.
+to see status information about your stage. E.g. `available` is the number of pods running your application.
+If `available` is above `0` you can point your browser the url printed by the `create` or `status` command.
 
 Use
 
@@ -44,7 +43,7 @@ Use
 
 to see the Stool commands executed for this stage.
 
-To delete the stage, wipe it with
+To delete the stage run
 
     sc delete mystage
 
@@ -66,9 +65,35 @@ prints help about `create`.
 
 ### Rationale
 
-Technically, stool is a front-end to Helm, stages are helm releases, and applications define values passed to helm charts.
-So in some sense, stool could be called 'helmapplication', and it's purpose is somehow comparable to `helmfile`: simplify helm
-usage, avoid tedious shell scripts.
+Technically, Stool is a Helm wrapper, a stage is a Helm releases, and applications define values passed to helm charts.
+Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`. Stool particularly aims 
+to make value definitions more powerful, because in you environment we have few Helm charts for many different web applications, most 
+of the differences are just different values used for the charts.
+
+### History
+
+Stool 5 runs stages in Docker, Stool 6 switched to Kubernetes. The general goal is to shrink Stool by replacing Stool functionality with
+standard Kubernetes features/tools. Here's a roadmap for this:
+
+
+|         | Functionality | Moved to; obsolete after |
+|---------|---------|-------------|
+| Stool 5 - current stable  | Process Management | Docker | 
+| Stool 6 - superseded by 7 | Port Managemnt | Kubernetes |
+|         | (Cpu Limits)    | Kubernetes Pod Limits |
+|         | (node selection) | Kubeernetes |
+| Stool 7 - in development | Image Building | Maven Plugin |
+|         | (K8s Resources per Stage) | Helm chart |
+|         | Stage Lifecycle | Helm |
+|         | Memory Limits  | Kubernetes Pod Limits |
+|         | Vault Integration | configurable script |
+|         | Certificate generation | configurable script |
+| Stool X - thoughts only | Basic Monitoring | Prometheus? |
+|         | Disk Limits | Kubernetes Ephemeral Storage Limits |
+|         | Simple cli: reduce cognitive load | train developers, operating |
+|         | Dashboard: None-technical UI | ? |
+|         | Proxy: restricted access | All stages by Jenkins? |
+|         | Applications | ? |
 
 
 ### Conventions
@@ -202,8 +227,9 @@ Stage control
 
 `sc` is a command line tool to manage stages. A stage is a Kubernetes workload, typically a web application.
 *command* defaults to `help`. `sc` stands for stage control. 
-Technically, a stage  is a Helm release, and `sc` is a wrapper for Helm with powerful value definitions
-and some addional features like proxying and a dashboard.
+
+Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds the application concept, proxying
+and a dashboard.
 
 
 #### Commands
