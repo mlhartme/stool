@@ -82,7 +82,7 @@ standard Kubernetes features/tools. Here's a roadmap for this:
 | Stool 6 - superseded by 7 | Port Managemnt | Kubernetes |
 |         | (Cpu Limits)    | Kubernetes Pod Limits |
 |         | (node selection) | Kubeernetes |
-| Stool 7 - in development | Image Building | Maven Plugin |
+| Stool 7 - current development | Image Building | Maven Plugin |
 |         | (K8s Resources per Stage) | Helm chart |
 |         | Stage Lifecycle | Helm |
 |         | Memory Limits  | Kubernetes Pod Limits |
