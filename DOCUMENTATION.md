@@ -265,10 +265,10 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds app
 
 
 
-`sc` *global-option*... `attach` *stage-option*... *stage* '@' *workspace'
+`sc` *global-option*... `attach` *stage-option*... *stage* '@'*workspace*
 
 
-`sc` *global-option*... `detach` *stage-option*... *stage* '@' *workspace'
+`sc` *global-option*... `detach` *stage-option*... *stage* '@'*workspace
 
 
 `sc` *global-option*... `delete` *stage-option*... [`-batch`]
@@ -277,7 +277,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds app
 `sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *application* [*key*`=`*object*...]
 
 
-`sc` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
+`sc` *global-option*... `history` *stage-option*...
 
 
 `sc` *global-option*... `config` *stage-option*... (*key* | *key*`=`*str*)...
@@ -287,11 +287,11 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds app
 
 
 
-`sc` *global-option*... `images` *stage-option*...
+`sc` *global-option*... `images` *repository*
 
 
 
-`sc` *global-option*... `list` *stage-option*... (*field*|*value*)...
+`sc` *global-option*... `list` *stage-option*... (*field*|*property*)...
 
 
 `sc` *global-option*... `port-forward` *stage-option*... [*local-port*] *remote-port*
