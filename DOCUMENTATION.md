@@ -65,7 +65,7 @@ prints help about `create`.
 
 ### Rationale
 
-Technically, Stool is a Helm wrapper, a stage is a Helm releases, and applications define values passed to helm charts.
+Technically, Stool is a Helm wrapper, a stage is a Helm releases, and applications define the values passed to helm charts.
 Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`. Stool particularly aims 
 to make value definitions more powerful, because in you environment we have few Helm charts for many different web applications, most 
 of the differences are just different values used for the charts.
@@ -187,15 +187,15 @@ stage indicator is invisible if you have no current workspace.
 Stool server is configured via settings. A setting is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
 or map (string to string)). Settings are global, they apply to all stages, they are usually adjusted by system administrators. 
 
-### Values
+### Properties
 
-Stages are configured via values. A value is a key/object pair; object has a type (string, number, date, boolean, list (of strings), 
-or map (string to string)). Values configure the respective stage only, every stage has its own set of values. You can inspect and adjust 
-values with [stool config](#sc-config). 
+Stages are configured via properties. A property is a key/object pair; object has a type (string, number, date, boolean, list (of strings), 
+or map (string to string)). Properties configure the respective stage only, every stage has its own set of properties. You can inspect and adjust 
+properties with [stool config](#sc-config). 
 
-Technically, values are values of the Helm deployment represented by this stage.
+Technically, properties define the values used for the underlying Helm chart.
 
-Besides values, every stage has status fields, you can view them with `sc status`. Status fields are similar to values, but they are read-only.
+Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are key/values pairs like properties, but they are read-only.
 
 ### Stage Expiring
 
@@ -228,8 +228,7 @@ Stage control
 `sc` is a command line tool to manage stages. A stage is a Kubernetes workload, typically a web application.
 *command* defaults to `help`. `sc` stands for stage control. 
 
-Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds the application concept, proxying
-and a dashboard.
+Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds applications, proxying and a dashboard.
 
 
 #### Commands
@@ -308,7 +307,7 @@ and a dashboard.
 #### Environment
 
 `SC_OPTS` to configure arguments `sc` passes to the underlying JVM. 
-`SC_HOME` to configure Stool configuration directory. Defaults to `$HOME/.sc`
+`SC_HOME` to configure Stool home directory. Defaults to `$HOME/.sc`
 
 
 #### See Also
@@ -382,12 +381,10 @@ Setup Stool
 
 #### DESCRIPTION
 
-Creates a fresh configuration directory or reports an error if it already exists.
-The location of the configuration directory is configurable with the `SC_HOME` environment
-variable, it defaults to `~/.sc`. The  main  configuration  file inside this  directory is
-`configuration.yaml`.
+Creates a fresh Stool home directory or reports an error if it already exists. The location of the home directory is configurable with 
+the `SC_HOME` environment variable, it defaults to `~/.sc`. The main configuration file inside this directory is `configuration.yaml`.
 
-Use *spec* to set up a context name + api url. If not specified, this is guessed from the local machine (TODO: cisotools).
+Use *spec* to set up a proxy name + api url. If not specified, this is guessed from the local machine (TODO: environment file from cisotools).
 
 
 ### sc-context
@@ -418,7 +415,7 @@ Authenticate to current context
 #### DESCRIPTION
 
 Asks for username/password to authenticate against ldap. If authentication succeeds, the referenced Stool server returns an api token 
-that will be stored in the client configuration file and used for future access to this context/token.
+that will be stored in the client configuration file and used for future access to this context.
 
 Use the `-batch` option to omit asking for username/password and instead pick them from the environment 
 variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
@@ -442,7 +439,7 @@ Create a new stage
 
 #### DESCRIPTION
 
-Creates a new stage: computes all fields of *application* and its base applications, except those key-values pair specified explicitly.
+Creates a new stage: computes all properties of *application* and its base applications, except those key-values pair specified explicitly.
 The resulting values are passed to Helm to install the chart of the applications.
 
 *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes, it's 
@@ -491,13 +488,13 @@ Stage commands operate on the stage(s) selected by the first argument:
               or = and {',' and}
               and = expr {'+' expr}
               expr = NAME | cmp
-              cmp = (FIELD | VALUE) ('=' | '!=') (STR | prefix | suffix | substring)
+              cmp = (FIELD | PROPERTY) ('=' | '!=') (STR | prefix | suffix | substring)
               prefix = VALUE '*'
               suffix = '*' STR
               substring = '*' STR '*'
               NAME       # name of a stage
               FIELD      # name of a status field
-              VALUE      # name of a configuration value
+              PROPERTY   # name of an application property
               STR        # arbitrary string
 
 
@@ -535,7 +532,7 @@ Attach stage to a workspace
 
 #### SYNOPSIS
 
-`sc` *global-option*... `attach` *stage-option*... *stage* '@' *workspace'
+`sc` *global-option*... `attach` *stage-option*... *stage* '@'*workspace*
 
 #### DESCRIPTION
 
@@ -555,7 +552,7 @@ Detach a stage from a workspace
 
 #### SYNOPSIS
 
-`sc` *global-option*... `detach` *stage-option*... *stage* '@' *workspace'
+`sc` *global-option*... `detach` *stage-option*... *stage* '@'*workspace
 
 #### DESCRIPTION
 
@@ -580,7 +577,7 @@ Deletes a stage
 #### Description
 
 Deletes the stage, i.e. deletes it from the respective cluster. This includes containers and log files.
-If the current workspace is attached to this stage, this attachment is removed as well.
+If stage is specified as a workspace, it is removed from the workspace as well.
 
 Before actually touching anything, this command asks if you really want to delete the stage. You can suppress this interaction 
 with the `-batch` option.
@@ -605,7 +602,7 @@ Publish a stage
 
 Updates the stage with the specified values. *application* specifies the application to actually start.
 
-Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
+TODO: Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
 Publishing is refused if your stage has expired. In this case, publish with a new expire value.
 
@@ -631,12 +628,11 @@ Display commands invoked on this stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
+`sc` *global-option*... `history` *stage-option*...
 
 #### DESCRIPTION
 
-Prints the `sc` commands that affected the stage. Specify `-details` to also print command output. Stops after the 
-specified *max* number of commands (defauls is 50).
+Prints the `sc` commands that affected the stage. 
 
 [//]: # (include stageOptions.md)
 
@@ -648,7 +644,7 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 
 ### sc-config
 
-Manage stage values
+Manage stage properties
 
 #### SYNOPSIS
 
@@ -656,29 +652,27 @@ Manage stage values
 
 #### DESCRIPTION
 
-This command gets or sets stage [values](#values). 
+This command gets or sets stage [properties](#properties). 
 
-Caution: `config` does not deal Stool settings, see `sc help` for that.
+When invoked without arguments, all stage properties are printed.
+When invoked with one or more *key*s, the respective properties are printed.
+When invoked with one or more assignments, the respective properties are changed.
 
-When invoked without arguments, all stage values are printed.
-When invoked with one or more *key*s, the respective values are printed.
-When invoked with one or more assignments, the respective values are changed.
-
-Strings may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
+Strings may contain `{}` to refer to the previous property value. You can use this, e.g., to append to a value:
 `sc config "metadataComment={} append this"`.
 
-If you want to set a value to a String with spaces, you have to use quotes around the assignment.
+If you want to set a property to a String with spaces, you have to use quotes around the assignment.
 
-If you change a value, your application might be restart to apply this change.
+If you change a property, your application might restart to apply this change.
 
-Values have a type: boolean, number, date, string, or list of strings.
+Properties have a type: boolean, number, date, string, or list of strings.
 
-Boolean values by be `true` or `false`, case sensitive.
+Boolean properties by be `true` or `false`, case sensitive.
 
-Date values have the form *yyyy-mm-dd*, so a valid `metadataExpire` value is - e.g. -`2016-12-31`. Alternatively, 
+Date properties have the form *yyyy-mm-dd*, so a valid `metadataExpire` value is - e.g. -`2016-12-31`. Alternatively, 
 you can specify a number which is shorthand for that number of days from now (e.g. `1` means tomorrow).
 
-List values (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
+List properties (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
 
 [//]: # (include stageOptions.md)
 
@@ -688,9 +682,9 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 [//]: # (-)
 
 
-#### Available stage values
+#### Available stage properties
 
-Stool exposed all values of the underlying Helm chart. In addition, every stage has the following values:
+Stool exposed all values of the underlying Helm chart as properties. This usually includes:
 
 * **metadataComment**
   Arbitrary comment for this stage. This value nothing but stored, it has no effect. Type string.
@@ -719,7 +713,7 @@ Display stage status
 
 #### DESCRIPTION
 
-Prints the specified status *field*s or *value*s. Default: print all fields.
+Prints the specified status *field*s or application *properties*. Default: all status fields except *application*.
 
 Available fields:
 
@@ -743,6 +737,8 @@ Available fields:
   Urls to invoke this stage.
 * **origin-scm**
   SCM url label of the current image.
+* **application**
+  TODO
 
 
 [//]: # (include stageOptions.md)
@@ -755,16 +751,16 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 
 ### sc-images
 
-Display image status
+Display images with labals
 
 #### SYNOPSIS
 
-`sc` *global-option*... `images` *stage-option*...
+`sc` *global-option*... `images` *repository*
 
 
 #### DESCRIPTION
 
-Display info about the images of the stage.
+Display info about the images in the specified repository.
 
 TODO
 * **disk**
@@ -801,7 +797,7 @@ List stages
 
 #### SYNOPSIS
 
-`sc` *global-option*... `list` *stage-option*... (*field*|*value*)...
+`sc` *global-option*... `list` *stage-option*... (*field*|*property*)...
 
 #### DESCRIPTION
 
