@@ -71,6 +71,7 @@ public class Publish extends IteratedStageCommand {
 
         result = reference.client.publish(reference.stage, dryrun, allow, applicationRef, values);
         console.info.println(dryrun ? "dryrun, changes would be:" : "done:");
-        console.info.println(result.toString());
+        console.verbose.println(result.toString());
+        console.info.println("done");
     }
 }

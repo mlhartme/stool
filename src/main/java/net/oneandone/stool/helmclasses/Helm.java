@@ -78,6 +78,12 @@ public final class Helm {
                 throw new IOException("change is forbidden:\n" + forbidden);
             }
         }
+        // wipe private keys
+        for (Property property : modifiedClass.properties.values()) {
+            if (property.privt) {
+                result.remove(property.name);
+            }
+        }
         values = modifiedClass.createValuesFile(configuration, next);
         try {
             LOGGER.info("values: " + values.readString());

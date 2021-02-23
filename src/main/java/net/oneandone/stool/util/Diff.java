@@ -80,6 +80,10 @@ public final class Diff {
         return result;
     }
 
+    public boolean remove(String key) {
+        return map.remove(key) != null;
+    }
+
     public List<String> toList() {
         List<String> result;
 
