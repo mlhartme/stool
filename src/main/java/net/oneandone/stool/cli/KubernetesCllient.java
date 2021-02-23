@@ -50,7 +50,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class LocalClient extends Client {
+public class KubernetesCllient extends Client {
     private final ObjectMapper json;
 
     /** null for cluster */
@@ -58,7 +58,7 @@ public class LocalClient extends Client {
 
     private final Configuration configuration;
 
-    public LocalClient(ObjectMapper json, String context, String kubernetesContext, Configuration configuration, Caller caller) {
+    public KubernetesCllient(ObjectMapper json, String context, String kubernetesContext, Configuration configuration, Caller caller) {
         super(context, caller);
         this.json = json;
         this.kubernetesContext = kubernetesContext;

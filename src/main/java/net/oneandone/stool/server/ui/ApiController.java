@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.cli.LocalClient;
+import net.oneandone.stool.cli.KubernetesCllient;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.StageNotFoundException;
 import net.oneandone.stool.helmclasses.ApplicationRef;
@@ -100,8 +100,8 @@ public class ApiController {
             super(from);
         }
 
-        private LocalClient client(HttpServletRequest request) {
-            return new LocalClient(json, "server", null, this,
+        private KubernetesCllient client(HttpServletRequest request) {
+            return new KubernetesCllient(json, "server", null, this,
                     new Caller(
                             request.getHeader("X-stool-client-invocation"),
                             User.authenticatedOrAnonymous().login,

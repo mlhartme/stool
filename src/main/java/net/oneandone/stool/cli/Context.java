@@ -91,7 +91,7 @@ public class Context {
 
     public Client connect(World world, Configuration configuration, Caller caller) throws IOException {
         if (isKube()) {
-            return new LocalClient(configuration.json, name, url.substring(KUBE_SCHEME.length()), configuration, caller);
+            return new KubernetesCllient(configuration.json, name, url.substring(KUBE_SCHEME.length()), configuration, caller);
         } else {
             return ProxyClient.token(world, configuration.json, name, url, caller, token);
         }
