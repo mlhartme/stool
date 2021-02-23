@@ -419,12 +419,12 @@ public class Configuration {
     public Map<String, Context> contexts() {
         Map<String, Context> result;
 
-        result = localContexts();
+        result = kubeContexts();
         result.putAll(proxies);
         return result;
     }
 
-    private Map<String, Context> localContexts() {
+    private Map<String, Context> kubeContexts() {
         Config config;
         Map<String, Context> result;
         Context context;
@@ -432,7 +432,7 @@ public class Configuration {
         result = new LinkedHashMap<>();
         config = Config.autoConfigure(null);
         for (NamedContext c : config.getContexts()) {
-            context = Context.fromLocal(c);
+            context = Context.fromKube(c);
             result.put(context.name, context);
         }
         return result;

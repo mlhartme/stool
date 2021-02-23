@@ -97,7 +97,7 @@ public class MainIT {
         run(false);
     }
 
-    private void run(boolean local) throws IOException {
+    private void run(boolean kube) throws IOException {
         FileNode working;
         FileNode classdir;
         FileNode home;
@@ -105,15 +105,15 @@ public class MainIT {
 
         classdir = WORLD.guessProjectHome(getClass()).join("src/test/helmclasses").checkDirectory();
         stage = "de.wq-ta"; // with some special characters
-        working = itRoot(local).join("projects/" + (local ? "it-local" : "it-proxy")).mkdirsOpt();
+        working = itRoot(kube).join("projects/" + (kube ? "it-kube" : "it-proxy")).mkdirsOpt();
         home = working.join("home").checkNotExists();
-        if (local) {
+        if (kube) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
             sc(home, "setup", "-applicationpath=/Users/mhm/Projects/helmcharts/kutter" /* TODO */, "-registryCredentials=" + registryCredentials);
-            sc(home, "context", "local-local");
+            sc(home, "context", "kube-local");
         } else {
-            helm(local, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(local).getAbsolute(), "stool", helmChart().getAbsolute());
+            helm(kube, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(kube).getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "localproxy=http://localhost:31000/api");
             sc(home, "context", "localproxy");
         }

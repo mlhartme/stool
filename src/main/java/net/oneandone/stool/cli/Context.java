@@ -26,15 +26,15 @@ import net.oneandone.sushi.fs.World;
 import java.io.IOException;
 
 public class Context {
-    private static final String LOCAL_CONTEXT_PREFIX = "local-";
-    private static final String LOCAL_SCHEME = "local:";
+    private static final String KUBE_CONTEXT_PREFIX = "kube-";
+    private static final String KUBE_SCHEME = "kube:";
 
 
-    public static Context fromLocal(NamedContext context) {
+    public static Context fromKube(NamedContext context) {
         String name;
 
         name = context.getName();
-        return new Context(LOCAL_CONTEXT_PREFIX + name, LOCAL_SCHEME + name, null);
+        return new Context(KUBE_CONTEXT_PREFIX + name, KUBE_SCHEME + name, null);
     }
 
     public static Context fromProxyYaml(JsonNode obj) {
@@ -52,8 +52,8 @@ public class Context {
             throw new IllegalArgumentException(url);
         }
         name = obj.get("name").asText();
-        if (name.startsWith(LOCAL_CONTEXT_PREFIX)) {
-            throw new ArgumentException("proxy context name may not start with '" + LOCAL_CONTEXT_PREFIX + "'");
+        if (name.startsWith(KUBE_CONTEXT_PREFIX)) {
+            throw new ArgumentException("proxy context name may not start with '" + KUBE_CONTEXT_PREFIX + "'");
         }
         return new Context(name, url, token);
     }
@@ -70,8 +70,8 @@ public class Context {
         this.token = token;
     }
 
-    public boolean isLocal() {
-        return url.startsWith(LOCAL_SCHEME);
+    public boolean isKube() {
+        return url.startsWith(KUBE_SCHEME);
     }
 
     public boolean hasToken() {
@@ -81,7 +81,7 @@ public class Context {
     public void auth(World world, ObjectMapper json, Caller caller, String username, String password) throws IOException {
         ProxyClient client;
 
-        if (isLocal()) {
+        if (isKube()) {
             this.token = null;
         } else {
             client = ProxyClient.basicAuth(world, json, name, url, caller, username, password);
@@ -90,8 +90,8 @@ public class Context {
     }
 
     public Client connect(World world, Configuration configuration, Caller caller) throws IOException {
-        if (isLocal()) {
-            return new LocalClient(configuration.json, name, url.substring(LOCAL_SCHEME.length()), configuration, caller);
+        if (isKube()) {
+            return new LocalClient(configuration.json, name, url.substring(KUBE_SCHEME.length()), configuration, caller);
         } else {
             return ProxyClient.token(world, configuration.json, name, url, caller, token);
         }

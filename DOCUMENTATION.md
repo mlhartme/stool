@@ -135,9 +135,9 @@ Application is a descriptor to specify a Helm chart and values. It provides inhe
 
 ### Context
 
-A *context* specifies a place that can host stages together with the necessary authentication. There are proxy contexts and local contexts.
-A proxy context has a name, an optional token, and a URL pointing to a Stool server. A local context is a Kubernetes context whose name is
-prefixed with `local-`. Pro
+A *context* specifies a place that can host stages together with the necessary authentication. There are proxy contexts and Kubernetes contexts.
+A proxy context has a name, an optional token, and a URL pointing to a Stool server. A Kubernetes context is a Kubernetes context whose name is
+prefixed with `kube-`. 
 
 `sc` manages a list of proxy contexts in its configuration file. `sc` also manages a current context, 
 you can change it permanently with `sc context` or per-invocation with the `-context` global option.
