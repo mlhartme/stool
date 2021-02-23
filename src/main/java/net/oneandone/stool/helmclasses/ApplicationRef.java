@@ -30,7 +30,6 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -72,12 +71,12 @@ public class ApplicationRef {
         if (str.startsWith("/") || str.startsWith(".")) {
             file = world.file(str);
             file.checkFile();
-            return new ApplicationRef(Type.INLINE, file.readString(), str + "@" + new Date(file.getLastModified()));
+            return new ApplicationRef(Type.INLINE, file.readString(), str);
         }
         if (str.contains("/")) {
             return new ApplicationRef(Type.IMAGE, str, str);
         } else {
-            return new ApplicationRef(Type.BUILTIN, str, "builtin");
+            return new ApplicationRef(Type.BUILTIN, str, str);
         }
     }
 
@@ -114,7 +113,11 @@ public class ApplicationRef {
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {
-                    result = Application.loadLiteral(all, origin, null, object(yaml.readTree(src)));
+                    try {
+                        result = Application.loadLiteral(all, origin, null, object(yaml.readTree(src)));
+                    } catch (IOException e) {
+                        throw new IOException(origin + ": failed to parse application yaml from file: " + e.getMessage(), e);
+                    }
                 }
                 break;
             case IMAGE:
@@ -128,7 +131,11 @@ public class ApplicationRef {
                     throw new IOException("image does not have an 'application' label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
-                    result = Application.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
+                    try {
+                        result = Application.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
+                    } catch (IOException e) {
+                        throw new IOException(origin + ": failed to parse application yaml from image label: " + e.getMessage(), e);
+                    }
                 }
                 break;
             default:
