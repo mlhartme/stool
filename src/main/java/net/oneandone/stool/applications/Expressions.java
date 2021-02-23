@@ -117,7 +117,7 @@ public class Expressions {
             try {
                 result = eval(((Property) obj).value);
             } catch (IOException e) {
-                throw new ArgumentException("failed to compute value: " + name, e);
+                throw new ArgumentException(name + ": failed to compute property: " + e.getMessage(), e);
             }
             context.put(name, result);
             return result;
