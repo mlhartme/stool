@@ -69,8 +69,9 @@ public class ApplicationRef {
     public static ApplicationRef create(World world, String str) throws IOException {
         FileNode file;
 
-        file = world.file(str);
-        if (file.exists()) {
+        if (str.startsWith("/") || str.startsWith(".")) {
+            file = world.file(str);
+            file.checkFile();
             return new ApplicationRef(Type.INLINE, file.readString(), str + "@" + new Date(file.getLastModified()));
         }
         if (str.contains("/")) {

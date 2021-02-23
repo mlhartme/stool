@@ -130,6 +130,8 @@ the stage, neither can be changed later.
 
 TODO
 
+Application is a descriptor to specify a Helm chart and values. It provides inheritance and scripts to compute values.
+
 
 ### Context
 
