@@ -65,15 +65,14 @@ prints help about `create`.
 
 ### Rationale
 
-Technically, Stool is a Helm wrapper, a stage is a Helm releases, and applications define the values passed to helm charts.
-Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`. Stool particularly aims 
-to make value definitions more powerful, because in you environment we have few Helm charts for many different web applications, most 
-of the differences are just different values used for the charts.
+Technically, Stool is a Helm wrapper, a stage is a Helm releases, and applications define the values passed to Helm.
+Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`, in aims particularly 
+to make value definitions more powerful, because in our we have any applications using the same Helm chart but with dirfferent values.
 
 ### History
 
 Stool 5 runs stages in Docker, Stool 6 switched to Kubernetes. The general goal is to shrink Stool by replacing Stool functionality with
-standard Kubernetes features/tools. Here's a roadmap for this:
+standard Kubernetes features/tools. Here's an outline was has already been replaced and what's planned or open:
 
 
 |         | Functionality | Moved to; obsolete after |
@@ -81,7 +80,7 @@ standard Kubernetes features/tools. Here's a roadmap for this:
 | Stool 5 - current stable  | Process Management | Docker | 
 | Stool 6 - superseded by 7 | Port Managemnt | Kubernetes |
 |         | (Cpu Limits)    | Kubernetes Pod Limits |
-|         | (node selection) | Kubeernetes |
+|         | (node selection) | Kubernetes |
 | Stool 7 - current development | Image Building | Maven Plugin |
 |         | (K8s Resources per Stage) | Helm chart |
 |         | Stage Lifecycle | Helm |
@@ -113,73 +112,42 @@ standard Kubernetes features/tools. Here's a roadmap for this:
 This term is overloaded, depending on the context it may refer to the command line client `sc`, `sc server` in Kubernetes, 
 or the whole Github project. 
 
+### Stage
+
+A *stage* is a Kubernetes workload, typically running a web application like a Tomcat servlet container (http://tomcat.apache.org) with
+a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). This application is packaged into a Docker image and installed as a
+Helm chart in the current context. Stage configuration is the set of Helm values use for this release.
+
+Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it. It's also safe to `helm uninstall`
+instead of `sc delete`.
+
+A stage is hosted in a Kubernetes namespace, which is identified by a context. Every stage has a unique name in that context. A stage is
+referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage name and context when you create 
+the stage, neither can be changed later.
+
+
+### Application
+
+TODO
+
+
 ### Context
 
-A *context* specifies a place that can host stages together with the necessary authentication. It has a name, an optional token, and 
-a URL pointing to a Stool server. `sc` manages a list of contexts in its client configuration file. `sc` also manages a current context, 
+A *context* specifies a place that can host stages together with the necessary authentication. There are proxy contexts and local contexts.
+A proxy context has a name, an optional token, and a URL pointing to a Stool server. A local context is a Kubernetes context whose name is
+prefixed with `local-`. Pro
+
+`sc` manages a list of proxy contexts in its configuration file. `sc` also manages a current context, 
 you can change it permanently with `sc context` or per-invocation with the `-context` global option.
 
 Advanced note: The concept of a context is similar to `kubectl`s context.
 
 
-### Stage
-
-A *stage* is a Kubernetes workload, typically running a web application like a Tomcat servlet container (http://tomcat.apache.org) with 
-a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). This application is packaged into a Docker image and installed as a 
-Helm chart in the current context. Stage configuration is the set of Helm values use for this release. 
-
-Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it. It's also safe to `helm uninstall`
-instead of `sc delete`.
-
-A stage is hosted in a Kubernetes namespace, which is identified by a context. Every stage has a unique name in that context. A stage is 
-referenced by *name*`@`*context* or just the *name* if it's in the current context. The stages attached to a workspace are shown in your 
-shell prompt. The stage name is part of the application url(s). You define the stage name and context when you create the stage, neither
-can be changed later.
-
-
-### Image
-
-A Docker image with various labels. An image is uniquely identified by a repository tag. However, since a stage implies the repository, 
-Stool usually refers to an image by its tag. When building images with Stool, this tag is a number, that's incremented with every build.
-
-Image labels configure how to handle this image with Stool. Available labels:0
-
-Labels: TODO
-
-* **origin**
-  Specifies where the image came from, e.g. a git url, Maven like
-      git:ssh://git@github.com/mlhartme/hellowar.git
-
-
 ### Workspace
 
-A workspace is a list of stages associated with the current directory tree.
+A workspace is a list of stages referenced by a workspace name. Use workspace if you regularly run commands on the same list of stages.
 
-You'll typically work with workspaces like this: you have a checkout of the sources of one or multiple applications of yours. If the source 
-code is Java, you build and deploy the image with something like `mvn clean deploy`. Not that you generally have to deploy it because the 
-a local Docker image is not available on a deparate Kubernetes cluster. To get a stage with that image, run `sc create`, which also creates 
-a workspace with the newly created stages. You work with your stage (e.g. build it with `sc config` or `sc publish`), and when you're done, 
-you clean up with `sc delete`. You can also use `sc attach` to work with existing stages, and `sc detach` to remove stages from a workspace 
-without deleting them.
-
-Technically, the workspace is stored in `.backstage/workspace.yaml`
-
-The current workspace used by a Stool command is determined by searching the working directory and it parents for a workspace file. 
-
-Instead of using workspaces, you can also use `sc` with an explict `-stage <name>` command instead.
-
-
-### Current stages and stage indicator
-
-The *current stages* are the stages referenced by the current workspace. Unless otherwise specified, stage commands operate on the current 
-stages.
-
-The stage indicator `> somestage@context <` is displayed in front of your shell prompt, it lists the current stages. The context is omitted 
-if it's the current context.
-
-If you create a new stage, Stool creates a new workspace and attaches it to the newly created stage(s). If you `cd` into a different 
-workspace, the stage indicator changes accordingly. You can explicitly change the attached stage with `sc attach` and `sc detach`. The 
-stage indicator is invisible if you have no current workspace.
+Add stages to workspace by passing a workspace to `sc create` or with `sc attach`. Remove stages from workspaces with `sc detach` .
 
 
 ### Settings
