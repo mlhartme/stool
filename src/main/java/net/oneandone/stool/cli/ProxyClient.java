@@ -273,6 +273,8 @@ public class ProxyClient extends Client {
                     throw new FileNotFoundException(node, "not found");
                 case 409:
                     throw new FileAlreadyExistsException(node.getPath(), code + "", src.getStatusLine().toString());
+                case 420:
+                    throw new IOException(string(src));
                 default:
                     for (int c : success) {
                         if (code == c) {

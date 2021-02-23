@@ -302,6 +302,14 @@ public class ApiController {
         }
     }
 
+    @ExceptionHandler({ IOException.class })
+    public void handleException(IOException e, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.METHOD_FAILURE.value());
+        try (PrintWriter dest = response.getWriter()) {
+            dest.println(e.getMessage());
+        }
+    }
+
     //--
 
     public static ArrayNode array(ObjectMapper mapper, List<String> array) {
