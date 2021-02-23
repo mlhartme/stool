@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.core;
 
-import net.oneandone.stool.helmclasses.Property;
+import net.oneandone.stool.applications.Property;
 
 public class Value {
     public final Property property;

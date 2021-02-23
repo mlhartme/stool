@@ -13,7 +13,7 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Reference;
-import net.oneandone.stool.helmclasses.Helm;
+import net.oneandone.stool.applications.Helm;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.server.users.UserManager;

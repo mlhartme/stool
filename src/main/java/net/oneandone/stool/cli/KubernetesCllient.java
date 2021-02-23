@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Field;
-import net.oneandone.stool.helmclasses.ApplicationRef;
+import net.oneandone.stool.applications.ApplicationRef;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;

@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import net.oneandone.stool.helmclasses.ApplicationRef;
+import net.oneandone.stool.applications.ApplicationRef;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Pair;
 
