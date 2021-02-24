@@ -57,7 +57,7 @@ public class ExpressionsTest {
         e = expressions();
         assertEquals("", e.eval(""));
         assertEquals("hello", e.eval("hello"));
-        assertEquals("0", e.eval("${defaultExpire}"));
+        assertEquals("never", e.eval("${defaultExpire}"));
     }
 
     @Test

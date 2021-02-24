@@ -58,4 +58,4 @@ mailPassword: ""
 autoRemove: -1
 
 # Defines the number of days to expire new stages (0 for never). Type number, default 0.
-defaultExpire: "never"
+defaultExpire: 0
