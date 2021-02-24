@@ -425,12 +425,10 @@ public class Stage {
     //--
 
     private List<String> url(String protocol) {
-        String fqdn;
         String url;
         List<String> result;
 
-        fqdn = configuration.stageFqdn(name);
-        url = protocol + "://" + fqdn + "/" + urlContext();
+        url = protocol + "://" + name + "." + configuration.fqdn + "/" + urlContext();
         if (!url.endsWith("/")) {
             url = url + "/";
         }

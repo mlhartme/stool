@@ -42,6 +42,8 @@ public class Expressions {
     public final World world;
     public final Configuration configuration;
     private final String fqdn;
+    private final String stage;
+    private final String host;
 
     /** value is
      *   string when ready
@@ -52,10 +54,12 @@ public class Expressions {
     private FileNode contextChart;
     private Map<String, String> contextPrevious;
 
-    public Expressions(World world, Configuration configuration, String fqdn) {
+    public Expressions(World world, Configuration configuration, String stage, String host) {
         this.world = world;
         this.configuration = configuration;
-        this.fqdn = fqdn;
+        this.fqdn = stage + "." + host;
+        this.stage = stage;
+        this.host = host;
         this.context = null;
         this.contextChart = null;
         this.contextPrevious = null;
@@ -158,6 +162,8 @@ public class Expressions {
 
         result = new HashMap<>();
         result.put("fqdn", fqdn);
+        result.put("stage", stage);
+        result.put("host", host);
         result.put("defaultExpire", configuration.defaultExpire);
         result.put("defaultContact", Stage.NOTIFY_FIRST_MODIFIER);
         result.put("workdir", (TemplateMethodModelEx) list -> {

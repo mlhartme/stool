@@ -369,10 +369,6 @@ public class Configuration {
         return world.file(stageLogs).mkdirsOpt().join(name);
     }
 
-    public String stageFqdn(String stage) {
-        return stage + "." + fqdn;
-    }
-
     public UserManager createUserManager() throws IOException {
         return UserManager.loadOpt(json, lib.join("users.json"));
     }

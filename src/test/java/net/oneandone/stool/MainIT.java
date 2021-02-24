@@ -88,7 +88,7 @@ public class MainIT {
     }
 
     @Test
-    public void local() throws IOException {
+    public void kube() throws IOException {
         run(true);
     }
 
