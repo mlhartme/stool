@@ -97,7 +97,7 @@ public class KubernetesCllient extends Client {
                     }
                 }
                 if (!remaining.isEmpty()) {
-                    throw new IOException("select argument: unknown value/field(s): " + remaining);
+                    throw new IOException("select argument: unknown property/field(s): " + remaining);
                 }
             }
             if (!problems.isEmpty()) {

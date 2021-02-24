@@ -46,7 +46,7 @@ public class Application {
             loaded = (ObjectNode) yaml.readTree(src);
         }
         tagFile = Helm.tagFile(chart);
-        result = new Application("TODO", "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
+        result = new Application("chart '" + name + '"', "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
         applicationValue = (ObjectNode) loaded.remove("application");
         result.defineBaseAll(loaded.fields());
         if (applicationValue != null) {
@@ -197,9 +197,9 @@ public class Application {
         ObjectNode p;
 
         node = yaml.createObjectNode();
-        node.set("origin", new TextNode(origin)); // TODO: saved only, not loaded
+        node.set("origin", new TextNode(origin));
         if (author != null) {
-            node.set("author", new TextNode(author)); // TODO: saved only, not loaded
+            node.set("author", new TextNode(author));
         }
         node.set("name", new TextNode(name));
         node.set("chart", new TextNode(chart));
