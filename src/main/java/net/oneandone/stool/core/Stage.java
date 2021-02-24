@@ -194,7 +194,7 @@ public class Stage {
     //-- important values
 
     public Expire getMetadataExpire() {
-        return Expire.fromHuman(values.get(Dependencies.VALUE_EXPIRE).get());
+        return Expire.fromString(values.get(Dependencies.VALUE_EXPIRE).get());
     }
 
     public List<String> getMetadataNotify() {

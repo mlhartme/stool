@@ -24,27 +24,15 @@ import java.time.format.DateTimeParseException;
 public class Expire {
     private static final String NEVER = "never";
 
-    public static Expire never() {
-        return new Expire(null);
-    }
-
     public static Expire fromNumber(int n) {
         if (n == 0) {
-            return Expire.never();
+            return new Expire(null);
         } else {
             return new Expire(parse(Integer.toString(n)));
         }
     }
 
     public static Expire fromString(String input) {
-        if (input.equals(NEVER)) {
-            return Expire.never();
-        } else {
-            return new Expire(parse(input));
-        }
-    }
-
-    public static Expire fromHuman(String input) {
         if (null == input) {
             throw new IllegalArgumentException();
         }
@@ -64,10 +52,6 @@ public class Expire {
         this.date = date;
     }
 
-    public boolean isReserved() {
-        return date == null;
-    }
-
     public boolean isExpired() {
         return expiredDays() > 0;
     }
@@ -82,7 +66,7 @@ public class Expire {
 
     @Override
     public String toString() {
-        if (isReserved()) {
+        if (date == null) {
             return NEVER;
         } else {
             return FORMAT.format(date);

@@ -235,7 +235,7 @@ public class Application {
         dest.set(HELM_APPLICATION, toObject(configuration.yaml));
 
         // normalize expire
-        expire = Expire.fromHuman(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(configuration.defaultExpire).toString()));
+        expire = Expire.fromString(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(configuration.defaultExpire).toString()));
         if (expire.isExpired()) {
             throw new ArgumentException("stage expired: " + expire);
         }
