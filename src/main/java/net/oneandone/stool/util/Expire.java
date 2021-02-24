@@ -30,14 +30,24 @@ public class Expire {
     }
 
     public static Expire fromString(String input) {
-        if (null == input) {
-            throw new IllegalArgumentException();
-        }
+        int number;
+        LocalDate date;
+
         if (input.equals(NEVER)) {
-            return new Expire(null);
+            date = null;
         } else {
-            return new Expire(parse(input));
+            try {
+                number = Integer.parseInt(input);
+                date = number == 0 ? null : LocalDate.now().plusDays(number);
+            } catch (NumberFormatException e) {
+                try {
+                    date = LocalDate.parse(input, FORMAT);
+                } catch (DateTimeParseException e2) {
+                    throw new ArgumentException("invalid date. Expected format: " + FORMAT.toString() + ", got " + input);
+                }
+            }
         }
+        return new Expire(date);
     }
 
     //--
@@ -91,20 +101,4 @@ public class Expire {
     //--
 
     private static final DateTimeFormatter FORMAT =  DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-    private static LocalDate parse(String input) {
-        int number;
-
-        try {
-            number = Integer.parseInt(input);
-            return LocalDate.now().plusDays(number);
-        } catch (NumberFormatException e) {
-            // fall through
-        }
-        try {
-            return LocalDate.parse(input, FORMAT);
-        } catch (DateTimeParseException e) {
-            throw new ArgumentException("invalid date. Expected format: " + FORMAT.toString() + ", got " + input);
-        }
-    }
 }
