@@ -25,11 +25,8 @@ public class Expire {
     private static final String NEVER = "never";
 
     public static Expire fromNumber(int n) {
-        if (n == 0) {
-            return new Expire(null);
-        } else {
-            return new Expire(parse(Integer.toString(n)));
-        }
+        // integers are valid inputs ...
+        return fromString(Integer.toString(n));
     }
 
     public static Expire fromString(String input) {
