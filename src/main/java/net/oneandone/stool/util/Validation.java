@@ -86,19 +86,20 @@ public class Validation {
             report.add("replicas change failed: " + e.getMessage());
             LOGGER.debug(e.getMessage(), e);
         }
-        if (configuration.autoRemove >= 0 && expire.expiredDays() >= 0) {
-            if (expire.expiredDays() >= configuration.autoRemove) {
-                try {
-                    report.add("removing expired stage");
-                    stage.uninstall(kubeContext, engine);
-                } catch (Exception e) {
-                    report.add("failed to remove expired stage: " + e.getMessage());
-                    LOGGER.debug(e.getMessage(), e);
-                }
-            } else {
-                report.add("CAUTION: This stage will be removed automatically in "
-                        + (configuration.autoRemove - expire.expiredDays()) + " day(s)");
+        if (configuration.autoRemove < 0) {
+            return;
+        }
+        if (expire.expiredDays() >= configuration.autoRemove) {
+            try {
+                report.add("deleting expired stage");
+                stage.uninstall(kubeContext, engine);
+            } catch (Exception e) {
+                report.add("failed to remove expired stage: " + e.getMessage());
+                LOGGER.debug(e.getMessage(), e);
             }
+        } else {
+            report.add("CAUTION: This stage will be removed automatically in "
+                    + (configuration.autoRemove - expire.expiredDays()) + " day(s)");
         }
     }
 

@@ -69,7 +69,7 @@ public class HistoryEntry {
 
         result = new StringBuilder();
 
-        result.append(HistoryEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
+        result.append(HistoryEntry.DATE_FMT.format(dateTime)).append('|');
         result.append(invocation).append('|');
         result.append(user).append('|');
         result.append(command);
