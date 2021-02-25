@@ -72,30 +72,32 @@ public class Validation {
         Expire expire;
 
         expire = stage.getMetadataExpire();
-        if (expire.isExpired()) {
-            report.add("Stage expired " + expire + ". To start it, you have to adjust the 'expire' date.");
+        if (!expire.isExpired()) {
+            return;
         }
-        if (repair) {
-            try {
-                stage.setValues(caller, kubeContext, engine, Strings.toMap(Dependencies.VALUE_REPLICAS, "0"));
-                report.add("replicas set to 0");
-            } catch (Exception e) {
-                report.add("replicas change failed: " + e.getMessage());
-                LOGGER.debug(e.getMessage(), e);
-            }
-            if (configuration.autoRemove >= 0 && expire.expiredDays() >= 0) {
-                if (expire.expiredDays() >= configuration.autoRemove) {
-                    try {
-                        report.add("removing expired stage");
-                        stage.uninstall(kubeContext, engine);
-                    } catch (Exception e) {
-                        report.add("failed to remove expired stage: " + e.getMessage());
-                        LOGGER.debug(e.getMessage(), e);
-                    }
-                } else {
-                    report.add("CAUTION: This stage will be removed automatically in "
-                            + (configuration.autoRemove - expire.expiredDays()) + " day(s)");
+        report.add("Stage expired: " + expire + ": " + stage);
+        if (!repair) {
+            return;
+        }
+        try {
+            stage.setValues(caller, kubeContext, engine, Strings.toMap(Dependencies.VALUE_REPLICAS, "0"));
+            report.add("replicas set to 0");
+        } catch (Exception e) {
+            report.add("replicas change failed: " + e.getMessage());
+            LOGGER.debug(e.getMessage(), e);
+        }
+        if (configuration.autoRemove >= 0 && expire.expiredDays() >= 0) {
+            if (expire.expiredDays() >= configuration.autoRemove) {
+                try {
+                    report.add("removing expired stage");
+                    stage.uninstall(kubeContext, engine);
+                } catch (Exception e) {
+                    report.add("failed to remove expired stage: " + e.getMessage());
+                    LOGGER.debug(e.getMessage(), e);
                 }
+            } else {
+                report.add("CAUTION: This stage will be removed automatically in "
+                        + (configuration.autoRemove - expire.expiredDays()) + " day(s)");
             }
         }
     }
