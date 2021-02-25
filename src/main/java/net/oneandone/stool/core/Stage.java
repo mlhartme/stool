@@ -427,14 +427,21 @@ public class Stage {
     private List<String> url(String protocol) {
         String url;
         List<String> result;
+        String prefix;
 
-        url = protocol + "://" + name + "." + configuration.fqdn + "/" + urlContext();
-        if (!url.endsWith("/")) {
-            url = url + "/";
-        }
         result = new ArrayList<>();
-        for (String suffix : urlSuffixes()) {
-            result.add(url + suffix);
+        for (String subdomain : urlSubdomains()) {
+            prefix = subdomain.trim();
+            if (!prefix.isEmpty()) {
+                prefix = prefix + ".";
+            }
+            url = protocol + "://" + prefix + name + "." + configuration.fqdn + "/" + urlContext();
+            if (!url.endsWith("/")) {
+                url = url + "/";
+            }
+            for (String suffix : urlSuffixes()) {
+                result.add(prefix + url + suffix);
+            }
         }
         return result;
     }
@@ -449,6 +456,21 @@ public class Stage {
         result = new ArrayList<>();
         if (suffixes != null) {
             result.addAll(SUFFIXES_SEP.split(suffixes));
+        }
+        if (result.isEmpty()) {
+            result.add("");
+        }
+        return result;
+    }
+
+    private List<String> urlSubdomains() {
+        String str;
+        List<String> result;
+
+        str = valueOptString("urlSubdomains", "");
+        result = new ArrayList<>();
+        if (str != null) {
+            result.addAll(SUFFIXES_SEP.split(str));
         }
         if (result.isEmpty()) {
             result.add("");

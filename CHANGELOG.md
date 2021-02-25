@@ -35,6 +35,7 @@
   * Stool no longer wipes images
   * dumped registryPrefix from the configuration
 
+* added urlSubdomains
 * dumped fault support, use chart scripts instead
 * image/chart changes
   * dumped jmxmp/5555, rely on readyness probes instead; also dumped `heap` field

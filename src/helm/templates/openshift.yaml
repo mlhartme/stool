@@ -18,7 +18,7 @@ kind: Route
 metadata:
   name: stool-https-route
 spec:
-  host: {{ .Values.fqdn }}
+  host: {{ . }}.{{ $root.Values.fqdn }}
   port:
     targetPort: https
   tls:
