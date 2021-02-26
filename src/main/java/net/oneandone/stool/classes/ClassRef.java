@@ -126,7 +126,7 @@ public class ClassRef {
 
                 registry = configuration.createRegistry(value);
                 tag = registry.resolve(value);
-                str = tag.labels.get("class");
+                str = tag.labels.get("stage-class");
                 if (str == null || str.isEmpty()) {
                     throw new IOException("image does not have a 'class' label: " + value);
                 }

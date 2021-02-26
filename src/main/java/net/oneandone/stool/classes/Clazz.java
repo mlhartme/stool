@@ -47,7 +47,7 @@ public class Clazz {
         }
         tagFile = Helm.tagFile(chart);
         result = new Clazz("chart '" + name + '"', "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
-        classValue = (ObjectNode) loaded.remove("class");
+        classValue = (ObjectNode) loaded.remove("stage-class");
         result.defineBaseAll(loaded.fields());
         if (classValue != null) {
             result.defineAll(classValue.fields());

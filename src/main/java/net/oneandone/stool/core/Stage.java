@@ -100,7 +100,7 @@ public class Stage {
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
-    private static final List<String> WITHOUT_CLASS = Collections.singletonList("class");
+    private static final List<String> WITHOUT_CLASS = Collections.singletonList("stage-class");
 
     private static Map<String, Value> values(Clazz clazz, ObjectNode helmObject) throws IOException {
         Map<String, Object> raw;
