@@ -2,6 +2,6 @@ a: "42"
 asis: 2
 base: base
 added: a
-application:
+class:
   asis: 42
   base: ""

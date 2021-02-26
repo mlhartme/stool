@@ -100,14 +100,14 @@ public class Stage {
         return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
-    private static final List<String> WITHOUT_APPLICATION = Collections.singletonList("application");
+    private static final List<String> WITHOUT_CLASS = Collections.singletonList("class");
 
     private static Map<String, Value> values(Application application, ObjectNode helmObject) throws IOException {
         Map<String, Object> raw;
         Map<String, Value> result;
         String key;
 
-        raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), WITHOUT_APPLICATION);
+        raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), WITHOUT_CLASS);
         raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
         check(raw, Dependencies.MANDATORY);
         result = new LinkedHashMap<>();
@@ -284,7 +284,7 @@ public class Stage {
                 return Stage.this.application.chart + ":" + Stage.this.application.chartVersion;
             }
         });
-        fields.add(new Field("application", true) {
+        fields.add(new Field("class", true) {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.application.toObject(configuration.yaml).toPrettyString();

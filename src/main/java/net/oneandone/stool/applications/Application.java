@@ -47,7 +47,7 @@ public class Application {
         }
         tagFile = Helm.tagFile(chart);
         result = new Application("chart '" + name + '"', "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
-        applicationValue = (ObjectNode) loaded.remove("application");
+        applicationValue = (ObjectNode) loaded.remove("class");
         result.defineBaseAll(loaded.fields());
         if (applicationValue != null) {
             result.defineAll(applicationValue.fields());
