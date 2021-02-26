@@ -602,7 +602,7 @@ Display commands invoked on this stage
 
 #### DESCRIPTION
 
-Prints the `sc` commands that affected the stage. 
+Prints the `sc` commands that affected the stage. Invoke it `-v` to see more details for each invocation.
 
 [//]: # (include stageOptions.md)
 

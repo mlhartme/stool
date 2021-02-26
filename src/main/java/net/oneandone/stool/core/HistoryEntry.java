@@ -33,6 +33,7 @@ public class HistoryEntry {
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
+    public static final DateTimeFormatter SIMPLE_DATE_FMT = DateTimeFormatter.ofPattern("MM-dd HH:mm");
 
     /** Count-part of the Logging.log method. */
     public static HistoryEntry parse(String line) {

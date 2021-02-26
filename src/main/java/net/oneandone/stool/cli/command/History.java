@@ -17,6 +17,7 @@ package net.oneandone.stool.cli.command;
 
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
+import net.oneandone.stool.core.HistoryEntry;
 
 public class History extends IteratedStageCommand {
     public History(Globals globals, String stage) {
@@ -25,8 +26,15 @@ public class History extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
+        HistoryEntry entry;
+
         for (String line : reference.client.history(reference.stage)) {
-            console.info.println(line);
+            if (console.getVerbose()) {
+                console.info.println(line);
+            } else {
+                entry = HistoryEntry.parse(line);
+                console.info.printf("%s %s %s\n", HistoryEntry.SIMPLE_DATE_FMT.format(entry.dateTime), entry.user, entry.command);
+            }
         }
     }
 }
