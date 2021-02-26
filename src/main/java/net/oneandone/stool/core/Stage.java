@@ -440,7 +440,7 @@ public class Stage {
                 url = url + "/";
             }
             for (String suffix : urlSuffixes()) {
-                result.add(prefix + url + suffix);
+                result.add(url + suffix);
             }
         }
         return result;
