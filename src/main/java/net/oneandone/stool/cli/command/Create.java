@@ -75,7 +75,7 @@ public class Create extends ClientCommand {
             arg = args.get(i);
             idx = arg.indexOf('=');
             if (idx == -1) {
-                throw new IllegalStateException(args + " " + arg);
+                throw new ArgumentException("key=values expected, got " + arg);
             }
             key = arg.substring(0, idx);
             value = arg.substring(idx + 1);
