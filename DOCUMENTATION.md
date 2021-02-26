@@ -2,11 +2,12 @@
 
 ## Introduction
 
-Stool is a tool to manage stages - create, publish, configure, delete. A stage is a Kubernetes workload, typically a web application.
+Stool is a tool to manage stages - create, publish, configure, delete. A stage is a Kubernetes workload, 
+typically a web application.
 
 ### Quick Tour
 
-Here's an example what you can do with Stool. TODO: assumes `hello` application
+Here's an example what you can do with Stool. TODO: assumes `hello` class
 
 You generally invoke Stool from the command-line with `sc` followed by a command and specific arguments. 
 
@@ -26,7 +27,7 @@ Choose one of the available contexts by running
     
 Depending on your context you'll be asked to authenticate.
 
-Create a new stage called `mystage` running the application `hello` with
+Create a new stage called `mystage` running a `hello` application with
 
     sc create mystage hello
 
@@ -34,8 +35,8 @@ You can run
 
     sc status mystage
 
-to see status information about your stage. E.g. `available` is the number of pods running your application.
-If `available` is above `0` you can point your browser the url printed by the `create` or `status` command.
+to see status information about your stage. E.g. if `available` is above `0` you can point your browser 
+to the url printed by the `create` or `status` command.
 
 Use
 
@@ -65,9 +66,10 @@ prints help about `create`.
 
 ### Rationale
 
-Technically, Stool is a Helm wrapper, a stage is a Helm releases, and applications define the values passed to Helm.
-Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`, in aims particularly 
-to make value definitions more powerful, because in our we have any applications using the same Helm chart but with dirfferent values.
+Technically, Stool is a Helm wrapper, a stage is a Helm releases, and stage classes provide powerful features to define 
+Helm values. Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`, in aims 
+particularly to make value definitions more powerful, because in our use cases we have many workloads using the same Helm 
+chart but with different values.
 
 ### History
 
@@ -92,7 +94,7 @@ standard Kubernetes features/tools. Here's an outline was has already been repla
 |         | Simple cli: reduce cognitive load | train developers, operating |
 |         | Dashboard: None-technical UI | ? |
 |         | Proxy: restricted access | All stages by Jenkins? |
-|         | Applications | ? |
+|         | Stage classes | ? |
 
 
 ### Conventions
@@ -115,22 +117,36 @@ or the whole Github project.
 ### Stage
 
 A *stage* is a Kubernetes workload, typically running a web application like a Tomcat servlet container (http://tomcat.apache.org) with
-a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). This application is packaged into a Docker image and installed as a
-Helm chart in the current context. Stage configuration is the set of Helm values use for this release.
+a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). 
+
+Every stage has a configuration, which is a set of properties; use `sc config` to check/adjust these properties. 
 
 Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it. It's also safe to `helm uninstall`
 instead of `sc delete`.
 
-A stage is hosted in a Kubernetes namespace, which is identified by a context. Every stage has a unique name in that context. A stage is
-referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage name and context when you create 
-the stage, neither can be changed later.
+A stage runs in a Kubernetes Cluster within a namespace, which is identified by a context. Every stage has a unique name in that context. 
+A stage is referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage name and context when 
+you create the stage, neither can be changed later.
 
 
-### Application
+### Stage class
 
-TODO
+The stage class defines how to create a stage. Every stage has as class (or in oo works: it is an instance of a class).  
 
-Application is a descriptor to specify a Helm chart and values. It provides inheritance and scripts to compute values.
+A class looks like this:
+
+    name: "hello"
+    extends: "kutter"
+    properties:
+      image: "myregistry/hello:1.0.0"
+      cert: "${exec('cert.sh', stage)"
+
+A class has a set of operties, and it can extend other classes (i.e. inherits all properites from it). Properties can use
+Freemarker Template and invoke scripts to compute values.
+
+You usually defines classes in a `stage.yaml` and store it in a `stage` label of an image.
+
+Technically, the class specifies a Helm chart and how to set it's values.
 
 
 ### Context
@@ -198,7 +214,7 @@ Stage control
 `sc` is a command line tool to manage stages. A stage is a Kubernetes workload, typically a web application.
 *command* defaults to `help`. `sc` stands for stage control. 
 
-Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds applications, proxying and a dashboard.
+Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds classes, proxying and a dashboard.
 
 
 #### Commands
@@ -226,7 +242,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds app
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *application* ['@' *workspace*] [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*object*...]
 
 
 
@@ -244,7 +260,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds app
 `sc` *global-option*... `delete` *stage-option*... [`-batch`]
 
 
-`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *application* [*key*`=`*object*...]
+`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *class* [*key*`=`*object*...]
 
 
 `sc` *global-option*... `history` *stage-option*...
@@ -403,14 +419,14 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *application* ['@' *workspace*] [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*object*...]
 
 
 
 #### DESCRIPTION
 
-Creates a new stage: computes all properties of *application* and its base applications, except those key-values pair specified explicitly.
-The resulting values are passed to Helm to install the chart of the applications.
+Creates a new stage: computes all properties of *class* and its base classes, except those key-values pair specified explicitly.
+The resulting values are passed to Helm to install the chart of the class.
 
 *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes, it's 
 rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name. 
@@ -429,7 +445,7 @@ See `sc help global-options` for available [global options](#sc-global-options)
 
 #### Examples
 
-Create one stage `foo` as defined by application `hello`: `sc create foo hello`
+Create one stage `foo` as defined by class `hello`: `sc create foo hello`
 
 
 
@@ -464,7 +480,7 @@ Stage commands operate on the stage(s) selected by the first argument:
               substring = '*' STR '*'
               NAME       # name of a stage
               FIELD      # name of a status field
-              PROPERTY   # name of an application property
+              PROPERTY   # name of an class property
               STR        # arbitrary string
 
 
@@ -566,11 +582,11 @@ Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *application* [*key*`=`*object*...]
+`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *class* [*key*`=`*object*...]
 
 #### Description
 
-Updates the stage with the specified values. *application* specifies the application to actually start.
+Updates the stage with the specified values. *class* specifies the application to actually start.
 
 TODO: Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
@@ -633,7 +649,7 @@ Strings may contain `{}` to refer to the previous property value. You can use th
 
 If you want to set a property to a String with spaces, you have to use quotes around the assignment.
 
-If you change a property, your application might restart to apply this change.
+If you change a property, your pods might restart to apply this change.
 
 Properties have a type: boolean, number, date, string, or list of strings.
 
@@ -683,7 +699,7 @@ Display stage status
 
 #### DESCRIPTION
 
-Prints the specified status *field*s or application *properties*. Default: all status fields except *application*.
+Prints the specified status *field*s or class *properties*. Default: all status fields except *class*.
 
 Available fields:
 
@@ -707,7 +723,7 @@ Available fields:
   Urls to invoke this stage.
 * **origin-scm**
   SCM url label of the current image.
-* **application**
+* **class**
   TODO
 
 
@@ -842,6 +858,8 @@ Use `sc help global-options` for available [global options](#sc-global-options)
 
 
 ## Installing
+
+TODO 
 
 Stool is split into a client and a server part; `dashboard` as is part of the server. You'll normally install just the client part, and
 the server uses a server set up by your operating team.
