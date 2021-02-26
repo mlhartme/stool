@@ -31,19 +31,19 @@ import java.util.Map;
 
 public class Create extends ClientCommand {
     private final String stageName;
-    private final String applicationRef;
+    private final String classRef;
     private final boolean optional;
     private final boolean wait;
     private final String workspaceNameOpt;
     private final Map<String, String> values;
 
-    public Create(Globals globals, boolean optional, boolean wait, String stageName, String applicationRef, List<String> args) {
+    public Create(Globals globals, boolean optional, boolean wait, String stageName, String classRef, List<String> args) {
         super(globals);
 
         this.optional = optional;
         this.wait = wait;
         this.stageName = stageName;
-        this.applicationRef = applicationRef;
+        this.classRef = classRef;
         this.workspaceNameOpt = eatWorkspaceNameOpt(args);
         this.values = new LinkedHashMap<>();
         values(args);
@@ -133,7 +133,7 @@ public class Create extends ClientCommand {
         client = globals.configuration().currentContext().connect(world, globals.configuration(), globals.caller());
         reference = new Reference(client, stageName);
         try {
-            urls = client.create(stageName, ClassRef.create(world, applicationRef), values);
+            urls = client.create(stageName, ClassRef.create(world, classRef), values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {

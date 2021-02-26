@@ -104,7 +104,7 @@ public class Configuration {
     public final Map<String, Context> proxies;
 
     public final Map<String, Pair> registryCredentials;
-    public final List<String> applicationpath;
+    public final List<String> classpath;
     public final FileNode lib;
     public final String stageLogs;
 
@@ -172,7 +172,7 @@ public class Configuration {
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.lib = home.join("lib");
-        this.applicationpath = COLON.split(Json.string(local, "classpath", ""));
+        this.classpath = COLON.split(Json.string(local, "classpath", ""));
         this.stageLogs = string(local, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(local, "loglevel", "ERROR");
         this.fqdn = Json.string(local, "fqdn", "localhost");
@@ -201,7 +201,7 @@ public class Configuration {
             proxies.put(entry.getKey(), entry.getValue().newInstance());
         }
         this.registryCredentials = new HashMap<>(from.registryCredentials);
-        this.applicationpath = new ArrayList<>(from.applicationpath);
+        this.classpath = new ArrayList<>(from.classpath);
         this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
         this.loglevel = from.loglevel;
@@ -532,7 +532,7 @@ public class Configuration {
 
         local.put("registryCredentials", registryCredentialsString());
         local.put("stageLog", stageLogs);
-        local.put("classpath", COLON.join(applicationpath));
+        local.put("classpath", COLON.join(classpath));
 
         //--
 
@@ -594,7 +594,7 @@ public class Configuration {
 
         root = lib.join("charts").mkdirsOpt();
         result = new LinkedHashMap<>();
-        for (String entry : applicationpath) {
+        for (String entry : classpath) {
             resolved = directoryChartOpt(entry);
             if (resolved == null) {
                 portus = createRegistry(entry);
@@ -605,9 +605,9 @@ public class Configuration {
         return result;
     }
 
-    private FileNode directoryChartOpt(String applicationpathEntry) throws IOException {
-        if (applicationpathEntry.startsWith("/")) {
-            return world.file(applicationpathEntry).checkDirectory();
+    private FileNode directoryChartOpt(String classpathEntry) throws IOException {
+        if (classpathEntry.startsWith("/")) {
+            return world.file(classpathEntry).checkDirectory();
         } else {
             return null;
         }
