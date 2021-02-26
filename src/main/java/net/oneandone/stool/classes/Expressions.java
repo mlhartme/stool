@@ -66,7 +66,7 @@ public class Expressions {
         this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Map<String, String> previous, Application application, FileNode chart) {
+    public Map<String, String> eval(Map<String, String> previous, Clazz application, FileNode chart) {
         Map<String, String> result;
 
         if (context != null) {

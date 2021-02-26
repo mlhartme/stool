@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.stool.core.Field;
-import net.oneandone.stool.classes.ApplicationRef;
+import net.oneandone.stool.classes.ClassRef;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
@@ -108,7 +108,7 @@ public class KubernetesCllient extends Client {
     }
 
     @Override
-    public Map<String, String> create(String stageName, ApplicationRef applicationRef, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, ClassRef applicationRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
@@ -124,7 +124,7 @@ public class KubernetesCllient extends Client {
     }
 
     @Override
-    public Diff publish(String name, boolean dryrun, String allow, ApplicationRef applicationRef, Map<String, String> values) throws IOException {
+    public Diff publish(String name, boolean dryrun, String allow, ClassRef applicationRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {

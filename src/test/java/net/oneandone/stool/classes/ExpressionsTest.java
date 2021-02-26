@@ -63,10 +63,10 @@ public class ExpressionsTest {
     @Test
     public void application() throws IOException {
         Expressions e;
-        Application application;
+        Clazz application;
         Map<String, String> values;
 
-        application = Application.forTest("name", "one", "1", "two", "${'2' + value('one')}");
+        application = Clazz.forTest("name", "one", "1", "two", "${'2' + value('one')}");
         e = expressions();
         values = e.eval(new HashMap<>(), application, world.getTemp().createTempDirectory());
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
@@ -75,14 +75,14 @@ public class ExpressionsTest {
     @Test
     public void exec() throws IOException {
         Expressions e;
-        Application application;
+        Clazz application;
         Map<String, String> values;
         FileNode dir;
 
 
         dir = world.getTemp().createTempDirectory();
         dir.join("scripts").mkdir().join("script.sh").writeString("#!/bin/sh\necho \"arg:$1\"");
-        application = Application.forTest("name", "one", "${exec('script.sh', 'hello')}");
+        application = Clazz.forTest("name", "one", "${exec('script.sh', 'hello')}");
         e = expressions();
         values = e.eval(new HashMap<>(), application, dir);
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);

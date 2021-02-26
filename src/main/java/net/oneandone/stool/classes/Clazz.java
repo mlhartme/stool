@@ -32,12 +32,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Application {
+public class Clazz {
     public static final String HELM_APPLICATION = "helmApplication";
 
     /** loads the class ex- or implicitly definded by a chart */
-    public static Application loadChartApplication(ObjectMapper yaml, String name, FileNode chart) throws IOException {
-        Application result;
+    public static Clazz loadChartApplication(ObjectMapper yaml, String name, FileNode chart) throws IOException {
+        Clazz result;
         ObjectNode loaded;
         ObjectNode applicationValue;
         FileNode tagFile;
@@ -46,7 +46,7 @@ public class Application {
             loaded = (ObjectNode) yaml.readTree(src);
         }
         tagFile = Helm.tagFile(chart);
-        result = new Application("chart '" + name + '"', "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
+        result = new Clazz("chart '" + name + '"', "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
         applicationValue = (ObjectNode) loaded.remove("class");
         result.defineBaseAll(loaded.fields());
         if (applicationValue != null) {
@@ -56,10 +56,10 @@ public class Application {
     }
 
     /** from inline, label or classes; always extends */
-    public static Application loadLiteral(Map<String, Application> existing, String origin, String author, ObjectNode application) throws IOException {
+    public static Clazz loadLiteral(Map<String, Clazz> existing, String origin, String author, ObjectNode application) throws IOException {
         String extendz;
-        Application base;
-        Application derived;
+        Clazz base;
+        Clazz derived;
         String name;
 
         name = Json.string(application, "name");
@@ -73,21 +73,21 @@ public class Application {
         return derived;
     }
 
-    public static Application loadHelm(ObjectNode application) {
-        Application result;
+    public static Clazz loadHelm(ObjectNode application) {
+        Clazz result;
         String name;
 
         name = Json.string(application, "name");
-        result = new Application(Json.stringOpt(application, "origin"), Json.stringOpt(application, "author"), name, Json.string(application, "chart"),
+        result = new Clazz(Json.stringOpt(application, "origin"), Json.stringOpt(application, "author"), name, Json.string(application, "chart"),
                 Json.string(application, "chartVersion"));
         result.defineBaseAll(application.get("properties").fields());
         return result;
     }
 
-    public static Application forTest(String name, String... nameValues) {
-        Application result;
+    public static Clazz forTest(String name, String... nameValues) {
+        Clazz result;
 
-        result = new Application("synthetic", null, name, "unusedChart", "noVersion");
+        result = new Clazz("synthetic", null, name, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
             result.defineBase(new Property(nameValues[i], nameValues[i + 1]));
         }
@@ -105,7 +105,7 @@ public class Application {
     public final String chartVersion;
     public final Map<String, Property> properties;
 
-    private Application(String origin, String author, String name, String chart, String chartVersion) {
+    private Clazz(String origin, String author, String name, String chart, String chartVersion) {
         this.origin = origin;
         this.author = author;
         this.name = name;
@@ -212,10 +212,10 @@ public class Application {
         return node;
     }
 
-    public Application derive(String derivedOrigin, String derivedAuthor, String withName) {
-        Application result;
+    public Clazz derive(String derivedOrigin, String derivedAuthor, String withName) {
+        Clazz result;
 
-        result = new Application(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
+        result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
         for (Property property : properties.values()) {
             result.defineBase(property);
         }

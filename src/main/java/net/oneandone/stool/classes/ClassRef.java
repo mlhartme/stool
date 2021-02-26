@@ -34,12 +34,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class ApplicationRef {
+public class ClassRef {
     private enum Type {
         INLINE, IMAGE, BUILTIN
     }
 
-    public static ApplicationRef parse(String str) {
+    public static ClassRef parse(String str) {
         int idx;
         Type type;
 
@@ -53,7 +53,7 @@ public class ApplicationRef {
         if (idx == -1) {
             throw new IllegalStateException(str);
         }
-        return new ApplicationRef(type, decode(str.substring(0, idx)), decode(str.substring(idx + 1)));
+        return new ClassRef(type, decode(str.substring(0, idx)), decode(str.substring(idx + 1)));
     }
 
 
@@ -65,18 +65,18 @@ public class ApplicationRef {
         return Base64.getEncoder().encodeToString(str.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static ApplicationRef create(World world, String str) throws IOException {
+    public static ClassRef create(World world, String str) throws IOException {
         FileNode file;
 
         if (str.startsWith("/") || str.startsWith(".")) {
             file = world.file(str);
             file.checkFile();
-            return new ApplicationRef(Type.INLINE, file.readString(), str);
+            return new ClassRef(Type.INLINE, file.readString(), str);
         }
         if (str.contains("/")) {
-            return new ApplicationRef(Type.IMAGE, str, str);
+            return new ClassRef(Type.IMAGE, str, str);
         } else {
-            return new ApplicationRef(Type.BUILTIN, str, str);
+            return new ClassRef(Type.BUILTIN, str, str);
         }
     }
 
@@ -84,7 +84,7 @@ public class ApplicationRef {
     private final String value;
     private final String origin;
 
-    public ApplicationRef(Type type, String value, String origin) {
+    public ClassRef(Type type, String value, String origin) {
         this.type = type;
         this.value = value;
         this.origin = origin;
@@ -96,10 +96,10 @@ public class ApplicationRef {
 
     public static final String BUILDIN = "_buildin_";
 
-    public Application resolve(String kubeContext, Configuration configuration) throws IOException {
+    public Clazz resolve(String kubeContext, Configuration configuration) throws IOException {
         ObjectMapper yaml;
-        Map<String, Application> all;
-        Application result;
+        Map<String, Clazz> all;
+        Clazz result;
         String str;
 
         yaml = configuration.yaml;
@@ -114,7 +114,7 @@ public class ApplicationRef {
             case INLINE:
                 try (Reader src = new StringReader(value)) {
                     try {
-                        result = Application.loadLiteral(all, origin, null, object(yaml.readTree(src)));
+                        result = Clazz.loadLiteral(all, origin, null, object(yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse application yaml from file: " + e.getMessage(), e);
                     }
@@ -132,7 +132,7 @@ public class ApplicationRef {
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     try {
-                        result = Application.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
+                        result = Clazz.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse application yaml from image label: " + e.getMessage(), e);
                     }
@@ -152,28 +152,28 @@ public class ApplicationRef {
         }
     }
 
-    public static Map<String, Application> loadAll(ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
+    public static Map<String, Clazz> loadAll(ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
         Iterator<JsonNode> classes;
-        Map<String, Application> result;
+        Map<String, Clazz> result;
         FileNode file;
 
         result = new HashMap<>();
         for (FileNode chart : charts) {
-            add(result, Application.loadChartApplication(yaml, chart.getName(), chart));
+            add(result, Clazz.loadChartApplication(yaml, chart.getName(), chart));
             file = chart.join("classes.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
                     classes = yaml.readTree(src).elements();
                 }
                 while (classes.hasNext()) {
-                    add(result, Application.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
+                    add(result, Clazz.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
                 }
             }
         }
         return result;
     }
 
-    private static void add(Map<String, Application> all, Application application) throws IOException {
+    private static void add(Map<String, Clazz> all, Clazz application) throws IOException {
         if (all.put(application.name, application) != null) {
             throw new IOException("duplicate application: " + application.name);
         }
