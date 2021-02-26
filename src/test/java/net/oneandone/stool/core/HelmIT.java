@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.core;
 
-import net.oneandone.stool.applications.Helm;
+import net.oneandone.stool.classes.Helm;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Secrets;

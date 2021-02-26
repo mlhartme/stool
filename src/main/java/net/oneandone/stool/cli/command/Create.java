@@ -20,7 +20,7 @@ import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.cli.Workspace;
-import net.oneandone.stool.applications.ApplicationRef;
+import net.oneandone.stool.classes.ApplicationRef;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;

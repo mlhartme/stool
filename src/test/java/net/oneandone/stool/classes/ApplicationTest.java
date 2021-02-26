@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.applications;
+package net.oneandone.stool.classes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -99,7 +99,7 @@ public class ApplicationTest {
         Map<String, Application> all;
         Application a;
 
-        all = ApplicationRef.loadAll(YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/helmclasses/foo").checkDirectory()));
+        all = ApplicationRef.loadAll(YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/classes/foo").checkDirectory()));
         assertEquals(2, all.size());
         a = all.get("derived");
         assertEquals("42", a.properties.get("asis").value);
