@@ -159,7 +159,7 @@ public class ClassRef {
 
         result = new HashMap<>();
         for (FileNode chart : charts) {
-            add(result, Clazz.loadChartApplication(yaml, chart.getName(), chart));
+            add(result, Clazz.loadChartClass(yaml, chart.getName(), chart));
             file = chart.join("classes.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
@@ -173,9 +173,9 @@ public class ClassRef {
         return result;
     }
 
-    private static void add(Map<String, Clazz> all, Clazz application) throws IOException {
-        if (all.put(application.name, application) != null) {
-            throw new IOException("duplicate application: " + application.name);
+    private static void add(Map<String, Clazz> all, Clazz clazz) throws IOException {
+        if (all.put(clazz.name, clazz) != null) {
+            throw new IOException("duplicate application: " + clazz.name);
         }
     }
 }

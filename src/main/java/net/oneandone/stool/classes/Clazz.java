@@ -33,13 +33,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Clazz {
-    public static final String HELM_APPLICATION = "helmApplication";
+    public static final String HELM_CLASS = "helmClass";
 
     /** loads the class ex- or implicitly definded by a chart */
-    public static Clazz loadChartApplication(ObjectMapper yaml, String name, FileNode chart) throws IOException {
+    public static Clazz loadChartClass(ObjectMapper yaml, String name, FileNode chart) throws IOException {
         Clazz result;
         ObjectNode loaded;
-        ObjectNode applicationValue;
+        ObjectNode classValue;
         FileNode tagFile;
 
         try (Reader src = chart.join("values.yaml").newReader()) {
@@ -47,40 +47,40 @@ public class Clazz {
         }
         tagFile = Helm.tagFile(chart);
         result = new Clazz("chart '" + name + '"', "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
-        applicationValue = (ObjectNode) loaded.remove("class");
+        classValue = (ObjectNode) loaded.remove("class");
         result.defineBaseAll(loaded.fields());
-        if (applicationValue != null) {
-            result.defineAll(applicationValue.fields());
+        if (classValue != null) {
+            result.defineAll(classValue.fields());
         }
         return result;
     }
 
     /** from inline, label or classes; always extends */
-    public static Clazz loadLiteral(Map<String, Clazz> existing, String origin, String author, ObjectNode application) throws IOException {
+    public static Clazz loadLiteral(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
         String extendz;
         Clazz base;
         Clazz derived;
         String name;
 
-        name = Json.string(application, "name");
-        extendz = Json.string(application, "extends");
+        name = Json.string(clazz, "name");
+        extendz = Json.string(clazz, "extends");
         base = existing.get(extendz);
         if (base == null) {
             throw new IOException("class not found: " + extendz);
         }
         derived = base.derive(origin, author, name);
-        derived.defineAll(application.get("properties").fields());
+        derived.defineAll(clazz.get("properties").fields());
         return derived;
     }
 
-    public static Clazz loadHelm(ObjectNode application) {
+    public static Clazz loadHelm(ObjectNode clazz) {
         Clazz result;
         String name;
 
-        name = Json.string(application, "name");
-        result = new Clazz(Json.stringOpt(application, "origin"), Json.stringOpt(application, "author"), name, Json.string(application, "chart"),
-                Json.string(application, "chartVersion"));
-        result.defineBaseAll(application.get("properties").fields());
+        name = Json.string(clazz, "name");
+        result = new Clazz(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name, Json.string(clazz, "chart"),
+                Json.string(clazz, "chartVersion"));
+        result.defineBaseAll(clazz.get("properties").fields());
         return result;
     }
 
@@ -232,7 +232,7 @@ public class Clazz {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(HELM_APPLICATION, toObject(configuration.yaml));
+        dest.set(HELM_CLASS, toObject(configuration.yaml));
 
         // normalize expire
         expire = Expire.fromString(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(configuration.defaultExpire).toString()));
