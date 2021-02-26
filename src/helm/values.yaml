@@ -14,7 +14,7 @@ cert: ""
 registryCredentials: ""
 
 # TODO
-applicationpath: "contargo.server.lan/cisoops-public/charts/kutter:contargo.server.lan/cisoops-public/charts/nache"
+classpath: "contargo.server.lan/cisoops-public/charts/kutter:contargo.server.lan/cisoops-public/charts/nache"
 
 environment:
 

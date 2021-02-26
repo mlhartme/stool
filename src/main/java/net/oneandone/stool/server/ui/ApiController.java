@@ -148,13 +148,13 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}")
-    public String create(@PathVariable("stage") String name, @RequestParam(value = "classref") String applicationRef,
+    public String create(@PathVariable("stage") String name, @RequestParam(value = "classref") String classRef,
                          HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> values;
 
         values = map(request, "value.");
         try (RequestConfiguration configuration = openConfiguration()) {
-            return Json.obj(configuration.json, configuration.client(request).create(name, ClassRef.parse(applicationRef), values)).toString();
+            return Json.obj(configuration.json, configuration.client(request).create(name, ClassRef.parse(classRef), values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
@@ -163,12 +163,12 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String applicationRef,
+    public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String classRef,
                           @RequestParam(value = "dryrun", required = false, defaultValue = "false") boolean dryrun,
                           @RequestParam(value = "allow", required = false) String allow, HttpServletRequest request) throws IOException {
         try (RequestConfiguration configuration = openConfiguration()) {
             return array(configuration.json, configuration.client(request)
-                    .publish(stageName, dryrun, allow, ClassRef.parse(applicationRef), map(request, "value.")).toList()).toString();
+                    .publish(stageName, dryrun, allow, ClassRef.parse(classRef), map(request, "value.")).toList()).toString();
         }
     }
 

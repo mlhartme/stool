@@ -8,7 +8,7 @@ data:
     local:
       registryCredentials: "{{ .Values.registryCredentials }}"
       stageLogs: "{{ .Values.stageLogs }}"
-      applicationpath: "{{ .Values.applicationpath }}"
+      classpath: "{{ .Values.classpath }}"
       fqdn: "{{ .Values.fqdn }}"
       kubernetes: "{{ .Values.kubernetes }}"
       ldapUrl: "{{ .Values.ldapUrl }}"

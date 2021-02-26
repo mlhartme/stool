@@ -116,7 +116,7 @@ public class ClassRef {
                     try {
                         result = Clazz.loadLiteral(all, origin, null, object(yaml.readTree(src)));
                     } catch (IOException e) {
-                        throw new IOException(origin + ": failed to parse application yaml from file: " + e.getMessage(), e);
+                        throw new IOException(origin + ": failed to parse class from file: " + e.getMessage(), e);
                     }
                 }
                 break;
@@ -134,7 +134,7 @@ public class ClassRef {
                     try {
                         result = Clazz.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
                     } catch (IOException e) {
-                        throw new IOException(origin + ": failed to parse application yaml from image label: " + e.getMessage(), e);
+                        throw new IOException(origin + ": failed to parse class from image label: " + e.getMessage(), e);
                     }
                 }
                 break;
@@ -175,7 +175,7 @@ public class ClassRef {
 
     private static void add(Map<String, Clazz> all, Clazz clazz) throws IOException {
         if (all.put(clazz.name, clazz) != null) {
-            throw new IOException("duplicate application: " + clazz.name);
+            throw new IOException("duplicate class: " + clazz.name);
         }
     }
 }

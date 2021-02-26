@@ -115,7 +115,7 @@ public class Configuration {
     public final String loglevel;
 
     /**
-     * used for output and application urls
+     * used for output and stage urls
      */
     public final String fqdn;
 

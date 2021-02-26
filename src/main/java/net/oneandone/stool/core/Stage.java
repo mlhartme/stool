@@ -102,7 +102,7 @@ public class Stage {
 
     private static final List<String> WITHOUT_CLASS = Collections.singletonList("class");
 
-    private static Map<String, Value> values(Clazz application, ObjectNode helmObject) throws IOException {
+    private static Map<String, Value> values(Clazz clazz, ObjectNode helmObject) throws IOException {
         Map<String, Object> raw;
         Map<String, Value> result;
         String key;
@@ -113,7 +113,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
-            result.put(key, new Value(application.get(key), entry.getValue().toString()));
+            result.put(key, new Value(clazz.get(key), entry.getValue().toString()));
         }
         return result;
     }
@@ -143,7 +143,7 @@ public class Stage {
      */
     private final String name;
 
-    public final Clazz application;
+    public final Clazz clazz;
 
     private final Map<String, Value> values;
 
@@ -151,10 +151,10 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(Configuration configuration, String name, Clazz application, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(Configuration configuration, String name, Clazz clazz, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
         this.configuration = configuration;
         this.name = name;
-        this.application = application;
+        this.clazz = clazz;
         this.values = values;
         this.info = info;
         this.history = history;
@@ -281,19 +281,19 @@ public class Stage {
         fields.add(new Field("chart") {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.application.chart + ":" + Stage.this.application.chartVersion;
+                return Stage.this.clazz.chart + ":" + Stage.this.clazz.chartVersion;
             }
         });
         fields.add(new Field("class", true) {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.application.toObject(configuration.yaml).toPrettyString();
+                return Stage.this.clazz.toObject(configuration.yaml).toPrettyString();
             }
         });
         fields.add(new Field("origin", true) {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.application.origin;
+                return Stage.this.clazz.origin;
             }
         });
         return fields;
@@ -335,11 +335,11 @@ public class Stage {
 
     /** CAUTION: values are not updated! */
     public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
-                        Clazz withApplication, Map<String, String> clientValues) throws IOException {
+                        Clazz withClass, Map<String, String> clientValues) throws IOException {
         Diff diff;
 
         diff = Helm.upgrade(kubeContext, configuration, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
-                withApplication, clientValues, valuesMap());
+                withClass, clientValues, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -365,7 +365,7 @@ public class Stage {
             map.put(entry.getKey(), entry.getValue().get());
         }
         map.putAll(changes);
-        Helm.upgrade(kubeContext, configuration, name, false, null, application, map, valuesMap());
+        Helm.upgrade(kubeContext, configuration, name, false, null, clazz, map, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

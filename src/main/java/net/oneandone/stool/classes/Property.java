@@ -26,7 +26,7 @@ import net.oneandone.sushi.util.Strings;
 
 import java.util.Map;
 
-/** Immutable building block of an application, defines how to compute values. */
+/** Immutable building block of a class, defines how to compute values. */
 public class Property {
     public static Property forYaml(String name, JsonNode yaml) {
         boolean privt;
