@@ -141,7 +141,7 @@ public class ProxyClient extends Client {
         HttpNode node;
 
         node = node("stages/" + stageName);
-        node = node.withParameter("applicationref", applicationRef.serialize());
+        node = node.withParameter("classref", applicationRef.serialize());
         node = node.withParameters("value.", values);
         return Json.stringMap((ObjectNode) postJson(node, ""));
     }
@@ -151,7 +151,7 @@ public class ProxyClient extends Client {
         HttpNode node;
 
         node = node(stage, "publish");
-        node = node.withParameter("applicationref", applicationRef.serialize());
+        node = node.withParameter("classref", applicationRef.serialize());
         if (dryrun) {
             node = node.withParameter("dryrun", dryrun);
         }

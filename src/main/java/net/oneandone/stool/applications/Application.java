@@ -66,7 +66,7 @@ public class Application {
         extendz = Json.string(application, "extends");
         base = existing.get(extendz);
         if (base == null) {
-            throw new IOException("application not found: " + extendz);
+            throw new IOException("class not found: " + extendz);
         }
         derived = base.derive(origin, author, name);
         derived.defineAll(application.get("properties").fields());

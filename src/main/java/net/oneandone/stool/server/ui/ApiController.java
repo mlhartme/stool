@@ -148,7 +148,7 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}")
-    public String create(@PathVariable("stage") String name, @RequestParam(value = "applicationref") String applicationRef,
+    public String create(@PathVariable("stage") String name, @RequestParam(value = "classref") String applicationRef,
                          HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> values;
 
@@ -163,7 +163,7 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "applicationref") String applicationRef,
+    public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String applicationRef,
                           @RequestParam(value = "dryrun", required = false, defaultValue = "false") boolean dryrun,
                           @RequestParam(value = "allow", required = false) String allow, HttpServletRequest request) throws IOException {
         try (RequestConfiguration configuration = openConfiguration()) {

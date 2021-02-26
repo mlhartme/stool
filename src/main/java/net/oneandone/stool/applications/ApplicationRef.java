@@ -108,7 +108,7 @@ public class ApplicationRef {
             case BUILTIN:
                 result = all.get(value);
                 if (result == null) {
-                    throw new IOException("application not found: " + value);
+                    throw new IOException("class not found: " + value);
                 }
                 break;
             case INLINE:
@@ -126,9 +126,9 @@ public class ApplicationRef {
 
                 registry = configuration.createRegistry(value);
                 tag = registry.resolve(value);
-                str = tag.labels.get("application");
+                str = tag.labels.get("class");
                 if (str == null || str.isEmpty()) {
-                    throw new IOException("image does not have an 'application' label: " + value);
+                    throw new IOException("image does not have a 'class' label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     try {
@@ -160,7 +160,7 @@ public class ApplicationRef {
         result = new HashMap<>();
         for (FileNode chart : charts) {
             add(result, Application.loadChartApplication(yaml, chart.getName(), chart));
-            file = chart.join("applications.yaml");
+            file = chart.join("classes.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
                     classes = yaml.readTree(src).elements();
