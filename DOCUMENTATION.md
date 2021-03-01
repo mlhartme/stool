@@ -244,7 +244,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@'*workspace*] [*key*`=`*value*...]
 
 
 
@@ -252,7 +252,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... `attach` *stage* '@'*workspace*
 
 
-`sc` *global-option*... `detach` *stage* '@'*workspace
+`sc` *global-option*... `detach` *stage* '@'*workspace*
 
 
 `sc` *global-option*... `delete` *stage* [`-batch`]
@@ -267,7 +267,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... `config` *stage* (*key* | *key*`=`*str*)...
 
 
-`sc` *global-option*... `status *stage* (*field*|*value*)...
+`sc` *global-option*... `status` *stage* (*field*|*value*)...
 
 
 
@@ -429,7 +429,7 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@'*workspace*] [*key*`=`*value*...]
 
 
 
@@ -515,7 +515,7 @@ Attach stage to a workspace
 Attaches the specified stage to *workspace*. Creates a new workspace if the specified one does not exist.
 
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
@@ -528,13 +528,13 @@ Detach a stage from a workspace
 
 #### SYNOPSIS
 
-`sc` *global-option*... `detach` *stage* '@'*workspace
+`sc` *global-option*... `detach` *stage* '@'*workspace*
 
 #### DESCRIPTION
 
 Removes stages from *workspace* without modifying the stage itself. Removes the workspace if it becomes empty.
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
@@ -558,7 +558,7 @@ If stage is specified as a workspace, it is removed from the workspace as well.
 Before actually touching anything, this command asks if you really want to delete the stage. You can suppress this interaction 
 with the `-batch` option.
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
@@ -590,7 +590,7 @@ remove the server name from the container's hostname as well.
 TODO: how to define additional environment variables?
 
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
@@ -610,7 +610,7 @@ Display commands invoked on this stage
 
 Prints the `sc` commands that affected the stage. Invoke it `-v` to see more details for each invocation.
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
@@ -650,7 +650,7 @@ you can specify a number which is shorthand for that number of days from now (e.
 
 List properties (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
@@ -684,7 +684,7 @@ Display stage status
 
 #### SYNOPSIS
 
-`sc` *global-option*... `status *stage* (*field*|*value*)...
+`sc` *global-option*... `status` *stage* (*field*|*value*)...
 
 
 #### DESCRIPTION
@@ -717,7 +717,7 @@ Available fields:
   TODO
 
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
@@ -759,7 +759,7 @@ TODO
   Who build this image. Type string.
   
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
@@ -780,7 +780,7 @@ List stages
 Displays status of all stages (or the stages specified by `-stage`) as a table. See the `status`
 command for a list of available fields. Default fields/values are `name image last-deployed`.
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
@@ -839,7 +839,7 @@ Checks if the `metadataExpire` date of the stage has passed. If so, and if
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoRemove days). And
 if `-email` is specified, a notification mail is sent as configured by the `metadataContact` value.
 
-[//]: # (include stageOptions.md)
+[//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
 use `sc help global-options` for available [global options](#sc-global-options)
