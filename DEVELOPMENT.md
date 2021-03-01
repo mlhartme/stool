@@ -1,14 +1,13 @@
 # Stool development
 
-Stool has a client- and a server part, both talk rest to each other. The server itself also tasks to the Docker daemon on the hosting machine.
-
 To build Stool, you need:
 * Linux or Mac
-* Java 8+
+* Java 12+
 * Maven 3+
 * Git
-* Docker (with api 1.38+) and Kubernetes. 
+* Docker (with api 1.26+) and Kubernetes. 
 * TODO: depends on fault and cisotools
+
 
 ## Docker setup 
 
@@ -115,29 +114,15 @@ Notes:
 The server build results in a Docker image, you can see it with `docker image ls`
 The client you just built is `client/target/stool`. Add it to your path and make sure that 
 
-    stool -v version
+    sc -v version
     
 print the correct build date.
 
-Next, setup client and server by running 
+Next, set it up with
 
-    stool setup
-
-and make sure to enable `localhost` as a server. Follow the instruction of the `setup` command, in particular, source 
-`shell.inc` and define an sserver aliases in your shell startup (e.g `~/.bashrc`). Now start the server with
-
-    sserver up
-    
-Point you browser to http://localhost:31000 to see the dashboard. You can now create stages on your server as described in the 
-[Documentation](https://github.com/mlhartme/stool/blob/master/client/documentation.md)
-
+    sc setup
 
 ## Notes
  
 Maven releases go to Sonatype, you need the respective account. After running `mvn release:prepare` and `mvn release:perform`, go to
 the staging repository and promote the release.
-
-## Multi Threading
-
-The client part is single threaded, no need to synchronize.
-The server part is multithreaded. TODO engine.world vs server.world

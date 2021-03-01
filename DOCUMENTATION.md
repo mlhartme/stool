@@ -170,9 +170,11 @@ Add stages to workspace by passing a workspace to `sc create` or with `sc attach
 
 ### Settings
 
-Stool is configured via settings specified in its configuration.yaml. A setting is a key/value pair. Value has a type 
+Stool is configured via settings specified in its `configuration.yaml`. A setting is a key/value pair. Value has a type 
 (string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, they apply to all stages, 
 they are usually adjusted by system administrators. 
+
+TODO: available entries, classpath etc ...
 
 
 ### Properties
@@ -424,8 +426,8 @@ List stages
 
 #### DESCRIPTION
 
-Displays status of all stages (or the stages specified by `-stage`) as a table. See the `status`
-command for a list of available fields. Default fields/values are `name image last-deployed`.
+Displays status of all stages (or the stages specified by *stage*) as a table. See the `status`
+command for a list of available fields. Default fields/values are `name origin last-deployed`.
 
 [//]: # (include stageArgument.md)
 
@@ -447,8 +449,8 @@ Create a new stage
 
 #### DESCRIPTION
 
-Creates a new stage: computes all properties of *class* and its base classes, except those key-value pairs specified explicitly.
-The resulting values are passed to Helm to install the chart of the class.
+Creates a new stage as defined by *class*: evaluates all properties of the class and its base classes, except those key-value pairs specified 
+explicitly. The resulting values are passed to Helm to install the chart of the class.
 
 *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes, it's 
 rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name. 
@@ -456,7 +458,7 @@ rejected otherwise because it would cause problems with urls or Kubernetes objec
 [//]: # (include classArgument.md)
 
 *class* specifies the class underlying this stage. Classes can be specified in three ways:
-* a path pointing to a yaml file containing the class; this path has to start with a '/' or a '.'
+* a path pointing to a local yaml file containing the class; this path has to start with a '/' or a '.'
 * an image with a `stage-class` label containing a base64 encoded class file
 * a class name defined in the configured classpath
 
@@ -712,7 +714,7 @@ use `sc help` for available [global options](#sc)
 
 ### sc-images
 
-Display images with labals
+Display images with labels
 
 #### SYNOPSIS
 
@@ -811,9 +813,23 @@ use `sc help` for available [global options](#sc)
 [//]: # (-)
 
 
+### sc-server
+
+Start server
+
+#### SYNOPSIS
+
+`sc` `server`
+
+#### Description
+
+Starts a Stool server, which is a web application implementing the proxy and the dashboard.
+The server runs in the current console until it's stopped with ctrl-c.
+
+
 ### sc-stage-argument
 
-Stage argument.
+Stage argument
 
 #### SYNOPSIS
 
@@ -860,33 +876,21 @@ stage that cannot be deleted.
 
 ## Installing
 
-TODO 
-
-Stool is split into a client and a server part; `dashboard` as is part of the server. You'll normally install just the client part, and
-the server uses a server set up by your operating team.
-
-### Client installation
-
 Prerequisites:
 * Linux or Mac
-* Java 8 or higher. This is prerequisite because Stool is implemented in Java 8, you need it to run Stool itself. 
-  However, you can build and run your stages with any Java version you choose.
-* Docker 1.26 or newer (used by `sc build`)
+* Java 12 or higher. This is prerequisite because Stool is compiled for Java 12, you need it to run Stool itself. 
+* If you want to use Kubernetes Contexts: Helm 3.
 
 Install steps
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
 * Make it executable, rename it to `sc` and add it to your $PATH.
-* run `sc setup` and follow the instructions
+* run `sc setup`
+* adjust `configuration.yaml`
 
 
-### Server installation
+### Run a server
 
 TODO 
-* see https://github.com/mlhartme/stool/blob/stool-6.x/server/src/helm/values.yaml for available values
-* helm install ...
-
-Technically, Stool server is a proxy for Kubernetes, it uses a services account to access Kubernetes API. Users authenticate against Stool
-server, they do not have access to Kubernetes.
 
 ### Building Stool
 
