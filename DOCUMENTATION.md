@@ -226,9 +226,6 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... [*command* *argument*...]
 
 
-`sc` [`-v`][`-e`][`-context` *context*][`-fail` *mode*] *command* *command-options*... *command-arguments*...
-
-
 `sc` *global-option*... `help` [*command*]
 
 
@@ -288,6 +285,31 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 
 [//]: # (-)
 
+#### Global Options
+
+Global options are:
+
+`-v` enables verbose output
+
+`-e` prints stacktrace for all errors
+
+`-context` *context* sets the current context for this invocation
+
+`-fail` *mode* see below
+
+#### Failure mode
+
+If you specify multiple stage for one command, you might want to specify what to do if the command
+fails for some of them. That's what `-fail` *mode* is for.
+
+Mode `normal` reports problems immediately and aborts execution, Stool does not try to run the command
+on remaining matching stages. This is the default.
+
+`after` reports problems after the command was invoked on all matching stages.
+
+`never` is similar to `after`, but reports warnings instead of errors (and thus, Stool always returns with exit code 0).
+
+
 #### Environment
 
 `SC_OPTS` to configure arguments `sc` passes to the underlying JVM. 
@@ -302,37 +324,9 @@ Invoke `sc help` *command* to get help for the specified command.
 
 [//]: # (include globalOptions.md)
 
-See `sc help global-options` for available [global options](#sc-global-options)
+See `sc help` for available [global options](#sc)
 
 [//]: # (-)
-
-### sc-global-options
-
-Options available for all commands
-
-#### SYNOPSIS
-
-`sc` [`-v`][`-e`][`-context` *context*][`-fail` *mode*] *command* *command-options*... *command-arguments*...
-
-#### DESCRIPTION
-
-* **-v** enables verbose output
-* **-e** prints stacktrace for all errors
-* **-context** sets the current context for this invocation
-* **-fail** see below
-
-#### Failure mode
-
-If you specify multiple stage for one command, you might want to specify what to do if the command
-fails for some of them. That's what `-fail` *mode* is for.
-
-Mode `normal` reports problems immediately and aborts execution, Stool does not try to run the command
-on remaining matching stages. This is the default.
-
-`after` reports problems after the command was invoked on all matching stages.
-
-`never` is similar to `after`, but reports warnings instead of errors (and thus, Stool always returns with exit code 0).
-
 
 ### sc-help 
 
@@ -361,7 +355,7 @@ Prints `sc`'s version info and, if the current context is a proxy context, the s
 
 [//]: # (include globalOptions.md)
 
-See `sc help global-options` for available [global options](#sc-global-options)
+See `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -417,7 +411,7 @@ variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
 
 [//]: # (include globalOptions.md)
 
-See `sc help global-options` for available [global options](#sc-global-options)
+See `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -454,7 +448,7 @@ Reports an error if a stage already exists. Or omits stages creation if the `-op
 
 [//]: # (include globalOptions.md)
 
-See `sc help global-options` for available [global options](#sc-global-options)
+See `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -518,7 +512,7 @@ Attaches the specified stage to *workspace*. Creates a new workspace if the spec
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -537,7 +531,7 @@ Removes stages from *workspace* without modifying the stage itself. Removes the 
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -561,7 +555,7 @@ with the `-batch` option.
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -593,7 +587,7 @@ TODO: how to define additional environment variables?
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -613,7 +607,7 @@ Prints the `sc` commands that affected the stage. Invoke it `-v` to see more det
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -653,7 +647,7 @@ List properties (e.g. `metadataContact`) are separated by commas, whitespace bef
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -720,7 +714,7 @@ Available fields:
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -762,7 +756,7 @@ TODO
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -783,7 +777,7 @@ command for a list of available fields. Default fields/values are `name image la
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
@@ -842,7 +836,7 @@ if `-email` is specified, a notification mail is sent as configured by the `meta
 [//]: # (include stageArgument.md)
 
 Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help global-options` for available [global options](#sc-global-options)
+use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
