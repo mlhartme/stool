@@ -7,7 +7,7 @@ typically a web application.
 
 ### Quick Tour
 
-Here's an example what you can do with Stool. TODO: assumes `hello` class
+Here's an example what you can do with Stool.
 
 You generally invoke Stool from the command-line with `sc` followed by a command and specific arguments. 
 
@@ -66,7 +66,7 @@ prints help about `create`.
 
 ### Rationale
 
-Technically, Stool is a Helm wrapper, a stage is a Helm releases, and stage classes provide powerful features to define 
+Technically, Stool is a Helm wrapper, a stage is a Helm releases, and stage classes provide powerful features to compute 
 Helm values. Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`, in aims 
 particularly to make value definitions more powerful, because in our use cases we have many workloads using the same Helm 
 chart but with different values.
@@ -119,12 +119,12 @@ or the whole Github project.
 A *stage* is a Kubernetes workload, typically running a web application like a Tomcat servlet container (http://tomcat.apache.org) with
 a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). 
 
-Every stage has a configuration, which is a set of properties; use `sc config` to check/adjust these properties. 
+Every stage has a configuration, which is a set of values you can get and set with `sc config`.
 
 Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it. It's also safe to `helm uninstall`
 instead of `sc delete`.
 
-A stage runs in a Kubernetes Cluster within a namespace, which is identified by a context. Every stage has a unique name in that context. 
+A stage runs on a Kubernetes cluster within a namespace, which is identified by a context. Every stage has a unique name in that context. 
 A stage is referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage name and context when 
 you create the stage, neither can be changed later.
 
@@ -163,25 +163,27 @@ Advanced note: The concept of a context is similar to `kubectl`s context.
 
 ### Workspace
 
-A workspace is a list of stages referenced by a workspace name. Use workspace if you regularly run commands on the same list of stages.
+A workspace is a list of stages referenced by a workspace name. Use workspaces if you need to run the same commands on the a list of stages.
 
 Add stages to workspace by passing a workspace to `sc create` or with `sc attach`. Remove stages from workspaces with `sc detach` .
 
 
 ### Settings
 
-Stool server is configured via settings. A setting is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
-or map (string to string)). Settings are global, they apply to all stages, they are usually adjusted by system administrators. 
+Stool is configured via settings specified in its configuration.yaml. A setting is a key/value pair. Value has a type 
+(string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, they apply to all stages, 
+they are usually adjusted by system administrators. 
+
 
 ### Properties
 
-Stages are configured via properties. A property is a key/object pair; object has a type (string, number, date, boolean, list (of strings), 
-or map (string to string)). Properties configure the respective stage only, every stage has its own set of properties. You can inspect and adjust 
-properties with [stool config](#sc-config). 
+Stages are configured via properties. A property is a key/value pair. Properties configure the respective stage only, every stage has 
+its own set of properties. You can inspect and adjust properties with [stool config](#sc-config). 
 
-Technically, properties define the values used for the underlying Helm chart.
+Technically, properties are values of the Helm release of this stage.
 
-Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are key/values pairs like properties, but they are read-only.
+Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are key/values pairs like properties, 
+but they are read-only.
 
 ### Stage Expiring
 
@@ -383,7 +385,7 @@ Manage current context
 
 #### DESCRIPTION
 
-When called without argument: lists all contexts with an arrow pointing to the current one. 
+When called without arguments: lists all contexts with an arrow pointing to the current one. 
 Prints just the current context when called with `-q`.
 
 Changes the current context when invoked with a *context* argument. If the new context requires authentication, this command implicitly 
@@ -419,17 +421,23 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*value*...]
 
 
 
 #### DESCRIPTION
 
-Creates a new stage: computes all properties of *class* and its base classes, except those key-values pair specified explicitly.
+Creates a new stage: computes all properties of *class* and its base classes, except those key-value pairs specified explicitly.
 The resulting values are passed to Helm to install the chart of the class.
 
 *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes, it's 
 rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name. 
+
+*class* specifies the class underlying this stage. Classes can be specified in three ways: 
+* a path pointing to a yaml file containing the class; this path has to start with a '/' or a '.'
+* an image with a `stage-class` label containing a base64 encoded class file
+* a class name defined in the configured classpath
+
 
 If a *workspace* is specified, the resulting stage is added to it.
 
@@ -443,25 +451,20 @@ See `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
-#### Examples
-
-Create one stage `foo` as defined by class `hello`: `sc create foo hello`
-
-
 
 ## Stage Commands
 
 Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical stage commands are `status`, `publish`, 
-and `delete`. All stage commands support the same stage options, see `sc help stage-options` for documentation.
+and `delete`. All stage commands use the same *stage* argument and they support a common set of stage options.
+See `sc help stage-options` for documentation.
 
 ### sc-stage-options
 
-Options available for all stage commands
+Arguments and options common for all stage commands
 
 #### SYNOPSIS
 
-`sc` *global-option*... *stage-command* (*predicate* | '%all' | '@' *workspace*) [`-fail` *mode*] *command-options*...
-
+`sc` *global-option*... *stage-command* (*predicate* | `%all` | `@`*workspace*) [`-fail` *mode*] *command-options*...
 
 #### Stage selection
 
@@ -469,9 +472,11 @@ Stage commands operate on the stage(s) selected by the first argument:
 
 `%all` operates on all stages in the current context
 
+`@`*workspace*  operation on all stages of the respective workspace
+
 *predicate* operates on all matching stages in the current context. The syntax for predicates is as follows:
 
-              or = and {',' and}
+              predicate = and {',' and}
               and = expr {'+' expr}
               expr = NAME | cmp
               cmp = (FIELD | PROPERTY) ('=' | '!=') (STR | prefix | suffix | substring)
@@ -484,8 +489,7 @@ Stage commands operate on the stage(s) selected by the first argument:
               STR        # arbitrary string
 
 
-The most basic predicate is a simple `NAME`. It performs a substring match on the stage name. This is handy to run one command for a stage 
-without attaching it.
+The most common predicate is a simple `NAME` that refers to the respective stage.
 
 Next, a predicate *FIELD*`=`*STR* matches stages who's status field has the specified string.
 *VALUE*`=`*STR* is similar, it matches stage values.
@@ -504,12 +508,12 @@ on remaining matching stages. This is the default.
 
 #### Examples
 
-`sc status -stage foo` prints the status of stage `foo`.
+`sc status foo` prints the status of stage `foo`.
 
-`sc start -all -fail after` starts all stages. Without `-fail after`, the command would abort
-after the first stage that cannot be started (e.g. because it's already running).
+`sc config replicas=0 replicas=1` sets one replica for all stages that have none.
 
-`sc stop -stage up=true` stops all stages currently up, but aborts immediately if one stage fails to stop.
+`sc delete %all -fail after` deletes all stages. Without `-fail after`, the command would abort after the first 
+stage that cannot be deleted.
 
 
 ### sc-attach
