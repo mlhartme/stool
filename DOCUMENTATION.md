@@ -255,7 +255,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... `delete` *stage* [`-batch`]
 
 
-`sc` *global-option*... `publish` ['-dryrun'] *stage* *class* [*key*`=`*object*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* *class* [*key*`=`*value*...]
 
 
 `sc` *global-option*... `history` *stage*
@@ -321,6 +321,7 @@ on remaining matching stages. This is the default.
 Homepage: https://github.com/mlhartme/stool
 
 Invoke `sc help` *command* to get help for the specified command.
+
 
 ### sc-help 
 
@@ -428,11 +429,14 @@ The resulting values are passed to Helm to install the chart of the class.
 *name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes, it's 
 rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name. 
 
-*class* specifies the class underlying this stage. Classes can be specified in three ways: 
+[//]: # (include classArgument.md)
+
+*class* specifies the class underlying this stage. Classes can be specified in three ways:
 * a path pointing to a yaml file containing the class; this path has to start with a '/' or a '.'
 * an image with a `stage-class` label containing a base64 encoded class file
 * a class name defined in the configured classpath
 
+[//]: # (-)
 
 If a *workspace* is specified, the resulting stage is added to it.
 
@@ -447,13 +451,14 @@ See `sc help` for available [global options](#sc)
 [//]: # (-)
 
 
+
 ### sc-stage-argument
 
-Stage Argument.
+Stage argument.
 
 #### Description
 
-Most Stool commands are stage commands, i.e. they operate on one or multiple stages. All stage commands use the same 
+Most Stool commands are stage commands, i.e. they operate on one or multiple stages. All stage commands use the same
 *stage* argument to select the stage(s) to operate on. The general form of this argument is:
 
 `%all` operates on all stages in the current context
@@ -486,7 +491,7 @@ Next, a predicate *FIELD*`=`*STR* matches stages who's status field has the spec
 
 `sc config replicas=0 replicas=1` sets one replica for all stages that have none.
 
-`sc delete %all -fail after` deletes all stages. Without `-fail after`, the command would abort after the first 
+`sc delete %all -fail after` deletes all stages. Without `-fail after`, the command would abort after the first
 stage that cannot be deleted.
 
 
@@ -560,11 +565,21 @@ Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `publish` ['-dryrun'] *stage* *class* [*key*`=`*object*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* *class* [*key*`=`*value*...]
 
 #### Description
 
-Updates the stage with the specified values. *class* specifies the application to actually start, see create command for more details.
+Updates the stage with the specified class and values. 
+
+[//]: # (include classArgument.md)
+
+*class* specifies the class underlying this stage. Classes can be specified in three ways:
+* a path pointing to a yaml file containing the class; this path has to start with a '/' or a '.'
+* an image with a `stage-class` label containing a base64 encoded class file
+* a class name defined in the configured classpath
+
+[//]: # (-)
+
 
 TODO: Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
