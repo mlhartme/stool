@@ -139,14 +139,14 @@ A class looks like this:
     extends: "kutter"
     properties:
       image: "myregistry/hello:1.0.0"
-      cert: "${exec('cert.sh', stage)"
+      cert: "${exec('cert.sh', stage)}"
 
-A class has a set of operties, and it can extend other classes (i.e. inherits all properites from it). Properties can use
-Freemarker Template and invoke scripts to compute values.
+A class has a set of properties, and it can extend other classes (i.e. inherits all properites from it). Properties can use
+Freemarker templates and invoke scripts to compute values.
 
-You usually defines classes in a `stage.yaml` and store it in a `stage` label of an image.
+You usually define classes in a `stage-class.yaml` and store it in a `stage-class` label attached to an image.
 
-Technically, the class specifies a Helm chart and how to set it's values.
+Technically, the class specifies a Helm chart and how to compute its values.
 
 
 ### Context
