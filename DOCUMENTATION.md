@@ -334,7 +334,6 @@ on remaining matching stages. This is the default.
 `never` is similar to `after`, but reports warnings instead of errors (and thus, Stool always returns with exit code 0).
 
 
-
 ### sc-help 
 
 Display man page
@@ -458,6 +457,7 @@ Reports an error if a stage already exists. Or omits stages creation if the `-op
 See `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
+
 
 ### sc-stage-argument
 
