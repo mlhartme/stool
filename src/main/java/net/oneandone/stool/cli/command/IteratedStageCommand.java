@@ -108,7 +108,7 @@ public abstract class IteratedStageCommand extends StageCommand {
                 }
                 failures.success(referece);
             } catch (ArgumentException e) {
-                if (fail == Fail.NORMAL) {
+                if (globals.getFail() == Fail.NORMAL) {
                     throw new ArgumentException(referece + ": " + e.getMessage(), e);
                 }
                 failures.failure(referece, e);
@@ -116,7 +116,7 @@ public abstract class IteratedStageCommand extends StageCommand {
                 console.error.println(referece + ": " + e.getMessage());
                 throw e;
             } catch (Exception e) {
-                if (fail == Fail.NORMAL) {
+                if (globals.getFail() == Fail.NORMAL) {
                     throw e;
                 }
                 failures.failure(referece, e);

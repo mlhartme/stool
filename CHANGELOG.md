@@ -36,6 +36,8 @@
   * dumped registryPrefix from the configuration
 
 * added urlSubdomains
+* stage options are global options now
+
 * dumped fault support, use chart scripts instead
 * image/chart changes
   * dumped jmxmp/5555, rely on readyness probes instead; also dumped `heap` field

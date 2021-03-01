@@ -226,7 +226,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... [*command* *argument*...]
 
 
-`sc` [`-v`][`-e`][`-context` *context*] *command* *command-options*... *command-arguments*...
+`sc` [`-v`][`-e`][`-context` *context*][`-fail` *mode*] *command* *command-options*... *command-arguments*...
 
 
 `sc` *global-option*... `help` [*command*]
@@ -244,34 +244,30 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*object*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@' *workspace*] [*key*`=`*value*...]
 
 
 
 
-`sc` *global-option*... *stage-command* (*predicate* | '%all' | '@' *workspace*) [`-fail` *mode*] *command-options*...
+`sc` *global-option*... `attach` *stage* '@'*workspace*
 
 
-
-`sc` *global-option*... `attach` *stage-option*... *stage* '@'*workspace*
-
-
-`sc` *global-option*... `detach` *stage-option*... *stage* '@'*workspace
+`sc` *global-option*... `detach` *stage* '@'*workspace
 
 
-`sc` *global-option*... `delete` *stage-option*... [`-batch`]
+`sc` *global-option*... `delete` *stage* [`-batch`]
 
 
-`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *class* [*key*`=`*object*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* *class* [*key*`=`*object*...]
 
 
-`sc` *global-option*... `history` *stage-option*...
+`sc` *global-option*... `history` *stage*
 
 
-`sc` *global-option*... `config` *stage-option*... (*key* | *key*`=`*str*)...
+`sc` *global-option*... `config` *stage* (*key* | *key*`=`*str*)...
 
 
-`sc` *global-option*... `status *stage-option*... (*field*|*value*)...
+`sc` *global-option*... `status *stage* (*field*|*value*)...
 
 
 
@@ -279,16 +275,16 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 
 
 
-`sc` *global-option*... `list` *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `list` *stage* (*field*|*property*)...
 
 
-`sc` *global-option*... `port-forward` *stage-option*... [*local-port*] *remote-port*
+`sc` *global-option*... `port-forward` *stage* [*local-port*] *remote-port*
 
 
-`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*... *shell*
+`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage* [*shell*]
 
 
-`sc` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
+`sc` *global-option*... `validate` [`-email`] [`-repair`] *stage*
 
 [//]: # (-)
 
@@ -316,16 +312,28 @@ Options available for all commands
 
 #### SYNOPSIS
 
-`sc` [`-v`][`-e`][`-context` *context*] *command* *command-options*... *command-arguments*...
+`sc` [`-v`][`-e`][`-context` *context*][`-fail` *mode*] *command* *command-options*... *command-arguments*...
 
 #### DESCRIPTION
 
 * **-v** enables verbose output
 * **-e** prints stacktrace for all errors
 * **-context** sets the current context for this invocation
+* **-fail** see below
+
+#### Failure mode
+
+If you specify multiple stage for one command, you might want to specify what to do if the command
+fails for some of them. That's what `-fail` *mode* is for.
+
+Mode `normal` reports problems immediately and aborts execution, Stool does not try to run the command
+on remaining matching stages. This is the default.
+
+`after` reports problems after the command was invoked on all matching stages.
+
+`never` is similar to `after`, but reports warnings instead of errors (and thus, Stool always returns with exit code 0).
 
 
-## General commands
 
 ### sc-help 
 
@@ -451,24 +459,18 @@ See `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
-
-## Stage Commands
-
-Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical stage commands are `status`, `publish`, 
-and `delete`. All stage commands use the same *stage* argument and they support a common set of stage options.
-See `sc help stage-options` for documentation.
-
 ### sc-stage-options
 
-Arguments and options common for all stage commands
+TODO 
 
-#### SYNOPSIS
+### sc-stage
 
-`sc` *global-option*... *stage-command* (*predicate* | `%all` | `@`*workspace*) [`-fail` *mode*] *command-options*...
+Stage Argument.
 
-#### Stage selection
+#### Description
 
-Stage commands operate on the stage(s) selected by the first argument:
+Most Stool commands are stage commands, i.e. they operate on one or multiple stages. All stage commands use the same 
+*stage* argument to select the stage(s) to operate on. The general form of this argument is:
 
 `%all` operates on all stages in the current context
 
@@ -494,18 +496,6 @@ The most common predicate is a simple `NAME` that refers to the respective stage
 Next, a predicate *FIELD*`=`*STR* matches stages who's status field has the specified string.
 *VALUE*`=`*STR* is similar, it matches stage values.
 
-#### Failure mode
-
-Since stage commands operate on an arbitrary number of stages, you might want to specify what to do if the command
-fails for some of them. That's what `-fail` *mode* is for.
-
-Mode `normal` reports problems immediately and aborts execution, Stool does not try to run the command 
-on remaining matching stages. This is the default.
-
-`after` reports problems after the command was invoked on all matching stages.
-
-`never` is similar to `after`, but reports warnings instead of errors (and thus, Stool always returns with exit code 0).
-
 #### Examples
 
 `sc status foo` prints the status of stage `foo`.
@@ -522,7 +512,7 @@ Attach stage to a workspace
 
 #### SYNOPSIS
 
-`sc` *global-option*... `attach` *stage-option*... *stage* '@'*workspace*
+`sc` *global-option*... `attach` *stage* '@'*workspace*
 
 #### DESCRIPTION
 
@@ -542,7 +532,7 @@ Detach a stage from a workspace
 
 #### SYNOPSIS
 
-`sc` *global-option*... `detach` *stage-option*... *stage* '@'*workspace
+`sc` *global-option*... `detach` *stage* '@'*workspace
 
 #### DESCRIPTION
 
@@ -562,7 +552,7 @@ Deletes a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `delete` *stage-option*... *stage* [`-batch`]
+`sc` *global-option*... `delete` *stage* [`-batch`]
 
 #### Description
 
@@ -586,7 +576,7 @@ Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *stage* *class* [*key*`=`*object*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* *class* [*key*`=`*object*...]
 
 #### Description
 
@@ -618,7 +608,7 @@ Display commands invoked on this stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `history` *stage-option*... *stage*
+`sc` *global-option*... `history` *stage*
 
 #### DESCRIPTION
 
@@ -638,7 +628,7 @@ Manage stage properties
 
 #### SYNOPSIS
 
-`sc` *global-option*... `config` *stage-option*... *stage* (*key* | *key*`=`*str*)...
+`sc` *global-option*... `config` *stage* (*key* | *key*`=`*str*)...
 
 #### DESCRIPTION
 
@@ -698,7 +688,7 @@ Display stage status
 
 #### SYNOPSIS
 
-`sc` *global-option*... `status *stage-option*... *stage* (*field*|*value*)...
+`sc` *global-option*... `status *stage* (*field*|*value*)...
 
 
 #### DESCRIPTION
@@ -787,7 +777,7 @@ List stages
 
 #### SYNOPSIS
 
-`sc` *global-option*... `list` *stage-option*... *stage* (*field*|*property*)...
+`sc` *global-option*... `list` *stage* (*field*|*property*)...
 
 #### DESCRIPTION
 
@@ -808,7 +798,7 @@ Start port forwarding
 
 #### SYNOPSIS
 
-`sc` *global-option*... `port-forward` *stage-option*... *stage* [*local-port*] *remote-port*
+`sc` *global-option*... `port-forward` *stage* [*local-port*] *remote-port*
 
 #### DESCRIPTION
 
@@ -830,7 +820,7 @@ Ssh into the running stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*... *stage* [*shell*]
+`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage* [*shell*]
 
 #### DESCRIPTION
 
@@ -845,7 +835,7 @@ Validate the stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`] *stage*
+`sc` *global-option*... `validate` [`-email`] [`-repair`] *stage*
 
 #### DESCRIPTION
 

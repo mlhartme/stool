@@ -26,7 +26,6 @@ import java.util.List;
 public abstract class StageCommand extends ClientCommand {
     /** empty for all */
     protected String stageClause;
-    protected Fail fail = Fail.NORMAL;
     protected Workspace workspaceOpt;
 
     public StageCommand(Globals globals, String clause) {
@@ -58,10 +57,6 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    public void setFail(Fail fail) {
-        this.fail = fail;
-    }
-
     //--
 
     @Override
@@ -79,14 +74,14 @@ public abstract class StageCommand extends ClientCommand {
         }
         failure = result.getMessage();
         if (failure != null) {
-            switch (fail) {
+            switch (globals.getFail()) {
                 case AFTER:
                     throw result;
                 case NEVER:
                     console.info.println("WARNING: " + failure);
                     break;
                 default:
-                    throw new IllegalStateException("unknown fail mode: " + fail.toString());
+                    throw new IllegalStateException("unknown fail mode: " + globals.getFail().toString());
             }
         }
     }

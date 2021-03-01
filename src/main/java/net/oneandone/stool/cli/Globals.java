@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
+import net.oneandone.stool.cli.command.StageCommand;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
@@ -39,6 +40,7 @@ public class Globals {
     private final FileNode home;
     private final String invocation;
     private final String command;
+    protected StageCommand.Fail fail = StageCommand.Fail.NORMAL;
     private String context;
     private FileNode wirelog;
 
@@ -88,6 +90,14 @@ public class Globals {
         if (exception) {
             throw new RuntimeException("intentional exception");
         }
+    }
+
+    public StageCommand.Fail getFail() {
+        return fail;
+    }
+
+    public void setFail(StageCommand.Fail fail) {
+        this.fail = fail;
     }
 
     public void setContext(String context) {
