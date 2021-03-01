@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ExpressionsTest {
     private static final World world = World.createMinimal();
 
-    private static Settings configuration() {
+    private static Settings settings() {
         Settings c;
         try {
             c = Settings.create(world); // TODO
@@ -47,7 +47,7 @@ public class ExpressionsTest {
     }
 
     private static Expressions expressions() {
-        return new Expressions(world, configuration(), "stage", "host");
+        return new Expressions(world, settings(), "stage", "host");
     }
 
     @Test

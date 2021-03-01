@@ -56,21 +56,21 @@ public class Setup {
     }
 
     public void run() throws IOException {
-        Settings configuration;
+        Settings settings;
 
         if (home.exists()) {
             throw new IOException("Stool is already set up in " + home.getAbsolute());
         }
-        configuration = configuration();
+        settings = settings();
         home.mkdir();
         create("lib", lib);
         if (registryCredentials != null) {
-            configuration.registryCredentials.putAll(Settings.parseRegistryCredentials(registryCredentials));
+            settings.registryCredentials.putAll(Settings.parseRegistryCredentials(registryCredentials));
         }
-        configuration.save(Settings.settingsYaml(home));
+        settings.save(Settings.settingsYaml(home));
         console.info.println("Done - created " + home.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
-        for (Context c : configuration.proxies.values()) {
+        for (Context c : settings.proxies.values()) {
             console.info.println("  " + c.name + " " + c.url);
         }
         console.info.println();
@@ -93,7 +93,7 @@ public class Setup {
         }
     }
 
-    private Settings configuration() throws IOException {
+    private Settings settings() throws IOException {
         int idx;
         Settings result;
         String name;

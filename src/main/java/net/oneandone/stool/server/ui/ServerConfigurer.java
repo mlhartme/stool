@@ -37,7 +37,7 @@ public class ServerConfigurer implements WebMvcConfigurer {
     }
 
     @Bean
-    public Settings configuration(World world) throws IOException {
+    public Settings settings(World world) throws IOException {
         Settings result;
 
         LOGGER.info("server version " + Main.versionString(world));
@@ -48,7 +48,7 @@ public class ServerConfigurer implements WebMvcConfigurer {
     }
 
     @Bean
-    public UserManager userManager(Settings configuration) throws IOException {
-        return configuration.createUserManager();
+    public UserManager userManager(Settings settings) throws IOException {
+        return settings.createUserManager();
     }
 }

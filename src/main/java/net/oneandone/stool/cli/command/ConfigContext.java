@@ -36,36 +36,36 @@ public class ConfigContext extends ClientCommand {
     }
 
     public void run() throws Exception {
-        Settings configuration;
+        Settings settings;
         Context old;
         String oldName;
         Context found;
         String current;
 
-        configuration = globals.settings();
+        settings = globals.settings();
         if (setOpt == null) {
             if (quiet) {
-                console.info.println(configuration.currentContext().name);
+                console.info.println(settings.currentContext().name);
             } else {
-                found = configuration.currentContextOptWarn(console.info);
+                found = settings.currentContextOptWarn(console.info);
                 current = found == null ? null : found.name;
-                for (String name : configuration.contexts().keySet()) {
+                for (String name : settings.contexts().keySet()) {
                     console.info.print(name.equals(current) ? "=> " : "   ");
                     console.info.println(name);
                 }
             }
         } else {
-            found = configuration.contextLookup(setOpt);
+            found = settings.contextLookup(setOpt);
             if (found == null) {
-                throw new IOException(setOpt + ": context not found, available context: " + configuration.contexts().keySet());
+                throw new IOException(setOpt + ": context not found, available context: " + settings.contexts().keySet());
             }
-            old = configuration.currentContextOptWarn(console.info);
+            old = settings.currentContextOptWarn(console.info);
             oldName = old == null ? "(none)" : old.name;
             if (oldName.equals(setOpt)) {
                 console.info.println("not changed: " + oldName);
             } else {
-                configuration.setCurrentContext(setOpt);
-                configuration.save(globals.configurationYaml());
+                settings.setCurrentContext(setOpt);
+                settings.save(globals.configurationYaml());
                 console.info.println("changed " + oldName + " -> " + setOpt);
                 if (!offline) {
                     check(found);

@@ -40,12 +40,12 @@ public abstract class InfoCommand extends StageCommand {
     @Override
     public CompoundResult runAll() throws Exception {
         Map<Client, String> clientFilters;
-        Settings configuration;
+        Settings settings;
         CompoundResult result;
 
-        configuration = globals.settings();
+        settings = globals.settings();
         clientFilters = new LinkedHashMap<>();
-        clientFilters.put(configuration.currentContextConnect(globals.caller()), stageClause);
+        clientFilters.put(settings.currentContextConnect(globals.caller()), stageClause);
         result = new CompoundResult();
         for (Map.Entry<Client, String> entry : clientFilters.entrySet()) {
             doRun(entry.getKey(), entry.getValue(), result);

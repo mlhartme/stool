@@ -89,11 +89,11 @@ public class Context {
         }
     }
 
-    public Client connect(World world, Settings configuration, Caller caller) throws IOException {
+    public Client connect(World world, Settings settings, Caller caller) throws IOException {
         if (isKube()) {
-            return new KubernetesCllient(configuration.json, name, url.substring(KUBE_SCHEME.length()), configuration, caller);
+            return new KubernetesCllient(settings.json, name, url.substring(KUBE_SCHEME.length()), settings, caller);
         } else {
-            return ProxyClient.token(world, configuration.json, name, url, caller, token);
+            return ProxyClient.token(world, settings.json, name, url, caller, token);
         }
     }
 

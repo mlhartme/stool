@@ -35,13 +35,13 @@ public class Auth {
     }
 
     public void run() throws Exception {
-        Settings configuration;
+        Settings settings;
         String username;
         String password;
         Context context;
 
-        configuration = globals.settings();
-        context = configuration.currentContext();
+        settings = globals.settings();
+        context = settings.currentContext();
         if (!context.hasToken()) {
             console.info.println("Nothing to do, there are no servers that need authentication.");
             return;
@@ -59,7 +59,7 @@ public class Auth {
         }
 
         try {
-            context.auth(globals.getWorld(), configuration.json, globals.caller(), username, password);
+            context.auth(globals.getWorld(), settings.json, globals.caller(), username, password);
         } catch (StatusException e) {
             if (e.getStatusLine().code == 401) {
                 throw new IOException(context.url + ": " + e.getMessage(), e);
@@ -67,7 +67,7 @@ public class Auth {
                 throw e;
             }
         }
-        configuration.save(globals.configurationYaml());
+        settings.save(globals.configurationYaml());
         console.info.println("Successfully updated token for " + context.name);
     }
 

@@ -71,8 +71,8 @@ public class ApiController {
     private final List<RequestConfiguration> pool;
 
     @Autowired
-    public ApiController(Settings configuration, UserManager userManager) {
-        this.globalConfiguration = configuration;
+    public ApiController(Settings settings, UserManager userManager) {
+        this.globalConfiguration = settings;
         this.globalUserManager = userManager;
         this.pool = new ArrayList<>();  // starts empty, filled when giving back session
     }

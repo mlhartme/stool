@@ -38,14 +38,14 @@ public class Validation {
     private static final Logger LOGGER = LoggerFactory.getLogger(Validation.class);
 
     private final String kubeContext;
-    private final Settings configuration;
+    private final Settings settings;
     private final UserManager userManager;
     private final Engine engine;
     private final Caller caller;
 
-    public Validation(String kubeContext, Settings configuration, UserManager userManager, Engine engine, Caller caller) {
+    public Validation(String kubeContext, Settings settings, UserManager userManager, Engine engine, Caller caller) {
         this.kubeContext = kubeContext;
-        this.configuration = configuration;
+        this.settings = settings;
         this.userManager = userManager;
         this.engine = engine;
         this.caller = caller;
@@ -55,7 +55,7 @@ public class Validation {
         List<String> report;
         Stage stage;
 
-        stage = configuration.load(engine, name);
+        stage = settings.load(engine, name);
         report = new ArrayList<>();
         doRun(stage, report, repair);
         LOGGER.info("Validation done (" + report.size() + " lines report)");
@@ -86,10 +86,10 @@ public class Validation {
             report.add("replicas change failed: " + e.getMessage());
             LOGGER.debug(e.getMessage(), e);
         }
-        if (configuration.autoRemove < 0) {
+        if (settings.autoRemove < 0) {
             return;
         }
-        if (expire.expiredDays() >= configuration.autoRemove) {
+        if (expire.expiredDays() >= settings.autoRemove) {
             try {
                 report.add("deleting expired stage");
                 stage.uninstall(kubeContext, engine);
@@ -99,7 +99,7 @@ public class Validation {
             }
         } else {
             report.add("CAUTION: This stage will be removed automatically in "
-                    + (configuration.autoRemove - expire.expiredDays()) + " day(s)");
+                    + (settings.autoRemove - expire.expiredDays()) + " day(s)");
         }
     }
 
@@ -109,8 +109,8 @@ public class Validation {
         String email;
         String body;
 
-        fqdn = configuration.fqdn;
-        mailer = configuration.mailer();
+        fqdn = settings.fqdn;
+        mailer = settings.mailer();
         for (String user : users) {
             body = Separator.RAW_LINE.join(report);
             email = email(user);
@@ -133,9 +133,9 @@ public class Validation {
         }
         try {
             userobj = userManager.byLogin(user);
-            email = userobj.email == null ? configuration.admin : userobj.email;
+            email = userobj.email == null ? settings.admin : userobj.email;
         } catch (UserNotFound e) {
-            email = configuration.admin;
+            email = settings.admin;
         }
         return email.isEmpty() ? null : email;
     }

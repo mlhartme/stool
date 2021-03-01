@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class Expressions {
     public final World world;
-    public final Settings configuration;
+    public final Settings settings;
     private final String fqdn;
     private final String stage;
     private final String host;
@@ -55,9 +55,9 @@ public class Expressions {
     private FileNode contextChart;
     private Map<String, String> contextPrevious;
 
-    public Expressions(World world, Settings configuration, String stage, String host) {
+    public Expressions(World world, Settings settings, String stage, String host) {
         this.world = world;
-        this.configuration = configuration;
+        this.settings = settings;
         this.fqdn = stage + "." + host;
         this.stage = stage;
         this.host = host;
@@ -165,14 +165,14 @@ public class Expressions {
         result.put("fqdn", fqdn);
         result.put("stage", stage);
         result.put("host", host);
-        result.put("defaultExpire", Expire.fromNumber(configuration.defaultExpire).toString());
+        result.put("defaultExpire", Expire.fromNumber(settings.defaultExpire).toString());
         result.put("defaultContact", Stage.NOTIFY_FIRST_MODIFIER);
         result.put("workdir", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
             }
             try {
-                return configuration.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
+                return settings.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
             } catch (IOException e) {
                 throw new TemplateModelException(e.getMessage(), e);
             }
@@ -229,7 +229,7 @@ public class Expressions {
                 }
             }
             name = list.get(0).toString();
-            value = configuration.environment.get(name);
+            value = settings.environment.get(name);
             if (value == null) {
                 if (dflt == null) {
                     throw new TemplateModelException("env variable not found: " + name);
@@ -270,7 +270,7 @@ public class Expressions {
     private String swtch(String var, String dflt, List<String> keyValues) throws TemplateModelException {
         String v;
 
-        v = configuration.environment.get(var);
+        v = settings.environment.get(var);
         if (v == null) {
             throw new TemplateModelException("env variable not found: " + var);
         }

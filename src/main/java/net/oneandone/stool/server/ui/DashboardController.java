@@ -41,14 +41,14 @@ import javax.mail.MessagingException;
 public class DashboardController {
     private static final Logger LOG = LoggerFactory.getLogger(DashboardController.class);
 
-    private final Settings configuration;
+    private final Settings settings;
 
     private final String version;
 
     @Autowired
-    public DashboardController(Settings configuration) {
-        this.configuration = configuration;
-        this.version = Main.versionString(configuration.world);
+    public DashboardController(Settings settings) {
+        this.settings = settings;
+        this.version = Main.versionString(settings.world);
     }
 
     @GetMapping("dashboard")
@@ -76,7 +76,7 @@ public class DashboardController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         subject = "[Stool] Feedback from " + SecurityContextHolder.getContext().getAuthentication().getName();
-        configuration.mailer().send(configuration.admin, new String[] { configuration.admin }, subject, message);
+        settings.mailer().send(settings.admin, new String[] { settings.admin }, subject, message);
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
 

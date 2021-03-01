@@ -36,20 +36,20 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(String kubernetesContext, Settings configuration, String name, ClassRef classRef, Map<String, String> values)
+    public static void install(String kubernetesContext, Settings settings, String name, ClassRef classRef, Map<String, String> values)
             throws IOException {
         Clazz clazz;
 
-        clazz = classRef.resolve(kubernetesContext, configuration);
-        helm(kubernetesContext, configuration, name, false, false, null, clazz, values, Collections.emptyMap());
+        clazz = classRef.resolve(kubernetesContext, settings);
+        helm(kubernetesContext, settings, name, false, false, null, clazz, values, Collections.emptyMap());
     }
 
-    public static Diff upgrade(String kubeContext, Settings configuration, String name, boolean dryrun, List<String> allow,
+    public static Diff upgrade(String kubeContext, Settings settings, String name, boolean dryrun, List<String> allow,
                                Clazz clazz, Map<String, String> values, Map<String, String> prev) throws IOException {
-        return helm(kubeContext, configuration, name, true, dryrun, allow, clazz, values, prev);
+        return helm(kubeContext, settings, name, true, dryrun, allow, clazz, values, prev);
     }
 
-    private static Diff helm(String kubeContext, Settings configuration, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
+    private static Diff helm(String kubeContext, Settings settings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                              Clazz originalClass, Map<String, String> clientValues, Map<String, String> prev)
             throws IOException {
         World world;
@@ -62,9 +62,9 @@ public final class Helm {
         Diff result;
         Diff forbidden;
 
-        charts = configuration.resolvedCharts(kubeContext);
-        world = configuration.world;
-        expressions = new Expressions(world, configuration, name, configuration.fqdn);
+        charts = settings.resolvedCharts(kubeContext);
+        world = settings.world;
+        expressions = new Expressions(world, settings, name, settings.fqdn);
         modifiedClass = originalClass.derive(originalClass.origin, originalClass.author, originalClass.name);
         modifiedClass.setValues(clientValues);
         chart = charts.get(modifiedClass.chart).checkDirectory();
@@ -83,7 +83,7 @@ public final class Helm {
                 result.remove(property.name);
             }
         }
-        values = modifiedClass.createValuesFile(configuration, next);
+        values = modifiedClass.createValuesFile(settings, next);
         try {
             LOGGER.info("values: " + values.readString());
             exec(dryrun, kubeContext,

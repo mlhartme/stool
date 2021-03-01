@@ -155,7 +155,7 @@ A *context* specifies a place that can host stages together with the necessary a
 A proxy context has a name, an optional token, and a URL pointing to a Stool server. A Kubernetes context is a Kubernetes context whose name is
 prefixed with `kube-`. 
 
-`sc` manages a list of proxy contexts in its configuration file. `sc` also manages a current context, 
+`sc` manages a list of proxy contexts in its settings. `sc` also manages a current context, 
 you can change it permanently with `sc context` or per-invocation with the `-context` global option.
 
 Advanced note: The concept of a context is similar to `kubectl`s context.
@@ -407,7 +407,7 @@ Authenticate to current context
 #### DESCRIPTION
 
 Asks for username/password to authenticate against ldap. If authentication succeeds, the referenced Stool server returns an api token 
-that will be stored in the client configuration file and used for future access to this context.
+that will be stored in the settings file and used for future access to this context.
 
 Use the `-batch` option to omit asking for username/password and instead pick them from the environment 
 variables `STOOL_USERNAME` and `STOOL_PASSWORD`.

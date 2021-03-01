@@ -60,14 +60,14 @@ public class Settings {
 
     public static Settings load(FileNode home, FileNode file) throws IOException {
         ObjectMapper yaml;
-        ObjectNode configuration;
+        ObjectNode settings;
         Settings result;
 
         yaml = Json.newYaml();
         try (Reader src = file.newReader()) {
-            configuration = (ObjectNode) yaml.readTree(src);
+            settings = (ObjectNode) yaml.readTree(src);
         }
-        result = new Settings(file.getWorld(), yaml, Json.newJson(), home, configuration);
+        result = new Settings(file.getWorld(), yaml, Json.newJson(), home, settings);
         result.validate();
         return result;
     }
@@ -154,18 +154,18 @@ public class Settings {
 
     public static final Separator COLON = Separator.on(":").trim().skipEmpty();
 
-    public Settings(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode configuration) {
+    public Settings(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode settings) {
         ObjectNode local;
 
         this.world = world;
         this.yaml = yaml;
         this.json = json;
 
-        this.currentContext = configuration.has("currentContext") ? configuration.get("currentContext").asText() : null;
+        this.currentContext = settings.has("currentContext") ? settings.get("currentContext").asText() : null;
 
-        this.proxies = parseProxies((ArrayNode) configuration.get("proxies"));
+        this.proxies = parseProxies((ArrayNode) settings.get("proxies"));
 
-        local = (ObjectNode) configuration.get("local");
+        local = (ObjectNode) settings.get("local");
         if (local == null) {
             local = yaml.createObjectNode();
         }
@@ -481,7 +481,7 @@ public class Settings {
         return currentContext().connect(world, this, caller);
     }
 
-    public Reference reference(String str, Settings configuration, Caller caller) throws IOException {
+    public Reference reference(String str, Settings settings, Caller caller) throws IOException {
         int idx;
         String contextName;
         Context context;
@@ -495,7 +495,7 @@ public class Settings {
         if (context == null) {
             throw new ArgumentException("context not found: " + str);
         }
-        return new Reference(context.connect(world, configuration, caller), str.substring(0, idx));
+        return new Reference(context.connect(world, settings, caller), str.substring(0, idx));
     }
 
     public List<Reference> list(String filter, Caller caller) throws IOException {

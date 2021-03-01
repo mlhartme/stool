@@ -34,11 +34,11 @@ import java.util.List;
 public class ScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTask.class);
 
-    private final Settings configuration;
+    private final Settings settings;
 
     @Autowired
-    public ScheduledTask(Settings configuration) {
-        this.configuration = configuration;
+    public ScheduledTask(Settings settings) {
+        this.settings = settings;
     }
 
     // second minute hour ...
@@ -47,11 +47,11 @@ public class ScheduledTask {
         List<String> output;
 
         LOGGER.info("scheduled stage validation");
-        try (Engine engine = Engine.createCluster(configuration.json)) {
-            for (Stage stage : configuration.listAll(engine)) {
+        try (Engine engine = Engine.createCluster(settings.json)) {
+            for (Stage stage : settings.listAll(engine)) {
                 LOGGER.info("validate " + stage.getName() + ":");
-                output = new Validation(null /* TODO */, configuration, configuration.createUserManager() /* TODO */, engine,
-                        new Caller("TODO", "TODO", "scheduled-task", null)).run(stage.getName(), !configuration.mailHost.isEmpty(), true);
+                output = new Validation(null /* TODO */, settings, settings.createUserManager() /* TODO */, engine,
+                        new Caller("TODO", "TODO", "scheduled-task", null)).run(stage.getName(), !settings.mailHost.isEmpty(), true);
                 for (String line : output) {
                     LOGGER.info("  " + line);
                 }

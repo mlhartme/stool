@@ -29,13 +29,13 @@ public class Version extends ClientCommand {
     }
 
     public void run() throws IOException {
-        Settings configuration;
+        Settings settings;
         Context context;
         Client client;
 
         console.info.println("client version: " + Main.versionString(world));
-        configuration = globals.settings();
-        context = configuration.currentContextOptWarn(console.info);
+        settings = globals.settings();
+        context = settings.currentContextOptWarn(console.info);
         if (context != null) {
             client = context.connect(world, globals.settings(), globals.caller());
             console.info.println("server " + context.url + " version: " + client.version());

@@ -51,15 +51,15 @@ import java.util.Set;
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
 
-    public static Stage create(Caller caller, String kubeContext, Engine engine, Settings configuration, String stageName, ClassRef classRef,
+    public static Stage create(Caller caller, String kubeContext, Engine engine, Settings settings, String stageName, ClassRef classRef,
                                Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(kubeContext, configuration, stageName, classRef, values);
-        stage = Stage.create(configuration, stageName, engine.helmRead(stageName), history);
+        Helm.install(kubeContext, settings, stageName, classRef, values);
+        stage = Stage.create(settings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
     }
@@ -93,11 +93,11 @@ public class Stage {
     }
 
 
-    public static Stage create(Settings configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
+    public static Stage create(Settings settings, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
         Clazz cl;
 
         cl = Clazz.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS));
-        return new Stage(configuration, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
+        return new Stage(settings, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
     private static final List<String> WITHOUT_CLASS = Collections.singletonList("stage-class");
