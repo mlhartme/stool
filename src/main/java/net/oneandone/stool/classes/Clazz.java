@@ -222,26 +222,26 @@ public class Clazz {
         return result;
     }
 
-    public FileNode createValuesFile(Settings configuration, Map<String, String> actuals) throws IOException {
+    public FileNode createValuesFile(Settings settings, Map<String, String> actuals) throws IOException {
         ObjectNode dest;
         Expire expire;
         FileNode file;
 
-        dest = configuration.yaml.createObjectNode();
+        dest = settings.yaml.createObjectNode();
         for (Map.Entry<String, String> entry : actuals.entrySet()) {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(HELM_CLASS, toObject(configuration.yaml));
+        dest.set(HELM_CLASS, toObject(settings.yaml));
 
         // normalize expire
-        expire = Expire.fromString(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(configuration.defaultExpire).toString()));
+        expire = Expire.fromString(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(settings.defaultExpire).toString()));
         if (expire.isExpired()) {
             throw new ArgumentException("stage expired: " + expire);
         }
         dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
 
-        file = configuration.world.getTemp().createTempFile().writeString(dest.toPrettyString());
+        file = settings.world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;
     }
 }

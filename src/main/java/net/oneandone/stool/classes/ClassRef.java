@@ -96,14 +96,14 @@ public class ClassRef {
 
     public static final String BUILDIN = "_buildin_";
 
-    public Clazz resolve(String kubeContext, Settings configuration) throws IOException {
+    public Clazz resolve(String kubeContext, Settings settings) throws IOException {
         ObjectMapper yaml;
         Map<String, Clazz> all;
         Clazz result;
         String str;
 
-        yaml = configuration.yaml;
-        all = loadAll(yaml, configuration.resolvedCharts(kubeContext).values());
+        yaml = settings.yaml;
+        all = loadAll(yaml, settings.resolvedCharts(kubeContext).values());
         switch (type) {
             case BUILTIN:
                 result = all.get(value);
@@ -124,7 +124,7 @@ public class ClassRef {
                 Registry registry;
                 TagInfo tag;
 
-                registry = configuration.createRegistry(value);
+                registry = settings.createRegistry(value);
                 tag = registry.resolve(value);
                 str = tag.labels.get("stage-class");
                 if (str == null || str.isEmpty()) {

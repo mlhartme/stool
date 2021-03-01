@@ -170,7 +170,7 @@ Add stages to workspace by passing a workspace to `sc create` or with `sc attach
 
 ### Settings
 
-Stool is configured via settings specified in its `configuration.yaml`. A setting is a key/value pair. Value has a type 
+Stool is configured via settings specified in its `settings.yaml`. A setting is a key/value pair. Value has a type 
 (string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, they apply to all stages, 
 they are usually adjusted by system administrators. 
 
@@ -374,7 +374,7 @@ Setup Stool
 #### DESCRIPTION
 
 Creates a fresh Stool home directory or reports an error if it already exists. The location of the home directory is configurable with 
-the `SC_HOME` environment variable, it defaults to `~/.sc`. The main configuration file inside this directory is `configuration.yaml`.
+the `SC_HOME` environment variable, it defaults to `~/.sc`. The main configuration file inside this directory is `settings.yaml`.
 
 Use *spec* to set up a proxy name + api url. If not specified, this is guessed from the local machine (TODO: environment file from cisotools).
 
@@ -888,7 +888,7 @@ Install steps
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
 * Make it executable, rename it to `sc` and add it to your $PATH.
 * run `sc setup`
-* adjust `configuration.yaml`
+* adjust `settings.yaml`
 
 
 ### Run a server

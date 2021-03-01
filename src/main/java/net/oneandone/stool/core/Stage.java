@@ -133,7 +133,7 @@ public class Stage {
 
     //--
 
-    public final Settings configuration;
+    public final Settings settings;
 
     /**
      * Has a very strict syntax, it's used:
@@ -151,8 +151,8 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(Settings configuration, String name, Clazz clazz, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
-        this.configuration = configuration;
+    public Stage(Settings settings, String name, Clazz clazz, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
+        this.settings = settings;
         this.name = name;
         this.clazz = clazz;
         this.values = values;
@@ -204,7 +204,7 @@ public class Stage {
     //--
 
     public FileNode getLogs() throws MkdirException {
-        return configuration.stageLogs(name);
+        return settings.stageLogs(name);
     }
 
     //-- fields
@@ -287,7 +287,7 @@ public class Stage {
         fields.add(new Field("class", true) {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.clazz.toObject(configuration.yaml).toPrettyString();
+                return Stage.this.clazz.toObject(settings.yaml).toPrettyString();
             }
         });
         fields.add(new Field("origin", true) {
@@ -338,7 +338,7 @@ public class Stage {
                         Clazz withClass, Map<String, String> clientValues) throws IOException {
         Diff diff;
 
-        diff = Helm.upgrade(kubeContext, configuration, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
+        diff = Helm.upgrade(kubeContext, settings, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
                 withClass, clientValues, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
@@ -365,7 +365,7 @@ public class Stage {
             map.put(entry.getKey(), entry.getValue().get());
         }
         map.putAll(changes);
-        Helm.upgrade(kubeContext, configuration, name, false, null, clazz, map, valuesMap());
+        Helm.upgrade(kubeContext, settings, name, false, null, clazz, map, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -376,7 +376,7 @@ public class Stage {
     }
 
     public void uninstall(String kubeContext, Engine engine) throws IOException {
-        Helm.exec(false, kubeContext, configuration.world.getWorking(), "uninstall", getName());
+        Helm.exec(false, kubeContext, settings.world.getWorking(), "uninstall", getName());
         engine.deploymentAwaitGone(getName());
     }
 
@@ -435,7 +435,7 @@ public class Stage {
             if (!prefix.isEmpty()) {
                 prefix = prefix + ".";
             }
-            url = protocol + "://" + prefix + name + "." + configuration.fqdn + "/" + urlContext();
+            url = protocol + "://" + prefix + name + "." + settings.fqdn + "/" + urlContext();
             if (!url.endsWith("/")) {
                 url = url + "/";
             }

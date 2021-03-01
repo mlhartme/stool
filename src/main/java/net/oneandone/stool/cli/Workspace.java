@@ -31,18 +31,18 @@ import java.util.List;
 
 /** Maps apps to stages. Represents .backstage/workspace.yaml */
 public class Workspace {
-    public static Workspace load(FileNode file, Settings configuration, Caller caller) throws IOException {
+    public static Workspace load(FileNode file, Settings settings, Caller caller) throws IOException {
         Workspace result;
         ObjectNode root;
         ArrayNode array;
 
-        result = new Workspace(configuration.yaml, file);
+        result = new Workspace(settings.yaml, file);
         try (Reader src = file.newReader()) {
             root = (ObjectNode) result.yaml.readTree(src);
         }
         array = (ArrayNode) root.get("stages");
         for (JsonNode node : array) {
-            result.stages.add(configuration.reference(node.asText(), configuration, caller));
+            result.stages.add(settings.reference(node.asText(), settings, caller));
         }
         return result;
     }

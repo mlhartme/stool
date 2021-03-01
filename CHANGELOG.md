@@ -2,7 +2,7 @@
 
 ### 7.0.0 (pending)
 
-* SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is not $SC_HOME/configuration.yaml
+* SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
 * stages are define by helm charts now
   * Kubernetes resources for a stage are now defined by a Helm chart; this replaced the former hard-wired api calls
   * applications define values for helm charts
@@ -26,7 +26,7 @@
 * merged client and server
   * all functionality is in `sc` now; use `sc server` to start a server; adjusted image accordingly
   * the big benefit is: you no longer need a running server, `sc` can now work with a local Kubernetes
-  * sc.yaml/configuration.yaml now also contains server configuration
+  * sc.yaml/settings.yaml now also contains server configuration
   * Maven: merged all modules into one
 
 * image handling changes
