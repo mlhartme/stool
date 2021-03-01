@@ -70,8 +70,12 @@ public class Publish extends IteratedStageCommand {
         Diff result;
 
         result = reference.client.publish(reference.stage, dryrun, allow, classRef, values);
-        console.info.println(dryrun ? "dryrun, changes would be:" : "changed:");
-        console.verbose.println(result.toString());
-        console.info.println("done");
+        if (dryrun) {
+            console.info.println("dryrun, changes would be:");
+            console.info.println(result.toString());
+        } else {
+            console.info.println(result.toString());
+            console.info.println("done");
+        }
     }
 }
