@@ -459,11 +459,7 @@ See `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
-### sc-stage-options
-
-TODO 
-
-### sc-stage
+### sc-stage-argument
 
 Stage Argument.
 
@@ -521,8 +517,8 @@ Attaches the specified stage to *workspace*. Creates a new workspace if the spec
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -540,8 +536,8 @@ Removes stages from *workspace* without modifying the stage itself. Removes the 
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -564,8 +560,8 @@ with the `-batch` option.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -596,8 +592,8 @@ TODO: how to define additional environment variables?
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -616,8 +612,8 @@ Prints the `sc` commands that affected the stage. Invoke it `-v` to see more det
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -656,8 +652,8 @@ List properties (e.g. `metadataContact`) are separated by commas, whitespace bef
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -723,8 +719,8 @@ Available fields:
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -765,8 +761,8 @@ TODO
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -786,8 +782,8 @@ command for a list of available fields. Default fields/values are `name image la
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 
@@ -845,8 +841,8 @@ if `-email` is specified, a notification mail is sent as configured by the `meta
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
 [//]: # (-)
 

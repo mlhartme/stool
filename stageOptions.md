@@ -1,4 +1,4 @@
 
-Note: This is a stage command, use `sc help stage-options` to see available [stage options](#sc-stage-options)
-Use `sc help global-options` for available [global options](#sc-global-options)
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help global-options` for available [global options](#sc-global-options)
 
