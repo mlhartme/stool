@@ -562,7 +562,7 @@ Deletes a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `delete` *stage-option*... [`-batch`]
+`sc` *global-option*... `delete` *stage-option*... *stage* [`-batch`]
 
 #### Description
 
@@ -586,11 +586,11 @@ Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *class* [*key*`=`*object*...]
+`sc` *global-option*... `publish` *stage-option*... ['-dryrun'] *stage* *class* [*key*`=`*object*...]
 
 #### Description
 
-Updates the stage with the specified values. *class* specifies the application to actually start.
+Updates the stage with the specified values. *class* specifies the application to actually start, see create command for more details.
 
 TODO: Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
@@ -618,7 +618,7 @@ Display commands invoked on this stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `history` *stage-option*...
+`sc` *global-option*... `history` *stage-option*... *stage*
 
 #### DESCRIPTION
 
@@ -638,7 +638,7 @@ Manage stage properties
 
 #### SYNOPSIS
 
-`sc` *global-option*... `config` *stage-option*... (*key* | *key*`=`*str*)...
+`sc` *global-option*... `config` *stage-option*... *stage* (*key* | *key*`=`*str*)...
 
 #### DESCRIPTION
 
@@ -698,7 +698,7 @@ Display stage status
 
 #### SYNOPSIS
 
-`sc` *global-option*... `status *stage-option*... (*field*|*value*)...
+`sc` *global-option*... `status *stage-option*... *stage* (*field*|*value*)...
 
 
 #### DESCRIPTION
@@ -787,7 +787,7 @@ List stages
 
 #### SYNOPSIS
 
-`sc` *global-option*... `list` *stage-option*... (*field*|*property*)...
+`sc` *global-option*... `list` *stage-option*... *stage* (*field*|*property*)...
 
 #### DESCRIPTION
 
@@ -808,7 +808,7 @@ Start port forwarding
 
 #### SYNOPSIS
 
-`sc` *global-option*... `port-forward` *stage-option*... [*local-port*] *remote-port*
+`sc` *global-option*... `port-forward` *stage-option*... *stage* [*local-port*] *remote-port*
 
 #### DESCRIPTION
 
@@ -830,7 +830,7 @@ Ssh into the running stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*... *shell*
+`sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage-option*... *stage* [*shell*]
 
 #### DESCRIPTION
 
@@ -845,7 +845,7 @@ Validate the stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
+`sc` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`] *stage*
 
 #### DESCRIPTION
 
