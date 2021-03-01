@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.core.Dependencies;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
@@ -222,7 +222,7 @@ public class Clazz {
         return result;
     }
 
-    public FileNode createValuesFile(Configuration configuration, Map<String, String> actuals) throws IOException {
+    public FileNode createValuesFile(Settings configuration, Map<String, String> actuals) throws IOException {
         ObjectNode dest;
         Expire expire;
         FileNode file;

@@ -21,7 +21,7 @@ import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import freemarker.template.TemplateSequenceModel;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.sushi.fs.World;
@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class Expressions {
     public final World world;
-    public final Configuration configuration;
+    public final Settings configuration;
     private final String fqdn;
     private final String stage;
     private final String host;
@@ -55,7 +55,7 @@ public class Expressions {
     private FileNode contextChart;
     private Map<String, String> contextPrevious;
 
-    public Expressions(World world, Configuration configuration, String stage, String host) {
+    public Expressions(World world, Settings configuration, String stage, String host) {
         this.world = world;
         this.configuration = configuration;
         this.fqdn = stage + "." + host;

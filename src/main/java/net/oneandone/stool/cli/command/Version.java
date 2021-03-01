@@ -19,7 +19,7 @@ import net.oneandone.stool.Main;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Globals;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 
 import java.io.IOException;
 
@@ -29,15 +29,15 @@ public class Version extends ClientCommand {
     }
 
     public void run() throws IOException {
-        Configuration configuration;
+        Settings configuration;
         Context context;
         Client client;
 
         console.info.println("client version: " + Main.versionString(world));
-        configuration = globals.configuration();
+        configuration = globals.settings();
         context = configuration.currentContextOptWarn(console.info);
         if (context != null) {
-            client = context.connect(world, globals.configuration(), globals.caller());
+            client = context.connect(world, globals.settings(), globals.caller());
             console.info.println("server " + context.url + " version: " + client.version());
         }
     }

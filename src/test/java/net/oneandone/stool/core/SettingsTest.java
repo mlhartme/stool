@@ -22,14 +22,14 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ConfigurationTest {
+public class SettingsTest {
     @Test
     public void normal() throws IOException {
         World world;
-        Configuration c;
+        Settings c;
 
         world = World.createMinimal();
-        c = Configuration.create(world);
+        c = Settings.create(world);
         assertTrue(c.proxies.isEmpty());
     }
 }

@@ -18,7 +18,7 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Context;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.http.StatusException;
 
 import java.io.IOException;
@@ -35,12 +35,12 @@ public class Auth {
     }
 
     public void run() throws Exception {
-        Configuration configuration;
+        Settings configuration;
         String username;
         String password;
         Context context;
 
-        configuration = globals.configuration();
+        configuration = globals.settings();
         context = configuration.currentContext();
         if (!context.hasToken()) {
             console.info.println("Nothing to do, there are no servers that need authentication.");

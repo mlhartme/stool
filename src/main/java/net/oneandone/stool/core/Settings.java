@@ -46,38 +46,38 @@ import java.util.Map;
 import static net.oneandone.stool.util.Json.string;
 
 /**
- * Stool configuration, represents sc.yaml
+ * Global configuration, represents settings.yaml
  */
-public class Configuration {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+public class Settings {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Settings.class);
 
-    public static Configuration load(World world) throws IOException {
+    public static Settings load(World world) throws IOException {
         FileNode home;
 
-        home = Configuration.home(world);
-        return Configuration.load(home, Configuration.configurationYaml(home));
+        home = Settings.home(world);
+        return Settings.load(home, Settings.settingsYaml(home));
     }
 
-    public static Configuration load(FileNode home, FileNode file) throws IOException {
+    public static Settings load(FileNode home, FileNode file) throws IOException {
         ObjectMapper yaml;
         ObjectNode configuration;
-        Configuration result;
+        Settings result;
 
         yaml = Json.newYaml();
         try (Reader src = file.newReader()) {
             configuration = (ObjectNode) yaml.readTree(src);
         }
-        result = new Configuration(file.getWorld(), yaml, Json.newJson(), home, configuration);
+        result = new Settings(file.getWorld(), yaml, Json.newJson(), home, configuration);
         result.validate();
         return result;
     }
 
-    public static Configuration create(World world) throws IOException {
+    public static Settings create(World world) throws IOException {
         ObjectMapper yaml;
-        Configuration result;
+        Settings result;
 
         yaml = Json.newYaml();
-        result = new Configuration(world, yaml, Json.newJson(), home(world), yaml.createObjectNode());
+        result = new Settings(world, yaml, Json.newJson(), home(world), yaml.createObjectNode());
         result.validate();
         return result;
     }
@@ -89,8 +89,8 @@ public class Configuration {
         return str == null ? world.getHome().join(".sc") : world.file(str);
     }
 
-    public static FileNode configurationYaml(FileNode home) {
-        return home.join("configuration.yaml");
+    public static FileNode settingsYaml(FileNode home) {
+        return home.join("settings.yaml");
     }
 
 
@@ -154,7 +154,7 @@ public class Configuration {
 
     public static final Separator COLON = Separator.on(":").trim().skipEmpty();
 
-    public Configuration(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode configuration) {
+    public Settings(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode configuration) {
         ObjectNode local;
 
         this.world = world;
@@ -190,7 +190,7 @@ public class Configuration {
         this.defaultExpire = Json.number(local, "defaultExpire", 0);
     }
 
-    public Configuration(Configuration from) throws IOException {
+    public Settings(Settings from) throws IOException {
         this.world = World.create();
         this.yaml = Json.newYaml();
         this.json = Json.newJson();
@@ -481,7 +481,7 @@ public class Configuration {
         return currentContext().connect(world, this, caller);
     }
 
-    public Reference reference(String str, Configuration configuration, Caller caller) throws IOException {
+    public Reference reference(String str, Settings configuration, Caller caller) throws IOException {
         int idx;
         String contextName;
         Context context;

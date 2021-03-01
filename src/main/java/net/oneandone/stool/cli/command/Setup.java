@@ -19,7 +19,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.Main;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
@@ -56,7 +56,7 @@ public class Setup {
     }
 
     public void run() throws IOException {
-        Configuration configuration;
+        Settings configuration;
 
         if (home.exists()) {
             throw new IOException("Stool is already set up in " + home.getAbsolute());
@@ -65,9 +65,9 @@ public class Setup {
         home.mkdir();
         create("lib", lib);
         if (registryCredentials != null) {
-            configuration.registryCredentials.putAll(Configuration.parseRegistryCredentials(registryCredentials));
+            configuration.registryCredentials.putAll(Settings.parseRegistryCredentials(registryCredentials));
         }
-        configuration.save(Configuration.configurationYaml(home));
+        configuration.save(Settings.settingsYaml(home));
         console.info.println("Done - created " + home.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
         for (Context c : configuration.proxies.values()) {
@@ -93,16 +93,16 @@ public class Setup {
         }
     }
 
-    private Configuration configuration() throws IOException {
+    private Settings configuration() throws IOException {
         int idx;
-        Configuration result;
+        Settings result;
         String name;
         String url;
 
         result = initialConfiguration();
         if (classpath != null) {
             result.classpath.clear();
-            result.classpath.addAll(Configuration.COLON.split(classpath));
+            result.classpath.addAll(Settings.COLON.split(classpath));
         }
         if (spec != null) {
             idx = spec.indexOf('=');
@@ -117,11 +117,11 @@ public class Setup {
         return result;
     }
 
-    private Configuration initialConfiguration() throws IOException {
+    private Settings initialConfiguration() throws IOException {
         FileNode template;
 
         template = cisotoolsEnvironment(world);
-        return template == null ? Configuration.create(world) : Configuration.load(home, template);
+        return template == null ? Settings.create(world) : Settings.load(home, template);
     }
 
     public static FileNode cisotoolsEnvironment(World world) throws FileNotFoundException, ExistsException {

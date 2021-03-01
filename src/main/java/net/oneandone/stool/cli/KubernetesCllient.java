@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.core.Field;
 import net.oneandone.stool.classes.ClassRef;
 import net.oneandone.stool.kubernetes.Engine;
@@ -56,9 +56,9 @@ public class KubernetesCllient extends Client {
     /** null for cluster */
     private final String kubernetesContext;
 
-    private final Configuration configuration;
+    private final Settings configuration;
 
-    public KubernetesCllient(ObjectMapper json, String context, String kubernetesContext, Configuration configuration, Caller caller) {
+    public KubernetesCllient(ObjectMapper json, String context, String kubernetesContext, Settings configuration, Caller caller) {
         super(context, caller);
         this.json = json;
         this.kubernetesContext = kubernetesContext;

@@ -18,7 +18,7 @@ package net.oneandone.stool.cli.command;
 import com.fasterxml.jackson.databind.JsonNode;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,10 +40,10 @@ public abstract class InfoCommand extends StageCommand {
     @Override
     public CompoundResult runAll() throws Exception {
         Map<Client, String> clientFilters;
-        Configuration configuration;
+        Settings configuration;
         CompoundResult result;
 
-        configuration = globals.configuration();
+        configuration = globals.settings();
         clientFilters = new LinkedHashMap<>();
         clientFilters.put(configuration.currentContextConnect(globals.caller()), stageClause);
         result = new CompoundResult();

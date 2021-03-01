@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.users;
 
+import net.oneandone.stool.core.Settings;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -63,7 +64,7 @@ import java.util.LinkedHashMap;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
-    private net.oneandone.stool.core.Configuration configuration;
+    private Settings configuration;
 
     @Autowired
     private UserManager userManager;

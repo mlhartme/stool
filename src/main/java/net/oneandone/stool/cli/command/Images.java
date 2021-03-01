@@ -29,7 +29,7 @@ public class Images extends ClientCommand {
     public void run() throws Exception {
         Client client;
 
-        client = globals.configuration().currentContext().connect(globals.getWorld(), globals.configuration(), globals.caller());
+        client = globals.settings().currentContext().connect(globals.getWorld(), globals.settings(), globals.caller());
         for (String line : client.images(image)) {
             console.info.println(line);
         }

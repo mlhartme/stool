@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.util.Validation;
@@ -34,10 +34,10 @@ import java.util.List;
 public class ScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTask.class);
 
-    private final Configuration configuration;
+    private final Settings configuration;
 
     @Autowired
-    public ScheduledTask(Configuration configuration) {
+    public ScheduledTask(Settings configuration) {
         this.configuration = configuration;
     }
 

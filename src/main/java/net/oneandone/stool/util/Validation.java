@@ -16,7 +16,7 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Dependencies;
 import net.oneandone.stool.core.Stage;
@@ -38,12 +38,12 @@ public class Validation {
     private static final Logger LOGGER = LoggerFactory.getLogger(Validation.class);
 
     private final String kubeContext;
-    private final Configuration configuration;
+    private final Settings configuration;
     private final UserManager userManager;
     private final Engine engine;
     private final Caller caller;
 
-    public Validation(String kubeContext, Configuration configuration, UserManager userManager, Engine engine, Caller caller) {
+    public Validation(String kubeContext, Settings configuration, UserManager userManager, Engine engine, Caller caller) {
         this.kubeContext = kubeContext;
         this.configuration = configuration;
         this.userManager = userManager;

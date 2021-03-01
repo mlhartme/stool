@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.Main;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.server.users.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,12 +41,12 @@ import javax.mail.MessagingException;
 public class DashboardController {
     private static final Logger LOG = LoggerFactory.getLogger(DashboardController.class);
 
-    private final Configuration configuration;
+    private final Settings configuration;
 
     private final String version;
 
     @Autowired
-    public DashboardController(Configuration configuration) {
+    public DashboardController(Settings configuration) {
         this.configuration = configuration;
         this.version = Main.versionString(configuration.world);
     }

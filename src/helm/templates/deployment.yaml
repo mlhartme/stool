@@ -85,9 +85,9 @@ spec:
           requests:
             cpu: 200m
         volumeMounts:
-          - mountPath: /usr/local/stool/configuration.yaml
-            subPath: configuration.yaml
-            name: configuration
+          - mountPath: /usr/local/stool/settings.yaml
+            subPath: settings.yaml
+            name: settings
           - mountPath: /usr/local/stool/logs
             name: fluentd-logs
       {{- if .Values.cert }}
@@ -106,12 +106,12 @@ spec:
           - name: fluentd-logs
             mountPath: /fluentd/log
       volumes:
-      - name: configuration
+      - name: settings
         configMap:
-          name: configuration
+          name: settings
           items:
-            - key: configuration.yaml
-              path: configuration.yaml
+            - key: settings.yaml
+              path: settings.yaml
       - name: fluentd-config
         configMap:
           name: stool-log-collector

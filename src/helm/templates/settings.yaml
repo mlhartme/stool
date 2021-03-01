@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configuration
+  name: settings
 data:
-  configuration.yaml: |
+  settings.yaml: |
     currentContext: "localhost"
     local:
       registryCredentials: "{{ .Values.registryCredentials }}"

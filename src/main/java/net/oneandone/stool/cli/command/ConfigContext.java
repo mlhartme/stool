@@ -19,7 +19,7 @@ import net.oneandone.stool.cli.AuthenticationException;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Context;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 
 import java.io.IOException;
 
@@ -36,13 +36,13 @@ public class ConfigContext extends ClientCommand {
     }
 
     public void run() throws Exception {
-        Configuration configuration;
+        Settings configuration;
         Context old;
         String oldName;
         Context found;
         String current;
 
-        configuration = globals.configuration();
+        configuration = globals.settings();
         if (setOpt == null) {
             if (quiet) {
                 console.info.println(configuration.currentContext().name);
@@ -77,7 +77,7 @@ public class ConfigContext extends ClientCommand {
     private void check(Context context) throws Exception {
         Client client;
 
-        client = context.connect(globals.getWorld(), globals.configuration(), globals.caller());
+        client = context.connect(globals.getWorld(), globals.settings(), globals.caller());
         try {
             // check if we need authentication; CAUTION: don't use version because it doesn't need credentials
             client.list("arbitraryStageNameFilter");
@@ -87,6 +87,6 @@ public class ConfigContext extends ClientCommand {
             e.printStackTrace(console.verbose);
             new Auth(globals, false).run();
         }
-        console.verbose.println("server info: " + globals.configuration().currentContext().connect(globals.getWorld(), globals.configuration(), globals.caller()).version());
+        console.verbose.println("server info: " + globals.settings().currentContext().connect(globals.getWorld(), globals.settings(), globals.caller()).version());
     }
 }

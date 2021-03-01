@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.command.StageCommand;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -31,7 +31,7 @@ public class Globals {
     public static Globals create(Console console, World world, FileNode homeOpt, String command) {
         FileNode home;
 
-        home = homeOpt != null ?  homeOpt : Configuration.home(world);
+        home = homeOpt != null ?  homeOpt : Settings.home(world);
         return new Globals(console, world, home, UUID.randomUUID().toString(), command);
     }
 
@@ -58,11 +58,11 @@ public class Globals {
         FileNode file;
 
         file = workspaceFile(name);
-        return file.exists() ? workspaceLoad(name) : new Workspace(configuration().yaml, file);
+        return file.exists() ? workspaceLoad(name) : new Workspace(settings().yaml, file);
     }
 
     public Workspace workspaceLoad(String name) throws IOException {
-        return Workspace.load(workspaceFile(name), configuration(), caller());
+        return Workspace.load(workspaceFile(name), settings(), caller());
     }
 
     /** param @name has to start with an @ */
@@ -79,7 +79,7 @@ public class Globals {
     }
 
     public FileNode configurationYaml() {
-        return Configuration.configurationYaml(home);
+        return Settings.settingsYaml(home);
     }
 
     public void setWirelog(String wirelog) {
@@ -112,17 +112,17 @@ public class Globals {
         return console;
     }
 
-    public Configuration configuration() throws IOException {
-        Configuration result;
+    public Settings settings() throws IOException {
+        Settings result;
 
-        result = Configuration.load(home, Configuration.configurationYaml(home));
+        result = Settings.load(home, Settings.settingsYaml(home));
         if (context != null) {
             result.setCurrentContext(context);
         }
         return result;
     }
 
-    public Configuration configurationOrDefaults() throws IOException {
-        return home().exists() ? configuration() : Configuration.create(world);
+    public Settings configurationOrDefaults() throws IOException {
+        return home().exists() ? settings() : Settings.create(world);
     }
 }

@@ -16,7 +16,7 @@
 package net.oneandone.stool.classes;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Diff;
@@ -36,7 +36,7 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(String kubernetesContext, Configuration configuration, String name, ClassRef classRef, Map<String, String> values)
+    public static void install(String kubernetesContext, Settings configuration, String name, ClassRef classRef, Map<String, String> values)
             throws IOException {
         Clazz clazz;
 
@@ -44,12 +44,12 @@ public final class Helm {
         helm(kubernetesContext, configuration, name, false, false, null, clazz, values, Collections.emptyMap());
     }
 
-    public static Diff upgrade(String kubeContext, Configuration configuration, String name, boolean dryrun, List<String> allow,
+    public static Diff upgrade(String kubeContext, Settings configuration, String name, boolean dryrun, List<String> allow,
                                Clazz clazz, Map<String, String> values, Map<String, String> prev) throws IOException {
         return helm(kubeContext, configuration, name, true, dryrun, allow, clazz, values, prev);
     }
 
-    private static Diff helm(String kubeContext, Configuration configuration, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
+    private static Diff helm(String kubeContext, Settings configuration, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                              Clazz originalClass, Map<String, String> clientValues, Map<String, String> prev)
             throws IOException {
         World world;

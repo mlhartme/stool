@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.KubernetesCllient;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.core.StageNotFoundException;
 import net.oneandone.stool.classes.ClassRef;
 import net.oneandone.stool.kubernetes.Engine;
@@ -66,12 +66,12 @@ import java.util.Map;
 public class ApiController {
     private static final int POOL_SIZE = 1;
 
-    private final Configuration globalConfiguration;
+    private final Settings globalConfiguration;
     private final UserManager globalUserManager;
     private final List<RequestConfiguration> pool;
 
     @Autowired
-    public ApiController(Configuration configuration, UserManager userManager) {
+    public ApiController(Settings configuration, UserManager userManager) {
         this.globalConfiguration = configuration;
         this.globalUserManager = userManager;
         this.pool = new ArrayList<>();  // starts empty, filled when giving back session
@@ -95,8 +95,8 @@ public class ApiController {
         }
     }
 
-    private class RequestConfiguration extends Configuration implements Closeable  {
-        RequestConfiguration(Configuration from) throws IOException {
+    private class RequestConfiguration extends Settings implements Closeable  {
+        RequestConfiguration(Settings from) throws IOException {
             super(from);
         }
 

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -35,10 +35,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ExpressionsTest {
     private static final World world = World.createMinimal();
 
-    private static Configuration configuration() {
-        Configuration c;
+    private static Settings configuration() {
+        Settings c;
         try {
-            c = Configuration.create(world); // TODO
+            c = Settings.create(world); // TODO
             c.environment.put("MOD", "a");
         } catch (IOException e) {
             throw new IllegalStateException(e);

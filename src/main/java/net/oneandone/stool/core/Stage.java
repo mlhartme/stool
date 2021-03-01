@@ -51,7 +51,7 @@ import java.util.Set;
 public class Stage {
     private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
 
-    public static Stage create(Caller caller, String kubeContext, Engine engine, Configuration configuration, String stageName, ClassRef classRef,
+    public static Stage create(Caller caller, String kubeContext, Engine engine, Settings configuration, String stageName, ClassRef classRef,
                                Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
@@ -93,7 +93,7 @@ public class Stage {
     }
 
 
-    public static Stage create(Configuration configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
+    public static Stage create(Settings configuration, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
         Clazz cl;
 
         cl = Clazz.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS));
@@ -133,7 +133,7 @@ public class Stage {
 
     //--
 
-    public final Configuration configuration;
+    public final Settings configuration;
 
     /**
      * Has a very strict syntax, it's used:
@@ -151,7 +151,7 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(Configuration configuration, String name, Clazz clazz, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(Settings configuration, String name, Clazz clazz, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
         this.configuration = configuration;
         this.name = name;
         this.clazz = clazz;

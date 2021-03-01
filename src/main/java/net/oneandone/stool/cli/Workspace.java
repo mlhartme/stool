@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.List;
 
 /** Maps apps to stages. Represents .backstage/workspace.yaml */
 public class Workspace {
-    public static Workspace load(FileNode file, Configuration configuration, Caller caller) throws IOException {
+    public static Workspace load(FileNode file, Settings configuration, Caller caller) throws IOException {
         Workspace result;
         ObjectNode root;
         ArrayNode array;

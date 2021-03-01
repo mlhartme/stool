@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.NamedContext;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Configuration;
+import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
@@ -89,7 +89,7 @@ public class Context {
         }
     }
 
-    public Client connect(World world, Configuration configuration, Caller caller) throws IOException {
+    public Client connect(World world, Settings configuration, Caller caller) throws IOException {
         if (isKube()) {
             return new KubernetesCllient(configuration.json, name, url.substring(KUBE_SCHEME.length()), configuration, caller);
         } else {

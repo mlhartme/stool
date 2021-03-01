@@ -38,7 +38,7 @@ public abstract class IteratedStageCommand extends StageCommand {
         CompoundResult failures;
         Worker worker;
 
-        lst = globals.configuration().list(stageClause, globals.caller());
+        lst = globals.settings().list(stageClause, globals.caller());
         width = 0;
         for (Reference reference : lst) {
             width = Math.max(width, reference.toString().length());
