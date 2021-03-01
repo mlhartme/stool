@@ -241,24 +241,15 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... `auth` [`-batch`]
 
 
+`sc` *global-option*... `list` *stage* (*field*|*property*)...
+
+
 `sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@'*workspace*] [*key*`=`*value*...]
 
 
 
 
-`sc` *global-option*... `attach` *stage* '@'*workspace*
-
-
-`sc` *global-option*... `detach` *stage* '@'*workspace*
-
-
-`sc` *global-option*... `delete` *stage* [`-batch`]
-
-
 `sc` *global-option*... `publish` ['-dryrun'] *stage* *class* [*key*`=`*value*...]
-
-
-`sc` *global-option*... `history` *stage*
 
 
 `sc` *global-option*... `config` *stage* (*key* | *key*`=`*str*)...
@@ -268,11 +259,20 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 
 
 
+`sc` *global-option*... `delete` *stage* [`-batch`]
+
+
+`sc` *global-option*... `history` *stage*
+
+
+`sc` *global-option*... `attach` *stage* '@'*workspace*
+
+
+`sc` *global-option*... `detach` *stage* '@'*workspace*
+
+
 `sc` *global-option*... `images` *repository*
 
-
-
-`sc` *global-option*... `list` *stage* (*field*|*property*)...
 
 
 `sc` *global-option*... `port-forward` *stage* [*local-port*] *remote-port*
@@ -282,6 +282,9 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 
 
 `sc` *global-option*... `validate` [`-email`] [`-repair`] *stage*
+
+
+*stage* = `all` | `@workspace` | *predicate*
 
 [//]: # (-)
 
@@ -411,6 +414,27 @@ See `sc help` for available [global options](#sc)
 [//]: # (-)
 
 
+### sc-list
+
+List stages
+
+#### SYNOPSIS
+
+`sc` *global-option*... `list` *stage* (*field*|*property*)...
+
+#### DESCRIPTION
+
+Displays status of all stages (or the stages specified by `-stage`) as a table. See the `status`
+command for a list of available fields. Default fields/values are `name image last-deployed`.
+
+[//]: # (include stageArgument.md)
+
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help` for available [global options](#sc)
+
+[//]: # (-)
+
+
 ### sc-create
 
 Create a new stage
@@ -451,114 +475,6 @@ See `sc help` for available [global options](#sc)
 [//]: # (-)
 
 
-
-### sc-stage-argument
-
-Stage argument.
-
-#### Description
-
-Most Stool commands are stage commands, i.e. they operate on one or multiple stages. All stage commands use the same
-*stage* argument to select the stage(s) to operate on. The general form of this argument is:
-
-`%all` operates on all stages in the current context
-
-`@`*workspace*  operation on all stages of the respective workspace
-
-*predicate* operates on all matching stages in the current context. The syntax for predicates is as follows:
-
-              predicate = and {',' and}
-              and = expr {'+' expr}
-              expr = NAME | cmp
-              cmp = (FIELD | PROPERTY) ('=' | '!=') (STR | prefix | suffix | substring)
-              prefix = VALUE '*'
-              suffix = '*' STR
-              substring = '*' STR '*'
-              NAME       # name of a stage
-              FIELD      # name of a status field
-              PROPERTY   # name of an class property
-              STR        # arbitrary string
-
-
-The most common predicate is a simple `NAME` that refers to the respective stage.
-
-Next, a predicate *FIELD*`=`*STR* matches stages who's status field has the specified string.
-*VALUE*`=`*STR* is similar, it matches stage values.
-
-#### Examples
-
-`sc status foo` prints the status of stage `foo`.
-
-`sc config replicas=0 replicas=1` sets one replica for all stages that have none.
-
-`sc delete %all -fail after` deletes all stages. Without `-fail after`, the command would abort after the first
-stage that cannot be deleted.
-
-
-### sc-attach
-
-Attach stage to a workspace
-
-#### SYNOPSIS
-
-`sc` *global-option*... `attach` *stage* '@'*workspace*
-
-#### DESCRIPTION
-
-Attaches the specified stage to *workspace*. Creates a new workspace if the specified one does not exist.
-
-
-[//]: # (include stageArgument.md)
-
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help` for available [global options](#sc)
-
-[//]: # (-)
-
-### sc-detach
-
-Detach a stage from a workspace
-
-#### SYNOPSIS
-
-`sc` *global-option*... `detach` *stage* '@'*workspace*
-
-#### DESCRIPTION
-
-Removes stages from *workspace* without modifying the stage itself. Removes the workspace if it becomes empty.
-
-[//]: # (include stageArgument.md)
-
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help` for available [global options](#sc)
-
-[//]: # (-)
-
-
-### sc-delete
-
-Deletes a stage
-
-#### SYNOPSIS
-
-`sc` *global-option*... `delete` *stage* [`-batch`]
-
-#### Description
-
-Deletes the stage, i.e. deletes it from the respective cluster. This includes containers and log files.
-If stage is specified as a workspace, it is removed from the workspace as well.
-
-Before actually touching anything, this command asks if you really want to delete the stage. You can suppress this interaction 
-with the `-batch` option.
-
-[//]: # (include stageArgument.md)
-
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help` for available [global options](#sc)
-
-[//]: # (-)
-
-
 ### sc-publish
 
 Publish a stage
@@ -569,7 +485,7 @@ Publish a stage
 
 #### Description
 
-Updates the stage with the specified class and values. 
+Updates the stage with the specified class and values.
 
 [//]: # (include classArgument.md)
 
@@ -586,10 +502,10 @@ TODO: Publishing is refused if the user who built the image does not have access
 Publishing is refused if your stage has expired. In this case, publish with a new expire value.
 
 TODO: The hostname of the container is set to <id>.<servername>, where id is a hash of stage name and application name. This hash
-serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names. 
-And the hash makes it impossible to derived stage or application name from the hostname -- applications are strongly discouraged to 
-check the hostname to configure themselves, use environment variables defined for that purpose instead. Future versions of Stool will 
-remove the server name from the container's hostname as well. 
+serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names.
+And the hash makes it impossible to derived stage or application name from the hostname -- applications are strongly discouraged to
+check the hostname to configure themselves, use environment variables defined for that purpose instead. Future versions of Stool will
+remove the server name from the container's hostname as well.
 TODO: how to define additional environment variables?
 
 
@@ -600,25 +516,6 @@ use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
-
-### sc-history
-
-Display commands invoked on this stage
-
-#### SYNOPSIS
-
-`sc` *global-option*... `history` *stage*
-
-#### DESCRIPTION
-
-Prints the `sc` commands that affected the stage. Invoke it `-v` to see more details for each invocation.
-
-[//]: # (include stageArgument.md)
-
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help` for available [global options](#sc)
-
-[//]: # (-)
 
 
 ### sc-config
@@ -631,7 +528,7 @@ Manage stage properties
 
 #### DESCRIPTION
 
-This command gets or sets stage [properties](#properties). 
+This command gets or sets stage [properties](#properties).
 
 When invoked without arguments, all stage properties are printed.
 When invoked with one or more *key*s, the respective properties are printed.
@@ -648,7 +545,7 @@ Properties have a type: boolean, number, date, string, or list of strings.
 
 Boolean properties by be `true` or `false`, case sensitive.
 
-Date properties have the form *yyyy-mm-dd*, so a valid `metadataExpire` value is - e.g. -`2016-12-31`. Alternatively, 
+Date properties have the form *yyyy-mm-dd*, so a valid `metadataExpire` value is - e.g. -`2016-12-31`. Alternatively,
 you can specify a number which is shorthand for that number of days from now (e.g. `1` means tomorrow).
 
 List properties (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
@@ -728,6 +625,91 @@ use `sc help` for available [global options](#sc)
 [//]: # (-)
 
 
+### sc-delete
+
+Deletes a stage
+
+#### SYNOPSIS
+
+`sc` *global-option*... `delete` *stage* [`-batch`]
+
+#### Description
+
+Deletes the stage, i.e. deletes it from the respective cluster. This includes containers and log files.
+If stage is specified as a workspace, it is removed from the workspace as well.
+
+Before actually touching anything, this command asks if you really want to delete the stage. You can suppress this interaction 
+with the `-batch` option.
+
+[//]: # (include stageArgument.md)
+
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help` for available [global options](#sc)
+
+[//]: # (-)
+
+
+
+### sc-history
+
+Display commands invoked on this stage
+
+#### SYNOPSIS
+
+`sc` *global-option*... `history` *stage*
+
+#### DESCRIPTION
+
+Prints the `sc` commands that affected the stage. Invoke it `-v` to see more details for each invocation.
+
+[//]: # (include stageArgument.md)
+
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help` for available [global options](#sc)
+
+[//]: # (-)
+
+### sc-attach
+
+Attach stage to a workspace
+
+#### SYNOPSIS
+
+`sc` *global-option*... `attach` *stage* '@'*workspace*
+
+#### DESCRIPTION
+
+Attaches the specified stage to *workspace*. Creates a new workspace if the specified one does not exist.
+
+
+[//]: # (include stageArgument.md)
+
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help` for available [global options](#sc)
+
+[//]: # (-)
+
+### sc-detach
+
+Detach a stage from a workspace
+
+#### SYNOPSIS
+
+`sc` *global-option*... `detach` *stage* '@'*workspace*
+
+#### DESCRIPTION
+
+Removes stages from *workspace* without modifying the stage itself. Removes the workspace if it becomes empty.
+
+[//]: # (include stageArgument.md)
+
+Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+use `sc help` for available [global options](#sc)
+
+[//]: # (-)
+
+
+
 ### sc-images
 
 Display images with labals
@@ -761,27 +743,6 @@ TODO
 * **origin-user**
   Who build this image. Type string.
   
-
-[//]: # (include stageArgument.md)
-
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
-use `sc help` for available [global options](#sc)
-
-[//]: # (-)
-
-
-### sc-list
-
-List stages
-
-#### SYNOPSIS
-
-`sc` *global-option*... `list` *stage* (*field*|*property*)...
-
-#### DESCRIPTION
-
-Displays status of all stages (or the stages specified by `-stage`) as a table. See the `status`
-command for a list of available fields. Default fields/values are `name image last-deployed`.
 
 [//]: # (include stageArgument.md)
 
@@ -848,6 +809,53 @@ Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument)
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
+
+
+### sc-stage-argument
+
+Stage argument.
+
+#### SYNOPSIS
+
+*stage* = `all` | `@workspace` | *predicate*
+
+#### Description
+
+Most Stool commands are stage commands, i.e. they operate on one or multiple stages. All stage commands use the same
+*stage* argument to select the stage(s) to operate on. The general form of this argument is:
+
+`%all` operates on all stages in the current context
+
+`@`*workspace*  operation on all stages of the respective workspace
+
+*predicate* operates on all matching stages in the current context. The syntax for predicates is as follows:
+
+              predicate = and {',' and}
+              and = expr {'+' expr}
+              expr = NAME | cmp
+              cmp = (FIELD | PROPERTY) ('=' | '!=') (STR | prefix | suffix | substring)
+              prefix = VALUE '*'
+              suffix = '*' STR
+              substring = '*' STR '*'
+              NAME       # name of a stage
+              FIELD      # name of a status field
+              PROPERTY   # name of an class property
+              STR        # arbitrary string
+
+
+The most common predicate is a simple `NAME` that refers to the respective stage.
+
+Next, a predicate *FIELD*`=`*STR* matches stages who's status field has the specified string.
+*VALUE*`=`*STR* is similar, it matches stage values.
+
+#### Examples
+
+`sc status foo` prints the status of stage `foo`.
+
+`sc config replicas=0 replicas=1` sets one replica for all stages that have none.
+
+`sc delete %all -fail after` deletes all stages. Without `-fail after`, the command would abort after the first
+stage that cannot be deleted.
 
 
 ## Installing
