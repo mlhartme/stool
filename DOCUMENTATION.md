@@ -322,12 +322,6 @@ Homepage: https://github.com/mlhartme/stool
 
 Invoke `sc help` *command* to get help for the specified command.
 
-[//]: # (include globalOptions.md)
-
-See `sc help` for available [global options](#sc)
-
-[//]: # (-)
-
 ### sc-help 
 
 Display man page
