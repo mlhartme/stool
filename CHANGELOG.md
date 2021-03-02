@@ -2,69 +2,66 @@
 
 ### 7.0.0 (pending)
 
-* SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
-* stages are define by helm charts now
-  * Kubernetes resources for a stage are now defined by a Helm chart; this replaced the former hard-wired api calls
-  * applications define values for helm charts
-    * directly with template expressions (freemarker, with built-in scripts, e.g. to fetch vault secrets or generate credentials)
-    * indirectly by extending a base applications
-  * `sc create <stage> <application>` installs a Helm chart with the values as defined by the application, resulting in a Helm release
-  * `sc delete <stage>` uninstalls this release
-  * `start` and `stop` commands are gone, create results in a running stage, and delete stops the stage first
-  * adjusted properties to match stage configuration:
-    * properties are the configurable part of a stage, namely `metadataNotify`, `metadataComment`, and `metadataExpire`,
-      and whatever else the helm chart defines; properties have a name and define how to compute (helm chart) values; 
-      inspect or change properties with `sc config`.
+Stool 7 stages are define by helm charts now
+* Kubernetes resources for a stage are now defined by a Helm chart; this replaced the former hard-wired api calls
+* classes define values for helm charts
+  * directly with template expressions (freemarker, with built-in scripts, e.g. to fetch vault secrets or generate credentials)
+  * indirectly by extending a base applications
+* `sc create <stage> <class>` installs a Helm chart with the values as defined by the application, resulting in a Helm release
+* `sc delete <stage>` uninstalls this release
+* `start` and `stop` commands are gone, create results in a running stage, and delete stops the stage first
+* stage properties are Helm chart values, managed with `sc config`; 
+  charts can have arbitrary properties, Stool manages some particular: `metadataNotify`, `metadataComment`, and 
+  `metadataExpire`, and whatever else the helm chart defines; properties have a name and define how to eval 
+  (Helm chart) values
+* dumped disk quota handling; I might use Kubernetes ephemeral quotas later
+* dumped memory quota handling, Kubernetes is responsible for that
 
-* helm-like cli:
-  * `create` command line arguments are similar to helm's install argument: `sc create <name> <application>`
-  * stage commands now take an explicit stage argument, e.g. `sc status hellowar`
-  * dumped implicit workspaces derived from current directory because
-    * use the new named workspace (referenced with '@' *name*) instead
-    * also dumped the stage indicator
-  
+Helm like cli:
+* `create`/`publish` command line arguments are similar to Helm's install/upgrade arguments: `sc create <name> <class>`
+* stage commands now take an explicit stage argument, e.g. `sc status hellowar`
+* dumped implicit workspaces derived from current directory because
+  * `attach` and `detatch` now take an explicit named workspace argument (referenced with '@' *name*) instead
+  * dumped the stage indicator
+
+Other changes:
 * merged client and server
-  * all functionality is in `sc` now; use `sc server` to start a server; adjusted image accordingly
-  * the big benefit is: you no longer need a running server, `sc` can now work with a local Kubernetes
-  * sc.yaml/settings.yaml now also contains server configuration
+  * all functionality is in `sc` now; use `sc server` to start a server
+  * running a server is optinal now, Stool can talk to arbitrary Kubernetes contexts as well
+  * settings.yaml now also contains server configuration
   * Maven: merged all modules into one
-
 * image handling changes
   * dumped `sc build`, configure an image build in your Maven build instead
   * created a separate `maven-dockerbuild-plugin` with the former `sc build` functionality
   * Stool no longer wipes images
-  * dumped registryPrefix from the configuration
-
-* added urlSubdomains
-* stage options are global options now
-
-* dumped fault support, use chart scripts instead
-* image/chart changes
   * dumped jmxmp/5555, rely on readyness probes instead; also dumped `heap` field
+* added urlSubdomains
+* dumped fault support, use chart scripts instead
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
-* other command changes
-  * `history`: dumped `-max` and `-details` options
-  * `status`, `list`:  
-    * added origin field, shown by default in `list`
-    * added `available` field
-    * dumped `origin-scm` field, check `sc images` instead
-    * dumped `pod` field, that's too low-level
-    * dumped `running` field, use `config image` instead
-    * renamed `uptime` field to `last-deployed`, it now reports the corresponding Helm status
-    * dumped `created-at` and `created-by`; added `first-deployed`
-    * dumped `last-modified-at`, and `last-modified-by`; use `last-deployed` or check the history instead
-    * dumped `images` field because it's very slow and deals to the registry, not kubernetes; 
-      use `sc images` instead
-    * added `application` field, but it's hidden unless you invoke with `-hidden`
-  * `attach`
-    * now takes a single name argument
-    * can be used in an existing workspace
+* SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
+* `history`
+  * dumped `-max` and `-details` options 
+  * use `-v` to get more details
+* `status`, `list`:  
+  * added origin field, shown by default in `list`
+  * added `available` field
+  * dumped `origin-scm` field, check `sc images` instead
+  * dumped `pod` field, that's too low-level
+  * dumped `running` field, use `config image` instead
+  * renamed `uptime` field to `last-deployed`, it now reports the corresponding Helm status
+  * dumped `created-at` and `created-by`; added `first-deployed`
+  * dumped `last-modified-at`, and `last-modified-by`; use `last-deployed` or check the history instead
+  * dumped `images` field because it's very slow and deals to the registry, not kubernetes; 
+    use `sc images` instead
+  * added `class` field, but it's hidden unless you explicitly reference this field
   * changed `images` command, it takes a repository argument instead of a stage now, and it displays generic labels only
-* config environment is now meant for use in field values
-* dumped disk quota handling; I might use Kubernetes ephemeral quotas later
-* dumped memory quota handling, Kubernetes is responsible for that
+* settings
+  * introducted `local` and `proxy` section
+  * added `classpath`
+  * replaced `registryPrefix` by `registryCredentials`
+  * `environment` is now meant for use in field values
 * log validation report result
-* readiness probe for stool server
+* readiness probe for Stool server
 * no longer use application files, use springboot instead  
 * dependency updates
   * sushi 3.2.2 to 3.3.0

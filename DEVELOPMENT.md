@@ -100,19 +100,19 @@ Finally, make sure you have a `stool` network, it's needed for tests and to run 
 Get Stool sources with
 
     git clone https://github.com/mlhartme/stool.git
-    
-Stool has a multi-module Maven build with a server and a client module. Build it with
+
+To run the integration tests your need to manually create these namespace: TODO - automate
+
+    stool
+    stool-engine-it
+
+
+Stool has pretty standard Maven build, run
 
     cd stool
     mvn clean install
 
-Notes:
-* if javadoc generation fails: try to set the JAVA_HOME environment variable to work-around a 
-  Javadoc Plugin 3.1.1 [bug](https://issues.apache.org/jira/browse/MJAVADOC-595)))
-
-    
-The server build results in a Docker image, you can see it with `docker image ls`
-The client you just built is `client/target/stool`. Add it to your path and make sure that 
+The main build result is `target/sc`. Add it to your path and make sure that 
 
     sc -v version
     
