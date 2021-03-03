@@ -229,7 +229,7 @@ public class Expressions {
                 }
             }
             name = list.get(0).toString();
-            value = settings.environment.get(name);
+            value = settings.local.environment.get(name);
             if (value == null) {
                 if (dflt == null) {
                     throw new TemplateModelException("env variable not found: " + name);
@@ -270,7 +270,7 @@ public class Expressions {
     private String swtch(String var, String dflt, List<String> keyValues) throws TemplateModelException {
         String v;
 
-        v = settings.environment.get(var);
+        v = settings.local.environment.get(var);
         if (v == null) {
             throw new TemplateModelException("env variable not found: " + var);
         }

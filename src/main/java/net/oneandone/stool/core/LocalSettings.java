@@ -38,6 +38,7 @@ import static net.oneandone.stool.util.Json.string;
 public class LocalSettings {
     public final ObjectMapper json;
 
+    public final Map<String, String> environment;
     public final Map<String, Pair> registryCredentials;
     public final List<String> classpath;
     public final FileNode lib;
@@ -46,6 +47,7 @@ public class LocalSettings {
 
     public LocalSettings(ObjectMapper json, FileNode home, ObjectNode local) {
         this.json = json;
+        this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.classpath = COLON.split(Json.string(local, "classpath", ""));
         this.lib = home.join("lib");
@@ -53,6 +55,7 @@ public class LocalSettings {
 
     public LocalSettings(World world, ObjectMapper json, LocalSettings from) {
         this.json = json;
+        this.environment = new LinkedHashMap<>(from.environment);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
         this.classpath = new ArrayList<>(from.classpath);
         this.lib = world.file(from.lib.toPath().toFile());
@@ -95,6 +98,7 @@ public class LocalSettings {
     }
 
     public void toYaml(ObjectNode local) {
+        local.set("environment", Json.obj(json, environment));
         local.put("registryCredentials", registryCredentialsString());
         local.put("classpath", COLON.join(classpath));
     }

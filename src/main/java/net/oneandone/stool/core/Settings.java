@@ -106,8 +106,6 @@ public class Settings {
 
     //--
 
-    public final Map<String, String> environment;
-
     public final String loglevel;
 
     /**
@@ -163,7 +161,6 @@ public class Settings {
         if (localNode == null) {
             localNode = yaml.createObjectNode();
         }
-        this.environment = Json.stringMapOpt(localNode, "environment");
         this.local = new LocalSettings(json, home, localNode);
         this.stageLogs = string(localNode, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(localNode, "loglevel", "ERROR");
@@ -186,7 +183,6 @@ public class Settings {
         this.world = World.create();
         this.yaml = Json.newYaml();
         this.json = Json.newJson();
-        this.environment = new LinkedHashMap<>(from.environment);
         this.currentContext = from.currentContext;
         this.proxies = new LinkedHashMap<>();
         for (Map.Entry<String, Context> entry : from.proxies.entrySet()) {
@@ -468,7 +464,6 @@ public class Settings {
 
         localNode.put("fqdn", fqdn);
         localNode.put("kubernetes", kubernetes);
-        localNode.set("environment", Json.obj(json, environment));
         localNode.put("loglevel", loglevel);
         localNode.put("admin", admin);
         localNode.put("autoRemove", autoRemove);

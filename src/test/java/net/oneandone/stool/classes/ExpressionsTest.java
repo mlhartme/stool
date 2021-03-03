@@ -39,7 +39,7 @@ public class ExpressionsTest {
         Settings c;
         try {
             c = Settings.create(world); // TODO
-            c.environment.put("MOD", "a");
+            c.local.environment.put("MOD", "a");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
