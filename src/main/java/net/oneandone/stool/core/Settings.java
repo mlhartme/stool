@@ -24,7 +24,6 @@ import net.oneandone.stool.util.Pair;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -105,7 +104,6 @@ public class Settings {
 
     public final Map<String, Context> proxies;
 
-    public final Map<String, Pair> registryCredentials;
     public final LocalSettings local;
     public final FileNode lib;
     public final String stageLogs;
@@ -170,7 +168,6 @@ public class Settings {
             localNode = yaml.createObjectNode();
         }
         this.environment = Json.stringMapOpt(localNode, "environment");
-        this.registryCredentials = parseRegistryCredentials(string(localNode, "registryCredentials", ""));
         this.lib = home.join("lib");
         this.local = new LocalSettings(localNode);
         this.stageLogs = string(localNode, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
@@ -200,7 +197,6 @@ public class Settings {
         for (Map.Entry<String, Context> entry : from.proxies.entrySet()) {
             proxies.put(entry.getKey(), entry.getValue().newInstance());
         }
-        this.registryCredentials = new HashMap<>(from.registryCredentials);
         this.local = from.local;
         this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
@@ -234,28 +230,6 @@ public class Settings {
                 context = Context.fromProxyYaml(one);
                 result.put(context.name, context);
             }
-        }
-        return result;
-    }
-
-    public static Map<String, Pair> parseRegistryCredentials(String str) {
-        Map<String, Pair> result;
-        int idx;
-        String host;
-
-        result = new HashMap<>();
-        for (String entry : Separator.COMMA.split(str)) {
-            idx = entry.indexOf('=');
-            if (idx < 0) {
-                throw new IllegalStateException(entry);
-            }
-            host = entry.substring(0, idx);
-            entry = entry.substring(idx + 1);
-            idx = entry.indexOf(':');
-            if (idx < 0) {
-                throw new IllegalStateException(entry);
-            }
-            result.put(host, new Pair(entry.substring(0, idx), entry.substring(idx + 1)));
         }
         return result;
     }
@@ -394,20 +368,7 @@ public class Settings {
     }
 
     public Pair registryCredentials(String registry) {
-        return registryCredentials.get(registry);
-    }
-
-    private String registryCredentialsString() {
-        StringBuilder result;
-
-        result = new StringBuilder();
-        for (Map.Entry<String, Pair> entry : registryCredentials.entrySet()) {
-            if (result.length() > 0) {
-                result.append(',');
-            }
-            result.append(entry.getKey() + "=" + entry.getValue().left + ":" + entry.getValue().right);
-        }
-        return result.toString();
+        return local.registryCredentials.get(registry);
     }
 
     //-- contexts
@@ -530,7 +491,6 @@ public class Settings {
         localNode = yaml.createObjectNode();
         obj.set("local", localNode);
 
-        localNode.put("registryCredentials", registryCredentialsString());
         localNode.put("stageLog", stageLogs);
         this.local.toYaml(localNode);
 

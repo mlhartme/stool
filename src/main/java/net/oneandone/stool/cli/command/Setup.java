@@ -66,7 +66,7 @@ public class Setup {
         home.mkdir();
         create("lib", lib);
         if (registryCredentials != null) {
-            settings.registryCredentials.putAll(Settings.parseRegistryCredentials(registryCredentials));
+            settings.local.registryCredentials.putAll(LocalSettings.parseRegistryCredentials(registryCredentials));
         }
         settings.save(Settings.settingsYaml(home));
         console.info.println("Done - created " + home.getAbsolute() + " for Stool version " + version);
