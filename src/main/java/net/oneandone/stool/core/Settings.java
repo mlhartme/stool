@@ -15,7 +15,6 @@ import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.util.Predicate;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 

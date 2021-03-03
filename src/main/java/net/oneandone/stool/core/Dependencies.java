@@ -16,7 +16,7 @@
 package net.oneandone.stool.core;
 
 /**
- * Things that Stool assumes about helm charts.
+ * Things that Stool assumes about helm charts. TODO: no real purpose ...
  */
 public final class Dependencies {
     public static final String VALUE_REPLICAS = "replicas";

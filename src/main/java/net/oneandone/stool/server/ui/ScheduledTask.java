@@ -19,7 +19,7 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Stage;
-import net.oneandone.stool.util.Validation;
+import net.oneandone.stool.core.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

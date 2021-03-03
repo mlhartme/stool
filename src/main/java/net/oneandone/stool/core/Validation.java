@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.util;
+package net.oneandone.stool.core;
 
 import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.core.Dependencies;
-import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.users.UserNotFound;
+import net.oneandone.stool.util.Expire;
+import net.oneandone.stool.util.Mailer;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;

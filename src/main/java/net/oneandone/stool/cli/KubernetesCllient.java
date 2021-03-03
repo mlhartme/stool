@@ -31,8 +31,8 @@ import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.HistoryEntry;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Pair;
-import net.oneandone.stool.util.PredicateParser;
-import net.oneandone.stool.util.Validation;
+import net.oneandone.stool.core.PredicateParser;
+import net.oneandone.stool.core.Validation;
 import net.oneandone.stool.core.Value;
 
 import javax.mail.MessagingException;
