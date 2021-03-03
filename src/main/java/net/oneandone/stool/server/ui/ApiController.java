@@ -66,28 +66,28 @@ import java.util.Map;
 public class ApiController {
     private static final int POOL_SIZE = 1;
 
-    private final Settings globalConfiguration;
+    private final Settings globalSettings;
     private final UserManager globalUserManager;
-    private final List<RequestConfiguration> pool;
+    private final List<RequestSettings> pool;
 
     @Autowired
     public ApiController(Settings settings, UserManager userManager) {
-        this.globalConfiguration = settings;
+        this.globalSettings = settings;
         this.globalUserManager = userManager;
         this.pool = new ArrayList<>();  // starts empty, filled when giving back session
     }
 
-    public RequestConfiguration openConfiguration() throws IOException {
+    public RequestSettings openConfiguration() throws IOException {
         synchronized (pool) {
             if (pool.isEmpty()) {
-                return new RequestConfiguration(globalConfiguration);
+                return new RequestSettings(globalSettings);
             } else {
                 return pool.remove(0);
             }
         }
     }
 
-    public void closeSession(RequestConfiguration session) {
+    public void closeSession(RequestSettings session) {
         synchronized (pool) {
             if (pool.size() < POOL_SIZE) {
                 pool.add(session);
@@ -95,8 +95,8 @@ public class ApiController {
         }
     }
 
-    private class RequestConfiguration extends Settings implements Closeable  {
-        RequestConfiguration(Settings from) throws IOException {
+    private class RequestSettings extends Settings implements Closeable  {
+        RequestSettings(Settings from) throws IOException {
             super(from);
         }
 
@@ -119,7 +119,7 @@ public class ApiController {
 
     @GetMapping("/version")
     public String version(HttpServletRequest request) throws IOException {
-        try (RequestConfiguration session = openConfiguration()) {
+        try (RequestSettings session = openConfiguration()) {
             return session.client(request).version();
         }
     }
@@ -133,7 +133,7 @@ public class ApiController {
         ObjectNode obj;
         ObjectNode result;
 
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             map = configuration.client(request).list(filter, "*".equals(selectStr) ? Collections.emptyList() : Separator.COMMA.split(selectStr), hidden);
             result = configuration.json.createObjectNode();
             for (Map.Entry<String, Map<String, JsonNode>> stage : map.entrySet()) {
@@ -153,7 +153,7 @@ public class ApiController {
         Map<String, String> values;
 
         values = map(request, "value.");
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             return Json.obj(configuration.json, configuration.client(request).create(name, ClassRef.parse(classRef), values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
@@ -166,7 +166,7 @@ public class ApiController {
     public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String classRef,
                           @RequestParam(value = "dryrun", required = false, defaultValue = "false") boolean dryrun,
                           @RequestParam(value = "allow", required = false) String allow, HttpServletRequest request) throws IOException {
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             return array(configuration.json, configuration.client(request)
                     .publish(stageName, dryrun, allow, ClassRef.parse(classRef), map(request, "value.")).toList()).toString();
         }
@@ -174,35 +174,35 @@ public class ApiController {
 
     @GetMapping("/stages//{stage}/await-available")
     public String awaitAvailable(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             return Json.obj(configuration.json, configuration.client(request).awaitAvailable(stage)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/delete")
     public void delete(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestConfiguration session = openConfiguration()) {
+        try (RequestSettings session = openConfiguration()) {
             session.client(request).delete(stage);
         }
     }
 
     @GetMapping("/stages/{stage}/values")
     public String values(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             return Json.objPairs(configuration.json, configuration.client(request).getValues(stage)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/set-values")
     public String setValues(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             return Json.obj(configuration.json, configuration.client(request).setValues(stage, map(request, ""))).toString();
         }
     }
 
     @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             return array(configuration.json, configuration.client(request).history(stage)).toString();
         }
     }
@@ -210,21 +210,21 @@ public class ApiController {
     @PostMapping("/stages/{stage}/validate")
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair,
                            HttpServletRequest request) throws IOException {
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             return array(configuration.json, configuration.client(request).validate(stage, email, repair)).toString();
         }
     }
 
     @GetMapping("/stages/{stage}/pod-token")
     public String podToken(@PathVariable(value = "stage") String stageName, @RequestParam("timeout") int timeout, HttpServletRequest request) throws IOException {
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             return configuration.client(request).podToken(stageName, timeout).toObject(configuration.json).toString();
         }
     }
 
     @GetMapping("/images/{image}")
     public String images(@PathVariable("image") String name, HttpServletRequest request) throws Exception {
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             return array(configuration.json, configuration.client(request).images(name)).toString();
         }
     }
@@ -236,7 +236,7 @@ public class ApiController {
         User user;
         String result;
 
-        try (RequestConfiguration configuration = openConfiguration()) {
+        try (RequestSettings configuration = openConfiguration()) {
             if (!configuration.local.auth()) {
                 throw new IOException("authentication is disabled");
             }
@@ -255,7 +255,7 @@ public class ApiController {
         FileNode dir;
         Stage stage;
 
-        try (RequestConfiguration configuration = openConfiguration(); Engine engine = configuration.client(request).engine()) {
+        try (RequestSettings configuration = openConfiguration(); Engine engine = configuration.client(request).engine()) {
             stage = configuration.local.load(engine, stageName);
             dir = stage.getLogs(); // TODO: application logs
             result = configuration.json.createArrayNode();
@@ -277,7 +277,7 @@ public class ApiController {
         file = request.getRequestURI();
         file = Strings.removeLeft(file, request.getContextPath());
         file = Strings.removeLeft(file, "/api/stages/" + stageName + "/logs/");
-        try (RequestConfiguration configuration = openConfiguration(); Engine engine = configuration.client(request).engine()) {
+        try (RequestSettings configuration = openConfiguration(); Engine engine = configuration.client(request).engine()) {
             stage = configuration.local.load(engine, stageName);
         }
         resource = new FileSystemResource(stage.getLogs().join(file).toPath());
