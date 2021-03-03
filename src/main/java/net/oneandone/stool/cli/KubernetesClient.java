@@ -53,16 +53,16 @@ import java.util.concurrent.TimeUnit;
 public class KubernetesClient extends Client {
     private final ObjectMapper json;
 
+    private final LocalSettings localSettings;
+
     /** null for cluster */
     private final String kubernetesContext;
 
-    private final LocalSettings localSettings;
-
-    public KubernetesClient(ObjectMapper json, String context, String kubernetesContext, LocalSettings localSettings, Caller caller) {
+    public KubernetesClient(LocalSettings localSettings, String context, String kubernetesContext, Caller caller) {
         super(context, caller);
-        this.json = json;
-        this.kubernetesContext = kubernetesContext;
+        this.json = localSettings.json;
         this.localSettings = localSettings;
+        this.kubernetesContext = kubernetesContext;
     }
 
     public Engine engine() {

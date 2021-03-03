@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.NamedContext;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Settings;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
@@ -89,11 +89,11 @@ public class Context {
         }
     }
 
-    public Client connect(World world, Settings settings, Caller caller) throws IOException {
+    public Client connect(LocalSettings localSettings, Caller caller) throws IOException {
         if (isKube()) {
-            return new KubernetesClient(settings.json, name, url.substring(KUBE_SCHEME.length()), settings.local, caller);
+            return new KubernetesClient(localSettings, name, url.substring(KUBE_SCHEME.length()), caller);
         } else {
-            return ProxyClient.token(world, settings.json, name, url, caller, token);
+            return ProxyClient.token(localSettings.lib.getWorld(), localSettings.json, name, url, caller, token);
         }
     }
 

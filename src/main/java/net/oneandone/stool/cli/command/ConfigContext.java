@@ -77,7 +77,7 @@ public class ConfigContext extends ClientCommand {
     private void check(Context context) throws Exception {
         Client client;
 
-        client = context.connect(globals.getWorld(), globals.settings(), globals.caller());
+        client = context.connect(globals.settings().local, globals.caller());
         try {
             // check if we need authentication; CAUTION: don't use version because it doesn't need credentials
             client.list("arbitraryStageNameFilter");
@@ -87,6 +87,6 @@ public class ConfigContext extends ClientCommand {
             e.printStackTrace(console.verbose);
             new Auth(globals, false).run();
         }
-        console.verbose.println("server info: " + globals.settings().currentContext().connect(globals.getWorld(), globals.settings(), globals.caller()).version());
+        console.verbose.println("server info: " + globals.settings().currentContext().connect(globals.settings().local, globals.caller()).version());
     }
 }

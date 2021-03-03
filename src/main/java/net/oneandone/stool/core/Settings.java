@@ -201,7 +201,7 @@ public class Settings {
     }
 
     public Client currentContextConnect(Caller caller) throws IOException {
-        return currentContext().connect(world, this, caller);
+        return currentContext().connect(this.local, caller);
     }
 
     public Reference reference(String str, Settings settings, Caller caller) throws IOException {
@@ -218,7 +218,7 @@ public class Settings {
         if (context == null) {
             throw new ArgumentException("context not found: " + str);
         }
-        return new Reference(context.connect(world, settings, caller), str.substring(0, idx));
+        return new Reference(context.connect(settings.local, caller), str.substring(0, idx));
     }
 
     public List<Reference> list(String filter, Caller caller) throws IOException {
