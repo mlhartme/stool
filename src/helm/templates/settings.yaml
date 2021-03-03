@@ -4,6 +4,7 @@ metadata:
   name: settings
 data:
   settings.yaml: |
+    loglevel: "{{ .Values.loglevel }}"
     currentContext: "localhost"
     local:
       registryCredentials: "{{ .Values.registryCredentials }}"
@@ -23,7 +24,6 @@ data:
         {{- range $key, $val := .Values.environment }}
         {{ $key }}: {{ $val | quote }}
         {{- end }}
-      loglevel: "{{ .Values.loglevel }}"
       mailHost: "{{ .Values.mailHost }}"
       mailUsername: "{{ .Values.username }}"
       mailPassword: "{{ .Values.password }}"

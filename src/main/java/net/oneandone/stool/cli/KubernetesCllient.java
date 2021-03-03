@@ -263,7 +263,7 @@ public class KubernetesCllient extends Client {
             engine.createRole(roleName, pod.name);
             engine.createBinding(bindingName, saName, roleName);
 
-            return new PodConfig(settings.kubernetes,
+            return new PodConfig(settings.local.kubernetes,
                 engine.getNamespace(), engine.getServiceAccountToken(saName), pod.name);
         }
     }

@@ -47,6 +47,7 @@ import static net.oneandone.stool.util.Json.string;
 public class LocalSettings {
     private static final Logger LOGGER = LoggerFactory.getLogger(Settings.class);
 
+    public final ObjectMapper yaml;
     public final ObjectMapper json;
 
     public final Map<String, String> environment;
@@ -89,9 +90,15 @@ public class LocalSettings {
 
     public final int defaultExpire;
 
+    /**
+     * public url for kubernetes api -- reported to clients to use temporary service accounts
+     */
+    public final String kubernetes;
+
     public static final Separator COLON = Separator.on(":").trim().skipEmpty();
 
-    public LocalSettings(ObjectMapper json, FileNode home, ObjectNode local) {
+    public LocalSettings(ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode local) {
+        this.yaml = yaml;
         this.json = json;
 
         this.fqdn = Json.string(local, "fqdn", "localhost");
@@ -112,9 +119,12 @@ public class LocalSettings {
         this.mailPassword = Json.string(local, "mailPassword", "");
         this.autoRemove = Json.number(local, "autoRemove", -1);
         this.defaultExpire = Json.number(local, "defaultExpire", 0);
+
+        this.kubernetes = Json.string(local, "kubernetes", "http://localhost");
     }
 
-    public LocalSettings(World world, ObjectMapper json, LocalSettings from) {
+    public LocalSettings(World world, ObjectMapper yaml, ObjectMapper json, LocalSettings from) {
+        this.yaml = yaml;
         this.json = json;
         this.fqdn = from.fqdn;
         this.environment = new LinkedHashMap<>(from.environment);
@@ -133,6 +143,7 @@ public class LocalSettings {
         this.mailPassword = from.mailPassword;
         this.autoRemove = from.autoRemove;
         this.defaultExpire = from.defaultExpire;
+        this.kubernetes = from.kubernetes;
     }
 
     public static Map<String, Pair> parseRegistryCredentials(String str) {
@@ -185,7 +196,10 @@ public class LocalSettings {
         }
     }
 
-    public void toYaml(ObjectNode local) {
+    public ObjectNode toYaml() {
+        ObjectNode local;
+
+        local = yaml.createObjectNode();
         local.put("stageLog", stageLogs);
         local.put("fqdn", fqdn);
         local.set("environment", Json.obj(json, environment));
@@ -204,6 +218,8 @@ public class LocalSettings {
         local.put("mailUsername", mailUsername);
         local.put("mailPassword", mailPassword);
         local.put("defaultExpire", defaultExpire);
+        local.put("kubernetes", kubernetes);
+        return local;
     }
 
     public PortusRegistry createRegistry(String image) throws IOException {

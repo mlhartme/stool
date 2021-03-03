@@ -86,19 +86,10 @@ public class Settings {
     public final ObjectMapper json;
 
     private String currentContext;
-
-    public final Map<String, Context> proxies;
-
-    public final LocalSettings local;
-
-    //--
-
     public final String loglevel;
 
-    /**
-     * public url for kubernetes api -- reported to clients to use temporary service accounts
-     */
-    public final String kubernetes;
+    public final LocalSettings local;
+    public final Map<String, Context> proxies;
 
     public Settings(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode settings) {
         ObjectNode localNode;
@@ -106,29 +97,27 @@ public class Settings {
         this.world = world;
         this.yaml = yaml;
         this.json = json;
+        this.loglevel = Json.string(settings, "loglevel", "ERROR");
         this.currentContext = settings.has("currentContext") ? settings.get("currentContext").asText() : null;
-        this.proxies = parseProxies((ArrayNode) settings.get("proxies"));
         localNode = (ObjectNode) settings.get("local");
         if (localNode == null) {
             localNode = yaml.createObjectNode();
         }
-        this.local = new LocalSettings(json, home, localNode);
-        this.loglevel = Json.string(localNode, "loglevel", "ERROR");
-        this.kubernetes = Json.string(localNode, "kubernetes", "http://localhost");
+        this.local = new LocalSettings(yaml, json, home, localNode);
+        this.proxies = parseProxies((ArrayNode) settings.get("proxies"));
     }
 
     public Settings(Settings from) throws IOException {
         this.world = World.create();
         this.yaml = Json.newYaml();
         this.json = Json.newJson();
+        this.loglevel = from.loglevel;
         this.currentContext = from.currentContext;
+        this.local = new LocalSettings(world, yaml, json, from.local);
         this.proxies = new LinkedHashMap<>();
         for (Map.Entry<String, Context> entry : from.proxies.entrySet()) {
             proxies.put(entry.getKey(), entry.getValue().newInstance());
         }
-        this.local = new LocalSettings(world, json, from.local);
-        this.loglevel = from.loglevel;
-        this.kubernetes = from.kubernetes;
     }
 
     private static Map<String, Context> parseProxies(ArrayNode proxiesOpt) {
@@ -329,18 +318,11 @@ public class Settings {
         ArrayNode array;
 
         obj = yaml.createObjectNode();
+        obj.put("loglevel", loglevel);
         if (currentContext != null) {
             obj.put("currentContext", currentContext);
         }
-        localNode = yaml.createObjectNode();
-        obj.set("local", localNode);
-        this.local.toYaml(localNode);
-
-        //--
-
-        localNode.put("kubernetes", kubernetes);
-        localNode.put("loglevel", loglevel);
-
+        obj.set("local", local.toYaml());
         array = obj.putArray("proxies");
         for (Context context : proxies.values()) {
             array.add(context.toObject(yaml));
