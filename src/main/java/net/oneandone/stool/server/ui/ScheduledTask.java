@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.cli.Caller;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Stage;
@@ -34,11 +35,11 @@ import java.util.List;
 public class ScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTask.class);
 
-    private final Settings settings;
+    private final LocalSettings localSettings;
 
     @Autowired
     public ScheduledTask(Settings settings) {
-        this.settings = settings;
+        this.localSettings = settings.local;
     }
 
     // second minute hour ...
@@ -47,11 +48,11 @@ public class ScheduledTask {
         List<String> output;
 
         LOGGER.info("scheduled stage validation");
-        try (Engine engine = Engine.createCluster(settings.json)) {
-            for (Stage stage : settings.local.listAll(engine)) {
+        try (Engine engine = Engine.createCluster(localSettings.json)) {
+            for (Stage stage : localSettings.listAll(engine)) {
                 LOGGER.info("validate " + stage.getName() + ":");
-                output = new Validation(null /* TODO */, settings.local, settings.local.createUserManager() /* TODO */, engine,
-                        new Caller("TODO", "TODO", "scheduled-task", null)).run(stage.getName(), !settings.local.mailHost.isEmpty(), true);
+                output = new Validation(null /* TODO */, localSettings, localSettings.createUserManager() /* TODO */, engine,
+                        new Caller("TODO", "TODO", "scheduled-task", null)).run(stage.getName(), !localSettings.mailHost.isEmpty(), true);
                 for (String line : output) {
                     LOGGER.info("  " + line);
                 }

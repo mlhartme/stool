@@ -65,7 +65,7 @@ public class ConfigContext extends ClientCommand {
                 console.info.println("not changed: " + oldName);
             } else {
                 settings.setCurrentContext(setOpt);
-                settings.save(globals.configurationYaml());
+                settings.save(globals.settingsYaml());
                 console.info.println("changed " + oldName + " -> " + setOpt);
                 if (!offline) {
                     check(found);

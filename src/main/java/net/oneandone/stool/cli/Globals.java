@@ -78,7 +78,7 @@ public class Globals {
         return home;
     }
 
-    public FileNode configurationYaml() {
+    public FileNode settingsYaml() {
         return Settings.settingsYaml(home);
     }
 
@@ -120,9 +120,5 @@ public class Globals {
             result.setCurrentContext(context);
         }
         return result;
-    }
-
-    public Settings configurationOrDefaults() throws IOException {
-        return home().exists() ? settings() : Settings.create(world);
     }
 }
