@@ -101,7 +101,7 @@ public class ApiController {
         }
 
         private KubernetesClient client(HttpServletRequest request) {
-            return new KubernetesClient(json, "server", null, this,
+            return new KubernetesClient(json, "server", null, this.local,
                     new Caller(
                             request.getHeader("X-stool-client-invocation"),
                             User.authenticatedOrAnonymous().login,

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Settings;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Field;
 import net.oneandone.stool.classes.ClassRef;
 import net.oneandone.stool.kubernetes.Engine;
@@ -56,17 +56,17 @@ public class KubernetesClient extends Client {
     /** null for cluster */
     private final String kubernetesContext;
 
-    private final Settings settings;
+    private final LocalSettings localSettings;
 
-    public KubernetesClient(ObjectMapper json, String context, String kubernetesContext, Settings settings, Caller caller) {
+    public KubernetesClient(ObjectMapper json, String context, String kubernetesContext, LocalSettings localSettings, Caller caller) {
         super(context, caller);
         this.json = json;
         this.kubernetesContext = kubernetesContext;
-        this.settings = settings;
+        this.localSettings = localSettings;
     }
 
     public Engine engine() {
-        return Engine.createClusterOrLocal(settings.json, kubernetesContext);
+        return Engine.createClusterOrLocal(localSettings.json, kubernetesContext);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class KubernetesClient extends Client {
         result = new HashMap<>();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            for (Stage stage : settings.local.list(engine, new PredicateParser(engine).parse(filter), problems)) {
+            for (Stage stage : localSettings.list(engine, new PredicateParser(engine).parse(filter), problems)) {
                 s = new HashMap<>();
                 result.put(stage.getName(), s);
                 remaining = new ArrayList<>(select);
@@ -118,7 +118,7 @@ public class KubernetesClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(caller, kubernetesContext, engine, settings.local, stageName, classRef, values);
+            stage = Stage.create(caller, kubernetesContext, engine, localSettings, stageName, classRef, values);
             return stage.urlMap();
         }
     }
@@ -128,20 +128,20 @@ public class KubernetesClient extends Client {
         Stage stage;
 
         try (Engine engine = engine()) {
-            stage = settings.local.load(engine, name);
-            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, classRef.resolve(kubernetesContext, settings.local), values);
+            stage = localSettings.load(engine, name);
+            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, classRef.resolve(kubernetesContext, localSettings), values);
         }
     }
 
     @Override
     public String version() throws IOException {
-        return Main.versionString(settings.world);
+        return Main.versionString(localSettings.lib.getWorld());
     }
 
     @Override
     public void delete(String stage) throws IOException {
         try (Engine engine = engine()) {
-            settings.local.load(engine, stage).uninstall(kubernetesContext, engine);
+            localSettings.load(engine, stage).uninstall(kubernetesContext, engine);
         }
     }
 
@@ -152,7 +152,7 @@ public class KubernetesClient extends Client {
 
         result = new LinkedHashMap<>();
         try (Engine engine = engine()) {
-            stage = settings.local.load(engine, stageName);
+            stage = localSettings.load(engine, stageName);
             for (Value value : stage.values()) {
                 if (!value.property.privt) {
                     result.put(value.property.name, new Pair(value.get(), value.property.doc));
@@ -170,7 +170,7 @@ public class KubernetesClient extends Client {
         Map<String, String> result;
 
         try (Engine engine = engine()) {
-            stage = settings.local.load(engine, name);
+            stage = localSettings.load(engine, name);
             result = new LinkedHashMap<>();
             changes = new LinkedHashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
@@ -192,7 +192,7 @@ public class KubernetesClient extends Client {
         List<String> output;
 
         try (Engine engine = engine()) {
-            output = new Validation(kubernetesContext, settings.local, settings.local.createUserManager() /* TODO */, engine, caller).run(stage, email, repair);
+            output = new Validation(kubernetesContext, localSettings, localSettings.createUserManager() /* TODO */, engine, caller).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }
@@ -206,7 +206,7 @@ public class KubernetesClient extends Client {
         List<String> result;
         String path;
 
-        registry = settings.local.createRegistry(imageName);
+        registry = localSettings.createRegistry(imageName);
         path = Registry.getRepositoryPath(Registry.toRepository(imageName));
         all = registry.list(path);
         result = new ArrayList<>();
@@ -229,7 +229,7 @@ public class KubernetesClient extends Client {
         Stage stage;
 
         try (Engine engine = engine()) {
-            stage = settings.local.load(engine, name);
+            stage = localSettings.load(engine, name);
             stage.awaitAvailable(engine);
             return stage.urlMap();
         }
@@ -248,7 +248,7 @@ public class KubernetesClient extends Client {
             throw new IOException("timeout to big: " + timeout);
         }
         try (Engine engine = engine()) {
-            pods = settings.local.load(engine, stage).runningPods(engine).values();
+            pods = localSettings.load(engine, stage).runningPods(engine).values();
             if (pods.isEmpty()) {
                 throw new IOException("no pods running for stage: " + stage);
             }
@@ -263,8 +263,7 @@ public class KubernetesClient extends Client {
             engine.createRole(roleName, pod.name);
             engine.createBinding(bindingName, saName, roleName);
 
-            return new PodConfig(settings.local.kubernetes,
-                engine.getNamespace(), engine.getServiceAccountToken(saName), pod.name);
+            return new PodConfig(localSettings.kubernetes, engine.getNamespace(), engine.getServiceAccountToken(saName), pod.name);
         }
     }
 
@@ -273,7 +272,7 @@ public class KubernetesClient extends Client {
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         Runnable cleanup = new Runnable() {
             public void run() {
-                try (Engine engine = Engine.createClusterOrLocal(settings.json, kubernetesContext)) {
+                try (Engine engine = Engine.createClusterOrLocal(localSettings.json, kubernetesContext)) {
                     engine.deleteServiceAccount(saName);
                     engine.deleteRole(roleName);
                     engine.deleteBinding(bindingName);
@@ -291,7 +290,7 @@ public class KubernetesClient extends Client {
         List<String> result;
 
         try (Engine engine = engine()) {
-            s = settings.local.load(engine, name);
+            s = localSettings.load(engine, name);
             result = new ArrayList<>(s.history.size());
             for (HistoryEntry entry : s.history) {
                 result.add(entry.toString());
