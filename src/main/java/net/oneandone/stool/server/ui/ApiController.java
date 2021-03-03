@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.KubernetesClient;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.core.StageNotFoundException;
 import net.oneandone.stool.classes.ClassRef;
@@ -31,6 +32,7 @@ import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -66,42 +68,42 @@ import java.util.Map;
 public class ApiController {
     private static final int POOL_SIZE = 1;
 
-    private final Settings globalSettings;
+    private final LocalSettings globalSettings;
     private final UserManager globalUserManager;
     private final List<RequestSettings> pool;
 
     @Autowired
     public ApiController(Settings settings, UserManager userManager) {
-        this.globalSettings = settings;
+        this.globalSettings = settings.local;
         this.globalUserManager = userManager;
         this.pool = new ArrayList<>();  // starts empty, filled when giving back session
     }
 
-    public RequestSettings openConfiguration() throws IOException {
+    public RequestSettings openSettings() throws IOException {
         synchronized (pool) {
             if (pool.isEmpty()) {
-                return new RequestSettings(globalSettings);
+                return new RequestSettings(World.create(), Json.newYaml(), Json.newJson(), globalSettings);
             } else {
                 return pool.remove(0);
             }
         }
     }
 
-    public void closeSession(RequestSettings session) {
+    public void closeSettings(RequestSettings settings) {
         synchronized (pool) {
             if (pool.size() < POOL_SIZE) {
-                pool.add(session);
+                pool.add(settings);
             }
         }
     }
 
-    private class RequestSettings extends Settings implements Closeable  {
-        RequestSettings(Settings from) throws IOException {
-            super(from);
+    private class RequestSettings extends LocalSettings implements Closeable  {
+        RequestSettings(World world, ObjectMapper yaml, ObjectMapper json, LocalSettings from) throws IOException {
+            super(world, yaml, json, from);
         }
 
         private KubernetesClient client(HttpServletRequest request) {
-            return new KubernetesClient(local, "server", null,
+            return new KubernetesClient(this, "server", null,
                     new Caller(
                             request.getHeader("X-stool-client-invocation"),
                             User.authenticatedOrAnonymous().login,
@@ -111,7 +113,7 @@ public class ApiController {
 
         @Override
         public void close() {
-            closeSession(this);
+            closeSettings(this);
         }
     }
 
@@ -119,7 +121,7 @@ public class ApiController {
 
     @GetMapping("/version")
     public String version(HttpServletRequest request) throws IOException {
-        try (RequestSettings session = openConfiguration()) {
+        try (RequestSettings session = openSettings()) {
             return session.client(request).version();
         }
     }
@@ -133,11 +135,11 @@ public class ApiController {
         ObjectNode obj;
         ObjectNode result;
 
-        try (RequestSettings configuration = openConfiguration()) {
-            map = configuration.client(request).list(filter, "*".equals(selectStr) ? Collections.emptyList() : Separator.COMMA.split(selectStr), hidden);
-            result = configuration.json.createObjectNode();
+        try (RequestSettings settings = openSettings()) {
+            map = settings.client(request).list(filter, "*".equals(selectStr) ? Collections.emptyList() : Separator.COMMA.split(selectStr), hidden);
+            result = settings.json.createObjectNode();
             for (Map.Entry<String, Map<String, JsonNode>> stage : map.entrySet()) {
-                obj = configuration.json.createObjectNode();
+                obj = settings.json.createObjectNode();
                 for (Map.Entry<String, JsonNode> o : stage.getValue().entrySet()) {
                     obj.set(o.getKey(), o.getValue());
                 }
@@ -153,8 +155,8 @@ public class ApiController {
         Map<String, String> values;
 
         values = map(request, "value.");
-        try (RequestSettings configuration = openConfiguration()) {
-            return Json.obj(configuration.json, configuration.client(request).create(name, ClassRef.parse(classRef), values)).toString();
+        try (RequestSettings settings = openSettings()) {
+            return Json.obj(settings.json, settings.client(request).create(name, ClassRef.parse(classRef), values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
@@ -166,66 +168,66 @@ public class ApiController {
     public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String classRef,
                           @RequestParam(value = "dryrun", required = false, defaultValue = "false") boolean dryrun,
                           @RequestParam(value = "allow", required = false) String allow, HttpServletRequest request) throws IOException {
-        try (RequestSettings configuration = openConfiguration()) {
-            return array(configuration.json, configuration.client(request)
+        try (RequestSettings settings = openSettings()) {
+            return array(settings.json, settings.client(request)
                     .publish(stageName, dryrun, allow, ClassRef.parse(classRef), map(request, "value.")).toList()).toString();
         }
     }
 
     @GetMapping("/stages//{stage}/await-available")
     public String awaitAvailable(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestSettings configuration = openConfiguration()) {
-            return Json.obj(configuration.json, configuration.client(request).awaitAvailable(stage)).toString();
+        try (RequestSettings settings = openSettings()) {
+            return Json.obj(settings.json, settings.client(request).awaitAvailable(stage)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/delete")
     public void delete(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestSettings session = openConfiguration()) {
-            session.client(request).delete(stage);
+        try (RequestSettings settings = openSettings()) {
+            settings.client(request).delete(stage);
         }
     }
 
     @GetMapping("/stages/{stage}/values")
     public String values(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestSettings configuration = openConfiguration()) {
-            return Json.objPairs(configuration.json, configuration.client(request).getValues(stage)).toString();
+        try (RequestSettings settings = openSettings()) {
+            return Json.objPairs(settings.json, settings.client(request).getValues(stage)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/set-values")
     public String setValues(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestSettings configuration = openConfiguration()) {
-            return Json.obj(configuration.json, configuration.client(request).setValues(stage, map(request, ""))).toString();
+        try (RequestSettings settings = openSettings()) {
+            return Json.obj(settings.json, settings.client(request).setValues(stage, map(request, ""))).toString();
         }
     }
 
     @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage, HttpServletRequest request) throws IOException {
-        try (RequestSettings configuration = openConfiguration()) {
-            return array(configuration.json, configuration.client(request).history(stage)).toString();
+        try (RequestSettings settings = openSettings()) {
+            return array(settings.json, settings.client(request).history(stage)).toString();
         }
     }
 
     @PostMapping("/stages/{stage}/validate")
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair,
                            HttpServletRequest request) throws IOException {
-        try (RequestSettings configuration = openConfiguration()) {
-            return array(configuration.json, configuration.client(request).validate(stage, email, repair)).toString();
+        try (RequestSettings settings = openSettings()) {
+            return array(settings.json, settings.client(request).validate(stage, email, repair)).toString();
         }
     }
 
     @GetMapping("/stages/{stage}/pod-token")
     public String podToken(@PathVariable(value = "stage") String stageName, @RequestParam("timeout") int timeout, HttpServletRequest request) throws IOException {
-        try (RequestSettings configuration = openConfiguration()) {
-            return configuration.client(request).podToken(stageName, timeout).toObject(configuration.json).toString();
+        try (RequestSettings settings = openSettings()) {
+            return settings.client(request).podToken(stageName, timeout).toObject(settings.json).toString();
         }
     }
 
     @GetMapping("/images/{image}")
     public String images(@PathVariable("image") String name, HttpServletRequest request) throws Exception {
-        try (RequestSettings configuration = openConfiguration()) {
-            return array(configuration.json, configuration.client(request).images(name)).toString();
+        try (RequestSettings settings = openSettings()) {
+            return array(settings.json, settings.client(request).images(name)).toString();
         }
     }
 
@@ -236,8 +238,8 @@ public class ApiController {
         User user;
         String result;
 
-        try (RequestSettings configuration = openConfiguration()) {
-            if (!configuration.local.auth()) {
+        try (RequestSettings settings = openSettings()) {
+            if (!settings.auth()) {
                 throw new IOException("authentication is disabled");
             }
             user = User.authenticatedOpt();
@@ -255,10 +257,10 @@ public class ApiController {
         FileNode dir;
         Stage stage;
 
-        try (RequestSettings configuration = openConfiguration(); Engine engine = configuration.client(request).engine()) {
-            stage = configuration.local.load(engine, stageName);
+        try (RequestSettings settings = openSettings(); Engine engine = settings.client(request).engine()) {
+            stage = settings.load(engine, stageName);
             dir = stage.getLogs(); // TODO: application logs
-            result = configuration.json.createArrayNode();
+            result = settings.json.createArrayNode();
             for (FileNode file : dir.find("**/*")) {
                 if (!file.isDirectory()) {
                     result.add(new TextNode(file.getRelative(dir)));
@@ -277,8 +279,8 @@ public class ApiController {
         file = request.getRequestURI();
         file = Strings.removeLeft(file, request.getContextPath());
         file = Strings.removeLeft(file, "/api/stages/" + stageName + "/logs/");
-        try (RequestSettings configuration = openConfiguration(); Engine engine = configuration.client(request).engine()) {
-            stage = configuration.local.load(engine, stageName);
+        try (RequestSettings settings = openSettings(); Engine engine = settings.client(request).engine()) {
+            stage = settings.load(engine, stageName);
         }
         resource = new FileSystemResource(stage.getLogs().join(file).toPath());
         return new ResponseEntity<>(resource, HttpStatus.OK);

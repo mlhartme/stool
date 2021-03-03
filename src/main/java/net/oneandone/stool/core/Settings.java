@@ -102,19 +102,6 @@ public class Settings {
         this.proxies = parseProxies((ArrayNode) settings.get("proxies"));
     }
 
-    public Settings(Settings from) throws IOException {
-        this.world = World.create();
-        this.yaml = Json.newYaml();
-        this.json = Json.newJson();
-        this.loglevel = from.loglevel;
-        this.currentContext = from.currentContext;
-        this.local = new LocalSettings(world, yaml, json, from.local);
-        this.proxies = new LinkedHashMap<>();
-        for (Map.Entry<String, Context> entry : from.proxies.entrySet()) {
-            proxies.put(entry.getKey(), entry.getValue().newInstance());
-        }
-    }
-
     private static Map<String, Context> parseProxies(ArrayNode proxiesOpt) {
         Context context;
         Iterator<JsonNode> iter;
