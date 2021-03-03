@@ -23,6 +23,7 @@ import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Pair;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -52,6 +53,8 @@ public class LocalSettings {
     public final Map<String, Pair> registryCredentials;
     public final List<String> classpath;
     public final FileNode lib;
+
+    public final String stageLogs;
 
     /**
      * used for output and stage urls
@@ -96,6 +99,7 @@ public class LocalSettings {
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.classpath = COLON.split(Json.string(local, "classpath", ""));
         this.lib = home.join("lib");
+        this.stageLogs = string(local, "stageLogs", home.getWorld().getHome().join(".sc/logs").getAbsolute());
 
         this.admin = Json.string(local, "admin", "");
         this.ldapUrl = Json.string(local, "ldapUrl", "");
@@ -117,6 +121,7 @@ public class LocalSettings {
         this.registryCredentials = new HashMap<>(from.registryCredentials);
         this.classpath = new ArrayList<>(from.classpath);
         this.lib = world.file(from.lib.toPath().toFile());
+        this.stageLogs = from.stageLogs;
         this.admin = from.admin;
         this.ldapUrl = from.ldapUrl;
         this.ldapPrincipal = from.ldapPrincipal;
@@ -165,6 +170,10 @@ public class LocalSettings {
         return result.toString();
     }
 
+    public FileNode stageLogs(String name) throws MkdirException {
+        return lib.getWorld().file(stageLogs).mkdirsOpt().join(name);
+    }
+
     public void validate() throws IOException {
         if (auth()) {
             if (ldapSso.isEmpty()) {
@@ -177,6 +186,7 @@ public class LocalSettings {
     }
 
     public void toYaml(ObjectNode local) {
+        local.put("stageLog", stageLogs);
         local.put("fqdn", fqdn);
         local.set("environment", Json.obj(json, environment));
         local.put("registryCredentials", registryCredentialsString());

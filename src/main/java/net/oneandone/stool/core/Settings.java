@@ -16,7 +16,6 @@ import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Predicate;
-import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -32,8 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static net.oneandone.stool.util.Json.string;
 
 /**
  * Global configuration, represents settings.yaml
@@ -90,11 +87,9 @@ public class Settings {
 
     private String currentContext;
 
-
     public final Map<String, Context> proxies;
 
     public final LocalSettings local;
-    public final String stageLogs;
 
     //--
 
@@ -118,7 +113,6 @@ public class Settings {
             localNode = yaml.createObjectNode();
         }
         this.local = new LocalSettings(json, home, localNode);
-        this.stageLogs = string(localNode, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(localNode, "loglevel", "ERROR");
         this.kubernetes = Json.string(localNode, "kubernetes", "http://localhost");
     }
@@ -133,7 +127,6 @@ public class Settings {
             proxies.put(entry.getKey(), entry.getValue().newInstance());
         }
         this.local = new LocalSettings(world, json, from.local);
-        this.stageLogs = from.stageLogs;
         this.loglevel = from.loglevel;
         this.kubernetes = from.kubernetes;
     }
@@ -217,10 +210,6 @@ public class Settings {
     }
 
     //--
-
-    public FileNode stageLogs(String name) throws MkdirException {
-        return world.file(stageLogs).mkdirsOpt().join(name);
-    }
 
     public UserManager createUserManager() throws IOException {
         return UserManager.loadOpt(json, local.lib.join("users.json"));
@@ -345,8 +334,6 @@ public class Settings {
         }
         localNode = yaml.createObjectNode();
         obj.set("local", localNode);
-
-        localNode.put("stageLog", stageLogs);
         this.local.toYaml(localNode);
 
         //--

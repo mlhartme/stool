@@ -204,7 +204,7 @@ public class Stage {
     //--
 
     public FileNode getLogs() throws MkdirException {
-        return settings.stageLogs(name);
+        return settings.local.stageLogs(name);
     }
 
     //-- fields
