@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -35,19 +36,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ExpressionsTest {
     private static final World world = World.createMinimal();
 
-    private static Settings settings() {
+    private static LocalSettings localSettings() { // TODO
         Settings c;
         try {
-            c = Settings.create(world); // TODO
+            c = Settings.create(world);
             c.local.environment.put("MOD", "a");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        return c;
+        return c.local;
     }
 
     private static Expressions expressions() {
-        return new Expressions(world, settings(), "stage");
+        return new Expressions(world, localSettings(), "stage");
     }
 
     @Test

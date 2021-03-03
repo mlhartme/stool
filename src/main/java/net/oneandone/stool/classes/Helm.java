@@ -64,7 +64,7 @@ public final class Helm {
 
         charts = settings.local.resolvedCharts(kubeContext);
         world = settings.world;
-        expressions = new Expressions(world, settings, name);
+        expressions = new Expressions(world, settings.local, name);
         modifiedClass = originalClass.derive(originalClass.origin, originalClass.author, originalClass.name);
         modifiedClass.setValues(clientValues);
         chart = charts.get(modifiedClass.chart).checkDirectory();

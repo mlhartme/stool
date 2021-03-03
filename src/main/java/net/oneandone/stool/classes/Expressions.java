@@ -21,7 +21,7 @@ import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import freemarker.template.TemplateSequenceModel;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Settings;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.sushi.fs.World;
@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class Expressions {
     public final World world;
-    public final Settings settings;
+    public final LocalSettings localSettings;
     private final String fqdn;
     private final String stage;
     private final String host;
@@ -55,12 +55,12 @@ public class Expressions {
     private FileNode contextChart;
     private Map<String, String> contextPrevious;
 
-    public Expressions(World world, Settings settings, String stage) {
+    public Expressions(World world, LocalSettings localSettings, String stage) {
         this.world = world;
-        this.settings = settings;
-        this.fqdn = stage + "." + settings.local.fqdn;
+        this.localSettings = localSettings;
+        this.fqdn = stage + "." + localSettings.fqdn;
         this.stage = stage;
-        this.host = settings.local.fqdn;
+        this.host = localSettings.fqdn;
         this.context = null;
         this.contextChart = null;
         this.contextPrevious = null;
@@ -165,14 +165,14 @@ public class Expressions {
         result.put("fqdn", fqdn);
         result.put("stage", stage);
         result.put("host", host);
-        result.put("defaultExpire", Expire.fromNumber(settings.local.defaultExpire).toString());
+        result.put("defaultExpire", Expire.fromNumber(localSettings.defaultExpire).toString());
         result.put("defaultContact", Stage.NOTIFY_FIRST_MODIFIER);
         result.put("workdir", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
             }
             try {
-                return settings.local.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
+                return localSettings.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
             } catch (IOException e) {
                 throw new TemplateModelException(e.getMessage(), e);
             }
@@ -229,7 +229,7 @@ public class Expressions {
                 }
             }
             name = list.get(0).toString();
-            value = settings.local.environment.get(name);
+            value = localSettings.environment.get(name);
             if (value == null) {
                 if (dflt == null) {
                     throw new TemplateModelException("env variable not found: " + name);
@@ -270,7 +270,7 @@ public class Expressions {
     private String swtch(String var, String dflt, List<String> keyValues) throws TemplateModelException {
         String v;
 
-        v = settings.local.environment.get(var);
+        v = localSettings.environment.get(var);
         if (v == null) {
             throw new TemplateModelException("env variable not found: " + var);
         }
