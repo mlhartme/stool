@@ -256,7 +256,7 @@ public class ApiController {
         Stage stage;
 
         try (RequestConfiguration configuration = openConfiguration(); Engine engine = configuration.client(request).engine()) {
-            stage = configuration.load(engine, stageName);
+            stage = configuration.local.load(engine, stageName);
             dir = stage.getLogs(); // TODO: application logs
             result = configuration.json.createArrayNode();
             for (FileNode file : dir.find("**/*")) {
@@ -278,7 +278,7 @@ public class ApiController {
         file = Strings.removeLeft(file, request.getContextPath());
         file = Strings.removeLeft(file, "/api/stages/" + stageName + "/logs/");
         try (RequestConfiguration configuration = openConfiguration(); Engine engine = configuration.client(request).engine()) {
-            stage = configuration.load(engine, stageName);
+            stage = configuration.local.load(engine, stageName);
         }
         resource = new FileSystemResource(stage.getLogs().join(file).toPath());
         return new ResponseEntity<>(resource, HttpStatus.OK);

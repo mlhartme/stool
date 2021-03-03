@@ -49,6 +49,6 @@ public class ServerConfigurer implements WebMvcConfigurer {
 
     @Bean
     public UserManager userManager(Settings settings) throws IOException {
-        return settings.createUserManager();
+        return settings.local.createUserManager();
     }
 }

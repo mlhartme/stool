@@ -48,9 +48,9 @@ public class ScheduledTask {
 
         LOGGER.info("scheduled stage validation");
         try (Engine engine = Engine.createCluster(settings.json)) {
-            for (Stage stage : settings.listAll(engine)) {
+            for (Stage stage : settings.local.listAll(engine)) {
                 LOGGER.info("validate " + stage.getName() + ":");
-                output = new Validation(null /* TODO */, settings, settings.createUserManager() /* TODO */, engine,
+                output = new Validation(null /* TODO */, settings.local, settings.local.createUserManager() /* TODO */, engine,
                         new Caller("TODO", "TODO", "scheduled-task", null)).run(stage.getName(), !settings.local.mailHost.isEmpty(), true);
                 for (String line : output) {
                     LOGGER.info("  " + line);

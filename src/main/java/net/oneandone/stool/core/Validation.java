@@ -37,14 +37,14 @@ public class Validation {
     private static final Logger LOGGER = LoggerFactory.getLogger(Validation.class);
 
     private final String kubeContext;
-    private final Settings settings;
+    private final LocalSettings localSettings;
     private final UserManager userManager;
     private final Engine engine;
     private final Caller caller;
 
-    public Validation(String kubeContext, Settings settings, UserManager userManager, Engine engine, Caller caller) {
+    public Validation(String kubeContext, LocalSettings localSettings, UserManager userManager, Engine engine, Caller caller) {
         this.kubeContext = kubeContext;
-        this.settings = settings;
+        this.localSettings = localSettings;
         this.userManager = userManager;
         this.engine = engine;
         this.caller = caller;
@@ -54,7 +54,7 @@ public class Validation {
         List<String> report;
         Stage stage;
 
-        stage = settings.load(engine, name);
+        stage = localSettings.load(engine, name);
         report = new ArrayList<>();
         doRun(stage, report, repair);
         LOGGER.info("Validation done (" + report.size() + " lines report)");
@@ -85,10 +85,10 @@ public class Validation {
             report.add("replicas change failed: " + e.getMessage());
             LOGGER.debug(e.getMessage(), e);
         }
-        if (settings.local.autoRemove < 0) {
+        if (localSettings.autoRemove < 0) {
             return;
         }
-        if (expire.expiredDays() >= settings.local.autoRemove) {
+        if (expire.expiredDays() >= localSettings.autoRemove) {
             try {
                 report.add("deleting expired stage");
                 stage.uninstall(kubeContext, engine);
@@ -98,7 +98,7 @@ public class Validation {
             }
         } else {
             report.add("CAUTION: This stage will be removed automatically in "
-                    + (settings.local.autoRemove - expire.expiredDays()) + " day(s)");
+                    + (localSettings.autoRemove - expire.expiredDays()) + " day(s)");
         }
     }
 
@@ -108,8 +108,8 @@ public class Validation {
         String email;
         String body;
 
-        fqdn = settings.local.fqdn;
-        mailer = settings.local.mailer();
+        fqdn = localSettings.fqdn;
+        mailer = localSettings.mailer();
         for (String user : users) {
             body = Separator.RAW_LINE.join(report);
             email = email(user);
@@ -132,9 +132,9 @@ public class Validation {
         }
         try {
             userobj = userManager.byLogin(user);
-            email = userobj.email == null ? settings.local.admin : userobj.email;
+            email = userobj.email == null ? localSettings.admin : userobj.email;
         } catch (UserNotFound e) {
-            email = settings.local.admin;
+            email = localSettings.admin;
         }
         return email.isEmpty() ? null : email;
     }

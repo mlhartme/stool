@@ -19,7 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.classes.Helm;
+import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
+import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Pair;
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.mail.MessagingException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -274,6 +277,73 @@ public class LocalSettings {
             return null;
         }
     }
+
+    //-- Stage access
+
+    public List<Stage> list(Engine engine, Predicate predicate, Map<String, IOException> problems) throws IOException {
+        List<Stage> result;
+        Stage stage;
+
+        result = new ArrayList<>();
+        for (String name : list(engine)) {
+            try {
+                stage = load(engine, name);
+            } catch (IOException e) {
+                e.printStackTrace();
+                problems.put(name, e);
+                continue;
+            }
+            if (predicate.matches(stage)) {
+                result.add(stage);
+            }
+        }
+        return result;
+    }
+
+    private static List<String> list(Engine engine) throws IOException {
+        List<String> result;
+
+        result = engine.helmList();
+        result.remove("stool"); // optional, stool server is not required
+        return result;
+    }
+
+    public List<Stage> listAll(Engine engine) throws IOException {
+        List<Stage> result;
+        Map<String, IOException> problems;
+
+        problems = new HashMap<>();
+        result = list(engine, new Predicate() {
+            @Override
+            public boolean matches(Stage stage) {
+                return true;
+            }
+        }, problems);
+        for (Map.Entry<String, IOException> entry : problems.entrySet()) {
+            reportException("listAll" /* TODO */, entry.getKey() + ": Session.listAll", entry.getValue());
+        }
+        return result;
+    }
+
+    public Stage load(Engine engine, String name) throws IOException {
+        String secretName;
+        ObjectNode obj;
+
+        secretName = engine.helmSecretName(name);
+        try {
+            obj = engine.helmSecretRead(secretName);
+        } catch (FileNotFoundException e) {
+            throw new StageNotFoundException(name);
+        }
+        return Stage.create(this, name, obj, Stage.historyFromMap(engine.secretGetAnnotations(secretName)));
+    }
+
+    //--
+
+    public UserManager createUserManager() throws IOException {
+        return UserManager.loadOpt(json, lib.join("users.json"));
+    }
+
 
     public Mailer mailer() {
         return new Mailer(mailHost, mailUsername, mailPassword);

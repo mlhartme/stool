@@ -79,7 +79,7 @@ public class KubernetesClient extends Client {
         result = new HashMap<>();
         problems = new HashMap<>();
         try (Engine engine = engine()) {
-            for (Stage stage : settings.list(engine, new PredicateParser(engine).parse(filter), problems)) {
+            for (Stage stage : settings.local.list(engine, new PredicateParser(engine).parse(filter), problems)) {
                 s = new HashMap<>();
                 result.put(stage.getName(), s);
                 remaining = new ArrayList<>(select);
@@ -128,7 +128,7 @@ public class KubernetesClient extends Client {
         Stage stage;
 
         try (Engine engine = engine()) {
-            stage = settings.load(engine, name);
+            stage = settings.local.load(engine, name);
             return stage.publish(caller, kubernetesContext, engine, dryrun, allow, classRef.resolve(kubernetesContext, settings.local), values);
         }
     }
@@ -141,7 +141,7 @@ public class KubernetesClient extends Client {
     @Override
     public void delete(String stage) throws IOException {
         try (Engine engine = engine()) {
-            settings.load(engine, stage).uninstall(kubernetesContext, engine);
+            settings.local.load(engine, stage).uninstall(kubernetesContext, engine);
         }
     }
 
@@ -152,7 +152,7 @@ public class KubernetesClient extends Client {
 
         result = new LinkedHashMap<>();
         try (Engine engine = engine()) {
-            stage = settings.load(engine, stageName);
+            stage = settings.local.load(engine, stageName);
             for (Value value : stage.values()) {
                 if (!value.property.privt) {
                     result.put(value.property.name, new Pair(value.get(), value.property.doc));
@@ -170,7 +170,7 @@ public class KubernetesClient extends Client {
         Map<String, String> result;
 
         try (Engine engine = engine()) {
-            stage = settings.load(engine, name);
+            stage = settings.local.load(engine, name);
             result = new LinkedHashMap<>();
             changes = new LinkedHashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
@@ -192,7 +192,7 @@ public class KubernetesClient extends Client {
         List<String> output;
 
         try (Engine engine = engine()) {
-            output = new Validation(kubernetesContext, settings, settings.createUserManager() /* TODO */, engine, caller).run(stage, email, repair);
+            output = new Validation(kubernetesContext, settings.local, settings.local.createUserManager() /* TODO */, engine, caller).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         }
@@ -229,7 +229,7 @@ public class KubernetesClient extends Client {
         Stage stage;
 
         try (Engine engine = engine()) {
-            stage = settings.load(engine, name);
+            stage = settings.local.load(engine, name);
             stage.awaitAvailable(engine);
             return stage.urlMap();
         }
@@ -248,7 +248,7 @@ public class KubernetesClient extends Client {
             throw new IOException("timeout to big: " + timeout);
         }
         try (Engine engine = engine()) {
-            pods = settings.load(engine, stage).runningPods(engine).values();
+            pods = settings.local.load(engine, stage).runningPods(engine).values();
             if (pods.isEmpty()) {
                 throw new IOException("no pods running for stage: " + stage);
             }
@@ -291,7 +291,7 @@ public class KubernetesClient extends Client {
         List<String> result;
 
         try (Engine engine = engine()) {
-            s = settings.load(engine, name);
+            s = settings.local.load(engine, name);
             result = new ArrayList<>(s.history.size());
             for (HistoryEntry entry : s.history) {
                 result.add(entry.toString());
