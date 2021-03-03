@@ -13,14 +13,11 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Reference;
-import net.oneandone.stool.classes.Helm;
 import net.oneandone.stool.kubernetes.Engine;
-import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Predicate;
-import net.oneandone.stool.util.Pair;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -105,7 +102,6 @@ public class Settings {
     public final Map<String, Context> proxies;
 
     public final LocalSettings local;
-    public final FileNode lib;
     public final String stageLogs;
 
     //--
@@ -168,8 +164,7 @@ public class Settings {
             localNode = yaml.createObjectNode();
         }
         this.environment = Json.stringMapOpt(localNode, "environment");
-        this.lib = home.join("lib");
-        this.local = new LocalSettings(localNode);
+        this.local = new LocalSettings(json, home, localNode);
         this.stageLogs = string(localNode, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(localNode, "loglevel", "ERROR");
         this.fqdn = Json.string(localNode, "fqdn", "localhost");
@@ -197,8 +192,7 @@ public class Settings {
         for (Map.Entry<String, Context> entry : from.proxies.entrySet()) {
             proxies.put(entry.getKey(), entry.getValue().newInstance());
         }
-        this.local = from.local;
-        this.lib = world.file(from.lib.toPath().toFile());
+        this.local = new LocalSettings(world, json, from.local);
         this.stageLogs = from.stageLogs;
         this.loglevel = from.loglevel;
         this.fqdn = from.fqdn;
@@ -344,31 +338,7 @@ public class Settings {
     }
 
     public UserManager createUserManager() throws IOException {
-        return UserManager.loadOpt(json, lib.join("users.json"));
-    }
-
-    public PortusRegistry createRegistry(String image) throws IOException {
-        int idx;
-        String host;
-        Pair up;
-        String uri;
-
-        idx = image.indexOf('/');
-        if (idx == -1) {
-            throw new IllegalArgumentException(image);
-        }
-        host = image.substring(0, idx);
-        uri = "https://";
-        up = registryCredentials(host);
-        if (up != null) {
-            uri = uri + up.left + ":" + up.right + "@";
-        }
-        uri = uri + host;
-        return PortusRegistry.create(json, world, uri, null);
-    }
-
-    public Pair registryCredentials(String registry) {
-        return local.registryCredentials.get(registry);
+        return UserManager.loadOpt(json, local.lib.join("users.json"));
     }
 
     //-- contexts
@@ -544,32 +514,5 @@ public class Settings {
 
     public boolean auth() {
         return !ldapUrl.isEmpty();
-    }
-
-    public Map<String, FileNode> resolvedCharts(String kubeContext) throws IOException {
-        FileNode root;
-        PortusRegistry portus;
-        Map<String, FileNode> result;
-        FileNode resolved;
-
-        root = lib.join("charts").mkdirsOpt();
-        result = new LinkedHashMap<>();
-        for (String entry : local.classpath) {
-            resolved = directoryChartOpt(entry);
-            if (resolved == null) {
-                portus = createRegistry(entry);
-                resolved = Helm.resolveRepositoryChart(kubeContext, portus, entry, root).checkDirectory();
-            }
-            result.put(resolved.getName(), resolved);
-        }
-        return result;
-    }
-
-    private FileNode directoryChartOpt(String classpathEntry) throws IOException {
-        if (classpathEntry.startsWith("/")) {
-            return world.file(classpathEntry).checkDirectory();
-        } else {
-            return null;
-        }
     }
 }

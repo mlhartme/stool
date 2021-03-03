@@ -172,7 +172,7 @@ public class Expressions {
                 throw new ArgumentException(list.toString());
             }
             try {
-                return settings.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
+                return settings.local.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
             } catch (IOException e) {
                 throw new TemplateModelException(e.getMessage(), e);
             }

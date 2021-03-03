@@ -62,7 +62,7 @@ public final class Helm {
         Diff result;
         Diff forbidden;
 
-        charts = settings.resolvedCharts(kubeContext);
+        charts = settings.local.resolvedCharts(kubeContext);
         world = settings.world;
         expressions = new Expressions(world, settings, name, settings.fqdn);
         modifiedClass = originalClass.derive(originalClass.origin, originalClass.author, originalClass.name);

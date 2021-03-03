@@ -103,7 +103,7 @@ public class ClassRef {
         String str;
 
         yaml = settings.yaml;
-        all = loadAll(yaml, settings.resolvedCharts(kubeContext).values());
+        all = loadAll(yaml, settings.local.resolvedCharts(kubeContext).values());
         switch (type) {
             case BUILTIN:
                 result = all.get(value);
@@ -124,7 +124,7 @@ public class ClassRef {
                 Registry registry;
                 TagInfo tag;
 
-                registry = settings.createRegistry(value);
+                registry = settings.local.createRegistry(value);
                 tag = registry.resolve(value);
                 str = tag.labels.get("stage-class");
                 if (str == null || str.isEmpty()) {

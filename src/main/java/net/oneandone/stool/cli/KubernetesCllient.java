@@ -206,7 +206,7 @@ public class KubernetesCllient extends Client {
         List<String> result;
         String path;
 
-        registry = settings.createRegistry(imageName);
+        registry = settings.local.createRegistry(imageName);
         path = Registry.getRepositoryPath(Registry.toRepository(imageName));
         all = registry.list(path);
         result = new ArrayList<>();
