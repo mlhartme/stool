@@ -118,7 +118,7 @@ public class KubernetesCllient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(caller, kubernetesContext, engine, settings, stageName, classRef, values);
+            stage = Stage.create(caller, kubernetesContext, engine, settings.local, stageName, classRef, values);
             return stage.urlMap();
         }
     }

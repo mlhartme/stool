@@ -194,7 +194,7 @@ public class Settings {
         } catch (FileNotFoundException e) {
             throw new StageNotFoundException(name);
         }
-        return Stage.create(this, name, obj, Stage.historyFromMap(engine.secretGetAnnotations(secretName)));
+        return Stage.create(this.local, name, obj, Stage.historyFromMap(engine.secretGetAnnotations(secretName)));
     }
 
     //--
