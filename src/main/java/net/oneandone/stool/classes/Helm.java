@@ -16,7 +16,7 @@
 package net.oneandone.stool.classes;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Settings;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Diff;
@@ -36,20 +36,20 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(String kubernetesContext, Settings settings, String name, ClassRef classRef, Map<String, String> values)
+    public static void install(String kubernetesContext, LocalSettings localSettings, String name, ClassRef classRef, Map<String, String> values)
             throws IOException {
         Clazz clazz;
 
-        clazz = classRef.resolve(kubernetesContext, settings);
-        helm(kubernetesContext, settings, name, false, false, null, clazz, values, Collections.emptyMap());
+        clazz = classRef.resolve(kubernetesContext, localSettings);
+        helm(kubernetesContext, localSettings, name, false, false, null, clazz, values, Collections.emptyMap());
     }
 
-    public static Diff upgrade(String kubeContext, Settings settings, String name, boolean dryrun, List<String> allow,
+    public static Diff upgrade(String kubeContext, LocalSettings localSettings, String name, boolean dryrun, List<String> allow,
                                Clazz clazz, Map<String, String> values, Map<String, String> prev) throws IOException {
-        return helm(kubeContext, settings, name, true, dryrun, allow, clazz, values, prev);
+        return helm(kubeContext, localSettings, name, true, dryrun, allow, clazz, values, prev);
     }
 
-    private static Diff helm(String kubeContext, Settings settings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
+    private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                              Clazz originalClass, Map<String, String> clientValues, Map<String, String> prev)
             throws IOException {
         World world;
@@ -62,9 +62,9 @@ public final class Helm {
         Diff result;
         Diff forbidden;
 
-        charts = settings.local.resolvedCharts(kubeContext);
-        world = settings.world;
-        expressions = new Expressions(world, settings.local, name);
+        charts = localSettings.resolvedCharts(kubeContext);
+        world = localSettings.lib.getWorld();
+        expressions = new Expressions(world, localSettings, name);
         modifiedClass = originalClass.derive(originalClass.origin, originalClass.author, originalClass.name);
         modifiedClass.setValues(clientValues);
         chart = charts.get(modifiedClass.chart).checkDirectory();
@@ -83,7 +83,7 @@ public final class Helm {
                 result.remove(property.name);
             }
         }
-        values = modifiedClass.createValuesFile(settings, next);
+        values = modifiedClass.createValuesFile(localSettings, next);
         try {
             LOGGER.info("values: " + values.readString());
             exec(dryrun, kubeContext,

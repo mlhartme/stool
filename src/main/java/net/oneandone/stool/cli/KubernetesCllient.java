@@ -129,7 +129,7 @@ public class KubernetesCllient extends Client {
 
         try (Engine engine = engine()) {
             stage = settings.load(engine, name);
-            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, classRef.resolve(kubernetesContext, settings), values);
+            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, classRef.resolve(kubernetesContext, settings.local), values);
         }
     }
 

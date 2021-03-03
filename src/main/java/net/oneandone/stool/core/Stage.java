@@ -54,7 +54,7 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(kubeContext, settings, stageName, classRef, values);
+        Helm.install(kubeContext, settings.local, stageName, classRef, values);
         stage = Stage.create(settings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -334,7 +334,7 @@ public class Stage {
                         Clazz withClass, Map<String, String> clientValues) throws IOException {
         Diff diff;
 
-        diff = Helm.upgrade(kubeContext, settings, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
+        diff = Helm.upgrade(kubeContext, settings.local, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
                 withClass, clientValues, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
@@ -361,7 +361,7 @@ public class Stage {
             map.put(entry.getKey(), entry.getValue().get());
         }
         map.putAll(changes);
-        Helm.upgrade(kubeContext, settings, name, false, null, clazz, map, valuesMap());
+        Helm.upgrade(kubeContext, settings.local, name, false, null, clazz, map, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

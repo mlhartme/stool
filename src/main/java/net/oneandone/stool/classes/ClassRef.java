@@ -18,7 +18,7 @@ package net.oneandone.stool.classes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.oneandone.stool.core.Settings;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.registry.TagInfo;
 import net.oneandone.sushi.fs.World;
@@ -96,14 +96,14 @@ public class ClassRef {
 
     public static final String BUILDIN = "_buildin_";
 
-    public Clazz resolve(String kubeContext, Settings settings) throws IOException {
+    public Clazz resolve(String kubeContext, LocalSettings localSettings) throws IOException {
         ObjectMapper yaml;
         Map<String, Clazz> all;
         Clazz result;
         String str;
 
-        yaml = settings.yaml;
-        all = loadAll(yaml, settings.local.resolvedCharts(kubeContext).values());
+        yaml = localSettings.yaml;
+        all = loadAll(yaml, localSettings.resolvedCharts(kubeContext).values());
         switch (type) {
             case BUILTIN:
                 result = all.get(value);
@@ -124,7 +124,7 @@ public class ClassRef {
                 Registry registry;
                 TagInfo tag;
 
-                registry = settings.local.createRegistry(value);
+                registry = localSettings.createRegistry(value);
                 tag = registry.resolve(value);
                 str = tag.labels.get("stage-class");
                 if (str == null || str.isEmpty()) {
