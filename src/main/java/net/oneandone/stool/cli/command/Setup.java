@@ -19,6 +19,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.Main;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.FileNotFoundException;
@@ -101,8 +102,8 @@ public class Setup {
 
         result = initialConfiguration();
         if (classpath != null) {
-            result.classpath.clear();
-            result.classpath.addAll(Settings.COLON.split(classpath));
+            result.local.classpath.clear();
+            result.local.classpath.addAll(LocalSettings.COLON.split(classpath));
         }
         if (spec != null) {
             idx = spec.indexOf('=');

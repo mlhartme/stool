@@ -101,10 +101,12 @@ public class Settings {
     public final ObjectMapper json;
 
     private String currentContext;
+
+
     public final Map<String, Context> proxies;
 
     public final Map<String, Pair> registryCredentials;
-    public final List<String> classpath;
+    public final LocalSettings local;
     public final FileNode lib;
     public final String stageLogs;
 
@@ -152,10 +154,8 @@ public class Settings {
 
     public final int defaultExpire;
 
-    public static final Separator COLON = Separator.on(":").trim().skipEmpty();
-
     public Settings(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode settings) {
-        ObjectNode local;
+        ObjectNode localNode;
 
         this.world = world;
         this.yaml = yaml;
@@ -165,29 +165,29 @@ public class Settings {
 
         this.proxies = parseProxies((ArrayNode) settings.get("proxies"));
 
-        local = (ObjectNode) settings.get("local");
-        if (local == null) {
-            local = yaml.createObjectNode();
+        localNode = (ObjectNode) settings.get("local");
+        if (localNode == null) {
+            localNode = yaml.createObjectNode();
         }
-        this.environment = Json.stringMapOpt(local, "environment");
-        this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
+        this.environment = Json.stringMapOpt(localNode, "environment");
+        this.registryCredentials = parseRegistryCredentials(string(localNode, "registryCredentials", ""));
         this.lib = home.join("lib");
-        this.classpath = COLON.split(Json.string(local, "classpath", ""));
-        this.stageLogs = string(local, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
-        this.loglevel = Json.string(local, "loglevel", "ERROR");
-        this.fqdn = Json.string(local, "fqdn", "localhost");
-        this.kubernetes = Json.string(local, "kubernetes", "http://localhost");
-        this.admin = Json.string(local, "admin", "");
-        this.ldapUrl = Json.string(local, "ldapUrl", "");
-        this.ldapPrincipal = Json.string(local, "ldapPrincipal", "");
-        this.ldapCredentials = Json.string(local, "ldapCredentials", "");
-        this.ldapUnit = Json.string(local, "ldapUnit", "");
-        this.ldapSso = Json.string(local, "ldapSso", "");
-        this.mailHost = Json.string(local, "mailHost", "");
-        this.mailUsername = Json.string(local, "mailUsername", "");
-        this.mailPassword = Json.string(local, "mailPassword", "");
-        this.autoRemove = Json.number(local, "autoRemove", -1);
-        this.defaultExpire = Json.number(local, "defaultExpire", 0);
+        this.local = new LocalSettings(localNode);
+        this.stageLogs = string(localNode, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
+        this.loglevel = Json.string(localNode, "loglevel", "ERROR");
+        this.fqdn = Json.string(localNode, "fqdn", "localhost");
+        this.kubernetes = Json.string(localNode, "kubernetes", "http://localhost");
+        this.admin = Json.string(localNode, "admin", "");
+        this.ldapUrl = Json.string(localNode, "ldapUrl", "");
+        this.ldapPrincipal = Json.string(localNode, "ldapPrincipal", "");
+        this.ldapCredentials = Json.string(localNode, "ldapCredentials", "");
+        this.ldapUnit = Json.string(localNode, "ldapUnit", "");
+        this.ldapSso = Json.string(localNode, "ldapSso", "");
+        this.mailHost = Json.string(localNode, "mailHost", "");
+        this.mailUsername = Json.string(localNode, "mailUsername", "");
+        this.mailPassword = Json.string(localNode, "mailPassword", "");
+        this.autoRemove = Json.number(localNode, "autoRemove", -1);
+        this.defaultExpire = Json.number(localNode, "defaultExpire", 0);
     }
 
     public Settings(Settings from) throws IOException {
@@ -201,7 +201,7 @@ public class Settings {
             proxies.put(entry.getKey(), entry.getValue().newInstance());
         }
         this.registryCredentials = new HashMap<>(from.registryCredentials);
-        this.classpath = new ArrayList<>(from.classpath);
+        this.local = from.local;
         this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
         this.loglevel = from.loglevel;
@@ -520,39 +520,39 @@ public class Settings {
 
     public ObjectNode toYaml() {
         ObjectNode obj;
-        ObjectNode local;
+        ObjectNode localNode;
         ArrayNode array;
 
         obj = yaml.createObjectNode();
         if (currentContext != null) {
             obj.put("currentContext", currentContext);
         }
-        local = yaml.createObjectNode();
-        obj.set("local", local);
+        localNode = yaml.createObjectNode();
+        obj.set("local", localNode);
 
-        local.put("registryCredentials", registryCredentialsString());
-        local.put("stageLog", stageLogs);
-        local.put("classpath", COLON.join(classpath));
+        localNode.put("registryCredentials", registryCredentialsString());
+        localNode.put("stageLog", stageLogs);
+        this.local.toYaml(localNode);
 
         //--
 
-        local.put("fqdn", fqdn);
-        local.put("kubernetes", kubernetes);
-        local.set("environment", Json.obj(json, environment));
-        local.put("loglevel", loglevel);
-        local.put("admin", admin);
-        local.put("autoRemove", autoRemove);
+        localNode.put("fqdn", fqdn);
+        localNode.put("kubernetes", kubernetes);
+        localNode.set("environment", Json.obj(json, environment));
+        localNode.put("loglevel", loglevel);
+        localNode.put("admin", admin);
+        localNode.put("autoRemove", autoRemove);
         if (auth()) {
-            local.put("ldapUrl", ldapUrl);
-            local.put("ldapPrincipal", ldapPrincipal);
-            local.put("ldapCredentials", ldapCredentials);
-            local.put("ldapUnit", ldapUnit);
-            local.put("ldapSso", ldapSso);
+            localNode.put("ldapUrl", ldapUrl);
+            localNode.put("ldapPrincipal", ldapPrincipal);
+            localNode.put("ldapCredentials", ldapCredentials);
+            localNode.put("ldapUnit", ldapUnit);
+            localNode.put("ldapSso", ldapSso);
         }
-        local.put("mailHost", mailHost);
-        local.put("mailUsername", mailUsername);
-        local.put("mailPassword", mailPassword);
-        local.put("defaultExpire", defaultExpire);
+        localNode.put("mailHost", mailHost);
+        localNode.put("mailUsername", mailUsername);
+        localNode.put("mailPassword", mailPassword);
+        localNode.put("defaultExpire", defaultExpire);
 
         //--
 
@@ -594,7 +594,7 @@ public class Settings {
 
         root = lib.join("charts").mkdirsOpt();
         result = new LinkedHashMap<>();
-        for (String entry : classpath) {
+        for (String entry : local.classpath) {
             resolved = directoryChartOpt(entry);
             if (resolved == null) {
                 portus = createRegistry(entry);
