@@ -435,7 +435,7 @@ public class Stage {
             if (!prefix.isEmpty()) {
                 prefix = prefix + ".";
             }
-            url = protocol + "://" + prefix + name + "." + settings.fqdn + "/" + urlContext();
+            url = protocol + "://" + prefix + name + "." + settings.local.fqdn + "/" + urlContext();
             if (!url.endsWith("/")) {
                 url = url + "/";
             }

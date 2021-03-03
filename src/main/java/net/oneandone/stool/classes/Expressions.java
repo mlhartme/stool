@@ -165,7 +165,7 @@ public class Expressions {
         result.put("fqdn", fqdn);
         result.put("stage", stage);
         result.put("host", host);
-        result.put("defaultExpire", Expire.fromNumber(settings.defaultExpire).toString());
+        result.put("defaultExpire", Expire.fromNumber(settings.local.defaultExpire).toString());
         result.put("defaultContact", Stage.NOTIFY_FIRST_MODIFIER);
         result.put("workdir", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {

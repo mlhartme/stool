@@ -86,10 +86,10 @@ public class Validation {
             report.add("replicas change failed: " + e.getMessage());
             LOGGER.debug(e.getMessage(), e);
         }
-        if (settings.autoRemove < 0) {
+        if (settings.local.autoRemove < 0) {
             return;
         }
-        if (expire.expiredDays() >= settings.autoRemove) {
+        if (expire.expiredDays() >= settings.local.autoRemove) {
             try {
                 report.add("deleting expired stage");
                 stage.uninstall(kubeContext, engine);
@@ -99,7 +99,7 @@ public class Validation {
             }
         } else {
             report.add("CAUTION: This stage will be removed automatically in "
-                    + (settings.autoRemove - expire.expiredDays()) + " day(s)");
+                    + (settings.local.autoRemove - expire.expiredDays()) + " day(s)");
         }
     }
 
@@ -109,8 +109,8 @@ public class Validation {
         String email;
         String body;
 
-        fqdn = settings.fqdn;
-        mailer = settings.mailer();
+        fqdn = settings.local.fqdn;
+        mailer = settings.local.mailer();
         for (String user : users) {
             body = Separator.RAW_LINE.join(report);
             email = email(user);
@@ -133,9 +133,9 @@ public class Validation {
         }
         try {
             userobj = userManager.byLogin(user);
-            email = userobj.email == null ? settings.admin : userobj.email;
+            email = userobj.email == null ? settings.local.admin : userobj.email;
         } catch (UserNotFound e) {
-            email = settings.admin;
+            email = settings.local.admin;
         }
         return email.isEmpty() ? null : email;
     }

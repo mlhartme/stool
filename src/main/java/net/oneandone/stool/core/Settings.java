@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.NamedContext;
 import io.fabric8.kubernetes.client.Config;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.Main;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Context;
@@ -16,16 +15,11 @@ import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
-import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -45,8 +39,6 @@ import static net.oneandone.stool.util.Json.string;
  * Global configuration, represents settings.yaml
  */
 public class Settings {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Settings.class);
-
     public static Settings load(World world) throws IOException {
         FileNode home;
 
@@ -64,7 +56,7 @@ public class Settings {
             settings = (ObjectNode) yaml.readTree(src);
         }
         result = new Settings(file.getWorld(), yaml, Json.newJson(), home, settings);
-        result.validate();
+        result.local.validate();
         return result;
     }
 
@@ -74,7 +66,7 @@ public class Settings {
 
         yaml = Json.newYaml();
         result = new Settings(world, yaml, Json.newJson(), home(world), yaml.createObjectNode());
-        result.validate();
+        result.local.validate();
         return result;
     }
 
@@ -109,42 +101,9 @@ public class Settings {
     public final String loglevel;
 
     /**
-     * used for output and stage urls
-     */
-    public final String fqdn;
-
-    /**
      * public url for kubernetes api -- reported to clients to use temporary service accounts
      */
     public final String kubernetes;
-
-    /**
-     * Name + email. Used for problem reports, feedback emails,
-     */
-    public final String admin;
-
-    public final String ldapUrl;
-
-    public final String ldapPrincipal;
-
-    public final String ldapCredentials;
-
-    public final String ldapUnit;
-
-    public final String ldapSso;
-
-    public final String mailHost;
-
-    public final String mailUsername;
-
-    public final String mailPassword;
-
-    /**
-     * Number of days to wait before removing an expired stage.
-     */
-    public final int autoRemove;
-
-    public final int defaultExpire;
 
     public Settings(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode settings) {
         ObjectNode localNode;
@@ -152,11 +111,8 @@ public class Settings {
         this.world = world;
         this.yaml = yaml;
         this.json = json;
-
         this.currentContext = settings.has("currentContext") ? settings.get("currentContext").asText() : null;
-
         this.proxies = parseProxies((ArrayNode) settings.get("proxies"));
-
         localNode = (ObjectNode) settings.get("local");
         if (localNode == null) {
             localNode = yaml.createObjectNode();
@@ -164,19 +120,7 @@ public class Settings {
         this.local = new LocalSettings(json, home, localNode);
         this.stageLogs = string(localNode, "stageLogs", world.getHome().join(".sc/logs").getAbsolute());
         this.loglevel = Json.string(localNode, "loglevel", "ERROR");
-        this.fqdn = Json.string(localNode, "fqdn", "localhost");
         this.kubernetes = Json.string(localNode, "kubernetes", "http://localhost");
-        this.admin = Json.string(localNode, "admin", "");
-        this.ldapUrl = Json.string(localNode, "ldapUrl", "");
-        this.ldapPrincipal = Json.string(localNode, "ldapPrincipal", "");
-        this.ldapCredentials = Json.string(localNode, "ldapCredentials", "");
-        this.ldapUnit = Json.string(localNode, "ldapUnit", "");
-        this.ldapSso = Json.string(localNode, "ldapSso", "");
-        this.mailHost = Json.string(localNode, "mailHost", "");
-        this.mailUsername = Json.string(localNode, "mailUsername", "");
-        this.mailPassword = Json.string(localNode, "mailPassword", "");
-        this.autoRemove = Json.number(localNode, "autoRemove", -1);
-        this.defaultExpire = Json.number(localNode, "defaultExpire", 0);
     }
 
     public Settings(Settings from) throws IOException {
@@ -191,19 +135,7 @@ public class Settings {
         this.local = new LocalSettings(world, json, from.local);
         this.stageLogs = from.stageLogs;
         this.loglevel = from.loglevel;
-        this.fqdn = from.fqdn;
         this.kubernetes = from.kubernetes;
-        this.admin = from.admin;
-        this.ldapUrl = from.ldapUrl;
-        this.ldapPrincipal = from.ldapPrincipal;
-        this.ldapCredentials = from.ldapCredentials;
-        this.ldapUnit = from.ldapUnit;
-        this.ldapSso = from.ldapSso;
-        this.mailHost = from.mailHost;
-        this.mailUsername = from.mailUsername;
-        this.mailPassword = from.mailPassword;
-        this.autoRemove = from.autoRemove;
-        this.defaultExpire = from.defaultExpire;
     }
 
     private static Map<String, Context> parseProxies(ArrayNode proxiesOpt) {
@@ -266,7 +198,7 @@ public class Settings {
             }
         }, problems);
         for (Map.Entry<String, IOException> entry : problems.entrySet()) {
-            reportException("listAll" /* TODO */, entry.getKey() + ": Session.listAll", entry.getValue());
+            local.reportException("listAll" /* TODO */, entry.getKey() + ": Session.listAll", entry.getValue());
         }
         return result;
     }
@@ -285,49 +217,6 @@ public class Settings {
     }
 
     //--
-
-    public void validate() throws IOException {
-        if (auth()) {
-            if (ldapSso.isEmpty()) {
-                throw new IOException("ldapSso is empty");
-            }
-            if (System.getProperty("server.ssl.key-store") == null) {
-                throw new IOException("enable ssl when running authenticated");
-            }
-        }
-    }
-
-    /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
-    public void reportException(String command, String exceptionContext, Throwable e) {
-        String subject;
-        StringWriter body;
-        PrintWriter writer;
-
-        LOGGER.error("[" + command + "] " + exceptionContext + ": " + e.getMessage(), e);
-        if (!admin.isEmpty()) {
-            subject = "[stool exception] " + e.getMessage();
-            body = new StringWriter();
-            body.write("stool: " + Main.versionString(world) + "\n");
-            body.write("command: " + command + "\n");
-            body.write("context: " + exceptionContext + "\n");
-            body.write("user: " + MDC.get("USER") + "\n"); // TODO
-            body.write("fqdn: " + fqdn + "\n");
-            writer = new PrintWriter(body);
-            while (true) {
-                e.printStackTrace(writer);
-                e = e.getCause();
-                if (e == null) {
-                    break;
-                }
-                body.append("Caused by:\n");
-            }
-            try {
-                mailer().send(admin, new String[] { admin }, subject, body.toString());
-            } catch (MessagingException suppressed) {
-                LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
-            }
-        }
-    }
 
     public FileNode stageLogs(String name) throws MkdirException {
         return world.file(stageLogs).mkdirsOpt().join(name);
@@ -462,24 +351,8 @@ public class Settings {
 
         //--
 
-        localNode.put("fqdn", fqdn);
         localNode.put("kubernetes", kubernetes);
         localNode.put("loglevel", loglevel);
-        localNode.put("admin", admin);
-        localNode.put("autoRemove", autoRemove);
-        if (auth()) {
-            localNode.put("ldapUrl", ldapUrl);
-            localNode.put("ldapPrincipal", ldapPrincipal);
-            localNode.put("ldapCredentials", ldapCredentials);
-            localNode.put("ldapUnit", ldapUnit);
-            localNode.put("ldapSso", ldapSso);
-        }
-        localNode.put("mailHost", mailHost);
-        localNode.put("mailUsername", mailUsername);
-        localNode.put("mailPassword", mailPassword);
-        localNode.put("defaultExpire", defaultExpire);
-
-        //--
 
         array = obj.putArray("proxies");
         for (Context context : proxies.values()) {
@@ -501,13 +374,5 @@ public class Settings {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    public Mailer mailer() {
-        return new Mailer(mailHost, mailUsername, mailPassword);
-    }
-
-    public boolean auth() {
-        return !ldapUrl.isEmpty();
     }
 }

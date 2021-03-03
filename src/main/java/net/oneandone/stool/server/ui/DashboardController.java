@@ -76,7 +76,7 @@ public class DashboardController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         subject = "[Stool] Feedback from " + SecurityContextHolder.getContext().getAuthentication().getName();
-        settings.mailer().send(settings.admin, new String[] { settings.admin }, subject, message);
+        settings.local.mailer().send(settings.local.admin, new String[] { settings.local.admin }, subject, message);
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
 

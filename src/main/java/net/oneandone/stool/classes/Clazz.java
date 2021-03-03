@@ -235,7 +235,7 @@ public class Clazz {
         dest.set(HELM_CLASS, toObject(settings.yaml));
 
         // normalize expire
-        expire = Expire.fromString(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(settings.defaultExpire).toString()));
+        expire = Expire.fromString(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(settings.local.defaultExpire).toString()));
         if (expire.isExpired()) {
             throw new ArgumentException("stage expired: " + expire);
         }

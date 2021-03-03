@@ -51,7 +51,7 @@ public class ScheduledTask {
             for (Stage stage : settings.listAll(engine)) {
                 LOGGER.info("validate " + stage.getName() + ":");
                 output = new Validation(null /* TODO */, settings, settings.createUserManager() /* TODO */, engine,
-                        new Caller("TODO", "TODO", "scheduled-task", null)).run(stage.getName(), !settings.mailHost.isEmpty(), true);
+                        new Caller("TODO", "TODO", "scheduled-task", null)).run(stage.getName(), !settings.local.mailHost.isEmpty(), true);
                 for (String line : output) {
                     LOGGER.info("  " + line);
                 }
