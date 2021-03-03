@@ -1,5 +1,3 @@
-[![Build Status](https://secure.travis-ci.org/mlhartme/stool.png)](https://travis-ci.org/mlhartme/stool)  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.oneandone.stool/main/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.oneandone.stool/main)
-
 # Stool
 
 ## Introduction
@@ -22,10 +20,10 @@ Open a terminal and run
     sc context
 
 to see available contexts, i.e. places where you can host stages. Notes:
-*  if you get an `command not found: sc` error message: Stool is not installed on your machine.
+*  if you get an `command not found: sc` error: Stool is not installed on your machine.
    Please refer to the install section below.
-*  if you get an `configuration not found` error message: Stool is installed, but it's not yet
-   set up (i.e. configured). Please run `sc setup`.
+*  if you get an `settings not found` error: Stool is installed, but it's not set up.
+   Please run `sc setup`.
 
 Choose one of the available contexts by running
 
@@ -41,24 +39,18 @@ You can run
 
     sc status mystage
 
-to see status information about your stage. E.g. if `available` is above `0` you can point your browser
+to see status information about your stage. E.g. if `available` is above `0`, you can point your browser
 to the url printed by the `create` or `status` command.
-
-Use
-
-    sc history mystage
-
-to see the Stool commands executed for this stage.
 
 To delete the stage run
 
     sc delete mystage
 
-You can create an arbitrary number of stages. Invoke
+You can create any number of stages. Invoke
 
     sc list
 
-to see what you have created and not yet deleted.
+to see them all.
 
 You can get help with
 
@@ -72,35 +64,36 @@ prints help about `create`.
 
 ### Rationale
 
-Technically, Stool is a Helm wrapper, a stage is a Helm releases, and stage classes provide powerful features to compute
-Helm values. Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`, in aims
-particularly to make value definitions more powerful, because in our use cases we have many workloads using the same Helm
-chart but with different values.
+Technically, Stool is a Helm wrapper, a stage is a Helm releases, and stage classes provide powerful features to provide
+Helm values. Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`, it puts
+an emphasize on powerful value definitions because in our use cases we have many workloads using the same Helm
+chart with different values.
 
 ### History
 
-Stool 5 runs stages in Docker, Stool 6 switched to Kubernetes. The general goal is to shrink Stool by replacing Stool functionality with
-standard Kubernetes features/tools. Here's an outline was has already been replaced and what's planned or open:
+Stool 5 runs stages in Docker, Stool 6 switches to Kubernetes. The general goal is to shrink Stool by replacing Stool
+functionality with standard Kubernetes features/tools. Here's an outline what has already been replaced and what's
+planned or open:
 
 
 |         | Functionality | Moved to; obsolete after |
 |---------|---------|-------------|
 | Stool 5 - current stable  | Process Management | Docker |
 | Stool 6 - superseded by 7 | Port Managemnt | Kubernetes |
-|         | (Cpu Limits)    | Kubernetes Pod Limits |
+|         | (Cpu limits)    | Kubernetes Pod Limits |
 |         | (node selection) | Kubernetes |
-| Stool 7 - current development | Image Building | Maven Plugin |
-|         | (K8s Resources per Stage) | Helm chart |
-|         | Stage Lifecycle | Helm |
-|         | Memory Limits  | Kubernetes Pod Limits |
-|         | Vault Integration | configurable script |
+| Stool 7 - current development | Image Building | any tool, e.g. Maven Plugin |
+|         | (K8s Resources for a Stage) | Helm chart |
+|         | Stage lifecycle | Helm |
+|         | Memory limits  | Kubernetes Pod Limits |
+|         | Vault integration | configurable script |
 |         | Certificate generation | configurable script |
-| Stool X - thoughts only | Basic Monitoring | Prometheus? |
-|         | Disk Limits | Kubernetes Ephemeral Storage Limits |
-|         | Simple cli: reduce cognitive load | train developers, operating |
+| Stool X - thoughts only | Basic monitoring | Prometheus? |
+|         | Disk Limits | Kubernetes ephemeral storage limits |
+|         | Simple cli: reduce cognitive load | train developers + operating |
 |         | Dashboard: None-technical UI | ? |
 |         | Proxy: restricted access | All stages by Jenkins? |
-|         | Stage classes | ? |
+|         | Stage classes | Helmfile? Shell scripts? |
 
 
 ### Conventions
@@ -117,27 +110,29 @@ standard Kubernetes features/tools. Here's an outline was has already been repla
 
 ### Stool
 
-This term is overloaded, depending on the context it may refer to the command line client `sc`, `sc server` in Kubernetes,
-or the whole Github project.
+This term is overloaded, depending on the context it may refer to the command line client `sc`, a Stool server running
+in Kubernetes, or the whole Github project.
 
 ### Stage
 
 A *stage* is a Kubernetes workload, typically running a web application like a Tomcat servlet container (http://tomcat.apache.org) with
 a Java web application (https://en.wikipedia.org/wiki/Java_Servlet).
 
-Every stage has a configuration, which is a set of values you can get and set with `sc config`.
+You can create, list and delete stages with the respective command. Every stage has a configuration, which is a set of
+properties you can get and set with `sc config`. Every stages has a status, which is a set of fields you can check it
+with `sc status`.
+
+A stage runs on the Kubernetes cluster identified by a context. Every stage has a unique name in that context.
+A stage is referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage name and context when
+you create the stage, neither can be changed later.
 
 Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it. It's also safe to `helm uninstall`
 instead of `sc delete`.
 
-A stage runs on a Kubernetes cluster within a namespace, which is identified by a context. Every stage has a unique name in that context.
-A stage is referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage name and context when
-you create the stage, neither can be changed later.
-
 
 ### Stage class
 
-The stage class defines how to create a stage. Every stage has as class (or in oo works: it is an instance of a class).
+The stage class defines how to create a stage. Every stage has as class (or in oo words: it is an instance of a class).
 
 A class looks like this:
 
@@ -147,51 +142,59 @@ A class looks like this:
       image: "myregistry/hello:1.0.0"
       cert: "${exec('cert.sh', stage)}"
 
-A class has a set of properties, and it can extend other classes (i.e. inherits all properites from it). Properties can use
-Freemarker templates and invoke scripts to compute values.
+A class has a set of properties, and it can extend other classes (i.e. inherits all properites from it).
+You use classes to create new stages or publish into existing: every class property is evaluated
+(which may use [Freemarker](https://freemarker.apache.org) templating and invoke shell scripts) to initialize the
+corresponding stage property.
 
-You usually define classes in a `stage-class.yaml` and store it in a `stage-class` label attached to an image.
+You usually define classes in a `stage-class.yaml` file and attach it in a `stage-class` label attached to an image.
 
 Technically, the class specifies a Helm chart and how to compute its values.
 
 
 ### Context
 
-A *context* specifies a place that can host stages together with the necessary authentication. There are proxy contexts and Kubernetes contexts.
-A proxy context has a name, an optional token, and a URL pointing to a Stool server. A Kubernetes context is a Kubernetes context whose name is
-prefixed with `kube-`.
+A *context* specifies a place that can host stages together with the necessary authentication. Stool supports Kubernetes
+contexts and proxy contexts. A Kubernetes context is a Kubernetes context whose name is prefixed with `kube-`. Use them
+if you have direct access to Kubernetes (i.e. ~/.kube/config)
 
-`sc` manages a list of proxy contexts in its settings. `sc` also manages a current context,
-you can change it permanently with `sc context` or per-invocation with the `-context` global option.
+A proxy context has a name, an optional token, and a URL pointing to a Stool server. It's used if you have restricted access
+to Kubernetes only.
 
-Advanced note: The concept of a context is similar to `kubectl`s context.
-
+`sc` manages a list of proxy contexts and a current context in its settings. You can change the current context
+permanently with `sc context` or per-invocation with the `-context` global option.
 
 ### Workspace
 
-A workspace is a list of stages referenced by a workspace name. Use workspaces if you need to run the same commands on the a list of stages.
+A workspace is a list of stages referenced by a workspace name. Use workspaces if you need to run the same commands on the a list of stages,
 
 Add stages to workspace by passing a workspace to `sc create` or with `sc attach`. Remove stages from workspaces with `sc detach` .
 
+To use a workspace for a command, invoke it with `@` workspace instead of the stage name
 
-### Settings
+Example: Suppose you have two stage, you can run status on them like this:
 
-Stool is configured via settings specified in its `settings.yaml`. A setting is a key/value pair. Value has a type
-(string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, they apply to all stages,
-they are usually adjusted by system administrators.
-
-TODO: available entries, classpath etc ...
-
+    sc attach one @ws
+    sc attach two @ws
+    sc status @ws
 
 ### Properties
 
-Stages are configured via properties. A property is a key/value pair. Properties configure the respective stage only, every stage has
-its own set of properties. You can inspect and adjust properties with [stool config](#sc-config).
+Stages are configured via properties. A property is a key/value pair. Properties apply to one stage only, every stage has
+its own set of properties. A stage has one stage property for every class property. I.e. stages with different classes
+can have different properties.
 
-Technically, properties are values of the Helm release of this stage.
+You can inspect and adjust properties with [stool config](#sc-config). The initial value of a
+property is defined by the stage's class, either when the stage was created of published.
 
 Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are key/values pairs like properties,
 but they are read-only.
+
+TODO: common properties: metadataExpire, metadataContact, metadataComment, replicas, ...
+
+TODO: stage properties are easily confused with class properties
+
+Technically, property values are Helm values of the respective Helm release.
 
 ### Stage Expiring
 
@@ -204,6 +207,14 @@ Depending on the `autoRemove` setting, an expired stage will automatically be re
 Stage expiring helps to detect and remove unused stages, which is handy (and sometimes even crucial) if you are not the only user of a server.
 If you receive an email notification that your stage has expired, please check if your stage is still needed. If so, adjust the expire date.
 Otherwise, remove the stage.
+
+### Settings
+
+Stool is configured via settings specified in its `settings.yaml` file. A setting is a key/value pair. Value has a type
+(string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, in contrast to properties,
+they are not specific for a stage. Settings are usually adjusted by system administrators.
+
+TODO: available settings, classpath etc ...
 
 ### Dashboard
 
@@ -440,7 +451,7 @@ command for a list of available fields. Default fields/values are `name origin l
 
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
@@ -496,7 +507,8 @@ Publish a stage
 
 #### Description
 
-Updates the stage with the specified class and values.
+Updates the stage with the specified class and values. This is similar to the create command but the result replaces
+the existing stage without downtime.
 
 [//]: # (include classArgument.md)
 
@@ -522,7 +534,7 @@ TODO: how to define additional environment variables?
 
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
@@ -561,9 +573,14 @@ you can specify a number which is shorthand for that number of days from now (e.
 
 List properties (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
 
+Technically, properties are modified by running Helm upgrade with both modified an unmodified values;
+unmodified values are passes as is, they are not re-evaluated from using the underlying class property. Caution:
+if you modified a value `a` that's referenced in by class property 'b', 'b' is not re-computed.
+
+
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
@@ -630,7 +647,7 @@ Available fields:
 
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
@@ -654,7 +671,7 @@ with the `-batch` option.
 
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
@@ -675,7 +692,7 @@ Prints the `sc` commands that affected the stage. Invoke it `-v` to see more det
 
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
@@ -695,7 +712,7 @@ Attaches the specified stage to *workspace*. Creates a new workspace if the spec
 
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
@@ -714,7 +731,7 @@ Removes stages from *workspace* without modifying the stage itself. Removes the 
 
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
@@ -757,7 +774,7 @@ TODO
 
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
@@ -816,7 +833,7 @@ if `-email` is specified, a notification mail is sent as configured by the `meta
 
 [//]: # (include stageArgument.md)
 
-Note: Use `sc help stage-argument` to read about the [stage](#sc-stage-argument) argument,
+Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-argument),
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)

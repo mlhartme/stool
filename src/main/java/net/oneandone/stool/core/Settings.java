@@ -16,6 +16,7 @@ import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -43,6 +44,9 @@ public class Settings {
         ObjectNode settings;
         Settings result;
 
+        if (!file.exists()) {
+            throw new FileNotFoundException("settings not found: " + file);
+        }
         yaml = Json.newYaml();
         try (Reader src = file.newReader()) {
             settings = (ObjectNode) yaml.readTree(src);
