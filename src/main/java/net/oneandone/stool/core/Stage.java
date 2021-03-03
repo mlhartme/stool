@@ -30,8 +30,6 @@ import net.oneandone.stool.util.Diff;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,8 +47,6 @@ import java.util.Set;
  * CAUTION: has to be reloaed to reflect e.g. value changes.
  */
 public class Stage {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Stage.class);
-
     public static Stage create(Caller caller, String kubeContext, Engine engine, Settings settings, String stageName, ClassRef classRef,
                                Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
