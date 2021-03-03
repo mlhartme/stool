@@ -47,7 +47,7 @@ public class ExpressionsTest {
     }
 
     private static Expressions expressions() {
-        return new Expressions(world, settings(), "stage", "host");
+        return new Expressions(world, settings(), "stage");
     }
 
     @Test

@@ -55,12 +55,12 @@ public class Expressions {
     private FileNode contextChart;
     private Map<String, String> contextPrevious;
 
-    public Expressions(World world, Settings settings, String stage, String host) {
+    public Expressions(World world, Settings settings, String stage) {
         this.world = world;
         this.settings = settings;
-        this.fqdn = stage + "." + host;
+        this.fqdn = stage + "." + settings.local.fqdn;
         this.stage = stage;
-        this.host = host;
+        this.host = settings.local.fqdn;
         this.context = null;
         this.contextChart = null;
         this.contextPrevious = null;
