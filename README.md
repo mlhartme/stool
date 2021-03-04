@@ -109,7 +109,7 @@ A *stage* is a Kubernetes workload, typically running a web application like a T
 a Java web application (https://en.wikipedia.org/wiki/Java_Servlet).
 
 You can create, list and delete stages with the respective command. Every stage has a configuration, which is a set of
-properties you can get and set with `sc config`. Every stages has a status, which is a set of fields, you can check it
+variables you can get and set with `sc config`. Every stages has a status, which is a set of fields, you can check it
 with `sc status`.
 
 A stage runs on the Kubernetes cluster identified by a context. Every stage has a unique name in that context.
@@ -117,7 +117,8 @@ A stage is referenced by *name*`@`*context* or just the *name* if it's in the cu
 name and context when you create the stage, neither can be changed later.
 
 Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it, `sc publish`
-upgrades it. It's safe to use `helm uninstall` instead of `sc delete`.
+upgrades it. Stage variables are Helm release values (or Helm release variables, as they occasionally class it).
+It's safe to use `helm uninstall` instead of `sc delete`.
 
 
 ### Stage classes
@@ -134,34 +135,33 @@ A class looks like this:
       cert: "${exec('cert.sh', stage)}"
 
 A class has a set of properties, and it can extend other classes (i.e. inherit all properties from it).
-You use classes to create new or publish into existing stages: all properties are evaluate to supply the
-configuration values.
+You use classes to create new or publish into existing stages: all properties are evaluate and define the
+configuration variables.
 
 You usually define classes in a `stage-class.yaml` file and attach it in a `stage-class` label attached to an image.
 
 Technically, the class specifies a Helm chart and how to compute its values
 
-### Properties
+### Properties and variables
 
 A property is the basic building block of a class. It has a name and a function.
 
-Every stage has the properties defined by it's class. The stage configuration is a set of property/value pairs,
-where the values were computed when the stage was created/last published.
+Stage variables are defined by the properties of its class. Stage variables are set by the associated
+property when the stage is created or published.
 
-Stages are configured via properties. Properties are part of the class definition and apply to one stage only, every stage has
-its own set of properties. A stage has one stage property for every class property. I.e. stages with different classes
-can have different properties.
+Stages are configured via variables. Variables apply to one stage only, every stage has its own set of variables, even
+if they are associated with the same property. A stage has one variable for every class property.
 
-The function is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it, and this
-provides a way to invoke shell scripts.
-
+The property function is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it,
+and this provides a way to invoke shell scripts.
 
 
-You can inspect and adjust properties with [stool config](#sc-config). The initial value of a
-property is defined by the stage's class, either when the stage was created of published.
 
-Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are key/values pairs like properties,
-but they are read-only.
+You can inspect and adjust variables with [stool config](#sc-config). The initial value of a
+variable is defined by the associated property when the stage is created or published.
+
+Besides variables, every stage has status fields, you can view them with `sc status`. Status fields are key/values
+pairs like variables, but they are read-only.
 
 TODO: common properties: metadataExpire, metadataContact, metadataComment, replicas, ...
 
@@ -442,7 +442,7 @@ List stages
 
 #### SYNOPSIS
 
-`sc` *global-option*... `list` *stage* (*field*|*property*)...
+`sc` *global-option*... `list` *stage* (*field*|*variable*)...
 
 #### DESCRIPTION
 
@@ -551,31 +551,32 @@ Manage stage properties
 
 #### DESCRIPTION
 
-This command gets or sets stage [properties](#properties).
+This command gets or sets stage [variables](#variables).
 
-When invoked without arguments, all stage properties are printed.
-When invoked with one or more *key*s, the respective properties are printed.
-When invoked with one or more assignments, the respective properties are changed.
+When invoked without arguments, all variables are printed.
+When invoked with one or more *key*s, the respective variables are printed.
+When invoked with one or more assignments, the respective variables are changed.
 
-Strings may contain `{}` to refer to the previous property value. You can use this, e.g., to append to a value:
+Strings may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
 `sc config "metadataComment={} append this"`.
 
-If you want to set a property to a String with spaces, you have to use quotes around the assignment.
+If you want to set a variable to a string with spaces, you have to use quotes around the assignment.
 
-If you change a property, your pods might restart to apply this change.
+If you change a variables, your pods might restart to apply this change.
 
-Properties have a type: boolean, number, date, string, or list of strings.
+Variables have a type: boolean, number, date, string, or list of strings.
 
-Boolean properties by be `true` or `false`, case sensitive.
+Boolean values may be `true` or `false`, case sensitive.
 
-Date properties have the form *yyyy-mm-dd*, so a valid `metadataExpire` value is - e.g. -`2016-12-31`. Alternatively,
+Date values have the form *yyyy-mm-dd*, so a valid `metadataExpire` value is - e.g. -`2016-12-31`. Alternatively,
 you can specify a number which is shorthand for that number of days from now (e.g. `1` means tomorrow).
 
-List properties (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
+List values (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
 
-Technically, properties are modified by running Helm upgrade with both modified an unmodified values;
-unmodified values are passes as is, they are not re-evaluated from using the underlying class property. Caution:
-if you modified a value `a` that's referenced in by class property 'b', 'b' is not re-computed.
+TODO
+Technically, variables are modified by running Helm upgrade with both modified an unmodified values;
+unmodified values are passes as is, they are not re-evaluated from using the associated property. Caution:
+if you modified a value `a` that's referenced in by property 'b', variable 'b' is not re-computed.
 
 
 [//]: # (include stageArgument.md)
@@ -586,12 +587,12 @@ use `sc help` for available [global options](#sc)
 [//]: # (-)
 
 
-#### Available stage properties
+#### Available stage variables
 
-Stool exposed all values of the underlying Helm chart as properties. This usually includes:
+A stage has variables for all properties of the underlying class. This usually includes:
 
 * **metadataComment**
-  Arbitrary comment for this stage. This value nothing but stored, it has no effect. Type string.
+  Arbitrary comment for this stage. This value is nothing but stored, it has no effect. Type string.
 * **metadataExpire**
   Defines when this stage [expires](#stage-expiring). Type date.
 * **metadataContact**
@@ -617,7 +618,7 @@ Display stage status
 
 #### DESCRIPTION
 
-Prints the specified status *field*s or class *properties*. Default: all status fields except *class*.
+Prints the specified status *field*s or *values*. Default: all status fields except *class*.
 
 Available fields:
 
@@ -875,13 +876,13 @@ Most Stool commands are stage commands, i.e. they operate on one or multiple sta
               predicate = and {',' and}
               and = expr {'+' expr}
               expr = NAME | cmp
-              cmp = (FIELD | PROPERTY) ('=' | '!=') (STR | prefix | suffix | substring)
+              cmp = (FIELD | VARIABLE) ('=' | '!=') (STR | prefix | suffix | substring)
               prefix = VALUE '*'
               suffix = '*' STR
               substring = '*' STR '*'
               NAME       # name of a stage
               FIELD      # name of a status field
-              PROPERTY   # name of an class property
+              VARIABLE   # name of a variable
               STR        # arbitrary string
 
 
