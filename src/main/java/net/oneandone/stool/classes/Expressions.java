@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Expressions {
-    public final World world;
     public final LocalSettings localSettings;
     private final String fqdn;
     private final String stage;
@@ -55,8 +54,7 @@ public class Expressions {
     private FileNode contextChart;
     private Map<String, String> contextPrevious;
 
-    public Expressions(World world, LocalSettings localSettings, String stage) {
-        this.world = world;
+    public Expressions(LocalSettings localSettings, String stage) {
         this.localSettings = localSettings;
         this.fqdn = stage + "." + localSettings.fqdn;
         this.stage = stage;
@@ -131,12 +129,14 @@ public class Expressions {
     }
 
     public String eval(String str) throws IOException {
+        World world;
         freemarker.template.Configuration fm;
         FileNode srcfile;
         FileNode destfile;
         Template template;
         StringWriter tmp;
 
+        world = localSettings.world;
         fm = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
         fm.setDefaultEncoding("UTF-8");
 

@@ -21,7 +21,6 @@ import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Versions;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
@@ -52,7 +51,6 @@ public final class Helm {
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                              Clazz clazz, Map<String, String> overrides, Map<String, String> prev)
             throws IOException {
-        World world;
         Map<String, FileNode> charts;
         Expressions expressions;
         FileNode chart;
@@ -63,9 +61,8 @@ public final class Helm {
         Diff forbidden;
 
         charts = localSettings.resolvedCharts(kubeContext);
-        world = localSettings.world;
         LOGGER.info("chart: " + clazz.chart + ":" + clazz.chartVersion);
-        expressions = new Expressions(world, localSettings, name);
+        expressions = new Expressions(localSettings, name);
         tmpClass = clazz.derive(clazz.origin, clazz.author, clazz.name);
         tmpClass.setValues(overrides);
         chart = charts.get(tmpClass.chart).checkDirectory();
