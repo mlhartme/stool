@@ -188,7 +188,7 @@ public class LocalSettings {
     }
 
     public FileNode stageLogs(String name) throws MkdirException {
-        return lib.getWorld().file(stageLogs).mkdirsOpt().join(name);
+        return world.file(stageLogs).mkdirsOpt().join(name);
     }
 
     public void validate() throws IOException {
@@ -245,7 +245,7 @@ public class LocalSettings {
             uri = uri + up.left + ":" + up.right + "@";
         }
         uri = uri + host;
-        return PortusRegistry.create(json, lib.getWorld(), uri, null);
+        return PortusRegistry.create(json, world, uri, null);
     }
 
     public Pair registryCredentials(String registry) {
@@ -275,7 +275,7 @@ public class LocalSettings {
 
     private FileNode directoryChartOpt(String classpathEntry) throws IOException {
         if (classpathEntry.startsWith("/")) {
-            return lib.getWorld().file(classpathEntry).checkDirectory();
+            return world.file(classpathEntry).checkDirectory();
         } else {
             return null;
         }
@@ -366,7 +366,7 @@ public class LocalSettings {
         if (!admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
-            body.write("stool: " + Main.versionString(lib.getWorld()) + "\n");
+            body.write("stool: " + Main.versionString(world) + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + exceptionContext + "\n");
             body.write("user: " + MDC.get("USER") + "\n"); // TODO

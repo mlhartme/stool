@@ -372,7 +372,7 @@ public class Stage {
     }
 
     public void uninstall(String kubeContext, Engine engine) throws IOException {
-        Helm.exec(false, kubeContext, localSettings.lib.getWorld().getWorking(), "uninstall", getName());
+        Helm.exec(false, kubeContext, localSettings.world.getWorking(), "uninstall", getName());
         engine.deploymentAwaitGone(getName());
     }
 

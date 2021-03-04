@@ -241,7 +241,7 @@ public class Clazz {
         }
         dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
 
-        file = localSettings.lib.getWorld().getTemp().createTempFile().writeString(dest.toPrettyString());
+        file = localSettings.world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;
     }
 }

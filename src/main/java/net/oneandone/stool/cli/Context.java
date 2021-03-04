@@ -93,7 +93,7 @@ public class Context {
         if (isKube()) {
             return new KubernetesClient(localSettings, name, url.substring(KUBE_SCHEME.length()), caller);
         } else {
-            return ProxyClient.token(localSettings.lib.getWorld(), localSettings.json, name, url, caller, token);
+            return ProxyClient.token(localSettings.world, localSettings.json, name, url, caller, token);
         }
     }
 

@@ -135,7 +135,7 @@ public class KubernetesClient extends Client {
 
     @Override
     public String version() throws IOException {
-        return Main.versionString(localSettings.lib.getWorld());
+        return Main.versionString(localSettings.world);
     }
 
     @Override
