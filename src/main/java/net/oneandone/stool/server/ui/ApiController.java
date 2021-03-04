@@ -31,7 +31,6 @@ import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.util.Json;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -81,7 +80,7 @@ public class ApiController {
     public RequestSettings openSettings() throws IOException {
         synchronized (pool) {
             if (pool.isEmpty()) {
-                return new RequestSettings(World.create(), Json.newYaml(), Json.newJson(), globalSettings);
+                return new RequestSettings(globalSettings);
             } else {
                 return pool.remove(0);
             }
@@ -97,8 +96,8 @@ public class ApiController {
     }
 
     private class RequestSettings extends LocalSettings implements Closeable  {
-        RequestSettings(World world, ObjectMapper yaml, ObjectMapper json, LocalSettings from) throws IOException {
-            super(world, yaml, json, from);
+        RequestSettings(LocalSettings from) throws IOException {
+            super(from);
         }
 
         private KubernetesClient client(HttpServletRequest request) {

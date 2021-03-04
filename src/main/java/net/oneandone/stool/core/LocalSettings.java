@@ -128,10 +128,11 @@ public class LocalSettings {
         this.kubernetes = Json.string(local, "kubernetes", "http://localhost");
     }
 
-    public LocalSettings(World world, ObjectMapper yaml, ObjectMapper json, LocalSettings from) {
-        this.world = world;
-        this.yaml = yaml;
-        this.json = json;
+    public LocalSettings(LocalSettings from) throws IOException {
+        this.world = World.create();
+        this.yaml = Json.newYaml();
+        this.json = Json.newJson();
+
         this.fqdn = from.fqdn;
         this.environment = new LinkedHashMap<>(from.environment);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
