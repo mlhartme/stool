@@ -50,6 +50,7 @@ import static net.oneandone.stool.util.Json.string;
 public class LocalSettings {
     private static final Logger LOGGER = LoggerFactory.getLogger(Settings.class);
 
+    public final World world;
     public final ObjectMapper yaml;
     public final ObjectMapper json;
 
@@ -101,6 +102,7 @@ public class LocalSettings {
     public static final Separator COLON = Separator.on(":").trim().skipEmpty();
 
     public LocalSettings(ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode local) {
+        this.world = home.getWorld();
         this.yaml = yaml;
         this.json = json;
 
@@ -127,6 +129,7 @@ public class LocalSettings {
     }
 
     public LocalSettings(World world, ObjectMapper yaml, ObjectMapper json, LocalSettings from) {
+        this.world = world;
         this.yaml = yaml;
         this.json = json;
         this.fqdn = from.fqdn;

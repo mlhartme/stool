@@ -51,7 +51,7 @@ public class Settings {
         try (Reader src = file.newReader()) {
             settings = (ObjectNode) yaml.readTree(src);
         }
-        result = new Settings(file.getWorld(), yaml, Json.newJson(), home, settings);
+        result = new Settings(yaml, Json.newJson(), home, settings);
         result.local.validate();
         return result;
     }
@@ -61,7 +61,7 @@ public class Settings {
         Settings result;
 
         yaml = Json.newYaml();
-        result = new Settings(world, yaml, Json.newJson(), home(world), yaml.createObjectNode());
+        result = new Settings(yaml, Json.newJson(), home(world), yaml.createObjectNode());
         result.local.validate();
         return result;
     }
@@ -80,7 +80,6 @@ public class Settings {
 
     //--
 
-    public final World world;
     public final ObjectMapper yaml;
     public final ObjectMapper json;
 
@@ -90,10 +89,9 @@ public class Settings {
     public final LocalSettings local;
     public final Map<String, Context> proxies;
 
-    public Settings(World world, ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode settings) {
+    public Settings(ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode settings) {
         ObjectNode localNode;
 
-        this.world = world;
         this.yaml = yaml;
         this.json = json;
         this.loglevel = Json.string(settings, "loglevel", "ERROR");

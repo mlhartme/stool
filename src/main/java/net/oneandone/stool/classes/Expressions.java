@@ -46,10 +46,10 @@ public class Expressions {
     private final String stage;
     private final String host;
 
-    /** value is
-     *   string when ready
-     *   valuetype when to do
-     *   null when recursion started
+    /** key is property name, value is
+     *   string with result when ready
+     *   property when to do
+     *   null when eval of this key started
      */
     private Map<String, Object> context;
     private FileNode contextChart;

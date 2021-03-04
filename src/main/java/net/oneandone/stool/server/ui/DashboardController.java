@@ -48,7 +48,7 @@ public class DashboardController {
     @Autowired
     public DashboardController(Settings settings) {
         this.settings = settings;
-        this.version = Main.versionString(settings.world);
+        this.version = Main.versionString(settings.local.world);
     }
 
     @GetMapping("dashboard")

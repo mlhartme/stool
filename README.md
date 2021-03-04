@@ -258,7 +258,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... `auth` [`-batch`]
 
 
-`sc` *global-option*... `list` *stage* (*field*|*property*)...
+`sc` *global-option*... `list` *stage* (*field*|*variable*)...
 
 
 `sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@'*workspace*] [*key*`=`*value*...]
