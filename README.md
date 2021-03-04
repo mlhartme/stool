@@ -474,14 +474,15 @@ This configuration passed to Kubernetes for setup the workload.
 *name* specifies the stage name. It must contain only lower case ascii characters or digit or dashes, it's
 rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name.
 
-[//]: # (include classArgument.md)
-
 *class* is a reference to the class for this stage. Classes can be referenced in three ways:
 * a path pointing to a local yaml file containing the class; this path has to start with a '/' or a '.'
 * an image with a `stage-class` label containing a base64 encoded class yaml
 * a class name defined in the configured classpath
 
-[//]: # (-)
+Note that previous changes by the `config` command get lost unless you repeat them in the assignment arguments.
+You'll normally call publish without arguments and thus get the configuration as defined by the class.
+
+Except for temporary assignments, you should adjust the classes.
 
 If a *workspace* is specified, the resulting stage is added to it.
 
@@ -506,36 +507,14 @@ Publish a stage
 
 #### Description
 
-Similar to the [create](#sc-create) command, but updates the existing stage without downtime instead of creating
-a new stage.
+Similar to the [create](#sc-create) command, but updates *stage* instead of creating a new one.
+Please check there for general behavior. Stage update is without downtime.
 
-Note that previous changes by the `config` command get lost unless to repeat them in the assignment arguments.
-You'll normally call publish without arguments and thus get the configuration as defined by the class.
-
-Except for temporary assignments, you should adjust the classes.
-
-
-[//]: # (include classArgument.md)
-
-*class* is a reference to the class for this stage. Classes can be referenced in three ways:
-* a path pointing to a local yaml file containing the class; this path has to start with a '/' or a '.'
-* an image with a `stage-class` label containing a base64 encoded class yaml
-* a class name defined in the configured classpath
-
-[//]: # (-)
-
+Publish prints the variables modified by the command. Invoke with `-dryrun` to see this diff without actually changing anything.
 
 TODO: Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
 Publishing is refused if your stage has expired. In this case, publish with a new expire value.
-
-TODO: The hostname of the container is set to <id>.<servername>, where id is a hash of stage name and application name. This hash
-serves two purposes: it has a fixed length, so I'm sure the resulting name does not exceed the 64 character limit for host names.
-And the hash makes it impossible to derived stage or application name from the hostname -- applications are strongly discouraged to
-check the hostname to configure themselves, use environment variables defined for that purpose instead. Future versions of Stool will
-remove the server name from the container's hostname as well.
-TODO: how to define additional environment variables?
-
 
 [//]: # (include stageArgument.md)
 
