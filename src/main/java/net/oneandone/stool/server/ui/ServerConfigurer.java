@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.Main;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.sushi.fs.World;
@@ -37,18 +38,18 @@ public class ServerConfigurer implements WebMvcConfigurer {
     }
 
     @Bean
-    public Settings settings(World world) throws IOException {
+    public LocalSettings localSettings(World world) throws IOException {
         Settings result;
 
         LOGGER.info("server version " + Main.versionString(world));
         result = Settings.load(world);
         LOGGER.info("server configuration:");
         LOGGER.info(result.toYaml().toPrettyString());
-        return result;
+        return result.local;
     }
 
     @Bean
-    public UserManager userManager(Settings settings) throws IOException {
-        return settings.local.createUserManager();
+    public UserManager userManager(LocalSettings localSettings) throws IOException {
+        return localSettings.createUserManager();
     }
 }

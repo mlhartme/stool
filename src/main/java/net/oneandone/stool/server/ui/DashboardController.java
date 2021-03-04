@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.Main;
-import net.oneandone.stool.core.Settings;
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.server.users.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +41,14 @@ import javax.mail.MessagingException;
 public class DashboardController {
     private static final Logger LOG = LoggerFactory.getLogger(DashboardController.class);
 
-    private final Settings settings;
+    private final LocalSettings localSettings;
 
     private final String version;
 
     @Autowired
-    public DashboardController(Settings settings) {
-        this.settings = settings;
-        this.version = Main.versionString(settings.local.world);
+    public DashboardController(LocalSettings localSettings) {
+        this.localSettings = localSettings;
+        this.version = Main.versionString(localSettings.world);
     }
 
     @GetMapping("dashboard")
@@ -76,7 +76,7 @@ public class DashboardController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         subject = "[Stool] Feedback from " + SecurityContextHolder.getContext().getAuthentication().getName();
-        settings.local.mailer().send(settings.local.admin, new String[] { settings.local.admin }, subject, message);
+        localSettings.mailer().send(localSettings.admin, new String[] { localSettings.admin }, subject, message);
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
 

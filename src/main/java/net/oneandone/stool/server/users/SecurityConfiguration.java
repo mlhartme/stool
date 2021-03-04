@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.users;
 
-import net.oneandone.stool.core.Settings;
+import net.oneandone.stool.core.LocalSettings;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -64,13 +64,13 @@ import java.util.LinkedHashMap;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
-    private Settings settings;
+    private LocalSettings localSettings;
 
     @Autowired
     private UserManager userManager;
 
     protected boolean enabled() {
-        return settings.local.auth();
+        return localSettings.auth();
     }
 
     //--
@@ -137,16 +137,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultSpringSecurityContextSource contextSource;
         String url;
 
-        url = enabled() ? settings.local.ldapUrl : "ldap://will-not-be-used";
+        url = enabled() ? localSettings.ldapUrl : "ldap://will-not-be-used";
         contextSource = new DefaultSpringSecurityContextSource(url);
-        contextSource.setUserDn(settings.local.ldapPrincipal);
-        contextSource.setPassword(settings.local.ldapCredentials);
+        contextSource.setUserDn(localSettings.ldapPrincipal);
+        contextSource.setPassword(localSettings.ldapCredentials);
         return contextSource;
     }
 
     @Bean
     public LdapUserSearch ldapUserSearch() {
-        return new FilterBasedLdapUserSearch("ou=users,ou=" + settings.local.ldapUnit, "(uid={0})", ldapContextSource());
+        return new FilterBasedLdapUserSearch("ou=users,ou=" + localSettings.ldapUnit, "(uid={0})", ldapContextSource());
     }
 
     @Bean
@@ -163,7 +163,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
 
         authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource(),
-                "ou=roles,ou=" + settings.local.ldapUnit);
+                "ou=roles,ou=" + localSettings.ldapUnit);
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
         authoritiesPopulator.setGroupRoleAttribute("ou");
         authoritiesPopulator.setSearchSubtree(false);
@@ -211,7 +211,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         provider = new CasAuthenticationProvider();
         provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(new Cas20ServiceTicketValidator(settings.local.ldapSso));
+        provider.setTicketValidator(new Cas20ServiceTicketValidator(localSettings.ldapSso));
         provider.setKey("cas");
         provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsServiceBean()));
         return provider;
@@ -230,7 +230,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         CasAuthenticationEntryPoint entryPoint;
 
         entryPoint = new CasAuthenticationEntryPoint();
-        entryPoint.setLoginUrl(settings.local.ldapSso + "/login/");
+        entryPoint.setLoginUrl(localSettings.ldapSso + "/login/");
         entryPoint.setServiceProperties(serviceProperties());
         return entryPoint;
     }
@@ -244,7 +244,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         serviceProperties = new ServiceProperties();
         // TODO: report an error when not running https ...
         protocol = System.getProperty("security.require-ssl") != null ? "https" : "http";
-        url = protocol + "://" + settings.local.fqdn + "/login/cas";
+        url = protocol + "://" + localSettings.fqdn + "/login/cas";
         serviceProperties.setService(url);
         serviceProperties.setSendRenew(false);
         return serviceProperties;

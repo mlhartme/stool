@@ -24,7 +24,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.KubernetesClient;
 import net.oneandone.stool.core.LocalSettings;
-import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.core.StageNotFoundException;
 import net.oneandone.stool.classes.ClassRef;
 import net.oneandone.stool.kubernetes.Engine;
@@ -73,8 +72,8 @@ public class ApiController {
     private final List<RequestSettings> pool;
 
     @Autowired
-    public ApiController(Settings settings, UserManager userManager) {
-        this.globalSettings = settings.local;
+    public ApiController(LocalSettings localSettings, UserManager userManager) {
+        this.globalSettings = localSettings;
         this.globalUserManager = userManager;
         this.pool = new ArrayList<>();  // starts empty, filled when giving back session
     }

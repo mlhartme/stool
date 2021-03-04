@@ -17,7 +17,6 @@ package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.core.LocalSettings;
-import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.core.Validation;
@@ -38,8 +37,8 @@ public class ScheduledTask {
     private final LocalSettings localSettings;
 
     @Autowired
-    public ScheduledTask(Settings settings) {
-        this.localSettings = settings.local;
+    public ScheduledTask(LocalSettings localSettings) {
+        this.localSettings = localSettings;
     }
 
     // second minute hour ...
