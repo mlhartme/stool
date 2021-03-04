@@ -93,14 +93,14 @@ public class Stage {
         Clazz cl;
 
         cl = Clazz.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS));
-        return new Stage(localSettings, name, cl, values(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
+        return new Stage(localSettings, name, cl, variables(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
     private static final List<String> WITHOUT_CLASS = Collections.singletonList("stage-class");
 
-    private static Map<String, Value> values(Clazz clazz, ObjectNode helmObject) throws IOException {
+    private static Map<String, Variable> variables(Clazz clazz, ObjectNode helmObject) throws IOException {
         Map<String, Object> raw;
-        Map<String, Value> result;
+        Map<String, Variable> result;
         String key;
 
         raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), WITHOUT_CLASS);
@@ -109,7 +109,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
-            result.put(key, new Value(clazz.get(key), entry.getValue().toString()));
+            result.put(key, new Variable(clazz.get(key), entry.getValue().toString()));
         }
         return result;
     }
@@ -141,17 +141,17 @@ public class Stage {
 
     public final Clazz clazz;
 
-    private final Map<String, Value> values;
+    private final Map<String, Variable> variables;
 
     private final ObjectNode info;
 
     public final List<HistoryEntry> history;
 
-    public Stage(LocalSettings localSettings, String name, Clazz clazz, Map<String, Value> values, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(LocalSettings localSettings, String name, Clazz clazz, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
         this.localSettings = localSettings;
         this.name = name;
         this.clazz = clazz;
-        this.values = values;
+        this.variables = variables;
         this.info = info;
         this.history = history;
     }
@@ -162,39 +162,39 @@ public class Stage {
 
     //-- values
 
-    public List<Value> values() {
-        return new ArrayList<>(values.values());
+    public List<Variable> variables() {
+        return new ArrayList<>(variables.values());
     }
 
-    public Value value(String key) {
-        Value result;
+    public Variable variable(String key) {
+        Variable result;
 
-        result = valueOpt(key);
+        result = variableOpt(key);
         if (result == null) {
             throw new ArgumentException("unknown value: " + key);
         }
         return result;
     }
 
-    public Value valueOpt(String value) {
-        return values.get(value);
+    public Variable variableOpt(String value) {
+        return variables.get(value);
     }
 
-    public String valueOptString(String key, String dflt) {
-        Value result;
+    public String variableOptString(String key, String dflt) {
+        Variable result;
 
-        result = valueOpt(key);
+        result = variableOpt(key);
         return result == null ? dflt : result.get();
     }
 
     //-- important values
 
     public Expire getMetadataExpire() {
-        return Expire.fromString(values.get(Dependencies.VALUE_EXPIRE).get());
+        return Expire.fromString(variables.get(Dependencies.VALUE_EXPIRE).get());
     }
 
     public List<String> getMetadataNotify() {
-        return Separator.COMMA.split(values.get(Dependencies.VALUE_CONTACT).get());
+        return Separator.COMMA.split(variables.get(Dependencies.VALUE_CONTACT).get());
     }
 
     //--
@@ -346,7 +346,7 @@ public class Stage {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
-        for (Map.Entry<String, Value> entry : values.entrySet()) {
+        for (Map.Entry<String, Variable> entry : variables.entrySet()) {
             result.put(entry.getKey(), entry.getValue().get());
         }
         return result;
@@ -357,7 +357,7 @@ public class Stage {
         Map<String, String> map;
 
         map = new LinkedHashMap<>();
-        for (Map.Entry<String, Value> entry : values.entrySet()) {
+        for (Map.Entry<String, Variable> entry : variables.entrySet()) {
             map.put(entry.getKey(), entry.getValue().get());
         }
         map.putAll(changes);
@@ -448,7 +448,7 @@ public class Stage {
         String suffixes;
         List<String> result;
 
-        suffixes = valueOptString("urlSuffixes", "");
+        suffixes = variableOptString("urlSuffixes", "");
         result = new ArrayList<>();
         if (suffixes != null) {
             result.addAll(SUFFIXES_SEP.split(suffixes));
@@ -463,7 +463,7 @@ public class Stage {
         String str;
         List<String> result;
 
-        str = valueOptString("urlSubdomains", "");
+        str = variableOptString("urlSubdomains", "");
         result = new ArrayList<>();
         if (str != null) {
             result.addAll(SUFFIXES_SEP.split(str));
@@ -477,7 +477,7 @@ public class Stage {
     private String urlContext() {
         String result;
 
-        result = valueOptString("urlContext", "");
+        result = variableOptString("urlContext", "");
         if (result.startsWith("/")) {
             throw new ArithmeticException("server must not start with '/': " + result);
         }

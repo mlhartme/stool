@@ -17,17 +17,17 @@ package net.oneandone.stool.core;
 
 import net.oneandone.stool.classes.Property;
 
-public class Value {
+public class Variable {
     public final Property property;
     public final String value;
 
-    public Value(Property property, String value) {
+    public Variable(Property property, String value) {
         this.property = property;
         this.value = value;
     }
 
-    public Value withNewValue(String str) {
-        return new Value(property, str.replace("{}", value));
+    public Variable withNewValue(String str) {
+        return new Variable(property, str.replace("{}", value));
     }
 
     public String get() {

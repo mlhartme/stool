@@ -33,7 +33,7 @@ import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Pair;
 import net.oneandone.stool.core.PredicateParser;
 import net.oneandone.stool.core.Validation;
-import net.oneandone.stool.core.Value;
+import net.oneandone.stool.core.Variable;
 
 import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
@@ -89,10 +89,10 @@ public class KubernetesClient extends Client {
                     }
                 }
                 // add values explicitly selected
-                for (Value value : stage.values()) {
-                    if (!select.isEmpty() && remaining.remove(value.property.name)) {
-                        if (!value.property.privt) {
-                            s.put(value.property.name, new TextNode(value.get()));
+                for (Variable variable : stage.variables()) {
+                    if (!select.isEmpty() && remaining.remove(variable.property.name)) {
+                        if (!variable.property.privt) {
+                            s.put(variable.property.name, new TextNode(variable.get()));
                         }
                     }
                 }
@@ -153,9 +153,9 @@ public class KubernetesClient extends Client {
         result = new LinkedHashMap<>();
         try (Engine engine = engine()) {
             stage = localSettings.load(engine, stageName);
-            for (Value value : stage.values()) {
-                if (!value.property.privt) {
-                    result.put(value.property.name, new Pair(value.get(), value.property.doc));
+            for (Variable variable : stage.variables()) {
+                if (!variable.property.privt) {
+                    result.put(variable.property.name, new Pair(variable.get(), variable.property.doc));
                 }
             }
             return result;
@@ -165,7 +165,7 @@ public class KubernetesClient extends Client {
     @Override
     public Map<String, String> setValues(String name, Map<String, String> values) throws IOException {
         Stage stage;
-        Value value;
+        Variable variable;
         Map<String, String> changes;
         Map<String, String> result;
 
@@ -174,13 +174,13 @@ public class KubernetesClient extends Client {
             result = new LinkedHashMap<>();
             changes = new LinkedHashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
-                value = stage.value(entry.getKey());
-                if (value.property.privt) {
-                    throw new ArgumentException("cannot set private value: " + value.property.name);
+                variable = stage.variable(entry.getKey());
+                if (variable.property.privt) {
+                    throw new ArgumentException("cannot set private value: " + variable.property.name);
                 }
-                value = value.withNewValue(entry.getValue());
-                changes.put(entry.getKey(), value.get());
-                result.put(value.property.name, value.get());
+                variable = variable.withNewValue(entry.getValue());
+                changes.put(entry.getKey(), variable.get());
+                result.put(variable.property.name, variable.get());
             }
             stage.setValues(caller, kubernetesContext, engine, changes);
             return result;

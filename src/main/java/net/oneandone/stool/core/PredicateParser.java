@@ -143,16 +143,16 @@ public class PredicateParser {
                 boolean result;
                 Object obj;
                 String str;
-                Value p;
+                Variable v;
 
                 if (constField != null) {
                     obj = field.get(engine);
                 } else {
-                    p = stage.valueOpt(constProperty);
-                    if (p == null) {
+                    v = stage.variableOpt(constProperty);
+                    if (v == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }
-                    obj = p.get();
+                    obj = v.get();
                 }
                 if (obj == null) {
                     str = "";
