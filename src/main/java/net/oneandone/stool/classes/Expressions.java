@@ -120,7 +120,7 @@ public class Expressions {
         if (obj instanceof Property) {
             context.put(name, null);
             try {
-                result = eval(((Property) obj).value);
+                result = eval(((Property) obj).function);
             } catch (IOException e) {
                 throw new ArgumentException(name + ": failed to compute property: " + e.getMessage(), e);
             }

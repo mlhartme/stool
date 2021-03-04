@@ -102,8 +102,8 @@ public class ClazzTest {
         all = ClassRef.loadAll(YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/classes/foo").checkDirectory()));
         assertEquals(2, all.size());
         a = all.get("derived");
-        assertEquals("42", a.properties.get("asis").value);
-        assertEquals("modified", a.properties.get("base").value);
-        assertEquals("3", a.properties.get("added").value);
+        assertEquals("42", a.properties.get("asis").function);
+        assertEquals("modified", a.properties.get("base").function);
+        assertEquals("3", a.properties.get("added").function);
     }
 }

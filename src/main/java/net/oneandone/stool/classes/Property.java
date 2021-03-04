@@ -32,7 +32,7 @@ public class Property {
         boolean privt;
         boolean extra;
         String doc;
-        String value;
+        String function;
         ObjectNode obj;
 
         privt = false;
@@ -43,21 +43,21 @@ public class Property {
             privt = Json.bool(obj, "private", privt);
             extra = Json.bool(obj, "extra", extra);
             doc = Json.string(obj, "doc", null);
-            value = getValue(obj);
+            function = getFunction(obj);
         } else {
-            value = yaml.asText();
+            function = yaml.asText();
         }
-        return new Property(name, privt, extra, doc, value);
+        return new Property(name, privt, extra, doc, function);
     }
 
-    public static String getValue(ObjectNode root) {
+    public static String getFunction(ObjectNode root) {
         JsonNode v;
         ObjectNode obj;
         String var;
         String dflt;
         StringBuilder result;
 
-        v = root.get("value");
+        v = root.get("value"); // TODO: function
         if (v == null) {
             return "";
         } else if (v.isTextual() || v.isNumber()) {
@@ -92,25 +92,25 @@ public class Property {
     public final boolean privt;
     public final boolean extra;
     public final String doc;
-    public final String value;
+    public final String function;
 
-    public Property(String name, String value) {
-        this(name, false, false, null, value);
+    public Property(String name, String function) {
+        this(name, false, false, null, function);
     }
-    public Property(String name, boolean privt, boolean extra, String doc, String value) {
+    public Property(String name, boolean privt, boolean extra, String doc, String function) {
         this.name = name;
         this.privt = privt;
         this.extra = extra;
         this.doc = doc;
-        this.value = value;
+        this.function = function;
     }
 
-    public Property withValue(String withValue) {
-        return new Property(name, privt, extra, doc, withValue);
+    public Property withFunction(String withFunction) {
+        return new Property(name, privt, extra, doc, withFunction);
     }
 
     public Property withDoc(String withDoc) {
-        return new Property(name, privt, extra, withDoc, value);
+        return new Property(name, privt, extra, withDoc, function);
     }
 
     public JsonNode toObject(ObjectMapper yaml) {
@@ -127,9 +127,9 @@ public class Property {
             result.set("doc", new TextNode(doc));
         }
         if (result.isEmpty()) {
-            return new TextNode(value);
+            return new TextNode(function);
         } else {
-            result.set("value", new TextNode(value));
+            result.set("value", new TextNode(function)); // TODO: function
             return result;
         }
     }

@@ -153,8 +153,8 @@ public class Clazz {
             if (old.doc != null && property.doc == null) {
                 property = property.withDoc(old.doc);
             }
-            if (!old.value.isEmpty() && property.value.isEmpty()) {
-                property = property.withValue(old.value);
+            if (!old.function.isEmpty() && property.function.isEmpty()) {
+                property = property.withFunction(old.function);
             }
         } else {
             if (!property.extra) {
