@@ -20,9 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.LocalSettings;
-import net.oneandone.stool.core.Dependencies;
-import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -220,28 +217,5 @@ public class Clazz {
             result.defineBase(property);
         }
         return result;
-    }
-
-    public FileNode createValuesFile(LocalSettings localSettings, Map<String, String> actuals) throws IOException {
-        ObjectNode dest;
-        Expire expire;
-        FileNode file;
-
-        dest = localSettings.yaml.createObjectNode();
-        for (Map.Entry<String, String> entry : actuals.entrySet()) {
-            dest.put(entry.getKey(), entry.getValue());
-        }
-
-        dest.set(HELM_CLASS, toObject(localSettings.yaml));
-
-        // normalize expire
-        expire = Expire.fromString(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(localSettings.defaultExpire).toString()));
-        if (expire.isExpired()) {
-            throw new ArgumentException("stage expired: " + expire);
-        }
-        dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
-
-        file = localSettings.world.getTemp().createTempFile().writeString(dest.toPrettyString());
-        return file;
     }
 }

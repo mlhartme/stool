@@ -163,12 +163,12 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref") String classRef,
+    public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref", required = false) String classRefOpt,
                           @RequestParam(value = "dryrun", required = false, defaultValue = "false") boolean dryrun,
                           @RequestParam(value = "allow", required = false) String allow, HttpServletRequest request) throws IOException {
         try (RequestSettings settings = openSettings()) {
             return array(settings.json, settings.client(request)
-                    .publish(stageName, dryrun, allow, ClassRef.parse(classRef), map(request, "value.")).toList()).toString();
+                    .publish(stageName, dryrun, allow, classRefOpt == null ? null : ClassRef.parse(classRefOpt), map(request, "value.")).toList()).toString();
         }
     }
 

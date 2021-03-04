@@ -29,47 +29,53 @@ import java.util.Map;
 public class Publish extends IteratedStageCommand {
     private final boolean dryrun;
     private final String allow;
-    private final ClassRef classRef;
+    private final ClassRef classRefOpt;
     private final Map<String, String> values;
 
-    public Publish(Globals globals, boolean dryrun, String allow, String stage, String classRef, List<String> args) throws IOException {
+    public Publish(Globals globals, boolean dryrun, String allow, String stage, List<String> classAndVariables) throws IOException {
         super(globals, stage);
         this.dryrun = dryrun;
         this.allow = allow;
-        this.values = new LinkedHashMap<>();
-        this.classRef = ClassRef.create(globals.getWorld(), classRef);
-        eatValues(args);
+        this.classRefOpt = eatClassRefOpt(classAndVariables);
+        this.values = eatValues(classAndVariables);
     }
 
-    private void eatValues(List<String> args) {
+    private ClassRef eatClassRefOpt(List<String> args) throws IOException {
+        if (args.isEmpty() || args.get(0).contains("=")) {
+            return null;
+        }
+        return ClassRef.create(globals.getWorld(), args.remove(0));
+    }
+
+    private static Map<String, String> eatValues(List<String> args) {
+        Map<String, String> result;
         int idx;
         String arg;
         String key;
         String value;
 
-        for (int i = args.size() - 1; i >= 0; i--) {
+        result = new LinkedHashMap<>();
+        for (int i = 0; i < args.size(); i++) {
             arg = args.get(i);
             idx = arg.indexOf('=');
             if (idx == -1) {
-                break;
+                throw new ArgumentException("expected <key>=<value>, got " + arg);
             }
             key = arg.substring(0, idx);
             value = arg.substring(idx + 1);
-            if (values.put(key, value) != null) {
+            if (result.put(key, value) != null) {
                 throw new ArgumentException("duplicate key: " + key);
             }
             args.remove(i);
         }
-        if (!args.isEmpty()) {
-            throw new ArgumentException("unknown arguments: " + args);
-        }
+        return result;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
         Diff result;
 
-        result = reference.client.publish(reference.stage, dryrun, allow, classRef, values);
+        result = reference.client.publish(reference.stage, dryrun, allow, classRefOpt, values);
         if (dryrun) {
             console.info.println("dryrun, changes would be:");
             console.info.println(result.toString());

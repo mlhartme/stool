@@ -15,11 +15,15 @@
  */
 package net.oneandone.stool.classes;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.core.Dependencies;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Diff;
+import net.oneandone.stool.util.Expire;
+import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Versions;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -54,9 +58,9 @@ public final class Helm {
         Map<String, FileNode> charts;
         Expressions expressions;
         FileNode chart;
-        FileNode values;
+        FileNode valuesFile;
         Clazz tmpClass;
-        Map<String, String> next;
+        Map<String, String> values;
         Diff result;
         Diff forbidden;
 
@@ -66,8 +70,8 @@ public final class Helm {
         tmpClass = clazz.derive(clazz.origin, clazz.author, clazz.name);
         tmpClass.setValues(overrides);
         chart = charts.get(tmpClass.chart).checkDirectory();
-        next = expressions.eval(prev, tmpClass, chart);
-        result = Diff.diff(prev, next);
+        values = expressions.eval(prev, tmpClass, chart);
+        result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
             if (!forbidden.isEmpty()) {
@@ -80,17 +84,39 @@ public final class Helm {
                 result.remove(property.name);
             }
         }
-        values = tmpClass.createValuesFile(localSettings, next);
+        valuesFile = createValuesFile(localSettings, values, clazz);
         try {
-            LOGGER.info("values: " + values.readString());
+            LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,
-                    chart, upgrade ? "upgrade" : "install", "--debug", "--values", values.getAbsolute(), name, chart.getAbsolute());
+                    chart, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name, chart.getAbsolute());
             return result;
         } finally {
-            values.deleteFile();
+            valuesFile.deleteFile();
         }
     }
 
+    private static FileNode createValuesFile(LocalSettings localSettings, Map<String, String> actuals, Clazz helmClass) throws IOException {
+        ObjectNode dest;
+        Expire expire;
+        FileNode file;
+
+        dest = localSettings.yaml.createObjectNode();
+        for (Map.Entry<String, String> entry : actuals.entrySet()) {
+            dest.put(entry.getKey(), entry.getValue());
+        }
+
+        dest.set(Clazz.HELM_CLASS, helmClass.toObject(localSettings.yaml));
+
+        // normalize expire
+        expire = Expire.fromString(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(localSettings.defaultExpire).toString()));
+        if (expire.isExpired()) {
+            throw new ArgumentException("stage expired: " + expire);
+        }
+        dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
+
+        file = localSettings.world.getTemp().createTempFile().writeString(dest.toPrettyString());
+        return file;
+    }
     //--
 
     public static FileNode tagFile(FileNode chart) {

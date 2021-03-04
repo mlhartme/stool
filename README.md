@@ -266,7 +266,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 
 
 
-`sc` *global-option*... `publish` ['-dryrun'] *stage* *class* [*key*`=`*value*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* [*class*] [*key*`=`*value*...]
 
 
 `sc` *global-option*... `config` *stage* (*key* | *key*`=`*str*)...
@@ -503,12 +503,15 @@ Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `publish` ['-dryrun'] *stage* *class* [*key*`=`*value*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* [*class*] [*key*`=`*value*...]
 
 #### Description
 
 Similar to the [create](#sc-create) command, but updates *stage* instead of creating a new one.
 Please check there for general behavior. Stage update is without downtime.
+
+*class* is optional, it not specified, the current class is used. This is useful to revert manual `config` changes
+or to cause a re-start (depends on the workload if that works).
 
 Publish prints the variables modified by the command. Invoke with `-dryrun` to see this diff without actually changing anything.
 
