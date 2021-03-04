@@ -31,20 +31,20 @@ Choose one of the available contexts by running
 
 Depending on your context you'll be asked to authenticate.
 
-Create a new stage called `mystage` running a `hello` application with
+Create a new stage called `tour` running a `hello` application with
 
-    sc create mystage hello
+    sc create tour hello
 
 You can run
 
-    sc status mystage
+    sc status tour
 
-to see status information about your stage. E.g. if `available` is above `0`, you can point your browser
-to the url printed by the `create` or `status` command.
+to see status information like `url` or `available`. If `available` is above `0`, you can point your browser
+to one of the urls.
 
 To delete the stage run
 
-    sc delete mystage
+    sc delete tour
 
 You can create any number of stages. Invoke
 
@@ -52,20 +52,10 @@ You can create any number of stages. Invoke
 
 to see them all.
 
-You can get help with
-
-    sc help
-
-to see a list of available commands. You can append a command to get more help on that, e.g.
-
-    sc help create
-
-prints help about `create`.
-
 ### Rationale
 
-Technically, Stool is a Helm wrapper, a stage is a Helm releases, and stage classes provide powerful features to provide
-Helm values. Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify `helm`, it puts
+Stool is tenically a Helm wrapper, a stage is a Helm releases, and stage classes provide Helm values.
+Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify Helm. Stool puts
 an emphasize on powerful value definitions because in our use cases we have many workloads using the same Helm
 chart with different values.
 
@@ -119,20 +109,21 @@ A *stage* is a Kubernetes workload, typically running a web application like a T
 a Java web application (https://en.wikipedia.org/wiki/Java_Servlet).
 
 You can create, list and delete stages with the respective command. Every stage has a configuration, which is a set of
-properties you can get and set with `sc config`. Every stages has a status, which is a set of fields you can check it
+properties you can get and set with `sc config`. Every stages has a status, which is a set of fields, you can check it
 with `sc status`.
 
 A stage runs on the Kubernetes cluster identified by a context. Every stage has a unique name in that context.
-A stage is referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage name and context when
-you create the stage, neither can be changed later.
+A stage is referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage
+name and context when you create the stage, neither can be changed later.
 
-Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it. It's also safe to `helm uninstall`
-instead of `sc delete`.
+Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it, `sc publish`
+upgrades it. It's safe to use `helm uninstall` instead of `sc delete`.
 
 
-### Stage class
+### Stage classes
 
-The stage class defines how to create a stage. Every stage has as class (or in oo words: it is an instance of a class).
+The stage class defines how to create a stage. Every stage has as class (or in object-oriented terminology:
+it is an instance of a class).
 
 A class looks like this:
 
@@ -142,15 +133,53 @@ A class looks like this:
       image: "myregistry/hello:1.0.0"
       cert: "${exec('cert.sh', stage)}"
 
-A class has a set of properties, and it can extend other classes (i.e. inherits all properites from it).
-You use classes to create new stages or publish into existing: every class property is evaluated
-(which may use [Freemarker](https://freemarker.apache.org) templating and invoke shell scripts) to initialize the
-corresponding stage property.
+A class has a set of properties, and it can extend other classes (i.e. inherit all properties from it).
+You use classes to create new or publish into existing stages: all properties are evaluate to supply the
+configuration values.
 
 You usually define classes in a `stage-class.yaml` file and attach it in a `stage-class` label attached to an image.
 
-Technically, the class specifies a Helm chart and how to compute its values.
+Technically, the class specifies a Helm chart and how to compute its values
 
+### Properties
+
+A property is the basic building block of a class. It has a name and a function.
+
+Every stage has the properties defined by it's class. The stage configuration is a set of property/value pairs,
+where the values were computed when the stage was created/last published.
+
+Stages are configured via properties. Properties are part of the class definition and apply to one stage only, every stage has
+its own set of properties. A stage has one stage property for every class property. I.e. stages with different classes
+can have different properties.
+
+The function is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it, and this
+provides a way to invoke shell scripts.
+
+
+
+You can inspect and adjust properties with [stool config](#sc-config). The initial value of a
+property is defined by the stage's class, either when the stage was created of published.
+
+Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are key/values pairs like properties,
+but they are read-only.
+
+TODO: common properties: metadataExpire, metadataContact, metadataComment, replicas, ...
+
+TODO: stage properties are easily confused with class properties
+
+Technically, property values are Helm values of the respective Helm release.
+
+### Stage Expiring
+
+Every stage has an `metadataExpire` property that specifies the date until the stage is needed. You can see the expire date with `sc config metadataExpire`.
+If this date has passed, the stage is called expired, and it is automatically stopped, a notification email is sent, and you cannot start it
+again unless you specify a new date with `sc config metadataExpire=`*yyyy-mm-dd*.
+
+Depending on the `autoRemove` setting, an expired stage will automatically be removed after the configured number of days.
+
+Stage expiring helps to detect and remove unused stages, which is handy (and sometimes even crucial) if you are not the only user of a server.
+If you receive an email notification that your stage has expired, please check if your stage is still needed. If so, adjust the expire date.
+Otherwise, remove the stage.
 
 ### Context
 
@@ -178,35 +207,6 @@ Example: Suppose you have two stage, you can run status on them like this:
     sc attach two @ws
     sc status @ws
 
-### Properties
-
-Stages are configured via properties. A property is a key/value pair. Properties apply to one stage only, every stage has
-its own set of properties. A stage has one stage property for every class property. I.e. stages with different classes
-can have different properties.
-
-You can inspect and adjust properties with [stool config](#sc-config). The initial value of a
-property is defined by the stage's class, either when the stage was created of published.
-
-Besides properties, every stage has status fields, you can view them with `sc status`. Status fields are key/values pairs like properties,
-but they are read-only.
-
-TODO: common properties: metadataExpire, metadataContact, metadataComment, replicas, ...
-
-TODO: stage properties are easily confused with class properties
-
-Technically, property values are Helm values of the respective Helm release.
-
-### Stage Expiring
-
-Every stage has an `metadataExpire` value that specifies the date until the stage is needed. You can see the expire date with `sc config metadataExpire`.
-If this date has passed, the stage is called expired, and it is automatically stopped, a notification email is sent, and you cannot start it
-again unless you specify a new date with `sc config metadataExpire=`*yyyy-mm-dd*.
-
-Depending on the `autoRemove` setting, an expired stage will automatically be removed after the configured number of days.
-
-Stage expiring helps to detect and remove unused stages, which is handy (and sometimes even crucial) if you are not the only user of a server.
-If you receive an email notification that your stage has expired, please check if your stage is still needed. If so, adjust the expire date.
-Otherwise, remove the stage.
 
 ### Settings
 
