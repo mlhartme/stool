@@ -2,32 +2,34 @@
 
 ### 7.0.0 (pending)
 
-Stool 7 stages are define by helm charts now
-* Kubernetes resources for a stage are now defined by a Helm chart; this replaced the former hard-wired api calls
-* classes define values for helm charts
+Stool 7 stages are managed with Helm and defined by helm charts
+* Kubernetes resources for a stage are now defined by a Helm chart; this replaced the former hard-wired API calls
+* classes define values for Helm charts
   * directly with template expressions (freemarker, with built-in scripts, e.g. to fetch vault secrets or generate credentials)
-  * indirectly by extending a base applications
-* `sc create <stage> <class>` installs a Helm chart with the values as defined by the application, resulting in a Helm release
+  * indirectly by extending a base class
+* `sc create <stage> <class>` installs a Helm chart with the values as defined by the class, resulting in a Helm release
 * `sc delete <stage>` uninstalls this release
-* `start` and `stop` commands are gone, create results in a running stage, and delete stops the stage first
-* stage properties are Helm chart values, managed with `sc config`; 
-  charts can have arbitrary properties, Stool manages some particular: `metadataNotify`, `metadataComment`, and 
-  `metadataExpire`, and whatever else the helm chart defines; properties have a name and define how to eval 
-  (Helm chart) values
+* `start` and `stop` commands are gone - create results in a running stage, delete stops the stage first;
+  you can "emulate" a stopped stage by settings replicas to 0
+* stage properties are now called variables - they are Helm chart variables, managed with `sc config`; 
+  charts can have arbitrary variables, Stool reliss on some particular: `metadataNotify`, `metadataComment`, and 
+  `metadataExpire`
 * dumped disk quota handling; I might use Kubernetes ephemeral quotas later
-* dumped memory quota handling, Kubernetes is responsible for that
+* dumped memory quota handling, Kubernetes takes care of that
 
 Helm like cli:
 * `create`/`publish` command line arguments are similar to Helm's install/upgrade arguments: `sc create <name> <class>`
-* stage commands now take an explicit stage argument, e.g. `sc status hellowar`
-* dumped implicit workspaces derived from current directory because
-  * `attach` and `detatch` now take an explicit named workspace argument (referenced with '@' *name*) instead
+* stage commands now take an explicit stage argument, e.g. `sc status hellowar`; 
+  like before, you can specify predicated or `%all` instead of a fixed name
+* dumped implicit workspaces derived from current director
+  * provided explicit workspaces instead: `attach` and `detatch` now take an explicit named workspace argument 
+    (referenced with '@' *name*) instead
   * dumped the stage indicator
 
 Other changes:
 * merged client and server
   * all functionality is in `sc` now; use `sc server` to start a server
-  * running a server is optinal now, Stool can talk to arbitrary Kubernetes contexts as well
+  * running a server is optional now, Stool can talk to arbitrary Kubernetes contexts as well
   * settings.yaml now also contains server configuration
   * Maven: merged all modules into one
 * image handling changes
@@ -35,7 +37,7 @@ Other changes:
   * created a separate `maven-dockerbuild-plugin` with the former `sc build` functionality
   * Stool no longer wipes images
   * dumped jmxmp/5555, rely on readyness probes instead; also dumped `heap` field
-* added urlSubdomains
+* added `urlSubdomains`
 * dumped fault support, use chart scripts instead
 * changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
 * SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
