@@ -22,7 +22,6 @@ import freemarker.template.TemplateModelException;
 import freemarker.template.TemplateSequenceModel;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
-import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -166,7 +165,7 @@ public class Expressions {
         result.put("stage", stage);
         result.put("host", host);
         result.put("defaultExpire", Expire.fromNumber(localSettings.defaultExpire).toString());
-        result.put("defaultContact", Stage.NOTIFY_FIRST_MODIFIER);
+        result.put("defaultContact", "");
         result.put("workdir", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());

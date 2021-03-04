@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -62,7 +63,7 @@ public class Validation {
             LOGGER.info("  " + line);
         }
         if (email && !report.isEmpty()) {
-            email(name, stage.notifyLogins(), report);
+            email(name, new HashSet<>(stage.getMetadataContact()), report);
         }
         return report;
     }

@@ -36,11 +36,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
@@ -125,11 +123,6 @@ public class Stage {
 
     //--
 
-    public static final String NOTIFY_FIRST_MODIFIER = "@first";
-    public static final String NOTIFY_LAST_MODIFIER = "@last";
-
-    //--
-
     private final LocalSettings localSettings;
 
     /**
@@ -194,7 +187,7 @@ public class Stage {
         return Expire.fromString(variables.get(Dependencies.VALUE_EXPIRE).get());
     }
 
-    public List<String> getMetadataNotify() {
+    public List<String> getMetadataContact() {
         return Separator.COMMA.split(variables.get(Dependencies.VALUE_CONTACT).get());
     }
 
@@ -306,30 +299,6 @@ public class Stage {
         return engine.statsOpt(running.iterator().next() /* TODO */.name, Dependencies.MAIN_CONTAINER);
     }
 
-    /** @return logins */
-    public Set<String> notifyLogins() {
-        Set<String> done;
-        String login;
-
-        done = new HashSet<>();
-        for (String user : getMetadataNotify()) {
-            switch (user) {
-                case NOTIFY_LAST_MODIFIER:
-                    login = lastModifiedBy();
-                    break;
-                case NOTIFY_FIRST_MODIFIER:
-                    login = firstModifiedBy();
-                    break;
-                default:
-                    login = user;
-            }
-            if (login == null) {
-                done.add(login);
-            }
-        }
-        return done;
-    }
-
     /** CAUTION: values are not updated! */
     public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
                         Clazz withClass, Map<String, String> overrides) throws IOException {
@@ -377,16 +346,6 @@ public class Stage {
 
     public void awaitAvailable(Engine engine) throws IOException {
         engine.deploymentAwaitAvailable(Dependencies.deploymentName(name));
-    }
-
-    //--
-
-    /** @return login name or null if unknown */
-    public String firstModifiedBy() {
-        HistoryEntry entry;
-
-        entry = oldest();
-        return entry == null ? null : entry.user;
     }
 
     //--
@@ -491,20 +450,6 @@ public class Stage {
     public Map<String, PodInfo> runningPods(Engine engine) throws IOException {
         return engine.podList(engine.deploymentProbe(Dependencies.deploymentName(name)).selector);
     }
-
-    /** @return null if unknown */
-    public String lastModifiedBy() {
-        HistoryEntry entry;
-
-        entry = youngest();
-        return entry == null ? null : entry.user;
-    }
-
-    /* @return null if unknown (e.g. because log file was wiped) */
-    public HistoryEntry youngest() {
-        return history.isEmpty() ? null : history.get(history.size() - 1);
-    }
-
 
     /* @return null if unkown (e.g. because log file was wiped) */
     public HistoryEntry oldest() {

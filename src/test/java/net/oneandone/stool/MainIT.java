@@ -185,7 +185,7 @@ public class MainIT {
     private String command(String[] args) {
         StringBuilder command;
 
-        command = new StringBuilder("stool");
+        command = new StringBuilder("sc");
         for (String arg : args) {
             command.append(' ').append(arg);
         }
