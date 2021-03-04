@@ -332,11 +332,11 @@ public class Stage {
 
     /** CAUTION: values are not updated! */
     public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
-                        Clazz withClass, Map<String, String> clientValues) throws IOException {
+                        Clazz withClass, Map<String, String> overrides) throws IOException {
         Diff diff;
 
         diff = Helm.upgrade(kubeContext, localSettings, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
-                withClass, clientValues, valuesMap());
+                withClass, overrides, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -353,15 +353,14 @@ public class Stage {
         return result;
     }
 
-    /** CAUTION: values are not updated! */
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
         Map<String, String> prev;
-        Map<String, String> map;
+        Map<String, String> overrides;
 
         prev = valuesMap();
-        map = new LinkedHashMap<>(prev);
-        map.putAll(changes);
-        Helm.upgrade(kubeContext, localSettings, name, false, null, clazz, map, prev);
+        overrides = new LinkedHashMap<>(prev); // override all, do not compute any values
+        overrides.putAll(changes);
+        Helm.upgrade(kubeContext, localSettings, name, false, null, clazz, overrides, prev);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

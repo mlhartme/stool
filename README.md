@@ -123,8 +123,8 @@ It's safe to use `helm uninstall` instead of `sc delete`.
 
 ### Stage classes
 
-The stage class defines how to create a stage. Every stage has as class (or in object-oriented terminology:
-it is an instance of a class).
+The stage class defines how to create a stage. Every stage has as class.
+Or, in object-oriented terminology: it is an instance of a class).
 
 A class looks like this:
 
@@ -135,9 +135,10 @@ A class looks like this:
       cert: "${exec('cert.sh', stage)}"
 
 A class has a set of properties, and it can extend other classes (i.e. inherit all properties from it).
-You use classes to create new or publish into existing stages, class properties define stage variables.
+You use classes to create new or publish into existing stages.
 
-A property is the basic building block of a class. It has a name and a function.
+A property is the basic building block of a class. It has a name and a function. Properties define the stage variables,
+the property function is evaluted to determine the variable value.
 
 You usually define classes in a `stage-class.yaml` file and attach it in a `stage-class` label attached to an image.
 
@@ -148,28 +149,27 @@ Technically, the class specifies a Helm chart and how to compute its values
 
 ### Variables
 
-Stage variables are defined by the properties of its class. Stage variables are set by the associated
-property when the stage is created or published.
+Stages are configured via variables, the set of variables of a stage is called its configuration.
+You can inspect and adjust variables with [stool config](#sc-config).
 
-Stages are configured via variables. Variables apply to one stage only, every stage has its own set of variables, even
+Variables apply to one stage only, every stage has its own set of variables, even
 if they are associated with the same property. A stage has one variable for every class property.
 
-
-You can inspect and adjust variables with [stool config](#sc-config). The initial value of a
-variable is defined by the associated property when the stage is created or published.
+A variable has a name, a value, and an associated property. The properties of the stage class define the available
+variables. The Variable value is set automatically by the associated property when the stage is created or published.
+Or you set it manually with the `config` command.
 
 Besides variables, every stage has status fields, you can view them with `sc status`. Status fields are key/values
 pairs like variables, but they are read-only.
 
-TODO: common properties: metadataExpire, metadataContact, metadataComment, replicas, ...
+TODO: common variables: metadataExpire, metadataContact, metadataComment, replicas, ...
 
-TODO: stage properties are easily confused with class properties
+Technically, variable values are Helm values of the respective Helm release.
 
-Technically, property values are Helm values of the respective Helm release.
 
 ### Stage Expiring
 
-Every stage has an `metadataExpire` property that specifies the date until the stage is needed. You can see the expire date with `sc config metadataExpire`.
+Every stage has an `metadataExpire` variable that specifies the date until the stage is needed. You can see the expire date with `sc config metadataExpire`.
 If this date has passed, the stage is called expired, and it is automatically stopped, a notification email is sent, and you cannot start it
 again unless you specify a new date with `sc config metadataExpire=`*yyyy-mm-dd*.
 
@@ -209,7 +209,7 @@ Example: Suppose you have two stage, you can run status on them like this:
 ### Settings
 
 Stool is configured via settings specified in its `settings.yaml` file. A setting is a key/value pair. Value has a type
-(string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, in contrast to properties,
+(string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, in contrast to variables,
 they are not specific for a stage. Settings are usually adjusted by system administrators.
 
 TODO: available settings, classpath etc ...
@@ -467,10 +467,11 @@ Create a new stage
 
 #### DESCRIPTION
 
-Creates a new stage as defined by *class*: evaluates all properties of the class and its base classes, except those key-value pairs specified
-explicitly. The resulting values are passed to Helm to install the chart of the class.
+Creates a new stage as defined by *class*: evaluates all properties of the class and its base classes,
+except those key-value pairs specified explicitly. The resulting values define the stage configuration.
+This configuration passed to Kubernetes for setup the workload.
 
-*name* specifies the name for new stages. It must contain only lower case ascii characters or digit or dashes, it's
+*name* specifies the stage name. It must contain only lower case ascii characters or digit or dashes, it's
 rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name.
 
 [//]: # (include classArgument.md)
@@ -505,8 +506,14 @@ Publish a stage
 
 #### Description
 
-Updates the stage with the specified class and values. This is similar to the create command but the result replaces
-the existing stage without downtime.
+Similar to the [create](#sc-create) command, but updates the existing stage without downtime instead of creating
+a new stage.
+
+Note that previous changes by the `config` command get lost unless to repeat them in the assignment arguments.
+You'll normally call publish without arguments and thus get the configuration as defined by the class.
+
+Except for temporary assignments, you should adjust the classes.
+
 
 [//]: # (include classArgument.md)
 
@@ -537,11 +544,9 @@ use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
-
-
 ### sc-config
 
-Manage stage properties
+Manage stage configuration
 
 #### SYNOPSIS
 
@@ -549,11 +554,15 @@ Manage stage properties
 
 #### DESCRIPTION
 
-This command gets or sets stage [variables](#variables).
+Stage configuration is the set of its varibales. This command gets or sets stage [variables](#variables).
 
 When invoked without arguments, all variables are printed.
 When invoked with one or more *key*s, the respective variables are printed.
 When invoked with one or more assignments, the respective variables are changed.
+
+Note that the `config` command is meant for temporary changes, e.g. to test if the configuration change fixes a problem.
+All config changes get lost with when you publish a stage -- unless you repeat the modification in the arguments passed
+to publish.
 
 Strings may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
 `sc config "metadataComment={} append this"`.
@@ -571,10 +580,10 @@ you can specify a number which is shorthand for that number of days from now (e.
 
 List values (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
 
-TODO
-Technically, variables are modified by running Helm upgrade with both modified an unmodified values;
-unmodified values are passes as is, they are not re-evaluated from using the associated property. Caution:
-if you modified a value `a` that's referenced in by property 'b', variable 'b' is not re-computed.
+This command only changes variables assigned in the command-line, it does not touch any other variables. CAUTION:
+that mean, if you modify a variable `a`, and variable `b` references it in the associated property, `b` is not updated.
+
+Technically, variables are modified by running Helm upgrade with both modified an unmodified values.
 
 
 [//]: # (include stageArgument.md)

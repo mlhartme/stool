@@ -35,17 +35,17 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(String kubernetesContext, LocalSettings localSettings, String name, ClassRef classRef, Map<String, String> values)
+    public static void install(String kubernetesContext, LocalSettings localSettings, String name, ClassRef classRef, Map<String, String> overrides)
             throws IOException {
         Clazz clazz;
 
         clazz = classRef.resolve(kubernetesContext, localSettings);
-        helm(kubernetesContext, localSettings, name, false, false, null, clazz, values, Collections.emptyMap());
+        helm(kubernetesContext, localSettings, name, false, false, null, clazz, overrides, Collections.emptyMap());
     }
 
     public static Diff upgrade(String kubeContext, LocalSettings localSettings, String name, boolean dryrun, List<String> allow,
-                               Clazz clazz, Map<String, String> values, Map<String, String> prev) throws IOException {
-        return helm(kubeContext, localSettings, name, true, dryrun, allow, clazz, values, prev);
+                               Clazz clazz, Map<String, String> overrides, Map<String, String> prev) throws IOException {
+        return helm(kubeContext, localSettings, name, true, dryrun, allow, clazz, overrides, prev);
     }
 
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
