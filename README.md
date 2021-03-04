@@ -135,26 +135,24 @@ A class looks like this:
       cert: "${exec('cert.sh', stage)}"
 
 A class has a set of properties, and it can extend other classes (i.e. inherit all properties from it).
-You use classes to create new or publish into existing stages: all properties are evaluate and define the
-configuration variables.
+You use classes to create new or publish into existing stages, class properties define stage variables.
+
+A property is the basic building block of a class. It has a name and a function.
 
 You usually define classes in a `stage-class.yaml` file and attach it in a `stage-class` label attached to an image.
 
+The property function is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it,
+and this provides a way to invoke shell scripts.
+
 Technically, the class specifies a Helm chart and how to compute its values
 
-### Properties and variables
-
-A property is the basic building block of a class. It has a name and a function.
+### Variables
 
 Stage variables are defined by the properties of its class. Stage variables are set by the associated
 property when the stage is created or published.
 
 Stages are configured via variables. Variables apply to one stage only, every stage has its own set of variables, even
 if they are associated with the same property. A stage has one variable for every class property.
-
-The property function is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it,
-and this provides a way to invoke shell scripts.
-
 
 
 You can inspect and adjust variables with [stool config](#sc-config). The initial value of a
