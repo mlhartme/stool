@@ -42,7 +42,7 @@ public class Workspace {
         }
         array = (ArrayNode) root.get("stages");
         for (JsonNode node : array) {
-            result.stages.add(settings.reference(node.asText(), settings, caller));
+            result.stages.add(settings.reference(node.asText(), settings.local, caller));
         }
         return result;
     }

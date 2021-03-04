@@ -26,10 +26,10 @@ public class SettingsTest {
     @Test
     public void normal() throws IOException {
         World world;
-        Settings c;
+        Settings s;
 
         world = World.createMinimal();
-        c = Settings.create(world);
-        assertTrue(c.proxies.isEmpty());
+        s = Settings.create(world);
+        assertTrue(s.proxies.isEmpty());
     }
 }

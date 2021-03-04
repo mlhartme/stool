@@ -100,7 +100,7 @@ public class Setup {
         String name;
         String url;
 
-        result = initialConfiguration();
+        result = initialSettings();
         if (classpath != null) {
             result.local.classpath.clear();
             result.local.classpath.addAll(LocalSettings.COLON.split(classpath));
@@ -118,7 +118,7 @@ public class Setup {
         return result;
     }
 
-    private Settings initialConfiguration() throws IOException {
+    private Settings initialSettings() throws IOException {
         FileNode template;
 
         template = cisotoolsEnvironment(world);

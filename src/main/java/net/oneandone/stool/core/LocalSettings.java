@@ -48,7 +48,7 @@ import static net.oneandone.stool.util.Json.string;
 
 /** Immutable local settings */
 public class LocalSettings {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Settings.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
     public final World world;
     public final ObjectMapper yaml;
