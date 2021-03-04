@@ -36,7 +36,7 @@ public class Workspace {
         ObjectNode root;
         ArrayNode array;
 
-        result = new Workspace(settings.yaml, file);
+        result = new Workspace(settings.local.yaml, file);
         try (Reader src = file.newReader()) {
             root = (ObjectNode) result.yaml.readTree(src);
         }

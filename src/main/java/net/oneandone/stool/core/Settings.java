@@ -80,9 +80,6 @@ public class Settings {
 
     //--
 
-    public final ObjectMapper yaml;
-    public final ObjectMapper json;
-
     private String currentContext;
     public final String loglevel;
 
@@ -92,8 +89,6 @@ public class Settings {
     public Settings(ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode settings) {
         ObjectNode localNode;
 
-        this.yaml = yaml;
-        this.json = json;
         this.loglevel = Json.string(settings, "loglevel", "ERROR");
         this.currentContext = settings.has("currentContext") ? settings.get("currentContext").asText() : null;
         localNode = (ObjectNode) settings.get("local");
@@ -225,7 +220,7 @@ public class Settings {
 
         obj = toYaml();
         try (Writer dest = file.newWriter()) {
-            SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
+            SequenceWriter sw = local.yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
             sw.write(obj);
         }
     }
@@ -234,7 +229,7 @@ public class Settings {
         ObjectNode obj;
         ArrayNode array;
 
-        obj = yaml.createObjectNode();
+        obj = local.yaml.createObjectNode();
         obj.put("loglevel", loglevel);
         if (currentContext != null) {
             obj.put("currentContext", currentContext);
@@ -242,7 +237,7 @@ public class Settings {
         obj.set("local", local.toYaml());
         array = obj.putArray("proxies");
         for (Context context : proxies.values()) {
-            array.add(context.toObject(yaml));
+            array.add(context.toObject(local.yaml));
         }
         return obj;
     }
@@ -254,7 +249,7 @@ public class Settings {
 
         obj = toYaml();
         try (Writer dest = new StringWriter()) {
-            SequenceWriter sw = yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
+            SequenceWriter sw = local.yaml.writerWithDefaultPrettyPrinter().writeValues(dest);
             sw.write(obj);
             return dest.toString();
         } catch (IOException e) {

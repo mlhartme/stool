@@ -59,7 +59,7 @@ public class Auth {
         }
 
         try {
-            context.auth(globals.getWorld(), settings.json, globals.caller(), username, password);
+            context.auth(globals.getWorld(), settings.local.json, globals.caller(), username, password);
         } catch (StatusException e) {
             if (e.getStatusLine().code == 401) {
                 throw new IOException(context.url + ": " + e.getMessage(), e);

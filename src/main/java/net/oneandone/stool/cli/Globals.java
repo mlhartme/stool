@@ -58,7 +58,7 @@ public class Globals {
         FileNode file;
 
         file = workspaceFile(name);
-        return file.exists() ? workspaceLoad(name) : new Workspace(settings().yaml, file);
+        return file.exists() ? workspaceLoad(name) : new Workspace(settings().local.yaml, file);
     }
 
     public Workspace workspaceLoad(String name) throws IOException {
