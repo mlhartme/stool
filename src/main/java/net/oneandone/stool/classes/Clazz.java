@@ -164,15 +164,15 @@ public class Clazz {
         properties.put(property.name, property);
     }
 
-    public void setValues(Map<String, String> clientValues) {
+    public void setValues(Map<String, String> values) {
         String key;
         Property old;
 
-        for (Map.Entry<String, String> entry : clientValues.entrySet()) {
+        for (Map.Entry<String, String> entry : values.entrySet()) {
             key = entry.getKey();
             old = properties.get(key);
             if (old == null) {
-                throw new ArgumentException("unknown value: " + key);
+                throw new ArgumentException("unknown property: " + key);
             }
             properties.put(key, new Property(key, old.privt, false, old.doc, entry.getValue()));
         }

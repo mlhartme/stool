@@ -50,26 +50,26 @@ public final class Helm {
     }
 
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                             Clazz originalClass, Map<String, String> clientValues, Map<String, String> prev)
+                             Clazz clazz, Map<String, String> overrides, Map<String, String> prev)
             throws IOException {
         World world;
         Map<String, FileNode> charts;
         Expressions expressions;
         FileNode chart;
         FileNode values;
-        Clazz modifiedClass;
+        Clazz tmpClass;
         Map<String, String> next;
         Diff result;
         Diff forbidden;
 
         charts = localSettings.resolvedCharts(kubeContext);
         world = localSettings.world;
+        LOGGER.info("chart: " + clazz.chart + ":" + clazz.chartVersion);
         expressions = new Expressions(world, localSettings, name);
-        modifiedClass = originalClass.derive(originalClass.origin, originalClass.author, originalClass.name);
-        modifiedClass.setValues(clientValues);
-        chart = charts.get(modifiedClass.chart).checkDirectory();
-        LOGGER.info("chart: " + modifiedClass.chart + ":" + modifiedClass.chartVersion);
-        next = expressions.eval(prev, modifiedClass, chart);
+        tmpClass = clazz.derive(clazz.origin, clazz.author, clazz.name);
+        tmpClass.setValues(overrides);
+        chart = charts.get(tmpClass.chart).checkDirectory();
+        next = expressions.eval(prev, tmpClass, chart);
         result = Diff.diff(prev, next);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -78,12 +78,12 @@ public final class Helm {
             }
         }
         // wipe private keys
-        for (Property property : modifiedClass.properties.values()) {
+        for (Property property : tmpClass.properties.values()) {
             if (property.privt) {
                 result.remove(property.name);
             }
         }
-        values = modifiedClass.createValuesFile(localSettings, next);
+        values = tmpClass.createValuesFile(localSettings, next);
         try {
             LOGGER.info("values: " + values.readString());
             exec(dryrun, kubeContext,

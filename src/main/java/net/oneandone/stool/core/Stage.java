@@ -71,6 +71,7 @@ public class Stage {
         }
         return map;
     }
+
     public static List<HistoryEntry> historyFromMap(Map<String, String> annotations) {
         List<HistoryEntry> result;
         String value;
@@ -129,7 +130,7 @@ public class Stage {
 
     //--
 
-    public final LocalSettings localSettings;
+    private final LocalSettings localSettings;
 
     /**
      * Has a very strict syntax, it's used:
@@ -354,14 +355,13 @@ public class Stage {
 
     /** CAUTION: values are not updated! */
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
+        Map<String, String> prev;
         Map<String, String> map;
 
-        map = new LinkedHashMap<>();
-        for (Map.Entry<String, Variable> entry : variables.entrySet()) {
-            map.put(entry.getKey(), entry.getValue().get());
-        }
+        prev = valuesMap();
+        map = new LinkedHashMap<>(prev);
         map.putAll(changes);
-        Helm.upgrade(kubeContext, localSettings, name, false, null, clazz, map, valuesMap());
+        Helm.upgrade(kubeContext, localSettings, name, false, null, clazz, map, prev);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
