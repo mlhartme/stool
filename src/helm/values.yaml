@@ -56,6 +56,3 @@ mailPassword: ""
 
 # Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1.
 autoRemove: -1
-
-# Defines the number of days to expire new stages (0 for never). Type number, default 0.
-defaultExpire: 0

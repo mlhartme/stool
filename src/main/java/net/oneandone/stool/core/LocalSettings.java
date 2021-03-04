@@ -92,8 +92,6 @@ public class LocalSettings {
      */
     public final int autoRemove;
 
-    public final int defaultExpire;
-
     /**
      * public url for kubernetes api -- reported to clients to use temporary service accounts
      */
@@ -123,8 +121,6 @@ public class LocalSettings {
         this.mailUsername = Json.string(local, "mailUsername", "");
         this.mailPassword = Json.string(local, "mailPassword", "");
         this.autoRemove = Json.number(local, "autoRemove", -1);
-        this.defaultExpire = Json.number(local, "defaultExpire", 0);
-
         this.kubernetes = Json.string(local, "kubernetes", "http://localhost");
     }
 
@@ -149,7 +145,6 @@ public class LocalSettings {
         this.mailUsername = from.mailUsername;
         this.mailPassword = from.mailPassword;
         this.autoRemove = from.autoRemove;
-        this.defaultExpire = from.defaultExpire;
         this.kubernetes = from.kubernetes;
     }
 
@@ -224,7 +219,6 @@ public class LocalSettings {
         local.put("mailHost", mailHost);
         local.put("mailUsername", mailUsername);
         local.put("mailPassword", mailPassword);
-        local.put("defaultExpire", defaultExpire);
         local.put("kubernetes", kubernetes);
         return local;
     }

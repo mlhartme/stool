@@ -61,6 +61,7 @@ Other changes:
   * introducted `local` and `proxy` section
   * added `classpath`
   * replaced `registryPrefix` by `registryCredentials`
+  * dumped `defaultExpire` and `defaultContact`  
   * `environment` is now meant for use in field values
 * log validation report result
 * readiness probe for Stool server

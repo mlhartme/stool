@@ -99,6 +99,7 @@ public final class Helm {
         ObjectNode dest;
         Expire expire;
         FileNode file;
+        String str;
 
         dest = localSettings.yaml.createObjectNode();
         for (Map.Entry<String, String> entry : actuals.entrySet()) {
@@ -107,12 +108,15 @@ public final class Helm {
 
         dest.set(Clazz.HELM_CLASS, helmClass.toObject(localSettings.yaml));
 
-        // normalize expire
-        expire = Expire.fromString(Json.string(dest, Dependencies.VALUE_EXPIRE, Expire.fromNumber(localSettings.defaultExpire).toString()));
-        if (expire.isExpired()) {
-            throw new ArgumentException("stage expired: " + expire);
+        // check expire
+        str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
+        if (str != null) {
+            expire = Expire.fromString(str);
+            if (expire.isExpired()) {
+                throw new ArgumentException("stage expired: " + expire);
+            }
+            dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
         }
-        dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
 
         file = localSettings.world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;

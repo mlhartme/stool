@@ -19,7 +19,6 @@ data:
       ldapSso: "{{ .Values.ldapSso }}"
       admin: "{{ .Values.admin }}"
       autoRemove: "{{ .Values.autoRemove }}"
-      defaultExpire: "{{ .Values.defaultExpire }}"
       environment:
         {{- range $key, $val := .Values.environment }}
         {{ $key }}: {{ $val | quote }}
