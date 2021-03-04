@@ -39,7 +39,7 @@ Other changes:
   * dumped jmxmp/5555, rely on readyness probes instead; also dumped `heap` field
 * added `urlSubdomains`
 * dumped fault support, use chart scripts instead
-* changed notify markers: `@created-by` -> `@first` and `@last-modified-by` -> `@last`
+* dumped notify markers `@created-by` and `@last-modified-by`, they are too fragile. Use email adresses or login names instead
 * SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
 * `history`
   * dumped `-max` and `-details` options 
