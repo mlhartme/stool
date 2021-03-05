@@ -31,7 +31,6 @@ Other changes:
   * all functionality is in `sc` now; use `sc server` to start a server
   * running a server is optional now, Stool can talk to arbitrary Kubernetes contexts as well
   * settings.yaml now also contains server configuration
-  * Maven: merged all modules into one
 * image handling changes
   * dumped `sc build`, configure an image build in your Maven build instead
   * created a separate `maven-dockerbuild-plugin` with the former `sc build` functionality
@@ -40,7 +39,6 @@ Other changes:
 * added `urlSubdomains`
 * dumped fault support, use chart scripts instead
 * dumped notify markers `@created-by` and `@last-modified-by`, they are too fragile. Use email adresses or login names instead
-* SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
 * `history`
   * dumped `-max` and `-details` options 
   * use `-v` to get more details
@@ -57,22 +55,25 @@ Other changes:
     use `sc images` instead
   * added `class` field, but it's hidden unless you explicitly reference this field
   * changed `images` command, it takes a repository argument instead of a stage now, and it displays generic labels only
+* SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
 * settings
   * introducted `local` and `proxy` section
   * added `classpath`
   * replaced `registryPrefix` by `registryCredentials`
   * dumped `defaultExpire` and `defaultContact`  
-  * `environment` is now meant for use in field values
+  * `environment` now configures the environment accessed with the env template function
 * log validation report result
 * readiness probe for Stool server
-* no longer use application files, use springboot instead  
-* dependency updates
-  * sushi 3.2.2 to 3.3.0
-  * fabric8 kubernetes client 4.10.2 to 5.0.0  
-  * spring 5.2.9 to 5.3.2, springboot version 2.3.4 to 2.4.1, spring security 5.3.5 to 5.4.1
-  * thymeleaf 3.0.11 to 3.0.12  
-  * jquery 3.4.1 to 3.5.1, bootstrap 4.4.1 to 4.5.3  
-  * junit 5.7.0
+* implementation changes
+  * Maven: merged all modules into one
+  * no longer use application files, use springboot instead  
+  * dependency updates
+    * sushi 3.2.2 to 3.3.0
+    * fabric8 kubernetes client 4.10.2 to 5.0.0  
+    * spring 5.2.9 to 5.3.2, springboot version 2.3.4 to 2.4.1, spring security 5.3.5 to 5.4.1
+    * thymeleaf 3.0.11 to 3.0.12  
+    * jquery 3.4.1 to 3.5.1, bootstrap 4.4.1 to 4.5.3  
+    * junit 5.7.0
 
 
 ### 6.0.0 (2020-10-12)
