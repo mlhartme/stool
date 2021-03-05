@@ -12,7 +12,7 @@ Stool 7 stages are managed with Helm and defined by helm charts
 * `start` and `stop` commands are gone - create results in a running stage, delete stops the stage first;
   you can "emulate" a stopped stage by settings replicas to 0
 * stage properties are now called variables - they are Helm chart variables, managed with `sc config`; 
-  charts can have arbitrary variables, Stool reliss on some particular: `metadataNotify`, `metadataComment`, and 
+  charts can have arbitrary variables, Stool relies on some particular: `metadataNotify`, `metadataComment`, and 
   `metadataExpire`
 * dumped disk quota handling; I might use Kubernetes ephemeral quotas later
 * dumped memory quota handling, Kubernetes takes care of that

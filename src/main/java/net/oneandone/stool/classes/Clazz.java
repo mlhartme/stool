@@ -25,8 +25,10 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Clazz {
@@ -54,18 +56,21 @@ public class Clazz {
 
     /** from inline, label or classes; always extends */
     public static Clazz loadLiteral(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
-        String extendz;
         Clazz base;
         Clazz derived;
         String name;
+        List<Clazz> bases;
 
         name = Json.string(clazz, "name");
-        extendz = Json.string(clazz, "extends");
-        base = existing.get(extendz);
-        if (base == null) {
-            throw new IOException("class not found: " + extendz);
+        bases = new ArrayList();
+        for (String baseName : Json.stringListOpt(clazz, "extends")) {
+            base = existing.get(baseName);
+            if (base == null) {
+                throw new IOException("base class not found: " + baseName);
+            }
+            bases.add(base);
         }
-        derived = base.derive(origin, author, name);
+        derived = extend(origin, author, name, bases);
         derived.defineAll(clazz.get("properties").fields());
         return derived;
     }
@@ -209,12 +214,33 @@ public class Clazz {
         return node;
     }
 
-    public Clazz derive(String derivedOrigin, String derivedAuthor, String withName) {
+    public static Clazz extend(String derivedOrigin, String derivedAuthor, String withName, List<Clazz> bases) throws IOException {
+        String chart;
+        String chartVersion;
         Clazz result;
 
+        chart = null;
+        chartVersion = null;
+        for (Clazz base : bases) {
+            if (base.chart != null) {
+                if (chart == null) {
+                    chart = base.chart;
+                    chartVersion = base.chartVersion;
+                } else {
+                    if (!chart.equals(base.chart)) {
+                        throw new IOException("charts diverge: " + chart + " vs" + base.chart);
+                    }
+                    if (!chartVersion.equals(base.chartVersion)) {
+                        throw new IOException(chart + ": chart versions diverge: " + chartVersion + " vs" + base.chartVersion);
+                    }
+                }
+            }
+        }
         result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
-        for (Property property : properties.values()) {
-            result.defineBase(property);
+        for (Clazz base : bases) {
+            for (Property property : base.properties.values()) {
+                result.defineBase(property);
+            }
         }
         return result;
     }

@@ -67,7 +67,7 @@ public final class Helm {
         charts = localSettings.resolvedCharts(kubeContext);
         LOGGER.info("chart: " + clazz.chart + ":" + clazz.chartVersion);
         expressions = new Expressions(localSettings, name);
-        tmpClass = clazz.derive(clazz.origin, clazz.author, clazz.name);
+        tmpClass = Clazz.extend(clazz.origin, clazz.author, clazz.name, Collections.singletonList(clazz));
         tmpClass.setValues(overrides);
         chart = charts.get(tmpClass.chart).checkDirectory();
         values = expressions.eval(prev, tmpClass, chart);

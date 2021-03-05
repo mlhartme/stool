@@ -267,8 +267,6 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@'*workspace*] [*key*`=`*value*...]
 
 
-
-
 `sc` *global-option*... `publish` ['-dryrun'] *stage* [*class*] [*key*`=`*value*...]
 
 
@@ -307,7 +305,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` `server`
 
 
-*stage* = `all` | `@workspace` | *predicate*
+*stage* = `all` | `@`*workspace* | *predicate*
 
 [//]: # (-)
 
