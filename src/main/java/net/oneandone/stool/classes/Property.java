@@ -57,7 +57,7 @@ public class Property {
         String dflt;
         StringBuilder result;
 
-        v = root.get("value"); // TODO: function
+        v = root.get("function");
         if (v == null) {
             return "";
         } else if (v.isTextual() || v.isNumber()) {
@@ -80,7 +80,7 @@ public class Property {
             result.append(") }");
             return result.toString();
         } else {
-            throw new ArgumentException("malformed value definition: " + v.toString());
+            throw new ArgumentException("malformed function: " + v.toString());
         }
     }
 
@@ -129,7 +129,7 @@ public class Property {
         if (result.isEmpty()) {
             return new TextNode(function);
         } else {
-            result.set("value", new TextNode(function)); // TODO: function
+            result.set("function", new TextNode(function));
             return result;
         }
     }
