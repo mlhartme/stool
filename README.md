@@ -1,13 +1,11 @@
 # Stool
 
-Note: This is the current development branch, see [Stool 5](https://github.com/mlhartme/stool/tree/stool-5.1) for the stable version.
+Note: This is the current development branch, see [Stool 5](https://github.com/mlhartme/stool/tree/stool-5.1) for the stable branch.
 
 ## Introduction
 
 Stool is a tool to manage stages - create, publish, configure, delete. A stage is a Kubernetes workload,
 typically a web application.
-
-Homepage: https://github.com/mlhartme/stool
 
 Changes: https://github.com/mlhartme/stool/blob/stool-7.0/CHANGELOG.md
 
@@ -107,26 +105,42 @@ in Kubernetes, or the whole Github project.
 
 ### Stage
 
-A *stage* is a Kubernetes workload, typically running a web application like a Tomcat servlet container (http://tomcat.apache.org) with
-a Java web application (https://en.wikipedia.org/wiki/Java_Servlet).
+A *stage* is a Kubernetes [workload](https://kubernetes.io/docs/concepts/workloads/),
+typically running a web application like a [Tomcat](http://tomcat.apache.org) servlet container with
+a [Java web application](https://en.wikipedia.org/wiki/Java_Servlet).
 
 You can create, list and delete stages with the respective command. Every stage has a configuration, which is a set of
 variables you can get and set with `sc config`. Every stages has a status, which is a set of fields, you can check it
 with `sc status`.
 
-A stage runs on the Kubernetes cluster identified by a context. Every stage has a unique name in that context.
-A stage is referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage
+A stage has a context which dertermins the Kubernetes cluster running the stage. Every stage has a unique name in that
+context. A stage is referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage
 name and context when you create the stage, neither can be changed later.
 
-Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it, `sc publish`
-upgrades it. Stage variables are Helm release values (or Helm release variables, as they occasionally class it).
+Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it, `sc publish` and `sc config`
+upgrades it. Stage variables are Helm release values (or Helm release variables, as they occasionally call it).
 It's safe to use `helm uninstall` instead of `sc delete`.
 
+### Context
 
-### Stage classes
+A *context* specifies a place that can host stages together with the necessary authentication. Stool supports Kubernetes
+contexts and proxy contexts.
 
-The stage class defines how to create a stage. Every stage has as class.
-Or, in object-oriented terminology: it is an instance of a class).
+Use Kubernetes contexts if you have direct access to Kubernetes. `~/.kube/config` defines Kubernetes contexts, each specified
+with a name and a cluster url. Stool reads this file an prefixes all name with `-kube` to avoid naming classes with proxy
+context.
+
+A proxy context has a name, an optional token, and a URL pointing to a Stool server. It's used if you have restricted access
+to Kubernetes only. `sc` manages a list of proxy contexts in its settings.
+
+sc manages a current context in its settings. You can change it current context permanently with `sc context` or per-invocation
+with the `-context` global option.
+
+
+### Class
+
+Classes defines how to create and publish stages. Every stage has as class which is the class it was created or last publish with.
+In object-oriented terminology: a stage is an instance of a class).
 
 A class looks like this:
 
@@ -136,16 +150,15 @@ A class looks like this:
       image: "myregistry/hello:1.0.0"
       cert: "${exec('cert.sh', stage)}"
 
-A class has a set of properties, and it can extend other classes (i.e. inherit all properties from it).
-You use classes to create new or publish into existing stages.
+A class has a set of properties, and it can extend other classes (i.e. inherit all properties).
 
-A property is the basic building block of a class. It has a name and a function. Properties define the stage variables,
-the property function is evaluted to determine the variable value.
-
-You usually define classes in a `stage-class.yaml` file and attach it in a `stage-class` label attached to an image.
+A property is the basic building block of a class. It has a name and a function. Properties define the available variables
+of the stage, the property function is evaluted to determine the initial values.
 
 The property function is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it,
-and this provides a way to invoke shell scripts.
+and Stool provides Freemarker functions to invoke shell scripts.
+
+You usually define classes in a `stage-class.yaml` file and attach them to images in `stage-class` labels.
 
 Technically, the class specifies a Helm chart and how to compute its values
 
@@ -154,15 +167,15 @@ Technically, the class specifies a Helm chart and how to compute its values
 Stages are configured via variables, the set of variables of a stage is called its configuration.
 You can inspect and adjust variables with [stool config](#sc-config).
 
+A variable has a name, a value, and an associated property. The properties of the stage class define the available
+variables. The variable value is set automatically by the associated property when the stage is created or published.
+Or it's set manually with the `config` command.
+
 Variables apply to one stage only, every stage has its own set of variables, even
 if they are associated with the same property. A stage has one variable for every class property.
 
-A variable has a name, a value, and an associated property. The properties of the stage class define the available
-variables. The Variable value is set automatically by the associated property when the stage is created or published.
-Or you set it manually with the `config` command.
-
-Besides variables, every stage has status fields, you can view them with `sc status`. Status fields are key/values
-pairs like variables, but they are read-only.
+Distinguish variables from status fields: every stage has status fields, you can view them with `sc status`. Status
+fields are key/values pairs like variables, but they are read-only.
 
 TODO: common variables: metadataExpire, metadataContact, metadataComment, replicas, ...
 
@@ -180,18 +193,6 @@ Depending on the `autoRemove` setting, an expired stage will automatically be re
 Stage expiring helps to detect and remove unused stages, which is handy (and sometimes even crucial) if you are not the only user of a server.
 If you receive an email notification that your stage has expired, please check if your stage is still needed. If so, adjust the expire date.
 Otherwise, remove the stage.
-
-### Context
-
-A *context* specifies a place that can host stages together with the necessary authentication. Stool supports Kubernetes
-contexts and proxy contexts. A Kubernetes context is a Kubernetes context whose name is prefixed with `kube-`. Use them
-if you have direct access to Kubernetes (i.e. ~/.kube/config)
-
-A proxy context has a name, an optional token, and a URL pointing to a Stool server. It's used if you have restricted access
-to Kubernetes only.
-
-`sc` manages a list of proxy contexts and a current context in its settings. You can change the current context
-permanently with `sc context` or per-invocation with the `-context` global option.
 
 ### Workspace
 
@@ -423,8 +424,10 @@ Authenticate to current context
 
 #### DESCRIPTION
 
-Asks for username/password to authenticate against ldap. If authentication succeeds, the referenced Stool server returns an api token
-that will be stored in the settings file and used for future access to this context.
+Asks for username/password to authenticate to the current context. Reports an error when used with a Kubernetes context.
+
+Proxy contexts authenticate with username/password against ldap. If succeessfull, the referenced Stool server returns an
+api token that will be stored in the settings file and used for future access to this context.
 
 Use the `-batch` option to omit asking for username/password and instead pick them from the environment
 variables `STOOL_USERNAME` and `STOOL_PASSWORD`.
@@ -446,8 +449,8 @@ List stages
 
 #### DESCRIPTION
 
-Displays status of all stages (or the stages specified by *stage*) as a table. See the `status`
-command for a list of available fields. Default fields/values are `name origin last-deployed`.
+Displays status of all stages of the current context (or the stages specified by *stage*) as a table.
+See the `status` command for a list of available fields. Default fields/variables are `name origin last-deployed`.
 
 [//]: # (include stageArgument.md)
 
@@ -465,13 +468,11 @@ Create a new stage
 
 `sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@'*workspace*] [*key*`=`*value*...]
 
-
-
 #### DESCRIPTION
 
-Creates a new stage as defined by *class*: evaluates all properties of the class and its base classes,
+Creates a new stage as defined by *class*: evaluates all property functions of the class and its base classes,
 except those key-value pairs specified explicitly. The resulting values define the stage configuration.
-This configuration passed to Kubernetes for setup the workload.
+This configuration is passed to Kubernetes to setup the workload.
 
 *name* specifies the stage name. It must contain only lower case ascii characters or digit or dashes, it's
 rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name.
@@ -509,17 +510,18 @@ Publish a stage
 
 #### Description
 
-Similar to the [create](#sc-create) command, but updates *stage* instead of creating a new one.
-Please check there for general behavior. Stage update is without downtime.
+Similar to [create](#sc-create), but updates *stage* instead of creating a new one.
+Please check there for general behavior. The workload is updated without downtime.
 
-*class* is optional, it not specified, the current class is used. This is useful to revert manual `config` changes
+*class* is optional - if not specified, the stage class is used. This is useful to revert manual `config` changes
 or to cause a re-start (depends on the workload if that works).
 
-Publish prints the variables modified by the command. Invoke with `-dryrun` to see this diff without actually changing anything.
-
-TODO: Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
+Publish prints the variables modified by the command. Invoke with `-dryrun` to see
+this diff without actually changing anything.
 
 Publishing is refused if your stage has expired. In this case, publish with a new expire value.
+
+TODO: Publishing is refused if the user who built the image does not have access to all fault projects referenced by the image.
 
 [//]: # (include stageArgument.md)
 
@@ -544,16 +546,15 @@ When invoked without arguments, all variables are printed.
 When invoked with one or more *key*s, the respective variables are printed.
 When invoked with one or more assignments, the respective variables are changed.
 
-Note that the `config` command is meant for temporary changes, e.g. to test if the configuration change fixes a problem.
-All config changes get lost with when you publish a stage -- unless you repeat the modification in the arguments passed
-to publish.
+Changing variables adjusts the Kubernetes workload, resulting new pods replacing old ones if necessary.
 
-Strings may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
+Note that the `config` command is meant for temporary changes, e.g. to test if a configuration change fixes a problem.
+All config changes get lost with the next `publish` -- unless you repeat the modification in the publish arguments.
+
+*str* may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
 `sc config "metadataComment={} append this"`.
 
 If you want to set a variable to a string with spaces, you have to use quotes around the assignment.
-
-If you change a variables, your pods might restart to apply this change.
 
 Variables have a type: boolean, number, date, string, or list of strings.
 
@@ -565,7 +566,7 @@ you can specify a number which is shorthand for that number of days from now (e.
 List values (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
 
 This command only changes variables assigned in the command-line, it does not touch any other variables. CAUTION:
-that mean, if you modify a variable `a`, and variable `b` references it in the associated property, `b` is not updated.
+that means, if you modify a variable `a`, and variable `b` references it in the associated property, `b` is not updated.
 
 Technically, variables are modified by running Helm upgrade with both modified an unmodified values.
 
@@ -577,10 +578,9 @@ use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
+#### Available variables
 
-#### Available stage variables
-
-A stage has variables for all properties of the underlying class. This usually includes:
+A stage has variables for all properties of the stage class. This usually includes:
 
 * **metadataComment**
   Arbitrary comment for this stage. This value is nothing but stored, it has no effect. Type string.
@@ -622,19 +622,17 @@ Available fields:
 * **first-deployed**
   When this stage was created.
 * **last-deployed**
-  When this stage was last updated.
+  When this stage was last published or re-configured.
 * **cpu**
   Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.
 * **mem**
   Memory usage reported by Docker
 * **images**
   Available images in repository for this stage.
-* **urls**
-  Urls to invoke this stage.
-* **origin-scm**
-  SCM url label of the current image.
+* **chart**
+  Helm chart the defines this stage.
 * **class**
-  TODO
+  The stage class. 
 
 
 [//]: # (include stageArgument.md)
