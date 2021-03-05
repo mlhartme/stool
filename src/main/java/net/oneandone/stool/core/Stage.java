@@ -104,7 +104,7 @@ public class Stage {
 
         raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), WITHOUT_CLASS);
         raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
-        check(raw, Dependencies.MANDATORY);
+        // TODO: check(raw, Dependencies.MANDATORY);
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
@@ -116,7 +116,7 @@ public class Stage {
     private static void check(Map<String, Object> values, String... keys) throws IOException {
         for (String key : keys) {
             if (!values.containsKey(key)) {
-                throw new IOException("missing key in helm chart: " + key);
+                throw new IOException("missing key in helm chart: " + key + " in " + values.keySet());
             }
         }
     }

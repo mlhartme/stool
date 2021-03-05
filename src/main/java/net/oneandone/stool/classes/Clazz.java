@@ -47,19 +47,14 @@ public class Clazz {
     public static Clazz loadChartClass(ObjectMapper yaml, String name, FileNode chart) throws IOException {
         Clazz result;
         ObjectNode loaded;
-        ObjectNode classValue;
         FileNode tagFile;
 
         try (Reader src = chart.join("values.yaml").newReader()) {
             loaded = (ObjectNode) yaml.readTree(src);
         }
         tagFile = Helm.tagFile(chart);
-        result = new Clazz("chart '" + name + '"', "TODO", name, name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
-        classValue = (ObjectNode) loaded.remove("stage-class");
+        result = new Clazz("chart '" + name + '"', "TODO", name + "-chart", name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
         result.defineBaseAll(loaded.fields());
-        if (classValue != null) {
-            result.defineAll(classValue.fields());
-        }
         return result;
     }
 
@@ -136,7 +131,7 @@ public class Clazz {
     }
     public void defineBase(Property value) {
         if (properties.put(value.name, value) != null) {
-            throw new IllegalStateException(value.name);
+            System.out.println("TODO duplicate: " + value.name);
         }
     }
 

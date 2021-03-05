@@ -1,5 +1,10 @@
-- name: derived
-  extends: foo
+- name: "foo"
+  extends: "foo-chart"
+  properties:
+    asis: 42
+    base: ""
+- name: "derived"
+  extends: "foo"
   properties:
     base: modified
     added: 3

@@ -2,6 +2,3 @@ a: "42"
 asis: 2
 base: base
 added: a
-stage-class:
-  asis: 42
-  base: ""
