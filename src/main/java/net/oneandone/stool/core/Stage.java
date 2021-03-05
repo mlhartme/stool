@@ -271,7 +271,7 @@ public class Stage {
         fields.add(new Field("chart") {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.clazz.chart + ":" + Stage.this.clazz.chartVersion;
+                return Stage.this.clazz.chartOpt + ":" + Stage.this.clazz.chartVersionOpt;
             }
         });
         fields.add(new Field("class", true) {

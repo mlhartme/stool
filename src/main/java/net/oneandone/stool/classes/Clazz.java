@@ -80,8 +80,9 @@ public class Clazz {
         String name;
 
         name = Json.string(clazz, "name");
-        result = new Clazz(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name, Json.string(clazz, "chart"),
-                Json.string(clazz, "chartVersion"));
+        result = new Clazz(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name,
+                // chart + version are mandatory here because a stage was created with them:
+                Json.string(clazz, "chart"), Json.string(clazz, "chartVersion"));
         result.defineBaseAll(clazz.get("properties").fields());
         return result;
     }
@@ -103,16 +104,16 @@ public class Clazz {
     public final String author; // null (from file), LIB, or image author
 
     public final String name;
-    public final String chart;
-    public final String chartVersion;
+    public final String chartOpt;
+    public final String chartVersionOpt;
     public final Map<String, Property> properties;
 
-    private Clazz(String origin, String author, String name, String chart, String chartVersion) {
+    private Clazz(String origin, String author, String name, String chartOpt, String chartVersionOpt) {
         this.origin = origin;
         this.author = author;
         this.name = name;
-        this.chart = chart;
-        this.chartVersion = chartVersion;
+        this.chartOpt = chartOpt;
+        this.chartVersionOpt = chartVersionOpt;
         this.properties = new LinkedHashMap<>();
     }
 
@@ -204,8 +205,12 @@ public class Clazz {
             node.set("author", new TextNode(author));
         }
         node.set("name", new TextNode(name));
-        node.set("chart", new TextNode(chart));
-        node.set("chartVersion", new TextNode(chartVersion));
+        if (chartOpt != null) {
+            node.set("chart", new TextNode(chartOpt));
+            if (chartVersionOpt != null) {
+                node.set("chartVersion", new TextNode(chartVersionOpt));
+            }
+        }
         p = yaml.createObjectNode();
         node.set("properties", p);
         for (Property property : properties.values()) {
@@ -215,28 +220,28 @@ public class Clazz {
     }
 
     public static Clazz extend(String derivedOrigin, String derivedAuthor, String withName, List<Clazz> bases) throws IOException {
-        String chart;
-        String chartVersion;
+        String chartOpt;
+        String chartVersionOpt;
         Clazz result;
 
-        chart = null;
-        chartVersion = null;
+        chartOpt = null;
+        chartVersionOpt = null;
         for (Clazz base : bases) {
-            if (base.chart != null) {
-                if (chart == null) {
-                    chart = base.chart;
-                    chartVersion = base.chartVersion;
+            if (base.chartOpt != null) {
+                if (chartOpt == null) {
+                    chartOpt = base.chartOpt;
+                    chartVersionOpt = base.chartVersionOpt;
                 } else {
-                    if (!chart.equals(base.chart)) {
-                        throw new IOException("charts diverge: " + chart + " vs" + base.chart);
+                    if (!chartOpt.equals(base.chartOpt)) {
+                        throw new IOException("charts diverge: " + chartOpt + " vs" + base.chartOpt);
                     }
-                    if (!chartVersion.equals(base.chartVersion)) {
-                        throw new IOException(chart + ": chart versions diverge: " + chartVersion + " vs" + base.chartVersion);
+                    if (!chartVersionOpt.equals(base.chartVersionOpt)) {
+                        throw new IOException(chartOpt + ": chart versions diverge: " + chartVersionOpt + " vs" + base.chartVersionOpt);
                     }
                 }
             }
         }
-        result = new Clazz(derivedOrigin, derivedAuthor, withName, chart, chartVersion);
+        result = new Clazz(derivedOrigin, derivedAuthor, withName, chartOpt, chartVersionOpt);
         for (Clazz base : bases) {
             for (Property property : base.properties.values()) {
                 result.defineBase(property);

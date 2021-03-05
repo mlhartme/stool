@@ -64,12 +64,15 @@ public final class Helm {
         Diff result;
         Diff forbidden;
 
+        if (clazz.chartOpt == null) {
+            throw new IOException("class is a mixin: " + clazz.name);
+        }
         charts = localSettings.resolvedCharts(kubeContext);
-        LOGGER.info("chart: " + clazz.chart + ":" + clazz.chartVersion);
+        LOGGER.info("chart: " + clazz.chartOpt + ":" + clazz.chartVersionOpt);
         expressions = new Expressions(localSettings, name);
         tmpClass = Clazz.extend(clazz.origin, clazz.author, clazz.name, Collections.singletonList(clazz));
         tmpClass.setValues(overrides);
-        chart = charts.get(tmpClass.chart).checkDirectory();
+        chart = charts.get(tmpClass.chartOpt).checkDirectory();
         values = expressions.eval(prev, tmpClass, chart);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
