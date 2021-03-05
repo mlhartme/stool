@@ -632,7 +632,7 @@ Available fields:
 * **chart**
   Helm chart the defines this stage.
 * **class**
-  The stage class. 
+  The stage class.
 
 
 [//]: # (include stageArgument.md)
@@ -645,7 +645,7 @@ use `sc help` for available [global options](#sc)
 
 ### sc-delete
 
-Deletes a stage
+Delete a stage
 
 #### SYNOPSIS
 
@@ -653,11 +653,11 @@ Deletes a stage
 
 #### Description
 
-Deletes the stage, i.e. deletes it from the respective cluster. This includes containers and log files.
-If stage is specified as a workspace, it is removed from the workspace as well.
+Deletes the stage, i.e. deletes it from the respective cluster. If stage is specified as a workspace,
+it is removed from the workspace as well.
 
-Before actually touching anything, this command asks if you really want to delete the stage. You can suppress this interaction
-with the `-batch` option.
+Before actually touching anything, this command asks if you really want to delete the stage.
+You can suppress this interaction with the `-batch` option.
 
 [//]: # (include stageArgument.md)
 
@@ -665,7 +665,6 @@ Note: Use `sc help stage-argument` to read about the [stage argument](#sc-stage-
 use `sc help` for available [global options](#sc)
 
 [//]: # (-)
-
 
 
 ### sc-history
@@ -741,25 +740,7 @@ Display images with labels
 
 Display info about the images in the specified repository.
 
-TODO
-* **disk**
-  Read/write disk space that has to be reserved for this image. Type number (mb).
-* **memory**
-  Memory that has to be reserved for this image. Type number (mb).
-* **build args*
-  Docker build arguments actually used to build this image.
-* **secrets*
-  The fault projects nneded to run this stage.
-* **comment**
-  comment attached to the image
-* **created-at**
-  When this image was added to the stage.
-* **created-by**
-  The user who added this image to the stage.
-* **origin-scm**
-  Source scm this image was built from. Type string.
-* **origin-user**
-  Who build this image. Type string.
+TODO: this command is awkward, dump and suggest some standard-tool instead?
 
 
 [//]: # (include stageArgument.md)
@@ -849,18 +830,17 @@ Stage argument
 
 #### SYNOPSIS
 
-*stage* = `all` | `@workspace` | *predicate*
+*stage* = `all` | `@`*workspace* | *predicate*
 
 #### Description
 
-Most Stool commands are stage commands, i.e. they operate on one or multiple stages. All stage commands use the same
-*stage* argument to select the stage(s) to operate on. The general form of this argument is:
+Most Stool take a *stage* argument to specify the stages to operate on. The general form of *stage* is:
 
-`%all` operates on all stages in the current context
+`%all` specifies all stages in the current context
 
-`@`*workspace*  operation on all stages of the respective workspace
+`@`*workspace*  specifies all stages in the respective workspace
 
-*predicate* operates on all matching stages in the current context. The syntax for predicates is as follows:
+*predicate* specifies all matching stages in the current context. The syntax for predicates is as follows:
 
               predicate = and {',' and}
               and = expr {'+' expr}
@@ -894,19 +874,15 @@ stage that cannot be deleted.
 
 Prerequisites:
 * Linux or Mac
-* Java 12 or higher. This is prerequisite because Stool is compiled for Java 12, you need it to run Stool itself.
-* If you want to use Kubernetes Contexts: Helm 3.
+* Java 12 or higher.
+* If you want to use Kubernetes Contexts: [Helm](https://helm.sh) 3.
 
 Install steps
-* Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
+* Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%2stool%22)
 * Make it executable, rename it to `sc` and add it to your $PATH.
 * run `sc setup`
-* adjust `settings.yaml`
+* adjust `~/.sc/settings.yaml`
 
-
-### Run a server
-
-TODO
 
 ### Development
 
@@ -914,6 +890,7 @@ To build Stool, you need:
 * Linux or Mac
 * Java 12+
 * Maven 3+
+* Helm 3
 * Git
 * Docker (with api 1.26+) and Kubernetes.
 * TODO: depends on fault and cisotools
@@ -1034,6 +1011,6 @@ Next, set it up with
 
 #### Notes
 
-Maven releases go to Sonatype, you need the respective account. After running `mvn release:prepare` and `mvn release:perform`, go to
-the staging repository and promote the release.
+Maven releases go to Sonatype, you need the respective account. After running `mvn release:prepare` and `mvn release:perform`,
+go to the staging repository and promote the release.
 
