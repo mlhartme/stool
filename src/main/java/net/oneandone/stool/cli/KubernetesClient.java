@@ -34,7 +34,7 @@ import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Pair;
 import net.oneandone.stool.core.PredicateParser;
 import net.oneandone.stool.core.Validation;
-import net.oneandone.stool.core.Variable;
+import net.oneandone.stool.classes.Variable;
 
 import javax.mail.MessagingException;
 import java.io.FileNotFoundException;

@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.core;
-
-import net.oneandone.stool.classes.Property;
+package net.oneandone.stool.classes;
 
 public class Variable {
     public final Property property;

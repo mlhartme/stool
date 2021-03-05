@@ -17,6 +17,7 @@ package net.oneandone.stool.core;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.classes.Variable;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.classes.ClassRef;
 import net.oneandone.stool.classes.Clazz;

@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.core;
 
+import net.oneandone.stool.classes.Variable;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.sushi.util.Separator;
 
