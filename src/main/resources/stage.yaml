@@ -1,0 +1,25 @@
+name: "stage"
+properties:
+  metadataExpire:
+    doc: "when this stages expires"
+    extra: true
+    value: "${first(prev('metadataExpire'), env('defaultExpire', 'never'))}"
+  metadataContact:
+    doc: "technical contact for this stage; comma-separated list of login names or emails"
+    extra: true
+    value: "${first(prev('metadataContact'), env('defaultContact', 'michael.hartmeier@ionos.com'))}"
+  metadataComment:
+    doc: "arbitrary text"
+    extra: true
+    value: "${first(prev('metadataComment'), '')}"
+  replicas:
+    doc: "number of pods"
+  urlContext:
+    doc: "Java servlet context to run the application in; without initial or tailing slash, i.e. empty string for root context"
+    value: ""
+  urlSuffixes:
+    doc: "comma-separated list of url path suffixes you can invoke this stage at"
+    value: ""
+  urlSubdomains:
+    doc: "comma-separated list of subdomains to prefix the url"
+    value: ""

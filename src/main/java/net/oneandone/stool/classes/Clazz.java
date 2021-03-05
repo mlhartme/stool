@@ -21,11 +21,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.util.Json;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,7 +36,14 @@ import java.util.Map;
 public class Clazz {
     public static final String HELM_CLASS = "helmClass";
 
-    /** loads the class ex- or implicitly definded by a chart */
+    /** loads the class ex- or implicitly defined by a chart */
+    public static Clazz loadStageClass(World world, ObjectMapper yaml) throws IOException {
+        try (Reader src = world.resource("stage.yaml").newReader()) {
+            return Clazz.loadLiteral(Collections.emptyMap(), "root", "stool", (ObjectNode) yaml.readTree(src));
+        }
+    }
+
+    /** loads the class ex- or implicitly defined by a chart */
     public static Clazz loadChartClass(ObjectMapper yaml, String name, FileNode chart) throws IOException {
         Clazz result;
         ObjectNode loaded;
@@ -160,8 +169,12 @@ public class Clazz {
                 property = property.withFunction(old.function);
             }
         } else {
-            if (!property.extra) {
-                throw new IllegalStateException("extra value expected: " + property.name);
+            if (chartOpt == null) {
+                // TODO: mixin
+            } else {
+                if (!property.extra) {
+                    throw new IllegalStateException("extra value expected: " + property.name);
+                }
             }
         }
         properties.put(property.name, property);

@@ -34,6 +34,14 @@ public class ClazzTest {
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     @Test
+    public void stage() throws IOException {
+        Clazz c;
+
+        c = Clazz.loadStageClass(WORLD, YAML);
+        assertEquals("stage", c.name);
+    }
+
+    @Test
     public void empty() throws IOException {
         Clazz c;
 
@@ -99,7 +107,7 @@ public class ClazzTest {
         Map<String, Clazz> all;
         Clazz a;
 
-        all = ClassRef.loadAll(YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/classes/foo").checkDirectory()));
+        all = ClassRef.loadAll(WORLD, YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/classes/foo").checkDirectory()));
         assertEquals(2, all.size());
         a = all.get("derived");
         assertEquals("42", a.properties.get("asis").function);

@@ -103,7 +103,7 @@ public class ClassRef {
         String str;
 
         yaml = localSettings.yaml;
-        all = loadAll(yaml, localSettings.resolvedCharts(kubeContext).values());
+        all = loadAll(localSettings.world, yaml, localSettings.resolvedCharts(kubeContext).values());
         switch (type) {
             case BUILTIN:
                 result = all.get(value);
@@ -152,12 +152,13 @@ public class ClassRef {
         }
     }
 
-    public static Map<String, Clazz> loadAll(ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
+    public static Map<String, Clazz> loadAll(World world, ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
         Iterator<JsonNode> classes;
         Map<String, Clazz> result;
         FileNode file;
 
         result = new HashMap<>();
+        add(result, Clazz.loadStageClass(world, yaml));
         for (FileNode chart : charts) {
             add(result, Clazz.loadChartClass(yaml, chart.getName(), chart));
             file = chart.join("classes.yaml");
