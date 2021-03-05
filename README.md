@@ -1,5 +1,7 @@
 # Stool
 
+Note: This is the current development branch, see [Stool 5](https://github.com/mlhartme/stool/tree/stool-5.1) for the stable version.
+
 ## Introduction
 
 Stool is a tool to manage stages - create, publish, configure, delete. A stage is a Kubernetes workload,
