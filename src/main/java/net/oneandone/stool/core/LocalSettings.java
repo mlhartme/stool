@@ -56,7 +56,7 @@ public class LocalSettings {
 
     public final Map<String, String> environment;
     public final Map<String, Pair> registryCredentials;
-    public final List<String> classpath;
+    public final List<String> librarypath;
     public final FileNode lib;
 
     public final String stageLogs;
@@ -107,7 +107,7 @@ public class LocalSettings {
         this.fqdn = Json.string(local, "fqdn", "localhost");
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
-        this.classpath = COLON.split(Json.string(local, "classpath", ""));
+        this.librarypath = COLON.split(Json.string(local, "librarypath", ""));
         this.lib = home.join("lib");
         this.stageLogs = string(local, "stageLogs", home.getWorld().getHome().join(".sc/logs").getAbsolute());
 
@@ -132,7 +132,7 @@ public class LocalSettings {
         this.fqdn = from.fqdn;
         this.environment = new LinkedHashMap<>(from.environment);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
-        this.classpath = new ArrayList<>(from.classpath);
+        this.librarypath = new ArrayList<>(from.librarypath);
         this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
         this.admin = from.admin;
@@ -206,7 +206,7 @@ public class LocalSettings {
         local.put("fqdn", fqdn);
         local.set("environment", Json.obj(json, environment));
         local.put("registryCredentials", registryCredentialsString());
-        local.put("classpath", COLON.join(classpath));
+        local.put("librarypath", COLON.join(librarypath));
         local.put("admin", admin);
         local.put("autoRemove", autoRemove);
         if (auth()) {
@@ -257,7 +257,7 @@ public class LocalSettings {
 
         root = lib.join("charts").mkdirsOpt();
         result = new LinkedHashMap<>();
-        for (String entry : classpath) {
+        for (String entry : librarypath) {
             resolved = directoryChartOpt(entry);
             if (resolved == null) {
                 portus = createRegistry(entry);

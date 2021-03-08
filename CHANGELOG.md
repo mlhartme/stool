@@ -58,7 +58,7 @@ Other changes:
 * SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
 * settings
   * introducted `local` and `proxy` section
-  * added `classpath`
+  * added `librarypath`
   * replaced `registryPrefix` by `registryCredentials`
   * dumped `defaultExpire` and `defaultContact`  
   * `environment` now configures the environment accessed with the env template function

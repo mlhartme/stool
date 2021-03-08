@@ -215,7 +215,7 @@ Stool is configured via settings specified in its `settings.yaml` file. A settin
 (string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, in contrast to variables,
 they are not specific for a stage. Settings are usually adjusted by system administrators.
 
-TODO: available settings, classpath etc ...
+TODO: available settings, librarypath etc ...
 
 ### Dashboard
 
@@ -478,7 +478,7 @@ rejected otherwise because it would cause problems with urls or Kubernetes objec
 *directions* is a reference to the directions for this stage. Directions can be referenced in three ways:
 * a path pointing to a local yaml file containing the directions; this path has to start with a `/` or a `.`
 * an image with a `directions` label containing a base64 encoded directions yaml
-* a directions name defined in the configured classpath
+* a directions name defined in the configured librarypath
 
 Note that previous changes by the `config` command get lost unless you repeat them in the assignment arguments.
 You'll normally call publish without arguments and thus get the configuration as defined by the directions.
