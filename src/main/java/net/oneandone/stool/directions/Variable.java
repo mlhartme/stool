@@ -16,10 +16,10 @@
 package net.oneandone.stool.directions;
 
 public class Variable {
-    public final Property property;
+    public final Direction property;
     public final String value;
 
-    public Variable(Property property, String value) {
+    public Variable(Direction property, String value) {
         this.property = property;
         this.value = value;
     }

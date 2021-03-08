@@ -20,7 +20,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.directions.ClassRef;
-import net.oneandone.stool.directions.Clazz;
+import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.directions.Helm;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.util.Expire;
@@ -90,15 +90,15 @@ public class Stage {
 
 
     public static Stage create(LocalSettings localSettings, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
-        Clazz cl;
+        Directions cl;
 
-        cl = Clazz.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Clazz.HELM_CLASS));
+        cl = Directions.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.HELM_CLASS));
         return new Stage(localSettings, name, cl, loadVariables(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
     private static final List<String> WITHOUT_CLASS = Collections.singletonList("stage-class");
 
-    private static Map<String, Variable> loadVariables(Clazz clazz, ObjectNode helmObject) throws IOException {
+    private static Map<String, Variable> loadVariables(Directions clazz, ObjectNode helmObject) throws IOException {
         Map<String, Object> raw;
         Map<String, Variable> result;
         String key;
@@ -134,7 +134,7 @@ public class Stage {
      */
     private final String name;
 
-    public final Clazz clazz;
+    public final Directions clazz;
 
     private final Map<String, Variable> variables;
 
@@ -142,7 +142,7 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(LocalSettings localSettings, String name, Clazz clazz, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(LocalSettings localSettings, String name, Directions clazz, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
         this.localSettings = localSettings;
         this.name = name;
         this.clazz = clazz;
@@ -302,7 +302,7 @@ public class Stage {
 
     /** CAUTION: values are not updated! */
     public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
-                        Clazz withClass, Map<String, String> overrides) throws IOException {
+                        Directions withClass, Map<String, String> overrides) throws IOException {
         Diff diff;
 
         diff = Helm.upgrade(kubeContext, localSettings, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),

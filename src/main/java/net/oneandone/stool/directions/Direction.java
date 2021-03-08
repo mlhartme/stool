@@ -26,9 +26,9 @@ import net.oneandone.sushi.util.Strings;
 
 import java.util.Map;
 
-/** Immutable building block of a class, defines how to compute values. */
-public class Property {
-    public static Property forYaml(String name, JsonNode yaml) {
+/** Immutable building block of directions, evaluates values. */
+public class Direction {
+    public static Direction forYaml(String name, JsonNode yaml) {
         boolean privt;
         boolean extra;
         String doc;
@@ -47,7 +47,7 @@ public class Property {
         } else {
             function = yaml.asText();
         }
-        return new Property(name, privt, extra, doc, function);
+        return new Direction(name, privt, extra, doc, function);
     }
 
     public static String getFunction(ObjectNode root) {
@@ -94,10 +94,10 @@ public class Property {
     public final String doc;
     public final String function;
 
-    public Property(String name, String function) {
+    public Direction(String name, String function) {
         this(name, false, false, null, function);
     }
-    public Property(String name, boolean privt, boolean extra, String doc, String function) {
+    public Direction(String name, boolean privt, boolean extra, String doc, String function) {
         this.name = name;
         this.privt = privt;
         this.extra = extra;
@@ -105,12 +105,12 @@ public class Property {
         this.function = function;
     }
 
-    public Property withFunction(String withFunction) {
-        return new Property(name, privt, extra, doc, withFunction);
+    public Direction withFunction(String withFunction) {
+        return new Direction(name, privt, extra, doc, withFunction);
     }
 
-    public Property withDoc(String withDoc) {
-        return new Property(name, privt, extra, withDoc, function);
+    public Direction withDoc(String withDoc) {
+        return new Direction(name, privt, extra, withDoc, function);
     }
 
     public JsonNode toObject(ObjectMapper yaml) {

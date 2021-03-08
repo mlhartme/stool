@@ -41,25 +41,25 @@ public final class Helm {
 
     public static void install(String kubernetesContext, LocalSettings localSettings, String name, ClassRef classRef, Map<String, String> overrides)
             throws IOException {
-        Clazz clazz;
+        Directions clazz;
 
         clazz = classRef.resolve(kubernetesContext, localSettings);
         helm(kubernetesContext, localSettings, name, false, false, null, clazz, overrides, Collections.emptyMap());
     }
 
     public static Diff upgrade(String kubeContext, LocalSettings localSettings, String name, boolean dryrun, List<String> allow,
-                               Clazz clazz, Map<String, String> overrides, Map<String, String> prev) throws IOException {
+                               Directions clazz, Map<String, String> overrides, Map<String, String> prev) throws IOException {
         return helm(kubeContext, localSettings, name, true, dryrun, allow, clazz, overrides, prev);
     }
 
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                             Clazz clazz, Map<String, String> overrides, Map<String, String> prev)
+                             Directions clazz, Map<String, String> overrides, Map<String, String> prev)
             throws IOException {
         Map<String, FileNode> charts;
         Expressions expressions;
         FileNode chart;
         FileNode valuesFile;
-        Clazz tmpClass;
+        Directions tmpClass;
         Map<String, String> values;
         Diff result;
         Diff forbidden;
@@ -70,7 +70,7 @@ public final class Helm {
         charts = localSettings.resolvedCharts(kubeContext);
         LOGGER.info("chart: " + clazz.chartOpt + ":" + clazz.chartVersionOpt);
         expressions = new Expressions(localSettings, name);
-        tmpClass = Clazz.extend(clazz.origin, clazz.author, clazz.name, Collections.singletonList(clazz));
+        tmpClass = Directions.extend(clazz.origin, clazz.author, clazz.name, Collections.singletonList(clazz));
         tmpClass.setValues(overrides);
         chart = charts.get(tmpClass.chartOpt).checkDirectory();
         values = expressions.eval(prev, tmpClass, chart);
@@ -82,7 +82,7 @@ public final class Helm {
             }
         }
         // wipe private keys
-        for (Property property : tmpClass.properties.values()) {
+        for (Direction property : tmpClass.properties.values()) {
             if (property.privt) {
                 result.remove(property.name);
             }
@@ -98,7 +98,7 @@ public final class Helm {
         }
     }
 
-    private static FileNode createValuesFile(LocalSettings localSettings, Map<String, String> actuals, Clazz helmClass) throws IOException {
+    private static FileNode createValuesFile(LocalSettings localSettings, Map<String, String> actuals, Directions helmClass) throws IOException {
         ObjectNode dest;
         Expire expire;
         FileNode file;
@@ -109,7 +109,7 @@ public final class Helm {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(Clazz.HELM_CLASS, helmClass.toObject(localSettings.yaml));
+        dest.set(Directions.HELM_CLASS, helmClass.toObject(localSettings.yaml));
 
         // check expire
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);

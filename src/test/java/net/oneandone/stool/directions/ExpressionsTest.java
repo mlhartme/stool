@@ -64,10 +64,10 @@ public class ExpressionsTest {
     @Test
     public void clazz() throws IOException {
         Expressions e;
-        Clazz clazz;
+        Directions clazz;
         Map<String, String> values;
 
-        clazz = Clazz.forTest("name", "one", "1", "two", "${'2' + value('one')}");
+        clazz = Directions.forTest("name", "one", "1", "two", "${'2' + value('one')}");
         e = expressions();
         values = e.eval(new HashMap<>(), clazz, world.getTemp().createTempDirectory());
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
@@ -76,14 +76,14 @@ public class ExpressionsTest {
     @Test
     public void exec() throws IOException {
         Expressions e;
-        Clazz clazz;
+        Directions clazz;
         Map<String, String> values;
         FileNode dir;
 
 
         dir = world.getTemp().createTempDirectory();
         dir.join("scripts").mkdir().join("script.sh").writeString("#!/bin/sh\necho \"arg:$1\"");
-        clazz = Clazz.forTest("name", "one", "${exec('script.sh', 'hello')}");
+        clazz = Directions.forTest("name", "one", "${exec('script.sh', 'hello')}");
         e = expressions();
         values = e.eval(new HashMap<>(), clazz, dir);
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
@@ -96,7 +96,7 @@ public class ExpressionsTest {
 
         yaml = new ObjectMapper(new YAMLFactory());
         n = yaml.readTree("function:\n  default: '0'\n  a: '1'\n  b: '2'");
-        assertEquals("${ switch('MODE','0','a','1','b','2') }", Property.getFunction((ObjectNode) n));
+        assertEquals("${ switch('MODE','0','a','1','b','2') }", Direction.getFunction((ObjectNode) n));
     }
 
     @Test

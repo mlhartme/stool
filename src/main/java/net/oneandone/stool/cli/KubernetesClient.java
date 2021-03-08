@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.directions.Clazz;
+import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Field;
 import net.oneandone.stool.directions.ClassRef;
@@ -127,7 +127,7 @@ public class KubernetesClient extends Client {
     @Override
     public Diff publish(String name, boolean dryrun, String allow, ClassRef classRefOpt, Map<String, String> values) throws IOException {
         Stage stage;
-        Clazz clazz;
+        Directions clazz;
 
         try (Engine engine = engine()) {
             stage = localSettings.load(engine, name);

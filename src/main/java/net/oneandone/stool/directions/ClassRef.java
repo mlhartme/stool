@@ -96,10 +96,10 @@ public class ClassRef {
 
     public static final String BUILDIN = "_buildin_";
 
-    public Clazz resolve(String kubeContext, LocalSettings localSettings) throws IOException {
+    public Directions resolve(String kubeContext, LocalSettings localSettings) throws IOException {
         ObjectMapper yaml;
-        Map<String, Clazz> all;
-        Clazz result;
+        Map<String, Directions> all;
+        Directions result;
         String str;
 
         yaml = localSettings.yaml;
@@ -114,7 +114,7 @@ public class ClassRef {
             case INLINE:
                 try (Reader src = new StringReader(value)) {
                     try {
-                        result = Clazz.loadLiteral(all, origin, null, object(yaml.readTree(src)));
+                        result = Directions.loadLiteral(all, origin, null, object(yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse class from file: " + e.getMessage(), e);
                     }
@@ -132,7 +132,7 @@ public class ClassRef {
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     try {
-                        result = Clazz.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
+                        result = Directions.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse class from image label: " + e.getMessage(), e);
                     }
@@ -152,29 +152,29 @@ public class ClassRef {
         }
     }
 
-    public static Map<String, Clazz> loadAll(World world, ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
+    public static Map<String, Directions> loadAll(World world, ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
         Iterator<JsonNode> classes;
-        Map<String, Clazz> result;
+        Map<String, Directions> result;
         FileNode file;
 
         result = new HashMap<>();
-        add(result, Clazz.loadStageClass(world, yaml));
+        add(result, Directions.loadStageClass(world, yaml));
         for (FileNode chart : charts) {
-            add(result, Clazz.loadChartClass(yaml, chart.getName(), chart));
+            add(result, Directions.loadChartDirections(yaml, chart.getName(), chart));
             file = chart.join("classes.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
                     classes = yaml.readTree(src).elements();
                 }
                 while (classes.hasNext()) {
-                    add(result, Clazz.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
+                    add(result, Directions.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
                 }
             }
         }
         return result;
     }
 
-    private static void add(Map<String, Clazz> all, Clazz clazz) throws IOException {
+    private static void add(Map<String, Directions> all, Directions clazz) throws IOException {
         if (all.put(clazz.name, clazz) != null) {
             throw new IOException("duplicate class: " + clazz.name);
         }

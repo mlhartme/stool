@@ -35,15 +35,15 @@ public class ClazzTest {
 
     @Test
     public void stage() throws IOException {
-        Clazz c;
+        Directions c;
 
-        c = Clazz.loadStageClass(WORLD, YAML);
+        c = Directions.loadStageClass(WORLD, YAML);
         assertEquals("stage", c.name);
     }
 
     @Test
     public void empty() throws IOException {
-        Clazz c;
+        Directions c;
 
         c = create("name: 'foo'\nextends: 'base'\nproperties:\n");
         assertEquals("foo", c.name);
@@ -52,7 +52,7 @@ public class ClazzTest {
 
     @Test
     public void override() throws IOException {
-        Clazz c;
+        Directions c;
 
         c = create("name: 'foo'\nextends: 'base'\nproperties:\n  f:\n    value: 2\n");
         assertEquals("foo", c.name);
@@ -72,7 +72,7 @@ public class ClazzTest {
 
     @Test
     public void extra() throws IOException {
-        Clazz c;
+        Directions c;
 
         c = create("name: 'foo'\nextends: 'base'\nproperties:\n  v:\n    value: 2\n    extra: true");
         assertEquals("foo", c.name);
@@ -90,22 +90,22 @@ public class ClazzTest {
     }
 
     @Test
-    public Clazz create(String str) throws IOException {
-        Map<String, Clazz> all;
+    public Directions create(String str) throws IOException {
+        Map<String, Directions> all;
         ObjectNode obj;
 
         obj = (ObjectNode) YAML.readTree(str);
         all = new HashMap<>();
-        all.put("base", Clazz.forTest("base", "f", "1"));
-        return Clazz.loadLiteral(all, "", null, obj);
+        all.put("base", Directions.forTest("base", "f", "1"));
+        return Directions.loadLiteral(all, "", null, obj);
     }
 
     //--
 
     @Test
     public void loadAll() throws IOException {
-        Map<String, Clazz> all;
-        Clazz a;
+        Map<String, Directions> all;
+        Directions a;
 
         all = ClassRef.loadAll(WORLD, YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/classes/foo").checkDirectory()));
         assertEquals(4, all.size());

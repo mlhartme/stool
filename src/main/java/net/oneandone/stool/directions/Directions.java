@@ -33,19 +33,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Clazz {
+public class Directions {
     public static final String HELM_CLASS = "helmClass";
 
     /** loads the class ex- or implicitly defined by a chart */
-    public static Clazz loadStageClass(World world, ObjectMapper yaml) throws IOException {
+    public static Directions loadStageClass(World world, ObjectMapper yaml) throws IOException {
         try (Reader src = world.resource("stage.yaml").newReader()) {
-            return Clazz.loadLiteral(Collections.emptyMap(), "root", "stool", (ObjectNode) yaml.readTree(src));
+            return Directions.loadLiteral(Collections.emptyMap(), "root", "stool", (ObjectNode) yaml.readTree(src));
         }
     }
 
     /** loads the class ex- or implicitly defined by a chart */
-    public static Clazz loadChartClass(ObjectMapper yaml, String name, FileNode chart) throws IOException {
-        Clazz result;
+    public static Directions loadChartDirections(ObjectMapper yaml, String name, FileNode chart) throws IOException {
+        Directions result;
         ObjectNode loaded;
         FileNode tagFile;
 
@@ -53,17 +53,17 @@ public class Clazz {
             loaded = (ObjectNode) yaml.readTree(src);
         }
         tagFile = Helm.tagFile(chart);
-        result = new Clazz("chart '" + name + '"', "TODO", name + "-chart", name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
+        result = new Directions("chart '" + name + '"', "TODO", name + "-chart", name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
         result.defineBaseAll(loaded.fields());
         return result;
     }
 
     /** from inline, label or classes; always extends */
-    public static Clazz loadLiteral(Map<String, Clazz> existing, String origin, String author, ObjectNode clazz) throws IOException {
-        Clazz base;
-        Clazz derived;
+    public static Directions loadLiteral(Map<String, Directions> existing, String origin, String author, ObjectNode clazz) throws IOException {
+        Directions base;
+        Directions derived;
         String name;
-        List<Clazz> bases;
+        List<Directions> bases;
 
         name = Json.string(clazz, "name");
         bases = new ArrayList();
@@ -79,24 +79,24 @@ public class Clazz {
         return derived;
     }
 
-    public static Clazz loadHelm(ObjectNode clazz) {
-        Clazz result;
+    public static Directions loadHelm(ObjectNode clazz) {
+        Directions result;
         String name;
 
         name = Json.string(clazz, "name");
-        result = new Clazz(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name,
+        result = new Directions(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name,
                 // chart + version are mandatory here because a stage was created with them:
                 Json.string(clazz, "chart"), Json.string(clazz, "chartVersion"));
         result.defineBaseAll(clazz.get("properties").fields());
         return result;
     }
 
-    public static Clazz forTest(String name, String... nameValues) {
-        Clazz result;
+    public static Directions forTest(String name, String... nameValues) {
+        Directions result;
 
-        result = new Clazz("synthetic", null, name, "unusedChart", "noVersion");
+        result = new Directions("synthetic", null, name, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
-            result.defineBase(new Property(nameValues[i], nameValues[i + 1]));
+            result.defineBase(new Direction(nameValues[i], nameValues[i + 1]));
         }
         return result;
     }
@@ -110,9 +110,9 @@ public class Clazz {
     public final String name;
     public final String chartOpt;
     public final String chartVersionOpt;
-    public final Map<String, Property> properties;
+    public final Map<String, Direction> properties;
 
-    private Clazz(String origin, String author, String name, String chartOpt, String chartVersionOpt) {
+    private Directions(String origin, String author, String name, String chartOpt, String chartVersionOpt) {
         this.origin = origin;
         this.author = author;
         this.name = name;
@@ -126,10 +126,10 @@ public class Clazz {
 
         while (iter.hasNext()) {
             entry = iter.next();
-            defineBase(Property.forYaml(entry.getKey(), entry.getValue()));
+            defineBase(Direction.forYaml(entry.getKey(), entry.getValue()));
         }
     }
-    public void defineBase(Property value) {
+    public void defineBase(Direction value) {
         if (properties.put(value.name, value) != null) {
             System.out.println("TODO duplicate: " + value.name);
         }
@@ -142,12 +142,12 @@ public class Clazz {
         while (iter.hasNext()) {
             entry = iter.next();
             key = entry.getKey();
-            define(Property.forYaml(key, entry.getValue()));
+            define(Direction.forYaml(key, entry.getValue()));
         }
     }
 
-    public void define(Property property) {
-        Property old;
+    public void define(Direction property) {
+        Direction old;
 
         old = properties.get(property.name);
         if (old != null) {
@@ -177,7 +177,7 @@ public class Clazz {
 
     public void setValues(Map<String, String> values) {
         String key;
-        Property old;
+        Direction old;
 
         for (Map.Entry<String, String> entry : values.entrySet()) {
             key = entry.getKey();
@@ -185,7 +185,7 @@ public class Clazz {
             if (old == null) {
                 throw new ArgumentException("unknown property: " + key);
             }
-            properties.put(key, new Property(key, old.privt, false, old.doc, entry.getValue()));
+            properties.put(key, new Direction(key, old.privt, false, old.doc, entry.getValue()));
         }
     }
 
@@ -193,8 +193,8 @@ public class Clazz {
         return properties.size();
     }
 
-    public Property get(String value) {
-        Property result;
+    public Direction get(String value) {
+        Direction result;
 
         result = properties.get(value);
         if (result == null) {
@@ -221,20 +221,20 @@ public class Clazz {
         }
         p = yaml.createObjectNode();
         node.set("properties", p);
-        for (Property property : properties.values()) {
+        for (Direction property : properties.values()) {
             p.set(property.name, property.toObject(yaml));
         }
         return node;
     }
 
-    public static Clazz extend(String derivedOrigin, String derivedAuthor, String withName, List<Clazz> bases) throws IOException {
+    public static Directions extend(String derivedOrigin, String derivedAuthor, String withName, List<Directions> bases) throws IOException {
         String chartOpt;
         String chartVersionOpt;
-        Clazz result;
+        Directions result;
 
         chartOpt = null;
         chartVersionOpt = null;
-        for (Clazz base : bases) {
+        for (Directions base : bases) {
             if (base.chartOpt != null) {
                 if (chartOpt == null) {
                     chartOpt = base.chartOpt;
@@ -249,9 +249,9 @@ public class Clazz {
                 }
             }
         }
-        result = new Clazz(derivedOrigin, derivedAuthor, withName, chartOpt, chartVersionOpt);
-        for (Clazz base : bases) {
-            for (Property property : base.properties.values()) {
+        result = new Directions(derivedOrigin, derivedAuthor, withName, chartOpt, chartVersionOpt);
+        for (Directions base : bases) {
+            for (Direction property : base.properties.values()) {
                 result.defineBase(property);
             }
         }
