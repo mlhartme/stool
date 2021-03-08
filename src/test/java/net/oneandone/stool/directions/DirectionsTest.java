@@ -45,7 +45,7 @@ public class DirectionsTest {
     public void empty() throws IOException {
         Directions c;
 
-        c = create("name: 'foo'\nextends: 'base'\nproperties:\n");
+        c = create("NAME: 'foo'\nEXTENDS: 'base'\n");
         assertEquals("foo", c.name);
         assertEquals(1, c.size());
     }
@@ -54,7 +54,7 @@ public class DirectionsTest {
     public void override() throws IOException {
         Directions c;
 
-        c = create("name: 'foo'\nextends: 'base'\nproperties:\n  f:\n    value: 2\n");
+        c = create("NAME: 'foo'\nEXTENDS: 'base'\nf:\n  expr: 2\n");
         assertEquals("foo", c.name);
         assertEquals(1, c.size());
         System.out.println(c.toObject(YAML));
@@ -63,10 +63,10 @@ public class DirectionsTest {
     @Test
     public void extraValueOverrides() throws IOException {
         try {
-            create("name: 'foo'\nextends: 'base'\nproperties:\n  f:\n    value: 2\n    extra: true");
+            create("NAME: 'foo'\nEXTENDS: 'base'\nf:\n    expr: 2\n    extra: true");
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("extra property overrides base property: f", e.getMessage());
+            assertEquals("extra direction overrides base direction: f", e.getMessage());
         }
     }
 
@@ -74,7 +74,7 @@ public class DirectionsTest {
     public void extra() throws IOException {
         Directions c;
 
-        c = create("name: 'foo'\nextends: 'base'\nproperties:\n  v:\n    value: 2\n    extra: true");
+        c = create("NAME: 'foo'\nEXTENDS: 'base'\nv:\n    expr: 2\n    extra: true");
         assertEquals("foo", c.name);
         assertEquals(2, c.size());
     }
@@ -82,10 +82,10 @@ public class DirectionsTest {
     @Test
     public void extraValueExpected() throws IOException {
         try {
-            create("name: 'foo'\nextends: 'base'\nproperties:\n  v: 2\n");
+            create("NAME: 'foo'\nEXTENDS: 'base'\nv: 2\n");
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("extra value expected: v", e.getMessage());
+            assertEquals("extra direction expected: v", e.getMessage());
         }
     }
 
@@ -110,8 +110,8 @@ public class DirectionsTest {
         all = DirectionsRef.loadAll(WORLD, YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/directions/foo").checkDirectory()));
         assertEquals(4, all.size());
         a = all.get("derived");
-        assertEquals("42", a.properties.get("asis").expression);
-        assertEquals("modified", a.properties.get("base").expression);
-        assertEquals("3", a.properties.get("added").expression);
+        assertEquals("42", a.directions.get("asis").expression);
+        assertEquals("modified", a.directions.get("base").expression);
+        assertEquals("3", a.directions.get("added").expression);
     }
 }

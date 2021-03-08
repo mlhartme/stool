@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -58,16 +57,25 @@ public class Directions {
         return result;
     }
 
+    private static final String NAME = "NAME";
+    private static final String EXTENDS = "EXTENDS";
+    private static final String CHART = "CHART";
+    private static final String CHART_VERSION = "CHART-VERSION";
+    private static final String ORIGIN = "ORIGIN";
+    private static final String AUTHOR = "AUTHOR";
+
     /** from inline, label or file; always extends */
     public static Directions loadLiteral(Map<String, Directions> existing, String origin, String author, ObjectNode directions) throws IOException {
+        Map<String, JsonNode> raw;
         Directions base;
         Directions derived;
         String name;
         List<Directions> bases;
 
-        name = Json.string(directions, "name");
+        raw = loadRaw(directions);
+        name = eatString(raw, NAME);
         bases = new ArrayList();
-        for (String baseName : Json.stringListOpt(directions, "extends")) {
+        for (String baseName : stringListOpt(raw.remove(EXTENDS))) {
             base = existing.get(baseName);
             if (base == null) {
                 throw new IOException("base directions not found: " + baseName);
@@ -75,19 +83,71 @@ public class Directions {
             bases.add(base);
         }
         derived = extend(origin, author, name, bases);
-        derived.defineAll(directions.get("properties").fields());
+        for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {
+            derived.define(Direction.forYaml(entry.getKey(), entry.getValue()));
+        }
         return derived;
     }
 
-    public static Directions loadHelm(ObjectNode directions) {
-        Directions result;
-        String name;
+    private static String eatString(Map<String, JsonNode> raw, String name) throws IOException {
+        String result;
 
-        name = Json.string(directions, "name");
-        result = new Directions(Json.stringOpt(directions, "origin"), Json.stringOpt(directions, "author"), name,
-                // chart + version are mandatory here because a stage was created with them:
-                Json.string(directions, "chart"), Json.string(directions, "chartVersion"));
-        result.defineBaseAll(directions.get("properties").fields());
+        result = eatStringOpt(raw, name);
+        if (result == null) {
+            throw new IOException("missing " + name);
+        }
+        return result;
+    }
+
+    private static String eatStringOpt(Map<String, JsonNode> raw, String name) {
+        JsonNode node;
+
+        node = raw.remove(name);
+        return node == null ? null : node.asText();
+    }
+
+    private static List<String> stringListOpt(JsonNode arrayOpt) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        if (arrayOpt != null && !arrayOpt.isNull()) {
+            if (arrayOpt.isTextual()) {
+                result.add(arrayOpt.asText());
+            } else if (arrayOpt.isArray()) {
+                for (JsonNode entry : arrayOpt) {
+                    result.add(entry.asText());
+                }
+            } else {
+                throw new ArgumentException("string or array expected: " + arrayOpt);
+            }
+        }
+        return result;
+    }
+
+    private static Map<String, JsonNode> loadRaw(ObjectNode directions) {
+        Map<String, JsonNode> result;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+
+        result = new LinkedHashMap<>();
+        iter = directions.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
+
+    public static Directions loadHelm(ObjectNode directions) throws IOException {
+        Map<String, JsonNode> raw;
+        Directions result;
+
+        raw = loadRaw(directions);
+        // chart + version are mandatory here because a stage was created with them:
+        result = new Directions(eatStringOpt(raw, ORIGIN), eatStringOpt(raw, AUTHOR), eatString(raw, NAME), eatString(raw, CHART), eatString(raw, CHART_VERSION));
+        for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {
+            result.defineBase(Direction.forYaml(entry.getKey(), entry.getValue()));
+        }
         return result;
     }
 
@@ -110,7 +170,7 @@ public class Directions {
     public final String name;
     public final String chartOpt;
     public final String chartVersionOpt;
-    public final Map<String, Direction> properties;
+    public final Map<String, Direction> directions;
 
     private Directions(String origin, String author, String name, String chartOpt, String chartVersionOpt) {
         this.origin = origin;
@@ -118,7 +178,7 @@ public class Directions {
         this.name = name;
         this.chartOpt = chartOpt;
         this.chartVersionOpt = chartVersionOpt;
-        this.properties = new LinkedHashMap<>();
+        this.directions = new LinkedHashMap<>();
     }
 
     public void defineBaseAll(Iterator<Map.Entry<String, JsonNode>> iter) {
@@ -129,50 +189,39 @@ public class Directions {
             defineBase(Direction.forYaml(entry.getKey(), entry.getValue()));
         }
     }
-    public void defineBase(Direction value) {
-        if (properties.put(value.name, value) != null) {
-            System.out.println("TODO duplicate: " + value.name);
+    public void defineBase(Direction direction) {
+        if (directions.put(direction.name, direction) != null) {
+            System.out.println("TODO duplicate: " + direction.name);
         }
     }
 
-    public void defineAll(Iterator<Map.Entry<String, JsonNode>> iter) {
-        Map.Entry<String, JsonNode> entry;
-        String key;
-
-        while (iter.hasNext()) {
-            entry = iter.next();
-            key = entry.getKey();
-            define(Direction.forYaml(key, entry.getValue()));
-        }
-    }
-
-    public void define(Direction property) {
+    public void define(Direction direction) {
         Direction old;
 
-        old = properties.get(property.name);
+        old = directions.get(direction.name);
         if (old != null) {
             if (old.privt) {
-                throw new IllegalStateException("you cannot override private property: " + property.name);
+                throw new IllegalStateException("you cannot override private direction: " + direction.name);
             }
-            if (property.extra) {
-                throw new IllegalStateException("extra property overrides base property: " + property.name);
+            if (direction.extra) {
+                throw new IllegalStateException("extra direction overrides base direction: " + direction.name);
             }
-            if (old.doc != null && property.doc == null) {
-                property = property.withDoc(old.doc);
+            if (old.doc != null && direction.doc == null) {
+                direction = direction.withDoc(old.doc);
             }
-            if (!old.expression.isEmpty() && property.expression.isEmpty()) {
-                property = property.withExpression(old.expression);
+            if (!old.expression.isEmpty() && direction.expression.isEmpty()) {
+                direction = direction.withExpression(old.expression);
             }
         } else {
             if (chartOpt == null) {
                 // TODO: mixin
             } else {
-                if (!property.extra) {
-                    throw new IllegalStateException("extra value expected: " + property.name);
+                if (!direction.extra) {
+                    throw new IllegalStateException("extra direction expected: " + direction.name);
                 }
             }
         }
-        properties.put(property.name, property);
+        directions.put(direction.name, direction);
     }
 
     public void setValues(Map<String, String> values) {
@@ -181,24 +230,24 @@ public class Directions {
 
         for (Map.Entry<String, String> entry : values.entrySet()) {
             key = entry.getKey();
-            old = properties.get(key);
+            old = directions.get(key);
             if (old == null) {
-                throw new ArgumentException("unknown property: " + key);
+                throw new ArgumentException("unknown direction: " + key);
             }
-            properties.put(key, new Direction(key, old.privt, false, old.doc, entry.getValue()));
+            directions.put(key, new Direction(key, old.privt, false, old.doc, entry.getValue()));
         }
     }
 
     public int size() {
-        return properties.size();
+        return directions.size();
     }
 
-    public Direction get(String value) {
+    public Direction get(String n) {
         Direction result;
 
-        result = properties.get(value);
+        result = directions.get(n);
         if (result == null) {
-            throw new IllegalStateException(value);
+            throw new IllegalStateException(n);
         }
         return result;
     }
@@ -208,21 +257,19 @@ public class Directions {
         ObjectNode p;
 
         node = yaml.createObjectNode();
-        node.set("origin", new TextNode(origin));
+        node.set(ORIGIN, new TextNode(origin));
         if (author != null) {
-            node.set("author", new TextNode(author));
+            node.set(AUTHOR, new TextNode(author));
         }
-        node.set("name", new TextNode(name));
+        node.set(NAME, new TextNode(name));
         if (chartOpt != null) {
-            node.set("chart", new TextNode(chartOpt));
+            node.set(CHART, new TextNode(chartOpt));
             if (chartVersionOpt != null) {
                 node.set("chartVersion", new TextNode(chartVersionOpt));
             }
         }
-        p = yaml.createObjectNode();
-        node.set("properties", p);
-        for (Direction property : properties.values()) {
-            p.set(property.name, property.toObject(yaml));
+        for (Direction direction : directions.values()) {
+            node.set(direction.name, direction.toObject(yaml));
         }
         return node;
     }
@@ -251,7 +298,7 @@ public class Directions {
         }
         result = new Directions(derivedOrigin, derivedAuthor, withName, chartOpt, chartVersionOpt);
         for (Directions base : bases) {
-            for (Direction property : base.properties.values()) {
+            for (Direction property : base.directions.values()) {
                 result.defineBase(property);
             }
         }

@@ -81,10 +81,10 @@ public class Expressions {
         }
         contextPrevious = previous;
         try {
-            for (Direction property : directions.properties.values()) {
+            for (Direction property : directions.directions.values()) {
                 context.put(property.name, property);
             }
-            for (Direction property : directions.properties.values()) {
+            for (Direction property : directions.directions.values()) {
                 evalValue(property.name);
             }
             result = new LinkedHashMap<>();

@@ -82,7 +82,7 @@ public final class Helm {
             }
         }
         // wipe private keys
-        for (Direction property : tmpDirections.properties.values()) {
+        for (Direction property : tmpDirections.directions.values()) {
             if (property.privt) {
                 result.remove(property.name);
             }
