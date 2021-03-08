@@ -54,7 +54,7 @@ to see them all.
 
 ### Rationale
 
-Stool is tenically a Helm wrapper, a stage is a Helm releases, and stage classes provide Helm values.
+Stool is technically a Helm wrapper, a stage is a Helm releases, and directions evaluate to Helm values.
 Like other tools (e.g. [Helmfile](https://github.com/roboll/helmfile), Stool tries to simplify Helm. Stool puts
 an emphasize on powerful value definitions because in our use cases we have many workloads using the same Helm
 chart with different values.
@@ -83,7 +83,7 @@ planned or open:
 |         | Simple cli: reduce cognitive load | train developers + operating |
 |         | Dashboard: None-technical UI | ? |
 |         | Proxy: restricted access | All stages by Jenkins? |
-|         | Stage classes | Helmfile? Shell scripts? |
+|         | Directions | Helmfile? Shell scripts? |
 
 
 ### Conventions
@@ -127,7 +127,7 @@ A *context* specifies a place that can host stages together with the necessary a
 contexts and proxy contexts.
 
 Use Kubernetes contexts if you have direct access to Kubernetes. `~/.kube/config` defines Kubernetes contexts, each specified
-with a name and a cluster url. Stool reads this file an prefixes all name with `-kube` to avoid naming classes with proxy
+with a name and a cluster url. Stool reads this file an prefixes all name with `-kube` to avoid naming clashes with proxy
 context.
 
 A proxy context has a name, an optional token, and a URL pointing to a Stool server. It's used if you have restricted access
@@ -137,45 +137,46 @@ sc manages a current context in its settings. You can change it current context 
 with the `-context` global option.
 
 
-### Class
+### Directions
 
-Classes defines how to create and publish stages. Every stage has as class which is the class it was created or last publish with.
-In object-oriented terminology: a stage is an instance of a class).
+Directions (or, more explicitly: the direction list) define how to create and publish stages. Stage directions are the directions
+the stage was created or last published with.
 
-A class looks like this:
+Directions look like this:
 
-    name: "hello"
-    extends: "kutter"
-    properties:
-      image: "myregistry/hello:1.0.0"
-      cert: "${exec('cert.sh', stage)}"
+    _name: "hello"
+    _extends: "kutter"
+    image: "myregistry/hello:1.0.0"
+    cert: "${exec('cert.sh', stage)}"
 
-A class has a set of properties, and it can extend other classes (i.e. inherit all properties).
+Each direction has a name and an expression. Special directions start with `_`, they can specify a name for the direction list)
+and extend other directions (i.e. inherit all directions).
 
-A property is the basic building block of a class. It has a name and a function. Properties define the available variables
-of the stage, the property function is evaluted to determine the initial values.
+Directions define the available variables of the stage, the expression is evaluted to determine the initial values.
 
-The property function is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it,
+The expression is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it,
 and Stool provides Freemarker functions to invoke shell scripts.
 
-You usually define classes in a `stage-class.yaml` file and attach them to images in `stage-class` labels.
+You usually define directions in a `directions.yaml` file and attach them to images in a `directions` label.
 
-Technically, the class specifies a Helm chart and how to compute its values
+Technically, directions specify a Helm chart and evaluate its values. I.e. directions supply all info needed for
+Helm install/upgrade.
+
 
 ### Variables
 
 Stages are configured via variables, the set of variables of a stage is called its configuration.
 You can inspect and adjust variables with [stool config](#sc-config).
 
-A variable has a name, a value, and an associated property. The properties of the stage class define the available
-variables. The variable value is set automatically by the associated property when the stage is created or published.
-Or it's set manually with the `config` command.
+A variable has a name, a value, and an associated direction. Stage directions define the available variables.
+The variable value is set automatically by evaluating the associated direction expression when the stage
+is created or published. Or it's set manually with the `config` command.
 
 Variables apply to one stage only, every stage has its own set of variables, even
-if they are associated with the same property. A stage has one variable for every class property.
+if they are associated with direction is the same.
 
-Distinguish variables from status fields: every stage has status fields, you can view them with `sc status`. Status
-fields are key/values pairs like variables, but they are read-only.
+Distinguish variables from status fields: every stage has status fields, you can view them with `sc status`.
+Status fields are key/values pairs like variables, but they are read-only.
 
 TODO: common variables: metadataExpire, metadataContact, metadataComment, replicas, ...
 
@@ -236,7 +237,7 @@ Stage control
 `sc` is a command line tool to manage stages. A stage is a Kubernetes workload, typically a web application.
 *command* defaults to `help`. `sc` stands for stage control.
 
-Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds classes, proxying and a dashboard.
+Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds directions, proxying and a dashboard.
 
 
 #### Commands
@@ -264,10 +265,10 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds cla
 `sc` *global-option*... `list` *stage* (*field*|*variable*)...
 
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@'*workspace*] [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *directions* ['@'*workspace*] [*key*`=`*value*...]
 
 
-`sc` *global-option*... `publish` ['-dryrun'] *stage* [*class*] [*key*`=`*value*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* [*directions*] [*key*`=`*value*...]
 
 
 `sc` *global-option*... `config` *stage* (*key* | *key*`=`*str*)...
@@ -464,26 +465,26 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *class* ['@'*workspace*] [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *directions* ['@'*workspace*] [*key*`=`*value*...]
 
 #### DESCRIPTION
 
-Creates a new stage as defined by *class*: evaluates all property functions of the class and its base classes,
+Creates a new stage as defined by *directions*: evaluates all direction expressions of the stage,
 except those key-value pairs specified explicitly. The resulting values define the stage configuration.
 This configuration is passed to Kubernetes to setup the workload.
 
 *name* specifies the stage name. It must contain only lower case ascii characters or digit or dashes, it's
 rejected otherwise because it would cause problems with urls or Kubernetes objects that contain the name.
 
-*class* is a reference to the class for this stage. Classes can be referenced in three ways:
-* a path pointing to a local yaml file containing the class; this path has to start with a '/' or a '.'
-* an image with a `stage-class` label containing a base64 encoded class yaml
-* a class name defined in the configured classpath
+*directions* is a reference to the directions for this stage. Directions can be referenced in three ways:
+* a path pointing to a local yaml file containing the directions; this path has to start with a `/` or a `.`
+* an image with a `directions` label containing a base64 encoded directions yaml
+* a directions name defined in the configured classpath
 
 Note that previous changes by the `config` command get lost unless you repeat them in the assignment arguments.
-You'll normally call publish without arguments and thus get the configuration as defined by the class.
+You'll normally call publish without arguments and thus get the configuration as defined by the directions.
 
-Except for temporary assignments, you should adjust the classes.
+Except for temporary assignments, you should adjust the directions.
 
 If a *workspace* is specified, the resulting stage is added to it.
 
@@ -504,14 +505,14 @@ Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `publish` ['-dryrun'] *stage* [*class*] [*key*`=`*value*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* [*directions*] [*key*`=`*value*...]
 
 #### Description
 
 Similar to [create](#sc-create), but updates *stage* instead of creating a new one.
 Please check there for general behavior. The workload is updated without downtime.
 
-*class* is optional - if not specified, the stage class is used. This is useful to revert manual `config` changes
+*directions* is optional - if not specified, the stage directions are used. This is useful to revert manual `config` changes
 or to cause a re-start (depends on the workload if that works).
 
 Publish prints the variables modified by the command. Invoke with `-dryrun` to see
@@ -564,7 +565,7 @@ you can specify a number which is shorthand for that number of days from now (e.
 List values (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
 
 This command only changes variables assigned in the command-line, it does not touch any other variables. CAUTION:
-that means, if you modify a variable `a`, and variable `b` references it in the associated property, `b` is not updated.
+that means, if you modify a variable `a`, and variable `b` references it in the associated direction, `b` is not updated.
 
 Technically, variables are modified by running Helm upgrade with both modified an unmodified values.
 
@@ -578,7 +579,7 @@ use `sc help` for available [global options](#sc)
 
 #### Available variables
 
-A stage has variables for all properties of the stage class. This usually includes:
+A stage has variables for all directions of the stage. This usually includes:
 
 * **metadataComment**
   Arbitrary comment for this stage. This value is nothing but stored, it has no effect. Type string.
@@ -607,7 +608,7 @@ Display stage status
 
 #### DESCRIPTION
 
-Prints the specified status *field*s or *values*. Default: all status fields except *class*.
+Prints the specified status *field*s or *values*. Default: all status fields except *directions*.
 
 Available fields:
 
@@ -629,8 +630,8 @@ Available fields:
   Available images in repository for this stage.
 * **chart**
   Helm chart the defines this stage.
-* **class**
-  The stage class.
+* **directions**
+  The directions for this stage.
 
 
 [//]: # (include stageArgument.md)
