@@ -144,15 +144,14 @@ the stage was created or last published with.
 
 Directions look like this:
 
-    _name: "hello"
-    _extends: "kutter"
+    SUBJECT: "hello"
+    EXTENDS: "kutter"
     image: "myregistry/hello:1.0.0"
     cert: "${exec('cert.sh', stage)}"
 
-Each direction has a name and an expression. Special directions start with `_`, they can specify a name for the direction list)
-and extend other directions (i.e. inherit all directions).
+Each direction has a name and an expression, directions have a subject and can extend other direction (i.e. inherit all directions).
 
-Directions define the available variables of the stage, the expression is evaluted to determine the initial values.
+Directions define the available variables of the stage, the expression is evaluated to determine the initial values.
 
 The expression is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it,
 and Stool provides Freemarker functions to invoke shell scripts.
