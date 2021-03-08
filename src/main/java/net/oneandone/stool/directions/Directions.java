@@ -252,7 +252,6 @@ public class Directions {
 
     public ObjectNode toObject(ObjectMapper yaml) {
         ObjectNode node;
-        ObjectNode p;
 
         node = yaml.createObjectNode();
         node.set(DIRECTIONS, new TextNode(DIRECTIONS));
