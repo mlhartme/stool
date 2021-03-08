@@ -57,7 +57,7 @@ public class Directions {
         return result;
     }
 
-    private static final String SUBJECT = "SUBJECT";
+    private static final String DIRECTIONS = "DIRECTIONS";
     private static final String EXTENDS = "EXTENDS";
     private static final String CHART = "CHART";
     private static final String CHART_VERSION = "CHART-VERSION";
@@ -73,7 +73,7 @@ public class Directions {
         List<Directions> bases;
 
         raw = loadRaw(directions);
-        subject = eatString(raw, SUBJECT);
+        subject = eatString(raw, DIRECTIONS);
         bases = new ArrayList();
         for (String baseName : stringListOpt(raw.remove(EXTENDS))) {
             base = existing.get(baseName);
@@ -144,7 +144,7 @@ public class Directions {
 
         raw = loadRaw(directions);
         // chart + version are mandatory here because a stage was created with them:
-        result = new Directions(eatString(raw, SUBJECT), eatStringOpt(raw, ORIGIN), eatStringOpt(raw, AUTHOR), eatString(raw, CHART), eatString(raw, CHART_VERSION));
+        result = new Directions(eatString(raw, DIRECTIONS), eatStringOpt(raw, ORIGIN), eatStringOpt(raw, AUTHOR), eatString(raw, CHART), eatString(raw, CHART_VERSION));
         for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {
             result.defineBase(Direction.forYaml(entry.getKey(), entry.getValue()));
         }
@@ -255,7 +255,7 @@ public class Directions {
         ObjectNode p;
 
         node = yaml.createObjectNode();
-        node.set(SUBJECT, new TextNode(SUBJECT));
+        node.set(DIRECTIONS, new TextNode(DIRECTIONS));
         node.set(ORIGIN, new TextNode(origin));
         if (author != null) {
             node.set(AUTHOR, new TextNode(author));

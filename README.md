@@ -144,7 +144,7 @@ the stage was created or last published with.
 
 Directions look like this:
 
-    SUBJECT: "hello"
+    DIRECTIONS: "hello"
     EXTENDS: "kutter"
     image: "myregistry/hello:1.0.0"
     cert: "${exec('cert.sh', stage)}"

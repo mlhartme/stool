@@ -1,4 +1,4 @@
-SUBJECT: "stage"
+DIRECTIONS: "stage"
 
 metadataExpire:
   doc: "when this stages expires"

@@ -1,8 +1,8 @@
-- SUBJECT: "foo"
+- DIRECTIONS: "foo"
   EXTENDS: "foo-chart"
   asis: 42
   base: ""
-- SUBJECT: "derived"
+- DIRECTIONS: "derived"
   EXTENDS: "foo"
   base: modified
   added: 3

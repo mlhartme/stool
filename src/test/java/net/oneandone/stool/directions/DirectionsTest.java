@@ -45,7 +45,7 @@ public class DirectionsTest {
     public void empty() throws IOException {
         Directions c;
 
-        c = create("SUBJECT: 'foo'\nEXTENDS: 'base'\n");
+        c = create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\n");
         assertEquals("foo", c.subject);
         assertEquals(1, c.size());
     }
@@ -54,7 +54,7 @@ public class DirectionsTest {
     public void override() throws IOException {
         Directions c;
 
-        c = create("SUBJECT: 'foo'\nEXTENDS: 'base'\nf:\n  expr: 2\n");
+        c = create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\nf:\n  expr: 2\n");
         assertEquals("foo", c.subject);
         assertEquals(1, c.size());
         System.out.println(c.toObject(YAML));
@@ -63,7 +63,7 @@ public class DirectionsTest {
     @Test
     public void extraValueOverrides() throws IOException {
         try {
-            create("SUBJECT: 'foo'\nEXTENDS: 'base'\nf:\n    expr: 2\n    extra: true");
+            create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\nf:\n    expr: 2\n    extra: true");
             fail();
         } catch (IllegalStateException e) {
             assertEquals("extra direction overrides base direction: f", e.getMessage());
@@ -74,7 +74,7 @@ public class DirectionsTest {
     public void extra() throws IOException {
         Directions c;
 
-        c = create("SUBJECT: 'foo'\nEXTENDS: 'base'\nv:\n    expr: 2\n    extra: true");
+        c = create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\nv:\n    expr: 2\n    extra: true");
         assertEquals("foo", c.subject);
         assertEquals(2, c.size());
     }
@@ -82,7 +82,7 @@ public class DirectionsTest {
     @Test
     public void extraValueExpected() throws IOException {
         try {
-            create("SUBJECT: 'foo'\nEXTENDS: 'base'\nv: 2\n");
+            create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\nv: 2\n");
             fail();
         } catch (IllegalStateException e) {
             assertEquals("extra direction expected: v", e.getMessage());
