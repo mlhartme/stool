@@ -108,7 +108,7 @@ public class DirectionsRef {
             case BUILTIN:
                 result = all.get(value);
                 if (result == null) {
-                    throw new IOException("class not found: " + value);
+                    throw new IOException("directions not found: " + value);
                 }
                 break;
             case INLINE:
@@ -116,7 +116,7 @@ public class DirectionsRef {
                     try {
                         result = Directions.loadLiteral(all, origin, null, object(yaml.readTree(src)));
                     } catch (IOException e) {
-                        throw new IOException(origin + ": failed to parse class from file: " + e.getMessage(), e);
+                        throw new IOException(origin + ": failed to parse directions from file: " + e.getMessage(), e);
                     }
                 }
                 break;
@@ -128,13 +128,13 @@ public class DirectionsRef {
                 tag = registry.resolve(value);
                 str = tag.labels.get("stage-class");
                 if (str == null || str.isEmpty()) {
-                    throw new IOException("image does not have a 'class' label: " + value);
+                    throw new IOException("image does not have a 'stage-class' label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     try {
                         result = Directions.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
                     } catch (IOException e) {
-                        throw new IOException(origin + ": failed to parse class from image label: " + e.getMessage(), e);
+                        throw new IOException(origin + ": failed to parse directions from image label: " + e.getMessage(), e);
                     }
                 }
                 break;
@@ -153,21 +153,21 @@ public class DirectionsRef {
     }
 
     public static Map<String, Directions> loadAll(World world, ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
-        Iterator<JsonNode> classes;
+        Iterator<JsonNode> directions;
         Map<String, Directions> result;
         FileNode file;
 
         result = new HashMap<>();
-        add(result, Directions.loadStageClass(world, yaml));
+        add(result, Directions.loadStageDirectionsBase(world, yaml));
         for (FileNode chart : charts) {
             add(result, Directions.loadChartDirections(yaml, chart.getName(), chart));
             file = chart.join("classes.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
-                    classes = yaml.readTree(src).elements();
+                    directions = yaml.readTree(src).elements();
                 }
-                while (classes.hasNext()) {
-                    add(result, Directions.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) classes.next()));
+                while (directions.hasNext()) {
+                    add(result, Directions.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) directions.next()));
                 }
             }
         }
@@ -176,7 +176,7 @@ public class DirectionsRef {
 
     private static void add(Map<String, Directions> all, Directions directions) throws IOException {
         if (all.put(directions.name, directions) != null) {
-            throw new IOException("duplicate class: " + directions.name);
+            throw new IOException("duplicate directions: " + directions.name);
         }
     }
 }

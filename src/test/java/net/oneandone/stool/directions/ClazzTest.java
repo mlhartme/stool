@@ -37,7 +37,7 @@ public class ClazzTest {
     public void stage() throws IOException {
         Directions c;
 
-        c = Directions.loadStageClass(WORLD, YAML);
+        c = Directions.loadStageDirectionsBase(WORLD, YAML);
         assertEquals("stage", c.name);
     }
 

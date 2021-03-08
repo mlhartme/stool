@@ -37,14 +37,13 @@ public class Directions {
     // this value is added to track the stage directions used
     public static final String DIRECTIONS_VALUE = "_directions";
 
-    /** loads the class ex- or implicitly defined by a chart */
-    public static Directions loadStageClass(World world, ObjectMapper yaml) throws IOException {
+    public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml) throws IOException {
         try (Reader src = world.resource("stage.yaml").newReader()) {
             return Directions.loadLiteral(Collections.emptyMap(), "root", "stool", (ObjectNode) yaml.readTree(src));
         }
     }
 
-    /** loads the class ex- or implicitly defined by a chart */
+    /** loads the directions implicitly defined by a chart */
     public static Directions loadChartDirections(ObjectMapper yaml, String name, FileNode chart) throws IOException {
         Directions result;
         ObjectNode loaded;
@@ -59,7 +58,7 @@ public class Directions {
         return result;
     }
 
-    /** from inline, label or classes; always extends */
+    /** from inline, label or file; always extends */
     public static Directions loadLiteral(Map<String, Directions> existing, String origin, String author, ObjectNode directions) throws IOException {
         Directions base;
         Directions derived;
@@ -71,7 +70,7 @@ public class Directions {
         for (String baseName : Json.stringListOpt(directions, "extends")) {
             base = existing.get(baseName);
             if (base == null) {
-                throw new IOException("base class not found: " + baseName);
+                throw new IOException("base directions not found: " + baseName);
             }
             bases.add(base);
         }

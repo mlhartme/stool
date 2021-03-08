@@ -39,11 +39,11 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(String kubernetesContext, LocalSettings localSettings, String name, DirectionsRef classRef, Map<String, String> overrides)
+    public static void install(String kubernetesContext, LocalSettings localSettings, String name, DirectionsRef directionsRef, Map<String, String> overrides)
             throws IOException {
         Directions directions;
 
-        directions = classRef.resolve(kubernetesContext, localSettings);
+        directions = directionsRef.resolve(kubernetesContext, localSettings);
         helm(kubernetesContext, localSettings, name, false, false, null, directions, overrides, Collections.emptyMap());
     }
 
@@ -59,21 +59,21 @@ public final class Helm {
         Expressions expressions;
         FileNode chart;
         FileNode valuesFile;
-        Directions tmpClass;
+        Directions tmpDirections;
         Map<String, String> values;
         Diff result;
         Diff forbidden;
 
         if (directions.chartOpt == null) {
-            throw new IOException("class is a mixin: " + directions.name);
+            throw new IOException("directions without chart: " + directions.name);
         }
         charts = localSettings.resolvedCharts(kubeContext);
         LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
         expressions = new Expressions(localSettings, name);
-        tmpClass = Directions.extend(directions.origin, directions.author, directions.name, Collections.singletonList(directions));
-        tmpClass.setValues(overrides);
-        chart = charts.get(tmpClass.chartOpt).checkDirectory();
-        values = expressions.eval(prev, tmpClass, chart);
+        tmpDirections = Directions.extend(directions.origin, directions.author, directions.name, Collections.singletonList(directions));
+        tmpDirections.setValues(overrides);
+        chart = charts.get(tmpDirections.chartOpt).checkDirectory();
+        values = expressions.eval(prev, tmpDirections, chart);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -82,7 +82,7 @@ public final class Helm {
             }
         }
         // wipe private keys
-        for (Direction property : tmpClass.properties.values()) {
+        for (Direction property : tmpDirections.properties.values()) {
             if (property.privt) {
                 result.remove(property.name);
             }
@@ -98,7 +98,7 @@ public final class Helm {
         }
     }
 
-    private static FileNode createValuesFile(LocalSettings localSettings, Map<String, String> actuals, Directions helmClass) throws IOException {
+    private static FileNode createValuesFile(LocalSettings localSettings, Map<String, String> actuals, Directions directions) throws IOException {
         ObjectNode dest;
         Expire expire;
         FileNode file;
@@ -109,7 +109,7 @@ public final class Helm {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(Directions.DIRECTIONS_VALUE, helmClass.toObject(localSettings.yaml));
+        dest.set(Directions.DIRECTIONS_VALUE, directions.toObject(localSettings.yaml));
 
         // check expire
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
