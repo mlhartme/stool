@@ -29,7 +29,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ClazzTest {
+public class DirectionsTest {
     private static final World WORLD = World.createMinimal();
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
@@ -107,7 +107,7 @@ public class ClazzTest {
         Map<String, Directions> all;
         Directions a;
 
-        all = DirectionsRef.loadAll(WORLD, YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/classes/foo").checkDirectory()));
+        all = DirectionsRef.loadAll(WORLD, YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/directions/foo").checkDirectory()));
         assertEquals(4, all.size());
         a = all.get("derived");
         assertEquals("42", a.properties.get("asis").function);

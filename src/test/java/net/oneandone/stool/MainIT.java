@@ -99,11 +99,11 @@ public class MainIT {
 
     private void run(boolean kube) throws IOException {
         FileNode working;
-        FileNode classdir;
+        FileNode directionsDir;
         FileNode home;
         String stage;
 
-        classdir = WORLD.guessProjectHome(getClass()).join("src/test/classes").checkDirectory();
+        directionsDir = WORLD.guessProjectHome(getClass()).join("src/test/directions").checkDirectory();
         stage = "de.wq-ta"; // with some special characters
         working = itRoot(kube).join("projects/" + (kube ? "it-kube" : "it-proxy")).mkdirsOpt();
         home = working.join("home").checkNotExists();
@@ -118,7 +118,7 @@ public class MainIT {
             sc(home, "context", "localproxy");
         }
         sc(home, "list", "%all");
-        sc(home, "create", "-e", "-wait", stage, classdir.join("hellowar-first.yaml").getAbsolute());
+        sc(home, "create", "-e", "-wait", stage, directionsDir.join("hellowar-first.yaml").getAbsolute());
         sc(home, "list", "%all");
         sc(home, "status", stage);
         sc(home, "attach", stage, "@ws");
@@ -127,7 +127,7 @@ public class MainIT {
         sc(home, "config", stage, "metadataComment");
         sc(home, "config", stage, "metadataComment=42");
         // TODO: sc(home, "images", repository);
-        sc(home, "publish", stage, classdir.join("hellowar-second.yaml").getAbsolute());
+        sc(home, "publish", stage, directionsDir.join("hellowar-second.yaml").getAbsolute());
         sc(home, "list", stage);
         sc(home, "validate", stage);
         sc(home, "history", stage);

@@ -161,7 +161,7 @@ public class DirectionsRef {
         add(result, Directions.loadStageDirectionsBase(world, yaml));
         for (FileNode chart : charts) {
             add(result, Directions.loadChartDirections(yaml, chart.getName(), chart));
-            file = chart.join("classes.yaml");
+            file = chart.join("library.yaml");
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
                     directions = yaml.readTree(src).elements();
