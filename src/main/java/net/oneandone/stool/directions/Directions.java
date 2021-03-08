@@ -52,12 +52,12 @@ public class Directions {
             loaded = (ObjectNode) yaml.readTree(src);
         }
         tagFile = Helm.tagFile(chart);
-        result = new Directions("chart '" + name + '"', "TODO", name + "-chart", name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
+        result = new Directions(name + "-chart", "chart '" + name + '"', "TODO", name, tagFile.exists() ? tagFile.readString().trim() : "unknown");
         result.defineBaseAll(loaded.fields());
         return result;
     }
 
-    private static final String NAME = "NAME";
+    private static final String SUBJECT = "SUBJECT";
     private static final String EXTENDS = "EXTENDS";
     private static final String CHART = "CHART";
     private static final String CHART_VERSION = "CHART-VERSION";
@@ -69,11 +69,11 @@ public class Directions {
         Map<String, JsonNode> raw;
         Directions base;
         Directions derived;
-        String name;
+        String subject;
         List<Directions> bases;
 
         raw = loadRaw(directions);
-        name = eatString(raw, NAME);
+        subject = eatString(raw, SUBJECT);
         bases = new ArrayList();
         for (String baseName : stringListOpt(raw.remove(EXTENDS))) {
             base = existing.get(baseName);
@@ -82,7 +82,7 @@ public class Directions {
             }
             bases.add(base);
         }
-        derived = extend(origin, author, name, bases);
+        derived = extend(origin, author, subject, bases);
         for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {
             derived.define(Direction.forYaml(entry.getKey(), entry.getValue()));
         }
@@ -144,7 +144,7 @@ public class Directions {
 
         raw = loadRaw(directions);
         // chart + version are mandatory here because a stage was created with them:
-        result = new Directions(eatStringOpt(raw, ORIGIN), eatStringOpt(raw, AUTHOR), eatString(raw, NAME), eatString(raw, CHART), eatString(raw, CHART_VERSION));
+        result = new Directions(eatString(raw, SUBJECT), eatStringOpt(raw, ORIGIN), eatStringOpt(raw, AUTHOR), eatString(raw, CHART), eatString(raw, CHART_VERSION));
         for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {
             result.defineBase(Direction.forYaml(entry.getKey(), entry.getValue()));
         }
@@ -154,7 +154,7 @@ public class Directions {
     public static Directions forTest(String name, String... nameValues) {
         Directions result;
 
-        result = new Directions("synthetic", null, name, "unusedChart", "noVersion");
+        result = new Directions(name, "synthetic", null, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
             result.defineBase(new Direction(nameValues[i], nameValues[i + 1]));
         }
@@ -163,19 +163,17 @@ public class Directions {
 
     //--
 
-    // metadata
+    public final String subject;
     public final String origin;
     public final String author; // null (from file), LIB, or image author
-
-    public final String name;
     public final String chartOpt;
     public final String chartVersionOpt;
     public final Map<String, Direction> directions;
 
-    private Directions(String origin, String author, String name, String chartOpt, String chartVersionOpt) {
+    private Directions(String subject, String origin, String author, String chartOpt, String chartVersionOpt) {
+        this.subject = subject;
         this.origin = origin;
         this.author = author;
-        this.name = name;
         this.chartOpt = chartOpt;
         this.chartVersionOpt = chartVersionOpt;
         this.directions = new LinkedHashMap<>();
@@ -257,11 +255,11 @@ public class Directions {
         ObjectNode p;
 
         node = yaml.createObjectNode();
+        node.set(SUBJECT, new TextNode(SUBJECT));
         node.set(ORIGIN, new TextNode(origin));
         if (author != null) {
             node.set(AUTHOR, new TextNode(author));
         }
-        node.set(NAME, new TextNode(name));
         if (chartOpt != null) {
             node.set(CHART, new TextNode(chartOpt));
             if (chartVersionOpt != null) {
@@ -274,7 +272,7 @@ public class Directions {
         return node;
     }
 
-    public static Directions extend(String derivedOrigin, String derivedAuthor, String withName, List<Directions> bases) throws IOException {
+    public static Directions extend(String derivedOrigin, String derivedAuthor, String withSubject, List<Directions> bases) throws IOException {
         String chartOpt;
         String chartVersionOpt;
         Directions result;
@@ -296,10 +294,10 @@ public class Directions {
                 }
             }
         }
-        result = new Directions(derivedOrigin, derivedAuthor, withName, chartOpt, chartVersionOpt);
+        result = new Directions(withSubject, derivedOrigin, derivedAuthor, chartOpt, chartVersionOpt);
         for (Directions base : bases) {
-            for (Direction property : base.directions.values()) {
-                result.defineBase(property);
+            for (Direction direction : base.directions.values()) {
+                result.defineBase(direction);
             }
         }
         return result;

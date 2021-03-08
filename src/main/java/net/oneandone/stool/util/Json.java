@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.ArrayList;
@@ -69,25 +68,6 @@ public final class Json {
         return result;
     }
 
-    public static List<String> stringListOpt(ObjectNode obj, String name) {
-        JsonNode entries;
-        List<String> result;
-
-        entries = obj.get(name);
-        result = new ArrayList<>();
-        if (entries != null && !entries.isNull()) {
-            if (entries.isTextual()) {
-                result.add(entries.asText());
-            } else if (entries.isArray()) {
-                for (JsonNode entry : entries) {
-                    result.add(entry.asText());
-                }
-            } else {
-                throw new ArgumentException("string or array expected: " + entries);
-            }
-        }
-        return result;
-    }
     public static Map<String, String> stringMapOpt(ObjectNode obj, String name) {
         JsonNode entries;
 

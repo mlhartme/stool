@@ -38,15 +38,15 @@ public class DirectionsTest {
         Directions c;
 
         c = Directions.loadStageDirectionsBase(WORLD, YAML);
-        assertEquals("stage", c.name);
+        assertEquals("stage", c.subject);
     }
 
     @Test
     public void empty() throws IOException {
         Directions c;
 
-        c = create("NAME: 'foo'\nEXTENDS: 'base'\n");
-        assertEquals("foo", c.name);
+        c = create("SUBJECT: 'foo'\nEXTENDS: 'base'\n");
+        assertEquals("foo", c.subject);
         assertEquals(1, c.size());
     }
 
@@ -54,8 +54,8 @@ public class DirectionsTest {
     public void override() throws IOException {
         Directions c;
 
-        c = create("NAME: 'foo'\nEXTENDS: 'base'\nf:\n  expr: 2\n");
-        assertEquals("foo", c.name);
+        c = create("SUBJECT: 'foo'\nEXTENDS: 'base'\nf:\n  expr: 2\n");
+        assertEquals("foo", c.subject);
         assertEquals(1, c.size());
         System.out.println(c.toObject(YAML));
     }
@@ -63,7 +63,7 @@ public class DirectionsTest {
     @Test
     public void extraValueOverrides() throws IOException {
         try {
-            create("NAME: 'foo'\nEXTENDS: 'base'\nf:\n    expr: 2\n    extra: true");
+            create("SUBJECT: 'foo'\nEXTENDS: 'base'\nf:\n    expr: 2\n    extra: true");
             fail();
         } catch (IllegalStateException e) {
             assertEquals("extra direction overrides base direction: f", e.getMessage());
@@ -74,15 +74,15 @@ public class DirectionsTest {
     public void extra() throws IOException {
         Directions c;
 
-        c = create("NAME: 'foo'\nEXTENDS: 'base'\nv:\n    expr: 2\n    extra: true");
-        assertEquals("foo", c.name);
+        c = create("SUBJECT: 'foo'\nEXTENDS: 'base'\nv:\n    expr: 2\n    extra: true");
+        assertEquals("foo", c.subject);
         assertEquals(2, c.size());
     }
 
     @Test
     public void extraValueExpected() throws IOException {
         try {
-            create("NAME: 'foo'\nEXTENDS: 'base'\nv: 2\n");
+            create("SUBJECT: 'foo'\nEXTENDS: 'base'\nv: 2\n");
             fail();
         } catch (IllegalStateException e) {
             assertEquals("extra direction expected: v", e.getMessage());

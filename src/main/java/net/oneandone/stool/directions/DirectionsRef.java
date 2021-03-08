@@ -177,8 +177,8 @@ public class DirectionsRef {
     }
 
     private static void add(Map<String, Directions> all, Directions directions) throws IOException {
-        if (all.put(directions.name, directions) != null) {
-            throw new IOException("duplicate directions: " + directions.name);
+        if (all.put(directions.subject, directions) != null) {
+            throw new IOException("duplicate directions: " + directions.subject);
         }
     }
 }

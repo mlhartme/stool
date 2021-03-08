@@ -65,12 +65,12 @@ public final class Helm {
         Diff forbidden;
 
         if (directions.chartOpt == null) {
-            throw new IOException("directions without chart: " + directions.name);
+            throw new IOException("directions without chart: " + directions.subject);
         }
         charts = localSettings.resolvedCharts(kubeContext);
         LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
         expressions = new Expressions(localSettings, name);
-        tmpDirections = Directions.extend(directions.origin, directions.author, directions.name, Collections.singletonList(directions));
+        tmpDirections = Directions.extend(directions.origin, directions.author, directions.subject, Collections.singletonList(directions));
         tmpDirections.setValues(overrides);
         chart = charts.get(tmpDirections.chartOpt).checkDirectory();
         values = expressions.eval(prev, tmpDirections, chart);
