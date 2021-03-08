@@ -263,7 +263,7 @@ public class Directions {
         if (chartOpt != null) {
             node.set(CHART, new TextNode(chartOpt));
             if (chartVersionOpt != null) {
-                node.set("chartVersion", new TextNode(chartVersionOpt));
+                node.set(CHART_VERSION, new TextNode(chartVersionOpt));
             }
         }
         for (Direction direction : directions.values()) {
