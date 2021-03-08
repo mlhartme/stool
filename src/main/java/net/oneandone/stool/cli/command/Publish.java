@@ -18,7 +18,7 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
-import net.oneandone.stool.classes.ClassRef;
+import net.oneandone.stool.directions.ClassRef;
 import net.oneandone.stool.util.Diff;
 
 import java.io.IOException;

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.classes.ClassRef;
+import net.oneandone.stool.directions.ClassRef;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Pair;

@@ -18,7 +18,7 @@ package net.oneandone.stool.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.Main;
-import net.oneandone.stool.classes.Helm;
+import net.oneandone.stool.directions.Helm;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.server.users.UserManager;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.classes;
+package net.oneandone.stool.directions;
 
 public class Variable {
     public final Property property;

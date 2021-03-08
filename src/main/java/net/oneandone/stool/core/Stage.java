@@ -17,11 +17,11 @@ package net.oneandone.stool.core;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.classes.Variable;
+import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.classes.ClassRef;
-import net.oneandone.stool.classes.Clazz;
-import net.oneandone.stool.classes.Helm;
+import net.oneandone.stool.directions.ClassRef;
+import net.oneandone.stool.directions.Clazz;
+import net.oneandone.stool.directions.Helm;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;

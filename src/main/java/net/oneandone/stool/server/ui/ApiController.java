@@ -25,7 +25,7 @@ import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.KubernetesClient;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.StageNotFoundException;
-import net.oneandone.stool.classes.ClassRef;
+import net.oneandone.stool.directions.ClassRef;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.core.Stage;
 import net.oneandone.stool.server.users.User;
