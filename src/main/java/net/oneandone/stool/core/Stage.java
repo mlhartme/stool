@@ -92,7 +92,7 @@ public class Stage {
     public static Stage create(LocalSettings localSettings, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
         Directions cl;
 
-        cl = Directions.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.HELM_CLASS));
+        cl = Directions.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.DIRECTIONS_VALUE));
         return new Stage(localSettings, name, cl, loadVariables(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 

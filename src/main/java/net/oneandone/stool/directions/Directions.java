@@ -34,7 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Directions {
-    public static final String HELM_CLASS = "helmClass";
+    // this value is added to track the stage directions used
+    public static final String DIRECTIONS_VALUE = "_directions";
 
     /** loads the class ex- or implicitly defined by a chart */
     public static Directions loadStageClass(World world, ObjectMapper yaml) throws IOException {

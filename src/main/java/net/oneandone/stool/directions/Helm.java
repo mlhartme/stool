@@ -109,7 +109,7 @@ public final class Helm {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(Directions.HELM_CLASS, helmClass.toObject(localSettings.yaml));
+        dest.set(Directions.DIRECTIONS_VALUE, helmClass.toObject(localSettings.yaml));
 
         // check expire
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
