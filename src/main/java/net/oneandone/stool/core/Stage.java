@@ -46,14 +46,14 @@ import java.util.Map;
  * CAUTION: has to be reloaed to reflect e.g. value changes.
  */
 public class Stage {
-    public static Stage create(Caller caller, String kubeContext, Engine engine, LocalSettings localSettings, String stageName, DirectionsRef classRef,
-                               Map<String, String> values) throws IOException {
+    public static Stage create(Caller caller, String kubeContext, Engine engine, LocalSettings localSettings, String stageName,
+                               DirectionsRef directionsRef, Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(kubeContext, localSettings, stageName, classRef, values);
+        Helm.install(kubeContext, localSettings, stageName, directionsRef, values);
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -275,7 +275,7 @@ public class Stage {
                 return Stage.this.directions.chartOpt + ":" + Stage.this.directions.chartVersionOpt;
             }
         });
-        fields.add(new Field("class", true) {
+        fields.add(new Field("directions", true) {
             @Override
             public Object get(Engine engine) {
                 return Stage.this.directions.toObject(localSettings.yaml).toPrettyString();

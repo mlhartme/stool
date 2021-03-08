@@ -109,7 +109,7 @@ public class KubernetesClient extends Client {
     }
 
     @Override
-    public Map<String, String> create(String stageName, DirectionsRef classRef, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, DirectionsRef directionsRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
@@ -119,7 +119,7 @@ public class KubernetesClient extends Client {
             } catch (FileNotFoundException e) {
                 // OK, fall through
             }
-            stage = Stage.create(caller, kubernetesContext, engine, localSettings, stageName, classRef, values);
+            stage = Stage.create(caller, kubernetesContext, engine, localSettings, stageName, directionsRef, values);
             return stage.urlMap();
         }
     }

@@ -148,13 +148,13 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}")
-    public String create(@PathVariable("stage") String name, @RequestParam(value = "classref") String classRef,
+    public String create(@PathVariable("stage") String name, @RequestParam(value = "directionsref") String directionsRef,
                          HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String> values;
 
         values = map(request, "value.");
         try (RequestSettings settings = openSettings()) {
-            return Json.obj(settings.json, settings.client(request).create(name, DirectionsRef.parse(classRef), values)).toString();
+            return Json.obj(settings.json, settings.client(request).create(name, DirectionsRef.parse(directionsRef), values)).toString();
         } catch (FileAlreadyExistsException e) {
             // OK, fall through
             response.sendError(409 /* conflict */, "stage exists: " + name);
@@ -163,12 +163,12 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/publish")
-    public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "classref", required = false) String classRefOpt,
+    public String publish(@PathVariable(value = "stage") String stageName, @RequestParam(value = "directionsref", required = false) String directionsRefOpt,
                           @RequestParam(value = "dryrun", required = false, defaultValue = "false") boolean dryrun,
                           @RequestParam(value = "allow", required = false) String allow, HttpServletRequest request) throws IOException {
         try (RequestSettings settings = openSettings()) {
             return array(settings.json, settings.client(request)
-                    .publish(stageName, dryrun, allow, classRefOpt == null ? null : DirectionsRef.parse(classRefOpt), map(request, "value.")).toList()).toString();
+                    .publish(stageName, dryrun, allow, directionsRefOpt == null ? null : DirectionsRef.parse(directionsRefOpt), map(request, "value.")).toList()).toString();
         }
     }
 

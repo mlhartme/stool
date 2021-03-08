@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HelmIT {
     @Test
-    public void classRef() throws IOException {
+    public void directionsRef() throws IOException {
         World world;
         PortusRegistry portus;
         FileNode root;

@@ -29,18 +29,18 @@ import java.util.Map;
 public class Publish extends IteratedStageCommand {
     private final boolean dryrun;
     private final String allow;
-    private final DirectionsRef classRefOpt;
+    private final DirectionsRef directionsRefOpt;
     private final Map<String, String> values;
 
-    public Publish(Globals globals, boolean dryrun, String allow, String stage, List<String> classAndVariables) throws IOException {
+    public Publish(Globals globals, boolean dryrun, String allow, String stage, List<String> directionsAndVariables) throws IOException {
         super(globals, stage);
         this.dryrun = dryrun;
         this.allow = allow;
-        this.classRefOpt = eatClassRefOpt(classAndVariables);
-        this.values = eatValues(classAndVariables);
+        this.directionsRefOpt = eatDirectionsRefOpt(directionsAndVariables);
+        this.values = eatValues(directionsAndVariables);
     }
 
-    private DirectionsRef eatClassRefOpt(List<String> args) throws IOException {
+    private DirectionsRef eatDirectionsRefOpt(List<String> args) throws IOException {
         if (args.isEmpty() || args.get(0).contains("=")) {
             return null;
         }
@@ -75,7 +75,7 @@ public class Publish extends IteratedStageCommand {
     public void doMain(Reference reference) throws Exception {
         Diff result;
 
-        result = reference.client.publish(reference.stage, dryrun, allow, classRefOpt, values);
+        result = reference.client.publish(reference.stage, dryrun, allow, directionsRefOpt, values);
         if (dryrun) {
             console.info.println("dryrun, changes would be:");
             console.info.println(result.toString());
