@@ -20,7 +20,7 @@ import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.cli.Workspace;
-import net.oneandone.stool.directions.ClassRef;
+import net.oneandone.stool.directions.DirectionsRef;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -133,7 +133,7 @@ public class Create extends ClientCommand {
         client = globals.settings().currentContext().connect(globals.settings().local, globals.caller());
         reference = new Reference(client, stageName);
         try {
-            urls = client.create(stageName, ClassRef.create(world, classRef), values);
+            urls = client.create(stageName, DirectionsRef.create(world, classRef), values);
             console.info.println("stage created: " + reference);
         } catch (FileAlreadyExistsException e) {
             if (optional) {

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.directions.ClassRef;
+import net.oneandone.stool.directions.DirectionsRef;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Pair;
@@ -137,7 +137,7 @@ public class ProxyClient extends Client {
      * @return url map
      * @throws FileAlreadyExistsException if the stage already exists */
     @Override
-    public Map<String, String> create(String stageName, ClassRef classRef, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, DirectionsRef classRef, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node("stages/" + stageName);
@@ -147,7 +147,7 @@ public class ProxyClient extends Client {
     }
 
     @Override
-    public Diff publish(String stage, boolean dryrun, String allow, ClassRef classRefOpt, Map<String, String> values) throws IOException {
+    public Diff publish(String stage, boolean dryrun, String allow, DirectionsRef classRefOpt, Map<String, String> values) throws IOException {
         HttpNode node;
 
         node = node(stage, "publish");

@@ -59,15 +59,15 @@ public class Directions {
     }
 
     /** from inline, label or classes; always extends */
-    public static Directions loadLiteral(Map<String, Directions> existing, String origin, String author, ObjectNode clazz) throws IOException {
+    public static Directions loadLiteral(Map<String, Directions> existing, String origin, String author, ObjectNode directions) throws IOException {
         Directions base;
         Directions derived;
         String name;
         List<Directions> bases;
 
-        name = Json.string(clazz, "name");
+        name = Json.string(directions, "name");
         bases = new ArrayList();
-        for (String baseName : Json.stringListOpt(clazz, "extends")) {
+        for (String baseName : Json.stringListOpt(directions, "extends")) {
             base = existing.get(baseName);
             if (base == null) {
                 throw new IOException("base class not found: " + baseName);
@@ -75,19 +75,19 @@ public class Directions {
             bases.add(base);
         }
         derived = extend(origin, author, name, bases);
-        derived.defineAll(clazz.get("properties").fields());
+        derived.defineAll(directions.get("properties").fields());
         return derived;
     }
 
-    public static Directions loadHelm(ObjectNode clazz) {
+    public static Directions loadHelm(ObjectNode directions) {
         Directions result;
         String name;
 
-        name = Json.string(clazz, "name");
-        result = new Directions(Json.stringOpt(clazz, "origin"), Json.stringOpt(clazz, "author"), name,
+        name = Json.string(directions, "name");
+        result = new Directions(Json.stringOpt(directions, "origin"), Json.stringOpt(directions, "author"), name,
                 // chart + version are mandatory here because a stage was created with them:
-                Json.string(clazz, "chart"), Json.string(clazz, "chartVersion"));
-        result.defineBaseAll(clazz.get("properties").fields());
+                Json.string(directions, "chart"), Json.string(directions, "chartVersion"));
+        result.defineBaseAll(directions.get("properties").fields());
         return result;
     }
 

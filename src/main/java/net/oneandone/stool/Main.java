@@ -113,7 +113,7 @@ public class Main {
               cli.add(ConfigContext.class, "context -offline -q name?");
               cli.add(ShellInc.class, "shell-inc");
               cli.add(Images.class, "images image");
-              cli.add(Create.class, "create -optional -wait stage class values*");
+              cli.add(Create.class, "create -optional -wait stage directions values*");
               cli.add(Attach.class, "attach stage workspace");
               cli.add(Detach.class, "detach stage workspace");
               cli.add(Config.class, "config stage value* { value*(value) }");
@@ -122,7 +122,7 @@ public class Main {
               cli.add(Status.class, "status -hidden stage info* { select*(info) }");
               cli.add(Delete.class, "delete -batch stage");
               cli.add(Remove.class, "remove stage");
-              cli.add(Publish.class, "publish -dryrun -allow stage classAndValues*");
+              cli.add(Publish.class, "publish -dryrun -allow stage directionsAndValues*");
               cli.add(PortForward.class, "port-forward -timeout=30 stage port toPort?");
               cli.add(Ssh.class, "ssh -timeout=30 stage shell?");
               cli.add(Validate.class, "validate -email -repair stage");

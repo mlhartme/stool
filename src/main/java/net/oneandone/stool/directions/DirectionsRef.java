@@ -34,12 +34,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class ClassRef {
+public class DirectionsRef {
     private enum Type {
         INLINE, IMAGE, BUILTIN
     }
 
-    public static ClassRef parse(String str) {
+    public static DirectionsRef parse(String str) {
         int idx;
         Type type;
 
@@ -53,7 +53,7 @@ public class ClassRef {
         if (idx == -1) {
             throw new IllegalStateException(str);
         }
-        return new ClassRef(type, decode(str.substring(0, idx)), decode(str.substring(idx + 1)));
+        return new DirectionsRef(type, decode(str.substring(0, idx)), decode(str.substring(idx + 1)));
     }
 
 
@@ -65,18 +65,18 @@ public class ClassRef {
         return Base64.getEncoder().encodeToString(str.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static ClassRef create(World world, String str) throws IOException {
+    public static DirectionsRef create(World world, String str) throws IOException {
         FileNode file;
 
         if (str.startsWith("/") || str.startsWith(".")) {
             file = world.file(str);
             file.checkFile();
-            return new ClassRef(Type.INLINE, file.readString(), str);
+            return new DirectionsRef(Type.INLINE, file.readString(), str);
         }
         if (str.contains("/")) {
-            return new ClassRef(Type.IMAGE, str, str);
+            return new DirectionsRef(Type.IMAGE, str, str);
         } else {
-            return new ClassRef(Type.BUILTIN, str, str);
+            return new DirectionsRef(Type.BUILTIN, str, str);
         }
     }
 
@@ -84,7 +84,7 @@ public class ClassRef {
     private final String value;
     private final String origin;
 
-    public ClassRef(Type type, String value, String origin) {
+    public DirectionsRef(Type type, String value, String origin) {
         this.type = type;
         this.value = value;
         this.origin = origin;
@@ -174,9 +174,9 @@ public class ClassRef {
         return result;
     }
 
-    private static void add(Map<String, Directions> all, Directions clazz) throws IOException {
-        if (all.put(clazz.name, clazz) != null) {
-            throw new IOException("duplicate class: " + clazz.name);
+    private static void add(Map<String, Directions> all, Directions directions) throws IOException {
+        if (all.put(directions.name, directions) != null) {
+            throw new IOException("duplicate class: " + directions.name);
         }
     }
 }

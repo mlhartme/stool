@@ -39,21 +39,21 @@ import java.util.Map;
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(String kubernetesContext, LocalSettings localSettings, String name, ClassRef classRef, Map<String, String> overrides)
+    public static void install(String kubernetesContext, LocalSettings localSettings, String name, DirectionsRef classRef, Map<String, String> overrides)
             throws IOException {
-        Directions clazz;
+        Directions directions;
 
-        clazz = classRef.resolve(kubernetesContext, localSettings);
-        helm(kubernetesContext, localSettings, name, false, false, null, clazz, overrides, Collections.emptyMap());
+        directions = classRef.resolve(kubernetesContext, localSettings);
+        helm(kubernetesContext, localSettings, name, false, false, null, directions, overrides, Collections.emptyMap());
     }
 
     public static Diff upgrade(String kubeContext, LocalSettings localSettings, String name, boolean dryrun, List<String> allow,
-                               Directions clazz, Map<String, String> overrides, Map<String, String> prev) throws IOException {
-        return helm(kubeContext, localSettings, name, true, dryrun, allow, clazz, overrides, prev);
+                               Directions directions, Map<String, String> overrides, Map<String, String> prev) throws IOException {
+        return helm(kubeContext, localSettings, name, true, dryrun, allow, directions, overrides, prev);
     }
 
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                             Directions clazz, Map<String, String> overrides, Map<String, String> prev)
+                             Directions directions, Map<String, String> overrides, Map<String, String> prev)
             throws IOException {
         Map<String, FileNode> charts;
         Expressions expressions;
@@ -64,13 +64,13 @@ public final class Helm {
         Diff result;
         Diff forbidden;
 
-        if (clazz.chartOpt == null) {
-            throw new IOException("class is a mixin: " + clazz.name);
+        if (directions.chartOpt == null) {
+            throw new IOException("class is a mixin: " + directions.name);
         }
         charts = localSettings.resolvedCharts(kubeContext);
-        LOGGER.info("chart: " + clazz.chartOpt + ":" + clazz.chartVersionOpt);
+        LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
         expressions = new Expressions(localSettings, name);
-        tmpClass = Directions.extend(clazz.origin, clazz.author, clazz.name, Collections.singletonList(clazz));
+        tmpClass = Directions.extend(directions.origin, directions.author, directions.name, Collections.singletonList(directions));
         tmpClass.setValues(overrides);
         chart = charts.get(tmpClass.chartOpt).checkDirectory();
         values = expressions.eval(prev, tmpClass, chart);
@@ -87,7 +87,7 @@ public final class Helm {
                 result.remove(property.name);
             }
         }
-        valuesFile = createValuesFile(localSettings, values, clazz);
+        valuesFile = createValuesFile(localSettings, values, directions);
         try {
             LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,

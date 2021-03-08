@@ -18,7 +18,7 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
-import net.oneandone.stool.directions.ClassRef;
+import net.oneandone.stool.directions.DirectionsRef;
 import net.oneandone.stool.util.Diff;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.util.Map;
 public class Publish extends IteratedStageCommand {
     private final boolean dryrun;
     private final String allow;
-    private final ClassRef classRefOpt;
+    private final DirectionsRef classRefOpt;
     private final Map<String, String> values;
 
     public Publish(Globals globals, boolean dryrun, String allow, String stage, List<String> classAndVariables) throws IOException {
@@ -40,11 +40,11 @@ public class Publish extends IteratedStageCommand {
         this.values = eatValues(classAndVariables);
     }
 
-    private ClassRef eatClassRefOpt(List<String> args) throws IOException {
+    private DirectionsRef eatClassRefOpt(List<String> args) throws IOException {
         if (args.isEmpty() || args.get(0).contains("=")) {
             return null;
         }
-        return ClassRef.create(globals.getWorld(), args.remove(0));
+        return DirectionsRef.create(globals.getWorld(), args.remove(0));
     }
 
     private static Map<String, String> eatValues(List<String> args) {

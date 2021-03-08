@@ -62,7 +62,7 @@ public class Expressions {
         this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Map<String, String> previous, Directions clazz, FileNode chart) {
+    public Map<String, String> eval(Map<String, String> previous, Directions directions, FileNode chart) {
         Map<String, String> result;
 
         if (context != null) {
@@ -81,10 +81,10 @@ public class Expressions {
         }
         contextPrevious = previous;
         try {
-            for (Direction property : clazz.properties.values()) {
+            for (Direction property : directions.properties.values()) {
                 context.put(property.name, property);
             }
-            for (Direction property : clazz.properties.values()) {
+            for (Direction property : directions.properties.values()) {
                 evalValue(property.name);
             }
             result = new LinkedHashMap<>();

@@ -22,7 +22,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Field;
-import net.oneandone.stool.directions.ClassRef;
+import net.oneandone.stool.directions.DirectionsRef;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
@@ -109,7 +109,7 @@ public class KubernetesClient extends Client {
     }
 
     @Override
-    public Map<String, String> create(String stageName, ClassRef classRef, Map<String, String> values) throws IOException {
+    public Map<String, String> create(String stageName, DirectionsRef classRef, Map<String, String> values) throws IOException {
         Stage stage;
 
         try (Engine engine = engine()) {
@@ -125,14 +125,14 @@ public class KubernetesClient extends Client {
     }
 
     @Override
-    public Diff publish(String name, boolean dryrun, String allow, ClassRef classRefOpt, Map<String, String> values) throws IOException {
+    public Diff publish(String name, boolean dryrun, String allow, DirectionsRef directionsRefOpt, Map<String, String> values) throws IOException {
         Stage stage;
-        Directions clazz;
+        Directions directions;
 
         try (Engine engine = engine()) {
             stage = localSettings.load(engine, name);
-            clazz = classRefOpt == null ? stage.clazz : classRefOpt.resolve(kubernetesContext, localSettings);
-            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, clazz, values);
+            directions = directionsRefOpt == null ? stage.directions : directionsRefOpt.resolve(kubernetesContext, localSettings);
+            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, directions, values);
         }
     }
 

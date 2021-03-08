@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.cli.Caller;
-import net.oneandone.stool.directions.ClassRef;
+import net.oneandone.stool.directions.DirectionsRef;
 import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.directions.Helm;
 import net.oneandone.stool.kubernetes.Stats;
@@ -46,7 +46,7 @@ import java.util.Map;
  * CAUTION: has to be reloaed to reflect e.g. value changes.
  */
 public class Stage {
-    public static Stage create(Caller caller, String kubeContext, Engine engine, LocalSettings localSettings, String stageName, ClassRef classRef,
+    public static Stage create(Caller caller, String kubeContext, Engine engine, LocalSettings localSettings, String stageName, DirectionsRef classRef,
                                Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
@@ -98,7 +98,7 @@ public class Stage {
 
     private static final List<String> WITHOUT_CLASS = Collections.singletonList("stage-class");
 
-    private static Map<String, Variable> loadVariables(Directions clazz, ObjectNode helmObject) throws IOException {
+    private static Map<String, Variable> loadVariables(Directions directions, ObjectNode helmObject) throws IOException {
         Map<String, Object> raw;
         Map<String, Variable> result;
         String key;
@@ -109,7 +109,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
-            result.put(key, new Variable(clazz.get(key), entry.getValue().toString()));
+            result.put(key, new Variable(directions.get(key), entry.getValue().toString()));
         }
         return result;
     }
@@ -134,7 +134,7 @@ public class Stage {
      */
     private final String name;
 
-    public final Directions clazz;
+    public final Directions directions;
 
     private final Map<String, Variable> variables;
 
@@ -142,10 +142,10 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(LocalSettings localSettings, String name, Directions clazz, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(LocalSettings localSettings, String name, Directions directions, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
         this.localSettings = localSettings;
         this.name = name;
-        this.clazz = clazz;
+        this.directions = directions;
         this.variables = variables;
         this.info = info;
         this.history = history;
@@ -272,19 +272,19 @@ public class Stage {
         fields.add(new Field("chart") {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.clazz.chartOpt + ":" + Stage.this.clazz.chartVersionOpt;
+                return Stage.this.directions.chartOpt + ":" + Stage.this.directions.chartVersionOpt;
             }
         });
         fields.add(new Field("class", true) {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.clazz.toObject(localSettings.yaml).toPrettyString();
+                return Stage.this.directions.toObject(localSettings.yaml).toPrettyString();
             }
         });
         fields.add(new Field("origin", true) {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.clazz.origin;
+                return Stage.this.directions.origin;
             }
         });
         return fields;
@@ -330,7 +330,7 @@ public class Stage {
         prev = valuesMap();
         overrides = new LinkedHashMap<>(prev); // override all, do not compute any values
         overrides.putAll(changes);
-        Helm.upgrade(kubeContext, localSettings, name, false, null, clazz, overrides, prev);
+        Helm.upgrade(kubeContext, localSettings, name, false, null, directions, overrides, prev);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

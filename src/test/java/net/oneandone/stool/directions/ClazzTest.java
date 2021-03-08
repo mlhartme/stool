@@ -107,7 +107,7 @@ public class ClazzTest {
         Map<String, Directions> all;
         Directions a;
 
-        all = ClassRef.loadAll(WORLD, YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/classes/foo").checkDirectory()));
+        all = DirectionsRef.loadAll(WORLD, YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/classes/foo").checkDirectory()));
         assertEquals(4, all.size());
         a = all.get("derived");
         assertEquals("42", a.properties.get("asis").function);
