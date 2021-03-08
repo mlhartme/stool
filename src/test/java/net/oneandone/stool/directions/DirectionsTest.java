@@ -110,8 +110,8 @@ public class DirectionsTest {
         all = DirectionsRef.loadAll(WORLD, YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/directions/foo").checkDirectory()));
         assertEquals(4, all.size());
         a = all.get("derived");
-        assertEquals("42", a.properties.get("asis").function);
-        assertEquals("modified", a.properties.get("base").function);
-        assertEquals("3", a.properties.get("added").function);
+        assertEquals("42", a.properties.get("asis").expression);
+        assertEquals("modified", a.properties.get("base").expression);
+        assertEquals("3", a.properties.get("added").expression);
     }
 }

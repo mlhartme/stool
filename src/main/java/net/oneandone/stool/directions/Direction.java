@@ -32,7 +32,7 @@ public class Direction {
         boolean privt;
         boolean extra;
         String doc;
-        String function;
+        String expression;
         ObjectNode obj;
 
         privt = false;
@@ -43,21 +43,21 @@ public class Direction {
             privt = Json.bool(obj, "private", privt);
             extra = Json.bool(obj, "extra", extra);
             doc = Json.string(obj, "doc", null);
-            function = getFunction(obj);
+            expression = getExpression(obj);
         } else {
-            function = yaml.asText();
+            expression = yaml.asText();
         }
-        return new Direction(name, privt, extra, doc, function);
+        return new Direction(name, privt, extra, doc, expression);
     }
 
-    public static String getFunction(ObjectNode root) {
+    public static String getExpression(ObjectNode root) {
         JsonNode v;
         ObjectNode obj;
         String var;
         String dflt;
         StringBuilder result;
 
-        v = root.get("function");
+        v = root.get("expr");
         if (v == null) {
             return "";
         } else if (v.isTextual() || v.isNumber()) {
@@ -80,7 +80,7 @@ public class Direction {
             result.append(") }");
             return result.toString();
         } else {
-            throw new ArgumentException("malformed function: " + v.toString());
+            throw new ArgumentException("malformed expression: " + v.toString());
         }
     }
 
@@ -92,25 +92,25 @@ public class Direction {
     public final boolean privt;
     public final boolean extra;
     public final String doc;
-    public final String function;
+    public final String expression;
 
-    public Direction(String name, String function) {
-        this(name, false, false, null, function);
+    public Direction(String name, String expression) {
+        this(name, false, false, null, expression);
     }
-    public Direction(String name, boolean privt, boolean extra, String doc, String function) {
+    public Direction(String name, boolean privt, boolean extra, String doc, String expression) {
         this.name = name;
         this.privt = privt;
         this.extra = extra;
         this.doc = doc;
-        this.function = function;
+        this.expression = expression;
     }
 
-    public Direction withFunction(String withFunction) {
-        return new Direction(name, privt, extra, doc, withFunction);
+    public Direction withExpression(String withExpression) {
+        return new Direction(name, privt, extra, doc, withExpression);
     }
 
     public Direction withDoc(String withDoc) {
-        return new Direction(name, privt, extra, withDoc, function);
+        return new Direction(name, privt, extra, withDoc, expression);
     }
 
     public JsonNode toObject(ObjectMapper yaml) {
@@ -127,9 +127,9 @@ public class Direction {
             result.set("doc", new TextNode(doc));
         }
         if (result.isEmpty()) {
-            return new TextNode(function);
+            return new TextNode(expression);
         } else {
-            result.set("function", new TextNode(function));
+            result.set("expr", new TextNode(expression));
             return result;
         }
     }

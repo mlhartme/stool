@@ -160,8 +160,8 @@ public class Directions {
             if (old.doc != null && property.doc == null) {
                 property = property.withDoc(old.doc);
             }
-            if (!old.function.isEmpty() && property.function.isEmpty()) {
-                property = property.withFunction(old.function);
+            if (!old.expression.isEmpty() && property.expression.isEmpty()) {
+                property = property.withExpression(old.expression);
             }
         } else {
             if (chartOpt == null) {

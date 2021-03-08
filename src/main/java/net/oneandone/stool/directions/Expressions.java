@@ -116,7 +116,7 @@ public class Expressions {
         if (obj instanceof Direction) {
             context.put(name, null);
             try {
-                result = eval(((Direction) obj).function);
+                result = eval(((Direction) obj).expression);
             } catch (IOException e) {
                 throw new ArgumentException(name + ": failed to compute property: " + e.getMessage(), e);
             }

@@ -1,4 +1,3 @@
-name: "hellowar"
-extends: "kutter"
-properties:
-  image: "contargo.server.lan/cisoops-public/hellowar:1.0.6-20210217-145716-257"
+NAME: "hellowar"
+EXTENDS: "kutter"
+image: "contargo.server.lan/cisoops-public/hellowar:1.0.6-20210217-145716-257"

@@ -95,8 +95,8 @@ public class ExpressionsTest {
         JsonNode n;
 
         yaml = new ObjectMapper(new YAMLFactory());
-        n = yaml.readTree("function:\n  default: '0'\n  a: '1'\n  b: '2'");
-        assertEquals("${ switch('MODE','0','a','1','b','2') }", Direction.getFunction((ObjectNode) n));
+        n = yaml.readTree("expr:\n  default: '0'\n  a: '1'\n  b: '2'");
+        assertEquals("${ switch('MODE','0','a','1','b','2') }", Direction.getExpression((ObjectNode) n));
     }
 
     @Test
