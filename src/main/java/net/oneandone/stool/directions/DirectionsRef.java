@@ -96,6 +96,8 @@ public class DirectionsRef {
 
     public static final String BUILDIN = "_buildin_";
 
+    public static final String LABEL = "directions";
+
     public Directions resolve(String kubeContext, LocalSettings localSettings) throws IOException {
         ObjectMapper yaml;
         Map<String, Directions> all;
@@ -126,9 +128,9 @@ public class DirectionsRef {
 
                 registry = localSettings.createRegistry(value);
                 tag = registry.resolve(value);
-                str = tag.labels.get("stage-class");
+                str = tag.labels.get(LABEL);
                 if (str == null || str.isEmpty()) {
-                    throw new IOException("image does not have a 'stage-class' label: " + value);
+                    throw new IOException("image does not have a '" + LABEL + "' label: " + value);
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     try {
