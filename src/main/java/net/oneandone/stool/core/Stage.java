@@ -96,14 +96,12 @@ public class Stage {
         return new Stage(localSettings, name, cl, loadVariables(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
-    private static final List<String> WITHOUT_CLASS = Collections.singletonList("stage-class");
-
     private static Map<String, Variable> loadVariables(Directions directions, ObjectNode helmObject) throws IOException {
         Map<String, Object> raw;
         Map<String, Variable> result;
         String key;
 
-        raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), WITHOUT_CLASS);
+        raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), Collections.emptyList());
         raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
         check(raw, Dependencies.MANDATORY);
         result = new LinkedHashMap<>();
@@ -117,7 +115,7 @@ public class Stage {
     private static void check(Map<String, Object> values, String... keys) throws IOException {
         for (String key : keys) {
             if (!values.containsKey(key)) {
-                throw new IOException("xmissing key in helm chart: " + key + " in " + values.keySet());
+                throw new IOException("missing key in helm chart: " + key + " in " + values.keySet());
             }
         }
     }
