@@ -90,12 +90,12 @@ public class DirectionsTest {
 
     @Test
     public Directions create(String str) throws IOException {
-        Map<String, Directions> all;
+        Zone zone;
         ObjectNode obj;
 
         obj = (ObjectNode) YAML.readTree(str);
-        all = new HashMap<>();
-        all.put("base", Directions.forTest("base", "f", "1"));
-        return Directions.loadLiteral(all, "", null, obj);
+        zone = new Zone();
+        zone.add(Directions.forTest("base", "f", "1"));
+        return Directions.loadLiteral(zone, "", null, obj);
     }
 }

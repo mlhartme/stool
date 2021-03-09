@@ -25,7 +25,6 @@ import net.oneandone.sushi.fs.World;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,7 +36,7 @@ public class Directions {
 
     public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml) throws IOException {
         try (Reader src = world.resource("stage.yaml").newReader()) {
-            return Directions.loadLiteral(Collections.emptyMap(), "root", "stool", (ObjectNode) yaml.readTree(src));
+            return Directions.loadLiteral(new Zone(), "root", "stool", (ObjectNode) yaml.readTree(src));
         }
     }
 
@@ -64,9 +63,8 @@ public class Directions {
     private static final String AUTHOR = "AUTHOR";
 
     /** from inline, label or file; always extends */
-    public static Directions loadLiteral(Map<String, Directions> existing, String origin, String author, ObjectNode directions) throws IOException {
+    public static Directions loadLiteral(Zone zone, String origin, String author, ObjectNode directions) throws IOException {
         Map<String, JsonNode> raw;
-        Directions base;
         Directions derived;
         String subject;
         List<Directions> bases;
@@ -75,11 +73,7 @@ public class Directions {
         subject = eatString(raw, DIRECTIONS);
         bases = new ArrayList();
         for (String baseName : stringListOpt(raw.remove(EXTENDS))) {
-            base = existing.get(baseName);
-            if (base == null) {
-                throw new IOException("base directions not found: " + baseName);
-            }
-            bases.add(base);
+            bases.add(zone.directions(baseName));
         }
         derived = extend(origin, author, subject, bases);
         for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {

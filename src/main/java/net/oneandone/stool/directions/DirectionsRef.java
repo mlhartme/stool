@@ -29,7 +29,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Map;
 
 public class DirectionsRef {
     private enum Type {
@@ -97,23 +96,20 @@ public class DirectionsRef {
 
     public Directions resolve(LocalSettings localSettings) throws IOException {
         ObjectMapper yaml;
-        Map<String, Directions> all;
+        Zone zone;
         Directions result;
         String str;
 
         yaml = localSettings.yaml;
-        all = Library.loadAll(localSettings.world, yaml, localSettings.resolvedLibraries().values());
+        zone = Zone.load(localSettings.world, yaml, localSettings.resolvedLibraries().values());
         switch (type) {
             case BUILTIN:
-                result = all.get(value);
-                if (result == null) {
-                    throw new IOException("directions not found: " + value);
-                }
+                result = zone.directions(value);
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {
                     try {
-                        result = Directions.loadLiteral(all, origin, null, object(yaml.readTree(src)));
+                        result = Directions.loadLiteral(zone, origin, null, object(yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse directions from file: " + e.getMessage(), e);
                     }
@@ -131,7 +127,7 @@ public class DirectionsRef {
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     try {
-                        result = Directions.loadLiteral(all, origin, tag.author, object(yaml.readTree(src)));
+                        result = Directions.loadLiteral(zone, origin, tag.author, object(yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse directions from image label: " + e.getMessage(), e);
                     }

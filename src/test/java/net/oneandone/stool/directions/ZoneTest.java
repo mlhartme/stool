@@ -22,23 +22,22 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LibraryTest {
+public class ZoneTest {
     private static final World WORLD = World.createMinimal();
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     @Test
     public void loadAll() throws IOException {
-        Map<String, Directions> all;
+        Zone zone;
         Directions a;
 
-        all = Library.loadAll(WORLD, YAML,
+        zone = Zone.load(WORLD, YAML,
                 Collections.singleton(Library.fromDirectory(WORLD.guessProjectHome(getClass()).join("src/test/data/library").checkDirectory())));
-        assertEquals(4, all.size());
-        a = all.get("derived");
+        assertEquals(4, zone.size());
+        a = zone.directions("derived");
         assertEquals("42", a.directions.get("asis").expression);
         assertEquals("modified", a.directions.get("base").expression);
         assertEquals("3", a.directions.get("added").expression);
