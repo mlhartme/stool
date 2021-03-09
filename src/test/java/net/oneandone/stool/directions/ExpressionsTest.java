@@ -76,16 +76,16 @@ public class ExpressionsTest {
     @Test
     public void exec() throws IOException {
         Expressions e;
-        Directions clazz;
+        Directions directions;
         Map<String, String> values;
         FileNode dir;
 
 
         dir = world.getTemp().createTempDirectory();
         dir.join("scripts").mkdir().join("script.sh").writeString("#!/bin/sh\necho \"arg:$1\"");
-        clazz = Directions.forTest("name", "one", "${exec('script.sh', 'hello')}");
+        directions = Directions.forTest("name", "one", "${exec('script.sh', 'hello')}");
         e = expressions();
-        values = e.eval(new HashMap<>(), clazz, dir);
+        values = e.eval(new HashMap<>(), directions, dir);
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
     }
 
