@@ -29,9 +29,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class DirectionsRef {
@@ -105,7 +102,7 @@ public class DirectionsRef {
         String str;
 
         yaml = localSettings.yaml;
-        all = loadAll(localSettings.world, yaml, localSettings.resolvedLibraries().values());
+        all = Library.loadAll(localSettings.world, yaml, localSettings.resolvedLibraries().values());
         switch (type) {
             case BUILTIN:
                 result = all.get(value);
@@ -151,36 +148,6 @@ public class DirectionsRef {
             return (ObjectNode) raw;
         } else {
             throw new IOException("object expected, got  " + raw.getNodeType());
-        }
-    }
-
-    public static Map<String, Directions> loadAll(World world, ObjectMapper yaml, Collection<Library> libraries) throws IOException {
-        Iterator<JsonNode> directions;
-        Map<String, Directions> result;
-        FileNode file;
-
-        result = new HashMap<>();
-        add(result, Directions.loadStageDirectionsBase(world, yaml));
-        for (Library library : libraries) {
-            for (Chart chart : library.charts()) {
-                add(result, Directions.loadChartDirections(yaml, chart));
-                file = chart.directory.join("library.yaml");
-                if (file.exists()) {
-                    try (Reader src = file.newReader()) {
-                        directions = yaml.readTree(src).elements();
-                    }
-                    while (directions.hasNext()) {
-                        add(result, Directions.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) directions.next()));
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    private static void add(Map<String, Directions> all, Directions directions) throws IOException {
-        if (all.put(directions.subject, directions) != null) {
-            throw new IOException("duplicate directions: " + directions.subject);
         }
     }
 }

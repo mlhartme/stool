@@ -15,22 +15,63 @@
  */
 package net.oneandone.stool.directions;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Versions;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Library {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
+
+    public static Map<String, Directions> loadAll(World world, ObjectMapper yaml, Collection<Library> libraries) throws IOException {
+        Iterator<JsonNode> directions;
+        Map<String, Directions> result;
+        FileNode file;
+
+        result = new HashMap<>();
+        add(result, Directions.loadStageDirectionsBase(world, yaml));
+        for (Library library : libraries) {
+            for (Chart chart : library.charts()) {
+                add(result, Directions.loadChartDirections(yaml, chart));
+            }
+            file = library.directory.join("library.yaml");
+            if (file.exists()) {
+                try (Reader src = file.newReader()) {
+                    directions = yaml.readTree(src).elements();
+                }
+                while (directions.hasNext()) {
+                    add(result, Directions.loadLiteral(result, "builtin", DirectionsRef.BUILDIN, (ObjectNode) directions.next()));
+                }
+            }
+        }
+        return result;
+    }
+
+    private static void add(Map<String, Directions> all, Directions directions) throws IOException {
+        if (all.put(directions.subject, directions) != null) {
+            throw new IOException("duplicate directions: " + directions.subject);
+        }
+    }
+
+    //--
 
     public static Library fromDirectory(FileNode directory) throws IOException {
         return new Library(directory.getName(), directory.checkDirectory(), "unknown");

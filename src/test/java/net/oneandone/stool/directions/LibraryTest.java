@@ -35,7 +35,7 @@ public class LibraryTest {
         Map<String, Directions> all;
         Directions a;
 
-        all = DirectionsRef.loadAll(WORLD, YAML,
+        all = Library.loadAll(WORLD, YAML,
                 Collections.singleton(Library.fromDirectory(WORLD.guessProjectHome(getClass()).join("src/test/data/library").checkDirectory())));
         assertEquals(4, all.size());
         a = all.get("derived");
