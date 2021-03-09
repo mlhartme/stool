@@ -16,7 +16,6 @@
 package net.oneandone.stool.directions;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.Registry;
@@ -95,13 +94,11 @@ public class DirectionsRef {
     public static final String LABEL = "directions";
 
     public Directions resolve(LocalSettings localSettings) throws IOException {
-        ObjectMapper yaml;
         Zone zone;
         Directions result;
         String str;
 
-        yaml = localSettings.yaml;
-        zone = Zone.load(localSettings.world, yaml, localSettings.resolvedLibraries().values());
+        zone = localSettings.loadZone();
         switch (type) {
             case BUILTIN:
                 result = zone.directions(value);
@@ -109,7 +106,7 @@ public class DirectionsRef {
             case INLINE:
                 try (Reader src = new StringReader(value)) {
                     try {
-                        result = Directions.loadLiteral(zone, origin, null, object(yaml.readTree(src)));
+                        result = Directions.loadLiteral(zone, origin, null, object(localSettings.yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse directions from file: " + e.getMessage(), e);
                     }
@@ -127,7 +124,7 @@ public class DirectionsRef {
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     try {
-                        result = Directions.loadLiteral(zone, origin, tag.author, object(yaml.readTree(src)));
+                        result = Directions.loadLiteral(zone, origin, tag.author, object(localSettings.yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse directions from image label: " + e.getMessage(), e);
                     }
