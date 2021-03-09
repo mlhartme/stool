@@ -40,7 +40,7 @@ public class Zone {
             for (Chart chart : library.charts()) {
                 result.add(Directions.loadChartDirections(yaml, chart));
             }
-            file = library.directory.join("library.yaml");
+            file = library.libraryYaml;
             if (file.exists()) {
                 try (Reader src = file.newReader()) {
                     directions = yaml.readTree(src).elements();

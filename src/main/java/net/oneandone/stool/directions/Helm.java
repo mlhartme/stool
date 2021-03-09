@@ -124,12 +124,6 @@ public final class Helm {
 
     //--
 
-    public static FileNode tagFile(FileNode chart) {
-        return chart.join(".tag");
-    }
-
-    //--
-
     public static void exec(boolean dryrun, String kubeContext, FileNode dir, String... args) throws IOException {
         String[] cmd;
 

@@ -40,7 +40,7 @@ public class HelmIT {
         root = world.getTemp().createTempDirectory();
         portus = PortusRegistry.create(Json.newJson(), world, Secrets.load(world).portus.resolve("/").toString(), null);
         library = Library.fromRegistry(portus, "contargo.server.lan/cisoops-public/charts/kutter", root); // TODO
-        assertTrue(library.directory.isDirectory());
-        assertEquals(root.getAbsolute(), library.directory.getParent().getAbsolute());
+        assertTrue(library.libraryYaml.getParent().isDirectory());
+        assertEquals(root.getAbsolute(), library.libraryYaml.getParent().getParent().getParent().getAbsolute());
     }
 }

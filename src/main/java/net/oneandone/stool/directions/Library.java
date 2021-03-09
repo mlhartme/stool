@@ -27,14 +27,15 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Library {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
     public static Library fromDirectory(FileNode directory) throws IOException {
-        return new Library(directory.getName(), directory.checkDirectory(), "unknown");
-
+        return fromDirectory(directory, "unknown");
     }
 
     public static Library fromRegistry(PortusRegistry registry, String repository, FileNode exports) throws IOException {
@@ -56,7 +57,7 @@ public class Library {
         }
         tag = tags.get(tags.size() - 1);
         libraryDir = exports.join(name);
-        tagFile = Helm.tagFile(libraryDir);
+        tagFile = libraryDir.join(".tag");
         if (libraryDir.exists()) {
             existing = tagFile.readString().trim();
             if (!tag.equals(existing)) {
@@ -79,7 +80,17 @@ public class Library {
             }
             tagFile.writeString(tag);
         }
-        return new Library(name, libraryDir, tag);
+        return fromDirectory(libraryDir, tag);
+    }
+
+    private static Library fromDirectory(FileNode directory, String version) throws IOException {
+        Library result;
+
+        result = new Library(directory.getName(), version, directory.join("library.yaml"));
+        for (FileNode chart : directory.join("charts").list()) {
+            result.addChart(chart);
+        }
+        return result;
     }
 
     private static List<String> sortTags(List<String> lst) { // TODO: also use for taginfo sorting, that's still based on numbers
@@ -90,13 +101,25 @@ public class Library {
     //--
 
     private final String name;
-    public final FileNode directory;
+    private final Map<String, Chart> charts;
     private final String version;
+    public final FileNode libraryYaml;
 
-    public Library(String name, FileNode directory, String version) {
+    public Library(String name, String version, FileNode libraryYaml) {
         this.name = name;
-        this.directory = directory;
+        this.charts = new HashMap<>();
         this.version = version;
+        this.libraryYaml = libraryYaml;
+    }
+
+    public void addChart(FileNode directory) throws IOException {
+        addChart(new Chart(directory, version));
+    }
+
+    public void addChart(Chart chart) throws IOException {
+        if (charts.put(chart.getName(), chart) != null) {
+            throw new IOException("duplicate chart: " + chart.getName());
+        }
     }
 
     public String getName() {
@@ -104,19 +127,10 @@ public class Library {
     }
 
     public List<Chart> charts() throws IOException {
-        List<Chart> result;
-
-        result = new ArrayList<>();
-        for (FileNode dir : directory.join("charts").list()) {
-            result.add(new Chart(dir, version));
-        }
-        return result;
+        return new ArrayList<>(charts.values());
     }
 
     public Chart lookupChart(String chartName) {
-        FileNode chart;
-
-        chart = directory.join("charts", chartName);
-        return chart.exists() ? new Chart(directory, version) : null;
+        return charts.get(chartName);
     }
 }
