@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -32,22 +31,18 @@ public class Zone {
     public static Zone load(World world, ObjectMapper yaml, Collection<Library> libraries) throws IOException {
         Iterator<JsonNode> directions;
         Zone result;
-        FileNode file;
 
         result = new Zone();
         result.add(Directions.loadStageDirectionsBase(world, yaml));
         for (Library library : libraries) {
             for (Chart chart : library.charts()) {
-                result.add(chart.directions);
+                result.add(chart);
             }
-            file = library.libraryYaml;
-            if (file.exists()) {
-                try (Reader src = file.newReader()) {
-                    directions = yaml.readTree(src).elements();
-                }
-                while (directions.hasNext()) {
-                    result.add(Directions.loadLiteral(result, "builtin", DirectionsRef.BUILDIN, (ObjectNode) directions.next()));
-                }
+            try (Reader src = library.libraryYaml.newReader()) {
+                directions = yaml.readTree(src).elements();
+            }
+            while (directions.hasNext()) {
+                result.add(Directions.loadLiteral(result, "builtin", DirectionsRef.BUILDIN, (ObjectNode) directions.next()));
             }
         }
         return result;
@@ -55,29 +50,49 @@ public class Zone {
 
     //--
 
-    private final Map<String, Directions> all;
+    private final Map<String, Directions> directions;
+    private final Map<String, Chart> charts;
 
     public Zone() {
-        this.all = new HashMap<>();
+        this.directions = new HashMap<>();
+        this.charts = new HashMap<>();
     }
 
-    public void add(Directions directions) throws IOException {
-        if (all.put(directions.subject, directions) != null) {
-            throw new IOException("duplicate directions: " + directions.subject);
+    public void add(Directions add) throws IOException {
+        if (this.directions.put(add.subject, add) != null) {
+            throw new IOException("duplicate directions: " + add.subject);
+        }
+    }
+
+    public void add(Chart chart) throws IOException {
+        add(chart.directions);
+        if (this.charts.put(chart.name, chart) != null) {
+            throw new IOException("duplicate chart: " + chart);
         }
     }
 
     public int size() {
-        return all.size();
+        return directions.size();
     }
 
     public Directions directions(String name) throws IOException {
         Directions result;
 
-        result = all.get(name);
+        result = directions.get(name);
         if (result == null) {
             throw new IOException("directions not found: " + name);
         }
         return result;
     }
+
+    public Chart chart(String name) throws IOException {
+        Chart result;
+
+        result = charts.get(name);
+        if (result == null) {
+            throw new IOException("chart not found: " + name);
+        }
+        return result;
+    }
+
 }

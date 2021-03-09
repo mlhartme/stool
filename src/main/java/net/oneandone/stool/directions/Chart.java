@@ -15,31 +15,7 @@
  */
 package net.oneandone.stool.directions;
 
-import java.io.IOException;
-import java.util.Collection;
-
 public class Chart {
-    public static Chart get(Collection<Library> libraries, String name) throws IOException {
-        Chart result;
-        Chart chart;
-
-        result = null;
-        for (Library library : libraries) {
-            chart = library.lookupChart(name);
-            if (chart != null) {
-                if (result != null) {
-                    throw new IOException("chart ambiguous: " + name);
-                }
-            }
-        }
-        if (result == null) {
-            throw new IOException("chart not found: " + name);
-        }
-        return result;
-    }
-
-    //--
-
     public final String name;
     public final String reference;
     public final Directions directions;
