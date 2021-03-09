@@ -98,7 +98,7 @@ public class DirectionsRef {
         Directions result;
         String str;
 
-        library = localSettings.loadLibrary();
+        library = localSettings.library();
         switch (type) {
             case BUILTIN:
                 result = library.directions(value);

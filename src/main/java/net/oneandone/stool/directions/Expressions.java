@@ -49,7 +49,7 @@ public class Expressions {
      *   null when eval of this key started
      */
     private Map<String, Object> context;
-    private FileNode contextChart;
+    private FileNode contextScripts;
     private Map<String, String> contextPrevious;
 
     public Expressions(LocalSettings localSettings, String stage) {
@@ -58,27 +58,18 @@ public class Expressions {
         this.stage = stage;
         this.host = localSettings.fqdn;
         this.context = null;
-        this.contextChart = null;
+        this.contextScripts = null;
         this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Map<String, String> previous, Directions directions, FileNode chart) {
+    public Map<String, String> eval(Map<String, String> previous, Directions directions, FileNode scripts) {
         Map<String, String> result;
 
         if (context != null) {
             throw new IllegalStateException();
         }
         context = new LinkedHashMap<>();
-        contextChart = chart;
-        try {
-            for (FileNode file : contextChart.find("scripts/*.sh")) {
-                if (file.isFile() && !file.toPath().toFile().canExecute()) {
-                    file.setPermissions("rwxr-xr-x");
-                }
-            }
-        } catch (IOException e) {
-            throw new IllegalStateException("TODO", e);
-        }
+        contextScripts = scripts;
         contextPrevious = previous;
         try {
             for (Direction property : directions.directions.values()) {
@@ -94,7 +85,7 @@ public class Expressions {
             return result;
         } finally {
             context = null;
-            contextChart = null;
+            contextScripts = null;
             contextPrevious = null;
         }
     }
@@ -294,10 +285,10 @@ public class Expressions {
         if (lst.isEmpty()) {
             throw new ArgumentException("exec without command");
         }
-        if (contextChart == null) {
+        if (contextScripts == null) {
             throw new ArgumentException("missing chart context");
         }
-        cmd = contextChart.join("scripts", lst.get(0).toString());
+        cmd = contextScripts.join(lst.get(0).toString());
         if (!cmd.isFile()) {
             throw new ArgumentException("command not found: " + cmd.getAbsolute());
         }

@@ -82,7 +82,7 @@ public class ExpressionsTest {
 
 
         dir = world.getTemp().createTempDirectory();
-        dir.join("scripts").mkdir().join("script.sh").writeString("#!/bin/sh\necho \"arg:$1\"");
+        dir.join("script.sh").writeString("#!/bin/sh\necho \"arg:$1\"").setPermissions("rwxr-xr-x");
         directions = Directions.forTest("name", "one", "${exec('script.sh', 'hello')}");
         e = expressions();
         values = e.eval(new HashMap<>(), directions, dir);

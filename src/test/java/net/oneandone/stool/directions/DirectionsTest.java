@@ -34,7 +34,7 @@ public class DirectionsTest {
     public void stage() throws IOException {
         Directions c;
 
-        c = Directions.loadStageDirectionsBase(WORLD, YAML, new Library("empty"));
+        c = Directions.loadStageDirectionsBase(WORLD, YAML, new Library("empty", WORLD.getTemp().createTempDirectory()));
         assertEquals("stage", c.subject);
     }
 
@@ -92,7 +92,7 @@ public class DirectionsTest {
         ObjectNode obj;
 
         obj = (ObjectNode) YAML.readTree(str);
-        library = new Library("empty");
+        library = new Library("empty", WORLD.getTemp().createTempDirectory());
         library.addDirections(Directions.forTest("base", "f", "1"));
         return Directions.loadLiteral(library, "", null, obj);
     }

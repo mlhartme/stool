@@ -41,19 +41,17 @@ public final class Helm {
         Directions directions;
 
         directions = directionsRef.resolve(localSettings);
-        helm(kubernetesContext, localSettings, name, false, false, null, directions, overrides, Collections.emptyMap(), localSettings.scripts());
+        helm(kubernetesContext, localSettings, name, false, false, null, directions, overrides, Collections.emptyMap());
     }
 
     public static Diff upgrade(String kubeContext, LocalSettings localSettings, String name, boolean dryrun, List<String> allow,
                                Directions directions, Map<String, String> overrides, Map<String, String> prev) throws IOException {
-        return helm(kubeContext, localSettings, name, true, dryrun, allow, directions, overrides, prev, localSettings.scripts());
+        return helm(kubeContext, localSettings, name, true, dryrun, allow, directions, overrides, prev);
     }
 
-    @SuppressWarnings("checkstyle:ParameterNumber") // TODO
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                             Directions directions, Map<String, String> overrides, Map<String, String> prev, FileNode scripts)
+                             Directions directions, Map<String, String> overrides, Map<String, String> prev)
             throws IOException {
-        Library library;
         Expressions expressions;
         Chart chart;
         FileNode valuesFile;
@@ -61,17 +59,18 @@ public final class Helm {
         Map<String, String> values;
         Diff result;
         Diff forbidden;
+        Library library;
 
         if (directions.chartOpt == null) {
             throw new IOException("directions without chart: " + directions.subject);
         }
-        library = localSettings.loadLibrary();
         LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
         expressions = new Expressions(localSettings, name);
         tmpDirections = Directions.extend(directions.origin, directions.author, directions.subject, Collections.singletonList(directions));
         tmpDirections.setValues(overrides);
+        library = localSettings.library();
         chart = library.chart(tmpDirections.chartOpt);
-        values = expressions.eval(prev, tmpDirections, scripts);
+        values = expressions.eval(prev, tmpDirections, library.scripts);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -89,7 +88,7 @@ public final class Helm {
         try {
             LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,
-                    scripts, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name, chart.reference);
+                    library.scripts, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name, chart.reference);
             return result;
         } finally {
             valuesFile.deleteFile();

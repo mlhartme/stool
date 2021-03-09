@@ -250,7 +250,7 @@ public class LocalSettings {
 
     private Library lazyLibrary;
 
-    public Library loadLibrary() throws IOException {
+    public Library library() throws IOException {
         FileNode directory;
         String version;
 
@@ -265,10 +265,6 @@ public class LocalSettings {
             lazyLibrary = Library.load(world, yaml, directory, version);
         }
         return lazyLibrary;
-    }
-
-    public FileNode scripts() {// TODO
-        return world.getWorking();
     }
 
     //-- Stage access

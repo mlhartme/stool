@@ -45,7 +45,7 @@ public class Library {
         Iterator<JsonNode> directions;
         Library result;
 
-        result = new Library(version);
+        result = new Library(version, directory.join("scripts"));
         for (FileNode chart : directory.join("charts").list()) {
             result.addChart(yaml, chart);
         }
@@ -113,12 +113,15 @@ public class Library {
     private final Map<String, Directions> directions;
     private final Map<String, Chart> charts;
     private final String version;
+    public final FileNode scripts;
 
-    public Library(String version) {
+    public Library(String version, FileNode scripts) {
         this.directions = new HashMap<>();
         this.charts = new HashMap<>();
         this.version = version;
+        this.scripts = scripts;
     }
+
 
     // directions
 
