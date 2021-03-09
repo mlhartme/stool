@@ -248,18 +248,23 @@ public class LocalSettings {
     }
 
 
+    private Library lazyLibrary;
+
     public Library loadLibrary() throws IOException {
         FileNode directory;
         String version;
 
-        if (!library.startsWith("/")) {
-            directory = this.lib.join("library").mkdirsOpt();
-            version = Library.resolve(createRegistry(library), library, directory);
-        } else {
-            directory = world.file(library).checkDirectory();
-            version = "unknown";
+        if (lazyLibrary == null) {
+            if (!library.startsWith("/")) {
+                directory = this.lib.join("library").mkdirsOpt();
+                version = Library.resolve(createRegistry(library), library, directory);
+            } else {
+                directory = world.file(library).checkDirectory();
+                version = "unknown";
+            }
+            lazyLibrary = Library.load(world, yaml, directory, version);
         }
-        return Library.load(world, yaml, directory, version);
+        return lazyLibrary;
     }
 
     public FileNode scripts() {// TODO

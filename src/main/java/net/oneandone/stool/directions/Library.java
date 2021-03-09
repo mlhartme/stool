@@ -60,7 +60,7 @@ public class Library {
     }
 
     /** @return version */
-    public static String resolve(PortusRegistry registry, String repository, FileNode dest) throws IOException {
+    public static synchronized String resolve(PortusRegistry registry, String repository, FileNode dest) throws IOException {
         String name;
         List<String> tags;
         String tag;
@@ -160,7 +160,7 @@ public class Library {
 
         chartName = directory.getName();
         d = Directions.loadChartDirections(yaml, chartName, version, directory.join("values.yaml"));
-        addChart(new Chart(chartName, directory.getAbsolute(), d, version));
+        addChart(new Chart(chartName, directory.getAbsolute(), d));
     }
 
     public void addChart(Chart chart) throws IOException {

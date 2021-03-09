@@ -19,12 +19,10 @@ public class Chart {
     public final String name;
     public final String reference;
     public final Directions directions;
-    public final String version;
 
-    public Chart(String name, String reference, Directions directions, String version) {
+    public Chart(String name, String reference, Directions directions) {
         this.name = name;
         this.reference = reference;
         this.directions = directions;
-        this.version = version;
     }
 }
