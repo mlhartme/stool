@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -27,12 +28,14 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Zone {
-    public static Zone load(World world, ObjectMapper yaml, Library library) throws IOException {
+    public static Zone load(World world, ObjectMapper yaml, FileNode directory, String version) throws IOException {
         Iterator<JsonNode> directions;
+        Library library;
         Zone result;
 
         result = new Zone();
         result.add(Directions.loadStageDirectionsBase(world, yaml));
+        library = Library.fromDirectory(yaml, directory, version);
         for (Chart chart : library.charts()) {
             result.add(chart);
         }

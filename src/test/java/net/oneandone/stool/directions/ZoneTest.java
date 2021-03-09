@@ -33,7 +33,7 @@ public class ZoneTest {
         Zone zone;
         Directions a;
 
-        zone = Zone.load(WORLD, YAML, Library.fromDirectory(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/library").checkDirectory(), ""));
+        zone = Zone.load(WORLD, YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/library").checkDirectory(), "");
         assertEquals(4, zone.size());
         a = zone.directions("derived");
         assertEquals("42", a.directions.get("asis").expression);

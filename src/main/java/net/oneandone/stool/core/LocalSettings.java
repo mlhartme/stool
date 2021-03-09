@@ -250,10 +250,6 @@ public class LocalSettings {
 
 
     public Zone loadZone() throws IOException {
-        return Zone.load(world, yaml, resolvedLibraries());
-    }
-
-    public Library resolvedLibraries() throws IOException {
         FileNode directory;
         String version;
 
@@ -264,7 +260,7 @@ public class LocalSettings {
             directory = world.file(library).checkDirectory();
             version = "unknown";
         }
-        return Library.fromDirectory(yaml, directory, version);
+        return Zone.load(world, yaml, directory, version);
     }
 
     public FileNode scripts() {// TODO
