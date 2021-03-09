@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.directions;
 
-import net.oneandone.sushi.fs.file.FileNode;
-
 import java.io.IOException;
 import java.util.Collection;
 
@@ -42,15 +40,15 @@ public class Chart {
 
     //--
 
-    public final FileNode directory;
+    public final String name;
+    public final String reference;
+    public final Directions directions;
     public final String version;
 
-    public Chart(FileNode directory, String version) {
-        this.directory = directory;
+    public Chart(String name, String reference, Directions directions, String version) {
+        this.name = name;
+        this.reference = reference;
+        this.directions = directions;
         this.version = version;
-    }
-
-    public String getName() {
-        return directory.getName();
     }
 }

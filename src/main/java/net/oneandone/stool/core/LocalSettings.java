@@ -258,16 +258,21 @@ public class LocalSettings {
         result = new LinkedHashMap<>();
         for (String entry : librarypath) {
             if (entry.startsWith("/")) {
-                library = Library.fromDirectory(world.file(entry));
+                library = Library.fromDirectory(yaml, world.file(entry));
             } else {
-                library = Library.fromRegistry(createRegistry(entry), entry, root);
+                library = Library.fromRegistry(yaml, createRegistry(entry), entry, root);
             }
             result.put(library.getName(), library);
         }
         return result;
     }
 
+    public FileNode scripts() {// TODO
+        return world.getWorking();
+    }
+
     //-- Stage access
+
 
     public List<Stage> list(Engine engine, Predicate predicate, Map<String, IOException> problems) throws IOException {
         List<Stage> result;

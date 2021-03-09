@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -41,16 +42,14 @@ public class Directions {
     }
 
     /** loads the directions implicitly defined by a chart */
-    public static Directions loadChartDirections(ObjectMapper yaml, Chart chart) throws IOException {
+    public static Directions loadChartDirections(ObjectMapper yaml, String name, String version, FileNode valuesYaml) throws IOException {
         Directions result;
         ObjectNode loaded;
-        String name;
 
-        try (Reader src = chart.directory.join("values.yaml").newReader()) {
+        try (Reader src = valuesYaml.newReader()) {
             loaded = (ObjectNode) yaml.readTree(src);
         }
-        name = chart.getName();
-        result = new Directions(name + "-chart", "chart '" + name + '"', "TODO", name, chart.version);
+        result = new Directions(name + "-chart", "chart '" + name + '"', "TODO", name, version);
         result.defineBaseAll(loaded.fields());
         return result;
     }

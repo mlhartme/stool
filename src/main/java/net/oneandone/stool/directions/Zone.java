@@ -38,7 +38,7 @@ public class Zone {
         result.add(Directions.loadStageDirectionsBase(world, yaml));
         for (Library library : libraries) {
             for (Chart chart : library.charts()) {
-                result.add(Directions.loadChartDirections(yaml, chart));
+                result.add(chart.directions);
             }
             file = library.libraryYaml;
             if (file.exists()) {

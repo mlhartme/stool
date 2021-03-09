@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.directions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.PortusRegistry;
@@ -34,11 +35,11 @@ import java.util.Map;
 public class Library {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
-    public static Library fromDirectory(FileNode directory) throws IOException {
-        return fromDirectory(directory, "unknown");
+    public static Library fromDirectory(ObjectMapper yaml, FileNode directory) throws IOException {
+        return fromDirectory(yaml, directory, "unknown");
     }
 
-    public static Library fromRegistry(PortusRegistry registry, String repository, FileNode exports) throws IOException {
+    public static Library fromRegistry(ObjectMapper yaml, PortusRegistry registry, String repository, FileNode exports) throws IOException {
         String name;
         List<String> tags;
         String tag;
@@ -80,15 +81,15 @@ public class Library {
             }
             tagFile.writeString(tag);
         }
-        return fromDirectory(libraryDir, tag);
+        return fromDirectory(yaml, libraryDir, tag);
     }
 
-    private static Library fromDirectory(FileNode directory, String version) throws IOException {
+    private static Library fromDirectory(ObjectMapper yaml, FileNode directory, String version) throws IOException {
         Library result;
 
         result = new Library(directory.getName(), version, directory.join("library.yaml"));
         for (FileNode chart : directory.join("charts").list()) {
-            result.addChart(chart);
+            result.addChart(yaml, chart);
         }
         return result;
     }
@@ -112,13 +113,18 @@ public class Library {
         this.libraryYaml = libraryYaml;
     }
 
-    public void addChart(FileNode directory) throws IOException {
-        addChart(new Chart(directory, version));
+    public void addChart(ObjectMapper yaml, FileNode directory) throws IOException {
+        String chartName;
+        Directions directions;
+
+        chartName = directory.getName();
+        directions = Directions.loadChartDirections(yaml, chartName, version, directory.join("values.yaml"));
+        addChart(new Chart(name, directory.getAbsolute(), directions, version));
     }
 
     public void addChart(Chart chart) throws IOException {
-        if (charts.put(chart.getName(), chart) != null) {
-            throw new IOException("duplicate chart: " + chart.getName());
+        if (charts.put(chart.name, chart) != null) {
+            throw new IOException("duplicate chart: " + chart.name);
         }
     }
 
