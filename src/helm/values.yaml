@@ -14,7 +14,7 @@ cert: ""
 registryCredentials: ""
 
 # TODO
-library: "contargo.server.lan/cisoops-public/charts/library"
+library: "contargo.server.lan/cisoops-public/libraries/cp"
 
 environment:
 

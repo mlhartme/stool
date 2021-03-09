@@ -882,6 +882,7 @@ To build Stool, you need:
 * Java 12+
 * Maven 3+
 * Helm 3
+* Oras https://github.com/deislabs/oras
 * Git
 * Docker (with api 1.26+) and Kubernetes.
 * TODO: depends on fault and cisotools

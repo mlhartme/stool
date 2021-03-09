@@ -4,10 +4,11 @@ ENV HELM_EXPERIMENTAL_OCI=1
 ENV SC_HOME=/usr/local/stool
 ENV SC_OPTS=
 
-RUN curl -o /tmp/helm.tgz https://get.helm.sh/helm-v3.5.0-linux-amd64.tar.gz && \
-    cd /usr/local/bin && \
-    tar zxf /tmp/helm.tgz --strip-components=1 linux-amd64/helm && \
-    apt-get update && apt-get install -y --no-install-recommends git
+RUN cd /usr/local/bin && \
+    curl https://get.helm.sh/helm-v3.5.0-linux-amd64.tar.gz | tar zx --strip-components=1 linux-amd64/helm && \
+    curl -s -L https://github.com/deislabs/oras/releases/download/v0.10.0/oras_0.10.0_linux_amd64.tar.gz | tar zx oras && \
+    apt-get update && apt-get install -y --no-install-recommends git && \
+    apt-get clean
 COPY maven/sc /usr/local/bin/sc
 RUN sc setup
 
