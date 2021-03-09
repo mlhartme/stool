@@ -57,7 +57,7 @@ public class LocalSettings {
 
     public final Map<String, String> environment;
     public final Map<String, Pair> registryCredentials;
-    public final List<String> librarypath;
+    public final List<String> library;
     public final FileNode lib;
 
     public final String stageLogs;
@@ -108,7 +108,7 @@ public class LocalSettings {
         this.fqdn = Json.string(local, "fqdn", "localhost");
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
-        this.librarypath = COLON.split(Json.string(local, "librarypath", ""));
+        this.library = COLON.split(Json.string(local, "library", ""));
         this.lib = home.join("lib");
         this.stageLogs = string(local, "stageLogs", home.getWorld().getHome().join(".sc/logs").getAbsolute());
 
@@ -133,7 +133,7 @@ public class LocalSettings {
         this.fqdn = from.fqdn;
         this.environment = new LinkedHashMap<>(from.environment);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
-        this.librarypath = new ArrayList<>(from.librarypath);
+        this.library = new ArrayList<>(from.library);
         this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
         this.admin = from.admin;
@@ -207,7 +207,7 @@ public class LocalSettings {
         local.put("fqdn", fqdn);
         local.set("environment", Json.obj(json, environment));
         local.put("registryCredentials", registryCredentialsString());
-        local.put("librarypath", COLON.join(librarypath));
+        local.put("library", COLON.join(library));
         local.put("admin", admin);
         local.put("autoRemove", autoRemove);
         if (auth()) {
@@ -256,17 +256,17 @@ public class LocalSettings {
     public Map<String, Library> resolvedLibraries() throws IOException {
         FileNode root;
         Map<String, Library> result;
-        Library library;
+        Library l;
 
-        root = lib.join("libraries").mkdirsOpt();
+        root = this.lib.join("libraries").mkdirsOpt();
         result = new LinkedHashMap<>();
-        for (String entry : librarypath) {
+        for (String entry : this.library) {
             if (entry.startsWith("/")) {
-                library = Library.fromDirectory(yaml, world.file(entry));
+                l = Library.fromDirectory(yaml, world.file(entry));
             } else {
-                library = Library.fromRegistry(yaml, createRegistry(entry), entry, root);
+                l = Library.fromRegistry(yaml, createRegistry(entry), entry, root);
             }
-            result.put(library.getName(), library);
+            result.put(l.getName(), l);
         }
         return result;
     }
