@@ -100,8 +100,6 @@ public class LocalSettings {
      */
     public final String kubernetes;
 
-    public static final Separator COLON = Separator.on(":").trim().skipEmpty();
-
     public LocalSettings(ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode local) {
         this.world = home.getWorld();
         this.yaml = yaml;
@@ -256,16 +254,17 @@ public class LocalSettings {
     }
 
     public Library resolvedLibraries() throws IOException {
-        FileNode root;
-        Library result;
+        FileNode directory;
+        String version;
 
-        root = this.lib.join("libraries").mkdirsOpt();
-        if (library.startsWith("/")) {
-            result = Library.fromDirectory(yaml, world.file(library));
+        if (!library.startsWith("/")) {
+            directory = this.lib.join("library").mkdirsOpt();
+            version = Library.resolve(createRegistry(library), library, directory);
         } else {
-            result = Library.fromRegistry(yaml, createRegistry(library), library, root);
+            directory = world.file(library).checkDirectory();
+            version = "unknown";
         }
-        return result;
+        return Library.fromDirectory(yaml, directory, version);
     }
 
     public FileNode scripts() {// TODO

@@ -25,22 +25,16 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 public class HelmIT {
     @Test
     public void directionsRef() throws IOException {
         World world;
         PortusRegistry portus;
         FileNode root;
-        Library library;
 
         world = World.create();
         root = world.getTemp().createTempDirectory();
         portus = PortusRegistry.create(Json.newJson(), world, Secrets.load(world).portus.resolve("/").toString(), null);
-        library = Library.fromRegistry(Json.newYaml(), portus, "contargo.server.lan/cisoops-public/charts/kutter", root); // TODO
-        assertTrue(library.libraryYaml.getParent().isDirectory());
-        assertEquals(root.getAbsolute(), library.libraryYaml.getParent().getParent().getParent().getAbsolute());
+        Library.resolve(portus, "contargo.server.lan/cisoops-public/charts/kutter", root); // TODO
     }
 }

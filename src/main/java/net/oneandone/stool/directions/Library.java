@@ -35,16 +35,22 @@ import java.util.Map;
 public class Library {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
-    public static Library fromDirectory(ObjectMapper yaml, FileNode directory) throws IOException {
-        return fromDirectory(yaml, directory, "unknown");
+    public static Library fromDirectory(ObjectMapper yaml, FileNode directory, String version) throws IOException {
+        Library result;
+
+        result = new Library(directory.getName(), version, directory.join("library.yaml"));
+        for (FileNode chart : directory.join("charts").list()) {
+            result.addChart(yaml, chart);
+        }
+        return result;
     }
 
-    public static Library fromRegistry(ObjectMapper yaml, PortusRegistry registry, String repository, FileNode exports) throws IOException {
+    /** @return version */
+    public static String resolve(PortusRegistry registry, String repository, FileNode dest) throws IOException {
         String name;
         List<String> tags;
         String tag;
         String existing;
-        FileNode libraryDir;
         FileNode tagFile;
         FileNode tmp;
 
@@ -57,41 +63,30 @@ public class Library {
             throw new IOException("no tag for repository " + repository);
         }
         tag = tags.get(tags.size() - 1);
-        libraryDir = exports.join(name);
-        tagFile = libraryDir.join(".tag");
-        if (libraryDir.exists()) {
+        tagFile = dest.join(".tag");
+        if (dest.exists()) {
             existing = tagFile.readString().trim();
             if (!tag.equals(existing)) {
                 LOGGER.info("updating library " + name + " " + existing + " -> " + tag);
-                libraryDir.deleteTree();
+                dest.deleteTree();
             }
         } else {
             LOGGER.info("loading library " + name + " " + tag);
         }
-        if (!libraryDir.exists()) {
-            tmp = exports.getWorld().getTemp().createTempDirectory();
+        if (!dest.exists()) {
+            tmp = dest.getWorld().getTemp().createTempDirectory();
             try {
                 tmp.exec("oras", "pull", repository + ":" + tag);
-                libraryDir.mkdir().exec("tar", "zxf", tmp.join("artifact.tgz").getAbsolute());
-                if (!libraryDir.exists()) {
-                    throw new IllegalStateException(libraryDir.getAbsolute());
+                dest.mkdir().exec("tar", "zxf", tmp.join("artifact.tgz").getAbsolute());
+                if (!dest.exists()) {
+                    throw new IllegalStateException(dest.getAbsolute());
                 }
             } finally {
                 tmp.deleteTree();
             }
             tagFile.writeString(tag);
         }
-        return fromDirectory(yaml, libraryDir, tag);
-    }
-
-    private static Library fromDirectory(ObjectMapper yaml, FileNode directory, String version) throws IOException {
-        Library result;
-
-        result = new Library(directory.getName(), version, directory.join("library.yaml"));
-        for (FileNode chart : directory.join("charts").list()) {
-            result.addChart(yaml, chart);
-        }
-        return result;
+        return tag;
     }
 
     private static List<String> sortTags(List<String> lst) { // TODO: also use for taginfo sorting, that's still based on numbers
