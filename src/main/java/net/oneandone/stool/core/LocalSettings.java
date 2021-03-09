@@ -18,7 +18,7 @@ package net.oneandone.stool.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.Main;
-import net.oneandone.stool.directions.Helm;
+import net.oneandone.stool.directions.Library;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.server.users.UserManager;
@@ -249,31 +249,22 @@ public class LocalSettings {
 
 
 
-    public Map<String, FileNode> resolvedCharts(String kubeContext) throws IOException {
+    public Map<String, Library> resolvedLibraries() throws IOException {
         FileNode root;
-        PortusRegistry portus;
-        Map<String, FileNode> result;
-        FileNode resolved;
+        Map<String, Library> result;
+        Library library;
 
-        root = lib.join("charts").mkdirsOpt();
+        root = lib.join("libraries").mkdirsOpt();
         result = new LinkedHashMap<>();
         for (String entry : librarypath) {
-            resolved = directoryChartOpt(entry);
-            if (resolved == null) {
-                portus = createRegistry(entry);
-                resolved = Helm.resolveRepositoryChart(kubeContext, portus, entry, root).checkDirectory();
+            if (entry.startsWith("/")) {
+                library = Library.fromDirectory(world.file(entry));
+            } else {
+                library = Library.fromRegistry(createRegistry(entry), entry, root);
             }
-            result.put(resolved.getName(), resolved);
+            result.put(library.getName(), library);
         }
         return result;
-    }
-
-    private FileNode directoryChartOpt(String classpathEntry) throws IOException {
-        if (classpathEntry.startsWith("/")) {
-            return world.file(classpathEntry).checkDirectory();
-        } else {
-            return null;
-        }
     }
 
     //-- Stage access

@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.core;
 
-import net.oneandone.stool.directions.Helm;
+import net.oneandone.stool.directions.Library;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Secrets;
@@ -34,13 +34,13 @@ public class HelmIT {
         World world;
         PortusRegistry portus;
         FileNode root;
-        FileNode chart;
+        Library library;
 
         world = World.create();
         root = world.getTemp().createTempDirectory();
         portus = PortusRegistry.create(Json.newJson(), world, Secrets.load(world).portus.resolve("/").toString(), null);
-        chart = Helm.resolveRepositoryChart(null, portus, "contargo.server.lan/cisoops-public/charts/kutter", root); // TODO
-        assertTrue(chart.isDirectory());
-        assertEquals(root.getAbsolute(), chart.getParent().getAbsolute());
+        library = Library.fromRegistry(portus, "contargo.server.lan/cisoops-public/charts/kutter", root); // TODO
+        assertTrue(library.directory.isDirectory());
+        assertEquals(root.getAbsolute(), library.directory.getParent().getAbsolute());
     }
 }

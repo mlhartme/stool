@@ -131,7 +131,7 @@ public class KubernetesClient extends Client {
 
         try (Engine engine = engine()) {
             stage = localSettings.load(engine, name);
-            directions = directionsRefOpt == null ? stage.directions : directionsRefOpt.resolve(kubernetesContext, localSettings);
+            directions = directionsRefOpt == null ? stage.directions : directionsRefOpt.resolve(localSettings);
             return stage.publish(caller, kubernetesContext, engine, dryrun, allow, directions, values);
         }
     }

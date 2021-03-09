@@ -19,12 +19,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Dependencies;
 import net.oneandone.stool.core.LocalSettings;
-import net.oneandone.stool.registry.PortusRegistry;
-import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.util.Versions;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
@@ -43,7 +40,7 @@ public final class Helm {
             throws IOException {
         Directions directions;
 
-        directions = directionsRef.resolve(kubernetesContext, localSettings);
+        directions = directionsRef.resolve(localSettings);
         helm(kubernetesContext, localSettings, name, false, false, null, directions, overrides, Collections.emptyMap());
     }
 
@@ -55,7 +52,7 @@ public final class Helm {
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                              Directions directions, Map<String, String> overrides, Map<String, String> prev)
             throws IOException {
-        Map<String, FileNode> charts;
+        Map<String, Library> libraries;
         Expressions expressions;
         FileNode chart;
         FileNode valuesFile;
@@ -67,12 +64,12 @@ public final class Helm {
         if (directions.chartOpt == null) {
             throw new IOException("directions without chart: " + directions.subject);
         }
-        charts = localSettings.resolvedCharts(kubeContext);
+        libraries = localSettings.resolvedLibraries();
         LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
         expressions = new Expressions(localSettings, name);
         tmpDirections = Directions.extend(directions.origin, directions.author, directions.subject, Collections.singletonList(directions));
         tmpDirections.setValues(overrides);
-        chart = charts.get(tmpDirections.chartOpt).checkDirectory();
+        chart = Chart.get(libraries.values(), tmpDirections.chartOpt).directory;
         values = expressions.eval(prev, tmpDirections, chart);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
@@ -124,61 +121,11 @@ public final class Helm {
         file = localSettings.world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;
     }
+
     //--
 
     public static FileNode tagFile(FileNode chart) {
         return chart.join(".tag");
-    }
-
-    public static FileNode resolveRepositoryChart(String kubeContext, PortusRegistry registry, String repository, FileNode exports) throws IOException {
-        String chart;
-        List<String> tags;
-        String tag;
-        String existing;
-        FileNode chartDir;
-        FileNode tagFile;
-
-        chart = chart(repository);
-        tags = sortTags(registry.helmTags(Registry.getRepositoryPath(repository)));
-        if (tags.isEmpty()) {
-            throw new IOException("no tag for repository " + repository);
-        }
-        tag = tags.get(tags.size() - 1);
-        chartDir = exports.join(chart);
-        tagFile = tagFile(chartDir);
-        if (chartDir.exists()) {
-            existing = tagFile.readString().trim();
-            if (!tag.equals(existing)) {
-                LOGGER.info("updating chart " + chart + " " + existing + " -> " + tag);
-                chartDir.deleteTree();
-            }
-        } else {
-            LOGGER.info("loading chart " + chart + " " + tag);
-        }
-        if (!chartDir.exists()) {
-            Helm.exec(false, kubeContext, exports, "chart", "pull", repository + ":" + tag);
-            Helm.exec(false, kubeContext, exports, "chart", "export", repository + ":" + tag, "-d", chartDir.getParent().getAbsolute());
-            if (!chartDir.exists()) {
-                throw new IllegalStateException(chartDir.getAbsolute());
-            }
-            tagFile.writeString(tag);
-        }
-        return chartDir;
-    }
-
-    private static String chart(String repository) {
-        int idx;
-
-        idx = repository.lastIndexOf('/');
-        if (repository.contains(":") || idx < 0 || idx + 1 == repository.length()) {
-            throw new ArgumentException("invalid chart repository: " + repository);
-        }
-        return repository.substring(idx + 1);
-    }
-
-    private static List<String> sortTags(List<String> lst) { // TODO: also use for taginfo sorting, that's still based on numbers
-        Collections.sort(lst, Versions.CMP);
-        return lst;
     }
 
     //--

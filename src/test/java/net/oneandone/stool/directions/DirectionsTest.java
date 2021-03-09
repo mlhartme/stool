@@ -22,7 +22,6 @@ import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,20 +97,5 @@ public class DirectionsTest {
         all = new HashMap<>();
         all.put("base", Directions.forTest("base", "f", "1"));
         return Directions.loadLiteral(all, "", null, obj);
-    }
-
-    //--
-
-    @Test
-    public void loadAll() throws IOException {
-        Map<String, Directions> all;
-        Directions a;
-
-        all = DirectionsRef.loadAll(WORLD, YAML, Collections.singleton(WORLD.guessProjectHome(getClass()).join("src/test/directions/foo").checkDirectory()));
-        assertEquals(4, all.size());
-        a = all.get("derived");
-        assertEquals("42", a.directions.get("asis").expression);
-        assertEquals("modified", a.directions.get("base").expression);
-        assertEquals("3", a.directions.get("added").expression);
     }
 }

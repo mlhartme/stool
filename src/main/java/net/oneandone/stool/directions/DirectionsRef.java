@@ -98,14 +98,14 @@ public class DirectionsRef {
 
     public static final String LABEL = "directions";
 
-    public Directions resolve(String kubeContext, LocalSettings localSettings) throws IOException {
+    public Directions resolve(LocalSettings localSettings) throws IOException {
         ObjectMapper yaml;
         Map<String, Directions> all;
         Directions result;
         String str;
 
         yaml = localSettings.yaml;
-        all = loadAll(localSettings.world, yaml, localSettings.resolvedCharts(kubeContext).values());
+        all = loadAll(localSettings.world, yaml, localSettings.resolvedLibraries().values());
         switch (type) {
             case BUILTIN:
                 result = all.get(value);
@@ -154,22 +154,24 @@ public class DirectionsRef {
         }
     }
 
-    public static Map<String, Directions> loadAll(World world, ObjectMapper yaml, Collection<FileNode> charts) throws IOException {
+    public static Map<String, Directions> loadAll(World world, ObjectMapper yaml, Collection<Library> libraries) throws IOException {
         Iterator<JsonNode> directions;
         Map<String, Directions> result;
         FileNode file;
 
         result = new HashMap<>();
         add(result, Directions.loadStageDirectionsBase(world, yaml));
-        for (FileNode chart : charts) {
-            add(result, Directions.loadChartDirections(yaml, chart.getName(), chart));
-            file = chart.join("library.yaml");
-            if (file.exists()) {
-                try (Reader src = file.newReader()) {
-                    directions = yaml.readTree(src).elements();
-                }
-                while (directions.hasNext()) {
-                    add(result, Directions.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) directions.next()));
+        for (Library library : libraries) {
+            for (Chart chart : library.charts()) {
+                add(result, Directions.loadChartDirections(yaml, chart));
+                file = chart.directory.join("library.yaml");
+                if (file.exists()) {
+                    try (Reader src = file.newReader()) {
+                        directions = yaml.readTree(src).elements();
+                    }
+                    while (directions.hasNext()) {
+                        add(result, Directions.loadLiteral(result, "builtin", BUILDIN, (ObjectNode) directions.next()));
+                    }
                 }
             }
         }
