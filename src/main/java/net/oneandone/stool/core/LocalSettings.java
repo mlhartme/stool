@@ -256,7 +256,7 @@ public class LocalSettings {
 
         if (lazyLibrary == null) {
             if (!library.startsWith("/")) {
-                directory = this.lib.join("library").mkdirsOpt();
+                directory = this.lib.join("library");
                 version = Library.resolve(createRegistry(library), library, directory);
             } else {
                 directory = world.file(library).checkDirectory();
