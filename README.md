@@ -538,13 +538,13 @@ Manage stage configuration
 
 #### DESCRIPTION
 
-Stage configuration is the set of its varibales. This command gets or sets stage [variables](#variables).
+Stage configuration is the set of its variables. This command gets or sets stage [variables](#variables).
 
-When invoked without arguments, all variables are printed.
+When invoked without arguments, all variables are printed, together with the documentation available.
 When invoked with one or more *key*s, the respective variables are printed.
 When invoked with one or more assignments, the respective variables are changed.
 
-Changing variables adjusts the Kubernetes workload, resulting new pods replacing old ones if necessary.
+Changing variables adjusts the Kubernetes workload, pods will be replaced when as needed to apply the change.
 
 Note that the `config` command is meant for temporary changes, e.g. to test if a configuration change fixes a problem.
 All config changes get lost with the next `publish` -- unless you repeat the modification in the publish arguments.
@@ -578,16 +578,9 @@ use `sc help` for available [global options](#sc)
 
 #### Available variables
 
-A stage has variables for all directions of the stage. This usually includes:
+The following variable are mandatory for all stages: https://github.com/mlhartme/stool/blob/stool-7.0/src/main/resources/stage.yaml
 
-* **metadataComment**
-  Arbitrary comment for this stage. This value is nothing but stored, it has no effect. Type string.
-* **metadataExpire**
-  Defines when this stage [expires](#stage-expiring). Type date.
-* **metadataContact**
-  List of email addresses or `@first` (first person touching this stage) or `@last` (last person touching this stage)
-  to send notifications about this stage. Type list. Default value: `@first`.
-
+To see all variables for a given stage, along with the documentation available, run `sc config givenStage`
 
 #### Examples
 

@@ -1,25 +1,25 @@
 DIRECTIONS: "stage"
 
 metadataExpire:
-  doc: "when this stages expires"
+  doc: "Defines when this stages expires."
   extra: true
   expr: "${first(prev('metadataExpire'), env('defaultExpire', 'never'))}"
 metadataContact:
-  doc: "technical contact for this stage; comma-separated list of login names or emails"
+  doc: "Technical contact for this stage; comma-separated list of login names or emails."
   extra: true
   expr: "${first(prev('metadataContact'), env('defaultContact', 'michael.hartmeier@ionos.com'))}"
 metadataComment:
-  doc: "arbitrary text"
+  doc: "Arbitrary comment for this stage. This value is nothing but stored, it has no effect."
   extra: true
   expr: "${first(prev('metadataComment'), '')}"
 replicas:
-  doc: "number of pods"
+  doc: "Number of pods."
 urlContext:
-  doc: "Java servlet context to run the application in; without initial or tailing slash, i.e. empty string for root context"
+  doc: "Java servlet context to run the application in; without initial or tailing slash, i.e. empty string for root context."
   expr: ""
 urlSuffixes:
-  doc: "comma-separated list of url path suffixes you can invoke this stage at"
+  doc: "Comma-separated list of url path suffixes you can invoke this stage at."
   expr: ""
 urlSubdomains:
-  doc: "comma-separated list of subdomains to prefix the url"
+  doc: "Comma-separated list of subdomains to prefix the url."
   expr: ""
