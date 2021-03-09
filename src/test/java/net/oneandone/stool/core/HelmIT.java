@@ -38,7 +38,7 @@ public class HelmIT {
         root = world.getTemp().createTempDirectory();
         root.deleteDirectory(); // I just need a unix name ...
         portus = PortusRegistry.create(Json.newJson(), world, Secrets.load(world).portus.resolve("/").toString(), null);
-        Library.resolve(portus, "contargo.server.lan/cisoops-public/charts/kutter", root); // TODO
+        Library.resolve(portus, "contargo.server.lan/cisoops-public/libraries/cp", root); // TODO
         assertTrue(root.isDirectory());
     }
 }

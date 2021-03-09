@@ -91,7 +91,7 @@ public class Library {
             tmp = dest.getWorld().getTemp().createTempDirectory();
             try {
                 tmp.exec("oras", "pull", repository + ":" + tag);
-                dest.mkdir().exec("tar", "zxf", tmp.join("artifact.tgz").getAbsolute());
+                dest.mkdir().exec("tar", "zxf", tmp.join(".artifact.tgz").getAbsolute());
                 if (!dest.exists()) {
                     throw new IllegalStateException(dest.getAbsolute());
                 }
