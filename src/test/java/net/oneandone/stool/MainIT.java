@@ -114,8 +114,8 @@ public class MainIT {
             sc(home, "context", "kube-local");
         } else {
             helm(kube, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(kube).getAbsolute(), "stool", helmChart().getAbsolute());
-            sc(home, "setup", "localproxy=http://localhost:31000/api");
-            sc(home, "context", "localproxy");
+            sc(home, "setup", "localtest=http://localhost:31000/api");
+            sc(home, "context", "localtest");
         }
         sc(home, "list", "%all");
         sc(home, "create", "-e", "-wait", stage, directionsDir.join("hellowar-first.yaml").getAbsolute());
