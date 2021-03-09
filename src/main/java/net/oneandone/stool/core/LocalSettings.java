@@ -107,7 +107,7 @@ public class LocalSettings {
         this.fqdn = Json.string(local, "fqdn", "localhost");
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
-        this.library = Json.string(local, "library", "TODO");
+        this.library = Json.string(local, "library", home.getWorld().getHome().join("Projects/helmcharts").getAbsolute()); // TODO
         this.lib = home.join("lib");
         this.stageLogs = string(local, "stageLogs", home.getWorld().getHome().join(".sc/logs").getAbsolute());
 
