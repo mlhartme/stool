@@ -15,32 +15,46 @@
  */
 package net.oneandone.stool.directions;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Versions;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class Library {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
-    public static Library fromDirectory(ObjectMapper yaml, FileNode directory, String version) throws IOException {
+    //--
+
+    public static Library load(World world, ObjectMapper yaml, FileNode directory, String version) throws IOException {
+        Iterator<JsonNode> directions;
         Library result;
 
-        result = new Library(version, directory.join("library.yaml"));
+        result = new Library(version);
         for (FileNode chart : directory.join("charts").list()) {
             result.addChart(yaml, chart);
+        }
+        result.addDirections(Directions.loadStageDirectionsBase(world, yaml, result));
+        try (Reader src = directory.join("library.yaml").newReader()) {
+            directions = yaml.readTree(src).elements();
+        }
+        while (directions.hasNext()) {
+            result.addDirections(Directions.loadLiteral(result, "builtin", DirectionsRef.BUILDIN, (ObjectNode) directions.next()));
         }
         return result;
     }
@@ -96,32 +110,63 @@ public class Library {
 
     //--
 
-    private final Map<String, Chart> chartsMap;
+    private final Map<String, Directions> directions;
+    private final Map<String, Chart> charts;
     private final String version;
-    public final FileNode libraryYaml;
 
-    public Library(String version, FileNode libraryYaml) {
-        this.chartsMap = new HashMap<>();
+    public Library(String version) {
+        this.directions = new HashMap<>();
+        this.charts = new HashMap<>();
         this.version = version;
-        this.libraryYaml = libraryYaml;
+    }
+
+    // directions
+
+    public void addDirections(Directions add) throws IOException {
+        if (this.directions.put(add.subject, add) != null) {
+            throw new IOException("duplicate directions: " + add.subject);
+        }
+    }
+
+    public Directions directions(String name) throws IOException {
+        Directions result;
+
+        result = directions.get(name);
+        if (result == null) {
+            throw new IOException("directions not found: " + name);
+        }
+        return result;
+    }
+
+    public int directionsSize() {
+        return directions.size();
+    }
+
+    //-- charts
+
+    public Chart chart(String name) throws IOException {
+        Chart result;
+
+        result = charts.get(name);
+        if (result == null) {
+            throw new IOException("chart not found: " + name);
+        }
+        return result;
     }
 
     public void addChart(ObjectMapper yaml, FileNode directory) throws IOException {
         String chartName;
-        Directions directions;
+        Directions d;
 
         chartName = directory.getName();
-        directions = Directions.loadChartDirections(yaml, chartName, version, directory.join("values.yaml"));
-        addChart(new Chart(chartName, directory.getAbsolute(), directions, version));
+        d = Directions.loadChartDirections(yaml, chartName, version, directory.join("values.yaml"));
+        addChart(new Chart(chartName, directory.getAbsolute(), d, version));
     }
 
     public void addChart(Chart chart) throws IOException {
-        if (chartsMap.put(chart.name, chart) != null) {
+        addDirections(chart.directions);
+        if (charts.put(chart.name, chart) != null) {
             throw new IOException("duplicate chart: " + chart.name);
         }
-    }
-
-    public List<Chart> charts() throws IOException {
-        return new ArrayList<>(chartsMap.values());
     }
 }

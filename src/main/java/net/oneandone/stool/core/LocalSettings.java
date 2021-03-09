@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.directions.Library;
-import net.oneandone.stool.directions.Zone;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.server.users.UserManager;
@@ -249,7 +248,7 @@ public class LocalSettings {
     }
 
 
-    public Zone loadZone() throws IOException {
+    public Library loadLibrary() throws IOException {
         FileNode directory;
         String version;
 
@@ -260,7 +259,7 @@ public class LocalSettings {
             directory = world.file(library).checkDirectory();
             version = "unknown";
         }
-        return Zone.load(world, yaml, directory, version);
+        return Library.load(world, yaml, directory, version);
     }
 
     public FileNode scripts() {// TODO

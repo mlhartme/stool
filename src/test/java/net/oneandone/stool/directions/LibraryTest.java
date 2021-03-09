@@ -24,18 +24,18 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ZoneTest {
+public class LibraryTest {
     private static final World WORLD = World.createMinimal();
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     @Test
     public void loadAll() throws IOException {
-        Zone zone;
+        Library library;
         Directions a;
 
-        zone = Zone.load(WORLD, YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/library").checkDirectory(), "");
-        assertEquals(4, zone.size());
-        a = zone.directions("derived");
+        library = Library.load(WORLD, YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/library").checkDirectory(), "");
+        assertEquals(4, library.directionsSize());
+        a = library.directions("derived");
         assertEquals("42", a.directions.get("asis").expression);
         assertEquals("modified", a.directions.get("base").expression);
         assertEquals("3", a.directions.get("added").expression);

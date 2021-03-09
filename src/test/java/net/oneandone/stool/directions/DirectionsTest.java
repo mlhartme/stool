@@ -22,8 +22,6 @@ import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -36,7 +34,7 @@ public class DirectionsTest {
     public void stage() throws IOException {
         Directions c;
 
-        c = Directions.loadStageDirectionsBase(WORLD, YAML);
+        c = Directions.loadStageDirectionsBase(WORLD, YAML, new Library("empty"));
         assertEquals("stage", c.subject);
     }
 
@@ -90,12 +88,12 @@ public class DirectionsTest {
 
     @Test
     public Directions create(String str) throws IOException {
-        Zone zone;
+        Library library;
         ObjectNode obj;
 
         obj = (ObjectNode) YAML.readTree(str);
-        zone = new Zone();
-        zone.add(Directions.forTest("base", "f", "1"));
-        return Directions.loadLiteral(zone, "", null, obj);
+        library = new Library("empty");
+        library.addDirections(Directions.forTest("base", "f", "1"));
+        return Directions.loadLiteral(library, "", null, obj);
     }
 }

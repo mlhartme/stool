@@ -35,9 +35,9 @@ public class Directions {
     // this value is added to track the stage directions used
     public static final String DIRECTIONS_VALUE = "_directions";
 
-    public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml) throws IOException {
+    public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml, Library library) throws IOException {
         try (Reader src = world.resource("stage.yaml").newReader()) {
-            return Directions.loadLiteral(new Zone(), "root", "stool", (ObjectNode) yaml.readTree(src));
+            return Directions.loadLiteral(library, "root", "stool", (ObjectNode) yaml.readTree(src));
         }
     }
 
@@ -62,7 +62,7 @@ public class Directions {
     private static final String AUTHOR = "AUTHOR";
 
     /** from inline, label or file; always extends */
-    public static Directions loadLiteral(Zone zone, String origin, String author, ObjectNode directions) throws IOException {
+    public static Directions loadLiteral(Library library, String origin, String author, ObjectNode directions) throws IOException {
         Map<String, JsonNode> raw;
         Directions derived;
         String subject;
@@ -72,7 +72,7 @@ public class Directions {
         subject = eatString(raw, DIRECTIONS);
         bases = new ArrayList();
         for (String baseName : stringListOpt(raw.remove(EXTENDS))) {
-            bases.add(zone.directions(baseName));
+            bases.add(library.directions(baseName));
         }
         derived = extend(origin, author, subject, bases);
         for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {

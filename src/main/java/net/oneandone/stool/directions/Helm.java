@@ -53,7 +53,7 @@ public final class Helm {
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                              Directions directions, Map<String, String> overrides, Map<String, String> prev, FileNode scripts)
             throws IOException {
-        Zone zone;
+        Library library;
         Expressions expressions;
         Chart chart;
         FileNode valuesFile;
@@ -65,12 +65,12 @@ public final class Helm {
         if (directions.chartOpt == null) {
             throw new IOException("directions without chart: " + directions.subject);
         }
-        zone = localSettings.loadZone();
+        library = localSettings.loadLibrary();
         LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
         expressions = new Expressions(localSettings, name);
         tmpDirections = Directions.extend(directions.origin, directions.author, directions.subject, Collections.singletonList(directions));
         tmpDirections.setValues(overrides);
-        chart = zone.chart(tmpDirections.chartOpt);
+        chart = library.chart(tmpDirections.chartOpt);
         values = expressions.eval(prev, tmpDirections, scripts);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {

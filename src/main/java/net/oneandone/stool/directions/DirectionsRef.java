@@ -94,19 +94,19 @@ public class DirectionsRef {
     public static final String LABEL = "directions";
 
     public Directions resolve(LocalSettings localSettings) throws IOException {
-        Zone zone;
+        Library library;
         Directions result;
         String str;
 
-        zone = localSettings.loadZone();
+        library = localSettings.loadLibrary();
         switch (type) {
             case BUILTIN:
-                result = zone.directions(value);
+                result = library.directions(value);
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {
                     try {
-                        result = Directions.loadLiteral(zone, origin, null, object(localSettings.yaml.readTree(src)));
+                        result = Directions.loadLiteral(library, origin, null, object(localSettings.yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse directions from file: " + e.getMessage(), e);
                     }
@@ -124,7 +124,7 @@ public class DirectionsRef {
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     try {
-                        result = Directions.loadLiteral(zone, origin, tag.author, object(localSettings.yaml.readTree(src)));
+                        result = Directions.loadLiteral(library, origin, tag.author, object(localSettings.yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse directions from image label: " + e.getMessage(), e);
                     }
