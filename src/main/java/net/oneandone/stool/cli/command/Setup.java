@@ -102,8 +102,7 @@ public class Setup {
 
         result = initialSettings();
         if (library != null) {
-            result.local.library.clear();
-            result.local.library.addAll(LocalSettings.COLON.split(library));
+            result.local.library = library;
         }
         if (spec != null) {
             idx = spec.indexOf('=');

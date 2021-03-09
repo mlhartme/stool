@@ -22,28 +22,25 @@ import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public class Zone {
-    public static Zone load(World world, ObjectMapper yaml, Collection<Library> libraries) throws IOException {
+    public static Zone load(World world, ObjectMapper yaml, Library library) throws IOException {
         Iterator<JsonNode> directions;
         Zone result;
 
         result = new Zone();
         result.add(Directions.loadStageDirectionsBase(world, yaml));
-        for (Library library : libraries) {
-            for (Chart chart : library.charts()) {
-                result.add(chart);
-            }
-            try (Reader src = library.libraryYaml.newReader()) {
-                directions = yaml.readTree(src).elements();
-            }
-            while (directions.hasNext()) {
-                result.add(Directions.loadLiteral(result, "builtin", DirectionsRef.BUILDIN, (ObjectNode) directions.next()));
-            }
+        for (Chart chart : library.charts()) {
+            result.add(chart);
+        }
+        try (Reader src = library.libraryYaml.newReader()) {
+            directions = yaml.readTree(src).elements();
+        }
+        while (directions.hasNext()) {
+            result.add(Directions.loadLiteral(result, "builtin", DirectionsRef.BUILDIN, (ObjectNode) directions.next()));
         }
         return result;
     }

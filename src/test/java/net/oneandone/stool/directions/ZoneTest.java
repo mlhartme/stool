@@ -21,7 +21,6 @@ import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,8 +33,7 @@ public class ZoneTest {
         Zone zone;
         Directions a;
 
-        zone = Zone.load(WORLD, YAML,
-                Collections.singleton(Library.fromDirectory(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/library").checkDirectory())));
+        zone = Zone.load(WORLD, YAML, Library.fromDirectory(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/library").checkDirectory()));
         assertEquals(4, zone.size());
         a = zone.directions("derived");
         assertEquals("42", a.directions.get("asis").expression);

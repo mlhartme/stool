@@ -57,7 +57,9 @@ public class LocalSettings {
 
     public final Map<String, String> environment;
     public final Map<String, Pair> registryCredentials;
-    public final List<String> library;
+
+    // TODO: final
+    public String library;
     public final FileNode lib;
 
     public final String stageLogs;
@@ -108,7 +110,7 @@ public class LocalSettings {
         this.fqdn = Json.string(local, "fqdn", "localhost");
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
-        this.library = COLON.split(Json.string(local, "library", ""));
+        this.library = Json.string(local, "library", "TODO");
         this.lib = home.join("lib");
         this.stageLogs = string(local, "stageLogs", home.getWorld().getHome().join(".sc/logs").getAbsolute());
 
@@ -133,7 +135,7 @@ public class LocalSettings {
         this.fqdn = from.fqdn;
         this.environment = new LinkedHashMap<>(from.environment);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
-        this.library = new ArrayList<>(from.library);
+        this.library = from.library;
         this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
         this.admin = from.admin;
@@ -207,7 +209,7 @@ public class LocalSettings {
         local.put("fqdn", fqdn);
         local.set("environment", Json.obj(json, environment));
         local.put("registryCredentials", registryCredentialsString());
-        local.put("library", COLON.join(library));
+        local.put("library", library);
         local.put("admin", admin);
         local.put("autoRemove", autoRemove);
         if (auth()) {
@@ -250,23 +252,18 @@ public class LocalSettings {
 
 
     public Zone loadZone() throws IOException {
-        return Zone.load(world, yaml, resolvedLibraries().values());
+        return Zone.load(world, yaml, resolvedLibraries());
     }
 
-    public Map<String, Library> resolvedLibraries() throws IOException {
+    public Library resolvedLibraries() throws IOException {
         FileNode root;
-        Map<String, Library> result;
-        Library l;
+        Library result;
 
         root = this.lib.join("libraries").mkdirsOpt();
-        result = new LinkedHashMap<>();
-        for (String entry : this.library) {
-            if (entry.startsWith("/")) {
-                l = Library.fromDirectory(yaml, world.file(entry));
-            } else {
-                l = Library.fromRegistry(yaml, createRegistry(entry), entry, root);
-            }
-            result.put(l.getName(), l);
+        if (library.startsWith("/")) {
+            result = Library.fromDirectory(yaml, world.file(library));
+        } else {
+            result = Library.fromRegistry(yaml, createRegistry(library), library, root);
         }
         return result;
     }
