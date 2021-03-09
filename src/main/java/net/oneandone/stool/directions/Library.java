@@ -38,7 +38,7 @@ public class Library {
     public static Library fromDirectory(ObjectMapper yaml, FileNode directory, String version) throws IOException {
         Library result;
 
-        result = new Library(directory.getName(), version, directory.join("library.yaml"));
+        result = new Library(version, directory.join("library.yaml"));
         for (FileNode chart : directory.join("charts").list()) {
             result.addChart(yaml, chart);
         }
@@ -96,14 +96,12 @@ public class Library {
 
     //--
 
-    private final String name;
-    private final Map<String, Chart> charts;
+    private final Map<String, Chart> chartsMap;
     private final String version;
     public final FileNode libraryYaml;
 
-    public Library(String name, String version, FileNode libraryYaml) {
-        this.name = name;
-        this.charts = new HashMap<>();
+    public Library(String version, FileNode libraryYaml) {
+        this.chartsMap = new HashMap<>();
         this.version = version;
         this.libraryYaml = libraryYaml;
     }
@@ -114,24 +112,16 @@ public class Library {
 
         chartName = directory.getName();
         directions = Directions.loadChartDirections(yaml, chartName, version, directory.join("values.yaml"));
-        addChart(new Chart(name, directory.getAbsolute(), directions, version));
+        addChart(new Chart(chartName, directory.getAbsolute(), directions, version));
     }
 
     public void addChart(Chart chart) throws IOException {
-        if (charts.put(chart.name, chart) != null) {
+        if (chartsMap.put(chart.name, chart) != null) {
             throw new IOException("duplicate chart: " + chart.name);
         }
     }
 
-    public String getName() {
-        return name;
-    }
-
     public List<Chart> charts() throws IOException {
-        return new ArrayList<>(charts.values());
-    }
-
-    public Chart lookupChart(String chartName) {
-        return charts.get(chartName);
+        return new ArrayList<>(chartsMap.values());
     }
 }
