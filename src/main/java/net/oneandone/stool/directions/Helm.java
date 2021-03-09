@@ -111,7 +111,7 @@ public final class Helm {
 
         dest.set(Directions.DIRECTIONS_VALUE, directions.toObject(localSettings.yaml));
 
-        // check expire
+        // check expire - TODO: ugly up reference to core package
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
         if (str != null) {
             expire = Expire.fromString(str);

@@ -886,6 +886,18 @@ To build Stool, you need:
 * Docker (with api 1.26+) and Kubernetes.
 * TODO: depends on fault and cisotools
 
+#### Package structure
+
+The rough layering of packages is
+
+    cli, server
+    core
+    directions
+    registry, kubernetes
+    util
+
+Upper level user lower level, but not neighbours.
+
 
 #### Docker setup
 

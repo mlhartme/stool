@@ -62,14 +62,14 @@ public class ExpressionsTest {
     }
 
     @Test
-    public void clazz() throws IOException {
+    public void directions() throws IOException {
         Expressions e;
-        Directions clazz;
+        Directions directions;
         Map<String, String> values;
 
-        clazz = Directions.forTest("name", "one", "1", "two", "${'2' + value('one')}");
+        directions = Directions.forTest("name", "one", "1", "two", "${'2' + value('one')}");
         e = expressions();
-        values = e.eval(new HashMap<>(), clazz, world.getTemp().createTempDirectory());
+        values = e.eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
     }
 
