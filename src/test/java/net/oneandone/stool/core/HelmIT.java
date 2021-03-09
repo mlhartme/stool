@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class HelmIT {
     @Test
     public void directionsRef() throws IOException {
@@ -34,7 +36,9 @@ public class HelmIT {
 
         world = World.create();
         root = world.getTemp().createTempDirectory();
+        root.deleteDirectory(); // I just need a unix name ...
         portus = PortusRegistry.create(Json.newJson(), world, Secrets.load(world).portus.resolve("/").toString(), null);
         Library.resolve(portus, "contargo.server.lan/cisoops-public/charts/kutter", root); // TODO
+        assertTrue(root.isDirectory());
     }
 }

@@ -103,7 +103,7 @@ public class MainIT {
         FileNode home;
         String stage;
 
-        directionsDir = WORLD.guessProjectHome(getClass()).join("src/test/directions").checkDirectory();
+        directionsDir = WORLD.guessProjectHome(getClass()).join("src/test/data/directions").checkDirectory();
         stage = "de.wq-ta"; // with some special characters
         working = itRoot(kube).join("projects/" + (kube ? "it-kube" : "it-proxy")).mkdirsOpt();
         home = working.join("home").checkNotExists();
