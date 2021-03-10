@@ -26,6 +26,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -147,7 +148,7 @@ public class Expressions {
         }
     }
 
-    private Map<String, Object> templateEnv() {
+    private Map<String, Object> templateEnv() throws IOException {
         Map<String, Object> result;
         Map<String, Object> stool;
 
@@ -169,13 +170,9 @@ public class Expressions {
         result.put("stool", stool);
         result.put("env", localSettings.environment);
         result.put("util", util());
-        result.put("exec", (TemplateMethodModelEx) list -> {
-            try {
-                return exec(list);
-            } catch (IOException e) {
-                throw new TemplateModelException(e.getMessage(), e);
-            }
-        });
+        if (contextScripts != null) {
+            result.put("script", scripts());
+        }
         result.put("switch", (TemplateMethodModelEx) list -> {
                     List<String> lst;
                     String var;
@@ -201,7 +198,7 @@ public class Expressions {
         return result;
     }
 
-    private static Map<String, Object> util() {
+    private Map<String, Object> util() {
         Map<String, Object> result;
 
         result = new HashMap<>();
@@ -250,24 +247,31 @@ public class Expressions {
         return result;
     }
 
-    private String exec(List lst) throws IOException {
-        FileNode cmd;
-        Launcher script;
+    private Map<String, Object> scripts() throws IOException {
+        Map<String, Object> result;
 
-        if (lst.isEmpty()) {
-            throw new ArgumentException("exec without command");
+        result = new HashMap<>();
+        for (FileNode script : contextScripts.list()) {
+            final String name = Strings.removeRight(script.checkFile().getName(), ".sh");
+            result.put(name, (TemplateMethodModelEx) list -> {
+                try {
+                    return exec(script, list);
+                } catch (IOException e) {
+                    throw new TemplateModelException(name + ": script failed: " + e.getMessage(), e);
+                }
+            });
+
         }
-        if (contextScripts == null) {
-            throw new ArgumentException("missing chart context");
-        }
-        cmd = contextScripts.join(lst.get(0).toString());
-        if (!cmd.isFile()) {
-            throw new ArgumentException("command not found: " + cmd.getAbsolute());
-        }
-        script = cmd.getParent().launcher();
-        script.arg(cmd.getAbsolute());
-        add(script, lst.subList(1, lst.size()));
-        return script.exec();
+        return result;
+    }
+
+    private String exec(FileNode script, List args) throws IOException {
+        Launcher launcher;
+
+        launcher = script.getParent().launcher();
+        launcher.arg(script.getAbsolute());
+        add(launcher, args);
+        return launcher.exec();
     }
 
     private static void add(Launcher launcher, List lst) {

@@ -96,7 +96,7 @@ public class ExpressionsTest {
     }
 
     @Test
-    public void exec() throws IOException {
+    public void script() throws IOException {
         Expressions e;
         Directions directions;
         Map<String, String> values;
@@ -104,8 +104,11 @@ public class ExpressionsTest {
 
 
         dir = world.getTemp().createTempDirectory();
-        dir.join("script.sh").writeString("#!/bin/sh\necho \"arg:$1\"").setPermissions("rwxr-xr-x");
-        directions = Directions.forTest("name", "one", "${exec('script.sh', 'hello')}");
+        dir.join("script.sh").writeString("""
+            #!/bin/sh
+            echo "arg:$1"
+            """).setPermissions("rwxr-xr-x");
+        directions = Directions.forTest("name", "one", "${script.script('hello')}");
         e = expressions();
         values = e.eval(new HashMap<>(), directions, dir);
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
