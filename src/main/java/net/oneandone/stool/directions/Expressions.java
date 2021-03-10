@@ -19,6 +19,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import freemarker.template.TemplateScalarModel;
 import freemarker.template.TemplateSequenceModel;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
@@ -44,9 +45,9 @@ public class Expressions {
     private final String stage;
     private final String host;
 
-    /** key is property name, value is
+    /** key is direction name, value is
      *   string with result when ready
-     *   property when to do
+     *   Direction object when to do
      *   null when eval of this key started
      */
     private Map<String, Object> context;
@@ -73,11 +74,11 @@ public class Expressions {
         contextScripts = scripts;
         contextPrevious = previous;
         try {
-            for (Direction property : directions.directions.values()) {
-                context.put(property.name, property);
+            for (Direction direction : directions.directions.values()) {
+                context.put(direction.name, direction);
             }
-            for (Direction property : directions.directions.values()) {
-                evalValue(property.name);
+            for (Direction directon : directions.directions.values()) {
+                evalValue(directon.name);
             }
             result = new LinkedHashMap<>();
             for (Map.Entry<String, Object> entry : context.entrySet()) {
@@ -96,11 +97,11 @@ public class Expressions {
         String result;
 
         if (!context.containsKey(name)) {
-            throw new ArgumentException("unknown property: " + name);
+            throw new ArgumentException("unknown direction: " + name);
         }
         obj = context.get(name);
         if (obj == null) {
-            throw new ArgumentException("invalid recursion on property " + name);
+            throw new ArgumentException("invalid recursion on direction " + name);
         }
         if (obj instanceof String) {
             return (String) obj;
@@ -110,7 +111,7 @@ public class Expressions {
             try {
                 result = eval(((Direction) obj).expression);
             } catch (IOException e) {
-                throw new ArgumentException(name + ": failed to compute property: " + e.getMessage(), e);
+                throw new ArgumentException(name + ": failed to compute direction: " + e.getMessage(), e);
             }
             context.put(name, result);
             return result;
@@ -153,7 +154,7 @@ public class Expressions {
 
         result = new HashMap<>();
         result.put("stool", stool());
-        result.put("env", localSettings.environment);
+        result.put("env", new HashMap<>(localSettings.environment));
         result.put("util", util());
         if (contextScripts != null) {
             result.put("script", scripts());
@@ -171,14 +172,30 @@ public class Expressions {
                     dflt = lst.remove(0);
                     return swtch(var, dflt, lst);
                 });
-        result.put("value", (TemplateMethodModelEx) list -> {
-            if (list.size() != 1) {
-                throw new ArgumentException(list.toString());
-            }
-            return evalValue(list.get(0).toString());
-        });
+        if (context != null) {
+            result.put("direction", directions());
+        }
         if (contextPrevious != null) {
             result.put("prev", new HashMap<>(contextPrevious));
+        }
+        return result;
+    }
+
+    private Map<String, Object> directions() {
+        Map<String, Object> result;
+
+        result = new HashMap<>();
+        for (String name : context.keySet()) {
+            result.put(name, new TemplateScalarModel() {
+                @Override
+                public String getAsString() {
+                    return evalValue(name);
+                }
+
+                public String toString() {
+                    return getAsString();
+                }
+            });
         }
         return result;
     }

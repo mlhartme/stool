@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import freemarker.core.InvalidReferenceException;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.World;
@@ -89,10 +90,23 @@ public class ExpressionsTest {
         Directions directions;
         Map<String, String> values;
 
-        directions = Directions.forTest("name", "one", "1", "two", "${'2' + value('one')}");
+        directions = Directions.forTest("name", "two", "${'2' + direction.one}", "one", "1");
         e = expressions();
         values = e.eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
+    }
+
+    @Test
+    public void directionsRecursion() throws IOException {
+        Directions directions;
+
+        directions = Directions.forTest("name", "one", "${'1' + direction.one}");
+        try {
+            expressions().eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
+            fail();
+        } catch (ArgumentException e) {
+            assertEquals("invalid recursion on direction one", e.getMessage());
+        }
     }
 
     @Test
