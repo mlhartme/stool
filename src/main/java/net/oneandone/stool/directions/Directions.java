@@ -35,6 +35,7 @@ public class Directions {
     // this value is added to track the stage directions used
     public static final String DIRECTIONS_VALUE = "_directions";
 
+    // TODO: move to core package
     public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml, Library library) throws IOException {
         try (Reader src = world.resource("stage.yaml").newReader()) {
             return Directions.loadLiteral(library, "root", "stool", (ObjectNode) yaml.readTree(src));
