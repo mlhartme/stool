@@ -143,7 +143,7 @@ public class Directions {
         // chart + version are mandatory here because a stage was created with them:
         result = new Directions(eatString(raw, DIRECTIONS), eatStringOpt(raw, ORIGIN), eatStringOpt(raw, AUTHOR), eatString(raw, CHART), eatString(raw, CHART_VERSION));
         for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {
-            result.defineBase(Direction.forYaml(entry.getKey(), entry.getValue()));
+            result.addNew(Direction.forYaml(entry.getKey(), entry.getValue()));
         }
         return result;
     }
@@ -153,7 +153,7 @@ public class Directions {
 
         result = new Directions(name, "synthetic", null, "unusedChart", "noVersion");
         for (int i = 0; i < nameValues.length; i += 2) {
-            result.defineBase(new Direction(nameValues[i], nameValues[i + 1]));
+            result.addNew(new Direction(nameValues[i], nameValues[i + 1]));
         }
         return result;
     }
