@@ -32,6 +32,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -195,15 +196,9 @@ public class Expressions {
             }
             return evalValue(list.get(0).toString());
         });
-        result.put("prev", (TemplateMethodModelEx) list -> {
-            if (list.size() != 1) {
-                throw new ArgumentException(list.toString());
-            }
-            if (contextPrevious == null) {
-                throw new IllegalStateException("missing context");
-            }
-            return contextPrevious.get(list.get(0).toString());
-        });
+        if (contextPrevious != null) {
+            result.put("prev", new HashMap<>(contextPrevious));
+        }
         result.put("first", (TemplateMethodModelEx) list -> {
             for (Object obj : list) {
                 if (obj != null) {
