@@ -64,6 +64,7 @@ Other changes:
   * `environment` now configures the environment accessed with the env template function
 * log validation report result
 * readiness probe for Stool server
+* raised minimal Java version from 11 to 15
 * implementation changes
   * Maven: merged all modules into one
   * no longer use application files, use springboot instead  

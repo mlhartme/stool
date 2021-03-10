@@ -865,7 +865,7 @@ stage that cannot be deleted.
 
 Prerequisites:
 * Linux or Mac
-* Java 12 or higher.
+* Java 15 or higher.
 * If you want to use Kubernetes Contexts: [Helm](https://helm.sh) 3.
 
 Install steps
@@ -879,7 +879,7 @@ Install steps
 
 To build Stool, you need:
 * Linux or Mac
-* Java 12+
+* Java 15+
 * Maven 3+
 * Helm 3
 * Oras https://github.com/deislabs/oras

@@ -60,7 +60,9 @@ public class DirectionsTest {
     @Test
     public void extraValueOverrides() throws IOException {
         try {
-            create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\nf:\n    expr: 2\n    extra: true");
+            create("""
+              DIRECTIONS: 'foo'\nEXTENDS: 'base'\nf:\n    expr: 2\n    extra: true
+              """);
             fail();
         } catch (IllegalStateException e) {
             assertEquals("extra direction overrides base direction: f", e.getMessage());
