@@ -79,8 +79,8 @@ public class ExpressionsTest {
     }
 
     @Test
-    public void envNotFoundFirst() throws IOException {
-        assertEquals("x", expressions().eval("${first(env.NOT_FOUND, 'x')}")); // TODO: yield error instead?
+    public void envNotFoundDefault() throws IOException {
+        assertEquals("x", expressions().eval("${env.NOT_FOUND!'x'}"));
     }
 
     @Test

@@ -198,14 +198,6 @@ public class Expressions {
         if (contextPrevious != null) {
             result.put("prev", new HashMap<>(contextPrevious));
         }
-        result.put("first", (TemplateMethodModelEx) list -> {
-            for (Object obj : list) {
-                if (obj != null) {
-                    return obj;
-                }
-            }
-            return null;
-        });
         return result;
     }
 
