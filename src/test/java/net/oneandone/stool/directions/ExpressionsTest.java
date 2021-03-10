@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import freemarker.core.InvalidReferenceException;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.World;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ExpressionsTest {
     private static final World world = World.createMinimal();
@@ -59,6 +61,21 @@ public class ExpressionsTest {
         assertEquals("", e.eval(""));
         assertEquals("hello", e.eval("hello"));
         assertEquals("stage.localhost", e.eval("${fqdn}"));
+    }
+
+    @Test
+    public void env() throws IOException {
+        assertEquals("a", expressions().eval("${env.MOD}"));
+    }
+
+    @Test
+    public void envNotFound() {
+        try {
+            assertEquals("a", expressions().eval("${'1' + env.NOT_FOUND + 'x'}"));
+            fail();
+        } catch (IOException e) {
+            assertEquals("env.NOT_FOUND", ((InvalidReferenceException) e.getCause()).getBlamedExpressionString());
+        }
     }
 
     @Test

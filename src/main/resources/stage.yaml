@@ -3,11 +3,11 @@ DIRECTIONS: "stage"
 metadataExpire:
   doc: "Defines when this stages expires."
   extra: true
-  expr: "${first(prev('metadataExpire'), env('defaultExpire', 'never'))}"
+  expr: "${first(prev('metadataExpire'), first(env.defaultExpire, 'never'))}"
 metadataContact:
   doc: "Technical contact for this stage; comma-separated list of login names or emails."
   extra: true
-  expr: "${first(prev('metadataContact'), env('defaultContact', 'michael.hartmeier@ionos.com'))}"
+  expr: "${first(prev('metadataContact'), first(env.defaultContact, 'michael.hartmeier@ionos.com'))}"
 metadataComment:
   doc: "Arbitrary comment for this stage. This value is nothing but stored, it has no effect."
   extra: true

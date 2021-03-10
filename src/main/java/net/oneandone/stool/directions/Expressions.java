@@ -154,6 +154,7 @@ public class Expressions {
         result.put("fqdn", fqdn);
         result.put("stage", stage);
         result.put("host", host);
+        result.put("env", localSettings.environment);
         result.put("workdir", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
@@ -202,29 +203,6 @@ public class Expressions {
                     dflt = lst.remove(0);
                     return swtch(var, dflt, lst);
                 });
-        result.put("env", (TemplateMethodModelEx) list -> {
-            String name;
-            String value;
-            String dflt;
-
-            if (list.size() == 2) {
-                dflt = list.get(1).toString();
-            } else {
-                dflt = null;
-                if (list.size() != 1) {
-                    throw new ArgumentException(list.toString());
-                }
-            }
-            name = list.get(0).toString();
-            value = localSettings.environment.get(name);
-            if (value == null) {
-                if (dflt == null) {
-                    throw new TemplateModelException("env variable not found: " + name);
-                }
-                value = dflt;
-            }
-            return value;
-        });
         result.put("value", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
