@@ -42,7 +42,10 @@ public class DirectionsTest {
     public void empty() throws IOException {
         Directions c;
 
-        c = create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\n");
+        c = create("""
+                 DIRECTIONS: 'foo'
+                 EXTENDS: 'base'
+                 """);
         assertEquals("foo", c.subject);
         assertEquals(1, c.size());
     }
@@ -51,7 +54,12 @@ public class DirectionsTest {
     public void override() throws IOException {
         Directions c;
 
-        c = create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\nf:\n  expr: 2\n");
+        c = create("""
+                DIRECTIONS: 'foo'
+                EXTENDS: 'base'
+                f:
+                  expr: 2
+                """);
         assertEquals("foo", c.subject);
         assertEquals(1, c.size());
         System.out.println(c.toObject(YAML));
@@ -61,8 +69,12 @@ public class DirectionsTest {
     public void extraValueOverrides() throws IOException {
         try {
             create("""
-              DIRECTIONS: 'foo'\nEXTENDS: 'base'\nf:\n    expr: 2\n    extra: true
-              """);
+                    DIRECTIONS: 'foo'
+                    EXTENDS: 'base'
+                    f:
+                      expr: 2
+                      extra: true
+                    """);
             fail();
         } catch (IllegalStateException e) {
             assertEquals("extra direction overrides base direction: f", e.getMessage());
@@ -73,7 +85,13 @@ public class DirectionsTest {
     public void extra() throws IOException {
         Directions c;
 
-        c = create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\nv:\n    expr: 2\n    extra: true");
+        c = create("""
+                DIRECTIONS: 'foo'
+                EXTENDS: 'base'
+                v:
+                    expr: 2
+                    extra: true
+                """);
         assertEquals("foo", c.subject);
         assertEquals(2, c.size());
     }
@@ -81,7 +99,11 @@ public class DirectionsTest {
     @Test
     public void extraValueExpected() throws IOException {
         try {
-            create("DIRECTIONS: 'foo'\nEXTENDS: 'base'\nv: 2\n");
+            create("""
+                DIRECTIONS: 'foo'
+                EXTENDS: 'base'
+                v: 2
+                """);
             fail();
         } catch (IllegalStateException e) {
             assertEquals("extra direction expected: v", e.getMessage());
@@ -89,7 +111,23 @@ public class DirectionsTest {
     }
 
     @Test
-    public Directions create(String str) throws IOException {
+    public void ext() throws IOException {
+        Library library;
+
+        library = library("""
+                DIRECTIONS: 'first'
+                v: 1
+                """,
+                """
+                DIRECTIONS: "second"
+                EXTENDS: "first"
+                v: 2
+                """);
+        assertEquals("1", library.directions("first").get("v").expression);
+        assertEquals("2", library.directions("second").get("v").expression);
+    }
+
+    private Directions create(String str) throws IOException {
         Library library;
         ObjectNode obj;
 
@@ -97,5 +135,18 @@ public class DirectionsTest {
         library = new Library("empty", WORLD.getTemp().createTempDirectory());
         library.addDirections(Directions.forTest("base", "f", "1"));
         return Directions.loadLiteral(library, "", null, obj);
+    }
+
+    private Library library(String ... directionsArray) throws IOException {
+        Library library;
+        ObjectNode obj;
+
+        library = new Library("empty", WORLD.getTemp().createTempDirectory());
+        library.addDirections(Directions.forTest("base", "f", "1"));
+        for (String directions : directionsArray) {
+            obj = (ObjectNode) YAML.readTree(directions);
+            library.addDirections(Directions.loadLiteral(library, "", null, obj));
+        }
+        return library;
     }
 }

@@ -39,7 +39,7 @@ You can run
 
     sc status tour
 
-to see status information like `url` or `available`. If `available` is above `0`, you can point your browser
+to see status information like `urls` or `available`. If `available` is above `0`, you can point your browser
 to one of the urls.
 
 To delete the stage run
