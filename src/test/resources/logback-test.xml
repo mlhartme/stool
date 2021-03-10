@@ -1,9 +1,4 @@
 <configuration>
-    <!-- I need a different logging configuration for tests; because the normal configuration has a hard-coded logroot
-         (which is ok because the server is assumed to execute in a container) -->
-    <Logger name="freemarker" level="off">
-        <AppenderRef ref="Console" />
-    </Logger>
     <root level="INFO">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
