@@ -168,18 +168,13 @@ public class Expressions {
         result = new HashMap<>();
         result.put("stool", stool);
         result.put("env", localSettings.environment);
+        result.put("util", util());
         result.put("exec", (TemplateMethodModelEx) list -> {
             try {
                 return exec(list);
             } catch (IOException e) {
                 throw new TemplateModelException(e.getMessage(), e);
             }
-        });
-        result.put("commaList", (TemplateMethodModelEx) list -> {
-            if (list.size() != 1) {
-                throw new ArgumentException(list.toString());
-            }
-            return Separator.COMMA.split(list.get(0).toString());
         });
         result.put("toBase64", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
@@ -228,6 +223,19 @@ public class Expressions {
                 }
             }
             return null;
+        });
+        return result;
+    }
+
+    private static Map<String, Object> util() {
+        Map<String, Object> result;
+
+        result = new HashMap<>();
+        result.put("commaList", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            return Separator.COMMA.split(list.get(0).toString());
         });
         return result;
     }
