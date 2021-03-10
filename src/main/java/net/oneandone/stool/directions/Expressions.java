@@ -155,10 +155,7 @@ public class Expressions {
         stool.put("fqdn", fqdn);
         stool.put("stage", stage);
         stool.put("host", host);
-        result = new HashMap<>();
-        result.put("stool", stool);
-        result.put("env", localSettings.environment);
-        result.put("workdir", (TemplateMethodModelEx) list -> {
+        stool.put("workdir", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {
                 throw new ArgumentException(list.toString());
             }
@@ -168,6 +165,9 @@ public class Expressions {
                 throw new TemplateModelException(e.getMessage(), e);
             }
         });
+        result = new HashMap<>();
+        result.put("stool", stool);
+        result.put("env", localSettings.environment);
         result.put("exec", (TemplateMethodModelEx) list -> {
             try {
                 return exec(list);
