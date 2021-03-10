@@ -81,7 +81,7 @@ public class Directions {
         }
         derived = extend(origin, author, subject, bases);
         for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {
-            derived.define(Direction.forYaml(entry.getKey(), entry.getValue()));
+            derived.addMerged(Direction.forYaml(entry.getKey(), entry.getValue()));
         }
         return derived;
     }
@@ -182,11 +182,7 @@ public class Directions {
         }
     }
 
-    public void defineBase(Direction direction) {
-        define(direction);
-    }
-
-    public void define(Direction direction) {
+    public void addMerged(Direction direction) {
         Direction prev;
 
         prev = directions.get(direction.name);
@@ -281,7 +277,7 @@ public class Directions {
         result = new Directions(withSubject, derivedOrigin, derivedAuthor, chartOpt, chartVersionOpt);
         for (Directions base : bases) {
             for (Direction direction : base.directions.values()) {
-                result.defineBase(direction);
+                result.addMerged(direction);
             }
         }
         return result;
