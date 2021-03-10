@@ -150,24 +150,9 @@ public class Expressions {
 
     private Map<String, Object> templateEnv() throws IOException {
         Map<String, Object> result;
-        Map<String, Object> stool;
 
-        stool = new HashMap<>();
-        stool.put("fqdn", fqdn);
-        stool.put("stage", stage);
-        stool.put("host", host);
-        stool.put("workdir", (TemplateMethodModelEx) list -> {
-            if (list.size() != 1) {
-                throw new ArgumentException(list.toString());
-            }
-            try {
-                return localSettings.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
-            } catch (IOException e) {
-                throw new TemplateModelException(e.getMessage(), e);
-            }
-        });
         result = new HashMap<>();
-        result.put("stool", stool);
+        result.put("stool", stool());
         result.put("env", localSettings.environment);
         result.put("util", util());
         if (contextScripts != null) {
@@ -195,6 +180,26 @@ public class Expressions {
         if (contextPrevious != null) {
             result.put("prev", new HashMap<>(contextPrevious));
         }
+        return result;
+    }
+
+    private Map<String, Object> stool() {
+        Map<String, Object> result;
+
+        result = new HashMap<>();
+        result.put("fqdn", fqdn);
+        result.put("stage", stage);
+        result.put("host", host);
+        result.put("workdir", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            try {
+                return localSettings.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
+            } catch (IOException e) {
+                throw new TemplateModelException(e.getMessage(), e);
+            }
+        });
         return result;
     }
 
