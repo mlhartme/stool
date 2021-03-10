@@ -65,7 +65,7 @@ public class DirectionsTest {
         System.out.println(c.toObject(YAML));
     }
 
-    // TODO @Test
+    @Test
     public void extraValueOverrides() throws IOException {
         try {
             create("""
@@ -77,7 +77,7 @@ public class DirectionsTest {
                     """);
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("extra direction overrides base direction: f", e.getMessage());
+            assertEquals("extra direction is not unique: f", e.getMessage());
         }
     }
 
@@ -94,20 +94,6 @@ public class DirectionsTest {
                 """);
         assertEquals("foo", c.subject);
         assertEquals(2, c.size());
-    }
-
-    // TODO @Test
-    public void extraValueExpected() throws IOException {
-        try {
-            create("""
-                DIRECTIONS: 'foo'
-                EXTENDS: 'base'
-                v: 2
-                """);
-            fail();
-        } catch (IllegalStateException e) {
-            assertEquals("extra direction expected: v", e.getMessage());
-        }
     }
 
     @Test

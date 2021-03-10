@@ -194,23 +194,14 @@ public class Directions {
             if (prev.privt) {
                 throw new IllegalStateException("you cannot override private direction: " + direction.name);
             }
-            if (direction.extra) {
-                throw new IllegalStateException("extra direction overrides base direction: " + direction.name);
+            if (prev.extra || direction.extra) {
+                throw new IllegalStateException("extra direction is not unique: " + direction.name);
             }
             if (prev.doc != null && direction.doc == null) {
                 direction = direction.withDoc(prev.doc);
             }
             if (!prev.expression.isEmpty() && direction.expression.isEmpty()) {
                 direction = direction.withExpression(prev.expression);
-            }
-        } else {
-            if (chartOpt == null) {
-                // TODO: mixin
-            } else {
-                /* TODO
-                if (!direction.extra) {
-                    throw new IllegalStateException("extra direction expected: " + direction.name);
-                }*/
             }
         }
         directions.put(direction.name, direction);
