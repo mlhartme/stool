@@ -149,11 +149,14 @@ public class Expressions {
 
     private Map<String, Object> templateEnv() {
         Map<String, Object> result;
+        Map<String, Object> stool;
 
+        stool = new HashMap<>();
+        stool.put("fqdn", fqdn);
+        stool.put("stage", stage);
+        stool.put("host", host);
         result = new HashMap<>();
-        result.put("fqdn", fqdn);
-        result.put("stage", stage);
-        result.put("host", host);
+        result.put("stool", stool);
         result.put("env", localSettings.environment);
         result.put("workdir", (TemplateMethodModelEx) list -> {
             if (list.size() != 1) {

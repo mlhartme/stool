@@ -60,7 +60,7 @@ public class ExpressionsTest {
         e = expressions();
         assertEquals("", e.eval(""));
         assertEquals("hello", e.eval("hello"));
-        assertEquals("stage.localhost", e.eval("${fqdn}"));
+        assertEquals("stage.localhost", e.eval("${stool.fqdn}"));
     }
 
     @Test
