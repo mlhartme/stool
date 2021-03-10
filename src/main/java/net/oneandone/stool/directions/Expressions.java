@@ -219,9 +219,6 @@ public class Expressions {
             return contextPrevious.get(list.get(0).toString());
         });
         result.put("first", (TemplateMethodModelEx) list -> {
-            if (contextPrevious == null) {
-                throw new IllegalStateException("missing context");
-            }
             for (Object obj : list) {
                 if (obj != null) {
                     return obj;

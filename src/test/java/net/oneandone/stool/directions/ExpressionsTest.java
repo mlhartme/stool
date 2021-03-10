@@ -71,11 +71,16 @@ public class ExpressionsTest {
     @Test
     public void envNotFound() {
         try {
-            assertEquals("a", expressions().eval("${'1' + env.NOT_FOUND + 'x'}"));
+            expressions().eval("${'1' + env.NOT_FOUND + 'x'}");
             fail();
         } catch (IOException e) {
             assertEquals("env.NOT_FOUND", ((InvalidReferenceException) e.getCause()).getBlamedExpressionString());
         }
+    }
+
+    @Test
+    public void envNotFoundFirst() throws IOException {
+        assertEquals("x", expressions().eval("${first(env.NOT_FOUND, 'x')}")); // TODO: yield error instead?
     }
 
     @Test
