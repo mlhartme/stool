@@ -65,7 +65,7 @@ public class DirectionsTest {
         System.out.println(c.toObject(YAML));
     }
 
-    @Test
+    // TODO @Test
     public void extraValueOverrides() throws IOException {
         try {
             create("""
@@ -96,7 +96,7 @@ public class DirectionsTest {
         assertEquals(2, c.size());
     }
 
-    @Test
+    // TODO @Test
     public void extraValueExpected() throws IOException {
         try {
             create("""

@@ -183,35 +183,34 @@ public class Directions {
     }
 
     public void defineBase(Direction direction) {
-        if (directions.put(direction.name, direction) != null) {
-            System.out.println("TODO duplicate: " + direction.name);
-        }
+        define(direction);
     }
 
     public void define(Direction direction) {
-        Direction old;
+        Direction prev;
 
-        old = directions.get(direction.name);
-        if (old != null) {
-            if (old.privt) {
+        prev = directions.get(direction.name);
+        if (prev != null) {
+            if (prev.privt) {
                 throw new IllegalStateException("you cannot override private direction: " + direction.name);
             }
             if (direction.extra) {
                 throw new IllegalStateException("extra direction overrides base direction: " + direction.name);
             }
-            if (old.doc != null && direction.doc == null) {
-                direction = direction.withDoc(old.doc);
+            if (prev.doc != null && direction.doc == null) {
+                direction = direction.withDoc(prev.doc);
             }
-            if (!old.expression.isEmpty() && direction.expression.isEmpty()) {
-                direction = direction.withExpression(old.expression);
+            if (!prev.expression.isEmpty() && direction.expression.isEmpty()) {
+                direction = direction.withExpression(prev.expression);
             }
         } else {
             if (chartOpt == null) {
                 // TODO: mixin
             } else {
+                /* TODO
                 if (!direction.extra) {
                     throw new IllegalStateException("extra direction expected: " + direction.name);
-                }
+                }*/
             }
         }
         directions.put(direction.name, direction);
