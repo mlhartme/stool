@@ -176,18 +176,6 @@ public class Expressions {
                 throw new TemplateModelException(e.getMessage(), e);
             }
         });
-        result.put("toBase64", (TemplateMethodModelEx) list -> {
-            if (list.size() != 1) {
-                throw new ArgumentException(list.toString());
-            }
-            return Base64.getEncoder().encodeToString(list.get(0).toString().getBytes(StandardCharsets.UTF_8));
-        });
-        result.put("fromBase64", (TemplateMethodModelEx) list -> {
-            if (list.size() != 1) {
-                throw new ArgumentException(list.toString());
-            }
-            return Base64.getDecoder().decode(list.get(0).toString());
-        });
         result.put("switch", (TemplateMethodModelEx) list -> {
                     List<String> lst;
                     String var;
@@ -236,6 +224,18 @@ public class Expressions {
                 throw new ArgumentException(list.toString());
             }
             return Separator.COMMA.split(list.get(0).toString());
+        });
+        result.put("toBase64", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            return Base64.getEncoder().encodeToString(list.get(0).toString().getBytes(StandardCharsets.UTF_8));
+        });
+        result.put("fromBase64", (TemplateMethodModelEx) list -> {
+            if (list.size() != 1) {
+                throw new ArgumentException(list.toString());
+            }
+            return Base64.getDecoder().decode(list.get(0).toString());
         });
         return result;
     }
