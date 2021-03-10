@@ -44,13 +44,17 @@ public class Directions {
     /** loads the directions implicitly defined by a chart */
     public static Directions loadChartDirections(ObjectMapper yaml, String name, String version, FileNode valuesYaml) throws IOException {
         Directions result;
-        ObjectNode loaded;
+        Iterator<Map.Entry<String, JsonNode>> values;
+        Map.Entry<String, JsonNode> entry;
 
         try (Reader src = valuesYaml.newReader()) {
-            loaded = (ObjectNode) yaml.readTree(src);
+            values = yaml.readTree(src).fields();
         }
         result = new Directions(name + "-chart", "chart '" + name + '"', "TODO", name, version);
-        result.defineBaseAll(loaded.fields());
+        while (values.hasNext()) {
+            entry = values.next();
+            result.addNew(Direction.forYaml(entry.getKey(), entry.getValue()));
+        }
         return result;
     }
 
@@ -171,14 +175,12 @@ public class Directions {
         this.directions = new LinkedHashMap<>();
     }
 
-    public void defineBaseAll(Iterator<Map.Entry<String, JsonNode>> iter) {
-        Map.Entry<String, JsonNode> entry;
-
-        while (iter.hasNext()) {
-            entry = iter.next();
-            defineBase(Direction.forYaml(entry.getKey(), entry.getValue()));
+    public void addNew(Direction direction) {
+        if (directions.put(direction.name, direction) != null) {
+            throw new IllegalStateException("direction already exists: " + direction.name);
         }
     }
+
     public void defineBase(Direction direction) {
         if (directions.put(direction.name, direction) != null) {
             System.out.println("TODO duplicate: " + direction.name);

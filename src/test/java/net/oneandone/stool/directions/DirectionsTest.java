@@ -131,9 +131,9 @@ public class DirectionsTest {
         Library library;
         ObjectNode obj;
 
-        obj = (ObjectNode) YAML.readTree(str);
         library = new Library("empty", WORLD.getTemp().createTempDirectory());
         library.addDirections(Directions.forTest("base", "f", "1"));
+        obj = (ObjectNode) YAML.readTree(str);
         return Directions.loadLiteral(library, "", null, obj);
     }
 
