@@ -38,17 +38,17 @@ public class Setup {
 
     private final World world;
     private final FileNode home;
-    private final String library;
+    private final String toolkit;
     private final String lib;
     private final String registryCredentials;
     private final Console console;
     private final String version;
     private final String spec;
 
-    public Setup(Globals globals, String library, String lib, String registryCredentials, String spec) {
+    public Setup(Globals globals, String toolkit, String lib, String registryCredentials, String spec) {
         this.world = globals.getWorld();
         this.home = globals.home();
-        this.library = library;
+        this.toolkit = toolkit;
         this.lib = lib;
         this.registryCredentials = registryCredentials;
         this.console = globals.getConsole();
@@ -101,8 +101,8 @@ public class Setup {
         String url;
 
         result = initialSettings();
-        if (library != null) {
-            result.local.library = library;
+        if (toolkit != null) {
+            result.local.toolkit = toolkit;
         }
         if (spec != null) {
             idx = spec.indexOf('=');

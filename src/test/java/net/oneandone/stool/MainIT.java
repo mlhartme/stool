@@ -110,7 +110,7 @@ public class MainIT {
         if (kube) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "-library=/Users/mhm/Projects/helmcharts" /* TODO */, "-registryCredentials=" + registryCredentials);
+            sc(home, "setup", "-toolkit=/Users/mhm/Projects/helmcharts" /* TODO */, "-registryCredentials=" + registryCredentials);
             sc(home, "context", "kube-local");
         } else {
             helm(kube, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(kube).getAbsolute(), "stool", helmChart().getAbsolute());

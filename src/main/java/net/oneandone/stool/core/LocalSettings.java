@@ -18,7 +18,7 @@ package net.oneandone.stool.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.Main;
-import net.oneandone.stool.directions.Library;
+import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.server.users.UserManager;
@@ -58,7 +58,7 @@ public class LocalSettings {
     public final Map<String, Pair> registryCredentials;
 
     // TODO: final
-    public String library;
+    public String toolkit;
     public final FileNode lib;
 
     public final String stageLogs;
@@ -107,7 +107,7 @@ public class LocalSettings {
         this.fqdn = Json.string(local, "fqdn", "localhost");
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
-        this.library = Json.string(local, "library", home.getWorld().getHome().join("Projects/helmcharts").getAbsolute()); // TODO
+        this.toolkit = Json.string(local, "toolkit", home.getWorld().getHome().join("Projects/helmcharts").getAbsolute()); // TODO
         this.lib = home.join("lib");
         this.stageLogs = string(local, "stageLogs", home.getWorld().getHome().join(".sc/logs").getAbsolute());
 
@@ -132,7 +132,7 @@ public class LocalSettings {
         this.fqdn = from.fqdn;
         this.environment = new LinkedHashMap<>(from.environment);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
-        this.library = from.library;
+        this.toolkit = from.toolkit;
         this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
         this.admin = from.admin;
@@ -206,7 +206,7 @@ public class LocalSettings {
         local.put("fqdn", fqdn);
         local.set("environment", Json.obj(json, environment));
         local.put("registryCredentials", registryCredentialsString());
-        local.put("library", library);
+        local.put("toolkit", toolkit);
         local.put("admin", admin);
         local.put("autoRemove", autoRemove);
         if (auth()) {
@@ -248,21 +248,21 @@ public class LocalSettings {
     }
 
 
-    private Library lazyLibrary;
+    private Toolkit lazyLibrary;
 
-    public Library library() throws IOException {
+    public Toolkit toolkit() throws IOException {
         FileNode directory;
         String version;
 
         if (lazyLibrary == null) {
-            if (!library.startsWith("/")) {
+            if (!toolkit.startsWith("/")) {
                 directory = this.lib.join("library");
-                version = Library.resolve(createRegistry(library), library, directory);
+                version = Toolkit.resolve(createRegistry(toolkit), toolkit, directory);
             } else {
-                directory = world.file(library).checkDirectory();
+                directory = world.file(toolkit).checkDirectory();
                 version = "unknown";
             }
-            lazyLibrary = Library.load(world, yaml, directory, version);
+            lazyLibrary = Toolkit.load(world, yaml, directory, version);
         }
         return lazyLibrary;
     }

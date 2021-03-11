@@ -28,7 +28,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LibraryTest {
+public class ToolkitTest {
     private static final World WORLD = World.createMinimal();
     private static final ObjectMapper YAML = Json.newYaml();
 
@@ -70,17 +70,17 @@ public class LibraryTest {
         for (RawDirections r : array) {
             map.put(r.subject, r);
         }
-        return Library.sequence(map);
+        return Toolkit.sequence(map);
     }
 
     @Test
     public void loadAll() throws IOException {
-        Library library;
+        Toolkit toolkit;
         Directions a;
 
-        library = Library.load(WORLD, YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/library").checkDirectory(), "");
-        assertEquals(4, library.directionsSize());
-        a = library.directions("derived");
+        toolkit = Toolkit.load(WORLD, YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/toolkit").checkDirectory(), "");
+        assertEquals(4, toolkit.directionsSize());
+        a = toolkit.directions("derived");
         assertEquals("42", a.directions.get("asis").expression);
         assertEquals("modified", a.directions.get("base").expression);
         assertEquals("3", a.directions.get("added").expression);

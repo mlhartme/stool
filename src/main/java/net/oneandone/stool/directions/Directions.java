@@ -36,9 +36,9 @@ public class Directions {
     public static final String DIRECTIONS_VALUE = "_directions";
 
     // TODO: move to core package
-    public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml, Library library) throws IOException {
+    public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml, Toolkit toolkit) throws IOException {
         try (Reader src = world.resource("stage.yaml").newReader()) {
-            return Directions.loadLiteral(library, "root", "stool", (ObjectNode) yaml.readTree(src));
+            return Directions.loadLiteral(toolkit, "root", "stool", (ObjectNode) yaml.readTree(src));
         }
     }
 
@@ -67,17 +67,17 @@ public class Directions {
     public static final String AUTHOR = "AUTHOR";
 
     /** from inline, label or file; always extends */
-    public static Directions loadLiteral(Library library, String origin, String author, ObjectNode directions) throws IOException {
-        return loadLiteral(library, origin, author, RawDirections.load(directions));
+    public static Directions loadLiteral(Toolkit toolkit, String origin, String author, ObjectNode directions) throws IOException {
+        return loadLiteral(toolkit, origin, author, RawDirections.load(directions));
     }
     /** from inline, label or file; always extends */
-    public static Directions loadLiteral(Library library, String origin, String author, RawDirections raw) throws IOException {
+    public static Directions loadLiteral(Toolkit toolkit, String origin, String author, RawDirections raw) throws IOException {
         Directions derived;
         List<Directions> bases;
 
         bases = new ArrayList();
         for (String baseName : raw.bases) {
-            bases.add(library.directions(baseName));
+            bases.add(toolkit.directions(baseName));
         }
         derived = extend(origin, author, raw.subject, bases);
         for (Map.Entry<String, JsonNode> entry : raw.directions.entrySet()) {

@@ -38,16 +38,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class Library {
+public class Toolkit {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
     //--
 
-    public static Library load(World world, ObjectMapper yaml, FileNode directory, String version) throws IOException {
+    public static Toolkit load(World world, ObjectMapper yaml, FileNode directory, String version) throws IOException {
         Iterator<JsonNode> directions;
-        Library result;
+        Toolkit result;
 
-        result = new Library(version, directory.join("scripts"));
+        result = new Toolkit(version, directory.join("scripts"));
         for (FileNode chart : directory.join("charts").list()) {
             result.addChart(yaml, chart);
         }
@@ -66,7 +66,7 @@ public class Library {
         FileNode tmp;
 
         if (repository.contains(":")) {
-            throw new ArgumentException("invalid library repository: " + repository);
+            throw new ArgumentException("invalid toolkit repository: " + repository);
         }
         name = repository.substring(repository.lastIndexOf('/') + 1);
         tags = sortTags(registry.helmTags(Registry.getRepositoryPath(repository)));
@@ -78,11 +78,11 @@ public class Library {
         if (dest.exists()) {
             existing = tagFile.readString().trim();
             if (!tag.equals(existing)) {
-                LOGGER.info("updating library " + name + " " + existing + " -> " + tag);
+                LOGGER.info("updating toolkit " + name + " " + existing + " -> " + tag);
                 dest.deleteTree();
             }
         } else {
-            LOGGER.info("loading library " + name + " " + tag);
+            LOGGER.info("loading toolkit " + name + " " + tag);
         }
         if (!dest.exists()) {
             tmp = dest.getWorld().getTemp().createTempDirectory();
@@ -112,7 +112,7 @@ public class Library {
     private final String version;
     public final FileNode scripts;
 
-    public Library(String version, FileNode scripts) {
+    public Toolkit(String version, FileNode scripts) {
         this.directions = new HashMap<>();
         this.charts = new HashMap<>();
         this.version = version;

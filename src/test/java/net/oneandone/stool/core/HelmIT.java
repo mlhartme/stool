@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.core;
 
-import net.oneandone.stool.directions.Library;
+import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Secrets;
@@ -38,7 +38,7 @@ public class HelmIT {
         root = world.getTemp().createTempDirectory();
         root.deleteDirectory(); // I just need a unix name ...
         portus = PortusRegistry.create(Json.newJson(), world, Secrets.load(world).portus.resolve("/").toString(), null);
-        Library.resolve(portus, "contargo.server.lan/cisoops-public/libraries/cp", root); // TODO
+        Toolkit.resolve(portus, "contargo.server.lan/cisoops-public/libraries/cp", root); // TODO
         assertTrue(root.isDirectory());
     }
 }

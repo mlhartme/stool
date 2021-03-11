@@ -59,7 +59,7 @@ public final class Helm {
         Map<String, String> values;
         Diff result;
         Diff forbidden;
-        Library library;
+        Toolkit toolkit;
 
         if (directions.chartOpt == null) {
             throw new IOException("directions without chart: " + directions.subject);
@@ -68,9 +68,9 @@ public final class Helm {
         expressions = new Expressions(localSettings, name);
         tmpDirections = Directions.extend(directions.origin, directions.author, directions.subject, Collections.singletonList(directions));
         tmpDirections.setValues(overrides);
-        library = localSettings.library();
-        chart = library.chart(tmpDirections.chartOpt);
-        values = expressions.eval(prev, tmpDirections, library.scripts);
+        toolkit = localSettings.toolkit();
+        chart = toolkit.chart(tmpDirections.chartOpt);
+        values = expressions.eval(prev, tmpDirections, toolkit.scripts);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -88,7 +88,7 @@ public final class Helm {
         try {
             LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,
-                    library.scripts, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name, chart.reference);
+                    toolkit.scripts, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name, chart.reference);
             return result;
         } finally {
             valuesFile.deleteFile();

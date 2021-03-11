@@ -34,7 +34,7 @@ public class DirectionsTest {
     public void stage() throws IOException {
         Directions c;
 
-        c = Directions.loadStageDirectionsBase(WORLD, YAML, new Library("empty", WORLD.getTemp().createTempDirectory()));
+        c = Directions.loadStageDirectionsBase(WORLD, YAML, new Toolkit("empty", WORLD.getTemp().createTempDirectory()));
         assertEquals("stage", c.subject);
     }
 
@@ -98,9 +98,9 @@ public class DirectionsTest {
 
     @Test
     public void ext() throws IOException {
-        Library library;
+        Toolkit toolkit;
 
-        library = library("""
+        toolkit = toolkit("""
                 DIRECTIONS: 'first'
                 v: 1
                 """,
@@ -109,30 +109,30 @@ public class DirectionsTest {
                 EXTENDS: "first"
                 v: 2
                 """);
-        assertEquals("1", library.directions("first").get("v").expression);
-        assertEquals("2", library.directions("second").get("v").expression);
+        assertEquals("1", toolkit.directions("first").get("v").expression);
+        assertEquals("2", toolkit.directions("second").get("v").expression);
     }
 
     private Directions create(String str) throws IOException {
-        Library library;
+        Toolkit toolkit;
         ObjectNode obj;
 
-        library = new Library("empty", WORLD.getTemp().createTempDirectory());
-        library.addDirections(Directions.forTest("base", "f", "1"));
+        toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
+        toolkit.addDirections(Directions.forTest("base", "f", "1"));
         obj = (ObjectNode) YAML.readTree(str);
-        return Directions.loadLiteral(library, "", null, obj);
+        return Directions.loadLiteral(toolkit, "", null, obj);
     }
 
-    private Library library(String ... directionsArray) throws IOException {
-        Library library;
+    private Toolkit toolkit(String ... directionsArray) throws IOException {
+        Toolkit toolkit;
         ObjectNode obj;
 
-        library = new Library("empty", WORLD.getTemp().createTempDirectory());
-        library.addDirections(Directions.forTest("base", "f", "1"));
+        toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
+        toolkit.addDirections(Directions.forTest("base", "f", "1"));
         for (String directions : directionsArray) {
             obj = (ObjectNode) YAML.readTree(directions);
-            library.addDirections(Directions.loadLiteral(library, "", null, obj));
+            toolkit.addDirections(Directions.loadLiteral(toolkit, "", null, obj));
         }
-        return library;
+        return toolkit;
     }
 }
