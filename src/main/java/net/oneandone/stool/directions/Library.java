@@ -18,6 +18,8 @@ package net.oneandone.stool.directions;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.graph.CyclicDependency;
+import net.oneandone.graph.Graph;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.PortusRegistry;
@@ -50,12 +52,7 @@ public class Library {
             result.addChart(yaml, chart);
         }
         result.addDirections(Directions.loadStageDirectionsBase(world, yaml, result));
-        try (Reader src = directory.join("library.yaml").newReader()) {
-            directions = yaml.readTree(src).elements();
-        }
-        while (directions.hasNext()) {
-            result.addDirections(Directions.loadLiteral(result, "builtin", DirectionsRef.BUILDIN, (ObjectNode) directions.next()));
-        }
+        result.loadAll(yaml, directory.find("directions/*.yaml"));
         return result;
     }
 
@@ -120,6 +117,48 @@ public class Library {
         this.charts = new HashMap<>();
         this.version = version;
         this.scripts = scripts;
+    }
+
+    //--
+
+    public void loadAll(ObjectMapper yaml, List<FileNode> files) throws IOException {
+        Map<String, RawDirections> raws;
+        RawDirections raw;
+
+        raws = new HashMap<>();
+        for (FileNode file : files) {
+            try (Reader src = file.newReader()) {
+                raw = RawDirections.load((ObjectNode) yaml.readTree(src));
+                raws.put(raw.subject, raw);
+            }
+        }
+        for (RawDirections r : sequence(raws)) {
+            addDirections(Directions.loadLiteral(this, "builtin", DirectionsRef.BUILDIN, r));
+        }
+    }
+
+    // topological sort
+    public static List<RawDirections> sequence(Map<String, RawDirections> raws) throws IOException {
+        Graph<RawDirections> graph;
+        RawDirections other;
+
+        graph = new Graph<>();
+        for (RawDirections raw : raws.values()) {
+            graph.addNode(raw);
+        }
+        for (RawDirections raw : raws.values()) {
+            for (String base : raw.bases) {
+                other = raws.get(base);
+                if (other != null) {
+                    graph.addEdge(other, raw);
+                }
+            }
+        }
+        try {
+            return graph.sort();
+        } catch (CyclicDependency cyclicDependency) {
+            throw new IOException("cyclic dependency: " + cyclicDependency.toString());
+        }
     }
 
 

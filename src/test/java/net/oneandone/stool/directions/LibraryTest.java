@@ -16,17 +16,62 @@
 package net.oneandone.stool.directions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LibraryTest {
     private static final World WORLD = World.createMinimal();
-    private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
+    private static final ObjectMapper YAML = Json.newYaml();
+
+    private static RawDirections raw(String str) {
+        try {
+            return RawDirections.load((ObjectNode) YAML.readTree(str));
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Test
+    public void sequence() throws IOException {
+        RawDirections first;
+        RawDirections second;
+        List<RawDirections> sequence;
+
+        first = raw("""
+                DIRECTIONS: "first"
+                """);
+        second = raw(
+            """
+                DIRECTIONS: "second"
+                EXTENDS: "first"
+                """
+        );
+        sequence = sequence(first, second);
+        assertEquals(first.subject, sequence.get(0).subject);
+        assertEquals(second.subject, sequence.get(1).subject);
+        sequence = sequence(second, first);
+        assertEquals(first.subject, sequence.get(0).subject);
+        assertEquals(second.subject, sequence.get(1).subject);
+    }
+
+    private List<RawDirections> sequence(RawDirections... array) throws IOException {
+        Map<String, RawDirections> map;
+
+        map = new LinkedHashMap<>();
+        for (RawDirections r : array) {
+            map.put(r.subject, r);
+        }
+        return Library.sequence(map);
+    }
 
     @Test
     public void loadAll() throws IOException {

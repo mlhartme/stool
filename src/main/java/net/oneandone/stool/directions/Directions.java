@@ -59,90 +59,44 @@ public class Directions {
         return result;
     }
 
-    private static final String DIRECTIONS = "DIRECTIONS";
-    private static final String EXTENDS = "EXTENDS";
-    private static final String CHART = "CHART";
-    private static final String CHART_VERSION = "CHART-VERSION";
-    private static final String ORIGIN = "ORIGIN";
-    private static final String AUTHOR = "AUTHOR";
+    public static final String DIRECTIONS = "DIRECTIONS";
+    public static final String EXTENDS = "EXTENDS";
+    public static final String CHART = "CHART";
+    public static final String CHART_VERSION = "CHART-VERSION";
+    public static final String ORIGIN = "ORIGIN";
+    public static final String AUTHOR = "AUTHOR";
 
     /** from inline, label or file; always extends */
     public static Directions loadLiteral(Library library, String origin, String author, ObjectNode directions) throws IOException {
-        Map<String, JsonNode> raw;
+        return loadLiteral(library, origin, author, RawDirections.load(directions));
+    }
+    /** from inline, label or file; always extends */
+    public static Directions loadLiteral(Library library, String origin, String author, RawDirections raw) throws IOException {
         Directions derived;
-        String subject;
         List<Directions> bases;
 
-        raw = loadRaw(directions);
-        subject = eatString(raw, DIRECTIONS);
         bases = new ArrayList();
-        for (String baseName : stringListOpt(raw.remove(EXTENDS))) {
+        for (String baseName : raw.bases) {
             bases.add(library.directions(baseName));
         }
-        derived = extend(origin, author, subject, bases);
-        for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {
+        derived = extend(origin, author, raw.subject, bases);
+        for (Map.Entry<String, JsonNode> entry : raw.directions.entrySet()) {
             derived.addMerged(Direction.forYaml(entry.getKey(), entry.getValue()));
         }
         return derived;
     }
 
-    private static String eatString(Map<String, JsonNode> raw, String name) throws IOException {
-        String result;
-
-        result = eatStringOpt(raw, name);
-        if (result == null) {
-            throw new IOException("missing " + name);
-        }
-        return result;
-    }
-
-    private static String eatStringOpt(Map<String, JsonNode> raw, String name) {
-        JsonNode node;
-
-        node = raw.remove(name);
-        return node == null ? null : node.asText();
-    }
-
-    private static List<String> stringListOpt(JsonNode arrayOpt) {
-        List<String> result;
-
-        result = new ArrayList<>();
-        if (arrayOpt != null && !arrayOpt.isNull()) {
-            if (arrayOpt.isTextual()) {
-                result.add(arrayOpt.asText());
-            } else if (arrayOpt.isArray()) {
-                for (JsonNode entry : arrayOpt) {
-                    result.add(entry.asText());
-                }
-            } else {
-                throw new ArgumentException("string or array expected: " + arrayOpt);
-            }
-        }
-        return result;
-    }
-
-    private static Map<String, JsonNode> loadRaw(ObjectNode directions) {
-        Map<String, JsonNode> result;
-        Iterator<Map.Entry<String, JsonNode>> iter;
-        Map.Entry<String, JsonNode> entry;
-
-        result = new LinkedHashMap<>();
-        iter = directions.fields();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            result.put(entry.getKey(), entry.getValue());
-        }
-        return result;
-    }
-
     public static Directions loadHelm(ObjectNode directions) throws IOException {
-        Map<String, JsonNode> raw;
+        RawDirections raw;
         Directions result;
 
-        raw = loadRaw(directions);
+        raw = RawDirections.load(directions);
         // chart + version are mandatory here because a stage was created with them:
-        result = new Directions(eatString(raw, DIRECTIONS), eatStringOpt(raw, ORIGIN), eatStringOpt(raw, AUTHOR), eatString(raw, CHART), eatString(raw, CHART_VERSION));
-        for (Map.Entry<String, JsonNode> entry : raw.entrySet()) {
+        if (raw.chart == null || raw.chartVersion == null) {
+            throw new IllegalStateException();
+        }
+        result = new Directions(raw.subject, raw.origin, raw.author, raw.chart, raw.chartVersion);
+        for (Map.Entry<String, JsonNode> entry : raw.directions.entrySet()) {
             result.addNew(Direction.forYaml(entry.getKey(), entry.getValue()));
         }
         return result;

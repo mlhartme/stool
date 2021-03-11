@@ -1,8 +1,0 @@
-- DIRECTIONS: "foo"
-  EXTENDS: "foo-chart"
-  asis: 42
-  base: ""
-- DIRECTIONS: "derived"
-  EXTENDS: "foo"
-  base: modified
-  added: 3

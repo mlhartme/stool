@@ -1,0 +1,4 @@
+DIRECTIONS: "derived"
+EXTENDS: "foo"
+base: modified
+added: 3
