@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.directions;
 
+import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateMethodModelEx;
@@ -23,7 +24,6 @@ import freemarker.template.TemplateScalarModel;
 import freemarker.template.TemplateSequenceModel;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Expressions {
+    private final Configuration configuration;
     public final LocalSettings localSettings;
     private final String fqdn;
     private final String stage;
@@ -55,6 +56,9 @@ public class Expressions {
     private Map<String, String> contextPrevious;
 
     public Expressions(LocalSettings localSettings, String stage) {
+        this.configuration = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
+        this.configuration.setDefaultEncoding("UTF-8");
+
         this.localSettings = localSettings;
         this.fqdn = stage + "." + localSettings.fqdn;
         this.stage = stage;
@@ -120,32 +124,16 @@ public class Expressions {
     }
 
     public String eval(String str) throws IOException {
-        World world;
-        freemarker.template.Configuration fm;
-        FileNode srcfile;
-        FileNode destfile;
-        Template template;
-        StringWriter tmp;
+        StringWriter dest;
 
-        world = localSettings.world;
-        fm = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
-        fm.setDefaultEncoding("UTF-8");
-
-        srcfile = world.getTemp().createTempFile();
-        srcfile.writeString(str);
-        destfile = world.getTemp().createTempFile();
+        Template template = new Template("direction", str, configuration);
         try {
-            fm.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
-            template = fm.getTemplate(srcfile.getName());
-            tmp = new StringWriter();
-            template.process(templateEnv(), tmp);
-            destfile.writeString(tmp.getBuffer().toString());
-            return destfile.readString();
+            dest = new StringWriter();
+            template.process(templateEnv(), dest);
+            dest.close();
+            return dest.toString();
         } catch (TemplateException e) {
             throw new IOException("freemarker error: " + e.getMessage(), e);
-        } finally {
-            destfile.deleteFile();
-            srcfile.deleteFile();
         }
     }
 
