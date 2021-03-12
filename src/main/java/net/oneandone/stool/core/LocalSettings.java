@@ -248,13 +248,13 @@ public class LocalSettings {
     }
 
 
-    private Toolkit lazyLibrary;
+    private Toolkit lazyToolkit;
 
     public Toolkit toolkit() throws IOException {
         FileNode directory;
         String version;
 
-        if (lazyLibrary == null) {
+        if (lazyToolkit == null) {
             if (!toolkit.startsWith("/")) {
                 directory = this.lib.join("library");
                 version = Toolkit.resolve(createRegistry(toolkit), toolkit, directory);
@@ -262,10 +262,10 @@ public class LocalSettings {
                 directory = world.file(toolkit).checkDirectory();
                 version = "unknown";
             }
-            lazyLibrary = Toolkit.load(world, yaml, directory, version);
-            lazyLibrary.overrideEnvironment(environment);
+            lazyToolkit = Toolkit.load(world, yaml, directory, version);
+            lazyToolkit.overrideEnvironment(environment);
         }
-        return lazyLibrary;
+        return lazyToolkit;
     }
 
     //-- Stage access

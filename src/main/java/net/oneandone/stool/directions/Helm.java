@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.directions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Dependencies;
@@ -22,6 +23,7 @@ import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
@@ -84,7 +86,7 @@ public final class Helm {
                 result.remove(property.name);
             }
         }
-        valuesFile = createValuesFile(localSettings, values, directions);
+        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, directions);
         try {
             LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,
@@ -95,18 +97,18 @@ public final class Helm {
         }
     }
 
-    private static FileNode createValuesFile(LocalSettings localSettings, Map<String, String> actuals, Directions directions) throws IOException {
+    private static FileNode createValuesFile(ObjectMapper yaml, World world, Map<String, String> actuals, Directions directions) throws IOException {
         ObjectNode dest;
         Expire expire;
         FileNode file;
         String str;
 
-        dest = localSettings.yaml.createObjectNode();
+        dest = yaml.createObjectNode();
         for (Map.Entry<String, String> entry : actuals.entrySet()) {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(Directions.DIRECTIONS_VALUE, directions.toObject(localSettings.yaml));
+        dest.set(Directions.DIRECTIONS_VALUE, directions.toObject(yaml));
 
         // check expire - TODO: ugly up reference to core package
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
@@ -118,7 +120,7 @@ public final class Helm {
             dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
         }
 
-        file = localSettings.world.getTemp().createTempFile().writeString(dest.toPrettyString());
+        file = world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;
     }
 
