@@ -109,8 +109,8 @@ public class DirectionsTest {
                 EXTENDS: "first"
                 v: 2
                 """);
-        assertEquals("1", toolkit.directions("first").get("v").expression);
-        assertEquals("2", toolkit.directions("second").get("v").expression);
+        assertEquals("=1", toolkit.directions("first").get("v").expression);
+        assertEquals("=2", toolkit.directions("second").get("v").expression);
     }
 
     private Directions create(String str) throws IOException {

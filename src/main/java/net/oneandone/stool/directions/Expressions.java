@@ -100,6 +100,7 @@ public class Expressions {
     private String evalValue(String name) {
         Object obj;
         String result;
+        Direction direction;
 
         if (!context.containsKey(name)) {
             throw new ArgumentException("unknown direction: " + name);
@@ -112,11 +113,15 @@ public class Expressions {
             return (String) obj;
         }
         if (obj instanceof Direction) {
-            context.put(name, null);
-            try {
-                result = eval(((Direction) obj).expression);
-            } catch (IOException e) {
-                throw new ArgumentException(name + ": failed to compute direction: " + e.getMessage(), e);
+            context.put(name, null); // start recursion
+            direction = (Direction) obj;
+            result = direction.valueOpt();
+            if (result == null) {
+                try {
+                    result = eval(direction.expression);
+                } catch (IOException e) {
+                    throw new ArgumentException(name + ": failed to compute direction: " + e.getMessage(), e);
+                }
             }
             context.put(name, result);
             return result;

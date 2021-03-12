@@ -28,6 +28,9 @@ import java.util.Map;
 
 /** Immutable building block of directions, evaluates values. */
 public class Direction {
+    private static final String VALUE_PREFIX = "=";
+    private static final int VALUE_PREFIX_LENGTH = VALUE_PREFIX.length();
+
     public static Direction forYaml(String name, JsonNode yaml) {
         boolean privt;
         boolean extra;
@@ -45,7 +48,7 @@ public class Direction {
             doc = Json.string(obj, "doc", null);
             expression = getExpression(obj);
         } else {
-            expression = yaml.asText();
+            expression = VALUE_PREFIX + yaml.asText();
         }
         return new Direction(name, privt, extra, doc, expression);
     }
@@ -92,6 +95,8 @@ public class Direction {
     public final boolean privt;
     public final boolean extra;
     public final String doc;
+
+    /** =(value) or (freemarker expression) */
     public final String expression;
 
     public Direction(String name, String expression) {
@@ -126,11 +131,19 @@ public class Direction {
         if (doc != null) {
             result.set("doc", new TextNode(doc));
         }
-        if (result.isEmpty()) {
-            return new TextNode(expression);
+        if (result.isEmpty() && isValue()) {
+            return new TextNode(valueOpt());
         } else {
             result.set("expr", new TextNode(expression));
             return result;
         }
+    }
+
+    public boolean isValue() {
+        return expression.startsWith(VALUE_PREFIX);
+    }
+
+    public String valueOpt() {
+        return isValue() ? expression.substring(VALUE_PREFIX_LENGTH) : null;
     }
 }
