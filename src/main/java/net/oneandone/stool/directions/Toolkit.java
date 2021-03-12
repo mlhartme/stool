@@ -17,8 +17,6 @@ package net.oneandone.stool.directions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.oneandone.graph.CyclicDependency;
-import net.oneandone.graph.Graph;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.PortusRegistry;
@@ -142,45 +140,12 @@ public class Toolkit {
     //--
 
     public void loadAll(ObjectMapper yaml, List<FileNode> files) throws IOException {
-        Map<String, RawDirections> raws;
-        RawDirections raw;
-
-        raws = new HashMap<>();
         for (FileNode file : files) {
             try (Reader src = file.newReader()) {
-                raw = RawDirections.load((ObjectNode) yaml.readTree(src));
-                raws.put(raw.subject, raw);
+                addDirections(Directions.loadLiteral("builtin", DirectionsRef.BUILDIN, (ObjectNode) yaml.readTree(src)));
             }
         }
-        for (RawDirections r : sequence(raws)) {
-            addDirections(Directions.loadLiteral("builtin", DirectionsRef.BUILDIN, r));
-        }
     }
-
-    // topological sort
-    public static List<RawDirections> sequence(Map<String, RawDirections> raws) throws IOException {
-        Graph<RawDirections> graph;
-        RawDirections other;
-
-        graph = new Graph<>();
-        for (RawDirections raw : raws.values()) {
-            graph.addNode(raw);
-        }
-        for (RawDirections raw : raws.values()) {
-            for (String base : raw.bases) {
-                other = raws.get(base);
-                if (other != null) {
-                    graph.addEdge(other, raw);
-                }
-            }
-        }
-        try {
-            return graph.sort();
-        } catch (CyclicDependency cyclicDependency) {
-            throw new IOException("cyclic dependency: " + cyclicDependency.toString());
-        }
-    }
-
 
     // directions
 
