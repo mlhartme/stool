@@ -153,7 +153,7 @@ public class Toolkit {
             }
         }
         for (RawDirections r : sequence(raws)) {
-            addDirections(Directions.loadLiteral(this, "builtin", DirectionsRef.BUILDIN, r));
+            addDirections(Directions.loadLiteral("builtin", DirectionsRef.BUILDIN, r));
         }
     }
 

@@ -38,7 +38,7 @@ public class Directions {
     // TODO: move to core package
     public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml, Toolkit toolkit) throws IOException {
         try (Reader src = world.resource("stage.yaml").newReader()) {
-            return Directions.loadLiteral(toolkit, "root", "stool", (ObjectNode) yaml.readTree(src));
+            return Directions.loadLiteral("root", "stool", (ObjectNode) yaml.readTree(src));
         }
     }
 
@@ -67,23 +67,17 @@ public class Directions {
     public static final String AUTHOR = "AUTHOR";
 
     /** from inline, label or file; always extends */
-    public static Directions loadLiteral(Toolkit toolkit, String origin, String author, ObjectNode directions) throws IOException {
-        return loadLiteral(toolkit, origin, author, RawDirections.load(directions));
+    public static Directions loadLiteral(String origin, String author, ObjectNode directions) throws IOException {
+        return loadLiteral(origin, author, RawDirections.load(directions));
     }
     /** from inline, label or file; always extends */
-    public static Directions loadLiteral(Toolkit toolkit, String origin, String author, RawDirections raw) throws IOException {
-        Directions derived;
-        List<Directions> bases;
+    public static Directions loadLiteral(String origin, String author, RawDirections raw) throws IOException {
+        Directions result;
 
-        bases = new ArrayList();
-        for (String baseName : raw.bases) {
-            bases.add(toolkit.directions(baseName));
-        }
-        derived = extend(origin, author, raw.subject, bases);
-        for (Direction d : raw.directions.values()) {
-            derived.addMerged(d);
-        }
-        return derived;
+        result = new Directions(raw.subject, origin, author, raw.chart, raw.chartVersion);
+        result.bases.addAll(raw.bases);
+        result.directions.putAll(raw.directions);
+        return result;
     }
 
     public static Directions loadHelm(ObjectNode directions) throws IOException {
@@ -119,6 +113,7 @@ public class Directions {
     public final String author; // null (from file), LIB, or image author
     public final String chartOpt;
     public final String chartVersionOpt;
+    public final List<String> bases;
     public final Map<String, Direction> directions;
 
     private Directions(String subject, String origin, String author, String chartOpt, String chartVersionOpt) {
@@ -127,8 +122,10 @@ public class Directions {
         this.author = author;
         this.chartOpt = chartOpt;
         this.chartVersionOpt = chartVersionOpt;
+        this.bases = new ArrayList<>();
         this.directions = new LinkedHashMap<>();
     }
+
 
     public void addNew(Direction direction) {
         if (directions.put(direction.name, direction) != null) {
@@ -136,7 +133,29 @@ public class Directions {
         }
     }
 
-    public void addMerged(Direction direction) {
+    public Directions merged(Toolkit toolkit) throws IOException {
+        Directions c;
+        Directions result;
+
+        c = findChart(toolkit);
+        result = new Directions(subject, origin, author, c == null ? null : c.chartOpt, c == null ? null : c.chartVersionOpt);
+        addMerged(toolkit, result);
+        return result;
+    }
+
+    private void addMerged(Toolkit toolkit, Directions result) throws IOException {
+        Directions b;
+
+        for (String base : bases) {
+            b = toolkit.directions(base);
+            b.addMerged(toolkit, result);
+        }
+        for (Direction d : directions.values()) {
+            result.addMerged(d);
+        }
+    }
+
+    private void addMerged(Direction direction) {
         Direction prev;
 
         prev = directions.get(direction.name);
@@ -206,32 +225,18 @@ public class Directions {
         return node;
     }
 
-    public static Directions extend(String derivedOrigin, String derivedAuthor, String withSubject, List<Directions> bases) throws IOException {
-        String chartOpt;
-        String chartVersionOpt;
+    public Directions findChart(Toolkit toolkit) throws IOException {
         Directions result;
+        Directions b;
 
-        chartOpt = null;
-        chartVersionOpt = null;
-        for (Directions base : bases) {
-            if (base.chartOpt != null) {
-                if (chartOpt == null) {
-                    chartOpt = base.chartOpt;
-                    chartVersionOpt = base.chartVersionOpt;
-                } else {
-                    if (!chartOpt.equals(base.chartOpt)) {
-                        throw new IOException("charts diverge: " + chartOpt + " vs" + base.chartOpt);
-                    }
-                    if (!chartVersionOpt.equals(base.chartVersionOpt)) {
-                        throw new IOException(chartOpt + ": chart versions diverge: " + chartVersionOpt + " vs" + base.chartVersionOpt);
-                    }
+        result = chartOpt != null ? this : null;
+        for (String base : bases) {
+            b = toolkit.directions(base).findChart(toolkit);
+            if (b != null) {
+                if (result != null && result != b) {
+                    throw new IOException("chart ambiguous");
                 }
-            }
-        }
-        result = new Directions(withSubject, derivedOrigin, derivedAuthor, chartOpt, chartVersionOpt);
-        for (Directions base : bases) {
-            for (Direction direction : base.directions.values()) {
-                result.addMerged(direction);
+                result = b;
             }
         }
         return result;

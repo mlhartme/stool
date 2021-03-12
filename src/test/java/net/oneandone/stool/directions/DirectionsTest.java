@@ -111,7 +111,7 @@ public class DirectionsTest {
                 EXTENDS: "first"
                 v: 2
                 """);
-        assertEquals("=1", toolkit.directions("first").get("v").expression);
+        assertEquals("=1", toolkit.directions("first").merged(toolkit).get("v").expression);
         assertEquals("=2", toolkit.directions("second").get("v").expression);
     }
     @Test
@@ -146,7 +146,7 @@ public class DirectionsTest {
         toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
         toolkit.addDirections(Directions.forTest("base", "f", "1"));
         obj = (ObjectNode) YAML.readTree(str);
-        return Directions.loadLiteral(toolkit, "", null, obj);
+        return Directions.loadLiteral("", null, obj).merged(toolkit);
     }
 
     private Toolkit toolkit(String ... directionsArray) throws IOException {
@@ -157,7 +157,7 @@ public class DirectionsTest {
         toolkit.addDirections(Directions.forTest("base", "f", "1"));
         for (String directions : directionsArray) {
             obj = (ObjectNode) YAML.readTree(directions);
-            toolkit.addDirections(Directions.loadLiteral(toolkit, "", null, obj));
+            toolkit.addDirections(Directions.loadLiteral("", null, obj));
         }
         return toolkit;
     }
