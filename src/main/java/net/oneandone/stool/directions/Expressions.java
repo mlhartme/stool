@@ -58,6 +58,7 @@ public class Expressions {
     public Expressions(LocalSettings localSettings, String stage) {
         this.configuration = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
         this.configuration.setDefaultEncoding("UTF-8");
+        this.configuration.setLogTemplateExceptions(false);
 
         this.localSettings = localSettings;
         this.fqdn = stage + "." + localSettings.fqdn;

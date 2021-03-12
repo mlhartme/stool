@@ -383,18 +383,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <systemPropertyVariables>
-            <!-- TODO: https://freemarker.apache.org/docs/pgui_misc_logging.html ... didn't work in logback-test.xml:
-              <logger name="freemarker.runtime" level="OFF"/>
-              -->
-            <org.freemarker.loggerLibrary>none</org.freemarker.loggerLibrary>
-          </systemPropertyVariables>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 
