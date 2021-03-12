@@ -219,12 +219,21 @@ public class KubernetesClient extends Client {
     }
 
     private List<String> directions(String name) throws IOException {
+        int idx;
+        String select;
         Toolkit toolkit;
         Directions directions;
 
+        idx = name.indexOf(':');
+        if (idx < 0) {
+            select = null;
+        } else {
+            select = name.substring(idx + 1);
+            name = name.substring(0, idx);
+        }
         toolkit = localSettings.toolkit();
         directions = toolkit.directions(name);
-        return directions.toDescribe(toolkit);
+        return directions.toDescribe(toolkit, select);
     }
 
     private List<String> images(String imageName) throws IOException {

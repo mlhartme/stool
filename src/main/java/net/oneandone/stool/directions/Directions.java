@@ -308,24 +308,26 @@ public class Directions {
         return result;
     }
 
-    public List<String> toDescribe(Toolkit toolkit) throws IOException {
+    public List<String> toDescribe(Toolkit toolkit, String select) throws IOException {
         List<String> result;
 
         result = new ArrayList<>();
-        toDescribe(toolkit, result, "");
+        toDescribe(toolkit, result, "", select);
         return result;
     }
 
-    private void toDescribe(Toolkit toolkit, List<String> result, String space) throws IOException {
+    private void toDescribe(Toolkit toolkit, List<String> result, String space, String select) throws IOException {
         String moreSpace;
 
         result.add(space + DIRECTIONS + ": " + subject);
         moreSpace = space + "  ";
         for (String base : bases) {
-            toolkit.directions(base).toDescribe(toolkit, result, moreSpace);
+            toolkit.directions(base).toDescribe(toolkit, result, moreSpace, select);
         }
         for (Direction d : directions.values()) {
-            d.toDescribe(result, moreSpace);
+            if (select == null || d.name.equals(select)) {
+                d.toDescribe(result, moreSpace);
+            }
         }
     }
 }
