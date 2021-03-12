@@ -22,6 +22,8 @@ import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -111,6 +113,30 @@ public class DirectionsTest {
                 """);
         assertEquals("=1", toolkit.directions("first").get("v").expression);
         assertEquals("=2", toolkit.directions("second").get("v").expression);
+    }
+    @Test
+    public void expressions() throws IOException {
+        Toolkit toolkit;
+        Freemarker fm;
+        Map<String, String> result;
+
+        toolkit = toolkit("""
+                DIRECTIONS: 'first'
+                a:
+                  expr: ""
+                b:
+                  expr: "="
+                c:
+                  expr: "=hi"
+                d:
+                  expr: "stool.fqdn"
+                """);
+        fm = new Freemarker(FreemarkerTest.localSettings(), "stage");
+        result = fm.eval(Collections.emptyMap(), toolkit.directions("first"), WORLD.getTemp().createTempDirectory());
+        assertEquals("", result.get("a"));
+        assertEquals("", result.get("b"));
+        assertEquals("hi", result.get("c"));
+        assertEquals("stage.localhost", result.get("d"));
     }
 
     private Directions create(String str) throws IOException {

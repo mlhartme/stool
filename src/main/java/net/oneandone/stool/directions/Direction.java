@@ -31,6 +31,10 @@ public class Direction {
     private static final String VALUE_PREFIX = "=";
     private static final int VALUE_PREFIX_LENGTH = VALUE_PREFIX.length();
 
+    public static String toExpression(String value) {
+        return value.isEmpty() ? value : VALUE_PREFIX + value;
+    }
+
     public static Direction forYaml(String name, JsonNode yaml) {
         boolean privt;
         boolean extra;
@@ -48,10 +52,7 @@ public class Direction {
             doc = Json.string(obj, "doc", null);
             expression = getExpression(obj);
         } else {
-            expression = yaml.asText();
-            if (!expression.isEmpty()) {
-                expression = VALUE_PREFIX + expression;
-            }
+            expression = toExpression(yaml.asText());
         }
         return new Direction(name, privt, extra, doc, expression);
     }

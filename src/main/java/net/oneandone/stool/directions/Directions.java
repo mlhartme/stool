@@ -167,7 +167,7 @@ public class Directions {
             if (old == null) {
                 throw new ArgumentException("unknown direction: " + key);
             }
-            directions.put(key, new Direction(key, old.privt, false, old.doc, entry.getValue()));
+            directions.put(key, new Direction(key, old.privt, false, old.doc, Direction.toExpression(entry.getValue())));
         }
     }
 

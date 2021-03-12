@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class FreemarkerTest {
     private static final World world = World.createMinimal();
 
-    private static LocalSettings localSettings() { // TODO
+    public static LocalSettings localSettings() { // TODO
         Settings c;
         try {
             c = Settings.create(world);
@@ -74,7 +74,7 @@ public class FreemarkerTest {
         try {
             freemarker().eval("${'1' + env.NOT_FOUND + 'x'}");
             fail();
-        } catch (IOException e) {
+        } catch (ArgumentException e) {
             assertEquals("env.NOT_FOUND", ((InvalidReferenceException) e.getCause()).getBlamedExpressionString());
         }
     }
@@ -90,7 +90,7 @@ public class FreemarkerTest {
         Directions directions;
         Map<String, String> values;
 
-        directions = Directions.forTest("name", "two", "${'2' + direction.one}", "one", "1");
+        directions = Directions.forTest("name", "two", "'2' + direction.one", "one", "1");
         e = freemarker();
         values = e.eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
@@ -100,7 +100,7 @@ public class FreemarkerTest {
     public void directionsRecursion() throws IOException {
         Directions directions;
 
-        directions = Directions.forTest("name", "one", "${'1' + direction.one}");
+        directions = Directions.forTest("name", "one", "'1' + direction.one");
         try {
             freemarker().eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
             fail();
@@ -122,7 +122,7 @@ public class FreemarkerTest {
             #!/bin/sh
             echo "arg:$1"
             """).setPermissions("rwxr-xr-x");
-        directions = Directions.forTest("name", "one", "${script.script('hello')}");
+        directions = Directions.forTest("name", "one", "script.script('hello')");
         e = freemarker();
         values = e.eval(new HashMap<>(), directions, dir);
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);

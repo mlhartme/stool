@@ -117,11 +117,7 @@ public class Freemarker {
             direction = (Direction) obj;
             result = direction.valueOpt();
             if (result == null) {
-                try {
-                    result = eval(direction.expression);
-                } catch (IOException e) {
-                    throw new ArgumentException(name + ": failed to compute direction: " + e.getMessage(), e);
-                }
+                result = eval(direction.name, "${" + direction.expression + "}");
             }
             context.put(name, result);
             return result;
@@ -129,17 +125,21 @@ public class Freemarker {
         throw new IllegalStateException(obj.getClass().toString());
     }
 
-    public String eval(String str) throws IOException {
+    public String eval(String str) {
+        return eval("(inline)", str);
+    }
+
+    public String eval(String name, String str) {
         StringWriter dest;
 
-        Template template = new Template("direction", str, configuration);
         try {
+            Template template = new Template(name, str, configuration);
             dest = new StringWriter();
             template.process(templateEnv(), dest);
             dest.close();
             return dest.toString();
-        } catch (TemplateException e) {
-            throw new IOException("freemarker error: " + e.getMessage(), e);
+        } catch (IOException | TemplateException e) {
+            throw new ArgumentException(name + ": failed to eval expr '" + str + "'\n" + "message: " + e.getMessage(), e);
         }
     }
 
