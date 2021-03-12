@@ -36,7 +36,7 @@ public class DirectionsTest {
     public void stage() throws IOException {
         Directions c;
 
-        c = Directions.loadStageDirectionsBase(WORLD, YAML, new Toolkit("empty", WORLD.getTemp().createTempDirectory()));
+        c = Directions.loadStageDirectionsBase(WORLD, YAML);
         assertEquals("stage", c.subject);
     }
 

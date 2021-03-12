@@ -36,7 +36,7 @@ public class Directions {
     public static final String DIRECTIONS_VALUE = "_directions";
 
     // TODO: move to core package
-    public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml, Toolkit toolkit) throws IOException {
+    public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml) throws IOException {
         try (Reader src = world.resource("stage.yaml").newReader()) {
             return Directions.loadLiteral("root", "stool", (ObjectNode) yaml.readTree(src));
         }
