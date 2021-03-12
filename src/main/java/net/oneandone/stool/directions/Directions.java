@@ -307,4 +307,25 @@ public class Directions {
         }
         return result;
     }
+
+    public List<String> toDescribe(Toolkit toolkit) throws IOException {
+        List<String> result;
+
+        result = new ArrayList<>();
+        toDescribe(toolkit, result, "");
+        return result;
+    }
+
+    private void toDescribe(Toolkit toolkit, List<String> result, String space) throws IOException {
+        String moreSpace;
+
+        result.add(space + DIRECTIONS + ": " + subject);
+        moreSpace = space + "  ";
+        for (String base : bases) {
+            toolkit.directions(base).toDescribe(toolkit, result, moreSpace);
+        }
+        for (Direction d : directions.values()) {
+            d.toDescribe(result, moreSpace);
+        }
+    }
 }

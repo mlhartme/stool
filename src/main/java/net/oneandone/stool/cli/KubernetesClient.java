@@ -23,6 +23,7 @@ import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Field;
 import net.oneandone.stool.directions.DirectionsRef;
+import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
@@ -202,8 +203,31 @@ public class KubernetesClient extends Client {
         return output;
     }
 
+    private static final String IMAGE = "image:";
+    private static final String DIRECTIONS = "directions:";
+
     @Override
-    public List<String> images(String imageName) throws IOException {
+    public List<String> describe(String ref) throws IOException {
+
+        if (ref.startsWith(IMAGE)) {
+            return images(ref.substring(IMAGE.length()));
+        }
+        if (ref.startsWith(DIRECTIONS)) {
+            return directions(ref.substring(DIRECTIONS.length()));
+        }
+        throw new IOException("unknown reference: " + ref);
+    }
+
+    private List<String> directions(String name) throws IOException {
+        Toolkit toolkit;
+        Directions directions;
+
+        toolkit = localSettings.toolkit();
+        directions = toolkit.directions(name);
+        return directions.toDescribe(toolkit);
+    }
+
+    private List<String> images(String imageName) throws IOException {
         Registry registry;
         List<TagInfo> all;
         List<String> result;

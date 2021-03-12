@@ -225,11 +225,11 @@ public class ProxyClient extends Client {
         return Json.stringMap((ObjectNode) postJson(node, ""));
     }
 
-    //-- images
+    //-- describe
 
     @Override
-    public List<String> images(String image) throws Exception {
-        return Json.list((ArrayNode) getJson(node("images", image)));
+    public List<String> describe(String ref) throws Exception {
+        return Json.list((ArrayNode) getJson(node("describe", ref)));
     }
 
 

@@ -18,19 +18,19 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.stool.cli.Client;
 import net.oneandone.stool.cli.Globals;
 
-public class Images extends ClientCommand {
-    private final String image;
+public class Describe extends ClientCommand {
+    private final String ref;
 
-    public Images(Globals globals, String image) {
+    public Describe(Globals globals, String ref) {
         super(globals);
-        this.image = image;
+        this.ref = ref;
     }
 
     public void run() throws Exception {
         Client client;
 
         client = globals.settings().currentContext().connect(globals.settings().local, globals.caller());
-        for (String line : client.images(image)) {
+        for (String line : client.describe(ref)) {
             console.info.println(line);
         }
     }

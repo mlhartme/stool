@@ -222,10 +222,10 @@ public class ApiController {
         }
     }
 
-    @GetMapping("/images/{image}")
-    public String images(@PathVariable("image") String name, HttpServletRequest request) throws Exception {
+    @GetMapping("/describe/{ref}")
+    public String images(@PathVariable("ref") String ref, HttpServletRequest request) throws Exception {
         try (RequestSettings settings = openSettings()) {
-            return array(settings.json, settings.client(request).images(name)).toString();
+            return array(settings.json, settings.client(request).describe(ref)).toString();
         }
     }
 

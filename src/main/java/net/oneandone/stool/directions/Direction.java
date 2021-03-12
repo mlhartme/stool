@@ -24,6 +24,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.util.Strings;
 
+import java.util.List;
 import java.util.Map;
 
 /** Mostly a name for an expression, can be evaluated. Immutable. */
@@ -141,6 +142,10 @@ public class Direction {
             result.set("expr", new TextNode(expression));
             return result;
         }
+    }
+
+    public void toDescribe(List<String> result, String space) {
+        result.add(space + name + ": " + expression);
     }
 
     public boolean isValue() {
