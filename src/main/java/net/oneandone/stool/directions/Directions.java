@@ -80,8 +80,8 @@ public class Directions {
             bases.add(toolkit.directions(baseName));
         }
         derived = extend(origin, author, raw.subject, bases);
-        for (Map.Entry<String, JsonNode> entry : raw.directions.entrySet()) {
-            derived.addMerged(Direction.forYaml(entry.getKey(), entry.getValue()));
+        for (Direction d : raw.directions.values()) {
+            derived.addMerged(d);
         }
         return derived;
     }
@@ -96,8 +96,8 @@ public class Directions {
             throw new IllegalStateException();
         }
         result = new Directions(raw.subject, raw.origin, raw.author, raw.chart, raw.chartVersion);
-        for (Map.Entry<String, JsonNode> entry : raw.directions.entrySet()) {
-            result.addNew(Direction.forYaml(entry.getKey(), entry.getValue()));
+        for (Direction d : raw.directions.values()) {
+            result.addNew(d);
         }
         return result;
     }

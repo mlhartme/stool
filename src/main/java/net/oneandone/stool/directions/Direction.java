@@ -26,7 +26,7 @@ import net.oneandone.sushi.util.Strings;
 
 import java.util.Map;
 
-/** Immutable building block of directions, evaluates values. */
+/** Mostly a name for an expression, can be evaluated. Immutable. */
 public class Direction {
     private static final String VALUE_PREFIX = "=";
     private static final int VALUE_PREFIX_LENGTH = VALUE_PREFIX.length();

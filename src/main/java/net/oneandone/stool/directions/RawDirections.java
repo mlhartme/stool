@@ -31,6 +31,14 @@ public class RawDirections {
         Map<String, JsonNode> raw;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
+        String subject;
+        String origin;
+        String author;
+        String chart;
+        String chartVersion;
+        List<String> bases;
+        RawDirections result;
+        Direction d;
 
         raw = new LinkedHashMap<>();
         iter = directions.fields();
@@ -38,10 +46,20 @@ public class RawDirections {
             entry = iter.next();
             raw.put(entry.getKey(), entry.getValue());
         }
-        return new RawDirections(eatString(raw, Directions.DIRECTIONS),
-                eatStringOpt(raw, Directions.ORIGIN), eatStringOpt(raw, Directions.AUTHOR),
-                eatStringOpt(raw, Directions.CHART), eatStringOpt(raw, Directions.CHART_VERSION),
-                stringListOpt(raw.remove(Directions.EXTENDS)), raw);
+        subject = eatString(raw, Directions.DIRECTIONS);
+        origin = eatStringOpt(raw, Directions.ORIGIN);
+        author = eatStringOpt(raw, Directions.AUTHOR);
+        chart = eatStringOpt(raw, Directions.CHART);
+        chartVersion = eatStringOpt(raw, Directions.CHART_VERSION);
+        bases = stringListOpt(raw.remove(Directions.EXTENDS));
+        result = new RawDirections(subject, origin, author, chart, chartVersion, bases);
+        for (Map.Entry<String, JsonNode> e : raw.entrySet()) {
+            d = Direction.forYaml(e.getKey(), e.getValue());
+            if (result.directions.put(d.name, d) != null) {
+                throw new ArgumentException("duplicate direction: " + d.name);
+            }
+        }
+        return result;
     }
 
     private static String eatString(Map<String, JsonNode> raw, String name) throws IOException {
@@ -87,16 +105,16 @@ public class RawDirections {
     public final String chart;
     public final String chartVersion;
     public final List<String> bases;
-    public final Map<String, JsonNode> directions;
+    public final Map<String, Direction> directions;
 
     public RawDirections(String subject, String origin, String author, String chart, String chartVersion,
-                         List<String> bases, Map<String, JsonNode> directions) {
+                         List<String> bases) {
         this.subject = subject;
         this.origin = origin;
         this.author = author;
         this.chart = chart;
         this.chartVersion = chartVersion;
         this.bases = bases;
-        this.directions = directions;
+        this.directions = new LinkedHashMap<>();
     }
 }
