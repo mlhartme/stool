@@ -39,7 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Expressions {
+public class Freemarker {
     private final Configuration configuration;
     public final LocalSettings localSettings;
     private final String fqdn;
@@ -55,7 +55,7 @@ public class Expressions {
     private FileNode contextScripts;
     private Map<String, String> contextPrevious;
 
-    public Expressions(LocalSettings localSettings, String stage) {
+    public Freemarker(LocalSettings localSettings, String stage) {
         this.configuration = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
         this.configuration.setDefaultEncoding("UTF-8");
         this.configuration.setLogTemplateExceptions(false);

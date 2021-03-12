@@ -36,7 +36,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ExpressionsTest {
+public class FreemarkerTest {
     private static final World world = World.createMinimal();
 
     private static LocalSettings localSettings() { // TODO
@@ -50,29 +50,29 @@ public class ExpressionsTest {
         return c.local;
     }
 
-    private static Expressions expressions() {
-        return new Expressions(localSettings(), "stage");
+    private static Freemarker freemarker() {
+        return new Freemarker(localSettings(), "stage");
     }
 
     @Test
     public void normal() throws IOException {
-        Expressions e;
+        Freemarker f;
 
-        e = expressions();
-        assertEquals("", e.eval(""));
-        assertEquals("hello", e.eval("hello"));
-        assertEquals("stage.localhost", e.eval("${stool.fqdn}"));
+        f = freemarker();
+        assertEquals("", f.eval(""));
+        assertEquals("hello", f.eval("hello"));
+        assertEquals("stage.localhost", f.eval("${stool.fqdn}"));
     }
 
     @Test
     public void env() throws IOException {
-        assertEquals("a", expressions().eval("${env.MOD}"));
+        assertEquals("a", freemarker().eval("${env.MOD}"));
     }
 
     @Test
     public void envNotFound() {
         try {
-            expressions().eval("${'1' + env.NOT_FOUND + 'x'}");
+            freemarker().eval("${'1' + env.NOT_FOUND + 'x'}");
             fail();
         } catch (IOException e) {
             assertEquals("env.NOT_FOUND", ((InvalidReferenceException) e.getCause()).getBlamedExpressionString());
@@ -81,17 +81,17 @@ public class ExpressionsTest {
 
     @Test
     public void envNotFoundDefault() throws IOException {
-        assertEquals("x", expressions().eval("${env.NOT_FOUND!'x'}"));
+        assertEquals("x", freemarker().eval("${env.NOT_FOUND!'x'}"));
     }
 
     @Test
     public void directions() throws IOException {
-        Expressions e;
+        Freemarker e;
         Directions directions;
         Map<String, String> values;
 
         directions = Directions.forTest("name", "two", "${'2' + direction.one}", "one", "1");
-        e = expressions();
+        e = freemarker();
         values = e.eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
     }
@@ -102,7 +102,7 @@ public class ExpressionsTest {
 
         directions = Directions.forTest("name", "one", "${'1' + direction.one}");
         try {
-            expressions().eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
+            freemarker().eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
             fail();
         } catch (ArgumentException e) {
             assertEquals("invalid recursion on direction one", e.getMessage());
@@ -111,7 +111,7 @@ public class ExpressionsTest {
 
     @Test
     public void script() throws IOException {
-        Expressions e;
+        Freemarker e;
         Directions directions;
         Map<String, String> values;
         FileNode dir;
@@ -123,7 +123,7 @@ public class ExpressionsTest {
             echo "arg:$1"
             """).setPermissions("rwxr-xr-x");
         directions = Directions.forTest("name", "one", "${script.script('hello')}");
-        e = expressions();
+        e = freemarker();
         values = e.eval(new HashMap<>(), directions, dir);
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
     }
@@ -140,9 +140,9 @@ public class ExpressionsTest {
 
     @Test
     public void swtch() throws IOException {
-        Expressions e;
+        Freemarker e;
 
-        e = expressions();
+        e = freemarker();
         assertEquals("1", e.eval("${ switch('MOD', '0', 'a', '1', 'b', '2') }"));
     }
 }

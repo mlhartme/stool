@@ -52,7 +52,7 @@ public final class Helm {
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                              Directions directions, Map<String, String> overrides, Map<String, String> prev)
             throws IOException {
-        Expressions expressions;
+        Freemarker freemarker;
         Chart chart;
         FileNode valuesFile;
         Directions tmpDirections;
@@ -65,12 +65,12 @@ public final class Helm {
             throw new IOException("directions without chart: " + directions.subject);
         }
         LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
-        expressions = new Expressions(localSettings, name);
+        freemarker = new Freemarker(localSettings, name);
         tmpDirections = Directions.extend(directions.origin, directions.author, directions.subject, Collections.singletonList(directions));
         tmpDirections.setValues(overrides);
         toolkit = localSettings.toolkit();
         chart = toolkit.chart(tmpDirections.chartOpt);
-        values = expressions.eval(prev, tmpDirections, toolkit.scripts);
+        values = freemarker.eval(prev, tmpDirections, toolkit.scripts);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
