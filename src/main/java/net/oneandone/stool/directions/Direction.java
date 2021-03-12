@@ -48,7 +48,10 @@ public class Direction {
             doc = Json.string(obj, "doc", null);
             expression = getExpression(obj);
         } else {
-            expression = VALUE_PREFIX + yaml.asText();
+            expression = yaml.asText();
+            if (!expression.isEmpty()) {
+                expression = VALUE_PREFIX + expression;
+            }
         }
         return new Direction(name, privt, extra, doc, expression);
     }
@@ -140,10 +143,14 @@ public class Direction {
     }
 
     public boolean isValue() {
-        return expression.startsWith(VALUE_PREFIX);
+        return expression.isEmpty() || expression.startsWith(VALUE_PREFIX);
     }
 
     public String valueOpt() {
-        return isValue() ? expression.substring(VALUE_PREFIX_LENGTH) : null;
+        if (expression.isEmpty()) {
+            return expression;
+        } else {
+            return expression.startsWith(VALUE_PREFIX) ? expression.substring(VALUE_PREFIX_LENGTH) : null;
+        }
     }
 }
