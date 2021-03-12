@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.directions;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.graph.CyclicDependency;
@@ -24,6 +23,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
+import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Versions;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -44,10 +43,14 @@ public class Toolkit {
     //--
 
     public static Toolkit load(World world, ObjectMapper yaml, FileNode directory, String version) throws IOException {
-        Iterator<JsonNode> directions;
+        ObjectNode toolkit;
         Toolkit result;
 
         result = new Toolkit(version, directory.join("scripts"));
+        try (Reader src = directory.join("toolkit.yaml").newReader()) {
+            toolkit = (ObjectNode) yaml.readTree(src);
+        }
+        result.environment.putAll(Json.stringMapOpt(toolkit, "environment"));
         for (FileNode chart : directory.join("charts").list()) {
             result.addChart(yaml, chart);
         }
@@ -107,18 +110,30 @@ public class Toolkit {
 
     //--
 
+    private final Map<String, String> environment;
     private final Map<String, Directions> directions;
     private final Map<String, Chart> charts;
     private final String version;
     public final FileNode scripts;
 
     public Toolkit(String version, FileNode scripts) {
+        this.environment = new HashMap<>();
         this.directions = new HashMap<>();
         this.charts = new HashMap<>();
         this.version = version;
         this.scripts = scripts;
     }
 
+    public void overrideEnvironment(Map<String, String> overrides) {
+        String key;
+
+        for (Map.Entry<String, String> entry : overrides.entrySet()) {
+            key = entry.getKey();
+            if (environment.put(key, entry.getValue()) == null) {
+                throw new ArgumentException("unknown environment variable: " + key);
+            }
+        }
+    }
     //--
 
     public void loadAll(ObjectMapper yaml, List<FileNode> files) throws IOException {

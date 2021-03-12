@@ -40,8 +40,13 @@ import java.util.List;
 import java.util.Map;
 
 public class Freemarker {
+    public static Freemarker create(LocalSettings localSettings, String stage) {
+        return new Freemarker(localSettings.environment, localSettings.lib, stage, localSettings.fqdn);
+    }
+
     private final Configuration configuration;
-    public final LocalSettings localSettings;
+    private final Map<String, String> environment;
+    private final FileNode lib;
     private final String fqdn;
     private final String stage;
     private final String host;
@@ -55,15 +60,16 @@ public class Freemarker {
     private FileNode contextScripts;
     private Map<String, String> contextPrevious;
 
-    public Freemarker(LocalSettings localSettings, String stage) {
+    public Freemarker(Map<String, String> environment, FileNode lib, String stage, String host) {
         this.configuration = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
         this.configuration.setDefaultEncoding("UTF-8");
         this.configuration.setLogTemplateExceptions(false);
 
-        this.localSettings = localSettings;
-        this.fqdn = stage + "." + localSettings.fqdn;
+        this.environment = environment;
+        this.lib = lib;
+        this.fqdn = stage + "." + host;
         this.stage = stage;
-        this.host = localSettings.fqdn;
+        this.host = host;
         this.context = null;
         this.contextScripts = null;
         this.contextPrevious = null;
@@ -148,7 +154,7 @@ public class Freemarker {
 
         result = new HashMap<>();
         result.put("stool", stool());
-        result.put("env", new HashMap<>(localSettings.environment));
+        result.put("env", environment);
         result.put("util", util());
         if (contextScripts != null) {
             result.put("script", scripts());
@@ -206,7 +212,7 @@ public class Freemarker {
                 throw new ArgumentException(list.toString());
             }
             try {
-                return localSettings.lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
+                return lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
             } catch (IOException e) {
                 throw new TemplateModelException(e.getMessage(), e);
             }
@@ -242,7 +248,7 @@ public class Freemarker {
     private String swtch(String var, String dflt, List<String> keyValues) throws TemplateModelException {
         String v;
 
-        v = localSettings.environment.get(var);
+        v = environment.get(var);
         if (v == null) {
             throw new TemplateModelException("env variable not found: " + var);
         }

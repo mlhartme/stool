@@ -72,7 +72,7 @@ public final class Json {
         JsonNode entries;
 
         entries = obj.get(name);
-        if (entries == null || entries.isNull()) {
+        if (entries == null || entries.isNull() || entries.isMissingNode()) {
             return new LinkedHashMap<>();
         } else {
             return stringMap((ObjectNode) entries);

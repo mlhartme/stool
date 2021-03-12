@@ -131,7 +131,7 @@ public class DirectionsTest {
                 d:
                   expr: "stool.fqdn"
                 """);
-        fm = new Freemarker(FreemarkerTest.localSettings(), "stage");
+        fm = FreemarkerTest.freemarker(WORLD);
         result = fm.eval(Collections.emptyMap(), toolkit.directions("first"), WORLD.getTemp().createTempDirectory());
         assertEquals("", result.get("a"));
         assertEquals("", result.get("b"));

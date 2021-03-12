@@ -37,25 +37,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class FreemarkerTest {
-    private static final World world = World.createMinimal();
+    private static final World WORLD = World.createMinimal();
 
-    public static LocalSettings localSettings() { // TODO
-        Settings c;
+    private static Freemarker freemarker() {
+        return freemarker(WORLD, "MOD", "a");
+    }
+
+    public static Freemarker freemarker(World world, String... env) {
         try {
-            c = Settings.create(world);
-            c.local.environment.put("MOD", "a");
+            return new Freemarker(Strings.toMap(env), world.getTemp().createTempDirectory(), "stage", "localhost");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        return c.local;
-    }
-
-    private static Freemarker freemarker() {
-        return new Freemarker(localSettings(), "stage");
     }
 
     @Test
-    public void normal() throws IOException {
+    public void normal() {
         Freemarker f;
 
         f = freemarker();
@@ -92,7 +89,7 @@ public class FreemarkerTest {
 
         directions = Directions.forTest("name", "two", "'2' + direction.one", "one", "1");
         e = freemarker();
-        values = e.eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
+        values = e.eval(new HashMap<>(), directions, WORLD.getTemp().createTempDirectory());
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
     }
 
@@ -102,7 +99,7 @@ public class FreemarkerTest {
 
         directions = Directions.forTest("name", "one", "'1' + direction.one");
         try {
-            freemarker().eval(new HashMap<>(), directions, world.getTemp().createTempDirectory());
+            freemarker().eval(new HashMap<>(), directions, WORLD.getTemp().createTempDirectory());
             fail();
         } catch (ArgumentException e) {
             assertEquals("invalid recursion on direction one", e.getMessage());
@@ -117,7 +114,7 @@ public class FreemarkerTest {
         FileNode dir;
 
 
-        dir = world.getTemp().createTempDirectory();
+        dir = WORLD.getTemp().createTempDirectory();
         dir.join("script.sh").writeString("""
             #!/bin/sh
             echo "arg:$1"

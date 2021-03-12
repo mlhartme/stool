@@ -263,6 +263,7 @@ public class LocalSettings {
                 version = "unknown";
             }
             lazyLibrary = Toolkit.load(world, yaml, directory, version);
+            lazyLibrary.overrideEnvironment(environment);
         }
         return lazyLibrary;
     }
