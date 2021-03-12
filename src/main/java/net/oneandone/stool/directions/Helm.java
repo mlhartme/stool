@@ -67,7 +67,7 @@ public final class Helm {
             throw new IOException("directions without chart: " + directions.subject);
         }
         LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
-        freemarker = Freemarker.create(localSettings, name);
+        freemarker = localSettings.toolkit().freemarker(localSettings.lib, name, localSettings.fqdn);
         tmpDirections = Directions.extend(directions.origin, directions.author, directions.subject, Collections.singletonList(directions));
         tmpDirections.setValues(overrides);
         toolkit = localSettings.toolkit();

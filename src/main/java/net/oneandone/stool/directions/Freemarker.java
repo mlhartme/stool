@@ -23,7 +23,6 @@ import freemarker.template.TemplateModelException;
 import freemarker.template.TemplateScalarModel;
 import freemarker.template.TemplateSequenceModel;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -40,10 +39,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Freemarker {
-    public static Freemarker create(LocalSettings localSettings, String stage) {
-        return new Freemarker(localSettings.environment, localSettings.lib, stage, localSettings.fqdn);
-    }
-
     private final Configuration configuration;
     private final Map<String, String> environment;
     private final FileNode lib;
@@ -292,6 +287,9 @@ public class Freemarker {
 
         launcher = script.getParent().launcher();
         launcher.arg(script.getAbsolute());
+        for (Map.Entry<String, String> entry : environment.entrySet()) {
+            launcher.env(entry.getKey(), entry.getValue());
+        }
         add(launcher, args);
         return launcher.exec();
     }

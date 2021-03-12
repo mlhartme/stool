@@ -134,6 +134,11 @@ public class Toolkit {
             }
         }
     }
+
+    public Freemarker freemarker(FileNode lib, String stage, String host) {
+        return new Freemarker(environment, lib, stage, host);
+    }
+
     //--
 
     public void loadAll(ObjectMapper yaml, List<FileNode> files) throws IOException {
