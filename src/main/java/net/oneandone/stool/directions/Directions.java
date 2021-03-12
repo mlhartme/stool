@@ -66,35 +66,93 @@ public class Directions {
     public static final String ORIGIN = "ORIGIN";
     public static final String AUTHOR = "AUTHOR";
 
-    /** from inline, label or file; always extends */
     public static Directions loadLiteral(String origin, String author, ObjectNode directions) throws IOException {
-        return loadLiteral(origin, author, RawDirections.load(directions));
-    }
-    /** from inline, label or file; always extends */
-    public static Directions loadLiteral(String origin, String author, RawDirections raw) throws IOException {
-        Directions result;
-
-        result = new Directions(raw.subject, origin, author, raw.chart, raw.chartVersion);
-        result.bases.addAll(raw.bases);
-        result.directions.putAll(raw.directions);
-        return result;
+        return loadRaw(directions).with(origin, author);
     }
 
     public static Directions loadHelm(ObjectNode directions) throws IOException {
-        RawDirections raw;
         Directions result;
 
-        raw = RawDirections.load(directions);
+        result = loadRaw(directions);
         // chart + version are mandatory here because a stage was created with them:
-        if (raw.chart == null || raw.chartVersion == null) {
+        if (result.chartOpt == null || result.chartVersionOpt == null || !result.bases.isEmpty()) {
             throw new IllegalStateException();
-        }
-        result = new Directions(raw.subject, raw.origin, raw.author, raw.chart, raw.chartVersion);
-        for (Direction d : raw.directions.values()) {
-            result.addNew(d);
         }
         return result;
     }
+
+    private static Directions loadRaw(ObjectNode directions) throws IOException {
+        Map<String, JsonNode> raw;
+        Iterator<Map.Entry<String, JsonNode>> iter;
+        Map.Entry<String, JsonNode> entry;
+        String subject;
+        String origin;
+        String author;
+        String chart;
+        String chartVersion;
+        List<String> bases;
+        Directions result;
+        Direction d;
+
+        raw = new LinkedHashMap<>();
+        iter = directions.fields();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            raw.put(entry.getKey(), entry.getValue());
+        }
+        subject = eatString(raw, Directions.DIRECTIONS);
+        origin = eatStringOpt(raw, Directions.ORIGIN);
+        author = eatStringOpt(raw, Directions.AUTHOR);
+        chart = eatStringOpt(raw, Directions.CHART);
+        chartVersion = eatStringOpt(raw, Directions.CHART_VERSION);
+        bases = stringListOpt(raw.remove(Directions.EXTENDS));
+        result = new Directions(subject, origin, author, chart, chartVersion);
+        result.bases.addAll(bases);
+        for (Map.Entry<String, JsonNode> e : raw.entrySet()) {
+            d = Direction.forYaml(e.getKey(), e.getValue());
+            if (result.directions.put(d.name, d) != null) {
+                throw new ArgumentException("duplicate direction: " + d.name);
+            }
+        }
+        return result;
+    }
+
+    private static String eatString(Map<String, JsonNode> raw, String name) throws IOException {
+        String result;
+
+        result = eatStringOpt(raw, name);
+        if (result == null) {
+            throw new IOException("missing " + name);
+        }
+        return result;
+    }
+
+    private static String eatStringOpt(Map<String, JsonNode> raw, String name) {
+        JsonNode node;
+
+        node = raw.remove(name);
+        return node == null ? null : node.asText();
+    }
+
+    private static List<String> stringListOpt(JsonNode arrayOpt) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        if (arrayOpt != null && !arrayOpt.isNull()) {
+            if (arrayOpt.isTextual()) {
+                result.add(arrayOpt.asText());
+            } else if (arrayOpt.isArray()) {
+                for (JsonNode entry : arrayOpt) {
+                    result.add(entry.asText());
+                }
+            } else {
+                throw new ArgumentException("string or array expected: " + arrayOpt);
+            }
+        }
+        return result;
+    }
+
+    //--
 
     public static Directions forTest(String name, String... nameValues) {
         Directions result;
@@ -126,6 +184,14 @@ public class Directions {
         this.directions = new LinkedHashMap<>();
     }
 
+    public Directions with(String withOrigin, String withAuthor) {
+        Directions result;
+
+        result = new Directions(subject, withOrigin, withAuthor, chartOpt, chartVersionOpt);
+        result.bases.addAll(bases);
+        result.directions.putAll(directions);
+        return result;
+    }
 
     public void addNew(Direction direction) {
         if (directions.put(direction.name, direction) != null) {
