@@ -224,7 +224,7 @@ public class KubernetesClient extends Client {
         Toolkit toolkit;
         Directions directions;
 
-        idx = name.indexOf(':');
+        idx = name.indexOf('%');
         if (idx < 0) {
             select = null;
         } else {
@@ -232,7 +232,7 @@ public class KubernetesClient extends Client {
             name = name.substring(0, idx);
         }
         toolkit = localSettings.toolkit();
-        directions = toolkit.directions(name);
+        directions = DirectionsRef.create(localSettings.world, name).resolve(localSettings);
         return directions.toDescribe(toolkit, select);
     }
 
