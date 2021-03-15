@@ -51,6 +51,7 @@ public class LocalSettings {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
     public final World world;
+    public final FileNode home;
     public final ObjectMapper yaml;
     public final ObjectMapper json;
 
@@ -59,7 +60,6 @@ public class LocalSettings {
 
     // TODO: final
     public String toolkit;
-    public final FileNode lib;
 
     public final String stageLogs;
 
@@ -101,6 +101,7 @@ public class LocalSettings {
 
     public LocalSettings(ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode local) {
         this.world = home.getWorld();
+        this.home = home;
         this.yaml = yaml;
         this.json = json;
 
@@ -108,7 +109,6 @@ public class LocalSettings {
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.toolkit = Json.string(local, "toolkit", home.getWorld().getHome().join("Projects/helmcharts").getAbsolute()); // TODO
-        this.lib = home.join("lib");
         this.stageLogs = string(local, "stageLogs", DEFAULT_STAGELOGS);
 
         this.admin = Json.string(local, "admin", "");
@@ -130,6 +130,7 @@ public class LocalSettings {
 
     public LocalSettings(LocalSettings from) throws IOException {
         this.world = World.create();
+        this.home = world.file(from.home.toPath().toFile());
         this.yaml = Json.newYaml();
         this.json = Json.newJson();
 
@@ -137,7 +138,6 @@ public class LocalSettings {
         this.environment = new LinkedHashMap<>(from.environment);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
         this.toolkit = from.toolkit;
-        this.lib = world.file(from.lib.toPath().toFile());
         this.stageLogs = from.stageLogs;
         this.admin = from.admin;
         this.ldapUrl = from.ldapUrl;
@@ -188,11 +188,11 @@ public class LocalSettings {
     }
 
     public FileNode stageLogs(String name) throws MkdirException {
-        return getHome().file(stageLogs).mkdirsOpt().join(name);
+        return home.file(stageLogs).mkdirsOpt().join(name);
     }
 
-    public FileNode getHome() {
-        return lib.getParent(); // TODO
+    public FileNode getLib() {
+        return home.join("lib");
     }
 
     public void validate() throws IOException {
@@ -280,7 +280,7 @@ public class LocalSettings {
 
         if (lazyToolkit == null) {
             if (!toolkit.startsWith("/")) {
-                directory = this.lib.join("library");
+                directory = getLib().join("toolkit");
                 version = Toolkit.resolve(createRegistry(toolkit), toolkit, directory);
             } else {
                 directory = world.file(toolkit).checkDirectory();
@@ -356,7 +356,7 @@ public class LocalSettings {
     //--
 
     public UserManager createUserManager() throws IOException {
-        return UserManager.loadOpt(json, lib.join("users.json"));
+        return UserManager.loadOpt(json, getLib().join("users.json"));
     }
 
 
