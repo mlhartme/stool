@@ -228,13 +228,17 @@ public class Settings {
     public ObjectNode toYaml() {
         ObjectNode obj;
         ArrayNode array;
+        ObjectNode l;
 
         obj = local.yaml.createObjectNode();
         obj.put("loglevel", loglevel);
         if (currentContext != null) {
             obj.put("currentContext", currentContext);
         }
-        obj.set("local", local.toYaml());
+        l = local.toYaml();
+        if (!l.isEmpty()) {
+            obj.set("local", l);
+        }
         array = obj.putArray("proxies");
         for (Context context : proxies.values()) {
             array.add(context.toObject(local.yaml));

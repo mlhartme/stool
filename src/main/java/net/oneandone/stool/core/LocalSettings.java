@@ -108,7 +108,7 @@ public class LocalSettings {
         this.fqdn = Json.string(local, "fqdn", "localhost");
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
-        this.toolkit = Json.string(local, "toolkit", home.getWorld().getHome().join("Projects/helmcharts").getAbsolute()); // TODO
+        this.toolkit = Json.string(local, "toolkit", defaultToolkit(world));
         this.stageLogs = string(local, "stageLogs", DEFAULT_STAGELOGS);
 
         this.admin = Json.string(local, "admin", "");
@@ -128,6 +128,11 @@ public class LocalSettings {
     private static final String DEFAULT_KUBERNETES = "http://localhost";
     private static final String DEFAULT_STAGELOGS = "logs";
 
+    private static String defaultToolkit(World world) {
+        // TODO
+        return world.getHome().join("Projects/helmcharts").getAbsolute();
+
+    }
     public LocalSettings(LocalSettings from) throws IOException {
         this.world = World.create();
         this.home = world.file(from.home.toPath().toFile());
@@ -222,7 +227,9 @@ public class LocalSettings {
         if (!registryCredentials.isEmpty()) {
             local.put("registryCredentials", registryCredentialsString());
         }
-        local.put("toolkit", toolkit);
+        if (!defaultToolkit(world).equals(toolkit)) {
+            local.put("toolkit", toolkit);
+        }
         if (!admin.isEmpty()) {
             local.put("admin", admin);
         }
