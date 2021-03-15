@@ -5,23 +5,21 @@
 Stool 7 stages are managed with Helm and defined by helm charts
 * Kubernetes resources for a stage are now defined by a Helm chart; this replaced the former hard-wired API calls
 * directions define values for Helm charts
-  * directly with template expressions (freemarker, with built-in scripts, e.g. to fetch vault secrets or generate credentials)
+  * directly with template expressions (freemarker, with configurable scripts, e.g. to fetch vault secrets or generate credentials)
   * indirectly by extending base directions
 * `sc create <stage> <directions>` installs a Helm chart with the values as defined by the directions, resulting in a Helm release
 * `sc delete <stage>` uninstalls this release
 * `start` and `stop` commands are gone - create results in a running stage, delete stops the stage first;
-  you can "emulate" a stopped stage by settings replicas to 0
+  you can "emulate" a stopped stage by setting replicas to 0
 * stage properties are now called variables - they are Helm chart variables, managed with `sc config`; 
-  charts can have arbitrary variables, Stool relies on some particular: `metadataNotify`, `metadataComment`, and 
-  `metadataExpire`
-* dumped disk quota handling; I might use Kubernetes ephemeral quotas later
-* dumped memory quota handling, Kubernetes takes care of that
+  charts can have arbitrary variables, Stool relies on some particular: `metadataNotify`, `metadataComment`, `metadataExpire`,
+  `urlContext`, `urlSuffixes`, `urlSubdomains` and `replicas`
 
 Helm like cli:
 * `create`/`publish` command line arguments are similar to Helm's install/upgrade arguments: `sc create <name> <directions>`
 * stage commands now take an explicit stage argument, e.g. `sc status hellowar`; 
-  like before, you can specify predicated or `%all` instead of a fixed name
-* dumped implicit workspaces derived from current director
+  you can specify predicates or `%all` instead of a fixed name
+* dumped implicit workspaces derived from current directory
   * provided explicit workspaces instead: `attach` and `detatch` now take an explicit named workspace argument 
     (referenced with '@' *name*) instead
   * dumped the stage indicator
@@ -29,39 +27,46 @@ Helm like cli:
 Other changes:
 * merged client and server
   * all functionality is in `sc` now; use `sc server` to start a server
-  * running a server is optional now, Stool can talk to arbitrary Kubernetes contexts as well
+  * extended context handling: besides context as known from Stool 6 (they are now called proxy contexts),
+    you can now use Kubernetes context, to directly interact with Kubernetes (without a Stool server in between)
   * settings.yaml now also contains server configuration
 * image handling changes
   * dumped `sc build`, configure an image build in your Maven build instead
   * created a separate `maven-dockerbuild-plugin` with the former `sc build` functionality
   * Stool no longer wipes images
   * dumped jmxmp/5555, rely on readyness probes instead; also dumped `heap` field
+* introduced toolkits
+  * they define the available charts, directions, scripts and environment variables (with defaults)
+  * replaced hard-wired fault support by a toolkit script
+  * replaced cert configuration by a toolkit script
+* dumped memory quota handling, Kubernetes takes care of that
+* dumped disk quota handling; I might re-add this with Kubernetes ephemeral quotas later
 * added `urlSubdomains`
-* dumped fault support, use chart scripts instead
-* dumped notify markers `@created-by` and `@last-modified-by`, they are too fragile. Use email adresses or login names instead
+* dumped notify markers `@created-by` and `@last-modified-by`, they are too fragile. 
+  Use email addresses or login names instead
 * `history`
   * dumped `-max` and `-details` options 
   * use `-v` to get more details
+* `images` takes a repository argument instead of a stage now, and it simply displays all labels
 * `status`, `list`:  
-  * added origin field, shown by default in `list`
+  * added `origin field, shown by default in `list`
   * added `available` field
   * dumped `origin-scm` field, check `sc images` instead
+  * dumped `images` field because it's very slow and deals to the registry, not kubernetes; use `sc images` instead
   * dumped `pod` field, that's too low-level
-  * dumped `running` field, use `config image` instead
+  * dumped `running` field, use `sc config image` instead
   * renamed `uptime` field to `last-deployed`, it now reports the corresponding Helm status
   * dumped `created-at` and `created-by`; added `first-deployed`
   * dumped `last-modified-at`, and `last-modified-by`; use `last-deployed` or check the history instead
-  * dumped `images` field because it's very slow and deals to the registry, not kubernetes; 
-    use `sc images` instead
-  * added `directions` field, but it's hidden unless you explicitly reference this field
-  * changed `images` command, it takes a repository argument instead of a stage now, and it displays generic labels only
-* SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
+  * added `directions` field, but it's hidden unless you explicitly reference it
 * settings
+  * SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
   * introducted `local` and `proxy` section
-  * added `toolkit`
-  * replaced `registryPrefix` by `registryCredentials`
-  * dumped `defaultExpire` and `defaultContact`  
-  * `environment` now configures the environment accessed with the env template function
+  * changes in `local`
+    * added `toolkit`
+    * replaced `registryPrefix` by `registryCredentials`
+    * dumped `defaultExpire` and `defaultContact`  
+    * `environment` provides local overrides for the toolkit environment
 * log validation report result
 * readiness probe for Stool server
 * raised minimal Java version from 11 to 15
@@ -463,7 +468,7 @@ As a consequence, all features to manage projects were removed from Stool:
 ### 4.0.3 (2019-02-13)
 
 * dashboard
-  * show stage comment has hover on stage name (stage origin is now show as hover on stage status)
+  * show stage comment as hover on stage name (stage origin is now show as hover on stage status)
   * sort stages by name (but all reserved stages first)
   * feedback as a popup
   * stage update fixes: properly handle renamed and removed stages 
