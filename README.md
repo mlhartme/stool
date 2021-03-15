@@ -1,6 +1,7 @@
 # Stool
 
-Note: This is the current development branch, see [Stool 5](https://github.com/mlhartme/stool/tree/stool-5.1) for the stable branch.
+Note: This is documentation for the current development branch,
+see [Stool 5](https://github.com/mlhartme/stool/tree/stool-5.1) for the last stable branch.
 
 ## Introduction
 
@@ -19,10 +20,10 @@ Open a terminal and run
 
     sc context
 
-to see available contexts, i.e. places where you can host stages. Notes:
-*  if you get an `command not found: sc` error: Stool is not installed on your machine.
+to see available contexts, i.e. places where you can create stages. Notes:
+*  if you get a `command not found: sc` error: Stool is not installed on your machine.
    Please refer to the install section below.
-*  if you get an `settings not found` error: Stool is installed, but it's not set up.
+*  if you get a `settings not found` error: Stool is installed, but it's not set up.
    Please run `sc setup`.
 
 Choose one of the available contexts by running
@@ -113,9 +114,9 @@ You can create, list and delete stages with the respective command. Every stage 
 variables you can get and set with `sc config`. Every stages has a status, which is a set of fields, you can check it
 with `sc status`.
 
-A stage has a context which dertermins the Kubernetes cluster running the stage. Every stage has a unique name in that
-context. A stage is referenced by *name*`@`*context* or just the *name* if it's in the current context. You define the stage
-name and context when you create the stage, neither can be changed later.
+A stage has a context and a unique name in that context. A stage is referenced by *name*`@`*context* or just the *name*
+if it's in the current context. You define the stage name and context when you create the stage, neither can be changed
+later.
 
 Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it, `sc publish` and `sc config`
 upgrades it. Stage variables are Helm release values (or Helm release variables, as they occasionally call it).
@@ -130,10 +131,10 @@ Use Kubernetes contexts if you have direct access to Kubernetes. `~/.kube/config
 with a name and a cluster url. Stool reads this file an prefixes all name with `-kube` to avoid naming clashes with proxy
 context.
 
-A proxy context has a name, an optional token, and a URL pointing to a Stool server. It's used if you have restricted access
-to Kubernetes only. `sc` manages a list of proxy contexts in its settings.
+A proxy context has a name, an optional token, and a URL pointing to a Stool server. It's to give restricted access to Kubernetes
+only, and to centrally manage Stool settings. `sc` manages a list of proxy contexts in its settings.
 
-sc manages a current context in its settings. You can change it current context permanently with `sc context` or per-invocation
+sc manages a current context in its settings. You can change it permanently with `sc context` or per-invocation
 with the `-context` global option.
 
 
@@ -142,24 +143,33 @@ with the `-context` global option.
 Directions (or, more explicitly: the direction list) define how to create and publish stages. Stage directions are the directions
 the stage was created or last published with.
 
-Directions look like this:
+Directions look something like this:
 
     DIRECTIONS: "hello"
     EXTENDS: "kutter"
     image: "myregistry/hello:1.0.0"
-    cert: "${exec('cert.sh', stage)}"
+    cert:
+      private: true
+      expr: "script.cert(stage)"
 
-Each direction has a name and an expression, directions have a subject and can extend other direction (i.e. inherit all directions).
+Each direction has a name and an expression, directions have a subject and can extend other direction
+(i.e. inherit all directions).
 
 Directions define the available variables of the stage, the expression is evaluated to determine the initial values.
 
 The expression is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it,
-and Stool provides Freemarker functions to invoke shell scripts.
+and every toolkit script is available as a Freemarker function.
 
-You usually define directions in a `directions.yaml` file and attach them to images in a `directions` label.
+Applications usually define directions in a `directions.yaml` file and attach them to images in a `directions` label.
 
-Technically, directions specify a Helm chart and evaluate its values. I.e. directions supply all info needed for
+In addition, Stool is usually configured with pre-defined directions in its toolkit.
+
+Technically, directions specify a Helm chart and how to evaluate its values. I.e. directions supply all info needed for
 Helm install/upgrade.
+
+### Toolkit
+
+The toolkit defines a set of charts, scripts and directions.
 
 
 ### Variables
@@ -443,7 +453,7 @@ List stages
 
 #### SYNOPSIS
 
-`sc` *global-option*... `list` *stage* (*field*|*variable*)...
+`sc` *global-option*... `list` [*stage*] (*field*|*variable*)...
 
 #### DESCRIPTION
 
@@ -534,7 +544,7 @@ Manage stage configuration
 
 #### SYNOPSIS
 
-`sc` *global-option*... `config` *stage* (*key* | *key*`=`*str*)...
+`sc` *global-option*... `config` *stage* (*key* | *key*`=`*value*)...
 
 #### DESCRIPTION
 
@@ -821,11 +831,11 @@ Stage argument
 
 #### SYNOPSIS
 
-*stage* = `all` | `@`*workspace* | *predicate*
+*stage* = `%all` | `@`*workspace* | *predicate*
 
 #### Description
 
-Most Stool take a *stage* argument to specify the stages to operate on. The general form of *stage* is:
+Most Stool commands take a *stage* argument to specify the stages to operate on. The general form of *stage* is:
 
 `%all` specifies all stages in the current context
 
@@ -846,7 +856,7 @@ Most Stool take a *stage* argument to specify the stages to operate on. The gene
               STR        # arbitrary string
 
 
-The most common predicate is a simple `NAME` that refers to the respective stage.
+The most common predicate is a simple `NAME` that refers to the respective stage in the current context.
 
 Next, a predicate *FIELD*`=`*STR* matches stages who's status field has the specified string.
 *VALUE*`=`*STR* is similar, it matches stage values.
