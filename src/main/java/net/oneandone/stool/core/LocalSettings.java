@@ -109,7 +109,7 @@ public class LocalSettings {
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.toolkit = Json.string(local, "toolkit", home.getWorld().getHome().join("Projects/helmcharts").getAbsolute()); // TODO
         this.lib = home.join("lib");
-        this.stageLogs = string(local, "stageLogs", home.join("logs").getAbsolute());
+        this.stageLogs = string(local, "stageLogs", DEFAULT_STAGELOGS);
 
         this.admin = Json.string(local, "admin", "");
         this.ldapUrl = Json.string(local, "ldapUrl", "");
@@ -126,6 +126,7 @@ public class LocalSettings {
 
     private static final int DEFAULT_AUTOREMOVE = -1;
     private static final String DEFAULT_KUBERNETES = "http://localhost";
+    private static final String DEFAULT_STAGELOGS = "logs";
 
     public LocalSettings(LocalSettings from) throws IOException {
         this.world = World.create();
@@ -187,7 +188,11 @@ public class LocalSettings {
     }
 
     public FileNode stageLogs(String name) throws MkdirException {
-        return world.file(stageLogs).mkdirsOpt().join(name);
+        return getHome().file(stageLogs).mkdirsOpt().join(name);
+    }
+
+    public FileNode getHome() {
+        return lib.getParent(); // TODO
     }
 
     public void validate() throws IOException {
@@ -205,7 +210,9 @@ public class LocalSettings {
         ObjectNode local;
 
         local = yaml.createObjectNode();
-        local.put("stageLog", stageLogs);
+        if (!DEFAULT_STAGELOGS.equals(stageLogs)) {
+            local.put("stageLog", stageLogs);
+        }
         if (!admin.isEmpty()) {
             local.put("fqdn", fqdn);
         }
