@@ -47,13 +47,8 @@ import java.util.Map;
 import static net.oneandone.stool.util.Json.string;
 
 /** Immutable local settings */
-public class LocalSettings {
+public class LocalSettings extends CoreSettings {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
-
-    public final World world;
-    public final FileNode home;
-    public final ObjectMapper yaml;
-    public final ObjectMapper json;
 
     public final Map<String, String> environment;
     public final Map<String, Pair> registryCredentials;
@@ -100,10 +95,7 @@ public class LocalSettings {
     public final String kubernetes;
 
     public LocalSettings(ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode local) {
-        this.world = home.getWorld();
-        this.home = home;
-        this.yaml = yaml;
-        this.json = json;
+        super(yaml, json, home);
 
         this.fqdn = Json.string(local, "fqdn", "localhost");
         this.environment = Json.stringMapOpt(local, "environment");
@@ -134,10 +126,7 @@ public class LocalSettings {
 
     }
     public LocalSettings(LocalSettings from) throws IOException {
-        this.world = World.create();
-        this.home = world.file(from.home.toPath().toFile());
-        this.yaml = Json.newYaml();
-        this.json = Json.newJson();
+        super(Json.newYaml(), Json.newJson(), World.create().file(from.home.toPath().toFile()));
 
         this.fqdn = from.fqdn;
         this.environment = new LinkedHashMap<>(from.environment);
