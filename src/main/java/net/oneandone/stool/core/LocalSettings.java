@@ -109,7 +109,7 @@ public class LocalSettings {
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.toolkit = Json.string(local, "toolkit", home.getWorld().getHome().join("Projects/helmcharts").getAbsolute()); // TODO
         this.lib = home.join("lib");
-        this.stageLogs = string(local, "stageLogs", home.getWorld().getHome().join(".sc/logs").getAbsolute());
+        this.stageLogs = string(local, "stageLogs", home.join("logs").getAbsolute());
 
         this.admin = Json.string(local, "admin", "");
         this.ldapUrl = Json.string(local, "ldapUrl", "");
@@ -120,9 +120,12 @@ public class LocalSettings {
         this.mailHost = Json.string(local, "mailHost", "");
         this.mailUsername = Json.string(local, "mailUsername", "");
         this.mailPassword = Json.string(local, "mailPassword", "");
-        this.autoRemove = Json.number(local, "autoRemove", -1);
-        this.kubernetes = Json.string(local, "kubernetes", "http://localhost");
+        this.autoRemove = Json.number(local, "autoRemove", DEFAULT_AUTOREMOVE);
+        this.kubernetes = Json.string(local, "kubernetes", DEFAULT_KUBERNETES);
     }
+
+    private static final int DEFAULT_AUTOREMOVE = -1;
+    private static final String DEFAULT_KUBERNETES = "http://localhost";
 
     public LocalSettings(LocalSettings from) throws IOException {
         this.world = World.create();
@@ -203,12 +206,22 @@ public class LocalSettings {
 
         local = yaml.createObjectNode();
         local.put("stageLog", stageLogs);
-        local.put("fqdn", fqdn);
-        local.set("environment", Json.obj(json, environment));
-        local.put("registryCredentials", registryCredentialsString());
+        if (!admin.isEmpty()) {
+            local.put("fqdn", fqdn);
+        }
+        if (!environment.isEmpty()) {
+            local.set("environment", Json.obj(json, environment));
+        }
+        if (!registryCredentials.isEmpty()) {
+            local.put("registryCredentials", registryCredentialsString());
+        }
         local.put("toolkit", toolkit);
-        local.put("admin", admin);
-        local.put("autoRemove", autoRemove);
+        if (!admin.isEmpty()) {
+            local.put("admin", admin);
+        }
+        if (autoRemove != DEFAULT_AUTOREMOVE) {
+            local.put("autoRemove", autoRemove);
+        }
         if (auth()) {
             local.put("ldapUrl", ldapUrl);
             local.put("ldapPrincipal", ldapPrincipal);
@@ -216,10 +229,14 @@ public class LocalSettings {
             local.put("ldapUnit", ldapUnit);
             local.put("ldapSso", ldapSso);
         }
-        local.put("mailHost", mailHost);
-        local.put("mailUsername", mailUsername);
-        local.put("mailPassword", mailPassword);
-        local.put("kubernetes", kubernetes);
+        if (!mailHost.isEmpty()) {
+            local.put("mailHost", mailHost);
+            local.put("mailUsername", mailUsername);
+            local.put("mailPassword", mailPassword);
+        }
+        if (!DEFAULT_KUBERNETES.equals(kubernetes)) {
+            local.put("kubernetes", kubernetes);
+        }
         return local;
     }
 
