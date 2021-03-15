@@ -50,18 +50,17 @@ import static net.oneandone.stool.util.Json.string;
 public class LocalSettings extends CoreSettings {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
-    public final Map<String, String> environment;
-    public final Map<String, Pair> registryCredentials;
-
-    // TODO: final
-    public String toolkit;
-
-    public final String stageLogs;
-
     /**
      * used for output and stage urls
      */
     public final String fqdn;
+
+    // TODO: final
+    public String toolkit;
+    public final Map<String, String> environment;
+    public final Map<String, Pair> registryCredentials;
+
+    public final String stageLogs;
 
     /**
      * Name + email. Used for problem reports, feedback emails,
@@ -98,9 +97,9 @@ public class LocalSettings extends CoreSettings {
         super(yaml, json, home);
 
         this.fqdn = Json.string(local, "fqdn", "localhost");
+        this.toolkit = Json.string(local, "toolkit", defaultToolkit(world));
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
-        this.toolkit = Json.string(local, "toolkit", defaultToolkit(world));
         this.stageLogs = string(local, "stageLogs", DEFAULT_STAGELOGS);
 
         this.admin = Json.string(local, "admin", "");
@@ -129,9 +128,9 @@ public class LocalSettings extends CoreSettings {
         super(Json.newYaml(), Json.newJson(), World.create().file(from.home.toPath().toFile()));
 
         this.fqdn = from.fqdn;
+        this.toolkit = from.toolkit;
         this.environment = new LinkedHashMap<>(from.environment);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
-        this.toolkit = from.toolkit;
         this.stageLogs = from.stageLogs;
         this.admin = from.admin;
         this.ldapUrl = from.ldapUrl;
