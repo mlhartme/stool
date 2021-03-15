@@ -103,21 +103,12 @@ public class Stage {
 
         raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), Collections.emptyList());
         raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
-        check(raw, Dependencies.MANDATORY);
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
             result.put(key, new Variable(directions.get(key), entry.getValue().toString()));
         }
         return result;
-    }
-
-    private static void check(Map<String, Object> values, String... keys) throws IOException {
-        for (String key : keys) {
-            if (!values.containsKey(key)) {
-                throw new IOException("missing key in helm chart: " + key + " in " + values.keySet());
-            }
-        }
     }
 
     //--
@@ -182,12 +173,15 @@ public class Stage {
 
     //-- important values
 
-    public Expire getMetadataExpire() {
-        return Expire.fromString(variables.get(Dependencies.VALUE_EXPIRE).get());
+    public Expire getMetadataExpireOpt() {
+        Variable variable;
+
+        variable = variableOpt(Dependencies.VALUE_EXPIRE);
+        return variable == null ? null : Expire.fromString(variable.get());
     }
 
     public List<String> getMetadataContact() {
-        return Separator.COMMA.split(variables.get(Dependencies.VALUE_CONTACT).get());
+        return Separator.COMMA.split(variableOptString(Dependencies.VALUE_CONTACT, ""));
     }
 
     //--
@@ -405,7 +399,7 @@ public class Stage {
         String suffixes;
         List<String> result;
 
-        suffixes = variableOptString("urlSuffixes", "");
+        suffixes = variableOptString(Dependencies.URL_SUFFIXES, "");
         result = new ArrayList<>();
         if (suffixes != null) {
             result.addAll(SUFFIXES_SEP.split(suffixes));
@@ -420,7 +414,7 @@ public class Stage {
         String str;
         List<String> result;
 
-        str = variableOptString("urlSubdomains", "");
+        str = variableOptString(Dependencies.URL_SUBDOMAINS, "");
         result = new ArrayList<>();
         if (str != null) {
             result.addAll(SUFFIXES_SEP.split(str));
@@ -434,7 +428,7 @@ public class Stage {
     private String urlContext() {
         String result;
 
-        result = variableOptString("urlContext", "");
+        result = variableOptString(Dependencies.URL_CONTEXT, "");
         if (result.startsWith("/")) {
             throw new ArithmeticException("server must not start with '/': " + result);
         }

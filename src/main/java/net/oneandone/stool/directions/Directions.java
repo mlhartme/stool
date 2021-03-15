@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -34,13 +33,6 @@ import java.util.Map;
 public class Directions {
     // this value is added to track the stage directions used
     public static final String DIRECTIONS_VALUE = "_directions";
-
-    // TODO: move to core package
-    public static Directions loadStageDirectionsBase(World world, ObjectMapper yaml) throws IOException {
-        try (Reader src = world.resource("stage.yaml").newReader()) {
-            return Directions.loadLiteral("root", "stool", (ObjectNode) yaml.readTree(src));
-        }
-    }
 
     /** loads the directions implicitly defined by a chart */
     public static Directions loadChartDirections(ObjectMapper yaml, String name, String version, FileNode valuesYaml) throws IOException {

@@ -52,7 +52,6 @@ public class Toolkit {
         for (FileNode chart : directory.join("charts").list()) {
             result.addChart(yaml, chart);
         }
-        result.addDirections(Directions.loadStageDirectionsBase(world, yaml));
         result.loadAll(yaml, directory.find("directions/*.yaml"));
         return result;
     }

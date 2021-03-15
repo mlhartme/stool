@@ -33,14 +33,6 @@ public class DirectionsTest {
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     @Test
-    public void stage() throws IOException {
-        Directions c;
-
-        c = Directions.loadStageDirectionsBase(WORLD, YAML);
-        assertEquals("stage", c.subject);
-    }
-
-    @Test
     public void empty() throws IOException {
         Directions c;
 

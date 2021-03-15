@@ -71,20 +71,24 @@ public class Validation {
     private void doRun(Stage stage, List<String> report, boolean repair) {
         Expire expire;
 
-        expire = stage.getMetadataExpire();
-        if (!expire.isExpired()) {
+        expire = stage.getMetadataExpireOpt();
+        if (expire == null || !expire.isExpired()) {
             return;
         }
         report.add("Stage expired: " + expire + ": " + stage);
         if (!repair) {
             return;
         }
-        try {
-            stage.setValues(caller, kubeContext, engine, Strings.toMap(Dependencies.VALUE_REPLICAS, "0"));
-            report.add("replicas set to 0");
-        } catch (Exception e) {
-            report.add("replicas change failed: " + e.getMessage());
-            LOGGER.debug(e.getMessage(), e);
+        if (stage.variableOpt(Dependencies.VALUE_REPLICAS) == null) {
+            report.add("no replicas variable -- cannot stop expired stage");
+        } else {
+            try {
+                stage.setValues(caller, kubeContext, engine, Strings.toMap(Dependencies.VALUE_REPLICAS, "0"));
+                report.add("replicas set to 0");
+            } catch (Exception e) {
+                report.add("replicas change failed: " + e.getMessage());
+                LOGGER.debug(e.getMessage(), e);
+            }
         }
         if (localSettings.autoRemove < 0) {
             return;

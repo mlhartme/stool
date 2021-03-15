@@ -12,8 +12,8 @@ Stool 7 stages are managed with Helm and defined by helm charts
 * `start` and `stop` commands are gone - create results in a running stage, delete stops the stage first;
   you can "emulate" a stopped stage by setting replicas to 0
 * stage properties are now called variables - they are Helm chart variables, managed with `sc config`; 
-  charts can have arbitrary variables, Stool relies on some particular: `metadataNotify`, `metadataComment`, `metadataExpire`,
-  `urlContext`, `urlSuffixes`, `urlSubdomains` and `replicas`
+  charts can have arbitrary variables. If available, Stool makes use of the following variables:
+  `metadataNotify`, `metadataComment`, `metadataExpire`, `urlContext`, `urlSuffixes`, `urlSubdomains` and `replicas`
 
 Helm like cli:
 * `create`/`publish` command line arguments are similar to Helm's install/upgrade arguments: `sc create <name> <directions>`
