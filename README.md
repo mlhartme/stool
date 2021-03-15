@@ -81,6 +81,7 @@ planned or open:
 |         | Certificate generation | configurable script |
 | Stool X - thoughts only | Basic monitoring | Prometheus? |
 |         | Disk Limits | Kubernetes ephemeral storage limits |
+|         | Expire Stages | K8s Cronjob? |
 |         | Simple cli: reduce cognitive load | train developers + operating |
 |         | Dashboard: None-technical UI | ? |
 |         | Proxy: restricted access | All stages by Jenkins? |
