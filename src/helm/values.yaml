@@ -13,8 +13,7 @@ cert: ""
 # Comma-separated list with host=username:password entries. Type string.
 registryCredentials: ""
 
-# TODO
-toolkit: "contargo.server.lan/cisoops-public/toolkits/cp"
+toolkit: "stool"
 
 environment:
 
