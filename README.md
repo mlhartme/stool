@@ -398,7 +398,7 @@ Setup Stool
 
 `sc` *global-option*... `setup` [*key*`=`*value* ...]
 
-#### Description
+#### DESCRIPTION
 
 Creates a fresh Stool home directory or reports an error if it already exists. The location of the home directory is configurable with
 the `SC_HOME` environment variable, it defaults to `~/.sc`. The main configuration file inside this directory is `settings.yaml`.
@@ -407,7 +407,7 @@ default settings are generated.
 
 Use key/values pairs or local settings or proxies.
 
-#### Example
+#### EXAMPLES
 
 Create a home directory with defaults: `sc setup`
 Create a home directory with a custom toolkit: `sc setup toolkit=/my/path/to/toolkit`
@@ -524,7 +524,7 @@ Publish a stage
 
 `sc` *global-option*... `publish` ['-dryrun'] *stage* [*directions*] [*key*`=`*value*...]
 
-#### Description
+#### DESCRIPTION
 
 Similar to [create](#sc-create), but updates *stage* instead of creating a new one.
 Please check there for general behavior. The workload is updated without downtime.
@@ -594,13 +594,13 @@ use `sc help` for available [global options](#sc)
 
 [//]: # (-)
 
-#### Available variables
+#### AVAILABLE VARIABLES
 
 The following variable are mandatory for all stages: https://github.com/mlhartme/stool/blob/stool-7.0/src/main/resources/stage.yaml
 
 To see all variables for a given stage, along with the documentation available, run `sc config givenStage`
 
-#### Examples
+#### EXAMPLES
 
 `sc config metadataComment` prints the current `comment` value.
 
@@ -660,7 +660,7 @@ Delete a stage
 
 `sc` *global-option*... `delete` *stage* [`-batch`]
 
-#### Description
+#### DESCRIPTION
 
 Deletes the stage, i.e. deletes it from the respective cluster. If stage is specified as a workspace,
 it is removed from the workspace as well.
@@ -684,7 +684,7 @@ Display commands invoked on this stage
 
 `sc` *global-option*... `history` *stage*
 
-#### Description
+#### DESCRIPTION
 
 Prints the `sc` commands that affected the stage. Invoke it `-v` to see more details for each invocation.
 
@@ -703,7 +703,7 @@ Attach stage to a workspace
 
 `sc` *global-option*... `attach` *stage* '@'*workspace*
 
-#### Description
+#### DESCRIPTION
 
 Attaches the specified stage to *workspace*. Creates a new workspace if the specified one does not exist.
 
@@ -723,7 +723,7 @@ Detach a stage from a workspace
 
 `sc` *global-option*... `detach` *stage* '@'*workspace*
 
-#### Description
+#### DESCRIPTION
 
 Removes stages from *workspace* without modifying the stage itself. Removes the workspace if it becomes empty.
 
@@ -745,7 +745,7 @@ Display images with labels
 `sc` *global-option*... `images` *repository*
 
 
-#### Description
+#### DESCRIPTION
 
 Display info about the images in the specified repository.
 
@@ -768,7 +768,7 @@ Start port forwarding
 
 `sc` *global-option*... `port-forward` *stage* [*local-port*] *remote-port*
 
-#### Description
+#### DESCRIPTION
 
 Starts port-forwarding of port *local-port* on localhost (default: remote port) to *remote-port* on the currently
 running port of the stage. Reports an error, if the stage is not running.
@@ -790,7 +790,7 @@ Ssh into the running stage
 
 `sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage* [*shell*]
 
-#### Description
+#### DESCRIPTION
 
 Executes an interactive shell in the main container (i.e. the container running the web app) of this stage.
 The default shell is `/bin/sh`. Reports an error if the stage is not running.
@@ -805,7 +805,7 @@ Validate the stage
 
 `sc` *global-option*... `validate` [`-email`] [`-repair`] *stage*
 
-#### Description
+#### DESCRIPTION
 
 Checks if the `metadataExpire` date of the stage has passed. If so, and if
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoRemove days). And
@@ -827,7 +827,7 @@ Start server
 
 `sc` `server`
 
-#### Description
+#### DESCRIPTION
 
 Starts a Stool server, which is a web application implementing the proxy and the dashboard.
 The server runs in the current console until it's stopped with ctrl-c.
@@ -841,7 +841,7 @@ Stage argument
 
 *stage* = `%all` | `@`*workspace* | *predicate*
 
-#### Description
+#### DESCRIPTION
 
 Most Stool commands take a *stage* argument to specify the stages to operate on. The general form of *stage* is:
 
@@ -869,7 +869,7 @@ The most common predicate is a simple `NAME` that refers to the respective stage
 Next, a predicate *FIELD*`=`*STR* matches stages who's status field has the specified string.
 *VALUE*`=`*STR* is similar, it matches stage values.
 
-#### Examples
+#### EXAMPLES
 
 `sc status foo` prints the status of stage `foo`.
 

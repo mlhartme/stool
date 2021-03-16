@@ -56,8 +56,7 @@ public class LocalSettings extends CoreSettings {
      */
     public final String fqdn;
 
-    // TODO: final
-    public String toolkit;
+    public final String toolkit;
     public final Map<String, String> environment;
     public final Map<String, Pair> registryCredentials;
 
