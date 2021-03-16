@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.util.Secrets;
-import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -26,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -33,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Integration tests for the command line.
  */
 public class MainIT {
-    private static final String REPOSITORY = "contargo.server.lan/cisoops-public/it-hellowar";
     private static final String CONTEXT = "local";
 
     private static final World WORLD;
@@ -48,29 +49,27 @@ public class MainIT {
         }
     }
 
-    private static FileNode itRoot(boolean local) throws MkdirException {
-        return PROJECT_ROOT.join("target/it-" + local).mkdirOpt();
+    private static FileNode itRoot(boolean kube, String toolkit) {
+        String tk;
+
+        tk = toolkit.substring(toolkit.lastIndexOf('/') + 1);
+        return PROJECT_ROOT.join("target/it/" + (kube ? "it-kube" : "it-proxy") + "-" + tk);
 
     }
 
-    // run this to get a sample image deployed
-    public static void main(String[] args) throws IOException {
-        FileNode working;
-
-        working = itRoot(true).join("projects/build").mkdirsOpt();
-        System.out.println(working.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", working.getAbsolute()));
-        System.out.println(working.exec("mvn", "clean", "package", "-Dmaven.javadoc.skip=true")); // junit.org for javadocs is offline every now and then ...
-        System.out.println(working.exec("mvn", "net.oneandone.stool:stock-image-plugin:build", "-Ddocker.repository=" + REPOSITORY));
-        System.out.println("build done");
-    }
-
-    private static FileNode serverValues(boolean local) throws IOException {
+    private static FileNode serverValues(boolean kube, String toolkit) throws IOException {
         FileNode file;
         URI portus;
+        List<String> lines;
 
-        file = itRoot(local).join("values.yaml");
+        file = itRoot(kube, toolkit).join("values.yaml");
         portus = Secrets.load(WORLD).portus;
-        file.writeLines("registryCredentials: " + portus.getHost() + "=" + portus.getUserInfo());
+        lines = new ArrayList<>();
+        lines.add("registryCredentials: " + portus.getHost() + "=" + portus.getUserInfo());
+        if (toolkit != null) {
+            lines.add("toolkit: \"" + toolkit + "\"");
+        }
+        file.writeLines(lines);
         return file;
     }
 
@@ -83,21 +82,34 @@ public class MainIT {
 
     @AfterAll
     public static void afterAll() throws IOException {
-        kubectl(true, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
-        kubectl(false, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
+        // TODO: kubectl(true, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
+        // TODO: kubectl(false, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
     }
 
     @Test
     public void kube() throws IOException {
-        run(true);
+        run(true, LocalSettings.BUILTIN_TOOLKIT);
     }
 
-    @Test
+    // TODO @Test
     public void proxy() throws IOException {
-        run(false);
+        run(false, LocalSettings.BUILTIN_TOOLKIT);
     }
 
-    private void run(boolean kube) throws IOException {
+    // TODO
+    private static final String CP = "contargo.server.lan/cisoops-public/libraries/cp";
+
+    // TODO @Test
+    public void kubeCp() throws IOException {
+        run(true, CP);
+    }
+
+    // TODO @Test
+    public void proxyCp() throws IOException {
+        run(false, CP);
+    }
+
+    private void run(boolean kube, String toolkit) throws IOException {
         FileNode working;
         FileNode directionsDir;
         FileNode home;
@@ -105,15 +117,16 @@ public class MainIT {
 
         directionsDir = PROJECT_ROOT.join("src/test/data/directions").checkDirectory();
         stage = "de.wq-ta"; // with some special characters
-        working = itRoot(kube).join("projects/" + (kube ? "it-kube" : "it-proxy")).mkdirsOpt();
+        working = itRoot(kube, toolkit).mkdirsOpt();
         home = working.join("home").checkNotExists();
         if (kube) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "-registryCredentials=" + registryCredentials);
+            sc(home, "setup", "-registryCredentials=" + registryCredentials,
+                    "-toolkit=" + toolkit);
             sc(home, "context", "kube-local");
         } else {
-            helm(kube, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(kube).getAbsolute(), "stool", helmChart().getAbsolute());
+            helm(working, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(kube, toolkit).getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "localtest=http://localhost:31000/api");
             sc(home, "context", "localtest");
         }
@@ -135,11 +148,11 @@ public class MainIT {
         working.deleteTree();
     }
 
-    public static void kubectl(boolean local, String ... cmd) throws IOException {
+    public static void kubectl(FileNode dir, String ... cmd) throws IOException {
         Launcher server;
 
-        try (PrintWriter log = new PrintWriter(itRoot(local).join("server.log").newAppender())) {
-            server = itRoot(local).launcher("kubectl");
+        try (PrintWriter log = new PrintWriter(dir.join("server.log").newAppender())) {
+            server = dir.launcher("kubectl");
             server.arg("--context=" + CONTEXT);
             server.arg(cmd);
             log.write(server.toString() + "\n");
@@ -147,11 +160,11 @@ public class MainIT {
         }
     }
 
-    public void helm(boolean local, String ... cmd) throws IOException {
+    public void helm(FileNode dir, String ... cmd) throws IOException {
         Launcher server;
 
-        try (PrintWriter log = new PrintWriter(itRoot(local).join("server.log").newAppender())) {
-            server = itRoot(local).launcher("helm");
+        try (PrintWriter log = new PrintWriter(dir.join("server.log").newAppender())) {
+            server = dir.launcher("helm");
             server.arg("--kube-context=" + CONTEXT);
             server.arg(cmd);
             log.write(server.toString() + "\n");

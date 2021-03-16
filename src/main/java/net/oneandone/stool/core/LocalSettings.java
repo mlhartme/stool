@@ -265,7 +265,7 @@ public class LocalSettings extends CoreSettings {
     private Toolkit lazyToolkit;
 
 
-    private static final String BUILTIN_TOOLKIT = "stool";
+    public static final String BUILTIN_TOOLKIT = "stool";
 
     public Toolkit toolkit() throws IOException {
         FileNode directory;
