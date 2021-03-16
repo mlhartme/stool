@@ -25,20 +25,20 @@ import java.util.Properties;
 // TODO: does not work in public
 public class TestProperties {
     public static TestProperties load(World world) throws IOException {
+        FileNode file;
         Properties p;
+        String portus;
 
-        p = secrets(world).join("test.properties").readProperties();
-        return new TestProperties(URI.create(get(p, "portus")), p.getProperty("toolkit"));
-    }
-
-    private static String get(Properties p, String name) throws IOException {
-        String value;
-
-        value = p.getProperty(name);
-        if (value == null) {
-            throw new IOException("property not found: " + name);
+        file = world.guessProjectHome(TestProperties.class).join("test.properties");
+        if (!file.exists()) {
+            file = secrets(world).join("test.properties");
+            if (!file.exists()) {
+                throw new IOException("missing test.properties");
+            }
         }
-        return value;
+        p = file.readProperties();
+        portus = p.getProperty("portus");
+        return new TestProperties(portus == null ? null : URI.create(portus), p.getProperty("toolkit"));
     }
 
     private static FileNode secrets(World world) throws IOException {

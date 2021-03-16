@@ -95,16 +95,22 @@ public class MainIT {
     }
 
     public static List<Fixture> fixtures() throws IOException {
+        TestProperties p;
         List<Fixture> result;
         String toolkit;
 
-        toolkit = TestProperties.load(WORLD).toolkit;
+        p = TestProperties.load(WORLD);
+        toolkit = p.toolkit;
         result = new ArrayList<>();
-        result.add(new Fixture(true, LocalSettings.BUILTIN_TOOLKIT));
-        result.add(new Fixture(false, LocalSettings.BUILTIN_TOOLKIT));
-        if (toolkit != null) {
-            result.add(new Fixture(true, toolkit));
-            result.add(new Fixture(false, toolkit));
+        if (p.portus != null) {
+            result.add(new Fixture(true, LocalSettings.BUILTIN_TOOLKIT));
+            result.add(new Fixture(false, LocalSettings.BUILTIN_TOOLKIT));
+            if (toolkit != null) {
+                result.add(new Fixture(true, toolkit));
+                result.add(new Fixture(false, toolkit));
+            }
+        } else { // TODO: because junit complains about empty list
+            result.add(null);
         }
         return result;
     }
@@ -117,6 +123,9 @@ public class MainIT {
         FileNode home;
         String stage;
 
+        if (fixture == null) {
+            return;
+        }
         System.out.println(fixture);
         directionsDir = HOME.join("src/test/data/directions").checkDirectory();
         stage = "de.wq-ta"; // with some special characters

@@ -84,7 +84,11 @@ public class RegistryIT {
         String registryPrefix;
         String repository;
 
-        registryUri = TestProperties.load(WORLD).portus.resolve("it-todo"); // TODO: include hostname in prefix
+        registryUri = TestProperties.load(WORLD).portus;
+        if (registryUri == null) {
+            return;
+        }
+        registryUri = registryUri.resolve("it-todo"); // TODO: include hostname in prefix
         registryPrefix = registryUri.getHost() + registryUri.getPath();
         repository = registryPrefix.substring(registryPrefix.indexOf('/') + 1) + "/registrytest";
         registry = PortusRegistry.create(Json.newJson(), WORLD, registryUri.toString(), "target/portus-wire.log");
@@ -96,21 +100,6 @@ public class RegistryIT {
         try (Daemon docker = Daemon.create(/* "target/registry-wire.log" */ null)) {
             run(docker, registry, registryPrefix, repository, true);
         }
-    }
-
-    @Test // TODO
-    public void portusChart() throws IOException {
-        URI registryUri;
-        PortusRegistry registry;
-        String repository;
-
-        registryUri = TestProperties.load(WORLD).portus.resolve("/");
-        repository = "cisoops-public/charts/kutter";
-        registry = PortusRegistry.create(Json.newJson(), WORLD, registryUri.toString(), "target/portus-wire.log");
-        System.out.println("uri: " + registryUri);
-        System.out.println("repo: " + repository);
-        System.out.println("tags: " + registry.tags(repository));
-        System.out.println("dockerTags: " + registry.helmTags(repository));
     }
 
     private void run(Daemon docker, Registry registry, String registryPrefix, String repository, boolean testDelete) throws IOException {

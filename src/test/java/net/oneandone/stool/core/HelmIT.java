@@ -24,21 +24,26 @@ import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HelmIT {
     @Test
     public void directionsRef() throws IOException {
+        TestProperties p;
         World world;
         PortusRegistry portus;
         FileNode root;
 
         world = World.create();
-        root = world.getTemp().createTempDirectory();
-        root.deleteDirectory(); // I just need a unix name ...
-        portus = PortusRegistry.create(Json.newJson(), world, TestProperties.load(world).portus.resolve("/").toString(), null);
-        Toolkit.resolve(portus, "contargo.server.lan/cisoops-public/libraries/cp", root); // TODO
-        assertTrue(root.isDirectory());
+        p = TestProperties.load(world);
+        if (p.portus != null && p.toolkit != null) {
+            root = world.getTemp().createTempDirectory();
+            root.deleteDirectory(); // I just need a unix name ...
+            portus = PortusRegistry.create(Json.newJson(), world, p.portus.resolve("/").toString(), null);
+            Toolkit.resolve(portus, p.toolkit, root);
+            assertTrue(root.isDirectory());
+        }
     }
 }
