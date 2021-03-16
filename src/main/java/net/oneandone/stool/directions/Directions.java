@@ -149,7 +149,7 @@ public class Directions {
     public static Directions forTest(String name, String... nameValues) {
         Directions result;
 
-        result = new Directions(name, "synthetic", null, "unusedChart", "noVersion");
+        result = new Directions(name, "synthetic", null, null, null);
         for (int i = 0; i < nameValues.length; i += 2) {
             result.addNew(new Direction(nameValues[i], nameValues[i + 1]));
         }
@@ -192,11 +192,14 @@ public class Directions {
     }
 
     public Directions merged(Toolkit toolkit) throws IOException {
-        Directions c;
+        Chart c;
         Directions result;
 
         c = findChart(toolkit);
-        result = new Directions(subject, origin, author, c == null ? null : c.chartOpt, c == null ? null : c.chartVersionOpt);
+        result = new Directions(subject, origin, author, c == null ? null : c.name, c == null ? null : c.version);
+        if (c != null) {
+            c.directions.addMerged(toolkit, result);
+        }
         addMerged(toolkit, result);
         return result;
     }
@@ -221,8 +224,8 @@ public class Directions {
             if (prev.privt) {
                 throw new IllegalStateException("you cannot override private direction: " + direction.name);
             }
-            if (prev.extra || direction.extra) {
-                throw new IllegalStateException("extra direction is not unique: " + direction.name);
+            if (!prev.extra && direction.extra) {
+                throw new IllegalStateException("missing extra modifier for extra direction: " + direction.name);
             }
             if (prev.doc != null && direction.doc == null) {
                 direction = direction.withDoc(prev.doc);
@@ -283,18 +286,18 @@ public class Directions {
         return node;
     }
 
-    public Directions findChart(Toolkit toolkit) throws IOException {
-        Directions result;
-        Directions b;
+    public Chart findChart(Toolkit toolkit) throws IOException {
+        Chart result;
+        Chart other;
 
-        result = chartOpt != null ? this : null;
+        result = chartOpt != null ? toolkit.chart(chartOpt) : null;
         for (String base : bases) {
-            b = toolkit.directions(base).findChart(toolkit);
-            if (b != null) {
-                if (result != null && result != b) {
+            other = toolkit.directions(base).findChart(toolkit);
+            if (other != null) {
+                if (result != null && result != other) {
                     throw new IOException("chart ambiguous");
                 }
-                result = b;
+                result = other;
             }
         }
         return result;

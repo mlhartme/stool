@@ -281,7 +281,7 @@ public class LocalSettings extends CoreSettings {
                 directory = world.file(toolkit).checkDirectory();
                 version = "unknown";
             }
-            lazyToolkit = Toolkit.load(world, yaml, directory, version);
+            lazyToolkit = Toolkit.load(yaml, directory, version);
             lazyToolkit.overrideEnvironment(environment);
         }
         return lazyToolkit;

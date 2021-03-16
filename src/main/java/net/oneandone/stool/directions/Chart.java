@@ -17,11 +17,13 @@ package net.oneandone.stool.directions;
 
 public class Chart {
     public final String name;
+    public final String version;
     public final String reference;
     public final Directions directions;
 
-    public Chart(String name, String reference, Directions directions) {
+    public Chart(String name, String version, String reference, Directions directions) {
         this.name = name;
+        this.version = version;
         this.reference = reference;
         this.directions = directions;
     }

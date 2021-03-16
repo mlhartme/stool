@@ -1,4 +1,4 @@
 DIRECTIONS: "foo"
-EXTENDS: "foo-chart"
+CHART: "foo"
 asis: 42
 base: ""

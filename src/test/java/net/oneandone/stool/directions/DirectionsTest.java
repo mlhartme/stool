@@ -71,7 +71,7 @@ public class DirectionsTest {
                     """);
             fail();
         } catch (IllegalStateException e) {
-            assertEquals("extra direction is not unique: f", e.getMessage());
+            assertEquals("missing extra modifier for extra direction: f", e.getMessage());
         }
     }
 

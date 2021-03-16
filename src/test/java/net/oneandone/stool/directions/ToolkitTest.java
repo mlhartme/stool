@@ -32,13 +32,13 @@ public class ToolkitTest {
     @Test
     public void loadAll() throws IOException {
         Toolkit toolkit;
-        Directions a;
+        Directions d;
 
-        toolkit = Toolkit.load(WORLD, YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/toolkit").checkDirectory(), "");
-        assertEquals(3, toolkit.directionsSize());
-        a = toolkit.directions("derived").merged(toolkit);
-        assertEquals("=42", a.directions.get("asis").expression);
-        assertEquals("=modified", a.directions.get("base").expression);
-        assertEquals("=3", a.directions.get("added").expression);
+        toolkit = Toolkit.load(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/toolkit").checkDirectory(), "");
+        assertEquals(2, toolkit.directionsSize());
+        d = toolkit.directions("derived").merged(toolkit);
+        assertEquals("=42", d.directions.get("asis").expression);
+        assertEquals("=modified", d.directions.get("base").expression);
+        assertEquals("=3", d.directions.get("added").expression);
     }
 }

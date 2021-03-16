@@ -23,7 +23,6 @@ import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Versions;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,7 @@ public class Toolkit {
 
     //--
 
-    public static Toolkit load(World world, ObjectMapper yaml, FileNode directory, String version) throws IOException {
+    public static Toolkit load(ObjectMapper yaml, FileNode directory, String version) throws IOException {
         ObjectNode toolkit;
         Toolkit result;
 
@@ -186,11 +185,10 @@ public class Toolkit {
 
         chartName = directory.getName();
         d = Directions.loadChartDirections(yaml, chartName, version, directory.join("values.yaml"));
-        addChart(new Chart(chartName, directory.getAbsolute(), d));
+        addChart(new Chart(chartName, version, directory.getAbsolute(), d));
     }
 
     public void addChart(Chart chart) throws IOException {
-        addDirections(chart.directions);
         if (charts.put(chart.name, chart) != null) {
             throw new IOException("duplicate chart: " + chart.name);
         }
