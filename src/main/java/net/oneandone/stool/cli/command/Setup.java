@@ -21,21 +21,12 @@ import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Settings;
-import net.oneandone.sushi.fs.ExistsException;
-import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
 public class Setup {
-    public static FileNode cisotools(World world) {
-        String path;
-
-        path = System.getenv("CISOTOOLS_HOME");
-        return path == null ? null : world.file(path);
-    }
-
     private final World world;
     private final FileNode home;
     private final String toolkit;
@@ -65,9 +56,6 @@ public class Setup {
         settings = settings();
         home.mkdir();
         create("lib", lib);
-        if (registryCredentials != null) {
-            settings.local.registryCredentials.putAll(LocalSettings.parseRegistryCredentials(registryCredentials));
-        }
         settings.save(Settings.settingsYaml(home));
         console.info.println("Done - created " + home.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
@@ -104,6 +92,9 @@ public class Setup {
         if (toolkit != null) {
             result.local.toolkit = toolkit;
         }
+        if (registryCredentials != null) {
+            result.local.registryCredentials.putAll(LocalSettings.parseRegistryCredentials(registryCredentials));
+        }
         if (spec != null) {
             idx = spec.indexOf('=');
             if (idx == -1) {
@@ -118,16 +109,9 @@ public class Setup {
     }
 
     private Settings initialSettings() throws IOException {
-        FileNode template;
+        String path;
 
-        template = cisotoolsEnvironment(world);
-        return template == null ? Settings.create(world) : Settings.load(home, template);
-    }
-
-    public static FileNode cisotoolsEnvironment(World world) throws FileNotFoundException, ExistsException {
-        FileNode cisotools;
-
-        cisotools = cisotools(world);
-        return cisotools == null ? null : cisotools.join("stool/environment.yaml").checkFile();
+        path = System.getenv("SC_SETUP_SETTINGS");
+        return path == null ? Settings.create(world) : Settings.load(home, world.file(path).checkFile());
     }
 }
