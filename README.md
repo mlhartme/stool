@@ -1010,12 +1010,6 @@ Get Stool sources with
 
     git clone https://github.com/mlhartme/stool.git
 
-To run the integration tests your need to manually create these namespace: TODO - automate
-
-    stool
-    stool-engine-it
-
-
 Stool has pretty standard Maven build, run
 
     cd stool
@@ -1027,9 +1021,20 @@ The main build result is `target/sc`. Add it to your path and make sure that
 
 print the correct build date.
 
-Next, set it up with
+#### Integration tests
 
-    sc setup
+To run the integration tests:
+
+* touch it.properties to enable integration tests
+* supply `toolkit`
+* supply `portus`
+* create these local namespaces
+  * local
+  * stool
+  * stool-engine-it
+
+Note: you might want to store this file in a different location an create a symlink
+
 
 #### Notes
 
