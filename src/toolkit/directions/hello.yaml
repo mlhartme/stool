@@ -1,4 +1,6 @@
 DIRECTIONS: "hello"
 CHART: "hello"
+metadataComment:  # not actually mandatory, but MainIT modifies this field
+  extra: true
 fqdn:
   expr: stool.fqdn

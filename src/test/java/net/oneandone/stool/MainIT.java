@@ -103,14 +103,15 @@ public class MainIT {
         FileNode home;
         String stage;
 
-        directionsDir = WORLD.guessProjectHome(getClass()).join("src/test/data/directions").checkDirectory();
+        directionsDir = PROJECT_ROOT.join("src/test/data/directions").checkDirectory();
         stage = "de.wq-ta"; // with some special characters
         working = itRoot(kube).join("projects/" + (kube ? "it-kube" : "it-proxy")).mkdirsOpt();
         home = working.join("home").checkNotExists();
         if (kube) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "-toolkit=/Users/mhm/Projects/helmcharts" /* TODO */, "-registryCredentials=" + registryCredentials);
+            sc(home, "setup", "-toolkit=" + PROJECT_ROOT.join("src/toolkit").getAbsolute() /* TODO */,
+                    "-registryCredentials=" + registryCredentials);
             sc(home, "context", "kube-local");
         } else {
             helm(kube, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(kube).getAbsolute(), "stool", helmChart().getAbsolute());
