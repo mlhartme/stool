@@ -21,7 +21,8 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -49,30 +50,6 @@ public class MainIT {
         }
     }
 
-    private static FileNode itRoot(boolean kube, String toolkit) {
-        String tk;
-
-        tk = toolkit.substring(toolkit.lastIndexOf('/') + 1);
-        return PROJECT_ROOT.join("target/it/" + (kube ? "it-kube" : "it-proxy") + "-" + tk);
-
-    }
-
-    private static FileNode serverValues(boolean kube, String toolkit) throws IOException {
-        FileNode file;
-        URI portus;
-        List<String> lines;
-
-        file = itRoot(kube, toolkit).join("values.yaml");
-        portus = Secrets.load(WORLD).portus;
-        lines = new ArrayList<>();
-        lines.add("registryCredentials: " + portus.getHost() + "=" + portus.getUserInfo());
-        if (toolkit != null) {
-            lines.add("toolkit: \"" + toolkit + "\"");
-        }
-        file.writeLines(lines);
-        return file;
-    }
-
     private static FileNode helmChart() throws IOException {
         return PROJECT_ROOT.join("target/helm").checkDirectory();
     }
@@ -80,26 +57,52 @@ public class MainIT {
     public MainIT() {
     }
 
-    @AfterAll
-    public static void afterAll() throws IOException {
-        // TODO: kubectl(true, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
-        // TODO: kubectl(false, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
+    public static class Fixture {
+        public final boolean kube;
+        public final String toolkit;
+
+        public Fixture(boolean kube, String toolkit) {
+            this.kube = kube;
+            this.toolkit = toolkit;
+        }
+
+        public FileNode root() {
+            String tk;
+
+            tk = toolkit.substring(toolkit.lastIndexOf('/') + 1);
+            return PROJECT_ROOT.join("target/it/" + (kube ? "it-kube" : "it-proxy") + "-" + tk);
+        }
+
+        public FileNode serverValues() throws IOException {
+            FileNode file;
+            URI portus;
+            List<String> lines;
+
+            file = root().join("values.yaml");
+            portus = Secrets.load(WORLD).portus;
+            lines = new ArrayList<>();
+            lines.add("registryCredentials: " + portus.getHost() + "=" + portus.getUserInfo());
+            if (toolkit != null) {
+                lines.add("toolkit: \"" + toolkit + "\"");
+            }
+            file.writeLines(lines);
+            return file;
+        }
     }
 
-    @Test
-    public void kubeBuiltin() throws IOException {
-        run(true, LocalSettings.BUILTIN_TOOLKIT);
-    }
+    public static List<Fixture> fixtures() {
+        List<Fixture> result;
 
-    @Test
-    public void proxyBuiltin() throws IOException {
-        run(false, LocalSettings.BUILTIN_TOOLKIT);
+        result = new ArrayList<>();
+        result.add(new Fixture(true, LocalSettings.BUILTIN_TOOLKIT));
+        result.add(new Fixture(false, LocalSettings.BUILTIN_TOOLKIT));
+        return result;
     }
 
     // TODO
     private static final String CP = "contargo.server.lan/cisoops-public/libraries/cp";
 
-    // TODO @Test
+    /* TODO
     public void kubeCp() throws IOException {
         run(true, CP);
     }
@@ -107,9 +110,11 @@ public class MainIT {
     // TODO @Test
     public void proxyCp() throws IOException {
         run(false, CP);
-    }
+    }*/
 
-    private void run(boolean kube, String toolkit) throws IOException {
+    @ParameterizedTest
+    @MethodSource("fixtures")
+    public void run(Fixture fixture) throws IOException {
         FileNode working;
         FileNode directionsDir;
         FileNode home;
@@ -117,16 +122,16 @@ public class MainIT {
 
         directionsDir = PROJECT_ROOT.join("src/test/data/directions").checkDirectory();
         stage = "de.wq-ta"; // with some special characters
-        working = itRoot(kube, toolkit).mkdirsOpt();
+        working = fixture.root().mkdirsOpt();
         home = working.join("home").checkNotExists();
-        if (kube) {
+        if (fixture.kube) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
             sc(home, "setup", "-registryCredentials=" + registryCredentials,
-                    "-toolkit=" + toolkit);
+                    "-toolkit=" + fixture.toolkit);
             sc(home, "context", "kube-local");
         } else {
-            helm(working, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + serverValues(kube, toolkit).getAbsolute(), "stool", helmChart().getAbsolute());
+            helm(working, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + fixture.serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "localtest=http://localhost:31000/api");
             sc(home, "context", "localtest");
         }
@@ -146,6 +151,12 @@ public class MainIT {
         sc(home, "history", stage);
         sc(home, "delete", "-batch", stage);
         working.deleteTree();
+    }
+
+    @AfterAll
+    public static void afterAll() throws IOException {
+        // TODO: kubectl(true, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
+        // TODO: kubectl(false, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
     }
 
     public static void kubectl(FileNode dir, String ... cmd) throws IOException {
