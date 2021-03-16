@@ -21,11 +21,11 @@ import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.cli.Workspace;
 import net.oneandone.stool.directions.DirectionsRef;
+import net.oneandone.stool.util.Misc;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +45,7 @@ public class Create extends ClientCommand {
         this.stageName = stageName;
         this.directionsRef = directionsRef;
         this.workspaceNameOpt = eatWorkspaceNameOpt(args);
-        this.values = new LinkedHashMap<>();
-        values(args);
+        this.values = Misc.assignments(args);
     }
 
     private static String eatWorkspaceNameOpt(List<String> args) {
@@ -62,28 +61,6 @@ public class Create extends ClientCommand {
             }
         }
         return null;
-    }
-
-    /** return name */
-    private void values(List<String> args) {
-        int idx;
-        String arg;
-        String key;
-        String value;
-
-        for (int i = 0; i < args.size(); i++) {
-            arg = args.get(i);
-            idx = arg.indexOf('=');
-            if (idx == -1) {
-                throw new ArgumentException("key=values expected, got " + arg);
-            }
-            key = arg.substring(0, idx);
-            value = arg.substring(idx + 1);
-            if (values.put(key, value) != null) {
-                throw new ArgumentException("duplicate key: " + key);
-            }
-            args.remove(i);
-        }
     }
 
     //--

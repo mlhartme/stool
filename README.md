@@ -263,7 +263,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds dir
 `sc` *global-option*... `version`
 
 
-`sc` *global-option*... `setup` [*spec*]
+`sc` *global-option*... `setup` [*key*`=`*value* ...]
 
 
 `sc` *global-option*... `context` [`-q`][`-offline`][*context*]
@@ -396,17 +396,21 @@ Setup Stool
 
 #### SYNOPSIS
 
-`sc` *global-option*... `setup` [`-toolkit` *toolkit*][`-registryCredentials` *credentials*][*spec*]
+`sc` *global-option*... `setup` [*key*`=`*value* ...]
 
-#### DESCRIPTION
+#### Description
 
 Creates a fresh Stool home directory or reports an error if it already exists. The location of the home directory is configurable with
 the `SC_HOME` environment variable, it defaults to `~/.sc`. The main configuration file inside this directory is `settings.yaml`.
 Stool checks for an environment variable `SC_SETUP_SETTINGS`. If it exists, the referenced file defines the initial settings; otherwise
 default settings are generated.
 
-Use `-toolkit` to configure a different toolkit. Use `-registryCredentials` to supply registry credentials.
-Use *spec* to add a proxy name + api url.
+Use key/values pairs or local settings or proxies.
+
+#### Example
+
+Create a home directory with defaults: `sc setup`
+Create a home directory with a custom toolkit: `sc setup toolkit=/my/path/to/toolkit`
 
 
 ### sc-context
@@ -680,7 +684,7 @@ Display commands invoked on this stage
 
 `sc` *global-option*... `history` *stage*
 
-#### DESCRIPTION
+#### Description
 
 Prints the `sc` commands that affected the stage. Invoke it `-v` to see more details for each invocation.
 
@@ -699,7 +703,7 @@ Attach stage to a workspace
 
 `sc` *global-option*... `attach` *stage* '@'*workspace*
 
-#### DESCRIPTION
+#### Description
 
 Attaches the specified stage to *workspace*. Creates a new workspace if the specified one does not exist.
 
@@ -719,7 +723,7 @@ Detach a stage from a workspace
 
 `sc` *global-option*... `detach` *stage* '@'*workspace*
 
-#### DESCRIPTION
+#### Description
 
 Removes stages from *workspace* without modifying the stage itself. Removes the workspace if it becomes empty.
 
@@ -741,7 +745,7 @@ Display images with labels
 `sc` *global-option*... `images` *repository*
 
 
-#### DESCRIPTION
+#### Description
 
 Display info about the images in the specified repository.
 
@@ -764,7 +768,7 @@ Start port forwarding
 
 `sc` *global-option*... `port-forward` *stage* [*local-port*] *remote-port*
 
-#### DESCRIPTION
+#### Description
 
 Starts port-forwarding of port *local-port* on localhost (default: remote port) to *remote-port* on the currently
 running port of the stage. Reports an error, if the stage is not running.
@@ -786,7 +790,7 @@ Ssh into the running stage
 
 `sc` *global-option*... `ssh` [`-timeout` *minutes*] *stage* [*shell*]
 
-#### DESCRIPTION
+#### Description
 
 Executes an interactive shell in the main container (i.e. the container running the web app) of this stage.
 The default shell is `/bin/sh`. Reports an error if the stage is not running.
@@ -801,7 +805,7 @@ Validate the stage
 
 `sc` *global-option*... `validate` [`-email`] [`-repair`] *stage*
 
-#### DESCRIPTION
+#### Description
 
 Checks if the `metadataExpire` date of the stage has passed. If so, and if
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoRemove days). And

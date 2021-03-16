@@ -15,14 +15,13 @@
  */
 package net.oneandone.stool.cli.command;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
 import net.oneandone.stool.directions.DirectionsRef;
 import net.oneandone.stool.util.Diff;
+import net.oneandone.stool.util.Misc;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class Publish extends IteratedStageCommand {
         this.dryrun = dryrun;
         this.allow = allow;
         this.directionsRefOpt = eatDirectionsRefOpt(directionsAndVariables);
-        this.values = eatValues(directionsAndVariables);
+        this.values = Misc.assignments(directionsAndVariables);
     }
 
     private DirectionsRef eatDirectionsRefOpt(List<String> args) throws IOException {
@@ -45,30 +44,6 @@ public class Publish extends IteratedStageCommand {
             return null;
         }
         return DirectionsRef.create(globals.getWorld(), args.remove(0));
-    }
-
-    private static Map<String, String> eatValues(List<String> args) {
-        Map<String, String> result;
-        int idx;
-        String arg;
-        String key;
-        String value;
-
-        result = new LinkedHashMap<>();
-        for (int i = 0; i < args.size(); i++) {
-            arg = args.get(i);
-            idx = arg.indexOf('=');
-            if (idx == -1) {
-                throw new ArgumentException("expected <key>=<value>, got " + arg);
-            }
-            key = arg.substring(0, idx);
-            value = arg.substring(idx + 1);
-            if (result.put(key, value) != null) {
-                throw new ArgumentException("duplicate key: " + key);
-            }
-            args.remove(i);
-        }
-        return result;
     }
 
     @Override

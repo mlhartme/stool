@@ -15,36 +15,34 @@
  */
 package net.oneandone.stool.cli.command;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Context;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Settings;
+import net.oneandone.stool.util.Misc;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class Setup {
     private final World world;
     private final FileNode home;
-    private final String toolkit;
-    private final String lib;
-    private final String registryCredentials;
+    private final Map<String, String> set;
     private final Console console;
     private final String version;
-    private final String spec;
 
-    public Setup(Globals globals, String toolkit, String lib, String registryCredentials, String spec) {
+    public Setup(Globals globals, List<String> settings) {
         this.world = globals.getWorld();
         this.home = globals.home();
-        this.toolkit = toolkit;
-        this.lib = lib;
-        this.registryCredentials = registryCredentials;
+        this.set = Misc.assignments(settings);
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
-        this.spec = spec;
     }
 
     public void run() throws IOException {
@@ -55,7 +53,7 @@ public class Setup {
         }
         settings = settings();
         home.mkdir();
-        create("lib", lib);
+        settings.local.getLib().mkdir();
         settings.save(Settings.settingsYaml(home));
         console.info.println("Done - created " + home.getAbsolute() + " for Stool version " + version);
         console.info.println("Available contexts:");
@@ -71,39 +69,32 @@ public class Setup {
         console.info.println("  Don't forget to restart your terminal.");
     }
 
-    private void create(String name, String linkTo) throws IOException {
-        FileNode dir;
-
-        dir = home.join(name);
-        if (linkTo != null) {
-            world.file(home, linkTo).checkDirectory().link(dir);
-        } else {
-            dir.mkdir();
-        }
-    }
-
     private Settings settings() throws IOException {
         int idx;
         Settings result;
-        String name;
-        String url;
+        String key;
+        String value;
 
         result = initialSettings();
-        if (toolkit != null) {
-            result.local.toolkit = toolkit;
-        }
-        if (registryCredentials != null) {
-            result.local.registryCredentials.putAll(LocalSettings.parseRegistryCredentials(registryCredentials));
-        }
-        if (spec != null) {
-            idx = spec.indexOf('=');
-            if (idx == -1) {
-                throw new IllegalStateException("missing '=': " + spec);
+        for (Map.Entry<String, String> entry : set.entrySet()) {
+            key = entry.getKey();
+            value = entry.getValue();
+            switch (key) {
+                case "registryCredentials":
+                    result.local.registryCredentials.putAll(LocalSettings.parseRegistryCredentials(entry.getValue()));
+                    break;
+                case "proxies":
+                    idx = value.indexOf('=');
+                    if (idx == -1) {
+                        throw new ArgumentException("proxies: missing '=': " + value);
+                    }
+                    result.proxies.clear();
+                    result.addContext(value.substring(0, idx), value.substring(idx + 1), null);
+                    break;
+                default:
+                    result.local.set(key, entry.getValue());
+                    break;
             }
-            name = spec.substring(0, idx);
-            url = spec.substring(idx + 1);
-            result.proxies.clear();
-            result.addContext(name, url, null);
         }
         return result;
     }

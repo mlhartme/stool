@@ -17,6 +17,7 @@ package net.oneandone.stool.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.kubernetes.Engine;
@@ -173,6 +174,22 @@ public class LocalSettings extends CoreSettings {
             result.append(entry.getKey() + "=" + entry.getValue().left + ":" + entry.getValue().right);
         }
         return result.toString();
+    }
+
+    public void set(String key, String value) {
+        java.lang.reflect.Field field;
+
+        try {
+            field = getClass().getField(key);
+        } catch (NoSuchFieldException e) {
+            throw new ArgumentException("localSetting not found: " + key, e);
+        }
+        field.setAccessible(true);
+        try {
+            field.set(this, value);
+        } catch (IllegalAccessException e) {
+            throw new ArgumentException("cannot set localSetting '" + key + ":" + e.getMessage(), e);
+        }
     }
 
     public FileNode stageLogs(String name) throws MkdirException {

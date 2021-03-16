@@ -124,12 +124,12 @@ public class MainIT {
         if (fixture.kube) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "-registryCredentials=" + registryCredentials,
-                    "-toolkit=" + fixture.toolkit);
+            sc(home, "setup", "registryCredentials=" + registryCredentials,
+                    "toolkit=" + fixture.toolkit);
             sc(home, "context", "kube-local");
         } else {
             helm(working, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + fixture.serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
-            sc(home, "setup", "localtest=http://localhost:31000/api");
+            sc(home, "setup", "proxies=localtest=http://localhost:31000/api");
             sc(home, "context", "localtest");
         }
         sc(home, "list", "%all");
