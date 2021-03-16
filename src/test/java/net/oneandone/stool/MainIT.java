@@ -87,12 +87,12 @@ public class MainIT {
     }
 
     @Test
-    public void kube() throws IOException {
+    public void kubeBuiltin() throws IOException {
         run(true, LocalSettings.BUILTIN_TOOLKIT);
     }
 
-    // TODO @Test
-    public void proxy() throws IOException {
+    @Test
+    public void proxyBuiltin() throws IOException {
         run(false, LocalSettings.BUILTIN_TOOLKIT);
     }
 
