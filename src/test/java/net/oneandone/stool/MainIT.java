@@ -39,19 +39,19 @@ public class MainIT {
     private static final String CONTEXT = "local";
 
     private static final World WORLD;
-    private static final FileNode PROJECT_ROOT;
+    private static final FileNode HOME;
 
     static {
         try {
             WORLD = Main.world();
-            PROJECT_ROOT = WORLD.guessProjectHome(MainIT.class);
+            HOME = WORLD.guessProjectHome(MainIT.class);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
     private static FileNode helmChart() throws IOException {
-        return PROJECT_ROOT.join("target/helm").checkDirectory();
+        return HOME.join("target/helm").checkDirectory();
     }
 
     public MainIT() {
@@ -66,11 +66,15 @@ public class MainIT {
             this.toolkit = toolkit;
         }
 
+        public String toString() {
+            return root().toString();
+        }
+
         public FileNode root() {
             String tk;
 
             tk = toolkit.substring(toolkit.lastIndexOf('/') + 1);
-            return PROJECT_ROOT.join("target/it/" + (kube ? "it-kube" : "it-proxy") + "-" + tk);
+            return HOME.join("target/it/" + (kube ? "kube" : "proxy") + "-" + tk);
         }
 
         public FileNode serverValues() throws IOException {
@@ -90,27 +94,19 @@ public class MainIT {
         }
     }
 
+    // TODO
+    private static final String CP = "contargo.server.lan/cisoops-public/toolkits/cp";
+
     public static List<Fixture> fixtures() {
         List<Fixture> result;
 
         result = new ArrayList<>();
         result.add(new Fixture(true, LocalSettings.BUILTIN_TOOLKIT));
         result.add(new Fixture(false, LocalSettings.BUILTIN_TOOLKIT));
+        result.add(new Fixture(true, CP));
+        result.add(new Fixture(false, CP));
         return result;
     }
-
-    // TODO
-    private static final String CP = "contargo.server.lan/cisoops-public/libraries/cp";
-
-    /* TODO
-    public void kubeCp() throws IOException {
-        run(true, CP);
-    }
-
-    // TODO @Test
-    public void proxyCp() throws IOException {
-        run(false, CP);
-    }*/
 
     @ParameterizedTest
     @MethodSource("fixtures")
@@ -120,7 +116,8 @@ public class MainIT {
         FileNode home;
         String stage;
 
-        directionsDir = PROJECT_ROOT.join("src/test/data/directions").checkDirectory();
+        System.out.println(fixture);
+        directionsDir = HOME.join("src/test/data/directions").checkDirectory();
         stage = "de.wq-ta"; // with some special characters
         working = fixture.root().mkdirsOpt();
         home = working.join("home").checkNotExists();
@@ -150,7 +147,6 @@ public class MainIT {
         sc(home, "validate", stage);
         sc(home, "history", stage);
         sc(home, "delete", "-batch", stage);
-        working.deleteTree();
     }
 
     @AfterAll
