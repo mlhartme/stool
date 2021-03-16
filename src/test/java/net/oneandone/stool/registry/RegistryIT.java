@@ -17,7 +17,7 @@ package net.oneandone.stool.registry;
 
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.util.Secrets;
+import net.oneandone.stool.util.TestProperties;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -84,7 +84,7 @@ public class RegistryIT {
         String registryPrefix;
         String repository;
 
-        registryUri = Secrets.load(WORLD).portus.resolve("it-todo"); // TODO: include hostname in prefix
+        registryUri = TestProperties.load(WORLD).portus.resolve("it-todo"); // TODO: include hostname in prefix
         registryPrefix = registryUri.getHost() + registryUri.getPath();
         repository = registryPrefix.substring(registryPrefix.indexOf('/') + 1) + "/registrytest";
         registry = PortusRegistry.create(Json.newJson(), WORLD, registryUri.toString(), "target/portus-wire.log");
@@ -104,7 +104,7 @@ public class RegistryIT {
         PortusRegistry registry;
         String repository;
 
-        registryUri = Secrets.load(WORLD).portus.resolve("/");
+        registryUri = TestProperties.load(WORLD).portus.resolve("/");
         repository = "cisoops-public/charts/kutter";
         registry = PortusRegistry.create(Json.newJson(), WORLD, registryUri.toString(), "target/portus-wire.log");
         System.out.println("uri: " + registryUri);

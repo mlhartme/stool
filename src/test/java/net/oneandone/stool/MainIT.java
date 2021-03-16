@@ -16,7 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.core.LocalSettings;
-import net.oneandone.stool.util.Secrets;
+import net.oneandone.stool.util.TestProperties;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -83,7 +83,7 @@ public class MainIT {
             List<String> lines;
 
             file = root().join("values.yaml");
-            portus = Secrets.load(WORLD).portus;
+            portus = TestProperties.load(WORLD).portus;
             lines = new ArrayList<>();
             lines.add("registryCredentials: " + portus.getHost() + "=" + portus.getUserInfo());
             if (toolkit != null) {
@@ -94,17 +94,18 @@ public class MainIT {
         }
     }
 
-    // TODO
-    private static final String CP = "contargo.server.lan/cisoops-public/toolkits/cp";
-
-    public static List<Fixture> fixtures() {
+    public static List<Fixture> fixtures() throws IOException {
         List<Fixture> result;
+        String toolkit;
 
+        toolkit = TestProperties.load(WORLD).toolkit;
         result = new ArrayList<>();
         result.add(new Fixture(true, LocalSettings.BUILTIN_TOOLKIT));
         result.add(new Fixture(false, LocalSettings.BUILTIN_TOOLKIT));
-        result.add(new Fixture(true, CP));
-        result.add(new Fixture(false, CP));
+        if (toolkit != null) {
+            result.add(new Fixture(true, toolkit));
+            result.add(new Fixture(false, toolkit));
+        }
         return result;
     }
 
@@ -122,7 +123,7 @@ public class MainIT {
         working = fixture.root().mkdirsOpt();
         home = working.join("home").checkNotExists();
         if (fixture.kube) {
-            URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
+            URI uri = TestProperties.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
             sc(home, "setup", "registryCredentials=" + registryCredentials,
                     "toolkit=" + fixture.toolkit);

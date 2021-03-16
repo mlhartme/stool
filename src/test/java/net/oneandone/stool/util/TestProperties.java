@@ -23,17 +23,12 @@ import java.net.URI;
 import java.util.Properties;
 
 // TODO: does not work in public
-public class Secrets {
-    public static Secrets load(World world) throws IOException {
+public class TestProperties {
+    public static TestProperties load(World world) throws IOException {
         Properties p;
 
-        p = secrets(world).join("secrets.properties").readProperties();
-        return new Secrets(URI.create(get(p, "portus")),
-                get(p, "ldapUnit"),
-                get(p, "ldapUrl"),
-                get(p, "ldapPrincipal"),
-                get(p, "ldapCredentials"),
-                get(p, "ldapSso"));
+        p = secrets(world).join("test.properties").readProperties();
+        return new TestProperties(URI.create(get(p, "portus")), p.getProperty("toolkit"));
     }
 
     private static String get(Properties p, String name) throws IOException {
@@ -46,23 +41,17 @@ public class Secrets {
         return value;
     }
 
-    public static FileNode secrets(World world) throws IOException {
+    private static FileNode secrets(World world) throws IOException {
         return world.getHome().join(".fault/net.oneandone.stool:stool").checkDirectory();
     }
 
     public final URI portus;
-    public final String ldapUnit;
-    public final String ldapUrl;
-    public final String ldapPrincipal;
-    public final String ldapCredentials;
-    public final String ldapSso;
 
-    private Secrets(URI portus, String ldapUnit, String ldapUrl, String ldapPrincipal, String ldapCredentials, String ldapSso) {
+    /** may be null */
+    public final String toolkit;
+
+    private TestProperties(URI portus, String toolkit) {
         this.portus = portus;
-        this.ldapUnit = ldapUnit;
-        this.ldapUrl = ldapUrl;
-        this.ldapPrincipal = ldapPrincipal;
-        this.ldapCredentials = ldapCredentials;
-        this.ldapSso = ldapSso;
+        this.toolkit = toolkit;
     }
 }
