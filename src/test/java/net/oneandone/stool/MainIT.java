@@ -110,7 +110,7 @@ public class MainIT {
         if (kube) {
             URI uri = Secrets.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "-toolkit=" + PROJECT_ROOT.join("src/toolkit").getAbsolute() /* TODO */,
+            sc(home, "setup", "-toolkit=" + PROJECT_ROOT.join("src/main/resources/toolkit").getAbsolute() /* TODO */,
                     "-registryCredentials=" + registryCredentials);
             sc(home, "context", "kube-local");
         } else {
