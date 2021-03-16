@@ -41,6 +41,7 @@ public class TestProperties {
         return new TestProperties(portus == null ? null : URI.create(portus), p.getProperty("toolkit"));
     }
 
+    /** may be null */
     public final URI portus;
 
     /** may be null */
