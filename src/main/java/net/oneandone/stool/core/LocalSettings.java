@@ -97,7 +97,7 @@ public class LocalSettings extends CoreSettings {
         super(yaml, json, home);
 
         this.fqdn = Json.string(local, "fqdn", "localhost");
-        this.toolkit = Json.string(local, "toolkit", defaultToolkit(world));
+        this.toolkit = Json.string(local, "toolkit", BUILTIN_TOOLKIT);
         this.environment = Json.stringMapOpt(local, "environment");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.stageLogs = string(local, "stageLogs", DEFAULT_STAGELOGS);
@@ -119,11 +119,6 @@ public class LocalSettings extends CoreSettings {
     private static final String DEFAULT_KUBERNETES = "http://localhost";
     private static final String DEFAULT_STAGELOGS = "logs";
 
-    private static String defaultToolkit(World world) {
-        // TODO
-        return world.getHome().join("Projects/helmcharts").getAbsolute();
-
-    }
     public LocalSettings(LocalSettings from) throws IOException {
         super(Json.newYaml(), Json.newJson(), World.create().file(from.home.toPath().toFile()));
 
@@ -215,7 +210,7 @@ public class LocalSettings extends CoreSettings {
         if (!registryCredentials.isEmpty()) {
             local.put("registryCredentials", registryCredentialsString());
         }
-        if (!defaultToolkit(world).equals(toolkit)) {
+        if (BUILTIN_TOOLKIT.equals(toolkit)) {
             local.put("toolkit", toolkit);
         }
         if (!admin.isEmpty()) {
@@ -269,12 +264,19 @@ public class LocalSettings extends CoreSettings {
 
     private Toolkit lazyToolkit;
 
+
+    private static final String BUILTIN_TOOLKIT = "stool";
+
     public Toolkit toolkit() throws IOException {
         FileNode directory;
         String version;
 
         if (lazyToolkit == null) {
-            if (!toolkit.startsWith("/")) {
+            if (BUILTIN_TOOLKIT.equals(toolkit)) {
+                directory = getLib().join("toolkit").mkdirsOpt();
+                version = Main.versionString(world);
+                world.resource("toolkit").copyDirectory(directory);
+            } else if (!toolkit.startsWith("/")) {
                 directory = getLib().join("toolkit");
                 version = Toolkit.resolve(createRegistry(toolkit), toolkit, directory);
             } else {
