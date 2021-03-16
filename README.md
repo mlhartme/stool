@@ -396,14 +396,17 @@ Setup Stool
 
 #### SYNOPSIS
 
-`sc` *global-option*... `setup` [*spec*]
+`sc` *global-option*... `setup` [`-toolkit` *toolkit*][`-registryCredentials` *credentials*][*spec*]
 
 #### DESCRIPTION
 
 Creates a fresh Stool home directory or reports an error if it already exists. The location of the home directory is configurable with
 the `SC_HOME` environment variable, it defaults to `~/.sc`. The main configuration file inside this directory is `settings.yaml`.
+Stool checks for an environment variable `SC_SETUP_SETTINGS`. If it exists, the referenced file defines the initial settings; otherwise
+default settings are generated.
 
-Use *spec* to set up a proxy name + api url. If not specified, this is guessed from the local machine (TODO: environment file from cisotools).
+Use `-toolkit` to configure a different toolkit. Use `-registryCredentials` to supply registry credentials.
+Use *spec* to add a proxy name + api url.
 
 
 ### sc-context
