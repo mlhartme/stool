@@ -344,7 +344,7 @@
             </goals>
           </execution>
           <execution>
-            <id>deploy-image</id>
+            <id>push-image</id>
             <phase>deploy</phase>
             <goals>
               <goal>push</goal>

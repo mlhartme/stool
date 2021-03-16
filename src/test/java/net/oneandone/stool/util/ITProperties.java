@@ -23,22 +23,17 @@ import java.net.URI;
 import java.util.Properties;
 
 // TODO: does not work in public
-public class TestProperties {
-    public static TestProperties load(World world) throws IOException {
+public class ITProperties {
+    public static ITProperties load(World world) throws IOException {
         FileNode file;
         Properties p;
         String portus;
 
-        file = world.guessProjectHome(TestProperties.class).join("test.properties");
-        if (!file.exists()) {
-            file = world.getHome().join(".fault/net.oneandone.stool:stool").join("test.properties");
-            if (!file.exists()) {
-                throw new IOException("missing test.properties");
-            }
-        }
+        file = world.guessProjectHome(ITProperties.class).join("it.properties");
+        file.checkExists();
         p = file.readProperties();
         portus = p.getProperty("portus");
-        return new TestProperties(portus == null ? null : URI.create(portus), p.getProperty("toolkit"));
+        return new ITProperties(portus == null ? null : URI.create(portus), p.getProperty("toolkit"));
     }
 
     /** may be null */
@@ -47,7 +42,7 @@ public class TestProperties {
     /** may be null */
     public final String toolkit;
 
-    private TestProperties(URI portus, String toolkit) {
+    private ITProperties(URI portus, String toolkit) {
         this.portus = portus;
         this.toolkit = toolkit;
     }

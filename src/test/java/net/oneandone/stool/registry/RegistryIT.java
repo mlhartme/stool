@@ -17,7 +17,7 @@ package net.oneandone.stool.registry;
 
 import net.oneandone.stool.docker.Daemon;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.util.TestProperties;
+import net.oneandone.stool.util.ITProperties;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -84,7 +84,7 @@ public class RegistryIT {
         String registryPrefix;
         String repository;
 
-        registryUri = TestProperties.load(WORLD).portus;
+        registryUri = ITProperties.load(WORLD).portus;
         if (registryUri == null) {
             return;
         }

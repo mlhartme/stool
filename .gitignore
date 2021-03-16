@@ -1,5 +1,4 @@
 /.idea/
 /stool.iml
 /target/
-/.secrets/
-/test.properties
+/it.properties

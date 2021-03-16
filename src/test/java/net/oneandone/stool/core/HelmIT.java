@@ -18,26 +18,25 @@ package net.oneandone.stool.core;
 import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.util.Json;
-import net.oneandone.stool.util.TestProperties;
+import net.oneandone.stool.util.ITProperties;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HelmIT {
     @Test
     public void directionsRef() throws IOException {
-        TestProperties p;
+        ITProperties p;
         World world;
         PortusRegistry portus;
         FileNode root;
 
         world = World.create();
-        p = TestProperties.load(world);
+        p = ITProperties.load(world);
         if (p.portus != null && p.toolkit != null) {
             root = world.getTemp().createTempDirectory();
             root.deleteDirectory(); // I just need a unix name ...

@@ -16,7 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.core.LocalSettings;
-import net.oneandone.stool.util.TestProperties;
+import net.oneandone.stool.util.ITProperties;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -83,7 +83,7 @@ public class MainIT {
             List<String> lines;
 
             file = root().join("values.yaml");
-            portus = TestProperties.load(WORLD).portus;
+            portus = ITProperties.load(WORLD).portus;
             lines = new ArrayList<>();
             lines.add("registryCredentials: " + portus.getHost() + "=" + portus.getUserInfo());
             if (toolkit != null) {
@@ -95,11 +95,11 @@ public class MainIT {
     }
 
     public static List<Fixture> fixtures() throws IOException {
-        TestProperties p;
+        ITProperties p;
         List<Fixture> result;
         String toolkit;
 
-        p = TestProperties.load(WORLD);
+        p = ITProperties.load(WORLD);
         toolkit = p.toolkit;
         result = new ArrayList<>();
         if (p.portus != null) {
@@ -132,7 +132,7 @@ public class MainIT {
         working = fixture.root().mkdirsOpt();
         home = working.join("home").checkNotExists();
         if (fixture.kube) {
-            URI uri = TestProperties.load(WORLD).portus.resolve("it-todo");
+            URI uri = ITProperties.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
             sc(home, "setup", "registryCredentials=" + registryCredentials,
                     "toolkit=" + fixture.toolkit);
