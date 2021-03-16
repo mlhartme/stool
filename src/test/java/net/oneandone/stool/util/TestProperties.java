@@ -31,7 +31,7 @@ public class TestProperties {
 
         file = world.guessProjectHome(TestProperties.class).join("test.properties");
         if (!file.exists()) {
-            file = secrets(world).join("test.properties");
+            file = world.getHome().join(".fault/net.oneandone.stool:stool").join("test.properties");
             if (!file.exists()) {
                 throw new IOException("missing test.properties");
             }
@@ -39,10 +39,6 @@ public class TestProperties {
         p = file.readProperties();
         portus = p.getProperty("portus");
         return new TestProperties(portus == null ? null : URI.create(portus), p.getProperty("toolkit"));
-    }
-
-    private static FileNode secrets(World world) throws IOException {
-        return world.getHome().join(".fault/net.oneandone.stool:stool").checkDirectory();
     }
 
     public final URI portus;
