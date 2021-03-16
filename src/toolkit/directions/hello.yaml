@@ -1,0 +1,4 @@
+DIRECTIONS: "hello"
+CHART: "hello"
+fqdn:
+  expr: stool.fqdn

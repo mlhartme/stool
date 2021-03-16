@@ -1,0 +1,4 @@
+image: "contargo.server.lan/cisoops-public/hellowar:1.0.0"
+fqdn: "hello-mhm.qacaas.bs.kae.de.iplatform.1and1.org"
+replicas: 1
+

@@ -268,16 +268,17 @@ public class Freemarker {
         Map<String, Object> result;
 
         result = new HashMap<>();
-        for (FileNode script : contextScripts.list()) {
-            final String name = Strings.removeRight(script.checkFile().getName(), ".sh");
-            result.put(name, (TemplateMethodModelEx) list -> {
-                try {
-                    return exec(script, list);
-                } catch (IOException e) {
-                    throw new TemplateModelException(name + ": script failed: " + e.getMessage(), e);
-                }
-            });
-
+        if (contextScripts != null && contextScripts.exists()) {
+            for (FileNode script : contextScripts.list()) {
+                final String name = Strings.removeRight(script.checkFile().getName(), ".sh");
+                result.put(name, (TemplateMethodModelEx) list -> {
+                    try {
+                        return exec(script, list);
+                    } catch (IOException e) {
+                        throw new TemplateModelException(name + ": script failed: " + e.getMessage(), e);
+                    }
+                });
+            }
         }
         return result;
     }

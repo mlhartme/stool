@@ -93,7 +93,7 @@ public final class Helm {
         try {
             LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,
-                    toolkit.scripts, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name, chart.reference);
+                    localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name, chart.reference);
             return result;
         } finally {
             valuesFile.deleteFile();
