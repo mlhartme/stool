@@ -2,6 +2,11 @@
 
 TODO: fix client integration tests
 
+### 5.1.2 (pending)
+
+* adjust for Java 16: remove --illegal-access from client launcher
+
+
 ### 5.1.1 (2020-11-27)
 
 server
