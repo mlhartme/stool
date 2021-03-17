@@ -1023,15 +1023,10 @@ print the correct build date.
 
 #### Integration tests
 
-To run the integration tests:
-
-* touch it.properties to enable integration tests
-* supply `toolkit`
-* supply `portus`
-* create these local namespaces
-  * local
-  * stool
-  * stool-engine-it
+To enable the integration tests: touch `it.properties` and add the following entries
+  * `kubernetes`: context to use for integration tests
+  * `toolkit`: reference to your toolkit
+  * `portus`: Portus registry with credentials to use
 
 Note: you might want to store this file in a different location an create a symlink
 

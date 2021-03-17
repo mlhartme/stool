@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Properties;
 
-// TODO: does not work in public
 public class ITProperties {
     public static ITProperties load(World world) throws IOException {
         FileNode file;
