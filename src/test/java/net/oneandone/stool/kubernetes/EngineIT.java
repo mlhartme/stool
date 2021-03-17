@@ -16,6 +16,8 @@
 package net.oneandone.stool.kubernetes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.oneandone.stool.util.ITProperties;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,8 +31,18 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EngineIT {
+    private static final World WORLD;
+
+    static {
+        try {
+            WORLD = World.create();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private static Engine create() throws IOException {
-        return Engine.createLocal(new ObjectMapper(),"stool-engine-it" /* TODO */);
+        return Engine.createLocal(new ObjectMapper(), ITProperties.load(WORLD).kubernetes);
     }
 
     @BeforeAll

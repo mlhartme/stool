@@ -36,8 +36,6 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Integration tests for the command line.
  */
 public class MainIT {
-    private static final String CONTEXT = "local";
-
     private static final World WORLD;
     private static final FileNode HOME;
 
@@ -58,10 +56,12 @@ public class MainIT {
     }
 
     public static class Fixture {
+        public final String context;
         public final boolean kube;
         public final String toolkit;
 
-        public Fixture(boolean kube, String toolkit) {
+        public Fixture(String context, boolean kube, String toolkit) {
+            this.context = context;
             this.kube = kube;
             this.toolkit = toolkit;
         }
@@ -103,11 +103,11 @@ public class MainIT {
         toolkit = p.toolkit;
         result = new ArrayList<>();
         if (p.portus != null) {
-            result.add(new Fixture(true, LocalSettings.BUILTIN_TOOLKIT));
-            result.add(new Fixture(false, LocalSettings.BUILTIN_TOOLKIT));
+            result.add(new Fixture(p.kubernetes, true, LocalSettings.BUILTIN_TOOLKIT));
+            result.add(new Fixture(p.kubernetes, false, LocalSettings.BUILTIN_TOOLKIT));
             if (toolkit != null) {
-                result.add(new Fixture(true, toolkit));
-                result.add(new Fixture(false, toolkit));
+                result.add(new Fixture(p.kubernetes, true, toolkit));
+                result.add(new Fixture(p.kubernetes, false, toolkit));
             }
         } else { // TODO: because junit complains about empty list
             result.add(null);
@@ -126,7 +126,7 @@ public class MainIT {
         if (fixture == null) {
             return;
         }
-        System.out.println(fixture);
+        System.out.println(fixture + " " + fixture.context);
         directionsDir = HOME.join("src/test/data/directions").checkDirectory();
         stage = "de.wq-ta"; // with some special characters
         working = fixture.root().mkdirsOpt();
@@ -136,9 +136,9 @@ public class MainIT {
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
             sc(home, "setup", "registryCredentials=" + registryCredentials,
                     "toolkit=" + fixture.toolkit);
-            sc(home, "context", "kube-local");
+            sc(home, "context", "kube-" + fixture.context);
         } else {
-            helm(working, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + fixture.serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
+            helm(fixture.context, working, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + fixture.serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "proxies=localtest=http://localhost:31000/api");
             sc(home, "context", "localtest");
         }
@@ -165,24 +165,24 @@ public class MainIT {
         // TODO: kubectl(false, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
     }
 
-    public static void kubectl(FileNode dir, String ... cmd) throws IOException {
+    public static void kubectl(String context, FileNode dir, String ... cmd) throws IOException {
         Launcher server;
 
         try (PrintWriter log = new PrintWriter(dir.join("server.log").newAppender())) {
             server = dir.launcher("kubectl");
-            server.arg("--context=" + CONTEXT);
+            server.arg("--context=" + context);
             server.arg(cmd);
             log.write(server.toString() + "\n");
             server.exec(log);
         }
     }
 
-    public void helm(FileNode dir, String ... cmd) throws IOException {
+    public void helm(String context, FileNode dir, String ... cmd) throws IOException {
         Launcher server;
 
         try (PrintWriter log = new PrintWriter(dir.join("server.log").newAppender())) {
             server = dir.launcher("helm");
-            server.arg("--kube-context=" + CONTEXT);
+            server.arg("--kube-context=" + context);
             server.arg(cmd);
             log.write(server.toString() + "\n");
             server.exec(log);

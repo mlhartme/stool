@@ -33,8 +33,11 @@ public class ITProperties {
         file.checkExists();
         p = file.readProperties();
         portus = p.getProperty("portus");
-        return new ITProperties(portus == null ? null : URI.create(portus), p.getProperty("toolkit"));
+        return new ITProperties(p.getProperty("kubernetes", "stool-it"),
+                portus == null ? null : URI.create(portus), p.getProperty("toolkit"));
     }
+
+    public final String kubernetes;
 
     /** may be null */
     public final URI portus;
@@ -42,7 +45,8 @@ public class ITProperties {
     /** may be null */
     public final String toolkit;
 
-    private ITProperties(URI portus, String toolkit) {
+    private ITProperties(String kubernetes, URI portus, String toolkit) {
+        this.kubernetes = kubernetes;
         this.portus = portus;
         this.toolkit = toolkit;
     }
