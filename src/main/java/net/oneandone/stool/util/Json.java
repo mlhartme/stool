@@ -196,7 +196,7 @@ public final class Json {
             return NullNode.getInstance();
         } else if (value instanceof List) {
             ArrayNode result;
-            List<Object> lst;
+            List lst;
 
             result = json.createArrayNode();
             lst = (List) value;
