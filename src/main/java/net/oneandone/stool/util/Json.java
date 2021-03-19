@@ -211,7 +211,7 @@ public final class Json {
             result = json.createObjectNode();
             map = (Map) value;
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
-                result.put((String) entry.getKey(), valueToJson(json, entry.getValue()));
+                result.set((String) entry.getKey(), valueToJson(json, entry.getValue()));
             }
             return result;
         } else if (value instanceof Integer) {

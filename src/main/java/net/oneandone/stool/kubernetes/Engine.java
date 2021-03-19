@@ -234,7 +234,6 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    /** @return containerId or null */
     public void deploymentDelete(String name) throws IOException {
         try {
             client.apps().deployments().inNamespace(namespace).withName(name).delete();
@@ -344,7 +343,7 @@ public class Engine implements AutoCloseable {
         } catch (KubernetesClientException e) {
             throw wrap(e);
         }
-        podAwait(name, null);
+        podAwait(name, (String) null);
     }
 
     public boolean podContainerRunning(String podName, String containerName) throws IOException {

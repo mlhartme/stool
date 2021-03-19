@@ -98,7 +98,7 @@ public class EngineIT {
             engine.deploymentDelete(name);
             assertEquals(0, engine.deploymentList().size());
 
-            engine.podAwait(pod.name, null);
+            engine.podAwait(pod.name, (String) null);
         }
     }
 }
