@@ -115,7 +115,7 @@ public class Globals {
     public Settings settings() throws IOException {
         Settings result;
 
-        result = Settings.load(home, Settings.settingsYaml(home));
+        result = Settings.load(home, "", Settings.settingsYaml(home));
         if (context != null) {
             result.setCurrentContext(context);
         }

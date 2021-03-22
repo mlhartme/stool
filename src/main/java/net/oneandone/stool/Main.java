@@ -108,7 +108,7 @@ public class Main {
             cli.add(Server.class, "server");
             cli.addDefault(Help.class, "help command?");
             cli.begin("globals.getWorld", ""); cli.begin("globals.getConsole", "");
-              cli.add(Setup.class, "setup settings*");
+              cli.add(Setup.class, "setup -proxyContext= settings*");
               cli.add(Auth.class, "auth -batch");
               cli.add(ConfigContext.class, "context -offline -q name?");
               cli.add(ShellInc.class, "shell-inc");

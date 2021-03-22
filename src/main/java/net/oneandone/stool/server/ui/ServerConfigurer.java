@@ -42,7 +42,7 @@ public class ServerConfigurer implements WebMvcConfigurer {
         Settings result;
 
         LOGGER.info("server version " + Main.versionString(world));
-        result = Settings.load(world);
+        result = Settings.load(world, "");
         LOGGER.info("server configuration:");
         LOGGER.info(result.toYaml().toPrettyString());
         return result.local;

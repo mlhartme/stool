@@ -51,7 +51,8 @@ public class ConfigContext extends ClientCommand {
                 current = found == null ? null : found.name;
                 for (String name : settings.contexts().keySet()) {
                     console.info.print(name.equals(current) ? "=> " : "   ");
-                    console.info.println(name);
+                    console.info.print(name);
+                    console.info.println(found.isKube() ? " (Kubernetes)" : "");
                 }
             }
         } else {

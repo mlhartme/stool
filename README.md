@@ -128,9 +128,8 @@ It's safe to use `helm uninstall` instead of `sc delete`.
 A *context* specifies a place that can host stages together with the necessary authentication. Stool supports Kubernetes
 contexts and proxy contexts.
 
-Use Kubernetes contexts if you have direct access to Kubernetes. `~/.kube/config` defines Kubernetes contexts, each specified
-with a name and a cluster url. Stool reads this file an prefixes all name with `-kube` to avoid naming clashes with proxy
-context.
+Use Kubernetes contexts if you have direct access to Kubernetes. `~/.kube/config` defines the available Kubernetes contexts,
+each specified with a name and a cluster url.
 
 A proxy context has a name, an optional token, and a URL pointing to a Stool server. It's to give restricted access to Kubernetes
 only, and to centrally manage Stool settings. `sc` manages a list of proxy contexts in its settings.
@@ -396,14 +395,14 @@ Setup Stool
 
 #### SYNOPSIS
 
-`sc` *global-option*... `setup` [*key*`=`*value* ...]
+`sc` *global-option*... `setup` [`-proxyPrefix` *prefix*][*key*`=`*value* ...]
 
 #### DESCRIPTION
 
 Creates a fresh Stool home directory or reports an error if it already exists. The location of the home directory is configurable with
 the `SC_HOME` environment variable, it defaults to `~/.sc`. The main configuration file inside this directory is `settings.yaml`.
-Stool checks for an environment variable `SC_SETUP_SETTINGS`. If it exists, the referenced file defines the initial settings; otherwise
-default settings are generated.
+Stool checks for an environment variable `SC_SETUP_SETTINGS`. If it exists, the referenced file defines the initial settings (using *prefix*
+to prefix all proxy names (default is ""). Otherwise, default settings are generated.
 
 Use key/values pairs or local settings or proxies.
 

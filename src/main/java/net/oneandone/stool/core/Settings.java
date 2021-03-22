@@ -30,14 +30,14 @@ import java.util.Map;
  * Global configuration, represents settings.yaml
  */
 public class Settings {
-    public static Settings load(World world) throws IOException {
+    public static Settings load(World world, String proxyPrefix) throws IOException {
         FileNode home;
 
         home = Settings.home(world);
-        return Settings.load(home, Settings.settingsYaml(home));
+        return Settings.load(home, proxyPrefix, Settings.settingsYaml(home));
     }
 
-    public static Settings load(FileNode home, FileNode file) throws IOException {
+    public static Settings load(FileNode home, String proxyPrefix, FileNode file) throws IOException {
         ObjectMapper yaml;
         ObjectNode settings;
         Settings result;
@@ -49,7 +49,7 @@ public class Settings {
         try (Reader src = file.newReader()) {
             settings = (ObjectNode) yaml.readTree(src);
         }
-        result = new Settings(yaml, Json.newJson(), home, settings);
+        result = new Settings(yaml, Json.newJson(), home, proxyPrefix, settings);
         result.local.validate();
         return result;
     }
@@ -59,7 +59,7 @@ public class Settings {
         Settings result;
 
         yaml = Json.newYaml();
-        result = new Settings(yaml, Json.newJson(), home(world), yaml.createObjectNode());
+        result = new Settings(yaml, Json.newJson(), home(world), "", yaml.createObjectNode());
         result.local.validate();
         return result;
     }
@@ -84,7 +84,7 @@ public class Settings {
     public final LocalSettings local;
     public final Map<String, Context> proxies;
 
-    public Settings(ObjectMapper yaml, ObjectMapper json, FileNode home, ObjectNode settings) {
+    public Settings(ObjectMapper yaml, ObjectMapper json, FileNode home, String proxyPrefix, ObjectNode settings) {
         ObjectNode localNode;
 
         this.loglevel = Json.string(settings, "loglevel", "ERROR");
@@ -94,10 +94,10 @@ public class Settings {
             localNode = yaml.createObjectNode();
         }
         this.local = new LocalSettings(yaml, json, home, localNode);
-        this.proxies = parseProxies((ArrayNode) settings.get("proxies"));
+        this.proxies = parseProxies(proxyPrefix, (ArrayNode) settings.get("proxies"));
     }
 
-    private static Map<String, Context> parseProxies(ArrayNode proxiesOpt) {
+    private static Map<String, Context> parseProxies(String proxyPrefix, ArrayNode proxiesOpt) {
         Context context;
         Iterator<JsonNode> iter;
         JsonNode one;
@@ -108,7 +108,7 @@ public class Settings {
             iter = proxiesOpt.elements();
             while (iter.hasNext()) {
                 one = iter.next();
-                context = Context.fromProxyYaml(one);
+                context = Context.fromProxyYaml(proxyPrefix, one);
                 result.put(context.name, context);
             }
         }

@@ -33,13 +33,15 @@ import java.util.Map;
 public class Setup {
     private final World world;
     private final FileNode home;
+    private final String proxyPrefix;
     private final Map<String, String> set;
     private final Console console;
     private final String version;
 
-    public Setup(Globals globals, List<String> settings) {
+    public Setup(Globals globals, String proxyPrefix, List<String> settings) {
         this.world = globals.getWorld();
         this.home = globals.home();
+        this.proxyPrefix = proxyPrefix;
         this.set = Misc.assignments(settings);
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
@@ -96,6 +98,11 @@ public class Setup {
                     break;
             }
         }
+        try {
+            result.contexts();
+        } catch (ArgumentException e) {
+            throw new ArgumentException(e.getMessage() + "\nTry -proxy-prefix", e);
+        }
         return result;
     }
 
@@ -103,6 +110,6 @@ public class Setup {
         String path;
 
         path = System.getenv("SC_SETUP_SETTINGS");
-        return path == null ? Settings.create(world) : Settings.load(home, world.file(path).checkFile());
+        return path == null ? Settings.create(world) : Settings.load(home, proxyPrefix, world.file(path).checkFile());
     }
 }

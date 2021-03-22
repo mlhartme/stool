@@ -51,7 +51,7 @@ public class Context {
         return new Context(name, KUBE_SCHEME + name, null);
     }
 
-    public static Context fromProxyYaml(JsonNode obj) {
+    public static Context fromProxyYaml(String proxyPrefix, JsonNode obj) {
         String token;
         String url;
         String name;
@@ -66,7 +66,7 @@ public class Context {
             throw new IllegalArgumentException(url);
         }
         name = obj.get("name").asText();
-        return new Context(name, url, token);
+        return new Context(proxyPrefix + name, url, token);
     }
 
     public final String name;
