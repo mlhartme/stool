@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.fabric8.kubernetes.api.model.NamedContext;
-import io.fabric8.kubernetes.client.Config;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.cli.Client;
@@ -122,22 +120,13 @@ public class Settings {
     public Map<String, Context> contexts() {
         Map<String, Context> result;
 
-        result = kubeContexts();
-        result.putAll(proxies);
-        return result;
-    }
-
-    private Map<String, Context> kubeContexts() {
-        Config config;
-        Map<String, Context> result;
-        Context context;
-
-        result = new LinkedHashMap<>();
-        config = Config.autoConfigure(null);
-        for (NamedContext c : config.getContexts()) {
-            context = Context.fromKube(c);
-            result.put(context.name, context);
+        result = Context.loadKube();
+        for (String name : proxies.keySet()) {
+            if (result.containsKey(name)) {
+                throw new ArgumentException("proxy context name clashes with kubernetes context name: " + name);
+            }
         }
+        result.putAll(proxies);
         return result;
     }
 

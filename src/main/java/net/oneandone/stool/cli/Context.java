@@ -19,22 +19,36 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.NamedContext;
-import net.oneandone.inline.ArgumentException;
+import io.fabric8.kubernetes.client.Config;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Context {
-    private static final String KUBE_CONTEXT_PREFIX = "kube-";
     private static final String KUBE_SCHEME = "kube:";
 
+    public static Map<String, Context> loadKube() {
+        Config config;
+        Map<String, Context> result;
+        Context context;
+
+        result = new LinkedHashMap<>();
+        config = Config.autoConfigure(null);
+        for (NamedContext c : config.getContexts()) {
+            context = Context.fromKube(c);
+            result.put(context.name, context);
+        }
+        return result;
+    }
 
     public static Context fromKube(NamedContext context) {
         String name;
 
         name = context.getName();
-        return new Context(KUBE_CONTEXT_PREFIX + name, KUBE_SCHEME + name, null);
+        return new Context(name, KUBE_SCHEME + name, null);
     }
 
     public static Context fromProxyYaml(JsonNode obj) {
@@ -52,9 +66,6 @@ public class Context {
             throw new IllegalArgumentException(url);
         }
         name = obj.get("name").asText();
-        if (name.startsWith(KUBE_CONTEXT_PREFIX)) {
-            throw new ArgumentException("proxy context name may not start with '" + KUBE_CONTEXT_PREFIX + "'");
-        }
         return new Context(name, url, token);
     }
 
