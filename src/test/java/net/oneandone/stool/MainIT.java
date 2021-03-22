@@ -134,9 +134,8 @@ public class MainIT {
         if (fixture.kube) {
             URI uri = ITProperties.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "registryCredentials=" + registryCredentials,
-                    "toolkit=" + fixture.toolkit);
-            sc(home, "context", "kube-" + fixture.context);
+            sc(home, "setup", "registryCredentials=" + registryCredentials, "toolkit=" + fixture.toolkit, "proxies=");
+            sc(home, "context", fixture.context);
         } else {
             helm(fixture.context, working, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + fixture.serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "proxies=localtest=http://localhost:31000/api");

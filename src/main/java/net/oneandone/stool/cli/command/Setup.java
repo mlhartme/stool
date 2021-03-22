@@ -25,6 +25,7 @@ import net.oneandone.stool.core.Settings;
 import net.oneandone.stool.util.Misc;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.List;
@@ -86,12 +87,14 @@ public class Setup {
                     result.local.registryCredentials.putAll(LocalSettings.parseRegistryCredentials(entry.getValue()));
                     break;
                 case "proxies":
-                    idx = value.indexOf('=');
-                    if (idx == -1) {
-                        throw new ArgumentException("proxies: missing '=': " + value);
-                    }
                     result.proxies.clear();
-                    result.addContext(value.substring(0, idx), value.substring(idx + 1), null);
+                    for (String one : Separator.COMMA.split(value)) {
+                        idx = one.indexOf('=');
+                        if (idx == -1) {
+                            throw new ArgumentException("proxies: missing '=': " + one);
+                        }
+                        result.addContext(one.substring(0, idx), one.substring(idx + 1), null);
+                    }
                     break;
                 default:
                     result.local.set(key, entry.getValue());
@@ -101,7 +104,7 @@ public class Setup {
         try {
             result.contexts();
         } catch (ArgumentException e) {
-            throw new ArgumentException(e.getMessage() + "\nTry -proxy-prefix", e);
+            throw new ArgumentException(e.getMessage() + "\nTry '-proxyPrefix proxy-'", e);
         }
         return result;
     }

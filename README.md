@@ -262,7 +262,7 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds dir
 `sc` *global-option*... `version`
 
 
-`sc` *global-option*... `setup` [*key*`=`*value* ...]
+`sc` *global-option*... `setup` [`-proxyPrefix` *prefix*][*key*`=`*value* ...]
 
 
 `sc` *global-option*... `context` [`-q`][`-offline`][*context*]

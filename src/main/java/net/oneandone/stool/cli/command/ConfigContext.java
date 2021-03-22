@@ -49,10 +49,10 @@ public class ConfigContext extends ClientCommand {
             } else {
                 found = settings.currentContextOptWarn(console.info);
                 current = found == null ? null : found.name;
-                for (String name : settings.contexts().keySet()) {
-                    console.info.print(name.equals(current) ? "=> " : "   ");
-                    console.info.print(name);
-                    console.info.println(found.isKube() ? " (Kubernetes)" : "");
+                for (Context context : settings.contexts().values()) {
+                    console.info.print(context.name.equals(current) ? "=> " : "   ");
+                    console.info.print(context.name);
+                    console.info.println(context.isKube() ? " (Kubernetes)" : "");
                 }
             }
         } else {
