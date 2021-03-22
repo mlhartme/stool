@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - oraclejdk8
+  - openjdk15
 before_install:
   - sudo apt-get install -qq ruby
   - gem install ronn
