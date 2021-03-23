@@ -97,7 +97,7 @@ public class Stage {
         mergedInstance = Directions.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.MERGED_INSTANCE_DIRECTIONS_VALUE));
         config = Directions.loadLiteral(mergedInstance.origin, mergedInstance.author,
                 (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.CONFIG_DIRECTIONS_VALUE));
-        return new Stage(localSettings, name, localSettings.toolkit().merge(mergedInstance, config),
+        return new Stage(localSettings, name, mergedInstance, config,
                 loadVariables(mergedInstance /* config just adds values, so it's safe to pass instance only here*/,
                 helmObject), (ObjectNode) helmObject.get("info"), history);
     }
@@ -131,7 +131,8 @@ public class Stage {
      */
     private final String name;
 
-    public final Directions directions;
+    public final Directions mergedInstanceDirections;
+    public final Directions configDirections;
 
     private final Map<String, Variable> variables;
 
@@ -139,10 +140,12 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(LocalSettings localSettings, String name, Directions directions, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(LocalSettings localSettings, String name, Directions mergedInstanceDirections, Directions configDirections,
+                 Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
         this.localSettings = localSettings;
         this.name = name;
-        this.directions = directions;
+        this.mergedInstanceDirections = mergedInstanceDirections;
+        this.configDirections = configDirections;
         this.variables = variables;
         this.info = info;
         this.history = history;
@@ -272,19 +275,19 @@ public class Stage {
         fields.add(new Field("chart") {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.directions.chartOpt + ":" + Stage.this.directions.chartVersionOpt;
+                return Stage.this.mergedInstanceDirections.chartOpt + ":" + Stage.this.mergedInstanceDirections.chartVersionOpt;
             }
         });
         fields.add(new Field("directions", true) {
             @Override
-            public Object get(Engine engine) {
-                return Stage.this.directions.toObject(localSettings.yaml).toPrettyString();
+            public Object get(Engine engine) throws IOException {
+                return mergedConfigDirections().toObject(localSettings.yaml).toPrettyString();
             }
         });
         fields.add(new Field("origin", true) {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.directions.origin;
+                return Stage.this.mergedInstanceDirections.origin;
             }
         });
         return fields;
@@ -330,10 +333,14 @@ public class Stage {
         prev = valuesMap();
         overrides = new LinkedHashMap<>(prev); // override all, do not compute any values
         overrides.putAll(changes);
-        Helm.upgrade(kubeContext, localSettings, name, false, null, directions, overrides, prev);
+        Helm.upgrade(kubeContext, localSettings, name, false, null, mergedConfigDirections(), overrides, prev);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
+    }
+
+    public Directions mergedConfigDirections() throws IOException {
+        return localSettings.toolkit().merge(mergedInstanceDirections, configDirections);
     }
 
     private void saveHistory(Engine engine) throws IOException {
