@@ -157,6 +157,14 @@ public class Directions {
         return result;
     }
 
+    public static Directions configDirections(Map<String, String> overrides) {
+        Directions result;
+
+        result = new Directions("config", "TODO", "TODO", null, null);
+        result.setValues(overrides);
+        return result;
+    }
+
     //--
 
     public final String subject;

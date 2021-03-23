@@ -71,8 +71,7 @@ public final class Helm {
         }
         LOGGER.info("chart: " + instanceMerged.chartOpt + ":" + instanceMerged.chartVersionOpt);
         freemarker = toolkit.freemarker(localSettings.getLib(), name, localSettings.fqdn);
-        configDirections = new Directions("config", "TODO", "TODO", null, null);
-        configDirections.setValues(overrides);
+        configDirections = Directions.configDirections(overrides);
         toolkit = localSettings.toolkit();
         configMerged = instanceMerged.clone();
         configDirections.addMerged(toolkit, configMerged);
@@ -85,7 +84,7 @@ public final class Helm {
             }
         }
         // wipe private keys
-        for (Direction direction : configDirections.directions.values()) {
+        for (Direction direction : instanceMerged.directions.values()) {
             if (direction.priv) {
                 result.remove(direction.name);
             }
