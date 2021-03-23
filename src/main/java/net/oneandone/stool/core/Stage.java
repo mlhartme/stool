@@ -54,7 +54,7 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(kubeContext, localSettings, stageName, directionsRef, values);
+        Helm.install(kubeContext, localSettings, stageName, directionsRef, Directions.configDirections(values));
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
