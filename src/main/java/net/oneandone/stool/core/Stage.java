@@ -334,7 +334,7 @@ public class Stage {
 
         nextConfig = configDirections.clone();
         nextConfig.setValues(changes);
-        Helm.upgrade(kubeContext, localSettings, name, false, null, mergedConfigDirections(), nextConfig, valuesMap());
+        Helm.upgrade(kubeContext, localSettings, name, false, null, mergedInstanceDirections, nextConfig, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
