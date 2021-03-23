@@ -280,8 +280,14 @@ public class Stage {
         });
         fields.add(new Field("directions", true) {
             @Override
-            public Object get(Engine engine) throws IOException {
-                return mergedConfigDirections().toObject(localSettings.yaml).toPrettyString();
+            public Object get(Engine engine) {
+                return mergedInstanceDirections.toObject(localSettings.yaml).toPrettyString();
+            }
+        });
+        fields.add(new Field("config", true) {
+            @Override
+            public Object get(Engine engine) {
+                return configDirections.toObject(localSettings.yaml).toPrettyString();
             }
         });
         fields.add(new Field("origin", true) {
@@ -338,10 +344,6 @@ public class Stage {
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
-    }
-
-    public Directions mergedConfigDirections() throws IOException {
-        return localSettings.toolkit().merge(mergedInstanceDirections, configDirections);
     }
 
     private void saveHistory(Engine engine) throws IOException {

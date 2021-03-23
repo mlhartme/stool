@@ -120,14 +120,6 @@ public class Toolkit {
         this.scripts = scripts;
     }
 
-    public Directions merge(Directions instanceMerged, Directions config) throws IOException {
-        Directions result;
-
-        result = instanceMerged.clone();
-        config.addMerged(this, result);
-        return result;
-    }
-
     public void overrideEnvironment(Map<String, String> overrides) {
         String key;
 
