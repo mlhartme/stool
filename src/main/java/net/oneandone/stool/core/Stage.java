@@ -44,7 +44,7 @@ import java.util.Map;
 
 /**
  * A short-lived object, created for one request, discarded afterwards - caches results for performance.
- * CAUTION: has to be reloaed to reflect e.g. value changes.
+ * CAUTION: has to be reloaded to reflect e.g. value changes.
  */
 public class Stage {
     public static Stage create(Caller caller, String kubeContext, Engine engine, LocalSettings localSettings, String stageName,
