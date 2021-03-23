@@ -32,7 +32,8 @@ import java.util.Map;
 
 public class Directions {
     // this value is added to track the stage directions used
-    public static final String DIRECTIONS_VALUE = "_directions";
+    public static final String MERGED_INSTANCE_DIRECTIONS_VALUE = "_merge_instance_directions";
+    public static final String CONFIG_DIRECTIONS_VALUE = "_config_directions";
 
     /** loads the directions implicitly defined by a chart */
     public static Directions loadChartDirections(ObjectMapper yaml, String name, String version, FileNode valuesYaml) throws IOException {

@@ -90,13 +90,18 @@ public class Stage {
 
 
     public static Stage create(LocalSettings localSettings, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
-        Directions cl;
+        Directions mergedInstance;
+        Directions config;
+        Directions merged;
 
-        cl = Directions.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.DIRECTIONS_VALUE));
-        return new Stage(localSettings, name, cl, loadVariables(cl, helmObject), (ObjectNode) helmObject.get("info"), history);
+        mergedInstance = Directions.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.MERGED_INSTANCE_DIRECTIONS_VALUE));
+        config = Directions.loadLiteral(mergedInstance.origin, mergedInstance.author,
+                (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.CONFIG_DIRECTIONS_VALUE));
+        merged = localSettings.toolkit().merge(mergedInstance, config);
+        return new Stage(localSettings, name, merged, loadVariables(merged, helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
-    private static Map<String, Variable> loadVariables(Directions directions, ObjectNode helmObject) throws IOException {
+    private static Map<String, Variable> loadVariables(Directions directions, ObjectNode helmObject) {
         Map<String, Object> raw;
         Map<String, Variable> result;
         String key;

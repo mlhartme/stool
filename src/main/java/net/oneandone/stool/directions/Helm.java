@@ -85,12 +85,12 @@ public final class Helm {
             }
         }
         // wipe private keys
-        for (Direction property : configDirections.directions.values()) {
-            if (property.privt) {
-                result.remove(property.name);
+        for (Direction direction : configDirections.directions.values()) {
+            if (direction.privt) {
+                result.remove(direction.name);
             }
         }
-        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, configMerged);
+        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, instanceMerged, configDirections);
         try {
             LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,
@@ -102,7 +102,7 @@ public final class Helm {
         }
     }
 
-    private static FileNode createValuesFile(ObjectMapper yaml, World world, Map<String, String> actuals, Directions directions) throws IOException {
+    private static FileNode createValuesFile(ObjectMapper yaml, World world, Map<String, String> actuals, Directions instance, Directions config) throws IOException {
         ObjectNode dest;
         Expire expire;
         FileNode file;
@@ -113,7 +113,8 @@ public final class Helm {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(Directions.DIRECTIONS_VALUE, directions.toObject(yaml));
+        dest.set(Directions.MERGED_INSTANCE_DIRECTIONS_VALUE, instance.toObject(yaml));
+        dest.set(Directions.CONFIG_DIRECTIONS_VALUE, config.toObject(yaml));
 
         // check expire - TODO: ugly up reference to core package
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
