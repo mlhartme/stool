@@ -45,23 +45,18 @@ public class EngineIT {
         return Engine.createLocal(new ObjectMapper(), ITProperties.load(WORLD).kubernetes);
     }
 
-    @BeforeAll
-    public static void beforeAll() throws IOException {
-        Engine engine;
-
-        engine = create();
-        engine.namespaceReset();
-    }
-
     @Test
     public void podImplicitHostname() throws IOException {
+        String name = "podimplicit";
+
         try (Engine engine = create()) {
+            engine.podDeleteOpt(name);
             assertFalse(engine.isOpenShift());
-            assertFalse(engine.podCreate("podimplicit", "debian:stretch-slim", new String[] { "hostname" },
+            assertFalse(engine.podCreate(name, "debian:stretch-slim", new String[] { "hostname" },
                     null, false, Strings.toMap()));
-            assertEquals(false, engine.podContainerRunning("podimplicit", "noname"));
-            assertEquals("podimplicit" + "\n", engine.podLogs("podimplicit"));
-            engine.podDelete("podimplicit");
+            assertEquals(false, engine.podContainerRunning(name, "noname"));
+            assertEquals(name + "\n", engine.podLogs(name));
+            engine.podDelete(name);
         }
     }
 
@@ -72,11 +67,15 @@ public class EngineIT {
         DeploymentInfo info;
         Map<String, PodInfo> pods;
         PodInfo pod;
+        int initialDeployments;
 
         try (Engine engine = create()) {
+            engine.deploymentDeleteOpt(name);
+            engine.deploymentAwaitGone(name);
+
             assertNull(engine.deploymentProbe("nosuchdeployment"));
 
-            assertEquals(0, engine.deploymentList().size());
+            initialDeployments = engine.deploymentList().size();
             engine.deploymentCreate(name, Strings.toMap("app", "foo"), Strings.toMap(),
                     "debian:stretch-slim", new String[] { "sleep", "1000" },
                     null, Strings.toMap("app", "foo"));
@@ -84,7 +83,7 @@ public class EngineIT {
 
             map = engine.deploymentList();
 
-            assertEquals(1, map.size());
+            assertEquals(initialDeployments + 1, map.size());
             info = map.get(name);
             assertEquals(name, info.name);
             assertEquals(1, info.statusAvailable);
@@ -96,8 +95,7 @@ public class EngineIT {
             assertTrue(pod.isRunning());
 
             engine.deploymentDelete(name);
-            assertEquals(0, engine.deploymentList().size());
-
+            assertEquals(initialDeployments, engine.deploymentList().size());
             engine.podAwait(pod.name, (String) null);
         }
     }

@@ -137,20 +137,6 @@ public class Engine implements AutoCloseable {
         client.close();
     }
 
-    //-- namespace
-
-    public void namespaceReset() throws IOException {
-        for (DeploymentInfo deployment : deploymentList().values()) {
-            System.out.println("delete deployment: " + deployment.name);
-            deploymentDelete(deployment.name);
-        }
-        for (PodInfo pod: podList().values()) {
-            System.out.println("delete pod: " + pod.name);
-            podDelete(pod.name);
-        }
-    }
-
-
     //-- deployments
 
     public Map<String, DeploymentInfo> deploymentList() throws IOException {
@@ -231,6 +217,15 @@ public class Engine implements AutoCloseable {
             client.apps().deployments().inNamespace(namespace).create(deployment(name, selector, deploymentLabels, image, command, hostname, podLabels));
         } catch (KubernetesClientException e) {
             throw wrap(e);
+        }
+    }
+
+    public boolean deploymentDeleteOpt(String name) throws IOException {
+        try {
+            deploymentDelete(name);
+            return true;
+        } catch (FileNotFoundException e) {
+            return false;
         }
     }
 
@@ -337,6 +332,14 @@ public class Engine implements AutoCloseable {
         return "Running".equals(phase);
     }
 
+    public boolean podDeleteOpt(String name) throws IOException {
+        try {
+            podDelete(name);
+            return true;
+        } catch (FileNotFoundException e) {
+            return false;
+        }
+    }
     public void podDelete(String name) throws IOException {
         try {
             client.pods().inNamespace(namespace).withName(name).delete();
