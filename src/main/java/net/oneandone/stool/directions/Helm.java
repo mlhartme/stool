@@ -55,27 +55,28 @@ public final class Helm {
                              Directions origDirections, Map<String, String> overrides, Map<String, String> prev)
             throws IOException {
         Toolkit toolkit;
-        Directions directions;
+        Directions instanceMerged;
         Freemarker freemarker;
-        Chart chart;
         FileNode valuesFile;
         Directions configDirections;
+        Directions configMerged;
         Map<String, String> values;
         Diff result;
         Diff forbidden;
 
         toolkit = localSettings.toolkit();
-        directions = origDirections.merged(toolkit);
-        if (directions.chartOpt == null) {
-            throw new IOException("directions without chart: " + directions.subject);
+        instanceMerged = origDirections.merged(toolkit);
+        if (instanceMerged.chartOpt == null) {
+            throw new IOException("directions without chart: " + instanceMerged.subject);
         }
-        LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
+        LOGGER.info("chart: " + instanceMerged.chartOpt + ":" + instanceMerged.chartVersionOpt);
         freemarker = toolkit.freemarker(localSettings.getLib(), name, localSettings.fqdn);
-        configDirections = directions.merged(toolkit);
+        configDirections = new Directions("config", "TODO", "TODO", null, null);
         configDirections.setValues(overrides);
         toolkit = localSettings.toolkit();
-        chart = toolkit.chart(configDirections.chartOpt);
-        values = freemarker.eval(prev, configDirections, toolkit.scripts);
+        configMerged = instanceMerged.clone();
+        configDirections.addMerged(toolkit, configMerged);
+        values = freemarker.eval(prev, configMerged, toolkit.scripts);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -89,11 +90,12 @@ public final class Helm {
                 result.remove(property.name);
             }
         }
-        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, configDirections);
+        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, configMerged);
         try {
             LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,
-                    localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name, chart.reference);
+                    localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name,
+                    toolkit.chart(configMerged.chartOpt).reference);
             return result;
         } finally {
             valuesFile.deleteFile();

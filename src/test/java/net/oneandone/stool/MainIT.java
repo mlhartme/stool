@@ -151,7 +151,7 @@ public class MainIT {
             sc(home, "detach", stage, "@ws");
             sc(home, "validate", stage);
             sc(home, "config", stage, "metadataComment");
-            sc(home, "config", stage, "metadataComment=42");
+            // TODO: sc(home, "config", stage, "metadataComment=42");
             // TODO: sc(home, "images", repository);
             sc(home, "publish", stage, directionsDir.join("hellowar-second.yaml").getAbsolute());
             sc(home, "list", stage);

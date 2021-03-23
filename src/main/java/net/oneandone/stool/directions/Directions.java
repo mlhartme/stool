@@ -166,7 +166,7 @@ public class Directions {
     public final List<String> bases;
     public final Map<String, Direction> directions;
 
-    private Directions(String subject, String origin, String author, String chartOpt, String chartVersionOpt) {
+    public Directions(String subject, String origin, String author, String chartOpt, String chartVersionOpt) {
         this.subject = subject;
         this.origin = origin;
         this.author = author;
@@ -174,6 +174,15 @@ public class Directions {
         this.chartVersionOpt = chartVersionOpt;
         this.bases = new ArrayList<>();
         this.directions = new LinkedHashMap<>();
+    }
+
+    public Directions clone() {
+        Directions result;
+
+        result = new Directions(subject, origin, author, chartOpt, chartVersionOpt);
+        result.bases.addAll(bases);
+        result.directions.putAll(directions);
+        return result;
     }
 
     public Directions with(String withOrigin, String withAuthor) {
@@ -204,7 +213,7 @@ public class Directions {
         return result;
     }
 
-    private void addMerged(Toolkit toolkit, Directions result) throws IOException {
+    public void addMerged(Toolkit toolkit, Directions result) throws IOException {
         Directions b;
 
         for (String base : bases) {
@@ -239,15 +248,13 @@ public class Directions {
 
     public void setValues(Map<String, String> values) {
         String key;
-        Direction old;
 
         for (Map.Entry<String, String> entry : values.entrySet()) {
             key = entry.getKey();
-            old = directions.get(key);
-            if (old == null) {
-                throw new ArgumentException("unknown direction: " + key);
+            if (directions.get(key) != null) {
+                throw new ArgumentException("duplicate direction: " + key);
             }
-            directions.put(key, new Direction(key, old.privt, false, old.doc, Direction.toExpression(entry.getValue())));
+            directions.put(key, new Direction(key, false, false, null, Direction.toExpression(entry.getValue())));
         }
     }
 
