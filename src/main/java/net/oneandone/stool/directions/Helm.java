@@ -47,9 +47,8 @@ public final class Helm {
     }
 
     public static Diff upgrade(String kubeContext, LocalSettings localSettings, String name, boolean dryrun, List<String> allow,
-                               Directions directions, Map<String, String> overrides, Map<String, String> prev) throws IOException {
-        return helm(kubeContext, localSettings, name, true, dryrun, allow, directions,
-                Directions.configDirections(overrides), prev);
+                               Directions directions, Directions configDirections, Map<String, String> prev) throws IOException {
+        return helm(kubeContext, localSettings, name, true, dryrun, allow, directions, configDirections, prev);
     }
 
     private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,

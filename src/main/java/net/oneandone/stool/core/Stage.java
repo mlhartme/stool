@@ -307,9 +307,12 @@ public class Stage {
     public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
                         Directions withClass, Map<String, String> overrides) throws IOException {
         Diff diff;
+        Directions nextConfig;
 
+        nextConfig = configDirections.clone();
+        nextConfig.setValues(overrides);
         diff = Helm.upgrade(kubeContext, localSettings, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
-                withClass, overrides, valuesMap());
+                withClass, nextConfig, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -327,13 +330,11 @@ public class Stage {
     }
 
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
-        Map<String, String> prev;
-        Map<String, String> overrides;
+        Directions nextConfig;
 
-        prev = valuesMap();
-        overrides = new LinkedHashMap<>(prev); // override all, do not compute any values
-        overrides.putAll(changes);
-        Helm.upgrade(kubeContext, localSettings, name, false, null, mergedConfigDirections(), overrides, prev);
+        nextConfig = configDirections.clone();
+        nextConfig.setValues(changes);
+        Helm.upgrade(kubeContext, localSettings, name, false, null, mergedConfigDirections(), nextConfig, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
