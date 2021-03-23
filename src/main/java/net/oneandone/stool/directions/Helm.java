@@ -86,7 +86,7 @@ public final class Helm {
         }
         // wipe private keys
         for (Direction direction : configDirections.directions.values()) {
-            if (direction.privt) {
+            if (direction.priv) {
                 result.remove(direction.name);
             }
         }

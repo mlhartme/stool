@@ -97,7 +97,7 @@ public class Direction {
     }
 
     public final String name;
-    public final boolean privt;
+    public final boolean priv;
     public final boolean extra;
     public final String doc;
 
@@ -107,28 +107,28 @@ public class Direction {
     public Direction(String name, String expression) {
         this(name, false, false, null, expression);
     }
-    public Direction(String name, boolean privt, boolean extra, String doc, String expression) {
+    public Direction(String name, boolean priv, boolean extra, String doc, String expression) {
         this.name = name;
-        this.privt = privt;
+        this.priv = priv;
         this.extra = extra;
         this.doc = doc;
         this.expression = expression;
     }
 
     public Direction withExpression(String withExpression) {
-        return new Direction(name, privt, extra, doc, withExpression);
+        return new Direction(name, priv, extra, doc, withExpression);
     }
 
     public Direction withDoc(String withDoc) {
-        return new Direction(name, privt, extra, withDoc, expression);
+        return new Direction(name, priv, extra, withDoc, expression);
     }
 
     public JsonNode toObject(ObjectMapper yaml) {
         ObjectNode result;
 
         result = yaml.createObjectNode();
-        if (privt) {
-            result.set("private", BooleanNode.valueOf(privt));
+        if (priv) {
+            result.set("private", BooleanNode.valueOf(priv));
         }
         if (extra) {
             result.set("extra", BooleanNode.valueOf(extra));

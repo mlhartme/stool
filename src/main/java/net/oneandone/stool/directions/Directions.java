@@ -231,7 +231,7 @@ public class Directions {
 
         prev = directions.get(direction.name);
         if (prev != null) {
-            if (prev.privt) {
+            if (prev.priv) {
                 throw new IllegalStateException("you cannot override private direction: " + direction.name);
             }
             if (!prev.extra && direction.extra) {

@@ -16,16 +16,20 @@
 package net.oneandone.stool.directions;
 
 public class Variable {
-    public final Direction property;
+    public final String name;
+    public final boolean priv;
+    public final String doc;
     public final String value;
 
-    public Variable(Direction property, String value) {
-        this.property = property;
+    public Variable(String name, boolean priv, String doc, String value) {
+        this.name = name;
+        this.priv = priv;
+        this.doc = doc;
         this.value = value;
     }
 
     public Variable withNewValue(String str) {
-        return new Variable(property, str.replace("{}", value));
+        return new Variable(name, priv, doc, str.replace("{}", value));
     }
 
     public String get() {
@@ -33,6 +37,6 @@ public class Variable {
     }
 
     public String toString() {
-        return property.name + ": " + get();
+        return name + ": " + get();
     }
 }

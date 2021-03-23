@@ -17,6 +17,7 @@ package net.oneandone.stool.core;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.directions.Direction;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.directions.DirectionsRef;
@@ -105,13 +106,15 @@ public class Stage {
         Map<String, Object> raw;
         Map<String, Variable> result;
         String key;
+        Direction d;
 
         raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), Collections.emptyList());
         raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
-            result.put(key, new Variable(directions.get(key), entry.getValue().toString()));
+            d = directions.get(key);
+            result.put(key, new Variable(d.name, d.priv, d.doc, entry.getValue().toString()));
         }
         return result;
     }

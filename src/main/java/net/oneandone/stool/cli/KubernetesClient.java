@@ -92,9 +92,9 @@ public class KubernetesClient extends Client {
                 }
                 // add values explicitly selected
                 for (Variable variable : stage.variables()) {
-                    if (!select.isEmpty() && remaining.remove(variable.property.name)) {
-                        if (!variable.property.privt) {
-                            s.put(variable.property.name, new TextNode(variable.get()));
+                    if (!select.isEmpty() && remaining.remove(variable.name)) {
+                        if (!variable.priv) {
+                            s.put(variable.name, new TextNode(variable.get()));
                         }
                     }
                 }
@@ -158,8 +158,8 @@ public class KubernetesClient extends Client {
         try (Engine engine = engine()) {
             stage = localSettings.load(engine, stageName);
             for (Variable variable : stage.variables()) {
-                if (!variable.property.privt) {
-                    result.put(variable.property.name, new Pair(variable.get(), variable.property.doc));
+                if (!variable.priv) {
+                    result.put(variable.name, new Pair(variable.get(), variable.doc));
                 }
             }
             return result;
@@ -179,12 +179,12 @@ public class KubernetesClient extends Client {
             changes = new LinkedHashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 variable = stage.variable(entry.getKey());
-                if (variable.property.privt) {
-                    throw new ArgumentException("cannot set private value: " + variable.property.name);
+                if (variable.priv) {
+                    throw new ArgumentException("cannot set private value: " + variable.name);
                 }
                 variable = variable.withNewValue(entry.getValue());
                 changes.put(entry.getKey(), variable.get());
-                result.put(variable.property.name, variable.get());
+                result.put(variable.name, variable.get());
             }
             stage.setValues(caller, kubernetesContext, engine, changes);
             return result;
