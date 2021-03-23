@@ -59,7 +59,7 @@ public final class Helm {
         Freemarker freemarker;
         Chart chart;
         FileNode valuesFile;
-        Directions tmpDirections;
+        Directions configDirections;
         Map<String, String> values;
         Diff result;
         Diff forbidden;
@@ -71,11 +71,11 @@ public final class Helm {
         }
         LOGGER.info("chart: " + directions.chartOpt + ":" + directions.chartVersionOpt);
         freemarker = toolkit.freemarker(localSettings.getLib(), name, localSettings.fqdn);
-        tmpDirections = directions.merged(toolkit);
-        tmpDirections.setValues(overrides);
+        configDirections = directions.merged(toolkit);
+        configDirections.setValues(overrides);
         toolkit = localSettings.toolkit();
-        chart = toolkit.chart(tmpDirections.chartOpt);
-        values = freemarker.eval(prev, tmpDirections, toolkit.scripts);
+        chart = toolkit.chart(configDirections.chartOpt);
+        values = freemarker.eval(prev, configDirections, toolkit.scripts);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -84,12 +84,12 @@ public final class Helm {
             }
         }
         // wipe private keys
-        for (Direction property : tmpDirections.directions.values()) {
+        for (Direction property : configDirections.directions.values()) {
             if (property.privt) {
                 result.remove(property.name);
             }
         }
-        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, directions);
+        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, configDirections);
         try {
             LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,
