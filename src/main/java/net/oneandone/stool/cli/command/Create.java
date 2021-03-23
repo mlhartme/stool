@@ -45,7 +45,7 @@ public class Create extends ClientCommand {
         this.stageName = stageName;
         this.directionsRef = directionsRef;
         this.workspaceNameOpt = eatWorkspaceNameOpt(args);
-        this.values = Misc.assignments(args);
+        this.values = Misc.assignments(true, args);
     }
 
     private static String eatWorkspaceNameOpt(List<String> args) {

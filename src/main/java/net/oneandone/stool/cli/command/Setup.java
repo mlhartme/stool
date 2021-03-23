@@ -43,7 +43,7 @@ public class Setup {
         this.world = globals.getWorld();
         this.home = globals.home();
         this.proxyPrefix = proxyPrefix;
-        this.set = Misc.assignments(settings);
+        this.set = Misc.assignments(false, settings);
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
     }

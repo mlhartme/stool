@@ -36,7 +36,7 @@ public class Publish extends IteratedStageCommand {
         this.dryrun = dryrun;
         this.allow = allow;
         this.directionsRefOpt = eatDirectionsRefOpt(directionsAndVariables);
-        this.values = Misc.assignments(directionsAndVariables);
+        this.values = Misc.assignments(true, directionsAndVariables);
     }
 
     private DirectionsRef eatDirectionsRefOpt(List<String> args) throws IOException {

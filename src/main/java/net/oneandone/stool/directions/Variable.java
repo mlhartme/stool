@@ -28,10 +28,6 @@ public class Variable {
         this.value = value;
     }
 
-    public Variable withNewValue(String str) {
-        return new Variable(name, priv, doc, str.replace("{}", value));
-    }
-
     public String get() {
         return value;
     }

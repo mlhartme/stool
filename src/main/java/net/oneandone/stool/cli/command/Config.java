@@ -40,15 +40,21 @@ public class Config extends IteratedStageCommand {
         String key;
         String value;
 
-        idx = str.indexOf('=');
-        if (idx == -1) {
-            key = str;
+        if (str.endsWith("-")) {
+            key = str.substring(0, str.length() - 1);
             value = null;
-            get = true;
-        } else {
-            key = str.substring(0, idx);
-            value = str.substring(idx + 1);
             set = true;
+        } else {
+            idx = str.indexOf('=');
+            if (idx == -1) {
+                key = str;
+                value = null;
+                get = true;
+            } else {
+                key = str.substring(0, idx);
+                value = str.substring(idx + 1);
+                set = true;
+            }
         }
         if (values.containsKey(key)) {
             throw new ArgumentException("duplicate value: " + key);
@@ -56,9 +62,7 @@ public class Config extends IteratedStageCommand {
         if (get && set) {
             throw new ArgumentException("cannot mix get and set arguments");
         }
-        if (values.put(key, value) != null) {
-            throw new ArgumentException("value property: " + key);
-        }
+        values.put(key, value);
     }
 
     @Override

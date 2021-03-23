@@ -170,24 +170,25 @@ public class KubernetesClient extends Client {
     public Map<String, String> setValues(String name, Map<String, String> values) throws IOException {
         Stage stage;
         Variable variable;
+        String value;
         Map<String, String> changes;
-        Map<String, String> result;
 
         try (Engine engine = engine()) {
             stage = localSettings.load(engine, name);
-            result = new LinkedHashMap<>();
             changes = new LinkedHashMap<>();
             for (Map.Entry<String, String> entry : values.entrySet()) {
                 variable = stage.variable(entry.getKey());
                 if (variable.priv) {
                     throw new ArgumentException("cannot set private value: " + variable.name);
                 }
-                variable = variable.withNewValue(entry.getValue());
-                changes.put(entry.getKey(), variable.get());
-                result.put(variable.name, variable.get());
+                value = entry.getValue();
+                if (value != null) {
+                    value = value.replace("{}", variable.get());
+                }
+                changes.put(entry.getKey(), value);
             }
             stage.setValues(caller, kubernetesContext, engine, changes);
-            return result;
+            return changes;
         }
     }
 

@@ -257,13 +257,18 @@ public class Directions {
 
     public void setValues(Map<String, String> values) {
         String key;
+        String value;
 
         for (Map.Entry<String, String> entry : values.entrySet()) {
             key = entry.getKey();
-            if (directions.get(key) != null) {
-                throw new ArgumentException("duplicate direction: " + key);
+            value = entry.getValue();
+            if (value == null) {
+                if (directions.remove(key) == null) {
+                    throw new ArgumentException("direction not found: " + key);
+                }
+            } else {
+                directions.put(key, new Direction(entry.getKey(), false, false, null, Direction.toExpression(entry.getValue())));
             }
-            directions.put(key, new Direction(key, false, false, null, Direction.toExpression(entry.getValue())));
         }
     }
 

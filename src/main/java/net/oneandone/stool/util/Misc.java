@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Misc {
-    public static Map<String, String> assignments(List<String> args) {
+    public static Map<String, String> assignments(boolean withMinus, List<String> args) {
         Map<String, String> result;
         int idx;
         String key;
@@ -15,12 +15,17 @@ public class Misc {
 
         result = new LinkedHashMap<>();
         for (String arg : args) {
-            idx = arg.indexOf('=');
-            if (idx == -1) {
-                throw new ArgumentException("key=values expected, got " + arg);
+            if (withMinus && arg.endsWith("-")) {
+                key = arg.substring(0, arg.length() - 1);
+                value = null;
+            } else {
+                idx = arg.indexOf('=');
+                if (idx == -1) {
+                    throw new ArgumentException("key=values expected, got " + arg);
+                }
+                key = arg.substring(0, idx);
+                value = arg.substring(idx + 1);
             }
-            key = arg.substring(0, idx);
-            value = arg.substring(idx + 1);
             if (result.put(key, value) != null) {
                 throw new ArgumentException("duplicate key: " + key);
             }
