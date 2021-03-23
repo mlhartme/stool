@@ -137,31 +137,32 @@ public class MainIT {
             sc(home, "setup", "registryCredentials=" + registryCredentials, "toolkit=" + fixture.toolkit, "proxies=");
             sc(home, "context", fixture.context);
         } else {
-            helm(fixture.context, working, "upgrade", "--install", "--wait", "--timeout=30s", "--values=" + fixture.serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
+            helm(fixture.context, working, "upgrade", "--install", "--wait", "--timeout=30s",
+                    "--values=" + fixture.serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "proxies=localtest=http://localhost:31000/api");
             sc(home, "context", "localtest");
         }
-        sc(home, "list", "%all");
-        sc(home, "create", "-e", "-wait", stage, directionsDir.join("hellowar-first.yaml").getAbsolute());
-        sc(home, "list", "%all");
-        sc(home, "status", stage);
-        sc(home, "attach", stage, "@ws");
-        sc(home, "detach", stage, "@ws");
-        sc(home, "validate", stage);
-        sc(home, "config", stage, "metadataComment");
-        sc(home, "config", stage, "metadataComment=42");
-        // TODO: sc(home, "images", repository);
-        sc(home, "publish", stage, directionsDir.join("hellowar-second.yaml").getAbsolute());
-        sc(home, "list", stage);
-        sc(home, "validate", stage);
-        sc(home, "history", stage);
-        sc(home, "delete", "-batch", stage);
-    }
-
-    @AfterAll
-    public static void afterAll() throws IOException {
-        // TODO: kubectl(true, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
-        // TODO: kubectl(false, "logs", "--namespace=" + CONTEXT, "--selector=app=stool", "-c", "stool");
+        try {
+            sc(home, "list", "%all");
+            sc(home, "create", "-e", "-wait", stage, directionsDir.join("hellowar-first.yaml").getAbsolute());
+            sc(home, "list", "%all");
+            sc(home, "status", stage);
+            sc(home, "attach", stage, "@ws");
+            sc(home, "detach", stage, "@ws");
+            sc(home, "validate", stage);
+            sc(home, "config", stage, "metadataComment");
+            sc(home, "config", stage, "metadataComment=42");
+            // TODO: sc(home, "images", repository);
+            sc(home, "publish", stage, directionsDir.join("hellowar-second.yaml").getAbsolute());
+            sc(home, "list", stage);
+            sc(home, "validate", stage);
+            sc(home, "history", stage);
+            sc(home, "delete", "-batch", stage);
+        } finally {
+            if (!fixture.kube) {
+                kubectl(fixture.context, working, "logs", "--selector=app=stool", "-c", "stool");
+            }
+        }
     }
 
     public static void kubectl(String context, FileNode dir, String ... cmd) throws IOException {
