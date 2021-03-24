@@ -131,8 +131,7 @@ public class Stage {
      */
     private final String name;
 
-    public final Directions mergedInstanceDirections;
-    public final Directions configDirections;
+    public final Sequence sequence;
 
     private final Map<String, Variable> variables;
 
@@ -144,8 +143,7 @@ public class Stage {
                  Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
         this.localSettings = localSettings;
         this.name = name;
-        this.mergedInstanceDirections = mergedInstanceDirections;
-        this.configDirections = configDirections;
+        this.sequence = new Sequence(mergedInstanceDirections, configDirections);
         this.variables = variables;
         this.info = info;
         this.history = history;
@@ -275,25 +273,25 @@ public class Stage {
         fields.add(new Field("chart") {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.mergedInstanceDirections.chartOpt + ":" + Stage.this.mergedInstanceDirections.chartVersionOpt;
+                return sequence.merged.chartOpt + ":" + sequence.merged.chartVersionOpt;
             }
         });
         fields.add(new Field("directions", true) {
             @Override
             public Object get(Engine engine) {
-                return mergedInstanceDirections.toObject(localSettings.yaml).toPrettyString();
+                return sequence.merged.toObject(localSettings.yaml).toPrettyString();
             }
         });
         fields.add(new Field("config", true) {
             @Override
             public Object get(Engine engine) {
-                return configDirections.toObject(localSettings.yaml).toPrettyString();
+                return sequence.config.toObject(localSettings.yaml).toPrettyString();
             }
         });
         fields.add(new Field("origin", true) {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.mergedInstanceDirections.origin;
+                return Stage.this.sequence.merged.origin;
             }
         });
         return fields;
@@ -315,7 +313,7 @@ public class Stage {
         Diff diff;
         Directions nextConfig;
 
-        nextConfig = configDirections.clone();
+        nextConfig = sequence.config.clone();
         nextConfig.setValues(overrides);
         diff = Helm.upgrade(kubeContext, localSettings, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
                 withClass, nextConfig, valuesMap());
@@ -338,9 +336,9 @@ public class Stage {
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
         Directions nextConfig;
 
-        nextConfig = configDirections.clone();
+        nextConfig = sequence.config.clone();
         nextConfig.setValues(changes);
-        Helm.upgrade(kubeContext, localSettings, name, false, null, mergedInstanceDirections, nextConfig, valuesMap());
+        Helm.upgrade(kubeContext, localSettings, name, false, null, sequence.merged, nextConfig, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

@@ -132,7 +132,7 @@ public class KubernetesClient extends Client {
 
         try (Engine engine = engine()) {
             stage = localSettings.load(engine, name);
-            directions = directionsRefOpt == null ? stage.mergedInstanceDirections : directionsRefOpt.resolve(localSettings);
+            directions = directionsRefOpt == null ? stage.sequence.merged : directionsRefOpt.resolve(localSettings);
             return stage.publish(caller, kubernetesContext, engine, dryrun, allow, directions, values);
         }
     }
@@ -159,20 +159,11 @@ public class KubernetesClient extends Client {
             stage = localSettings.load(engine, stageName);
             for (Variable variable : stage.variables()) {
                 if (!variable.priv) {
-                    result.put(variable.name, new Pair(value(stage, variable), variable.doc));
+                    result.put(variable.name, new Pair(stage.sequence.value(variable), variable.doc));
                 }
             }
             return result;
         }
-    }
-    private String value(Stage stage, Variable variable) {
-        String result;
-
-        result = variable.get();
-        if (!stage.configDirections.directions.containsKey(variable.name)) {
-            result = result + " # " + stage.mergedInstanceDirections.get(variable.name).expression;
-        }
-        return result;
     }
 
     @Override
