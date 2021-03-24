@@ -66,4 +66,8 @@ public class Sequence {
         result.setValues(overrides);
         return result;
     }
+
+    public Object origin() {
+        return merged.origin;
+    }
 }

@@ -285,7 +285,7 @@ public class Stage {
         fields.add(new Field("origin", true) {
             @Override
             public Object get(Engine engine) {
-                return Stage.this.sequence.merged.origin;
+                return sequence.origin();
             }
         });
         return fields;
