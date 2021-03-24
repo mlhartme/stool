@@ -89,12 +89,6 @@
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
       <version>1.6.2</version>
-      <exclusions>
-        <exclusion><!-- because I have jakarta activation from fabric8 kubernetes -->
-          <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -107,7 +101,7 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>openshift-client</artifactId>
-      <version>5.0.0</version>
+      <version>5.2.1</version>
     </dependency>
 
     <!-- cli -->
