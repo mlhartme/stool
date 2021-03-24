@@ -15,15 +15,9 @@
  */
 package net.oneandone.stool.directions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.Dependencies;
 import net.oneandone.stool.core.LocalSettings;
+import net.oneandone.stool.core.Sequence;
 import net.oneandone.stool.util.Diff;
-import net.oneandone.stool.util.Expire;
-import net.oneandone.stool.util.Json;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
@@ -55,25 +49,21 @@ public final class Helm {
                              Directions origDirections, Directions configDirections, Map<String, String> prev)
             throws IOException {
         Toolkit toolkit;
-        Directions instanceMerged;
+        Sequence sequence;
         Freemarker freemarker;
         FileNode valuesFile;
-        Directions configMerged;
         Map<String, String> values;
         Diff result;
         Diff forbidden;
 
         toolkit = localSettings.toolkit();
-        instanceMerged = origDirections.merged(toolkit);
-        if (instanceMerged.chartOpt == null) {
-            throw new IOException("directions without chart: " + instanceMerged.subject);
+        sequence = new Sequence(origDirections.merged(toolkit), configDirections);
+        if (sequence.merged.chartOpt == null) {
+            throw new IOException("directions without chart: " + sequence.merged.subject);
         }
-        LOGGER.info("chart: " + instanceMerged.chartOpt + ":" + instanceMerged.chartVersionOpt);
+        LOGGER.info("chart: " + sequence.merged.chartOpt + ":" + sequence.merged.chartVersionOpt);
         freemarker = toolkit.freemarker(localSettings.getLib(), name, localSettings.fqdn);
-        toolkit = localSettings.toolkit();
-        configMerged = instanceMerged.clone();
-        configDirections.addMerged(toolkit, configMerged);
-        values = freemarker.eval(prev, configMerged, toolkit.scripts);
+        values = freemarker.eval(prev, sequence.configMerged(toolkit), toolkit.scripts);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -82,49 +72,21 @@ public final class Helm {
             }
         }
         // wipe private keys
-        for (Direction direction : instanceMerged.directions.values()) {
+        for (Direction direction : sequence.merged.directions.values()) {
             if (direction.priv) {
                 result.remove(direction.name);
             }
         }
-        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, instanceMerged, configDirections);
+        valuesFile = sequence.createValuesFile(localSettings.yaml, localSettings.world, values);
         try {
             LOGGER.info("values: " + valuesFile.readString());
             exec(dryrun, kubeContext,
                     localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name,
-                    toolkit.chart(configMerged.chartOpt).reference);
+                    toolkit.chart(sequence.merged.chartOpt).reference);
             return result;
         } finally {
             valuesFile.deleteFile();
         }
-    }
-
-    private static FileNode createValuesFile(ObjectMapper yaml, World world, Map<String, String> actuals, Directions instance, Directions config) throws IOException {
-        ObjectNode dest;
-        Expire expire;
-        FileNode file;
-        String str;
-
-        dest = yaml.createObjectNode();
-        for (Map.Entry<String, String> entry : actuals.entrySet()) {
-            dest.put(entry.getKey(), entry.getValue());
-        }
-
-        dest.set(Directions.MERGED_INSTANCE_DIRECTIONS_VALUE, instance.toObject(yaml));
-        dest.set(Directions.CONFIG_DIRECTIONS_VALUE, config.toObject(yaml));
-
-        // check expire - TODO: ugly up reference to core package
-        str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
-        if (str != null) {
-            expire = Expire.fromString(str);
-            if (expire.isExpired()) {
-                throw new ArgumentException("stage expired: " + expire);
-            }
-            dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
-        }
-
-        file = world.getTemp().createTempFile().writeString(dest.toPrettyString());
-        return file;
     }
 
     //--

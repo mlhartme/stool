@@ -17,9 +17,16 @@ package net.oneandone.stool.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Directions;
+import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.directions.Variable;
+import net.oneandone.stool.util.Expire;
+import net.oneandone.stool.util.Json;
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 
+import java.io.IOException;
 import java.util.Map;
 
 /** Mostly a name for an expression, can be evaluated. Immutable. */
@@ -67,7 +74,45 @@ public class Sequence {
         return result;
     }
 
+    public Directions configMerged(Toolkit toolkit) throws IOException {
+        Directions result;
+
+        result = merged.clone();
+        config.addMerged(toolkit, result);
+        return result;
+    }
+
     public Object origin() {
         return merged.origin;
     }
+
+
+    public FileNode createValuesFile(ObjectMapper yaml, World world, Map<String, String> actuals) throws IOException {
+        ObjectNode dest;
+        Expire expire;
+        FileNode file;
+        String str;
+
+        dest = yaml.createObjectNode();
+        for (Map.Entry<String, String> entry : actuals.entrySet()) {
+            dest.put(entry.getKey(), entry.getValue());
+        }
+
+        dest.set(Directions.MERGED_INSTANCE_DIRECTIONS_VALUE, merged.toObject(yaml));
+        dest.set(Directions.CONFIG_DIRECTIONS_VALUE, config.toObject(yaml));
+
+        // check expire - TODO: ugly up reference to core package
+        str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
+        if (str != null) {
+            expire = Expire.fromString(str);
+            if (expire.isExpired()) {
+                throw new ArgumentException("stage expired: " + expire);
+            }
+            dest.put(Dependencies.VALUE_EXPIRE, expire.toString());
+        }
+
+        file = world.getTemp().createTempFile().writeString(dest.toPrettyString());
+        return file;
+    }
+
 }
