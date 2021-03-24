@@ -42,16 +42,12 @@ import java.util.Map;
 public class Sequence {
     private static final Logger LOGGER = LoggerFactory.getLogger(Sequence.class);
 
-    public final Directions merged;
+    private final Directions merged;
     private final Directions config;
 
     public Sequence(Directions merged, Directions config) {
         this.merged = merged;
         this.config = config;
-    }
-
-    public String subject() {
-        return merged.subject;
     }
 
     public String chartString() {
@@ -173,7 +169,7 @@ public class Sequence {
         valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values);
         try {
             LOGGER.info("values: " + valuesFile.readString());
-            exec(dryrun, kubeContext,
+            helm(dryrun, kubeContext,
                     localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name,
                     toolkit.chart(merged.chartOpt).reference);
             return result;
@@ -184,7 +180,7 @@ public class Sequence {
 
     //--
 
-    public static void exec(boolean dryrun, String kubeContext, FileNode dir, String... args) throws IOException {
+    public static void helm(boolean dryrun, String kubeContext, FileNode dir, String... args) throws IOException {
         String[] cmd;
 
         if (kubeContext != null) {
@@ -200,5 +196,4 @@ public class Sequence {
             LOGGER.info(dir.exec(cmd));
         }
     }
-
 }

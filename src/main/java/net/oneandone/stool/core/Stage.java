@@ -344,7 +344,7 @@ public class Stage {
     }
 
     public void uninstall(String kubeContext, Engine engine) throws IOException {
-        Sequence.exec(false, kubeContext, localSettings.world.getWorking(), "uninstall", getName());
+        Sequence.helm(false, kubeContext, localSettings.world.getWorking(), "uninstall", getName());
         engine.deploymentAwaitGone(getName());
     }
 
