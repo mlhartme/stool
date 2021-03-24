@@ -277,13 +277,13 @@ Technically, a stage is a Helm release; `sc` is a wrapper for Helm that adds dir
 `sc` *global-option*... `list` [*stage*] (*field*|*variable*)...
 
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *directions* ['@'*workspace*] [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *directions* ['@'*workspace*] [*key*`=`*value* | *key*`-` ...]
 
 
-`sc` *global-option*... `publish` ['-dryrun'] *stage* [*directions*] [*key*`=`*value*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* [*directions*] [*key*`=`*value* | *key*`-` ...]
 
 
-`sc` *global-option*... `config` *stage* (*key* | *key*`=`*value*)...
+`sc` *global-option*... `config` *stage* [*key* | *key*`=`*value* | *key*`-` ...]
 
 
 `sc` *global-option*... `status` *stage* (*field*|*value*)...

@@ -159,11 +159,20 @@ public class KubernetesClient extends Client {
             stage = localSettings.load(engine, stageName);
             for (Variable variable : stage.variables()) {
                 if (!variable.priv) {
-                    result.put(variable.name, new Pair(variable.get(), variable.doc));
+                    result.put(variable.name, new Pair(value(stage, variable), variable.doc));
                 }
             }
             return result;
         }
+    }
+    private String value(Stage stage, Variable variable) {
+        String result;
+
+        result = variable.get();
+        if (!stage.configDirections.directions.containsKey(variable.name)) {
+            result = result + " # " + stage.mergedInstanceDirections.get(variable.name).expression;
+        }
+        return result;
     }
 
     @Override
