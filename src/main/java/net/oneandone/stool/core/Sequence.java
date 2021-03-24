@@ -21,6 +21,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Direction;
 import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.directions.DirectionsRef;
+import net.oneandone.stool.directions.Freemarker;
 import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.util.Diff;
@@ -28,12 +29,19 @@ import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /** Mostly a name for an expression, can be evaluated. Immutable. */
 public class Sequence {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Sequence.class);
+
     public final Directions merged;
     private final Directions config;
 
@@ -137,4 +145,60 @@ public class Sequence {
             }
         }
     }
+
+    //--
+
+    public Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
+                            Map<String, String> prev)
+            throws IOException {
+        Toolkit toolkit;
+        Freemarker freemarker;
+        FileNode valuesFile;
+        Map<String, String> values;
+        Diff result;
+        Diff forbidden;
+
+        toolkit = localSettings.toolkit();
+        LOGGER.info("chart: " + chartString());
+        freemarker = toolkit.freemarker(localSettings.getLib(), name, localSettings.fqdn);
+        values = freemarker.eval(prev, configMerged(toolkit), toolkit.scripts);
+        result = Diff.diff(prev, values);
+        if (allowOpt != null) {
+            forbidden = result.withoutKeys(allowOpt);
+            if (!forbidden.isEmpty()) {
+                throw new IOException("change is forbidden:\n" + forbidden);
+            }
+        }
+        removePrivate(result);
+        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values);
+        try {
+            LOGGER.info("values: " + valuesFile.readString());
+            exec(dryrun, kubeContext,
+                    localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name,
+                    toolkit.chart(merged.chartOpt).reference);
+            return result;
+        } finally {
+            valuesFile.deleteFile();
+        }
+    }
+
+    //--
+
+    public static void exec(boolean dryrun, String kubeContext, FileNode dir, String... args) throws IOException {
+        String[] cmd;
+
+        if (kubeContext != null) {
+            cmd = Strings.cons("--kube-context", Strings.cons(kubeContext, args));
+        } else {
+            cmd = args;
+        }
+        cmd = Strings.cons("helm", cmd);
+        LOGGER.debug(Arrays.asList(cmd).toString());
+        if (dryrun) {
+            LOGGER.info("dryrun - skipped");
+        } else {
+            LOGGER.info(dir.exec(cmd));
+        }
+    }
+
 }

@@ -22,7 +22,6 @@ import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.directions.DirectionsRef;
 import net.oneandone.stool.directions.Directions;
-import net.oneandone.stool.directions.Helm;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
@@ -56,7 +55,7 @@ public class Stage {
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
         sequence = new Sequence(directionsRef.resolve(localSettings).merged(localSettings.toolkit()), Directions.configDirections(values));
-        Helm.helm(kubeContext, localSettings, stageName, false, false, null, sequence, Collections.emptyMap());
+        sequence.helm(kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap());
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -313,7 +312,7 @@ public class Stage {
         nextSequence = directionsRefOpt == null ? sequence : sequence.nextSequence(localSettings, directionsRefOpt);
         nextSequence = nextSequence.nextSequence(overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
-        diff = Helm.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, nextSequence, valuesMap());
+        diff = nextSequence.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -334,7 +333,7 @@ public class Stage {
         Sequence nextSequence;
 
         nextSequence = sequence.nextSequence(changes);
-        Helm.helm(kubeContext, localSettings, name, true, false, null, nextSequence, valuesMap());
+        nextSequence.helm(kubeContext, localSettings, name, true, false, null, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -345,7 +344,7 @@ public class Stage {
     }
 
     public void uninstall(String kubeContext, Engine engine) throws IOException {
-        Helm.exec(false, kubeContext, localSettings.world.getWorking(), "uninstall", getName());
+        Sequence.exec(false, kubeContext, localSettings.world.getWorking(), "uninstall", getName());
         engine.deploymentAwaitGone(getName());
     }
 
