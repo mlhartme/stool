@@ -310,7 +310,8 @@ public class Stage {
         List<String> allowOpt;
         Sequence nextSequence;
 
-        nextSequence = sequence.nextSequence(localSettings, directionsRefOpt, overrides);
+        nextSequence = directionsRefOpt == null ? sequence : sequence.nextSequence(localSettings, directionsRefOpt);
+        nextSequence = nextSequence.nextSequence(overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
         diff = Helm.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, nextSequence, valuesMap());
         history.add(HistoryEntry.create(caller));
@@ -332,7 +333,7 @@ public class Stage {
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
         Sequence nextSequence;
 
-        nextSequence = new Sequence(sequence.merged, sequence.nextConfig(changes));
+        nextSequence = sequence.nextSequence(changes);
         Helm.helm(kubeContext, localSettings, name, true, false, null, nextSequence, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);

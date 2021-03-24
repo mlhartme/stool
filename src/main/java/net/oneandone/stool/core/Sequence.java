@@ -74,21 +74,19 @@ public class Sequence {
     }
 
 
-    public Sequence nextSequence(LocalSettings localSettings, DirectionsRef directionsRefOpt, Map<String, String> overrides) throws IOException {
-        Sequence nextSequence;
+    public Sequence nextSequence(LocalSettings localSettings, DirectionsRef directionsRefOpt) throws IOException {
         Directions directions;
 
-        directions = directionsRefOpt == null ? merged : directionsRefOpt.resolve(localSettings).merged(localSettings.toolkit());
-        nextSequence = new Sequence(directions, nextConfig(overrides));
-        return nextSequence;
+        directions = directionsRefOpt.resolve(localSettings).merged(localSettings.toolkit());
+        return new Sequence(directions, config.clone());
     }
 
-    public Directions nextConfig(Map<String, String> overrides) {
-        Directions result;
+    public Sequence nextSequence(Map<String, String> overrides) {
+        Directions nextConfig;
 
-        result = config.clone();
-        result.setValues(overrides);
-        return result;
+        nextConfig = config.clone();
+        nextConfig.setValues(overrides);
+        return new Sequence(merged.clone(), nextConfig);
     }
 
     public Directions configMerged(Toolkit toolkit) throws IOException {
