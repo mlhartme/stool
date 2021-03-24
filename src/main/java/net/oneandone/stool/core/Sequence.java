@@ -15,17 +15,25 @@
  */
 package net.oneandone.stool.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.directions.Variable;
+
+import java.util.Map;
 
 /** Mostly a name for an expression, can be evaluated. Immutable. */
 public class Sequence {
     public final Directions merged;
-    public final Directions config;
+    private final Directions config;
 
     public Sequence(Directions merged, Directions config) {
         this.merged = merged;
         this.config = config;
+    }
+
+    public String chartString() {
+        return merged.chartOpt + ":" + merged.chartVersionOpt;
     }
 
     public boolean fixed(String name) {
@@ -42,4 +50,20 @@ public class Sequence {
         return result;
     }
 
+    public ObjectNode toObject(ObjectMapper yaml) {
+        ObjectNode result;
+
+        result = yaml.createObjectNode();
+        result.set("instance", merged.toObject(yaml));
+        result.set("config", config.toObject(yaml));
+        return result;
+    }
+
+    public Directions nextConfig(Map<String, String> overrides) {
+        Directions result;
+
+        result = config.clone();
+        result.setValues(overrides);
+        return result;
+    }
 }

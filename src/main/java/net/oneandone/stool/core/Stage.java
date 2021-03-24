@@ -273,19 +273,13 @@ public class Stage {
         fields.add(new Field("chart") {
             @Override
             public Object get(Engine engine) {
-                return sequence.merged.chartOpt + ":" + sequence.merged.chartVersionOpt;
+                return sequence.chartString();
             }
         });
         fields.add(new Field("directions", true) {
             @Override
             public Object get(Engine engine) {
-                return sequence.merged.toObject(localSettings.yaml).toPrettyString();
-            }
-        });
-        fields.add(new Field("config", true) {
-            @Override
-            public Object get(Engine engine) {
-                return sequence.config.toObject(localSettings.yaml).toPrettyString();
+                return sequence.toObject(localSettings.yaml).toPrettyString();
             }
         });
         fields.add(new Field("origin", true) {
@@ -313,8 +307,7 @@ public class Stage {
         Diff diff;
         Directions nextConfig;
 
-        nextConfig = sequence.config.clone();
-        nextConfig.setValues(overrides);
+        nextConfig = sequence.nextConfig(overrides);
         diff = Helm.upgrade(kubeContext, localSettings, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
                 withClass, nextConfig, valuesMap());
         history.add(HistoryEntry.create(caller));
@@ -336,8 +329,7 @@ public class Stage {
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
         Directions nextConfig;
 
-        nextConfig = sequence.config.clone();
-        nextConfig.setValues(changes);
+        nextConfig = sequence.nextConfig(changes);
         Helm.upgrade(kubeContext, localSettings, name, false, null, sequence.merged, nextConfig, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
