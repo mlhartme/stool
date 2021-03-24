@@ -18,9 +18,11 @@ package net.oneandone.stool.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.directions.Direction;
 import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.directions.Variable;
+import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.World;
@@ -37,6 +39,10 @@ public class Sequence {
     public Sequence(Directions merged, Directions config) {
         this.merged = merged;
         this.config = config;
+    }
+
+    public String subject() {
+        return merged.subject;
     }
 
     public String chartString() {
@@ -115,4 +121,11 @@ public class Sequence {
         return file;
     }
 
+    public void removePrivate(Diff result) {
+        for (Direction direction : merged.directions.values()) {
+            if (direction.priv) {
+                result.remove(direction.name);
+            }
+        }
+    }
 }

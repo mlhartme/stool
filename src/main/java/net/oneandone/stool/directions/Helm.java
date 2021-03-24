@@ -42,10 +42,7 @@ public final class Helm {
         Diff forbidden;
 
         toolkit = localSettings.toolkit();
-        if (sequence.merged.chartOpt == null) {
-            throw new IOException("directions without chart: " + sequence.merged.subject);
-        }
-        LOGGER.info("chart: " + sequence.merged.chartOpt + ":" + sequence.merged.chartVersionOpt);
+        LOGGER.info("chart: " + sequence.chartString());
         freemarker = toolkit.freemarker(localSettings.getLib(), name, localSettings.fqdn);
         values = freemarker.eval(prev, sequence.configMerged(toolkit), toolkit.scripts);
         result = Diff.diff(prev, values);
@@ -55,12 +52,7 @@ public final class Helm {
                 throw new IOException("change is forbidden:\n" + forbidden);
             }
         }
-        // wipe private keys from diff
-        for (Direction direction : sequence.merged.directions.values()) {
-            if (direction.priv) {
-                result.remove(direction.name);
-            }
-        }
+        sequence.removePrivate(result);
         valuesFile = sequence.createValuesFile(localSettings.yaml, localSettings.world, values);
         try {
             LOGGER.info("values: " + valuesFile.readString());
