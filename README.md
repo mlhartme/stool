@@ -14,7 +14,7 @@ Changes: https://github.com/mlhartme/stool/blob/stool-7.0/CHANGELOG.md
 
 Here's an example what you can do with Stool.
 
-You generally invoke Stool from the command-line with `sc` followed by a command and specific arguments.
+You invoke Stool from the command-line with `sc` followed by a command and specific arguments.
 
 Open a terminal and run
 
@@ -40,7 +40,7 @@ You can run
 
     sc status tour
 
-to see status information like `urls` or `available`. If `available` is above `0`, you can point your browser
+to see status information like `urls` or `available` pods. If `available` is above `0`, you can point your browser
 to one of the urls.
 
 To delete the stage run
@@ -70,11 +70,11 @@ planned or open:
 |         | Functionality | Moved to; obsolete after |
 |---------|---------|-------------|
 | Stool 5 - current stable  | Process Management | Docker |
-| Stool 6 - superseded by 7 | Port Managemnt | Kubernetes |
+| Stool 6 - superseded by 7 | Port Management | Kubernetes |
 |         | (Cpu limits)    | Kubernetes Pod Limits |
 |         | (node selection) | Kubernetes |
 | Stool 7 - current development | Image Building | any tool, e.g. Maven Plugin |
-|         | (K8s Resources for a Stage) | Helm chart |
+|         | (K8s Resources implementing a stage) | Helm chart |
 |         | Stage lifecycle | Helm |
 |         | Memory limits  | Kubernetes Pod Limits |
 |         | Vault integration | configurable script |
@@ -111,8 +111,8 @@ A *stage* is a Kubernetes [workload](https://kubernetes.io/docs/concepts/workloa
 typically running a web application like a [Tomcat](http://tomcat.apache.org) servlet container with
 a [Java web application](https://en.wikipedia.org/wiki/Java_Servlet).
 
-You can create, list and delete stages with the respective command. Every stage has a configuration, which is a set of
-variables you can get and set with `sc config`. Every stages has a status, which is a set of fields, you can check it
+You can create, list and delete stages with the respective Stool command. Every stage has a configuration, which is a set of
+variables you can get and set with `sc config`. Every stages has a status, which is a set of fields; you can check it
 with `sc status`.
 
 A stage has a context and a unique name in that context. A stage is referenced by *name*`@`*context* or just the *name*
@@ -120,7 +120,7 @@ if it's in the current context. You define the stage name and context when you c
 later.
 
 Technically, a stage is a Helm release -- `sc create` installs a Helm chart, `sc delete` uninstalls it, `sc publish` and `sc config`
-upgrades it. Stage variables are Helm release values (or Helm release variables, as they occasionally call it).
+upgrade it. Stage variables are Helm release values (or Helm release variables, as they occasionally call it).
 It's safe to use `helm uninstall` instead of `sc delete`.
 
 ### Context
@@ -134,11 +134,13 @@ each specified with a name and a cluster url.
 A proxy context has a name, an optional token, and a URL pointing to a Stool server. It's to give restricted access to Kubernetes
 only, and to centrally manage Stool settings. `sc` manages a list of proxy contexts in its settings.
 
-sc manages a current context in its settings. You can change it permanently with `sc context` or per-invocation
+Stool manages a current context in its settings. You can change it permanently with `sc context` or per-invocation
 with the `-context` global option.
 
 
 ### Directions
+
+Directions augment charts to define workloads.
 
 Directions (or, more explicitly: the direction list) define how to create and publish stages. Stage directions are the directions
 the stage was created or last published with.
@@ -152,8 +154,8 @@ Directions look something like this:
       private: true
       expr: "script.cert(stage)"
 
-Each direction has a name and an expression, directions have a subject and can extend other direction
-(i.e. inherit all directions).
+Directions have a subject (to allow others to reference it) and can extend other direction (i.e. inherit all directions).
+Each direction has a name and an expression.
 
 Directions define the available variables of the stage, the expression is evaluated to determine the initial values.
 
@@ -169,7 +171,7 @@ Helm install/upgrade.
 
 ### Toolkit
 
-The toolkit defines a set of charts, scripts and directions.
+The toolkit defines a set of charts, scripts and directions. TODO
 
 
 ### Variables
@@ -178,11 +180,12 @@ Stages are configured via variables, the set of variables of a stage is called i
 You can inspect and adjust variables with [stool config](#sc-config).
 
 A variable has a name, a value, and an associated direction. Stage directions define the available variables.
-The variable value is set automatically by evaluating the associated direction expression when the stage
-is created or published. Or it's set manually with the `config` command.
+The value is evaluated by the associated direction expression when the stage is created, published
+or configured. However, you can configure a fixed value by passing an assignment to `create`, `publish` or `config`.
+In this case, the value remains unchanged until you configure a new value or remove it with *key*`-`
 
 Variables apply to one stage only, every stage has its own set of variables, even
-if they are associated with direction is the same.
+if the associated directions are the same.
 
 Distinguish variables from status fields: every stage has status fields, you can view them with `sc status`.
 Status fields are key/values pairs like variables, but they are read-only.
@@ -404,7 +407,7 @@ the `SC_HOME` environment variable, it defaults to `~/.sc`. The main configurati
 Stool checks for an environment variable `SC_SETUP_SETTINGS`. If it exists, the referenced file defines the initial settings (using *prefix*
 to prefix all proxy names (default is ""). Otherwise, default settings are generated.
 
-Use key/values pairs or local settings or proxies.
+Use key/values pairs to configure local settings or proxies.
 
 #### EXAMPLES
 
@@ -431,7 +434,7 @@ runs `sc auth` to get the respective token. This can be disabled by specifying `
 
 ### sc-auth
 
-Authenticate to current context
+Authenticate to current proxy context
 
 #### SYNOPSIS
 
@@ -441,7 +444,7 @@ Authenticate to current context
 
 Asks for username/password to authenticate to the current context. Reports an error when used with a Kubernetes context.
 
-Proxy contexts authenticate with username/password against ldap. If succeessfull, the referenced Stool server returns an
+Proxy contexts authenticate with username/password against ldap. If successful, the referenced Stool server returns an
 api token that will be stored in the settings file and used for future access to this context.
 
 Use the `-batch` option to omit asking for username/password and instead pick them from the environment
@@ -481,7 +484,7 @@ Create a new stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *directions* ['@'*workspace*] [*key*`=`*value*...]
+`sc` *global-option*... `create` [`-optional`][`-wait`] *name* *directions* ['@'*workspace*] [*key*`=`*value* | *key*`-` ...]
 
 #### DESCRIPTION
 
@@ -521,15 +524,16 @@ Publish a stage
 
 #### SYNOPSIS
 
-`sc` *global-option*... `publish` ['-dryrun'] *stage* [*directions*] [*key*`=`*value*...]
+`sc` *global-option*... `publish` ['-dryrun'] *stage* [*directions*] [*key*`=`*value* | *key*`-` ...]
 
 #### DESCRIPTION
 
-Similar to [create](#sc-create), but updates *stage* instead of creating a new one.
-Please check there for general behavior. The workload is updated without downtime.
+Similar to [create](#sc-create), but updates *stage* instead of creating a new one. Fixed values (either specified
+by an assignment or fixed by a previous call) remain unchanged, all other values are newly evaluates by the associated
+direction. The workload is updated without downtime.
 
-*directions* is optional - if not specified, the stage directions are used. This is useful to revert manual `config` changes
-or to cause a re-start (depends on the workload if that works).
+*directions* is optional - if not specified, the stage directions are used. This is useful to cause a re-start
+(depends on the workload if that works).
 
 Publish prints the variables modified by the command. Invoke with `-dryrun` to see
 this diff without actually changing anything.
@@ -551,7 +555,7 @@ Manage stage configuration
 
 #### SYNOPSIS
 
-`sc` *global-option*... `config` *stage* (*key* | *key*`=`*value*)...
+`sc` *global-option*... `config` *stage* [*key* | *key*`=`*value* | *key*`-` ...]
 
 #### DESCRIPTION
 
@@ -559,12 +563,10 @@ Stage configuration is the set of its variables. This command gets or sets stage
 
 When invoked without arguments, all variables are printed, together with the documentation available.
 When invoked with one or more *key*s, the respective variables are printed.
-When invoked with one or more assignments, the respective variables are changed.
+When invoked with one or more assignments or minus, the respective variable values a fixed to the specified value or
+a fixed value is removed.
 
-Changing variables adjusts the Kubernetes workload, pods will be replaced when as needed to apply the change.
-
-Note that the `config` command is meant for temporary changes, e.g. to test if a configuration change fixes a problem.
-All config changes get lost with the next `publish` -- unless you repeat the modification in the publish arguments.
+A fixed variable sticks to specified value; in contrast: none-fixed variables are re-evaluated by the `publish` or `config` commands.
 
 *str* may contain `{}` to refer to the previous value. You can use this, e.g., to append to a value:
 `sc config "metadataComment={} append this"`.
@@ -580,8 +582,8 @@ you can specify a number which is shorthand for that number of days from now (e.
 
 List values (e.g. `metadataContact`) are separated by commas, whitespace before and after an item is ignored.
 
-This command only changes variables assigned in the command-line, it does not touch any other variables. CAUTION:
-that means, if you modify a variable `a`, and variable `b` references it in the associated direction, `b` is not updated.
+If you change a variable `a` that's referenced by the direction of another variable `b`, variable `b` is re-evaluate and might
+change as well, even if it's not explicitly mentioned in the command line.
 
 Technically, variables are modified by running Helm upgrade with both modified an unmodified values.
 
