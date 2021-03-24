@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Direction;
 import net.oneandone.stool.directions.Directions;
+import net.oneandone.stool.directions.DirectionsRef;
 import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.util.Diff;
@@ -70,6 +71,16 @@ public class Sequence {
         result.set("instance", merged.toObject(yaml));
         result.set("config", config.toObject(yaml));
         return result;
+    }
+
+
+    public Sequence nextSequence(LocalSettings localSettings, DirectionsRef directionsRefOpt, Map<String, String> overrides) throws IOException {
+        Sequence nextSequence;
+        Directions directions;
+
+        directions = directionsRefOpt == null ? merged : directionsRefOpt.resolve(localSettings).merged(localSettings.toolkit());
+        nextSequence = new Sequence(directions, nextConfig(overrides));
+        return nextSequence;
     }
 
     public Directions nextConfig(Map<String, String> overrides) {

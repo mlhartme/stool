@@ -305,12 +305,12 @@ public class Stage {
 
     /** CAUTION: values are not updated! */
     public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
-                        Directions withClass, Map<String, String> overrides) throws IOException {
+                        DirectionsRef directionsRefOpt, Map<String, String> overrides) throws IOException {
         Diff diff;
         List<String> allowOpt;
         Sequence nextSequence;
 
-        nextSequence = new Sequence(withClass.merged(localSettings.toolkit()), sequence.nextConfig(overrides));
+        nextSequence = sequence.nextSequence(localSettings, directionsRefOpt, overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
         diff = Helm.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, nextSequence, valuesMap());
         history.add(HistoryEntry.create(caller));

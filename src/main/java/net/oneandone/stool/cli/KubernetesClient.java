@@ -128,12 +128,10 @@ public class KubernetesClient extends Client {
     @Override
     public Diff publish(String name, boolean dryrun, String allow, DirectionsRef directionsRefOpt, Map<String, String> values) throws IOException {
         Stage stage;
-        Directions directions;
 
         try (Engine engine = engine()) {
             stage = localSettings.load(engine, name);
-            directions = directionsRefOpt == null ? stage.sequence.merged : directionsRefOpt.resolve(localSettings);
-            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, directions, values);
+            return stage.publish(caller, kubernetesContext, engine, dryrun, allow, directionsRefOpt, values);
         }
     }
 
