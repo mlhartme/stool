@@ -77,7 +77,7 @@ Other changes:
     * replaced gson by jackson-databind 2.12.2
     * sushi 3.2.2 to 3.3.0
     * fabric8 kubernetes client 4.10.2 to 5.2.1  
-    * spring 5.2.9 to 5.3.2, springboot version 2.3.4 to 2.4.1, spring security 5.3.5 to 5.4.1
+    * spring 5.2.9 to 5.3.2, springboot version 2.3.4 to 2.4.4, spring security 5.3.5 to 5.4.1
     * thymeleaf 3.0.11 to 3.0.12  
     * jquery 3.4.1 to 3.5.1, bootstrap 4.4.1 to 4.5.3  
     * junit 5.7.1
