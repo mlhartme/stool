@@ -54,7 +54,8 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.install(kubeContext, localSettings, stageName, directionsRef, Directions.configDirections(values));
+        Helm.helm(kubeContext, localSettings, stageName, false, false, null,
+                directionsRef.resolve(localSettings), Directions.configDirections(values), Collections.emptyMap());
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -308,7 +309,7 @@ public class Stage {
         Directions nextConfig;
 
         nextConfig = sequence.nextConfig(overrides);
-        diff = Helm.upgrade(kubeContext, localSettings, name, dryrun, allow == null ? null : Separator.COMMA.split(allow),
+        diff = Helm.helm(kubeContext, localSettings, name, true, dryrun, allow == null ? null : Separator.COMMA.split(allow),
                 withClass, nextConfig, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
@@ -330,7 +331,7 @@ public class Stage {
         Directions nextConfig;
 
         nextConfig = sequence.nextConfig(changes);
-        Helm.upgrade(kubeContext, localSettings, name, false, null, sequence.merged, nextConfig, valuesMap());
+        Helm.helm(kubeContext, localSettings, name, true, false, null, sequence.merged, nextConfig, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

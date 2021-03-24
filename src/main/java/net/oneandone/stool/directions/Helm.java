@@ -25,27 +25,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
-    public static void install(String kubernetesContext, LocalSettings localSettings, String name, DirectionsRef directionsRef, Directions configDirections)
-            throws IOException {
-        Directions directions;
-
-        directions = directionsRef.resolve(localSettings);
-        helm(kubernetesContext, localSettings, name, false, false, null, directions, configDirections, Collections.emptyMap());
-    }
-
-    public static Diff upgrade(String kubeContext, LocalSettings localSettings, String name, boolean dryrun, List<String> allow,
-                               Directions directions, Directions configDirections, Map<String, String> prev) throws IOException {
-        return helm(kubeContext, localSettings, name, true, dryrun, allow, directions, configDirections, prev);
-    }
-
-    private static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
+    public static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                              Directions origDirections, Directions configDirections, Map<String, String> prev)
             throws IOException {
         Toolkit toolkit;
