@@ -32,10 +32,15 @@ public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
     public static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                             Directions origDirections, Directions configDirections, Map<String, String> prev)
+                            Directions instance, Directions config, Map<String, String> prev) throws IOException {
+        return helm(kubeContext, localSettings, name, upgrade, dryrun, allowOpt,
+                new Sequence(instance.merged(localSettings.toolkit()), config), prev);
+    }
+
+    public static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
+                            Sequence sequence, Map<String, String> prev)
             throws IOException {
         Toolkit toolkit;
-        Sequence sequence;
         Freemarker freemarker;
         FileNode valuesFile;
         Map<String, String> values;
@@ -43,7 +48,6 @@ public final class Helm {
         Diff forbidden;
 
         toolkit = localSettings.toolkit();
-        sequence = new Sequence(origDirections.merged(toolkit), configDirections);
         if (sequence.merged.chartOpt == null) {
             throw new IOException("directions without chart: " + sequence.merged.subject);
         }
@@ -57,7 +61,7 @@ public final class Helm {
                 throw new IOException("change is forbidden:\n" + forbidden);
             }
         }
-        // wipe private keys
+        // wipe private keys from diff
         for (Direction direction : sequence.merged.directions.values()) {
             if (direction.priv) {
                 result.remove(direction.name);
