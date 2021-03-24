@@ -51,11 +51,12 @@ public class Stage {
                                DirectionsRef directionsRef, Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
+        Sequence sequence;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        Helm.helm(kubeContext, localSettings, stageName, false, false, null,
-                directionsRef.resolve(localSettings), Directions.configDirections(values), Collections.emptyMap());
+        sequence = new Sequence(directionsRef.resolve(localSettings).merged(localSettings.toolkit()), Directions.configDirections(values));
+        Helm.helm(kubeContext, localSettings, stageName, false, false, null, sequence, Collections.emptyMap());
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -306,11 +307,12 @@ public class Stage {
     public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
                         Directions withClass, Map<String, String> overrides) throws IOException {
         Diff diff;
-        Directions nextConfig;
+        List<String> allowOpt;
+        Sequence nextSequence;
 
-        nextConfig = sequence.nextConfig(overrides);
-        diff = Helm.helm(kubeContext, localSettings, name, true, dryrun, allow == null ? null : Separator.COMMA.split(allow),
-                withClass, nextConfig, valuesMap());
+        nextSequence = new Sequence(withClass.merged(localSettings.toolkit()), sequence.nextConfig(overrides));
+        allowOpt = allow == null ? null : Separator.COMMA.split(allow);
+        diff = Helm.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, nextSequence, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
@@ -328,10 +330,10 @@ public class Stage {
     }
 
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
-        Directions nextConfig;
+        Sequence nextSequence;
 
-        nextConfig = sequence.nextConfig(changes);
-        Helm.helm(kubeContext, localSettings, name, true, false, null, sequence.merged, nextConfig, valuesMap());
+        nextSequence = new Sequence(sequence.merged, sequence.nextConfig(changes));
+        Helm.helm(kubeContext, localSettings, name, true, false, null, nextSequence, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

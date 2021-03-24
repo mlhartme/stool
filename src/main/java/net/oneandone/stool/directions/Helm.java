@@ -32,12 +32,6 @@ public final class Helm {
     private static final Logger LOGGER = LoggerFactory.getLogger(Helm.class);
 
     public static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                            Directions instance, Directions config, Map<String, String> prev) throws IOException {
-        return helm(kubeContext, localSettings, name, upgrade, dryrun, allowOpt,
-                new Sequence(instance.merged(localSettings.toolkit()), config), prev);
-    }
-
-    public static Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                             Sequence sequence, Map<String, String> prev)
             throws IOException {
         Toolkit toolkit;
