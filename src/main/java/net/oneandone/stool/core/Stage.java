@@ -17,7 +17,6 @@ package net.oneandone.stool.core;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.directions.Direction;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.directions.DirectionsRef;
@@ -26,7 +25,6 @@ import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
-import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -92,32 +90,10 @@ public class Stage {
 
 
     public static Stage create(LocalSettings localSettings, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
-        Directions mergedInstance;
-        Directions config;
+        Sequence sequence;
 
-        mergedInstance = Directions.loadHelm((ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.MERGED_INSTANCE_DIRECTIONS_VALUE));
-        config = Directions.loadLiteral(mergedInstance.origin, mergedInstance.author,
-                (ObjectNode) ((ObjectNode) helmObject.get("config")).remove(Directions.CONFIG_DIRECTIONS_VALUE));
-        return new Stage(localSettings, name, mergedInstance, config,
-                loadVariables(mergedInstance /* config just adds values, so it's safe to pass instance only here*/,
-                helmObject), (ObjectNode) helmObject.get("info"), history);
-    }
-
-    private static Map<String, Variable> loadVariables(Directions directions, ObjectNode helmObject) {
-        Map<String, Object> raw;
-        Map<String, Variable> result;
-        String key;
-        Direction d;
-
-        raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), Collections.emptyList());
-        raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
-        result = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> entry : raw.entrySet()) {
-            key = entry.getKey();
-            d = directions.get(key);
-            result.put(key, new Variable(d.name, d.priv, d.doc, entry.getValue().toString()));
-        }
-        return result;
+        sequence = Sequence.loadAndEat((ObjectNode) helmObject.get("config"));
+        return new Stage(localSettings, name, sequence, sequence.loadVariables(helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
     //--
@@ -140,11 +116,10 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(LocalSettings localSettings, String name, Directions mergedInstanceDirections, Directions configDirections,
-                 Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(LocalSettings localSettings, String name, Sequence sequence, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
         this.localSettings = localSettings;
         this.name = name;
-        this.sequence = new Sequence(mergedInstanceDirections, configDirections);
+        this.sequence = sequence;
         this.variables = variables;
         this.info = info;
         this.history = history;
@@ -277,7 +252,7 @@ public class Stage {
                 return sequence.chartString();
             }
         });
-        fields.add(new Field("directions", true) {
+        fields.add(new Field("directions", true) { // TODO: rename to sequence?
             @Override
             public Object get(Engine engine) {
                 return sequence.toObject(localSettings.yaml).toPrettyString();

@@ -35,12 +35,27 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /** Mostly a name for an expression, can be evaluated. Immutable. */
 public class Sequence {
+    // this value is added to track the stage directions used
+    private static final String MERGED_INSTANCE_DIRECTIONS_VALUE = "_merge_instance_directions";
+    private static final String CONFIG_DIRECTIONS_VALUE = "_config_directions";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Sequence.class);
+
+    public static Sequence loadAndEat(ObjectNode helmConfig) throws IOException {
+        Directions merged;
+        Directions config;
+
+        merged = Directions.loadHelm((ObjectNode) helmConfig.remove(MERGED_INSTANCE_DIRECTIONS_VALUE));
+        config = Directions.loadLiteral(merged.origin, merged.author, (ObjectNode) helmConfig.remove(CONFIG_DIRECTIONS_VALUE));
+        return new Sequence(merged, config);
+    }
 
     private final Directions merged;
     private final Directions config;
@@ -117,8 +132,8 @@ public class Sequence {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(Directions.MERGED_INSTANCE_DIRECTIONS_VALUE, merged.toObject(yaml));
-        dest.set(Directions.CONFIG_DIRECTIONS_VALUE, config.toObject(yaml));
+        dest.set(MERGED_INSTANCE_DIRECTIONS_VALUE, merged.toObject(yaml));
+        dest.set(CONFIG_DIRECTIONS_VALUE, config.toObject(yaml));
 
         // check expire - TODO: ugly up reference to core package
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
@@ -132,6 +147,25 @@ public class Sequence {
 
         file = world.getTemp().createTempFile().writeString(dest.toPrettyString());
         return file;
+    }
+
+    public Map<String, Variable> loadVariables(ObjectNode helmObject) {
+        Directions directions;
+        Map<String, Object> raw;
+        Map<String, Variable> result;
+        String key;
+        Direction d;
+
+        directions = merged; // config just adds values, so it's safe to pass instance only here
+        raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), Collections.emptyList());
+        raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : raw.entrySet()) {
+            key = entry.getKey();
+            d = directions.get(key);
+            result.put(key, new Variable(d.name, d.priv, d.doc, entry.getValue().toString()));
+        }
+        return result;
     }
 
     public void removePrivate(Diff result) {
