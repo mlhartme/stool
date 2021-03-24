@@ -42,11 +42,10 @@ import java.util.Map;
 
 /** Mostly a name for an expression, can be evaluated. Immutable. */
 public class Sequence {
-    // this value is added to track the stage directions used
+    private static final Logger LOGGER = LoggerFactory.getLogger(Sequence.class);
+
     private static final String MERGED_INSTANCE_DIRECTIONS_VALUE = "_merge_instance_directions";
     private static final String CONFIG_DIRECTIONS_VALUE = "_config_directions";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Sequence.class);
 
     public static Sequence loadAndEat(ObjectNode helmConfig) throws IOException {
         Directions merged;
@@ -56,6 +55,8 @@ public class Sequence {
         config = Directions.loadLiteral(merged.origin, merged.author, (ObjectNode) helmConfig.remove(CONFIG_DIRECTIONS_VALUE));
         return new Sequence(merged, config);
     }
+
+    //--
 
     private final Directions merged;
     private final Directions config;
