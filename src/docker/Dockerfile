@@ -1,4 +1,4 @@
-FROM contargo.server.lan/cisoops-public/mavenbuild-java-15:1.2.3
+FROM contargo.server.lan/cisoops-public/mavenbuild-java-16:1.2.7
 
 ENV SC_HOME=/usr/local/stool
 ENV SC_OPTS=

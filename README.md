@@ -882,7 +882,7 @@ stage that cannot be deleted.
 
 Prerequisites:
 * Linux or Mac
-* Java 15 or higher.
+* Java 16 or higher.
 * If you want to use Kubernetes Contexts: [Helm](https://helm.sh) 3.
 
 Install steps

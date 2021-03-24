@@ -69,7 +69,7 @@ Other changes:
     * `environment` provides local overrides for the toolkit environment
 * log validation report result
 * readiness probe for Stool server
-* raised minimal Java version from 11 to 15
+* raised minimal Java version from 11 to 16
 * implementation changes
   * Maven: merged all modules into one
   * no longer use application files, use springboot instead  
