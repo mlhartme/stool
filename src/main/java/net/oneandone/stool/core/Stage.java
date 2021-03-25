@@ -107,7 +107,7 @@ public class Stage {
      */
     private final String name;
 
-    public final Configuration sequence;
+    public final Configuration configuration;
 
     private final Map<String, Variable> variables;
 
@@ -115,10 +115,10 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(LocalSettings localSettings, String name, Configuration sequence, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(LocalSettings localSettings, String name, Configuration configuration, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
         this.localSettings = localSettings;
         this.name = name;
-        this.sequence = sequence;
+        this.configuration = configuration;
         this.variables = variables;
         this.info = info;
         this.history = history;
@@ -248,19 +248,19 @@ public class Stage {
         fields.add(new Field("chart") {
             @Override
             public Object get(Engine engine) {
-                return sequence.chartString();
+                return configuration.chartString();
             }
         });
         fields.add(new Field("directions", true) { // TODO: rename to sequence?
             @Override
             public Object get(Engine engine) {
-                return sequence.toArray(localSettings.yaml).toPrettyString();
+                return configuration.toArray(localSettings.yaml).toPrettyString();
             }
         });
         fields.add(new Field("origin", true) {
             @Override
             public Object get(Engine engine) {
-                return sequence.origin();
+                return configuration.origin();
             }
         });
         return fields;
@@ -283,8 +283,8 @@ public class Stage {
         List<String> allowOpt;
         Configuration nextSequence;
 
-        nextSequence = directionsRefOpt == null ? sequence
-                : sequence.withDirections(localSettings.toolkit(), directionsRefOpt.resolve(localSettings));
+        nextSequence = directionsRefOpt == null ? configuration
+                : configuration.withDirections(localSettings.toolkit(), directionsRefOpt.resolve(localSettings));
         nextSequence = nextSequence.withConfig(overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
         diff = nextSequence.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap());
@@ -305,10 +305,10 @@ public class Stage {
     }
 
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
-        Configuration nextSequence;
+        Configuration nextConfiguration;
 
-        nextSequence = sequence.withConfig(changes);
-        nextSequence.helm(kubeContext, localSettings, name, true, false, null, valuesMap());
+        nextConfiguration = configuration.withConfig(changes);
+        nextConfiguration.helm(kubeContext, localSettings, name, true, false, null, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?

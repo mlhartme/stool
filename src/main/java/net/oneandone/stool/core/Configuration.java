@@ -273,7 +273,7 @@ public class Configuration {
         String key;
 
         raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), Collections.emptyList());
-        raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
+        raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.emptyList()));
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();

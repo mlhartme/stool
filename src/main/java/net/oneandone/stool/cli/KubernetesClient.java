@@ -157,7 +157,7 @@ public class KubernetesClient extends Client {
             stage = localSettings.load(engine, stageName);
             for (Variable variable : stage.variables()) {
                 if (!variable.priv) {
-                    result.put(variable.name, new Pair(stage.sequence.value(variable), variable.doc));
+                    result.put(variable.name, new Pair(stage.configuration.value(variable), variable.doc));
                 }
             }
             return result;
