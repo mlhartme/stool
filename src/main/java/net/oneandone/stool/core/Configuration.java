@@ -335,9 +335,9 @@ public class Configuration {
     }
 
     private void removePrivate(Diff result) {
-        for (Direction direction : merged().directions.values()) {
-            if (direction.priv) {
-                result.remove(direction.name);
+        for (String name : names()) {
+            if (priv(name)) {
+                result.remove(name);
             }
         }
     }
