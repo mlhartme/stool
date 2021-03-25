@@ -55,22 +55,11 @@ public class Directions {
     public static final String ORIGIN = "ORIGIN";
     public static final String AUTHOR = "AUTHOR";
 
-    public static Directions loadLiteral(String origin, String author, ObjectNode directions) throws IOException {
-        return loadRaw(directions).with(origin, author);
+    public static Directions load(String origin, String author, ObjectNode directions) throws IOException {
+        return load(directions).with(origin, author);
     }
 
-    public static Directions loadHelm(ObjectNode directions) throws IOException { // TODO: dump?
-        Directions result;
-
-        result = loadRaw(directions);
-        // chart + version are mandatory here because a stage was created with them:
-        if (result.chartOpt == null || result.chartVersionOpt == null || !result.bases.isEmpty()) {
-            throw new IllegalStateException();
-        }
-        return result;
-    }
-
-    private static Directions loadRaw(ObjectNode directions) throws IOException {
+    public static Directions load(ObjectNode directions) throws IOException {
         Map<String, JsonNode> raw;
         Iterator<Map.Entry<String, JsonNode>> iter;
         Map.Entry<String, JsonNode> entry;
@@ -205,19 +194,6 @@ public class Directions {
         }
     }
 
-    public Directions merged(Toolkit toolkit) throws IOException { // TODO: dump?
-        Chart c;
-        Directions result;
-
-        c = findChart(toolkit);
-        result = new Directions(subject, origin, author, c == null ? null : c.name, c == null ? null : c.version);
-        if (c != null) {
-            c.directions.addMerged(toolkit, result);
-        }
-        addMerged(toolkit, result);
-        return result;
-    }
-
     public List<Directions> createLayers(Toolkit toolkit) throws IOException {
         List<Directions> result;
 
@@ -237,13 +213,7 @@ public class Directions {
         }
     }
 
-    public void addMerged(Toolkit toolkit, Directions result) throws IOException {
-        Directions b;
-
-        for (String base : bases) {
-            b = toolkit.directions(base);
-            b.addMerged(toolkit, result);
-        }
+    public void addMergedWithoutBases(Directions result) {
         for (Direction d : directions.values()) {
             result.addMerged(d);
         }

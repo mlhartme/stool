@@ -106,7 +106,7 @@ public class DirectionsRef {
             case INLINE:
                 try (Reader src = new StringReader(value)) {
                     try {
-                        result = Directions.loadLiteral(origin, null, object(localSettings.yaml.readTree(src)));
+                        result = Directions.load(origin, null, object(localSettings.yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse directions from file: " + e.getMessage(), e);
                     }
@@ -124,7 +124,7 @@ public class DirectionsRef {
                 }
                 try (Reader src = new StringReader(decode(str))) {
                     try {
-                        result = Directions.loadLiteral(origin, tag.author, object(localSettings.yaml.readTree(src)));
+                        result = Directions.load(origin, tag.author, object(localSettings.yaml.readTree(src)));
                     } catch (IOException e) {
                         throw new IOException(origin + ": failed to parse directions from image label: " + e.getMessage(), e);
                     }

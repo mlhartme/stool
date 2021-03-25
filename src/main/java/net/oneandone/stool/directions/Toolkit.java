@@ -140,7 +140,7 @@ public class Toolkit {
     public void loadAll(ObjectMapper yaml, List<FileNode> files) throws IOException {
         for (FileNode file : files) {
             try (Reader src = file.newReader()) {
-                addDirections(Directions.loadLiteral("builtin", DirectionsRef.BUILDIN, (ObjectNode) yaml.readTree(src)));
+                addDirections(Directions.load("builtin", DirectionsRef.BUILDIN, (ObjectNode) yaml.readTree(src)));
             }
         }
     }

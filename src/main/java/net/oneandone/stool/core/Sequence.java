@@ -66,7 +66,7 @@ public class Sequence {
 
         result = new Sequence();
         for (JsonNode entry : helmConfig.remove(DIRECTIONS_VALUE)) {
-            result.layers.add(Directions.loadLiteral("TODO", "TODO", (ObjectNode) entry));
+            result.layers.add(Directions.load((ObjectNode) entry));
         }
         return result;
     }
@@ -287,11 +287,7 @@ public class Sequence {
             if (result == null) {
                 result = layer.clone();
             } else {
-                try {
-                    layer.addMerged(null, result); // TODO
-                } catch (IOException e) {
-                    throw new IllegalStateException(e);
-                }
+                layer.addMergedWithoutBases(result);
             }
 
         }
@@ -323,5 +319,12 @@ public class Sequence {
         } else {
             LOGGER.info(dir.exec(cmd));
         }
+    }
+
+    //--
+
+    // TODO
+    public static Directions merged(Toolkit toolkit, Directions directions) throws IOException {
+        return Sequence.create(toolkit, directions, Collections.emptyMap()).merged();
     }
 }

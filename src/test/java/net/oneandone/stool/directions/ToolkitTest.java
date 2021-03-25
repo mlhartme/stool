@@ -17,6 +17,7 @@ package net.oneandone.stool.directions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import net.oneandone.stool.core.Sequence;
 import net.oneandone.stool.util.Json;
 import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ public class ToolkitTest {
 
         toolkit = Toolkit.load(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/toolkit").checkDirectory(), "");
         assertEquals(2, toolkit.directionsSize());
-        d = toolkit.directions("derived").merged(toolkit);
+        d = Sequence.merged(toolkit, toolkit.directions("derived"));
         assertEquals("=42", d.directions.get("asis").expression);
         assertEquals("=modified", d.directions.get("base").expression);
         assertEquals("=3", d.directions.get("added").expression);
