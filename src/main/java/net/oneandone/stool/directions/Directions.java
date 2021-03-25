@@ -292,23 +292,6 @@ public class Directions {
         return node;
     }
 
-    public Chart findChart(Toolkit toolkit) throws IOException {
-        Chart result;
-        Chart other;
-
-        result = chartOpt != null ? toolkit.chart(chartOpt) : null;
-        for (String base : bases) {
-            other = toolkit.directions(base).findChart(toolkit);
-            if (other != null) {
-                if (result != null && result != other) {
-                    throw new IOException("chart ambiguous");
-                }
-                result = other;
-            }
-        }
-        return result;
-    }
-
     public List<String> toDescribe(Toolkit toolkit, String select) throws IOException {
         List<String> result;
 

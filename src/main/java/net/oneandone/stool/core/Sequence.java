@@ -58,7 +58,7 @@ public class Sequence {
 
         result = new Sequence();
         result.layers.add(Directions.configDirections(values));
-        result.layers.addAll(directions.createLayers(toolkit));
+        result.addDirections(toolkit, directions);
         return result;
     }
 
@@ -80,6 +80,17 @@ public class Sequence {
     private Sequence() {
         layers = new ArrayList<>();
     }
+
+    private void addDirections(Toolkit toolkit, Directions directions) throws IOException {
+        Directions chartLayer;
+
+        layers.addAll(directions.createLayers(toolkit));
+        chartLayer = chartLayer();
+        if (chartLayer != null) { // TODO: for tests
+            layers.add(toolkit.chart(chartLayer.chartOpt).directions.clone());
+        }
+    }
+
 
     private Directions config() {
         return layers.get(0);
@@ -167,18 +178,16 @@ public class Sequence {
     }
 
 
-    public Sequence nextSequence(LocalSettings localSettings, DirectionsRef directionsRef) throws IOException {
-        Directions directions;
+    public Sequence withDirections(LocalSettings localSettings, DirectionsRef directionsRef) throws IOException {
         Sequence result;
 
         result = new Sequence();
         result.layers.add(config().clone());
-        directions = directionsRef.resolve(localSettings);
-        result.layers.addAll(directions.createLayers(localSettings.toolkit()));
+        result.addDirections(localSettings.toolkit(), directionsRef.resolve(localSettings));
         return result;
     }
 
-    public Sequence nextSequence(Map<String, String> overrides) {
+    public Sequence withConfig(Map<String, String> overrides) {
         Sequence result;
 
         result = clone();
@@ -271,7 +280,7 @@ public class Sequence {
             LOGGER.info("values: " + valuesFile.readString());
             helm(dryrun, kubeContext,
                     localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name,
-                    toolkit.chart(merged().chartOpt).reference);
+                    toolkit.chart(chartLayer().chartOpt).reference);
             return result;
         } finally {
             valuesFile.deleteFile();

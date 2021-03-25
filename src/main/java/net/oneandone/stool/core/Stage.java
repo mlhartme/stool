@@ -283,8 +283,8 @@ public class Stage {
         List<String> allowOpt;
         Sequence nextSequence;
 
-        nextSequence = directionsRefOpt == null ? sequence : sequence.nextSequence(localSettings, directionsRefOpt);
-        nextSequence = nextSequence.nextSequence(overrides);
+        nextSequence = directionsRefOpt == null ? sequence : sequence.withDirections(localSettings, directionsRefOpt);
+        nextSequence = nextSequence.withConfig(overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
         diff = nextSequence.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap());
         history.add(HistoryEntry.create(caller));
@@ -306,7 +306,7 @@ public class Stage {
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
         Sequence nextSequence;
 
-        nextSequence = sequence.nextSequence(changes);
+        nextSequence = sequence.withConfig(changes);
         nextSequence.helm(kubeContext, localSettings, name, true, false, null, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
