@@ -18,7 +18,7 @@ package net.oneandone.stool.directions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import net.oneandone.stool.core.Sequence;
+import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
@@ -104,7 +104,7 @@ public class DirectionsTest {
                 EXTENDS: "first"
                 v: 2
                 """);
-        assertEquals("=1", Sequence.merged(toolkit, toolkit.directions("first")).get("v").expression);
+        assertEquals("=1", Configuration.merged(toolkit, toolkit.directions("first")).get("v").expression);
         assertEquals("=2", toolkit.directions("second").get("v").expression);
     }
     @Test
@@ -139,7 +139,7 @@ public class DirectionsTest {
         toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
         toolkit.addDirections(Directions.forTest("base", "f", "1"));
         obj = (ObjectNode) YAML.readTree(str);
-        return Sequence.merged(toolkit, Directions.load("", null, obj));
+        return Configuration.merged(toolkit, Directions.load("", null, obj));
     }
 
     private Toolkit toolkit(String ... directionsArray) throws IOException {

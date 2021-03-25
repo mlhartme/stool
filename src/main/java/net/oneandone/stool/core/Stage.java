@@ -47,11 +47,11 @@ public class Stage {
                                DirectionsRef directionsRef, Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
-        Sequence sequence;
+        Configuration sequence;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        sequence = Sequence.create(localSettings.toolkit(), directionsRef.resolve(localSettings), values);
+        sequence = Configuration.create(localSettings.toolkit(), directionsRef.resolve(localSettings), values);
         sequence.helm(kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap());
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
@@ -89,9 +89,9 @@ public class Stage {
 
 
     public static Stage create(LocalSettings localSettings, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
-        Sequence sequence;
+        Configuration sequence;
 
-        sequence = Sequence.loadAndEat((ObjectNode) helmObject.get("config"));
+        sequence = Configuration.loadAndEat((ObjectNode) helmObject.get("config"));
         return new Stage(localSettings, name, sequence, sequence.loadVariables(helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
@@ -107,7 +107,7 @@ public class Stage {
      */
     private final String name;
 
-    public final Sequence sequence;
+    public final Configuration sequence;
 
     private final Map<String, Variable> variables;
 
@@ -115,7 +115,7 @@ public class Stage {
 
     public final List<HistoryEntry> history;
 
-    public Stage(LocalSettings localSettings, String name, Sequence sequence, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(LocalSettings localSettings, String name, Configuration sequence, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
         this.localSettings = localSettings;
         this.name = name;
         this.sequence = sequence;
@@ -281,9 +281,10 @@ public class Stage {
                         DirectionsRef directionsRefOpt, Map<String, String> overrides) throws IOException {
         Diff diff;
         List<String> allowOpt;
-        Sequence nextSequence;
+        Configuration nextSequence;
 
-        nextSequence = directionsRefOpt == null ? sequence : sequence.withDirections(localSettings, directionsRefOpt);
+        nextSequence = directionsRefOpt == null ? sequence
+                : sequence.withDirections(localSettings.toolkit(), directionsRefOpt.resolve(localSettings));
         nextSequence = nextSequence.withConfig(overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
         diff = nextSequence.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap());
@@ -304,7 +305,7 @@ public class Stage {
     }
 
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
-        Sequence nextSequence;
+        Configuration nextSequence;
 
         nextSequence = sequence.withConfig(changes);
         nextSequence.helm(kubeContext, localSettings, name, true, false, null, valuesMap());
@@ -318,7 +319,7 @@ public class Stage {
     }
 
     public void uninstall(String kubeContext, Engine engine) throws IOException {
-        Sequence.helm(false, kubeContext, localSettings.world.getWorking(), "uninstall", getName());
+        Configuration.helm(false, kubeContext, localSettings.world.getWorking(), "uninstall", getName());
         engine.deploymentAwaitGone(getName());
     }
 

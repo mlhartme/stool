@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Direction;
 import net.oneandone.stool.directions.Directions;
-import net.oneandone.stool.directions.DirectionsRef;
 import net.oneandone.stool.directions.Freemarker;
 import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.directions.Variable;
@@ -50,24 +49,24 @@ import java.util.Set;
  * The directions needed to configure a stage. To make it independent from toolkit (changes).
  * TODO: rename to Config?
  */
-public class Sequence {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Sequence.class);
+public class Configuration {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
     private static final String DIRECTIONS_VALUE = "_directions";
 
-    public static Sequence create(Toolkit toolkit, Directions directions, Map<String, String> values) throws IOException {
-        Sequence result;
+    public static Configuration create(Toolkit toolkit, Directions directions, Map<String, String> values) throws IOException {
+        Configuration result;
 
-        result = new Sequence();
+        result = new Configuration();
         result.layers.add(Directions.configDirections(values));
         result.addDirections(toolkit, directions);
         return result;
     }
 
-    public static Sequence loadAndEat(ObjectNode helmConfig) throws IOException {
-        Sequence result;
+    public static Configuration loadAndEat(ObjectNode helmConfig) throws IOException {
+        Configuration result;
 
-        result = new Sequence();
+        result = new Configuration();
         for (JsonNode entry : helmConfig.remove(DIRECTIONS_VALUE)) {
             result.layers.add(Directions.load((ObjectNode) entry));
         }
@@ -79,7 +78,7 @@ public class Sequence {
     // config is first; directions without base
     private final List<Directions> layers;
 
-    private Sequence() {
+    private Configuration() {
         layers = new ArrayList<>();
     }
 
@@ -92,6 +91,34 @@ public class Sequence {
             layers.add(toolkit.chart(chartLayer.chartOpt).directions.clone());
         }
     }
+
+    public Configuration withDirections(Toolkit toolkit, Directions directions) throws IOException {
+        Configuration result;
+
+        result = new Configuration();
+        result.layers.add(config().clone());
+        result.addDirections(toolkit, directions);
+        return result;
+    }
+
+    public Configuration withConfig(Map<String, String> overrides) {
+        Configuration result;
+
+        result = clone();
+        result.config().setValues(overrides);
+        return result;
+    }
+
+    public Configuration clone() {
+        Configuration result;
+
+        result = new Configuration();
+        for (Directions layer : layers) {
+            result.layers.add(layer.clone());
+        }
+        return result;
+    }
+
 
     public Set<String> names() {
         Set<String> result;
@@ -207,33 +234,6 @@ public class Sequence {
         return result;
     }
 
-
-    public Sequence withDirections(LocalSettings localSettings, DirectionsRef directionsRef) throws IOException {
-        Sequence result;
-
-        result = new Sequence();
-        result.layers.add(config().clone());
-        result.addDirections(localSettings.toolkit(), directionsRef.resolve(localSettings));
-        return result;
-    }
-
-    public Sequence withConfig(Map<String, String> overrides) {
-        Sequence result;
-
-        result = clone();
-        result.config().setValues(overrides);
-        return result;
-    }
-
-    public Sequence clone() {
-        Sequence result;
-
-        result = new Sequence();
-        for (Directions layer : layers) {
-            result.layers.add(layer.clone());
-        }
-        return result;
-    }
 
     public String origin() {
         return "TODO";
@@ -365,6 +365,6 @@ public class Sequence {
 
     // TODO
     public static Directions merged(Toolkit toolkit, Directions directions) throws IOException {
-        return Sequence.create(toolkit, directions, Collections.emptyMap()).merged();
+        return Configuration.create(toolkit, directions, Collections.emptyMap()).merged();
     }
 }
