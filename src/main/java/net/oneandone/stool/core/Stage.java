@@ -47,12 +47,12 @@ public class Stage {
                                DirectionsRef directionsRef, Map<String, String> values) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
-        Configuration sequence;
+        Configuration configuration;
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        sequence = Configuration.create(localSettings.toolkit(), directionsRef.resolve(localSettings), values);
-        sequence.helm(kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap());
+        configuration = Configuration.create(localSettings.toolkit(), directionsRef.resolve(localSettings), values);
+        configuration.helm(kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap());
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -89,10 +89,10 @@ public class Stage {
 
 
     public static Stage create(LocalSettings localSettings, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
-        Configuration sequence;
+        Configuration configuration;
 
-        sequence = Configuration.loadAndEat((ObjectNode) helmObject.get("config"));
-        return new Stage(localSettings, name, sequence, sequence.loadVariables(helmObject), (ObjectNode) helmObject.get("info"), history);
+        configuration = Configuration.loadAndEat((ObjectNode) helmObject.get("config"));
+        return new Stage(localSettings, name, configuration, configuration.loadVariables(helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
     //--
@@ -251,7 +251,7 @@ public class Stage {
                 return configuration.chartString();
             }
         });
-        fields.add(new Field("directions", true) { // TODO: rename to sequence?
+        fields.add(new Field("directions", true) {
             @Override
             public Object get(Engine engine) {
                 return configuration.toArray(localSettings.yaml).toPrettyString();
@@ -281,13 +281,13 @@ public class Stage {
                         DirectionsRef directionsRefOpt, Map<String, String> overrides) throws IOException {
         Diff diff;
         List<String> allowOpt;
-        Configuration nextSequence;
+        Configuration nextConfiguration;
 
-        nextSequence = directionsRefOpt == null ? configuration
+        nextConfiguration = directionsRefOpt == null ? configuration
                 : configuration.withDirections(localSettings.toolkit(), directionsRefOpt.resolve(localSettings));
-        nextSequence = nextSequence.withConfig(overrides);
+        nextConfiguration = nextConfiguration.withConfig(overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
-        diff = nextSequence.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap());
+        diff = nextConfiguration.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         // TODO: update values in this stage instance? or return new instance?
