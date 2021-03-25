@@ -94,10 +94,10 @@ public class Sequence {
     }
 
 
-    public Sequence nextSequence(LocalSettings localSettings, DirectionsRef directionsRefOpt) throws IOException {
+    public Sequence nextSequence(LocalSettings localSettings, DirectionsRef directionsRef) throws IOException {
         Directions directions;
 
-        directions = directionsRefOpt.resolve(localSettings).merged(localSettings.toolkit());
+        directions = directionsRef.resolve(localSettings).merged(localSettings.toolkit());
         return new Sequence(directions, config.clone());
     }
 
