@@ -40,19 +40,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Mostly a name for an expression, can be evaluated. Immutable. */
+/** The directions needed to configure a stage. To make it independent from toolkit (changes) */
 public class Sequence {
     private static final Logger LOGGER = LoggerFactory.getLogger(Sequence.class);
 
-    private static final String MERGED_INSTANCE_DIRECTIONS_VALUE = "_merge_instance_directions";
-    private static final String CONFIG_DIRECTIONS_VALUE = "_config_directions";
+    private static final String DIRECTIONS_VALUE = "_directions";
+
+    private static final String INSTANCE = "instance";
+    private static final String CONFIG = "config";
 
     public static Sequence loadAndEat(ObjectNode helmConfig) throws IOException {
+        ObjectNode obj;
         Directions merged;
         Directions config;
 
-        merged = Directions.loadHelm((ObjectNode) helmConfig.remove(MERGED_INSTANCE_DIRECTIONS_VALUE));
-        config = Directions.loadLiteral(merged.origin, merged.author, (ObjectNode) helmConfig.remove(CONFIG_DIRECTIONS_VALUE));
+        obj = (ObjectNode) helmConfig.remove(DIRECTIONS_VALUE);
+        merged = Directions.loadHelm((ObjectNode) obj.get(INSTANCE));
+        config = Directions.loadLiteral(merged.origin, merged.author, (ObjectNode) obj.get(CONFIG));
         return new Sequence(merged, config);
     }
 
@@ -88,8 +92,8 @@ public class Sequence {
         ObjectNode result;
 
         result = yaml.createObjectNode();
-        result.set("instance", merged.toObject(yaml));
-        result.set("config", config.toObject(yaml));
+        result.set(INSTANCE, merged.toObject(yaml));
+        result.set(CONFIG, config.toObject(yaml));
         return result;
     }
 
@@ -133,8 +137,7 @@ public class Sequence {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(MERGED_INSTANCE_DIRECTIONS_VALUE, merged.toObject(yaml));
-        dest.set(CONFIG_DIRECTIONS_VALUE, config.toObject(yaml));
+        dest.set(DIRECTIONS_VALUE, toObject(yaml));
 
         // check expire - TODO: ugly up reference to core package
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
