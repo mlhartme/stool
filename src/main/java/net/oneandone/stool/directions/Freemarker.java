@@ -33,6 +33,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,7 +71,7 @@ public class Freemarker {
         this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Map<String, String> previous, Directions directions, FileNode scripts) {
+    public Map<String, String> eval(Map<String, String> previous, Collection<Direction> directions, FileNode scripts) {
         Map<String, String> result;
 
         if (context != null) {
@@ -80,10 +81,10 @@ public class Freemarker {
         contextScripts = scripts;
         contextPrevious = previous;
         try {
-            for (Direction direction : directions.directions.values()) {
+            for (Direction direction : directions) {
                 context.put(direction.name, direction);
             }
-            for (Direction directon : directions.directions.values()) {
+            for (Direction directon : directions) {
                 evalValue(directon.name);
             }
             result = new LinkedHashMap<>();

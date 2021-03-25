@@ -125,7 +125,7 @@ public class DirectionsTest {
                   expr: "stool.fqdn"
                 """);
         fm = FreemarkerTest.freemarker(WORLD);
-        result = fm.eval(Collections.emptyMap(), toolkit.directions("first"), WORLD.getTemp().createTempDirectory());
+        result = fm.eval(Collections.emptyMap(), toolkit.directions("first").directions.values(), WORLD.getTemp().createTempDirectory());
         assertEquals("", result.get("a"));
         assertEquals("", result.get("b"));
         assertEquals("hi", result.get("c"));

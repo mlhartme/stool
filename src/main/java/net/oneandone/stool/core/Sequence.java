@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,8 +196,8 @@ public class Sequence {
         return result;
     }
 
-    public Object origin() {
-        return merged().origin;
+    public String origin() {
+        return "TODO";
     }
 
 
@@ -256,7 +257,7 @@ public class Sequence {
         toolkit = localSettings.toolkit();
         LOGGER.info("chart: " + chartString());
         freemarker = toolkit.freemarker(localSettings.getLib(), name, localSettings.fqdn);
-        values = freemarker.eval(prev, merged(), toolkit.scripts);
+        values = freemarker.eval(prev, execDirections().values(), toolkit.scripts);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -300,6 +301,22 @@ public class Sequence {
                 result.remove(direction.name);
             }
         }
+    }
+
+    //--
+
+    public Map<String, Direction> execDirections() {
+        Map<String, Direction> result;
+
+        result = new HashMap<>();
+        for (Directions layer : layers) {
+            for (Direction s : layer.directions.values()) {
+                if (s.expression != null && !result.containsKey(s.name)) {
+                    result.put(s.name, s);
+                }
+            }
+        }
+        return result;
     }
 
     //--
