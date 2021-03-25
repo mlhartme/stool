@@ -40,9 +40,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The directions needed to configure a stage. To make it independent from toolkit (changes).
@@ -91,6 +93,26 @@ public class Sequence {
         }
     }
 
+    public Set<String> names() {
+        Set<String> result;
+
+        result = new HashSet<>();
+        for (Directions layer : layers) {
+            result.addAll(layer.directions.keySet());
+        }
+        return result;
+    }
+
+    public Map<String, Direction> execDirections() {
+        Map<String, Direction> result;
+
+        result = new HashMap<>();
+        for (String name: names()) {
+            result.put(name, exprLayer(name).get(name));
+        }
+        return result;
+    }
+
 
     private Directions config() {
         return layers.get(0);
@@ -107,14 +129,22 @@ public class Sequence {
 
     private Directions exprLayer(String name) {
         Direction one;
+        Directions empty;
 
+        empty = null;
         for (Directions layer : layers) {
             one = layer.directions.get(name);
             if (one != null && one.expression != null) {
-                return layer;
+                if (!one.expression.isEmpty()) {
+                    return layer;
+                } else {
+                    if (empty == null) {
+                        empty = layer;
+                    }
+                }
             }
         }
-        return null;
+        return empty;
     }
 
     public boolean priv(String name) {
@@ -310,22 +340,6 @@ public class Sequence {
                 result.remove(direction.name);
             }
         }
-    }
-
-    //--
-
-    public Map<String, Direction> execDirections() {
-        Map<String, Direction> result;
-
-        result = new HashMap<>();
-        for (Directions layer : layers) {
-            for (Direction s : layer.directions.values()) {
-                if (s.expression != null && !result.containsKey(s.name)) {
-                    result.put(s.name, s);
-                }
-            }
-        }
-        return result;
     }
 
     //--
