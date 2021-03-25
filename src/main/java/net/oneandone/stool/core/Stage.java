@@ -20,7 +20,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.cli.Caller;
 import net.oneandone.stool.directions.DirectionsRef;
-import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.kubernetes.Stats;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.kubernetes.Engine;
@@ -52,7 +51,7 @@ public class Stage {
 
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        sequence = new Sequence(directionsRef.resolve(localSettings).merged(localSettings.toolkit()), Directions.configDirections(values));
+        sequence = Sequence.create(localSettings.toolkit(), directionsRef.resolve(localSettings), values);
         sequence.helm(kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap());
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
@@ -255,7 +254,7 @@ public class Stage {
         fields.add(new Field("directions", true) { // TODO: rename to sequence?
             @Override
             public Object get(Engine engine) {
-                return sequence.toObject(localSettings.yaml).toPrettyString();
+                return sequence.toArray(localSettings.yaml).toPrettyString();
             }
         });
         fields.add(new Field("origin", true) {

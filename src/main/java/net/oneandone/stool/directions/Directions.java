@@ -59,7 +59,7 @@ public class Directions {
         return loadRaw(directions).with(origin, author);
     }
 
-    public static Directions loadHelm(ObjectNode directions) throws IOException {
+    public static Directions loadHelm(ObjectNode directions) throws IOException { // TODO: dump?
         Directions result;
 
         result = loadRaw(directions);
@@ -205,7 +205,7 @@ public class Directions {
         }
     }
 
-    public Directions merged(Toolkit toolkit) throws IOException {
+    public Directions merged(Toolkit toolkit) throws IOException { // TODO: dump?
         Chart c;
         Directions result;
 
@@ -216,6 +216,25 @@ public class Directions {
         }
         addMerged(toolkit, result);
         return result;
+    }
+
+    public List<Directions> createLayers(Toolkit toolkit) throws IOException {
+        List<Directions> result;
+
+        result = new ArrayList<>();
+        addLayers(toolkit, result);
+        return result;
+    }
+
+    private void addLayers(Toolkit toolkit, List<Directions> result) throws IOException {
+        Directions layer;
+
+        layer = clone();
+        layer.bases.clear();
+        result.add(layer);
+        for (String base : bases) { // TODO: >1 bases ok?
+            toolkit.directions(base).addLayers(toolkit, result);
+        }
     }
 
     public void addMerged(Toolkit toolkit, Directions result) throws IOException {

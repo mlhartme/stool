@@ -15,7 +15,9 @@
  */
 package net.oneandone.stool.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Direction;
@@ -34,83 +36,167 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** The directions needed to configure a stage. To make it independent from toolkit (changes) */
+/**
+ * The directions needed to configure a stage. To make it independent from toolkit (changes).
+ * TODO: rename to Config?
+ */
 public class Sequence {
     private static final Logger LOGGER = LoggerFactory.getLogger(Sequence.class);
 
     private static final String DIRECTIONS_VALUE = "_directions";
 
-    private static final String INSTANCE = "instance";
-    private static final String CONFIG = "config";
+    public static Sequence create(Toolkit toolkit, Directions directions, Map<String, String> values) throws IOException {
+        Sequence result;
+
+        result = new Sequence();
+        result.layers.add(Directions.configDirections(values));
+        result.layers.addAll(directions.createLayers(toolkit));
+        return result;
+    }
 
     public static Sequence loadAndEat(ObjectNode helmConfig) throws IOException {
-        ObjectNode obj;
-        Directions merged;
-        Directions config;
+        Sequence result;
 
-        obj = (ObjectNode) helmConfig.remove(DIRECTIONS_VALUE);
-        merged = Directions.loadHelm((ObjectNode) obj.get(INSTANCE));
-        config = Directions.loadLiteral(merged.origin, merged.author, (ObjectNode) obj.get(CONFIG));
-        return new Sequence(merged, config);
-    }
-
-    //--
-
-    private final Directions merged;
-    private final Directions config;
-
-    public Sequence(Directions merged, Directions config) {
-        this.merged = merged;
-        this.config = config;
-    }
-
-    public String chartString() {
-        return merged.chartOpt + ":" + merged.chartVersionOpt;
-    }
-
-    public String value(Variable variable) {
-        String result;
-
-        result = variable.get();
-        if (!config.directions.containsKey(variable.name)) {
-            result = result + " # " + merged.get(variable.name).expression;
+        result = new Sequence();
+        for (JsonNode entry : helmConfig.remove(DIRECTIONS_VALUE)) {
+            result.layers.add(Directions.loadLiteral("TODO", "TODO", (ObjectNode) entry));
         }
         return result;
     }
 
-    public ObjectNode toObject(ObjectMapper yaml) {
-        ObjectNode result;
+    //--
 
-        result = yaml.createObjectNode();
-        result.set(INSTANCE, merged.toObject(yaml));
-        result.set(CONFIG, config.toObject(yaml));
+    // config is first; directions without base
+    private final List<Directions> layers;
+
+    private Sequence() {
+        layers = new ArrayList<>();
+    }
+
+    private Directions config() {
+        return layers.get(0);
+    }
+
+    private Directions chartLayer() {
+        for (Directions d : layers) {
+            if (d.chartOpt != null) {
+                return d;
+            }
+        }
+        return null;
+    }
+
+    private Directions exprLayer(String name) {
+        Direction one;
+
+        for (Directions layer : layers) {
+            one = layer.directions.get(name);
+            if (one != null && one.expression != null) {
+                return layer;
+            }
+        }
+        return null;
+    }
+
+    public boolean priv(String name) {
+        Direction one;
+
+        for (Directions layer : layers) {
+            one = layer.directions.get(name);
+            if (one != null && one.priv) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String doc(String name) {
+        Direction one;
+
+        for (Directions layer : layers) {
+            one = layer.directions.get(name);
+            if (one != null && one.doc != null) {
+                return one.doc;
+            }
+        }
+        return "";
+    }
+
+    public String chartString() {
+        Directions d;
+
+        d = chartLayer();
+        return d.chartOpt + ":" + d.chartVersionOpt;
+    }
+
+    public String value(Variable variable) {
+        String result;
+        Directions d;
+        Direction one;
+
+        result = variable.get();
+        d = exprLayer(variable.name);
+        if (d == null) {
+            // TODO replicas in stool chart ...
+        } else {
+            result = result + " [" + d.subject + "]";
+            one = d.get(variable.name);
+            if (!one.isValue()) {
+                result = result + " " + one.expression;
+            }
+        }
+        return result;
+    }
+
+    public ArrayNode toArray(ObjectMapper yaml) {
+        ArrayNode result;
+
+        result = yaml.createArrayNode();
+        for (Directions layer : layers) {
+            result.add(layer.toObject(yaml));
+        }
         return result;
     }
 
 
     public Sequence nextSequence(LocalSettings localSettings, DirectionsRef directionsRef) throws IOException {
         Directions directions;
+        Sequence result;
 
-        directions = directionsRef.resolve(localSettings).merged(localSettings.toolkit());
-        return new Sequence(directions, config.clone());
+        result = new Sequence();
+        result.layers.add(config().clone());
+        directions = directionsRef.resolve(localSettings);
+        result.layers.addAll(directions.createLayers(localSettings.toolkit()));
+        return result;
     }
 
     public Sequence nextSequence(Map<String, String> overrides) {
-        Directions nextConfig;
+        Sequence result;
 
-        nextConfig = config.clone();
-        nextConfig.setValues(overrides);
-        return new Sequence(merged.clone(), nextConfig);
+        result = clone();
+        result.config().setValues(overrides);
+        return result;
+    }
+
+    public Sequence clone() {
+        Sequence result;
+
+        result = new Sequence();
+        for (Directions layer : layers) {
+            result.layers.add(layer.clone());
+        }
+        return result;
     }
 
     public Object origin() {
-        return merged.origin;
+        return merged().origin;
     }
 
 
@@ -125,7 +211,7 @@ public class Sequence {
             dest.put(entry.getKey(), entry.getValue());
         }
 
-        dest.set(DIRECTIONS_VALUE, toObject(yaml));
+        dest.set(DIRECTIONS_VALUE, toArray(yaml));
 
         // check expire - TODO: ugly up reference to core package
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
@@ -142,20 +228,16 @@ public class Sequence {
     }
 
     public Map<String, Variable> loadVariables(ObjectNode helmObject) {
-        Directions directions;
         Map<String, Object> raw;
         Map<String, Variable> result;
         String key;
-        Direction d;
 
-        directions = merged; // config just adds values, so it's safe to pass instance only here
         raw = Json.toStringMap((ObjectNode) helmObject.get("chart").get("values"), Collections.emptyList());
         raw.putAll(Json.toStringMap((ObjectNode) helmObject.get("config"), Collections.EMPTY_LIST));
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : raw.entrySet()) {
             key = entry.getKey();
-            d = directions.get(key);
-            result.put(key, new Variable(d.name, d.priv, d.doc, entry.getValue().toString()));
+            result.put(key, new Variable(key, priv(key), doc(key), entry.getValue().toString()));
         }
         return result;
     }
@@ -174,7 +256,7 @@ public class Sequence {
         toolkit = localSettings.toolkit();
         LOGGER.info("chart: " + chartString());
         freemarker = toolkit.freemarker(localSettings.getLib(), name, localSettings.fqdn);
-        values = freemarker.eval(prev, configMerged(toolkit), toolkit.scripts);
+        values = freemarker.eval(prev, merged(), toolkit.scripts);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -188,23 +270,36 @@ public class Sequence {
             LOGGER.info("values: " + valuesFile.readString());
             helm(dryrun, kubeContext,
                     localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name,
-                    toolkit.chart(merged.chartOpt).reference);
+                    toolkit.chart(merged().chartOpt).reference);
             return result;
         } finally {
             valuesFile.deleteFile();
         }
     }
 
-    private Directions configMerged(Toolkit toolkit) throws IOException {
+    private Directions merged() {
         Directions result;
+        Directions layer;
 
-        result = merged.clone();
-        config.addMerged(toolkit, result);
+        result = null;
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            layer = layers.get(i);
+            if (result == null) {
+                result = layer.clone();
+            } else {
+                try {
+                    layer.addMerged(null, result); // TODO
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+
+        }
         return result;
     }
 
     private void removePrivate(Diff result) {
-        for (Direction direction : merged.directions.values()) {
+        for (Direction direction : merged().directions.values()) {
             if (direction.priv) {
                 result.remove(direction.name);
             }
