@@ -74,15 +74,11 @@ public class Sequence {
         return merged.chartOpt + ":" + merged.chartVersionOpt;
     }
 
-    public boolean fixed(String name) {
-        return config.directions.containsKey(name);
-    }
-
     public String value(Variable variable) {
         String result;
 
         result = variable.get();
-        if (!fixed(variable.name)) {
+        if (!config.directions.containsKey(variable.name)) {
             result = result + " # " + merged.get(variable.name).expression;
         }
         return result;
@@ -111,14 +107,6 @@ public class Sequence {
         nextConfig = config.clone();
         nextConfig.setValues(overrides);
         return new Sequence(merged.clone(), nextConfig);
-    }
-
-    public Directions configMerged(Toolkit toolkit) throws IOException {
-        Directions result;
-
-        result = merged.clone();
-        config.addMerged(toolkit, result);
-        return result;
     }
 
     public Object origin() {
@@ -172,19 +160,10 @@ public class Sequence {
         return result;
     }
 
-    public void removePrivate(Diff result) {
-        for (Direction direction : merged.directions.values()) {
-            if (direction.priv) {
-                result.remove(direction.name);
-            }
-        }
-    }
-
     //--
 
     public Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                            Map<String, String> prev)
-            throws IOException {
+                            Map<String, String> prev) throws IOException {
         Toolkit toolkit;
         Freemarker freemarker;
         FileNode valuesFile;
@@ -213,6 +192,22 @@ public class Sequence {
             return result;
         } finally {
             valuesFile.deleteFile();
+        }
+    }
+
+    private Directions configMerged(Toolkit toolkit) throws IOException {
+        Directions result;
+
+        result = merged.clone();
+        config.addMerged(toolkit, result);
+        return result;
+    }
+
+    private void removePrivate(Diff result) {
+        for (Direction direction : merged.directions.values()) {
+            if (direction.priv) {
+                result.remove(direction.name);
+            }
         }
     }
 
