@@ -287,10 +287,16 @@ public class Configuration {
 
     //--
 
+    public Map<String, String> eval(Toolkit toolkit, FileNode lib, String stage, String fqdn, Map<String, String> prev) {
+        Freemarker freemarker;
+
+        freemarker = toolkit.freemarker(lib, stage, fqdn);
+        return freemarker.eval(prev, execDirections().values(), toolkit.scripts);
+    }
+
     public Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                             Map<String, String> prev) throws IOException {
         Toolkit toolkit;
-        Freemarker freemarker;
         FileNode valuesFile;
         Map<String, String> values;
         Diff result;
@@ -298,8 +304,7 @@ public class Configuration {
 
         toolkit = localSettings.toolkit();
         LOGGER.info("chart: " + chartString());
-        freemarker = toolkit.freemarker(localSettings.getLib(), name, localSettings.fqdn);
-        values = freemarker.eval(prev, execDirections().values(), toolkit.scripts);
+        values = eval(toolkit, localSettings.getLib(), name, localSettings.fqdn, prev);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);

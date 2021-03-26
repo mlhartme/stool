@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -35,28 +36,89 @@ public class ConfigurationTest {
 
     @Test
     public void simple() throws IOException {
-        Configuration c;
-
-        c = config("""
+        check(values("a", "1"), chart("a"),
+                 """
                  DIRECTIONS: 'foo'
                  a: '1'
                  """);
-        assertEquals("foo", c.subject());
-        assertEquals(1, c.names().size());
+    }
+
+    @Test
+    public void extend() throws IOException {
+        check(values("one", "1", "two", "2"), chart("one", "two"),
+                """
+                DIRECTIONS: 'foo'
+                EXTENDS: 'base'
+                one: "1"
+                """,
+                """
+                DIRECTIONS: 'base'
+                two: "2"
+                """);
     }
 
     @Test
     public void override() throws IOException {
-        Configuration c;
-
-        c = create("""
+        check(Strings.toMap("f", "1"), chart("f"),
+                """
                 DIRECTIONS: 'foo'
                 EXTENDS: 'base'
-                f:
-                  expr: 2
+                f: "1"
+                """,
+                """
+                DIRECTIONS: 'base'
+                f: "2"
                 """);
-        // TODO assertEquals("foo", c.subject);
-        assertEquals(1, c.names().size());
+    }
+
+    @Test
+    public void extra() throws IOException {
+        check(Strings.toMap("v", "2"), chart(),
+                """
+                DIRECTIONS: 'foo'
+                v:
+                    expr: 2
+                    extra: true
+                """);
+    }
+
+
+
+    private static Map<String, String> values(String... args) {
+        return Strings.toMap(args);
+    }
+
+    private static Chart chart(String ... args) {
+        Directions d;
+
+        d = new Directions("chart-directions", "no-origin", "no-author", "chart", "version");
+        for (String arg : args) {
+            d.addNew(new Direction(arg, ""));
+        }
+        return new Chart("testchart", "noversions", "noref", d);
+    }
+
+    private void check(Map<String, String> expected, Chart chart, String... directions) throws IOException {
+        Configuration c;
+
+        Toolkit toolkit;
+        Directions d;
+        Directions first;
+
+        toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
+        toolkit.addChart(chart);
+        first = null;
+        for (String str : directions) {
+            d = directions(str);
+            if (first == null) {
+                first = d;
+            } else {
+                toolkit.addDirections(d);
+            }
+        }
+        c = Configuration.create(toolkit, first, Collections.emptyMap());
+        assertEquals(expected, c.eval(toolkit, WORLD.getTemp().createTempDirectory(), "stage", "fqdn",
+                Collections.emptyMap()));
     }
 
     // TODO: @Test
@@ -73,21 +135,6 @@ public class ConfigurationTest {
         } catch (IllegalStateException e) {
             assertEquals("missing extra modifier for extra direction: f", e.getMessage());
         }
-    }
-
-    @Test
-    public void extra() throws IOException {
-        Configuration c;
-
-        c = create("""
-                DIRECTIONS: 'foo'
-                EXTENDS: 'base'
-                v:
-                    expr: 2
-                    extra: true
-                """);
-        // TODO assertEquals("foo", c.subject);
-        assertEquals(2, c.names().size());
     }
 
     @Test
@@ -129,24 +176,6 @@ public class ConfigurationTest {
         assertEquals("", result.get("b"));
         assertEquals("hi", result.get("c"));
         assertEquals("stage.localhost", result.get("d"));
-    }
-
-    private Configuration config(String... allDirections) throws IOException {
-        Toolkit toolkit;
-        Directions d;
-        Directions first;
-
-        toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
-        first = null;
-        for (String str : allDirections) {
-            d = directions(str);
-            if (first == null) {
-                first = d;
-            } else {
-                toolkit.addDirections(d);
-            }
-        }
-        return Configuration.create(toolkit, first, Collections.emptyMap());
     }
 
     private static Directions directions(String str) throws IOException {
