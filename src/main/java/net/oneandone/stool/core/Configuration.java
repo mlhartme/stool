@@ -290,8 +290,36 @@ public class Configuration {
     public Map<String, String> eval(Toolkit toolkit, FileNode lib, String stage, String fqdn, Map<String, String> prev) {
         Freemarker freemarker;
 
+        verify();
         freemarker = toolkit.freemarker(lib, stage, fqdn);
         return freemarker.eval(prev, execDirections().values(), toolkit.scripts);
+    }
+
+    private void verify() {
+        Set<String> extras;
+        List<Direction> lst;
+
+        extras = names();
+        extras.removeAll(layers.get(layers.size() - 1).directions.keySet());
+        for (String name : extras) {
+            lst = sequence(name);
+            if (!lst.get(lst.size() - 1).extra) {
+                throw new ArgumentException("missing extra modifier for extra direction: " + name);
+            }
+        }
+    }
+    private List<Direction> sequence(String name) {
+        List<Direction> result;
+        Direction d;
+
+        result = new ArrayList<>();
+        for (Directions layer : layers) {
+            d = layer.directions.get(name);
+            if (d != null) {
+                result.add(d);
+            }
+        }
+        return result;
     }
 
     public Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,

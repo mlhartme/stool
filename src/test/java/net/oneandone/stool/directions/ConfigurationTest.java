@@ -18,6 +18,7 @@ package net.oneandone.stool.directions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.Configuration;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
@@ -53,6 +54,7 @@ public class ConfigurationTest {
                 """,
                 """
                 DIRECTIONS: 'base'
+                CHART: 'chart'
                 two: "2"
                 """);
     }
@@ -95,7 +97,7 @@ public class ConfigurationTest {
         for (String arg : args) {
             d.addNew(new Direction(arg, ""));
         }
-        return new Chart("testchart", "noversions", "noref", d);
+        return new Chart("chart", "noversions", "noref", d);
     }
 
     private void check(Map<String, String> expected, Chart chart, String... directions) throws IOException {
@@ -121,18 +123,17 @@ public class ConfigurationTest {
                 Collections.emptyMap()));
     }
 
-    // TODO: @Test
+    @Test
     public void extraValueOverrides() throws IOException {
         try {
-            create("""
+            check(values(), chart(),
+                    """
                     DIRECTIONS: 'foo'
-                    EXTENDS: 'base'
-                    f:
-                      expr: 2
-                      extra: true
+                    CHART: chart
+                    f: 2
                     """);
             fail();
-        } catch (IllegalStateException e) {
+        } catch (ArgumentException e) {
             assertEquals("missing extra modifier for extra direction: f", e.getMessage());
         }
     }
