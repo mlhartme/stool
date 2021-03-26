@@ -62,7 +62,7 @@ public class FreemarkerTest {
     }
 
     @Test
-    public void env() throws IOException {
+    public void env() {
         assertEquals("a", freemarker().eval("${env.MOD}"));
     }
 
@@ -136,7 +136,7 @@ public class FreemarkerTest {
     }
 
     @Test
-    public void swtch() throws IOException {
+    public void swtch() {
         Freemarker e;
 
         e = freemarker();
