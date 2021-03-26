@@ -85,26 +85,36 @@ public class Configuration {
     // config is first; directions without base
     private final List<Directions> layers;
 
+    private final Directions config;
+    private final Directions instance;
+    private final Directions chart;
+    private final Directions root;
+
+
     private Configuration(List<Directions> layers) {
         if (layers.size() < 3) {
             throw new IllegalStateException(layers.toString());
         }
         this.layers = layers;
+        this.config = layers.get(0);
+        this.instance = layers.get(1);
+        this.chart = chartLayer(layers);
+        this.root = layers.get(layers.size() - 1);
     }
 
     public String origin() {
-        return instanceLayer().origin;
+        return instance.origin;
     }
 
     public Configuration withDirections(Toolkit toolkit, Directions directions) throws IOException {
-        return Configuration.create(toolkit, directions, configLayer().clone());
+        return Configuration.create(toolkit, directions, config.clone());
     }
 
     public Configuration withConfig(Map<String, String> overrides) {
         Configuration result;
 
         result = clone();
-        result.configLayer().setValues(overrides);
+        result.config.setValues(overrides);
         return result;
     }
 
@@ -139,18 +149,6 @@ public class Configuration {
     }
 
 
-    //-- layer names
-
-    private Directions configLayer() {
-        return layers.get(0);
-    }
-    private Directions instanceLayer() {
-        return layers.get(1);
-    }
-    private Directions rootLayer() {
-        return layers.get(layers.size() - 1);
-    }
-
     //--
 
     private static Directions chartLayer(List<Directions> layers) {
@@ -159,8 +157,9 @@ public class Configuration {
                 return d;
             }
         }
-        return null;
+        throw new ArgumentException("no chart: " + layers);
     }
+
     private Directions exprLayer(String name) {
         Direction one;
         Directions empty;
@@ -300,7 +299,7 @@ public class Configuration {
         List<Direction> lst;
 
         extras = names();
-        extras.removeAll(rootLayer().directions.keySet());
+        extras.removeAll(root.directions.keySet());
         for (String name : extras) {
             lst = sequence(name);
             if (!lst.get(lst.size() - 1).extra) {
