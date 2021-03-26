@@ -104,7 +104,7 @@ public class DirectionsTest {
                 EXTENDS: "first"
                 v: 2
                 """);
-        assertEquals("=1", Configuration.merged(toolkit, toolkit.directions("first")).get("v").expression);
+        assertEquals("=1", merged(toolkit, toolkit.directions("first")).get("v").expression);
         assertEquals("=2", toolkit.directions("second").get("v").expression);
     }
     @Test
@@ -139,7 +139,7 @@ public class DirectionsTest {
         toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
         toolkit.addDirections(Directions.forTest("base", "f", "1"));
         obj = (ObjectNode) YAML.readTree(str);
-        return Configuration.merged(toolkit, Directions.load("", null, obj));
+        return merged(toolkit, Directions.load("", null, obj));
     }
 
     private Toolkit toolkit(String ... directionsArray) throws IOException {
@@ -153,5 +153,10 @@ public class DirectionsTest {
             toolkit.addDirections(Directions.load("", null, obj));
         }
         return toolkit;
+    }
+
+    // TODO
+    public static Directions merged(Toolkit toolkit, Directions directions) throws IOException {
+        return Configuration.create(toolkit, directions, Collections.emptyMap()).merged();
     }
 }

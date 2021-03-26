@@ -317,7 +317,7 @@ public class Configuration {
         }
     }
 
-    private Directions merged() {
+    public Directions merged() {
         Directions result;
         Directions layer;
 
@@ -359,12 +359,5 @@ public class Configuration {
         } else {
             LOGGER.info(dir.exec(cmd));
         }
-    }
-
-    //--
-
-    // TODO
-    public static Directions merged(Toolkit toolkit, Directions directions) throws IOException {
-        return Configuration.create(toolkit, directions, Collections.emptyMap()).merged();
     }
 }

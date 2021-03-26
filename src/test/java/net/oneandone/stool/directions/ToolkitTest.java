@@ -36,7 +36,7 @@ public class ToolkitTest {
 
         toolkit = Toolkit.load(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/toolkit").checkDirectory(), "");
         assertEquals(2, toolkit.directionsSize());
-        d = Configuration.merged(toolkit, toolkit.directions("derived"));
+        d = DirectionsTest.merged(toolkit, toolkit.directions("derived"));
         assertEquals("=42", d.directions.get("asis").expression);
         assertEquals("=modified", d.directions.get("base").expression);
         assertEquals("=3", d.directions.get("added").expression);
