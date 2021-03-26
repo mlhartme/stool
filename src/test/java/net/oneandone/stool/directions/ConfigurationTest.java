@@ -36,12 +36,28 @@ public class ConfigurationTest {
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     @Test
-    public void simple() throws IOException {
+    public void hello() throws IOException {
         check(values("a", "1"), chart("a"),
-                 """
-                 DIRECTIONS: 'foo'
-                 a: '1'
-                 """);
+                """
+                DIRECTIONS: 'foo'
+                a: '1'
+                """);
+    }
+
+    @Test
+    public void expressions() throws IOException {
+        check(values("a", "", "b", "", "c", "hi", "d", "stage.fqdn"), chart(),
+                """
+                DIRECTIONS: 'first'
+                a:
+                  expr: ""
+                b:
+                  expr: "="
+                c:
+                  expr: "=hi"
+                d:
+                  expr: "stool.fqdn"
+                """);
     }
 
     @Test
@@ -138,72 +154,8 @@ public class ConfigurationTest {
         }
     }
 
-    @Test
-    public void ext() throws IOException {
-        Toolkit toolkit;
-
-        toolkit = toolkit("""
-                DIRECTIONS: 'first'
-                v: 1
-                """,
-                """
-                DIRECTIONS: "second"
-                EXTENDS: "first"
-                v: 2
-                """);
-        assertEquals("=1", config(toolkit, toolkit.directions("first")).execDirections().get("v").expression);
-        assertEquals("=2", toolkit.directions("second").get("v").expression);
-    }
-    @Test
-    public void expressions() throws IOException {
-        Toolkit toolkit;
-        Freemarker fm;
-        Map<String, String> result;
-
-        toolkit = toolkit("""
-                DIRECTIONS: 'first'
-                a:
-                  expr: ""
-                b:
-                  expr: "="
-                c:
-                  expr: "=hi"
-                d:
-                  expr: "stool.fqdn"
-                """);
-        fm = FreemarkerTest.freemarker(WORLD);
-        result = fm.eval(Collections.emptyMap(), toolkit.directions("first").directions.values(), WORLD.getTemp().createTempDirectory());
-        assertEquals("", result.get("a"));
-        assertEquals("", result.get("b"));
-        assertEquals("hi", result.get("c"));
-        assertEquals("stage.localhost", result.get("d"));
-    }
-
     private static Directions directions(String str) throws IOException {
         return Directions.load((ObjectNode) YAML.readTree(str));
-    }
-
-    private Configuration create(String str) throws IOException {
-        Toolkit toolkit;
-        ObjectNode obj;
-
-        toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
-        toolkit.addDirections(Directions.forTest("base", "f", "1"));
-        obj = (ObjectNode) YAML.readTree(str);
-        return config(toolkit, Directions.load("", null, obj));
-    }
-
-    private Toolkit toolkit(String ... directionsArray) throws IOException {
-        Toolkit toolkit;
-        ObjectNode obj;
-
-        toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
-        toolkit.addDirections(Directions.forTest("base", "f", "1"));
-        for (String directions : directionsArray) {
-            obj = (ObjectNode) YAML.readTree(directions);
-            toolkit.addDirections(Directions.load("", null, obj));
-        }
-        return toolkit;
     }
 
     // TODO
