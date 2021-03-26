@@ -138,17 +138,6 @@ public class Configuration {
         return result;
     }
 
-    public Map<String, Direction> execDirections() {
-        Map<String, Direction> result;
-
-        result = new HashMap<>();
-        for (String name: names()) {
-            result.put(name, exprLayer(name).get(name));
-        }
-        return result;
-    }
-
-
     //--
 
     private static Directions chartLayer(List<Directions> layers) {
@@ -207,10 +196,7 @@ public class Configuration {
     }
 
     public String chartString() {
-        Directions d;
-
-        d = chartLayer(layers);
-        return d.chartOpt + ":" + d.chartVersionOpt;
+        return chart.chartOpt + ":" + chart.chartVersionOpt;
     }
 
     public String value(Variable variable) {
@@ -288,10 +274,15 @@ public class Configuration {
 
     public Map<String, String> eval(Toolkit toolkit, FileNode lib, String stage, String fqdn, Map<String, String> prev) {
         Freemarker freemarker;
+        Map<String, Direction> execMap;
 
         verify();
+        execMap = new HashMap<>();
+        for (String name: names()) {
+            execMap.put(name, exprLayer(name).get(name));
+        }
         freemarker = toolkit.freemarker(lib, stage, fqdn);
-        return freemarker.eval(prev, execDirections().values(), toolkit.scripts);
+        return freemarker.eval(prev, execMap.values(), toolkit.scripts);
     }
 
     private void verify() {
@@ -346,7 +337,7 @@ public class Configuration {
             LOGGER.info("values: " + valuesFile.readString());
             helm(dryrun, kubeContext,
                     localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name,
-                    toolkit.chart(chartLayer(layers).chartOpt).reference);
+                    toolkit.chart(chart.chartOpt).reference);
             return result;
         } finally {
             valuesFile.deleteFile();
