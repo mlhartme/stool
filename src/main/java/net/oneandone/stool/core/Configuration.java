@@ -317,23 +317,6 @@ public class Configuration {
         }
     }
 
-    public Directions merged() {
-        Directions result;
-        Directions layer;
-
-        result = null;
-        for (int i = layers.size() - 1; i >= 0; i--) {
-            layer = layers.get(i);
-            if (result == null) {
-                result = layer.clone();
-            } else {
-                layer.addMergedWithoutBases(result);
-            }
-
-        }
-        return result;
-    }
-
     private void removePrivate(Diff result) {
         for (String name : names()) {
             if (priv(name)) {

@@ -213,33 +213,6 @@ public class Directions {
         }
     }
 
-    public void addMergedWithoutBases(Directions result) {
-        for (Direction d : directions.values()) {
-            result.addMerged(d);
-        }
-    }
-
-    private void addMerged(Direction direction) {
-        Direction prev;
-
-        prev = directions.get(direction.name);
-        if (prev != null) {
-            if (prev.priv) {
-                throw new IllegalStateException("you cannot override private direction: " + direction.name);
-            }
-            if (!prev.extra && direction.extra) {
-                throw new IllegalStateException("missing extra modifier for extra direction: " + direction.name);
-            }
-            if (prev.doc != null && direction.doc == null) {
-                direction = direction.withDoc(prev.doc);
-            }
-            if (!prev.expression.isEmpty() && direction.expression.isEmpty()) {
-                direction = direction.withExpression(prev.expression);
-            }
-        }
-        directions.put(direction.name, direction);
-    }
-
     public void setValues(Map<String, String> values) {
         String key;
         String value;
