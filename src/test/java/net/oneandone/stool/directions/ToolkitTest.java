@@ -22,6 +22,7 @@ import net.oneandone.sushi.fs.World;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,13 +33,13 @@ public class ToolkitTest {
     @Test
     public void loadAll() throws IOException {
         Toolkit toolkit;
-        Directions d;
+        Map<String, Direction> d;
 
         toolkit = Toolkit.load(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/toolkit").checkDirectory(), "");
         assertEquals(2, toolkit.directionsSize());
-        d = DirectionsTest.merged(toolkit, toolkit.directions("derived"));
-        assertEquals("=42", d.directions.get("asis").expression);
-        assertEquals("=modified", d.directions.get("base").expression);
-        assertEquals("=3", d.directions.get("added").expression);
+        d = DirectionsTest.config(toolkit, toolkit.directions("derived")).execDirections();
+        assertEquals("=42", d.get("asis").expression);
+        assertEquals("=modified", d.get("base").expression);
+        assertEquals("=3", d.get("added").expression);
     }
 }
