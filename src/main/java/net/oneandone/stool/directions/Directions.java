@@ -248,7 +248,7 @@ public class Directions {
         ObjectNode node;
 
         node = yaml.createObjectNode();
-        node.set(DIRECTIONS, new TextNode(DIRECTIONS));
+        node.set(DIRECTIONS, new TextNode(subject));
         node.set(ORIGIN, new TextNode(origin));
         if (author != null) {
             node.set(AUTHOR, new TextNode(author));
