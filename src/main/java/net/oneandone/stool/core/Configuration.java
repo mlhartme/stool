@@ -119,6 +119,9 @@ public class Configuration {
         return result;
     }
 
+    public String subject() {
+        return layers.get(1).subject;
+    }
 
     public Set<String> names() {
         Set<String> result;

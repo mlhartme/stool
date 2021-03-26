@@ -34,14 +34,14 @@ public class ConfigurationTest {
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     @Test
-    public void empty() throws IOException {
+    public void simple() throws IOException {
         Configuration c;
 
-        c = create("""
+        c = config("""
                  DIRECTIONS: 'foo'
-                 EXTENDS: 'base'
+                 a: '1'
                  """);
-        // TODO assertEquals("foo", c.subject);
+        assertEquals("foo", c.subject());
         assertEquals(1, c.names().size());
     }
 
@@ -129,6 +129,28 @@ public class ConfigurationTest {
         assertEquals("", result.get("b"));
         assertEquals("hi", result.get("c"));
         assertEquals("stage.localhost", result.get("d"));
+    }
+
+    private Configuration config(String... allDirections) throws IOException {
+        Toolkit toolkit;
+        Directions d;
+        Directions first;
+
+        toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
+        first = null;
+        for (String str : allDirections) {
+            d = directions(str);
+            if (first == null) {
+                first = d;
+            } else {
+                toolkit.addDirections(d);
+            }
+        }
+        return Configuration.create(toolkit, first, Collections.emptyMap());
+    }
+
+    private static Directions directions(String str) throws IOException {
+        return Directions.load((ObjectNode) YAML.readTree(str));
     }
 
     private Configuration create(String str) throws IOException {
