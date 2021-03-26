@@ -87,6 +87,7 @@ public class ConfigurationTest {
                 """,
                 """
                 DIRECTIONS: 'base'
+                CHART: 'chart'
                 f: "2"
                 """);
     }

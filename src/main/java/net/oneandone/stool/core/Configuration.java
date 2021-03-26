@@ -66,9 +66,7 @@ public class Configuration {
         result.add(config);
         result.addAll(directions.createLayers(toolkit));
         chartLayer = chartLayer(result);
-        if (chartLayer != null) { // TODO: for tests
-            result.add(toolkit.chart(chartLayer.chartOpt).directions.clone());
-        }
+        result.add(toolkit.chart(chartLayer.chartOpt).directions.clone());
         return new Configuration(result);
     }
 
@@ -144,21 +142,12 @@ public class Configuration {
     //-- layer names
 
     private Directions configLayer() {
-        if (layers.size() < 1) {
-            throw new IllegalStateException(layers.toString());
-        }
         return layers.get(0);
     }
     private Directions instanceLayer() {
-        if (layers.size() < 2) {
-            throw new IllegalStateException(layers.toString());
-        }
         return layers.get(1);
     }
     private Directions rootLayer() {
-        if (layers.size() < 3) {
-            throw new IllegalStateException(layers.toString());
-        }
         return layers.get(layers.size() - 1);
     }
 
