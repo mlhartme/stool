@@ -40,15 +40,17 @@ public class ConfigurationTest {
         check(values("a", "1"), chart("a"),
                 """
                 DIRECTIONS: 'foo'
+                CHART: chart
                 a: '1'
                 """);
     }
 
     @Test
     public void expressions() throws IOException {
-        check(values("a", "", "b", "", "c", "hi", "d", "stage.fqdn"), chart(),
+        check(values("a", "", "b", "", "c", "hi", "d", "stage.fqdn"), chart("a", "b", "c", "d"),
                 """
                 DIRECTIONS: 'first'
+                CHART: chart
                 a:
                   expr: ""
                 b:
@@ -94,6 +96,7 @@ public class ConfigurationTest {
         check(Strings.toMap("v", "2"), chart(),
                 """
                 DIRECTIONS: 'foo'
+                CHART: chart
                 v:
                     expr: 2
                     extra: true

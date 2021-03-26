@@ -92,11 +92,15 @@ public class Configuration {
         }
     }
 
+    public String origin() {
+        return instanceLayer().origin;
+    }
+
     public Configuration withDirections(Toolkit toolkit, Directions directions) throws IOException {
         Configuration result;
 
         result = new Configuration();
-        result.layers.add(config().clone());
+        result.layers.add(configLayer().clone());
         result.addDirections(toolkit, directions);
         return result;
     }
@@ -105,7 +109,7 @@ public class Configuration {
         Configuration result;
 
         result = clone();
-        result.config().setValues(overrides);
+        result.configLayer().setValues(overrides);
         return result;
     }
 
@@ -117,10 +121,6 @@ public class Configuration {
             result.layers.add(layer.clone());
         }
         return result;
-    }
-
-    public String subject() {
-        return layers.get(1).subject;
     }
 
     public Set<String> names() {
@@ -144,8 +144,25 @@ public class Configuration {
     }
 
 
-    private Directions config() {
+    //-- layer names
+    
+    private Directions configLayer() {
+        if (layers.size() < 1) {
+            throw new IllegalStateException(layers.toString());
+        }
         return layers.get(0);
+    }
+    private Directions instanceLayer() {
+        if (layers.size() < 2) {
+            throw new IllegalStateException(layers.toString());
+        }
+        return layers.get(1);
+    }
+    private Directions rootLayer() {
+        if (layers.size() < 3) {
+            throw new IllegalStateException(layers.toString());
+        }
+        return layers.get(layers.size() - 1);
     }
 
     private Directions chartLayer() {
@@ -237,12 +254,6 @@ public class Configuration {
         return result;
     }
 
-
-    public String origin() {
-        return "TODO";
-    }
-
-
     public FileNode createValuesFile(ObjectMapper yaml, World world, Map<String, String> actuals) throws IOException {
         ObjectNode dest;
         Expire expire;
@@ -300,7 +311,7 @@ public class Configuration {
         List<Direction> lst;
 
         extras = names();
-        extras.removeAll(layers.get(layers.size() - 1).directions.keySet());
+        extras.removeAll(rootLayer().directions.keySet());
         for (String name : extras) {
             lst = sequence(name);
             if (!lst.get(lst.size() - 1).extra) {
@@ -308,6 +319,7 @@ public class Configuration {
             }
         }
     }
+
     private List<Direction> sequence(String name) {
         List<Direction> result;
         Direction d;
