@@ -55,11 +55,20 @@ public class Configuration {
     private static final String DIRECTIONS_VALUE = "_directions";
 
     public static Configuration create(Toolkit toolkit, Directions directions, Map<String, String> values) throws IOException {
+        return create(toolkit, directions, Directions.configDirections(values));
+    }
+
+    private static Configuration create(Toolkit toolkit, Directions directions, Directions config) throws IOException {
         Configuration result;
+        Directions chartLayer;
 
         result = new Configuration();
-        result.layers.add(Directions.configDirections(values));
-        result.addDirections(toolkit, directions);
+        result.layers.add(config);
+        result.layers.addAll(directions.createLayers(toolkit));
+        chartLayer = result.chartLayer();
+        if (chartLayer != null) { // TODO: for tests
+            result.layers.add(toolkit.chart(chartLayer.chartOpt).directions.clone());
+        }
         return result;
     }
 
@@ -82,27 +91,12 @@ public class Configuration {
         layers = new ArrayList<>();
     }
 
-    private void addDirections(Toolkit toolkit, Directions directions) throws IOException {
-        Directions chartLayer;
-
-        layers.addAll(directions.createLayers(toolkit));
-        chartLayer = chartLayer();
-        if (chartLayer != null) { // TODO: for tests
-            layers.add(toolkit.chart(chartLayer.chartOpt).directions.clone());
-        }
-    }
-
     public String origin() {
         return instanceLayer().origin;
     }
 
     public Configuration withDirections(Toolkit toolkit, Directions directions) throws IOException {
-        Configuration result;
-
-        result = new Configuration();
-        result.layers.add(configLayer().clone());
-        result.addDirections(toolkit, directions);
-        return result;
+        return Configuration.create(toolkit, directions, configLayer().clone());
     }
 
     public Configuration withConfig(Map<String, String> overrides) {
@@ -145,7 +139,7 @@ public class Configuration {
 
 
     //-- layer names
-    
+
     private Directions configLayer() {
         if (layers.size() < 1) {
             throw new IllegalStateException(layers.toString());
@@ -165,6 +159,8 @@ public class Configuration {
         return layers.get(layers.size() - 1);
     }
 
+    //--
+
     private Directions chartLayer() {
         for (Directions d : layers) {
             if (d.chartOpt != null) {
@@ -173,7 +169,6 @@ public class Configuration {
         }
         return null;
     }
-
     private Directions exprLayer(String name) {
         Direction one;
         Directions empty;
@@ -193,6 +188,8 @@ public class Configuration {
         }
         return empty;
     }
+
+    //--
 
     public boolean priv(String name) {
         Direction one;
