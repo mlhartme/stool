@@ -29,7 +29,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class DirectionsTest {
+public class ConfigurationTest {
     private static final World WORLD = World.createMinimal();
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
