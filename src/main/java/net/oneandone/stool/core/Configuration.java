@@ -59,27 +59,27 @@ public class Configuration {
     }
 
     private static Configuration create(Toolkit toolkit, Directions directions, Directions config) throws IOException {
-        Configuration result;
+        List<Directions> result;
         Directions chartLayer;
 
-        result = new Configuration();
-        result.layers.add(config);
-        result.layers.addAll(directions.createLayers(toolkit));
-        chartLayer = result.chartLayer();
+        result = new ArrayList<>();
+        result.add(config);
+        result.addAll(directions.createLayers(toolkit));
+        chartLayer = chartLayer(result);
         if (chartLayer != null) { // TODO: for tests
-            result.layers.add(toolkit.chart(chartLayer.chartOpt).directions.clone());
+            result.add(toolkit.chart(chartLayer.chartOpt).directions.clone());
         }
-        return result;
+        return new Configuration(result);
     }
 
     public static Configuration loadAndEat(ObjectNode helmConfig) throws IOException {
-        Configuration result;
+        List<Directions> result;
 
-        result = new Configuration();
+        result = new ArrayList<>();
         for (JsonNode entry : helmConfig.remove(DIRECTIONS_VALUE)) {
-            result.layers.add(Directions.load((ObjectNode) entry));
+            result.add(Directions.load((ObjectNode) entry));
         }
-        return result;
+        return new Configuration(result);
     }
 
     //--
@@ -87,8 +87,11 @@ public class Configuration {
     // config is first; directions without base
     private final List<Directions> layers;
 
-    private Configuration() {
-        layers = new ArrayList<>();
+    private Configuration(List<Directions> layers) {
+        if (layers.size() < 3) {
+            throw new IllegalStateException(layers.toString());
+        }
+        this.layers = layers;
     }
 
     public String origin() {
@@ -108,13 +111,13 @@ public class Configuration {
     }
 
     public Configuration clone() {
-        Configuration result;
+        List<Directions> next;
 
-        result = new Configuration();
+        next = new ArrayList<>();
         for (Directions layer : layers) {
-            result.layers.add(layer.clone());
+            next.add(layer.clone());
         }
-        return result;
+        return new Configuration(next);
     }
 
     public Set<String> names() {
@@ -161,7 +164,7 @@ public class Configuration {
 
     //--
 
-    private Directions chartLayer() {
+    private static Directions chartLayer(List<Directions> layers) {
         for (Directions d : layers) {
             if (d.chartOpt != null) {
                 return d;
@@ -218,7 +221,7 @@ public class Configuration {
     public String chartString() {
         Directions d;
 
-        d = chartLayer();
+        d = chartLayer(layers);
         return d.chartOpt + ":" + d.chartVersionOpt;
     }
 
@@ -355,7 +358,7 @@ public class Configuration {
             LOGGER.info("values: " + valuesFile.readString());
             helm(dryrun, kubeContext,
                     localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name,
-                    toolkit.chart(chartLayer().chartOpt).reference);
+                    toolkit.chart(chartLayer(layers).chartOpt).reference);
             return result;
         } finally {
             valuesFile.deleteFile();
