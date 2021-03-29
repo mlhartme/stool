@@ -284,7 +284,7 @@ public class Freemarker {
         return result;
     }
 
-    private String exec(FileNode script, List<Object> args) throws IOException {
+    private String exec(FileNode script, List args) throws IOException {
         Launcher launcher;
 
         launcher = script.getParent().launcher();
@@ -296,7 +296,7 @@ public class Freemarker {
         return launcher.exec();
     }
 
-    private static void add(Launcher launcher, List<Object> lst) {
+    private static void add(Launcher launcher, List lst) {
         for (Object obj : lst) {
             if (obj instanceof List) {
                 add(launcher, (List) obj);
