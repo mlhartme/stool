@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.DirectionsRef;
+import net.oneandone.stool.server.ui.ApiController;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.sushi.fs.FileNotFoundException;
@@ -274,7 +275,7 @@ public class ProxyClient extends Client {
                     throw new FileNotFoundException(node, "not found");
                 case 409:
                     throw new FileAlreadyExistsException(node.getPath(), code + "", src.getStatusLine().toString());
-                case 420:
+                case ApiController.HTTP_METHOD_FAILURE:
                     throw new IOException(string(src));
                 default:
                     for (int c : success) {

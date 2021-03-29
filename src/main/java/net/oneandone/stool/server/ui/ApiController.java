@@ -66,6 +66,8 @@ import java.util.Map;
 public class ApiController {
     private static final int POOL_SIZE = 1;
 
+    public static final int HTTP_METHOD_FAILURE = 420;
+
     private final LocalSettings globalSettings;
     private final UserManager globalUserManager;
     private final List<RequestSettings> pool;
@@ -304,7 +306,7 @@ public class ApiController {
 
     @ExceptionHandler({ IOException.class })
     public void handleException(IOException e, HttpServletResponse response) throws IOException {
-        response.setStatus(HttpStatus.METHOD_FAILURE.value());
+        response.setStatus(HTTP_METHOD_FAILURE);
         try (PrintWriter dest = response.getWriter()) {
             dest.println(e.getMessage());
         }
