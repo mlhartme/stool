@@ -66,6 +66,7 @@ import java.util.Map;
 public class ApiController {
     private static final int POOL_SIZE = 1;
 
+    /** TODO There's a constant in HttpStatus, but it's deprecated. What's a good response code to use instead? */
     public static final int HTTP_METHOD_FAILURE = 420;
 
     private final LocalSettings globalSettings;
