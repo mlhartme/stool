@@ -279,7 +279,7 @@ public class Stage {
         return engine.statsOpt(running.iterator().next() /* TODO */.name, Dependencies.MAIN_CONTAINER);
     }
 
-    /** CAUTION: values are not updated! */
+    /** CAUTION: values are not updated, re-instantiate this stage if you need updated values. */
     public Diff publish(Caller caller, String kubeContext, Engine engine, boolean dryrun, String allow,
                         DirectionsRef directionsRefOpt, Map<String, String> overrides) throws IOException {
         Diff diff;
@@ -293,7 +293,6 @@ public class Stage {
         diff = nextConfiguration.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
-        // TODO: update values in this stage instance? or return new instance?
         return diff;
     }
 
@@ -307,6 +306,7 @@ public class Stage {
         return result;
     }
 
+    /** CAUTION: values are not updated, re-instantiate this stage if you need updated values. */
     public void setValues(Caller caller, String kubeContext, Engine engine, Map<String, String> changes) throws IOException {
         Configuration nextConfiguration;
 
@@ -314,7 +314,6 @@ public class Stage {
         nextConfiguration.helm(kubeContext, localSettings, name, true, false, null, valuesMap());
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
-        // TODO: update values in this stage instance? or return new instance?
     }
 
     private void saveHistory(Engine engine) throws IOException {

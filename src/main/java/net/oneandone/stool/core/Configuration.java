@@ -48,7 +48,6 @@ import java.util.Set;
 
 /**
  * The directions needed to configure a stage. To make it independent from toolkit (changes).
- * TODO: rename to Config?
  */
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);

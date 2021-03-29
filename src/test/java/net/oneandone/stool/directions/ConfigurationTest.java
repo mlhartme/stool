@@ -161,9 +161,4 @@ public class ConfigurationTest {
     private static Directions directions(String str) throws IOException {
         return Directions.load((ObjectNode) YAML.readTree(str));
     }
-
-    // TODO
-    public static Configuration config(Toolkit toolkit, Directions directions) throws IOException {
-        return Configuration.create(toolkit, directions, Collections.emptyMap());
-    }
 }

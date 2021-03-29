@@ -37,6 +37,8 @@ import net.oneandone.stool.core.PredicateParser;
 import net.oneandone.stool.core.Validation;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.sushi.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
@@ -54,6 +56,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class KubernetesClient extends Client {
+    public static final Logger LOGGER = LoggerFactory.getLogger(KubernetesClient.class);
+
     private final ObjectMapper json;
 
     private final LocalSettings localSettings;
@@ -319,7 +323,7 @@ public class KubernetesClient extends Client {
                     engine.deleteRole(roleName);
                     engine.deleteBinding(bindingName);
                 } catch (IOException e) {
-                    e.printStackTrace(); // TODO: proper logging ...
+                    LOGGER.error("pod token cleanup failed", e);
                 }
             }
         };

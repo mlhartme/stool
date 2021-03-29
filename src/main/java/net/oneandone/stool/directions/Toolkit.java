@@ -99,7 +99,7 @@ public class Toolkit {
         return tag;
     }
 
-    private static List<String> sortTags(List<String> lst) { // TODO: also use for taginfo sorting, that's still based on numbers
+    private static List<String> sortTags(List<String> lst) { // TODO: also used for taginfo sorting, that's still based on numbers
         Collections.sort(lst, Versions.CMP);
         return lst;
     }

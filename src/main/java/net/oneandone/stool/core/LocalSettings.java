@@ -354,7 +354,7 @@ public class LocalSettings extends CoreSettings {
             }
         }, problems);
         for (Map.Entry<String, IOException> entry : problems.entrySet()) {
-            reportException("listAll" /* TODO */, entry.getKey() + ": Session.listAll", entry.getValue());
+            reportException("listAll", entry.getKey() + ": Session.listAll", entry.getValue());
         }
         return result;
     }
