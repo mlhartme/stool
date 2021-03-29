@@ -66,7 +66,8 @@ Other changes:
     * added `toolkit`
     * replaced `registryPrefix` by `registryCredentials`
     * dumped `defaultExpire` and `defaultContact`  
-    * `environment` provides local overrides for the toolkit environment
+    * added `environment` to provide local overrides for the toolkit environment
+    * added `defaultConfig` to defines automatically configures values for new stages; use this to setup default expires
 * log validation report result
 * readiness probe for Stool server
 * raised minimal Java version from 11 to 16
