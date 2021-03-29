@@ -102,13 +102,17 @@ public class DockerRegistry extends Registry {
         return TagInfo.create(digest, host + "/" + repository + ":" + tag, tag, author, created, labels);
     }
 
-    public void delete(String repository) throws IOException {
+    public boolean deleteOpt(String repository) throws IOException {
         String id;
+        boolean result;
 
+        result = false;
         for (String tag : tags(repository)) {
             id = info(repository, tag).id;
             deleteTagByDigest(repository, id);
+            result = true;
         }
+        return result;
     }
 
     // TODO: returns 202 and does not actually remove the tag

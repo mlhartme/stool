@@ -42,7 +42,7 @@ public abstract class Registry {
 
     /** @return list of repositories */
     public abstract List<String> list() throws IOException;
-    public abstract void delete(String repository) throws IOException;
+    public abstract boolean deleteOpt(String repository) throws IOException;
     public abstract List<String> tags(String repository) throws IOException;
 
     public abstract TagInfo info(String repository, String tag) throws IOException;

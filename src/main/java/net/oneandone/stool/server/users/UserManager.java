@@ -33,8 +33,8 @@ import java.util.Random;
 
 /**
  * Thread safe.
- * TODO: doesn't work with replicas
  * TODO: saving to a file doesn't make sense in a container ...
+ * TODO: doesn't work with replicas
  */
 public class UserManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);

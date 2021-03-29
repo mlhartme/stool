@@ -93,7 +93,7 @@ public class RegistryIT {
         repository = registryPrefix.substring(registryPrefix.indexOf('/') + 1) + "/registrytest";
         registry = PortusRegistry.create(Json.newJson(), WORLD, registryUri.toString(), "target/portus-wire.log");
         try {
-            registry.delete(repository);
+            registry.deleteOpt(repository);
         } catch (PortusRegistry.RepositoryNotFoundException e) {
             // ok
         }
@@ -130,7 +130,7 @@ public class RegistryIT {
                 e.printStackTrace();
                 e.getCause().printStackTrace();
             }
-            registry.delete(repository);
+            registry.deleteOpt(repository);
             if (testDelete) {
                 assertEquals(Arrays.asList(), registry.tags(repository));
                 assertFalse(registry.list().contains(repository));

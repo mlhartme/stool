@@ -187,15 +187,14 @@ public class PortusRegistry extends Registry {
         }
     }
 
-    // TODO: rename to deleteOpt
-    public void delete(String repository) throws IOException {
+    public boolean deleteOpt(String repository) throws IOException {
         String id;
 
         id = portusRepositoryIdOpt(repository);
         if (id != null) {
             Method.delete(root.join("api/v1/repositories").join(id));
         }
-        // TODO: return id != null
+        return id != null;
     }
 
     //--
