@@ -58,6 +58,7 @@ public class LocalSettings extends CoreSettings {
 
     public final String toolkit;
     public final Map<String, String> environment;
+    public final Map<String, String> defaultConfig;
     public final Map<String, Pair> registryCredentials;
 
     public final String stageLogs;
@@ -99,6 +100,7 @@ public class LocalSettings extends CoreSettings {
         this.fqdn = Json.string(local, "fqdn", "localhost");
         this.toolkit = Json.string(local, "toolkit", BUILTIN_TOOLKIT);
         this.environment = Json.stringMapOpt(local, "environment");
+        this.defaultConfig = Json.stringMapOpt(local,  "defaultConfig");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
         this.stageLogs = string(local, "stageLogs", DEFAULT_STAGELOGS);
 
@@ -125,6 +127,7 @@ public class LocalSettings extends CoreSettings {
         this.fqdn = from.fqdn;
         this.toolkit = from.toolkit;
         this.environment = new LinkedHashMap<>(from.environment);
+        this.defaultConfig = new HashMap<>(from.defaultConfig);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
         this.stageLogs = from.stageLogs;
         this.admin = from.admin;
@@ -222,6 +225,9 @@ public class LocalSettings extends CoreSettings {
         }
         if (!environment.isEmpty()) {
             local.set("environment", Json.obj(json, environment));
+        }
+        if (!defaultConfig.isEmpty()) {
+            local.set("defaultConfig", Json.obj(json, environment));
         }
         if (!registryCredentials.isEmpty()) {
             local.put("registryCredentials", registryCredentialsString());

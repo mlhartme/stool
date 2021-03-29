@@ -7,6 +7,14 @@ data:
     loglevel: "{{ .Values.loglevel }}"
     currentContext: "localhost"
     local:
+      environment:
+        {{- range $key, $val := .Values.environment }}
+        {{ $key }}: {{ $val | quote }}
+        {{- end }}
+      defaultConfig:
+        {{- range $key, $val := .Values.defaultConfig }}
+        {{ $key }}: {{ $val | quote }}
+        {{- end }}
       registryCredentials: "{{ .Values.registryCredentials }}"
       stageLogs: "{{ .Values.stageLogs }}"
       toolkit: "{{ .Values.toolkit }}"
@@ -19,10 +27,6 @@ data:
       ldapSso: "{{ .Values.ldapSso }}"
       admin: "{{ .Values.admin }}"
       autoRemove: "{{ .Values.autoRemove }}"
-      environment:
-        {{- range $key, $val := .Values.environment }}
-        {{ $key }}: {{ $val | quote }}
-        {{- end }}
       mailHost: "{{ .Values.mailHost }}"
       mailUsername: "{{ .Values.username }}"
       mailPassword: "{{ .Values.password }}"

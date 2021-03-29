@@ -44,14 +44,17 @@ import java.util.Map;
  */
 public class Stage {
     public static Stage create(Caller caller, String kubeContext, Engine engine, LocalSettings localSettings, String stageName,
-                               DirectionsRef directionsRef, Map<String, String> values) throws IOException {
+                               DirectionsRef directionsRef, Map<String, String> explicitValues) throws IOException {
         List<HistoryEntry> history;
         Stage stage;
         Configuration configuration;
+        Map<String, String> effectiveValues;
 
+        effectiveValues = new HashMap<>(localSettings.defaultConfig);
+        effectiveValues.putAll(explicitValues);
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        configuration = Configuration.create(localSettings.toolkit(), directionsRef.resolve(localSettings), values);
+        configuration = Configuration.create(localSettings.toolkit(), directionsRef.resolve(localSettings), effectiveValues);
         configuration.helm(kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap());
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
