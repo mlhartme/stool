@@ -230,11 +230,12 @@ public final class Json {
             return result;
         } else if (value instanceof Map) {
             ObjectNode result;
-            Map<Object, Object> map;
+            Map map;
 
             result = json.createObjectNode();
             map = (Map) value;
-            for (Map.Entry<Object, Object> entry : map.entrySet()) {
+            for (Object entryRaw : map.entrySet()) {
+                Map.Entry entry = (Map.Entry) entryRaw;
                 result.set((String) entry.getKey(), valueToJson(json, entry.getValue()));
             }
             return result;
