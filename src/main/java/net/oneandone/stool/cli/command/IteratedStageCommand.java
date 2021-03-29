@@ -50,12 +50,8 @@ public abstract class IteratedStageCommand extends StageCommand {
         for (Reference reference : lst) {
             worker.main(reference);
         }
-        if (this instanceof Delete) {
-            // TODO - skip
-        } else {
-            for (Reference reference : lst) {
-                worker.finish(reference);
-            }
+        for (Reference reference : lst) {
+            worker.finish(reference);
         }
         return failures;
     }
