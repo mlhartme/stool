@@ -28,6 +28,7 @@ import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
+import net.oneandone.stool.util.Pair;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -199,23 +200,18 @@ public class Configuration {
         return chart.chartOpt + ":" + chart.chartVersionOpt;
     }
 
-    public String value(Variable variable) {
-        String result;
+    public Pair layerAndExpression(Variable variable) {
         Directions d;
         Direction one;
 
-        result = variable.get();
         d = exprLayer(variable.name);
         if (d == null) {
             // TODO replicas in stool chart ...
+            return new Pair(null, null);
         } else {
-            result = result + " [" + d.subject + "]";
             one = d.get(variable.name);
-            if (!one.isValue()) {
-                result = result + " " + one.expression;
-            }
+            return new Pair(d.subject,  one.expression);
         }
-        return result;
     }
 
     public ArrayNode toArray(ObjectMapper yaml) {

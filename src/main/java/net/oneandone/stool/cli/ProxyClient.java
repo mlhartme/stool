@@ -23,7 +23,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.DirectionsRef;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Diff;
-import net.oneandone.stool.util.Pair;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
@@ -213,8 +212,8 @@ public class ProxyClient extends Client {
     }
 
     @Override
-    public Map<String, Pair> getValues(String stage) throws IOException {
-        return Json.stringPairMap((ObjectNode) getJson(node(stage, "values")));
+    public Map<String, Map<String, String>> getValues(String stage) throws IOException {
+        return Json.stringMapMap((ObjectNode) getJson(node(stage, "values")));
     }
 
     @Override

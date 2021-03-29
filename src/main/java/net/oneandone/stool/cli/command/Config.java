@@ -18,7 +18,6 @@ package net.oneandone.stool.cli.command;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.cli.Reference;
-import net.oneandone.stool.util.Pair;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.LinkedHashMap;
@@ -67,9 +66,9 @@ public class Config extends IteratedStageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Map<String, Pair> loaded;
+        Map<String, Map<String, String>> loaded;
         int width;
-        Pair pair;
+        Map<String, String> map;
 
         if (set) {
             for (Map.Entry<String, String> entry : reference.client.setValues(reference.stage, values).entrySet()) {
@@ -82,34 +81,45 @@ public class Config extends IteratedStageCommand {
             } else {
                 // neither get nor set -> show all
             }
-            width = 0;
+            width = 9; // "layer" with angle brackets with indet 2
             if (loaded.size() > 1) {
                 for (String name : loaded.keySet()) {
                     width = Math.max(width, name.length());
                 }
                 width += 3;
             }
-            for (Map.Entry<String, Pair> entry : loaded.entrySet()) {
-                pair = entry.getValue();
-                console.info.println(Strings.padLeft(entry.getKey(), width) + " : " + pair.left);
-                if (pair.right != null) {
-                    console.info.println(Strings.padLeft("", width) + " : " + pair.right);
+            for (Map.Entry<String, Map<String, String>> entry : loaded.entrySet()) {
+                map = entry.getValue();
+                console.info.println(Strings.padLeft(entry.getKey(), width) + " : " + map.get("value"));
+                if (console.getVerbose()) {
+                    printOpt(width, map.get("layer"), map.get("expr"));
+                    printOpt(width, map, "doc");
                 }
             }
         }
     }
 
-    private Map<String, Pair> selectedValues(Map<String, Pair> all) {
-        Map<String, Pair> result;
-        Pair pair;
+    private void printOpt(int width, Map<String, String> map, String key) {
+        printOpt(width, key, map.get(key));
+    }
+
+    private void printOpt(int width, String key, String value) {
+        if (value != null) {
+            console.info.println(Strings.padLeft("[" + key + "]", width) + " : " + value);
+        }
+    }
+
+    private Map<String, Map<String, String>> selectedValues(Map<String, Map<String, String>> all) {
+        Map<String, Map<String, String>> result;
+        Map<String, String> map;
 
         result = new LinkedHashMap<>();
         for (String name : values.keySet()) {
-            pair = all.get(name);
-            if (pair == null) {
+            map = all.get(name);
+            if (map == null) {
                 throw new ArgumentException("unknown value: " + name);
             }
-            result.put(name, pair);
+            result.put(name, map);
         }
         return result;
     }

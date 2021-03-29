@@ -36,6 +36,7 @@ import net.oneandone.stool.util.Pair;
 import net.oneandone.stool.core.PredicateParser;
 import net.oneandone.stool.core.Validation;
 import net.oneandone.stool.directions.Variable;
+import net.oneandone.sushi.util.Strings;
 
 import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
@@ -148,16 +149,22 @@ public class KubernetesClient extends Client {
     }
 
     @Override
-    public Map<String, Pair> getValues(String stageName) throws IOException {
-        Map<String, Pair> result;
+    public Map<String, Map<String, String>> getValues(String stageName) throws IOException {
+        Map<String, Map<String, String>> result;
         Stage stage;
+        Pair pair;
 
         result = new LinkedHashMap<>();
         try (Engine engine = engine()) {
             stage = localSettings.load(engine, stageName);
             for (Variable variable : stage.variables()) {
                 if (!variable.priv) {
-                    result.put(variable.name, new Pair(stage.configuration.value(variable), variable.doc));
+                    pair = stage.configuration.layerAndExpression(variable);
+                    result.put(variable.name,
+                            Strings.toMap("value", variable.get(),
+                            "doc", variable.doc,
+                            "layer", pair.left, "expr", pair.right
+                            ));
                 }
             }
             return result;
