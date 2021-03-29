@@ -213,7 +213,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         provider.setServiceProperties(serviceProperties());
         provider.setTicketValidator(new Cas20ServiceTicketValidator(localSettings.ldapSso));
         provider.setKey("cas");
-        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsServiceBean()));
+        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<>(userDetailsServiceBean()));
         return provider;
     }
 
