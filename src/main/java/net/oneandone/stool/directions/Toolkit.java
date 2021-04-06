@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.core.LocalSettings;
+import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.registry.Registry;
 import net.oneandone.stool.util.Json;
@@ -56,7 +57,7 @@ public class Toolkit {
     }
 
     /** @return version */
-    public static synchronized String resolve(PortusRegistry registry, String repository, FileNode dest) throws IOException {
+    public static synchronized String resolve(PortusRegistry registry, Engine engine, String repository, FileNode dest) throws IOException {
         String name;
         List<String> tags;
         String tag;
@@ -86,11 +87,8 @@ public class Toolkit {
         if (!dest.exists()) {
             tmp = dest.getWorld().getTemp().createTempDirectory();
             try {
-                tmp.exec("oras", "pull", repository + ":" + tag);
-                dest.mkdir().exec("tar", "zxf", tmp.join(".artifact.tgz").getAbsolute());
-                if (!dest.exists()) {
-                    throw new IllegalStateException(dest.getAbsolute());
-                }
+                dest.mkdir();
+                engine.copyImage(repository + ":" + tag, "/usr/local/toolkit", dest);
             } finally {
                 tmp.deleteTree();
             }

@@ -18,6 +18,7 @@ package net.oneandone.stool.kubernetes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.oneandone.stool.util.ITProperties;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,21 @@ public class EngineIT {
     private static Engine create() throws IOException {
         return Engine.createLocal(new ObjectMapper(), ITProperties.load(WORLD).kubernetes);
     }
+
+    @Test
+    public void copyImage() throws IOException {
+        FileNode dest;
+
+        try (Engine engine = create()) {
+            dest = WORLD.getTemp().createTempDirectory();
+            engine.copyImage("debian:buster-slim", "/etc", dest);
+            for (FileNode file: dest.find("**/*")) {
+                System.out.println(file.getRelative(dest));
+            }
+            dest.deleteTreeOpt();
+        }
+    }
+
 
     @Test
     public void podImplicitHostname() throws IOException {

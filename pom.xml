@@ -103,6 +103,11 @@
       <artifactId>openshift-client</artifactId>
       <version>5.2.1</version>
     </dependency>
+    <dependency><!-- to copy files to/from containers -->
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.20</version>
+    </dependency>
 
     <!-- cli -->
     <dependency>

@@ -300,7 +300,9 @@ public class LocalSettings extends CoreSettings {
                 world.resource("toolkit").copyDirectory(directory);
             } else if (!toolkit.startsWith("/")) {
                 directory = getLib().join("toolkit");
-                version = Toolkit.resolve(createRegistry(toolkit), toolkit, directory);
+                try (Engine engine = Engine.createClusterOrLocal(json, null /* TODO */)) {
+                    version = Toolkit.resolve(createRegistry(toolkit), engine, toolkit, directory);
+                }
             } else {
                 directory = world.file(toolkit).checkDirectory();
                 version = "unknown";

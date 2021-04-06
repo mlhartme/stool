@@ -49,6 +49,7 @@ import io.fabric8.openshift.api.model.RoleBuilder;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import net.oneandone.stool.cli.PodConfig;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.ByteArrayInputStream;
@@ -62,6 +63,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 
 public class Engine implements AutoCloseable {
@@ -315,17 +317,20 @@ public class Engine implements AutoCloseable {
         return pod == null ? null : PodInfo.create(pod);
     }
 
-    public boolean podCreate(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels)
-            throws IOException {
+    public boolean podCreate(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels) throws IOException {
+        return podCreate(pod(name, image, command, hostname, healing, labels));
+    }
+
+    public boolean podCreate(Pod pod) throws IOException {
         String phase;
 
         try {
-            client.pods().inNamespace(namespace).create(pod(name, image, command, hostname, healing, labels));
+            client.pods().inNamespace(namespace).create(pod);
         } catch (KubernetesClientException e) {
             throw wrap(e);
         }
 
-        phase = podAwait(name, "Running", "Failed", "Succeeded");
+        phase = podAwait(pod.getMetadata().getName(), "Running", "Failed", "Succeeded");
         if (phase.equals("Failed")) {
             throw new IOException("create-pod failed: " + phase);
         }
@@ -706,6 +711,32 @@ public class Engine implements AutoCloseable {
 
     public LocalPortForward portForward(String pod, int localPort, int podPort) {
         return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
+    }
+
+    public void copyImage(String image, String src, FileNode dest) throws IOException {
+        String podName;
+        ContainerBuilder container;
+
+        podName = UUID.randomUUID().toString();
+        container = new ContainerBuilder().withName("noname")
+                .withImage(image)
+                .withCommand("sleep", "3600");
+        if (!podCreate(new PodBuilder()
+                .withNewMetadata().withName(podName).endMetadata()
+                .withNewSpec()
+                .withRestartPolicy("Never")
+                .withTerminationGracePeriodSeconds(1L)
+                .addToContainers(container.build())
+                .endSpec().build())) {
+            throw new IOException("failed to create pod for image " + image);
+        }
+        try {
+            if (!client.pods().inNamespace(namespace).withName(podName).inContainer("noname").dir(src).copy(dest.toPath())) {
+                throw new IllegalStateException(src + " " + dest);
+            }
+        } finally {
+            podDelete(podName);
+        }
     }
 
     public ExecWatch ssh(String pod, String container, String[] command, ExecListener listener) {

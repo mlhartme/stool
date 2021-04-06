@@ -16,6 +16,7 @@
 package net.oneandone.stool.core;
 
 import net.oneandone.stool.directions.Toolkit;
+import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.ITProperties;
@@ -41,7 +42,7 @@ public class HelmIT {
             root = world.getTemp().createTempDirectory();
             root.deleteDirectory(); // I just need a unix name ...
             portus = PortusRegistry.create(Json.newJson(), world, p.portus.resolve("/").toString(), null);
-            Toolkit.resolve(portus, p.toolkit, root);
+            Toolkit.resolve(portus, Engine.createLocal(Json.newJson(), p.kubernetes), p.toolkit, root);
             assertTrue(root.isDirectory());
         }
     }

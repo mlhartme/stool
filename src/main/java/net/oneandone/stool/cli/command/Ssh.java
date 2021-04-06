@@ -41,9 +41,9 @@ public class Ssh extends IteratedStageCommand {
 
         config = reference.client.podToken(reference.stage, timeout);
         console.verbose.println(config.toString());
-        try (Engine os = Engine.create(globals.settings().local.json, config)) {
+        try (Engine engine = Engine.create(globals.settings().local.json, config)) {
             listener = new StoolExecListener();
-            try (ExecWatch watch = os.ssh(config.pod, "main", new String[] { shell }, listener)) {
+            try (ExecWatch watch = engine.ssh(config.pod, "main", new String[] { shell }, listener)) {
                 while (listener.closeReason == null) { // TODO: busy wait
                     Thread.sleep(100);
                 }
