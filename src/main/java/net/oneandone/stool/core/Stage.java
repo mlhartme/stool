@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Variable;
@@ -55,7 +56,7 @@ public class Stage {
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
         configuration = Configuration.create(localSettings.toolkit(), directionsRef.resolve(localSettings), effectiveValues);
-        configuration.helm(kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap());
+        configuration.helm(kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap(), null);
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -92,10 +93,17 @@ public class Stage {
 
 
     public static Stage create(LocalSettings localSettings, String name, ObjectNode helmObject, List<HistoryEntry> history) throws IOException {
+        ObjectNode config;
+        JsonNode w;
+        String workingOpt;
         Configuration configuration;
 
-        configuration = Configuration.loadAndEat((ObjectNode) helmObject.get("config"));
-        return new Stage(localSettings, name, configuration, configuration.loadVariables(helmObject), (ObjectNode) helmObject.get("info"), history);
+        config = (ObjectNode) helmObject.get("config");
+        w = config.remove(Configuration.WORKING_VALUE);
+        workingOpt = w == null ? null : w.asText();
+        configuration = Configuration.loadAndEat(config);
+        return new Stage(localSettings, name, configuration, workingOpt,
+                configuration.loadVariables(helmObject), (ObjectNode) helmObject.get("info"), history);
     }
 
     //--
@@ -112,16 +120,20 @@ public class Stage {
 
     public final Configuration configuration;
 
+    public final String workingTarOpt;
+
     private final Map<String, Variable> variables;
 
     private final ObjectNode info;
 
     public final List<HistoryEntry> history;
 
-    public Stage(LocalSettings localSettings, String name, Configuration configuration, Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
+    public Stage(LocalSettings localSettings, String name, Configuration configuration, String workingTarOpt,
+                 Map<String, Variable> variables, ObjectNode info, List<HistoryEntry> history) {
         this.localSettings = localSettings;
         this.name = name;
         this.configuration = configuration;
+        this.workingTarOpt = workingTarOpt;
         this.variables = variables;
         this.info = info;
         this.history = history;
@@ -290,7 +302,7 @@ public class Stage {
                 : configuration.withDirections(localSettings.toolkit(), directionsRefOpt.resolve(localSettings));
         nextConfiguration = nextConfiguration.withConfig(overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
-        diff = nextConfiguration.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap());
+        diff = nextConfiguration.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap(), workingTarOpt);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         return diff;
@@ -311,7 +323,7 @@ public class Stage {
         Configuration nextConfiguration;
 
         nextConfiguration = configuration.withConfig(changes);
-        nextConfiguration.helm(kubeContext, localSettings, name, true, false, null, valuesMap());
+        nextConfiguration.helm(kubeContext, localSettings, name, true, false, null, valuesMap(), workingTarOpt);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
     }

@@ -29,6 +29,7 @@ import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
 import net.oneandone.stool.util.Pair;
+import net.oneandone.stool.util.Tar;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -52,6 +53,7 @@ import java.util.Set;
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
+    public static final String WORKING_VALUE = "_working";
     private static final String DIRECTIONS_VALUE = "_directions";
 
     public static Configuration create(Toolkit toolkit, Directions directions, Map<String, String> values) throws IOException {
@@ -223,7 +225,8 @@ public class Configuration {
         return result;
     }
 
-    public FileNode createValuesFile(ObjectMapper yaml, World world, Map<String, String> actuals) throws IOException {
+    public FileNode createValuesFile(ObjectMapper yaml, World world, Map<String, String> actuals, String workingTarOpt)
+            throws IOException {
         ObjectNode dest;
         Expire expire;
         FileNode file;
@@ -235,6 +238,9 @@ public class Configuration {
         }
 
         dest.set(DIRECTIONS_VALUE, toArray(yaml));
+        if (workingTarOpt != null) {
+            dest.put(WORKING_VALUE, workingTarOpt);
+        }
 
         // check expire - TODO: ugly up reference to core package
         str = Json.string(dest, Dependencies.VALUE_EXPIRE, null);
@@ -309,16 +315,18 @@ public class Configuration {
     }
 
     public Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                            Map<String, String> prev) throws IOException {
+                            Map<String, String> prev, String prevWorking) throws IOException {
         Toolkit toolkit;
         FileNode valuesFile;
         Map<String, String> values;
         Diff result;
         Diff forbidden;
+        FileNode working;
 
         toolkit = localSettings.toolkit();
         LOGGER.info("chart: " + chartString());
-        values = eval(toolkit, name, localSettings.fqdn, localSettings.getLib().join("working"), prev);
+        working = Tar.toDir(localSettings.world, prevWorking);
+        values = eval(toolkit, name, localSettings.fqdn, working, prev);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
@@ -327,7 +335,7 @@ public class Configuration {
             }
         }
         removePrivate(result);
-        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values);
+        valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, Tar.fromDirOpt(working));
         try {
             LOGGER.info("values: " + valuesFile.readString());
             helm(dryrun, kubeContext,
