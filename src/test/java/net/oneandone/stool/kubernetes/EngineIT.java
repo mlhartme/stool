@@ -48,15 +48,12 @@ public class EngineIT {
 
     @Test
     public void copyImage() throws IOException {
-        FileNode dest;
+        FileNode tmp;
 
         try (Engine engine = create()) {
-            dest = WORLD.getTemp().createTempDirectory();
-            engine.copyImage("debian:buster-slim", "/etc", dest);
-            for (FileNode file: dest.find("**/*")) {
-                System.out.println(file.getRelative(dest));
-            }
-            dest.deleteTreeOpt();
+            tmp = WORLD.getTemp().createTempDirectory();
+            engine.copyImage("debian:buster-slim", "/etc", tmp);
+            assertTrue(tmp.find("**/*").size() > 1);
         }
     }
 

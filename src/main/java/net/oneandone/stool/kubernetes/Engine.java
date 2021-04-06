@@ -725,7 +725,7 @@ public class Engine implements AutoCloseable {
                 .withNewMetadata().withName(podName).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy("Never")
-                .withTerminationGracePeriodSeconds(1L)
+                .withTerminationGracePeriodSeconds(0L)
                 .addToContainers(container.build())
                 .endSpec().build())) {
             throw new IOException("failed to create pod for image " + image);
