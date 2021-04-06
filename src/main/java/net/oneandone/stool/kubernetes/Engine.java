@@ -732,7 +732,7 @@ public class Engine implements AutoCloseable {
         }
         try {
             if (!client.pods().inNamespace(namespace).withName(podName).inContainer("noname").dir(src).copy(dest.toPath())) {
-                throw new IllegalStateException(src + " " + dest);
+                throw new IllegalStateException("image: " + image + " copy " + src + " " + dest);
             }
         } finally {
             podDelete(podName);

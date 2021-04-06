@@ -85,13 +85,8 @@ public class Toolkit {
             LOGGER.info("loading toolkit " + name + " " + tag);
         }
         if (!dest.exists()) {
-            tmp = dest.getWorld().getTemp().createTempDirectory();
-            try {
-                dest.mkdir();
-                engine.copyImage(repository + ":" + tag, "/usr/local/toolkit", dest);
-            } finally {
-                tmp.deleteTree();
-            }
+            engine.copyImage(repository + ":" + tag, "/usr/local/toolkit", dest);
+            dest.checkDirectory();
             tagFile.writeString(tag);
         }
         return tag;
