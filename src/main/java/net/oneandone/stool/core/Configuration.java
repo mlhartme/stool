@@ -336,6 +336,7 @@ public class Configuration {
         }
         removePrivate(result);
         valuesFile = createValuesFile(localSettings.yaml, localSettings.world, values, Tar.fromDirOpt(working));
+        working.deleteTree();
         try {
             LOGGER.info("values: " + valuesFile.readString());
             helm(dryrun, kubeContext,
