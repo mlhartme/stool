@@ -45,7 +45,7 @@ public class FreemarkerTest {
 
     public static Freemarker freemarker(World world, String... env) {
         try {
-            return new Freemarker(Strings.toMap(env), world.getTemp().createTempDirectory(), "stage", "localhost");
+            return new Freemarker(Strings.toMap(env),"stage", "localhost", world.getTemp().createTempDirectory());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

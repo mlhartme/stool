@@ -42,7 +42,7 @@ import java.util.Map;
 public class Freemarker {
     private final Configuration configuration;
     private final Map<String, String> environment;
-    private final FileNode lib;
+    private final FileNode workdir;
     private final String fqdn;
     private final String stage;
     private final String host;
@@ -56,13 +56,13 @@ public class Freemarker {
     private FileNode contextScripts;
     private Map<String, String> contextPrevious;
 
-    public Freemarker(Map<String, String> environment, FileNode lib, String stage, String host) {
+    public Freemarker(Map<String, String> environment, String stage, String host, FileNode workdir) {
         this.configuration = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
         this.configuration.setDefaultEncoding("UTF-8");
         this.configuration.setLogTemplateExceptions(false);
 
         this.environment = environment;
-        this.lib = lib;
+        this.workdir = workdir;
         this.fqdn = stage + "." + host;
         this.stage = stage;
         this.host = host;
@@ -208,7 +208,7 @@ public class Freemarker {
                 throw new ArgumentException(list.toString());
             }
             try {
-                return lib.join("workdir", list.get(0).toString()).mkdirsOpt().getAbsolute();
+                return workdir.join(list.get(0).toString()).mkdirsOpt().getAbsolute();
             } catch (IOException e) {
                 throw new TemplateModelException(e.getMessage(), e);
             }

@@ -267,7 +267,7 @@ public class Configuration {
 
     //--
 
-    public Map<String, String> eval(Toolkit toolkit, FileNode lib, String stage, String fqdn, Map<String, String> prev) {
+    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, FileNode workdir, Map<String, String> prev) {
         Freemarker freemarker;
         Map<String, Direction> execMap;
 
@@ -276,7 +276,7 @@ public class Configuration {
         for (String name: names()) {
             execMap.put(name, exprLayer(name).get(name));
         }
-        freemarker = toolkit.freemarker(lib, stage, fqdn);
+        freemarker = toolkit.freemarker(stage, fqdn, workdir);
         return freemarker.eval(prev, execMap.values(), toolkit.scripts);
     }
 
@@ -318,7 +318,7 @@ public class Configuration {
 
         toolkit = localSettings.toolkit();
         LOGGER.info("chart: " + chartString());
-        values = eval(toolkit, localSettings.getLib(), name, localSettings.fqdn, prev);
+        values = eval(toolkit, name, localSettings.fqdn, localSettings.getLib().join("working"), prev);
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);
