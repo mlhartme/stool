@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.stool.util.Json;
-import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -115,20 +114,6 @@ public class PortusRegistry extends Registry {
         }
         return result;
     }
-
-    public List<String> helmTags(String repository) throws IOException {
-        ObjectNode result;
-        JsonNode tags;
-
-        try {
-            result = getJsonObject(repositoryAuth(repository, root.join("v2/" + repository + "/tags/list")));
-        } catch (FileNotFoundException e) {
-            return new ArrayList<>();
-        }
-        tags = result.get("tags");
-        return tags.isNull() ? new ArrayList<>() : toList((ArrayNode) tags);
-    }
-
 
     private HttpNode repositoryAuth(String repository, HttpNode node) throws IOException {
         String realm;

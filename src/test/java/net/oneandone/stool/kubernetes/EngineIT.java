@@ -20,7 +20,6 @@ import net.oneandone.stool.util.ITProperties;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -51,9 +50,10 @@ public class EngineIT {
         FileNode tmp;
 
         try (Engine engine = create()) {
-            tmp = WORLD.getTemp().createTempDirectory();
+            tmp = WORLD.getTemp().createTempDirectory().deleteDirectory();
             engine.copyImage("debian:buster-slim", "/etc", tmp);
             assertTrue(tmp.find("**/*").size() > 1);
+            tmp.deleteTree();
         }
     }
 

@@ -716,7 +716,12 @@ public class Engine implements AutoCloseable {
     public void copyImage(String image, String src, FileNode dest) throws IOException {
         String podName;
         ContainerBuilder container;
+        FileNode tmp;
 
+        dest.checkNotExists();
+        if (!src.startsWith("/") || src.endsWith("/")) {
+            throw new IllegalArgumentException(src);
+        }
         podName = UUID.randomUUID().toString();
         container = new ContainerBuilder().withName("noname")
                 .withImage(image)
@@ -730,11 +735,14 @@ public class Engine implements AutoCloseable {
                 .endSpec().build())) {
             throw new IOException("failed to create pod for image " + image);
         }
+        tmp = dest.getParent().createTempDirectory();
         try {
-            if (!client.pods().inNamespace(namespace).withName(podName).inContainer("noname").dir(src).copy(dest.toPath())) {
+            if (!client.pods().inNamespace(namespace).withName(podName).inContainer("noname").dir(src).copy(tmp.toPath())) {
                 throw new IllegalStateException("image: " + image + " copy " + src + " " + dest);
             }
+            tmp.join(src.substring(1)).checkDirectory().move(dest);
         } finally {
+            tmp.deleteTree();
             podDelete(podName);
         }
     }

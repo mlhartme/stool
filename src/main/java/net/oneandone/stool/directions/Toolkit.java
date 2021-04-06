@@ -63,7 +63,6 @@ public class Toolkit {
         String tag;
         String existing;
         FileNode tagFile;
-        FileNode tmp;
 
         if (repository.contains(":")) {
             throw new ArgumentException("invalid toolkit repository: " + repository);
@@ -87,7 +86,11 @@ public class Toolkit {
         if (!dest.exists()) {
             engine.copyImage(repository + ":" + tag, "/usr/local/toolkit", dest);
             dest.checkDirectory();
+            for (FileNode file : dest.join("scripts").find("*.sh")) {
+                file.setPermissions("rwxr-xr-x"); // TODO: lost somehow ...
+            }
             tagFile.writeString(tag);
+            System.out.println("unpacked: " + dest.list());
         }
         return tag;
     }
