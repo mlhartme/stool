@@ -69,7 +69,7 @@ public class Toolkit {
             throw new ArgumentException("invalid toolkit repository: " + repository);
         }
         name = repository.substring(repository.lastIndexOf('/') + 1);
-        tags = sortTags(registry.helmTags(Registry.getRepositoryPath(repository)));
+        tags = sortTags(registry.tags(Registry.getRepositoryPath(repository)));
         if (tags.isEmpty()) {
             throw new IOException("no tag for repository " + repository);
         }

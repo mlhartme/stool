@@ -113,7 +113,7 @@ public class RegistryIT {
                 dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
                 false, log);
         try {
-            assertEquals(Arrays.asList(), registry.tags(repository));
+            assertEquals(Arrays.asList(), registry. tags(repository));
 
             // TODO: needs explicit docker login contargo.server.lan
             System.out.println("image push: " + docker.imagePush(imageName));

@@ -5,7 +5,6 @@ ENV SC_OPTS=
 
 RUN cd /usr/local/bin && \
     curl https://get.helm.sh/helm-v3.5.0-linux-amd64.tar.gz | tar zx --strip-components=1 linux-amd64/helm && \
-    curl -s -L https://github.com/deislabs/oras/releases/download/v0.10.0/oras_0.10.0_linux_amd64.tar.gz | tar zx oras && \
     apt-get update && apt-get install -y --no-install-recommends git && \
     apt-get clean
 COPY maven/sc /usr/local/bin/sc
