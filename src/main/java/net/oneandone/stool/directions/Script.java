@@ -59,7 +59,19 @@ public class Script {
         this.file = file;
     }
 
-    public String exec(Runtime runtime, Map<String, String> environment, List args) throws IOException {
+    public String exec(Runtime runtime, Map<String, String> environment, List argsRaw) throws IOException {
+        List<String> args;
+
+        args = new ArrayList<>();
+        args(argsRaw, args);
+        if (runtime == null) {
+            return execLocal(environment, args);
+        } else {
+            return runtime.exec(this, args, environment);
+        }
+    }
+
+    public String execLocal(Map<String, String> environment, List<String> args) throws IOException {
         Launcher launcher;
 
         launcher = file.getParent().launcher();
@@ -67,18 +79,18 @@ public class Script {
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             launcher.env(entry.getKey(), entry.getValue());
         }
-        args(launcher, args);
+        launcher.args(args);
         return launcher.exec();
     }
 
-    private static void args(Launcher launcher, List lst) {
+    private static void args(List lst, List<String> result) {
         for (Object obj : lst) {
             if (obj instanceof List) {
-                args(launcher, (List) obj);
+                args((List) obj, result);
             } else if (obj instanceof TemplateSequenceModel) {
-                args(launcher, toList((TemplateSequenceModel) obj));
+                args(toList((TemplateSequenceModel) obj), result);
             } else {
-                launcher.arg(obj.toString());
+                result.add(obj.toString());
             }
         }
     }

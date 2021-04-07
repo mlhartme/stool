@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class EngineIT {
     private static final World WORLD;
@@ -85,7 +86,7 @@ public class EngineIT {
 
     @Test
     public void podExec() throws IOException {
-        String name = "pod-exec";
+        String name = UUID.randomUUID().toString();
         String output;
 
         try (Engine engine = create()) {
@@ -94,6 +95,38 @@ public class EngineIT {
             engine.podDelete(name);
         }
         assertEquals("hi\n", output);
+    }
+
+    @Test
+    public void podExecFailed() throws IOException {
+        String name = UUID.randomUUID().toString();
+
+        try (Engine engine = create()) {
+            engine.podCreate(name, "debian:buster-slim", 0, "sleep", "3600");
+            try {
+                engine.podExec(name, Engine.CONTAINER_NAME, "no-such-command", "hi");
+                fail();
+            } catch (IOException e) {
+                assertTrue(e.getMessage().startsWith("OCI runtime")); // TODO
+            }
+            engine.podDelete(name);
+        }
+    }
+
+    // @Test TODO: how to detect this!?
+    public void podExecFalse() throws IOException {
+        String name = UUID.randomUUID().toString();
+
+        try (Engine engine = create()) {
+            engine.podCreate(name, "debian:buster-slim", 0, "sleep", "3600");
+            try {
+                engine.podExec(name, Engine.CONTAINER_NAME, "false");
+                fail();
+            } catch (IOException e) {
+                assertTrue(e.getMessage().startsWith("OCI runtime"));
+            }
+            engine.podDelete(name);
+        }
     }
 
     @Test

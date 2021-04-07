@@ -90,7 +90,6 @@ public class Toolkit {
                 file.setPermissions("rwxr-xr-x"); // TODO: lost somehow ...
             }
             tagFile.writeString(tag);
-            System.out.println("unpacked: " + dest.list());
         }
         return tag;
     }
@@ -106,7 +105,7 @@ public class Toolkit {
     private final Map<String, Directions> directions;
     private final Map<String, Chart> charts;
     private final String version;
-    private final String image; // null when running locally
+    public final String image; // null when running locally
     public final FileNode scripts;
 
     public Toolkit(String version, String image, FileNode scripts) {

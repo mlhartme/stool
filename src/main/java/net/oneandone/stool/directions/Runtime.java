@@ -41,12 +41,16 @@ public class Runtime {
 
     public String exec(Script script, List<String> args, Map<String, String> env) throws IOException {
         final String scriptsPath = "/usr/local/toolkit/scripts";
+        final String workingPath = "/usr/local/working";
         String pod;
-        ContainerBuilder container;
+        ContainerBuilder cb;
+        String container;
+        String result;
 
         pod = UUID.randomUUID().toString();
-        container = new ContainerBuilder();
-        container.withName("toolkit")
+        container = "toolkit";
+        cb = new ContainerBuilder();
+        cb.withName(container)
                 .withImage(image)
                 .withWorkingDir(scriptsPath)
                 .withEnv(envVars(env))
@@ -58,14 +62,33 @@ public class Runtime {
                 .withRestartPolicy("Never")
                 .withTerminationGracePeriodSeconds((long) 0)
                 .addAllToVolumes(new ArrayList<>())
-                .addToContainers(container.build())
+                .addToContainers(cb.build())
                 .endSpec().build());
         try {
-            return engine.podExec(pod, "toolkit",
-                    Strings.cons(scriptsPath + "/" + script.name + ".sh", Strings.toArray(args)));
+            engine.podUpload(pod, container, working, workingPath);
+            result = engine.podExec(pod, "toolkit",
+                    Strings.cons(scriptsPath + "/" + script.name + ".sh",
+                            Strings.toArray(replacePrefix(args, working.getAbsolute() + "/", workingPath + "/"))));
+            engine.podDownload(pod, container, workingPath, working.deleteTree());
+            return result;
         } finally {
             engine.podDelete(pod);
         }
+    }
+
+    // TODO: doesn't work for working path itself
+    private static List<String> replacePrefix(List<String> lst, String inPrefix, String outPrefix) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (String item : lst) {
+            if (item.startsWith(inPrefix)) {
+                result.add(outPrefix + item.substring(inPrefix.length()));
+            } else {
+                result.add(item);
+            }
+        }
+        return result;
     }
 
     private static List<EnvVar> envVars(Map<String, String> env) {

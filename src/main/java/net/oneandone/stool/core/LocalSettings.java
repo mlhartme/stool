@@ -203,8 +203,11 @@ public class LocalSettings extends CoreSettings {
         return home.join("lib");
     }
 
-    public Runtime runtime(Engine engine, FileNode working) {
-        return null; // TODO
+    public Runtime runtime(Engine engine, FileNode working) throws IOException {
+        String image;
+
+        image = toolkit().image;
+        return image == null ? null : new Runtime(engine, image, working);
     }
 
     public void validate() throws IOException {

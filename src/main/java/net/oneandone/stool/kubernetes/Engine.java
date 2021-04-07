@@ -445,15 +445,18 @@ public class Engine implements AutoCloseable {
         return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
     }
 
-    public String podExec(String pod, String container, String... command) {
+    public String podExec(String pod, String container, String... command) throws IOException {
         StoolExecListener listener;
         ByteArrayOutputStream output;
+        ByteArrayOutputStream error;
+        String str;
 
         listener = new StoolExecListener();
         output = new ByteArrayOutputStream();
+        error = new ByteArrayOutputStream();
         try (ExecWatch watch = client.pods().inNamespace(namespace).withName(pod).inContainer(container)
                 .writingOutput(output)
-                .writingError(output)
+                .writingError(error)
                 .usingListener(listener)
                 .exec(command)) {
             while (listener.closeReason == null) { // TODO: busy wait
@@ -463,8 +466,16 @@ public class Engine implements AutoCloseable {
                     break;
                 }
             }
+            str = error.toString(StandardCharsets.UTF_8);
+            if (!str.isEmpty()) {
+                throw new IOException("exec failed: " + str);
+            }
         }
-        return new String(output.toByteArray(), StandardCharsets.UTF_8);
+        str = output.toString(StandardCharsets.UTF_8);
+        if (str.startsWith("OCI runtime exec failed")) { // TODO: why is this written to standard-out?
+            throw new IOException(str);
+        }
+        return str;
     }
 
     public ExecWatch podExecInteractive(String pod, String container, String[] command, ExecListener listener) {
