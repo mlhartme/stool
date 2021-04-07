@@ -348,12 +348,16 @@ public class Engine implements AutoCloseable {
         }
     }
     public void podDelete(String name) throws IOException {
+        podDeleteBg(name);
+        podAwait(name, (String) null);
+    }
+
+    public void podDeleteBg(String name) throws IOException {
         try {
             client.pods().inNamespace(namespace).withName(name).delete();
         } catch (KubernetesClientException e) {
             throw wrap(e);
         }
-        podAwait(name, (String) null);
     }
 
     public boolean podContainerRunning(String podName, String containerName) throws IOException {

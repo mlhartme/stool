@@ -65,7 +65,7 @@ public class EngineIT {
         try (Engine engine = create()) {
             engine.podCreate(name, "debian:buster-slim", 0, "sleep", "3600");
             output = engine.podExec(name, "noname", "echo", "hi");
-            engine.podDelete(name);
+            engine.podDeleteBg(name);
         }
         assertEquals("hi\n", output);
     }
@@ -80,7 +80,7 @@ public class EngineIT {
             assertFalse(engine.podCreate(name, "debian:stretch-slim", 0, "hostname"));
             assertEquals(false, engine.podContainerRunning(name, "noname"));
             assertEquals(name + "\n", engine.podLogs(name));
-            engine.podDelete(name);
+            engine.podDeleteBg(name);
         }
     }
 

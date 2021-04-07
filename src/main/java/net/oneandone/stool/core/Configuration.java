@@ -330,7 +330,7 @@ public class Configuration {
         toolkit = localSettings.toolkit();
         LOGGER.info("chart: " + chartString());
         working = Tar.toDir(localSettings.world, prevWorking);
-        values = eval(toolkit, name, localSettings.fqdn, working, prev, localSettings.runtime(engine));
+        values = eval(toolkit, name, localSettings.fqdn, working, prev, localSettings.runtime(engine, working));
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);

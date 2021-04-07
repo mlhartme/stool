@@ -15,43 +15,58 @@
  */
 package net.oneandone.stool.directions;
 
+import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.PodBuilder;
 import net.oneandone.stool.kubernetes.Engine;
+import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class Runtime {
     public final Engine engine;
     public final String image;
+    public final FileNode working;
 
-    public Runtime(Engine engine, String image) {
+    public Runtime(Engine engine, String image, FileNode working) {
         this.engine = engine;
         this.image = image;
+        this.working = working;
     }
-/*
-    public String exec(String script, List<String> args, Map<String, String> env) throws IOException {
-        String name;
 
-        name = UUID.randomUUID().toString();
+    public String exec(Script script, List<String> args, Map<String, String> env) throws IOException {
+        final String scriptsPath = "/usr/local/toolkit/scripts";
+        String pod;
         ContainerBuilder container;
 
+        pod = UUID.randomUUID().toString();
         container = new ContainerBuilder();
-        container.withName("noname").withImage(image).withEnv(envVars(env));
-
-        container.withCommand(new String[] { "sleep", "3600"} );
+        container.withName("toolkit")
+                .withImage(image)
+                .withWorkingDir(scriptsPath)
+                .withEnv(envVars(env))
+                .withImagePullPolicy("Never")
+                .withCommand("sleep", "3600");
         engine.podCreate(new PodBuilder()
-                .withNewMetadata().withName(name).withLabels(null).endMetadata()
+                .withNewMetadata().withName(pod).endMetadata()
                 .withNewSpec()
                 .withRestartPolicy("Never")
-                .withHostname(null)
+                .withTerminationGracePeriodSeconds((long) 0)
                 .addAllToVolumes(new ArrayList<>())
                 .addToContainers(container.build())
                 .endSpec().build());
-        engine.podExec("ls", "-la", "/usr");
-        engine.podDelete(name);
-    }*/
+        try {
+            return engine.podExec(pod, "toolkit",
+                    Strings.cons(scriptsPath + "/" + script.name + ".sh", Strings.toArray(args)));
+        } finally {
+            engine.podDeleteBg(pod);
+        }
+    }
 
     private static List<EnvVar> envVars(Map<String, String> env) {
         List<EnvVar> result;
