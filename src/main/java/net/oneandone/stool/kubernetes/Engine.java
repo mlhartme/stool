@@ -477,7 +477,7 @@ public class Engine implements AutoCloseable {
                 .exec(command);
     }
 
-    public void podCopyOut(String podName, String container, String src, FileNode dest) throws IOException {
+    public void podDownload(String podName, String container, String src, FileNode dest) throws IOException {
         FileNode tmp;
 
         dest.checkNotExists();
@@ -492,6 +492,16 @@ public class Engine implements AutoCloseable {
             tmp.join(src.substring(1)).checkDirectory().move(dest);
         } finally {
             tmp.deleteTree();
+        }
+    }
+
+    public void podUpload(String podName, String container, FileNode src, String dest) throws IOException {
+        src.checkDirectory();
+        if (!dest.startsWith("/") || dest.endsWith("/")) {
+            throw new IllegalArgumentException(dest);
+        }
+        if (!client.pods().inNamespace(namespace).withName(podName).inContainer(container).dir(dest).upload(src.toPath())) {
+            throw new IllegalStateException("pod: " + podName + " copy " + src + " " + dest);
         }
     }
 
@@ -775,7 +785,7 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public void imageCopy(String image, String src, FileNode dest) throws IOException {
+    public void imageDownload(String image, String src, FileNode dest) throws IOException {
         String podName;
 
         podName = UUID.randomUUID().toString();
@@ -783,7 +793,7 @@ public class Engine implements AutoCloseable {
             throw new IOException("failed to create pod for image " + image);
         }
         try {
-            podCopyOut(podName, CONTAINER_NAME, src, dest);
+            podDownload(podName, CONTAINER_NAME, src, dest);
         } finally {
             podDelete(podName);
         }

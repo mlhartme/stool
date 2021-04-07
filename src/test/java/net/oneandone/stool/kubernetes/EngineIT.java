@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -46,16 +47,41 @@ public class EngineIT {
     }
 
     @Test
-    public void copyImage() throws IOException {
+    public void imageDownload() throws IOException {
         FileNode tmp;
 
         try (Engine engine = create()) {
             tmp = WORLD.getTemp().createTempDirectory().deleteDirectory();
-            engine.imageCopy("debian:buster-slim", "/etc", tmp);
+            engine.imageDownload("debian:buster-slim", "/etc", tmp);
             assertTrue(tmp.find("**/*").size() > 1);
             tmp.deleteTree();
         }
     }
+
+    @Test
+    public void podUpload() throws IOException {
+        String podName;
+        FileNode in;
+        FileNode out;
+
+        in = WORLD.getTemp().createTempDirectory();
+        in.join("sub").mkdir().join("file").writeString("hello");
+        out = WORLD.getTemp().createTempDirectory().deleteDirectory();
+        podName = UUID.randomUUID().toString();
+        try (Engine engine = create()) {
+            engine.podCreate(podName, "debian:buster-slim", 0, "sleep", "3600");
+            try {
+                engine.podUpload(podName, Engine.CONTAINER_NAME, in, "/etc/demo");
+                engine.podExec(podName, Engine.CONTAINER_NAME, "touch", "/etc/demo/touched");
+                engine.podDownload(podName, Engine.CONTAINER_NAME, "/etc/demo", out);
+            } finally {
+                engine.podDelete(podName);
+            }
+        }
+        assertEquals("", out.join("touched").readString());
+        assertEquals("hello", out.join("sub/file").readString());
+    }
+
 
     @Test
     public void podExec() throws IOException {
