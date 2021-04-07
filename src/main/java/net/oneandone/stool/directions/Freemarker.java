@@ -292,16 +292,16 @@ public class Freemarker {
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             launcher.env(entry.getKey(), entry.getValue());
         }
-        add(launcher, args);
+        args(launcher, args);
         return launcher.exec();
     }
 
-    private static void add(Launcher launcher, List lst) {
+    private static void args(Launcher launcher, List lst) {
         for (Object obj : lst) {
             if (obj instanceof List) {
-                add(launcher, (List) obj);
+                args(launcher, (List) obj);
             } else if (obj instanceof TemplateSequenceModel) {
-                add(launcher, toList((TemplateSequenceModel) obj));
+                args(launcher, toList((TemplateSequenceModel) obj));
             } else {
                 launcher.arg(obj.toString());
             }
