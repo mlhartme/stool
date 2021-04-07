@@ -441,6 +441,42 @@ public class Engine implements AutoCloseable {
         }
     }
 
+    public LocalPortForward podPortForward(String pod, int localPort, int podPort) {
+        return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
+    }
+
+    public String podExec(String pod, String container, String... command) {
+        StoolExecListener listener;
+        ByteArrayOutputStream output;
+
+        listener = new StoolExecListener();
+        output = new ByteArrayOutputStream();
+        try (ExecWatch watch = client.pods().inNamespace(namespace).withName(pod).inContainer(container)
+                .writingOutput(output)
+                .writingError(output)
+                .usingListener(listener)
+                .exec(command)) {
+            while (listener.closeReason == null) { // TODO: busy wait
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }
+        return new String(output.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    public ExecWatch podExecInteractive(String pod, String container, String[] command, ExecListener listener) {
+        return client.pods().inNamespace(namespace).withName(pod).inContainer(container)
+                .readingInput(System.in)
+                .writingOutput(System.out)
+                .writingError(System.err)
+                .withTTY()
+                .usingListener(listener)
+                .exec(command);
+    }
+
     private static String toString(String[] args) {
         StringBuilder result;
 
@@ -719,10 +755,6 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public LocalPortForward podPortForward(String pod, int localPort, int podPort) {
-        return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
-    }
-
     public void copyImage(String image, String src, FileNode dest) throws IOException {
         String podName;
         ContainerBuilder container;
@@ -756,37 +788,4 @@ public class Engine implements AutoCloseable {
             podDelete(podName);
         }
     }
-
-    public String podExec(String pod, String container, String... command) {
-        StoolExecListener listener;
-        ByteArrayOutputStream output;
-
-        listener = new StoolExecListener();
-        output = new ByteArrayOutputStream();
-        try (ExecWatch watch = client.pods().inNamespace(namespace).withName(pod).inContainer(container)
-                .writingOutput(output)
-                .writingError(output)
-                .usingListener(listener)
-                .exec(command)) {
-            while (listener.closeReason == null) { // TODO: busy wait
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    break;
-                }
-            }
-        }
-        return new String(output.toByteArray(), StandardCharsets.UTF_8);
-    }
-
-    public ExecWatch podExecInteractive(String pod, String container, String[] command, ExecListener listener) {
-        return client.pods().inNamespace(namespace).withName(pod).inContainer(container)
-                .readingInput(System.in)
-                .writingOutput(System.out)
-                .writingError(System.err)
-                .withTTY()
-                .usingListener(listener)
-                .exec(command);
-    }
-
 }
