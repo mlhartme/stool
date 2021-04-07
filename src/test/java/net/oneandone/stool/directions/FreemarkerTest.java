@@ -120,7 +120,7 @@ public class FreemarkerTest {
             """);
         directions = Directions.forTest("name", "one", "script.script('hello')");
         e = freemarker();
-        values = e.eval(new HashMap<>(), directions.directions.values(), scripts, null);
+        values = e.eval(new HashMap<>(), directions.directions.values(), scripts, LocalRuntime.forTesting(WORLD));
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
     }
 

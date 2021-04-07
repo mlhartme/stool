@@ -19,7 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.Main;
+import net.oneandone.stool.directions.LocalRuntime;
 import net.oneandone.stool.directions.Toolkit;
+import net.oneandone.stool.directions.PodRuntime;
 import net.oneandone.stool.directions.Runtime;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
@@ -207,7 +209,7 @@ public class LocalSettings extends CoreSettings {
         String image;
 
         image = toolkit().image;
-        return image == null ? null : new Runtime(engine, image, working);
+        return image == null ? new LocalRuntime(working) : new PodRuntime(engine, image, working);
     }
 
     public void validate() throws IOException {

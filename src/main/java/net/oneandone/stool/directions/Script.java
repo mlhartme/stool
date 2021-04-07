@@ -20,7 +20,6 @@ import freemarker.template.TemplateSequenceModel;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -64,23 +63,7 @@ public class Script {
 
         args = new ArrayList<>();
         args(argsRaw, args);
-        if (runtime == null) {
-            return execLocal(environment, args);
-        } else {
-            return runtime.exec(this, args, environment);
-        }
-    }
-
-    public String execLocal(Map<String, String> environment, List<String> args) throws IOException {
-        Launcher launcher;
-
-        launcher = file.getParent().launcher();
-        launcher.arg(file.getAbsolute());
-        for (Map.Entry<String, String> entry : environment.entrySet()) {
-            launcher.env(entry.getKey(), entry.getValue());
-        }
-        launcher.args(args);
-        return launcher.exec();
+        return runtime.exec(this, args, environment);
     }
 
     private static void args(List lst, List<String> result) {
