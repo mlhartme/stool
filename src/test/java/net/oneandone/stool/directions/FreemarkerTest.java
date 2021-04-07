@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -108,20 +109,18 @@ public class FreemarkerTest {
 
     @Test
     public void script() throws IOException {
+        List<Script> scripts;
         Freemarker e;
         Directions directions;
         Map<String, String> values;
-        FileNode dir;
 
-
-        dir = WORLD.getTemp().createTempDirectory();
-        dir.join("script.sh").writeString("""
+        scripts = Script.forTest(WORLD, """
             #!/bin/sh
             echo "arg:$1"
-            """).setPermissions("rwxr-xr-x");
+            """);
         directions = Directions.forTest("name", "one", "script.script('hello')");
         e = freemarker();
-        values = e.eval(new HashMap<>(), directions.directions.values(), Script.scanOpt(dir));
+        values = e.eval(new HashMap<>(), directions.directions.values(), scripts);
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
     }
 

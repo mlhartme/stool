@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.directions;
 
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
@@ -23,6 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Script {
+    public static List<Script> forTest(World world, String str) throws IOException {
+        FileNode dir;
+
+        dir = world.getTemp().createTempDirectory();
+        dir.join("script.sh").writeString(str).setPermissions("rwxr-xr-x");
+        return scanOpt(dir);
+
+    }
     public static List<Script> scanOpt(FileNode dir) throws IOException {
         List<Script> result;
         String name;
