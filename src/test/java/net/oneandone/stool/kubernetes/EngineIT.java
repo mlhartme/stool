@@ -59,7 +59,7 @@ public class EngineIT {
     }
 
     @Test
-    public void podUpload() throws IOException {
+    public void podUpAndDownload() throws IOException {
         String podName;
         FileNode in;
         FileNode out;
