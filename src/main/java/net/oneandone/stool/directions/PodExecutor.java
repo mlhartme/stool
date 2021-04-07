@@ -29,31 +29,33 @@ import java.util.Map;
 import java.util.UUID;
 
 public class PodExecutor extends Executor {
+    private static final String CONTAINER = "toolkit";
+    private static final String SCRIPTS_PATH = "/usr/local/toolkit/scripts";
+    private static final String WORKING_PATH = "/usr/local/working";
+
     public final Engine engine;
     public final String image;
-    public final FileNode working;
+
+    private String pod;
 
     public PodExecutor(Engine engine, String image, Map<String, String> environment, FileNode working) {
-        super(environment);
+        super(environment, working);
         this.engine = engine;
         this.image = image;
-        this.working = working;
+        this.pod = null;
     }
 
-    public String exec(Script script, List<String> args) throws IOException {
-        final String scriptsPath = "/usr/local/toolkit/scripts";
-        final String workingPath = "/usr/local/working";
-        String pod;
+    public void lazyStart() throws IOException {
         ContainerBuilder cb;
-        String container;
-        String result;
 
+        if (pod != null) {
+            return;
+        }
         pod = UUID.randomUUID().toString();
-        container = "toolkit";
         cb = new ContainerBuilder();
-        cb.withName(container)
+        cb.withName(CONTAINER)
                 .withImage(image)
-                .withWorkingDir(scriptsPath)
+                .withWorkingDir(SCRIPTS_PATH)
                 .withEnv(envVars(environment))
                 .withImagePullPolicy("Never")
                 .withCommand("sleep", "3600");
@@ -65,16 +67,18 @@ public class PodExecutor extends Executor {
                 .addAllToVolumes(new ArrayList<>())
                 .addToContainers(cb.build())
                 .endSpec().build());
-        try {
-            engine.podUpload(pod, container, working, workingPath);
-            result = engine.podExec(pod, "toolkit",
-                    Strings.cons(scriptsPath + "/" + script.name + ".sh",
-                            Strings.toArray(replacePrefix(args, working.getAbsolute() + "/", workingPath + "/"))));
-            engine.podDownload(pod, container, workingPath, working.deleteTree());
-            return result;
-        } finally {
-            engine.podDelete(pod);
-        }
+        engine.podUpload(pod, CONTAINER, working, WORKING_PATH);
+    }
+
+    public String exec(Script script, List<String> args) throws IOException {
+        String result;
+
+        lazyStart();
+        engine.podUpload(pod, CONTAINER, working, WORKING_PATH);
+        result = engine.podExec(pod, "toolkit",
+                Strings.cons(SCRIPTS_PATH + "/" + script.name + ".sh",
+                        Strings.toArray(replacePrefix(args, working.getAbsolute() + "/", WORKING_PATH + "/"))));
+        return result;
     }
 
     // TODO: doesn't work for working path itself
@@ -103,6 +107,9 @@ public class PodExecutor extends Executor {
     }
 
     public void close() throws IOException {
-        // TODO
+        if (pod != null) {
+            engine.podDelete(pod);
+            pod = null;
+        }
     }
 }

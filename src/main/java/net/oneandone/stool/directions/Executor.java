@@ -15,15 +15,19 @@
  */
 package net.oneandone.stool.directions;
 
+import net.oneandone.sushi.fs.file.FileNode;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 public abstract class Executor implements AutoCloseable {
     public final Map<String, String> environment;
+    public final FileNode working;
 
-    public Executor(Map<String, String> environment) {
+    public Executor(Map<String, String> environment, FileNode working) {
         this.environment = environment;
+        this.working = working;
     }
 
     public abstract String exec(Script script, List<String> args) throws IOException;

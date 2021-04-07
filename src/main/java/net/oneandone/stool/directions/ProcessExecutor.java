@@ -23,11 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ProcessExecutor extends Executor {
-    public final FileNode working;
-
     public ProcessExecutor(Map<String, String> environment, FileNode working) {
-        super(environment);
-        this.working = working;
+        super(environment, working);
     }
 
     public String exec(Script script, List<String> args) throws IOException {
