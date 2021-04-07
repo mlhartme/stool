@@ -51,6 +51,7 @@ public class Freemarker {
      */
     private Map<String, Object> context;
     private List<Script> contextScripts;
+    private Runtime contextRuntime;
     private Map<String, String> contextPrevious;
 
     public Freemarker(Map<String, String> environment, String stage, String host, FileNode workdir) {
@@ -65,10 +66,12 @@ public class Freemarker {
         this.host = host;
         this.context = null;
         this.contextScripts = null;
+        this.contextRuntime = null;
         this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Map<String, String> previous, Collection<Direction> directions, List<Script> scripts) {
+    public Map<String, String> eval(Map<String, String> previous, Collection<Direction> directions,
+                                    List<Script> scripts, Runtime runtime) {
         Map<String, String> result;
 
         if (context != null) {
@@ -76,6 +79,7 @@ public class Freemarker {
         }
         context = new LinkedHashMap<>();
         contextScripts = scripts;
+        contextRuntime = runtime;
         contextPrevious = previous;
         try {
             for (Direction direction : directions) {
@@ -92,6 +96,7 @@ public class Freemarker {
         } finally {
             context = null;
             contextScripts = null;
+            contextRuntime = null;
             contextPrevious = null;
         }
     }
@@ -269,7 +274,7 @@ public class Freemarker {
         for (Script script : contextScripts) {
             result.put(script.name, (TemplateMethodModelEx) list -> {
                 try {
-                    return script.exec(environment, list);
+                    return script.exec(contextRuntime, environment, list);
                 } catch (IOException e) {
                     throw new TemplateModelException(script.name + ": script failed: " + e.getMessage(), e);
                 }

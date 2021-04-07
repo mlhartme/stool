@@ -26,6 +26,8 @@ import net.oneandone.stool.directions.Freemarker;
 import net.oneandone.stool.directions.Script;
 import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.directions.Variable;
+import net.oneandone.stool.directions.Runtime;
+import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Expire;
 import net.oneandone.stool.util.Json;
@@ -274,7 +276,8 @@ public class Configuration {
 
     //--
 
-    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, FileNode workdir, Map<String, String> prev) throws IOException {
+    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, FileNode workdir, Map<String, String> prev, Runtime runtime)
+            throws IOException {
         Freemarker freemarker;
         Map<String, Direction> execMap;
 
@@ -284,7 +287,7 @@ public class Configuration {
             execMap.put(name, exprLayer(name).get(name));
         }
         freemarker = toolkit.freemarker(stage, fqdn, workdir);
-        return freemarker.eval(prev, execMap.values(), Script.scanOpt(toolkit.scripts));
+        return freemarker.eval(prev, execMap.values(), Script.scanOpt(toolkit.scripts), runtime);
     }
 
     private void verify() {
@@ -315,8 +318,8 @@ public class Configuration {
         return result;
     }
 
-    public Diff helm(String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
-                            Map<String, String> prev, String prevWorking) throws IOException {
+    public Diff helm(Engine engine, String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
+                     Map<String, String> prev, String prevWorking) throws IOException {
         Toolkit toolkit;
         FileNode valuesFile;
         Map<String, String> values;
@@ -327,7 +330,7 @@ public class Configuration {
         toolkit = localSettings.toolkit();
         LOGGER.info("chart: " + chartString());
         working = Tar.toDir(localSettings.world, prevWorking);
-        values = eval(toolkit, name, localSettings.fqdn, working, prev);
+        values = eval(toolkit, name, localSettings.fqdn, working, prev, localSettings.runtime(engine));
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);

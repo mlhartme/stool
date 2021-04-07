@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.Main;
 import net.oneandone.stool.directions.Toolkit;
+import net.oneandone.stool.directions.Runtime;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.server.users.UserManager;
@@ -202,6 +203,10 @@ public class LocalSettings extends CoreSettings {
         return home.join("lib");
     }
 
+    public Runtime runtime(Engine engine) {
+        return null; // TODO
+    }
+
     public void validate() throws IOException {
         if (auth()) {
             if (ldapSso.isEmpty()) {
@@ -292,22 +297,26 @@ public class LocalSettings extends CoreSettings {
     public Toolkit toolkit() throws IOException {
         FileNode directory;
         String version;
+        String image;
 
         if (lazyToolkit == null) {
             if (BUILTIN_TOOLKIT.equals(toolkit)) {
                 directory = getLib().join("toolkit").mkdirsOpt();
                 version = Main.versionString(world);
                 world.resource("toolkit").copyDirectory(directory);
-            } else if (!toolkit.startsWith("/")) {
+                image = null;
+            } else if (toolkit.startsWith("/")) {
+                directory = world.file(toolkit).checkDirectory();
+                version = "unknown";
+                image = null;
+            } else {
                 directory = getLib().join("toolkit");
                 try (Engine engine = Engine.createClusterOrLocal(json, null /* TODO */)) {
                     version = Toolkit.resolve(createRegistry(toolkit), engine, toolkit, directory);
                 }
-            } else {
-                directory = world.file(toolkit).checkDirectory();
-                version = "unknown";
+                image = toolkit + ":" + version;
             }
-            lazyToolkit = Toolkit.load(yaml, directory, version);
+            lazyToolkit = Toolkit.load(yaml, directory, version, image);
             lazyToolkit.overrideEnvironment(environment);
         }
         return lazyToolkit;

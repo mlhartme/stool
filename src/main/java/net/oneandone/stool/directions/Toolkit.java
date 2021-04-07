@@ -40,11 +40,11 @@ public class Toolkit {
 
     //--
 
-    public static Toolkit load(ObjectMapper yaml, FileNode directory, String version) throws IOException {
+    public static Toolkit load(ObjectMapper yaml, FileNode directory, String version, String image) throws IOException {
         ObjectNode toolkit;
         Toolkit result;
 
-        result = new Toolkit(version, directory.join("scripts"));
+        result = new Toolkit(version, image, directory.join("scripts"));
         try (Reader src = directory.join("toolkit.yaml").newReader()) {
             toolkit = (ObjectNode) yaml.readTree(src);
         }
@@ -106,13 +106,15 @@ public class Toolkit {
     private final Map<String, Directions> directions;
     private final Map<String, Chart> charts;
     private final String version;
+    private final String image; // null when running locally
     public final FileNode scripts;
 
-    public Toolkit(String version, FileNode scripts) {
+    public Toolkit(String version, String image, FileNode scripts) {
         this.environment = new HashMap<>();
         this.directions = new HashMap<>();
         this.charts = new HashMap<>();
         this.version = version;
+        this.image = image;
         this.scripts = scripts;
     }
 

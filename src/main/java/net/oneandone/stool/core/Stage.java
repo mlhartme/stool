@@ -56,7 +56,7 @@ public class Stage {
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
         configuration = Configuration.create(localSettings.toolkit(), directionsRef.resolve(localSettings), effectiveValues);
-        configuration.helm(kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap(), null);
+        configuration.helm(engine, kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap(), null);
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
         return stage;
@@ -302,7 +302,7 @@ public class Stage {
                 : configuration.withDirections(localSettings.toolkit(), directionsRefOpt.resolve(localSettings));
         nextConfiguration = nextConfiguration.withConfig(overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
-        diff = nextConfiguration.helm(kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap(), workingTarOpt);
+        diff = nextConfiguration.helm(engine, kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap(), workingTarOpt);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
         return diff;
@@ -323,7 +323,7 @@ public class Stage {
         Configuration nextConfiguration;
 
         nextConfiguration = configuration.withConfig(changes);
-        nextConfiguration.helm(kubeContext, localSettings, name, true, false, null, valuesMap(), workingTarOpt);
+        nextConfiguration.helm(engine, kubeContext, localSettings, name, true, false, null, valuesMap(), workingTarOpt);
         history.add(HistoryEntry.create(caller));
         saveHistory(engine);
     }

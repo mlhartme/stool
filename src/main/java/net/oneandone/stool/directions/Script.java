@@ -59,7 +59,7 @@ public class Script {
         this.file = file;
     }
 
-    public String exec(Map<String, String> environment, List args) throws IOException {
+    public String exec(Runtime runtime, Map<String, String> environment, List args) throws IOException {
         Launcher launcher;
 
         launcher = file.getParent().launcher();

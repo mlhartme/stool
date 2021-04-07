@@ -127,7 +127,7 @@ public class ConfigurationTest {
         Directions d;
         Directions first;
 
-        toolkit = new Toolkit("empty", WORLD.getTemp().createTempDirectory());
+        toolkit = new Toolkit("empty", null, WORLD.getTemp().createTempDirectory());
         toolkit.addChart(chart);
         first = null;
         for (String str : directions) {
@@ -140,7 +140,7 @@ public class ConfigurationTest {
         }
         c = Configuration.create(toolkit, first, Collections.emptyMap());
         assertEquals(expected, c.eval(toolkit,"stage", "fqdn", WORLD.getTemp().createTempDirectory(),
-                Collections.emptyMap()));
+                Collections.emptyMap(), null));
     }
 
     @Test

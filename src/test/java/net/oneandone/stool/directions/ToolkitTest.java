@@ -32,7 +32,7 @@ public class ToolkitTest {
     public void loadAll() throws IOException {
         Toolkit toolkit;
 
-        toolkit = Toolkit.load(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/toolkit").checkDirectory(), "");
+        toolkit = Toolkit.load(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/toolkit").checkDirectory(), "", null);
         assertEquals(2, toolkit.directionsSize());
     }
 }
