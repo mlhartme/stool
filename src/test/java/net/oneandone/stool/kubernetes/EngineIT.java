@@ -75,7 +75,7 @@ public class EngineIT {
         String name = "pod-implicit";
 
         try (Engine engine = create()) {
-            engine.podDeleteOpt(name);
+            engine.podDeleteAwaitOpt(name);
             assertFalse(engine.isOpenShift());
             assertFalse(engine.podCreate(name, "debian:stretch-slim", 0, "hostname"));
             assertEquals(false, engine.podContainerRunning(name, "noname"));

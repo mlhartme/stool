@@ -339,7 +339,7 @@ public class Engine implements AutoCloseable {
         return "Running".equals(phase);
     }
 
-    public boolean podDeleteOpt(String name) throws IOException {
+    public boolean podDeleteAwaitOpt(String name) throws IOException {
         try {
             podDeleteAwait(name);
             return true;
@@ -719,7 +719,7 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public LocalPortForward portForward(String pod, int localPort, int podPort) {
+    public LocalPortForward podPortForward(String pod, int localPort, int podPort) {
         return client.pods().inNamespace(namespace).withName(pod).portForward(podPort, localPort);
     }
 
@@ -757,16 +757,6 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    public ExecWatch ssh(String pod, String container, String[] command, ExecListener listener) {
-        return client.pods().inNamespace(namespace).withName(pod).inContainer(container)
-                .readingInput(System.in)
-                .writingOutput(System.out)
-                .writingError(System.err)
-                .withTTY()
-                .usingListener(listener)
-                .exec(command);
-    }
-
     public String podExec(String pod, String container, String... command) {
         StoolExecListener listener;
         ByteArrayOutputStream output;
@@ -788,4 +778,15 @@ public class Engine implements AutoCloseable {
         }
         return new String(output.toByteArray(), StandardCharsets.UTF_8);
     }
+
+    public ExecWatch podExecInteractive(String pod, String container, String[] command, ExecListener listener) {
+        return client.pods().inNamespace(namespace).withName(pod).inContainer(container)
+                .readingInput(System.in)
+                .writingOutput(System.out)
+                .writingError(System.err)
+                .withTTY()
+                .usingListener(listener)
+                .exec(command);
+    }
+
 }
