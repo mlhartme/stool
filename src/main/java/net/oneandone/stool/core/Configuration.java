@@ -330,7 +330,7 @@ public class Configuration {
         toolkit = localSettings.toolkit();
         LOGGER.info("chart: " + chartString());
         working = Tar.toDir(localSettings.world, prevWorking);
-        try (Executor executor = localSettings.createExecutor(engine, working)) {
+        try (Executor executor = toolkit.createExecutor(engine, working)) {
             values = eval(toolkit, name, localSettings.fqdn, working, prev, executor);
         }
         result = Diff.diff(prev, values);

@@ -128,6 +128,12 @@ public class Toolkit {
         }
     }
 
+    public Executor createExecutor(Engine engine, FileNode working) {
+        return image == null ? new ProcessExecutor(environment, working)
+                : new PodExecutor(engine, image, environment, working);
+    }
+
+
     public Freemarker freemarker(String stage, String host, FileNode workdir) {
         return new Freemarker(environment, stage, host, workdir);
     }

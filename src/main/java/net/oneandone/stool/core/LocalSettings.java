@@ -19,10 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.Main;
-import net.oneandone.stool.directions.ProcessExecutor;
 import net.oneandone.stool.directions.Toolkit;
-import net.oneandone.stool.directions.PodExecutor;
-import net.oneandone.stool.directions.Executor;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.server.users.UserManager;
@@ -203,16 +200,6 @@ public class LocalSettings extends CoreSettings {
 
     public FileNode getLib() {
         return home.join("lib");
-    }
-
-    public Executor createExecutor(Engine engine, FileNode working) throws IOException {
-        Toolkit t;
-        String image;
-
-        t = toolkit();
-        image = t.image;
-        return image == null ? new ProcessExecutor(t.environment, working)
-                : new PodExecutor(engine, image, t.environment, working);
     }
 
     public void validate() throws IOException {
