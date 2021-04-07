@@ -19,6 +19,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Runtime {
+public abstract class Executor {
     public abstract String exec(Script script, List<String> args, Map<String, String> env) throws IOException;
 }

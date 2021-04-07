@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class PodRuntime extends Runtime {
+public class PodExecutor extends Executor {
     public final Engine engine;
     public final String image;
     public final FileNode working;
 
-    public PodRuntime(Engine engine, String image, FileNode working) {
+    public PodExecutor(Engine engine, String image, FileNode working) {
         this.engine = engine;
         this.image = image;
         this.working = working;

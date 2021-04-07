@@ -58,12 +58,12 @@ public class Script {
         this.file = file;
     }
 
-    public String exec(Runtime runtime, Map<String, String> environment, List argsRaw) throws IOException {
+    public String exec(Executor executor, Map<String, String> environment, List argsRaw) throws IOException {
         List<String> args;
 
         args = new ArrayList<>();
         args(argsRaw, args);
-        return runtime.exec(this, args, environment);
+        return executor.exec(this, args, environment);
     }
 
     private static void args(List lst, List<String> result) {

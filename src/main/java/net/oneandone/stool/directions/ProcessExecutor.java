@@ -23,14 +23,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class LocalRuntime extends Runtime {
-    public static LocalRuntime forTesting(World world) throws IOException {
-        return new LocalRuntime(world.getTemp().createTempDirectory());
+public class ProcessExecutor extends Executor {
+    public static ProcessExecutor forTesting(World world) throws IOException {
+        return new ProcessExecutor(world.getTemp().createTempDirectory());
     }
 
     public final FileNode working;
 
-    public LocalRuntime(FileNode working) {
+    public ProcessExecutor(FileNode working) {
         this.working = working;
     }
 

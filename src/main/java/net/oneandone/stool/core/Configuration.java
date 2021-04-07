@@ -26,7 +26,7 @@ import net.oneandone.stool.directions.Freemarker;
 import net.oneandone.stool.directions.Script;
 import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.directions.Variable;
-import net.oneandone.stool.directions.Runtime;
+import net.oneandone.stool.directions.Executor;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.util.Diff;
 import net.oneandone.stool.util.Expire;
@@ -276,7 +276,7 @@ public class Configuration {
 
     //--
 
-    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, FileNode workdir, Map<String, String> prev, Runtime runtime)
+    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, FileNode workdir, Map<String, String> prev, Executor executor)
             throws IOException {
         Freemarker freemarker;
         Map<String, Direction> execMap;
@@ -287,7 +287,7 @@ public class Configuration {
             execMap.put(name, exprLayer(name).get(name));
         }
         freemarker = toolkit.freemarker(stage, fqdn, workdir);
-        return freemarker.eval(prev, execMap.values(), Script.scanOpt(toolkit.scripts), runtime);
+        return freemarker.eval(prev, execMap.values(), Script.scanOpt(toolkit.scripts), executor);
     }
 
     private void verify() {
@@ -330,7 +330,7 @@ public class Configuration {
         toolkit = localSettings.toolkit();
         LOGGER.info("chart: " + chartString());
         working = Tar.toDir(localSettings.world, prevWorking);
-        values = eval(toolkit, name, localSettings.fqdn, working, prev, localSettings.runtime(engine, working));
+        values = eval(toolkit, name, localSettings.fqdn, working, prev, localSettings.executor(engine, working));
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
             forbidden = result.withoutKeys(allowOpt);

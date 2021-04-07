@@ -22,10 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import freemarker.core.InvalidReferenceException;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.core.LocalSettings;
-import net.oneandone.stool.core.Settings;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.junit.jupiter.api.Test;
 
@@ -120,7 +117,7 @@ public class FreemarkerTest {
             """);
         directions = Directions.forTest("name", "one", "script.script('hello')");
         e = freemarker();
-        values = e.eval(new HashMap<>(), directions.directions.values(), scripts, LocalRuntime.forTesting(WORLD));
+        values = e.eval(new HashMap<>(), directions.directions.values(), scripts, ProcessExecutor.forTesting(WORLD));
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
     }
 
