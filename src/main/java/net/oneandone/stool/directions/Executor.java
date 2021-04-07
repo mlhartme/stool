@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Executor {
+public abstract class Executor implements AutoCloseable {
     public final Map<String, String> environment;
 
     public Executor(Map<String, String> environment) {
@@ -27,4 +27,6 @@ public abstract class Executor {
     }
 
     public abstract String exec(Script script, List<String> args) throws IOException;
+
+    public abstract void close() throws IOException;
 }

@@ -41,4 +41,8 @@ public class ProcessExecutor extends Executor {
         launcher.args(args);
         return launcher.exec();
     }
+
+    public void close() {
+        // nothing to do
+    }
 }

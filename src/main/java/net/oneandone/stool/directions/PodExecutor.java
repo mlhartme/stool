@@ -101,4 +101,8 @@ public class PodExecutor extends Executor {
         }
         return result;
     }
+
+    public void close() throws IOException {
+        // TODO
+    }
 }

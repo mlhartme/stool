@@ -205,7 +205,7 @@ public class LocalSettings extends CoreSettings {
         return home.join("lib");
     }
 
-    public Executor executor(Engine engine, FileNode working) throws IOException {
+    public Executor createExecutor(Engine engine, FileNode working) throws IOException {
         Toolkit t;
         String image;
 
