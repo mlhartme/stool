@@ -53,10 +53,12 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -317,8 +319,8 @@ public class Engine implements AutoCloseable {
         return pod == null ? null : PodInfo.create(pod);
     }
 
-    public boolean podCreate(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels) throws IOException {
-        return podCreate(pod(name, image, command, hostname, healing, labels));
+    public boolean podCreate(String name, String image, int termincationGrace, String... command) throws IOException {
+        return podCreate(pod(name, image, termincationGrace, command));
     }
 
     public boolean podCreate(Pod pod) throws IOException {
@@ -465,12 +467,12 @@ public class Engine implements AutoCloseable {
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private Pod pod(String name, String image, String[] command, String hostname, boolean healing, Map<String, String> labels) {
+    private Pod pod(String name, String image, int terminationGrace, String[] command) {
         return new PodBuilder()
-                .withNewMetadata().withName(name).withLabels(labels).endMetadata()
+                .withNewMetadata().withName(name).endMetadata()
                 .withNewSpec()
-                .withRestartPolicy(healing ? "Always" : "Never")
-                .withHostname(hostname)
+                .withRestartPolicy("Never")
+                .withTerminationGracePeriodSeconds((long) terminationGrace)
                 .addAllToVolumes(new ArrayList<>())
                 .addToContainers(container(image, command))
                 .endSpec().build();
@@ -755,5 +757,27 @@ public class Engine implements AutoCloseable {
                 .withTTY()
                 .usingListener(listener)
                 .exec(command);
+    }
+
+    public String podExec(String pod, String container, String... command) {
+        StoolExecListener listener;
+        ByteArrayOutputStream output;
+
+        listener = new StoolExecListener();
+        output = new ByteArrayOutputStream();
+        try (ExecWatch watch = client.pods().inNamespace(namespace).withName(pod).inContainer(container)
+                .writingOutput(output)
+                .writingError(output)
+                .usingListener(listener)
+                .exec(command)) {
+            while (listener.closeReason == null) { // TODO: busy wait
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }
+        return new String(output.toByteArray(), StandardCharsets.UTF_8);
     }
 }

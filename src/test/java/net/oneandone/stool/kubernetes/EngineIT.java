@@ -57,16 +57,27 @@ public class EngineIT {
         }
     }
 
+    @Test
+    public void podExec() throws IOException {
+        String name = "pod-exec";
+        String output;
+
+        try (Engine engine = create()) {
+            engine.podCreate(name, "debian:buster-slim", 0, "sleep", "3600");
+            output = engine.podExec(name, "noname", "echo", "hi");
+            engine.podDelete(name);
+        }
+        assertEquals("hi\n", output);
+    }
 
     @Test
     public void podImplicitHostname() throws IOException {
-        String name = "podimplicit";
+        String name = "pod-implicit";
 
         try (Engine engine = create()) {
             engine.podDeleteOpt(name);
             assertFalse(engine.isOpenShift());
-            assertFalse(engine.podCreate(name, "debian:stretch-slim", new String[] { "hostname" },
-                    null, false, Strings.toMap()));
+            assertFalse(engine.podCreate(name, "debian:stretch-slim", 0, "hostname"));
             assertEquals(false, engine.podContainerRunning(name, "noname"));
             assertEquals(name + "\n", engine.podLogs(name));
             engine.podDelete(name);

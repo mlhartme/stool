@@ -15,18 +15,12 @@
  */
 package net.oneandone.stool.directions;
 
-import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.EnvVar;
-import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.Quantity;
 import net.oneandone.stool.kubernetes.Engine;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class Runtime {
     public final Engine engine;
@@ -36,7 +30,7 @@ public class Runtime {
         this.engine = engine;
         this.image = image;
     }
-
+/*
     public String exec(String script, List<String> args, Map<String, String> env) throws IOException {
         String name;
 
@@ -57,14 +51,15 @@ public class Runtime {
                 .endSpec().build());
         engine.podExec("ls", "-la", "/usr");
         engine.podDelete(name);
-    }
+    }*/
 
-    private static EnvVar envVars(Map<String, String> env) {
+    private static List<EnvVar> envVars(Map<String, String> env) {
         List<EnvVar> result;
 
         result = new ArrayList<>();
         for (Map.Entry<String, String> entry : env.entrySet()) {
             result.add(new EnvVar(entry.getKey(), entry.getValue(), null));
         }
+        return result;
     }
 }
