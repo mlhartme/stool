@@ -15,13 +15,18 @@
  */
 package net.oneandone.stool.directions;
 
+import freemarker.template.TemplateModelException;
+import freemarker.template.TemplateSequenceModel;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Script {
     public static List<Script> forTest(World world, String str) throws IOException {
@@ -52,5 +57,45 @@ public class Script {
     public Script(String name, FileNode file) {
         this.name = name;
         this.file = file;
+    }
+
+    public String exec(Map<String, String> environment, List args) throws IOException {
+        Launcher launcher;
+
+        launcher = file.getParent().launcher();
+        launcher.arg(file.getAbsolute());
+        for (Map.Entry<String, String> entry : environment.entrySet()) {
+            launcher.env(entry.getKey(), entry.getValue());
+        }
+        args(launcher, args);
+        return launcher.exec();
+    }
+
+    private static void args(Launcher launcher, List lst) {
+        for (Object obj : lst) {
+            if (obj instanceof List) {
+                args(launcher, (List) obj);
+            } else if (obj instanceof TemplateSequenceModel) {
+                args(launcher, toList((TemplateSequenceModel) obj));
+            } else {
+                launcher.arg(obj.toString());
+            }
+        }
+    }
+
+    private static List<Object> toList(TemplateSequenceModel lst) {
+        List<Object> result;
+        int max;
+
+        try {
+            max = lst.size();
+            result = new ArrayList<>(max);
+            for (int i = 0; i < max; i++) {
+                result.add(lst.get(i));
+            }
+            return result;
+        } catch (TemplateModelException e) {
+            throw new ArgumentException(e.getMessage(), e);
+        }
     }
 }
