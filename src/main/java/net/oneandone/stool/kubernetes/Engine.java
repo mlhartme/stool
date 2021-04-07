@@ -749,7 +749,7 @@ public class Engine implements AutoCloseable {
             tmp.join(src.substring(1)).checkDirectory().move(dest);
         } finally {
             tmp.deleteTree();
-            podDelete(podName);
+            podDeleteBg(podName);
         }
     }
 
