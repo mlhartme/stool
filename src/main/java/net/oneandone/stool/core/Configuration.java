@@ -23,6 +23,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.directions.Direction;
 import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.directions.Freemarker;
+import net.oneandone.stool.directions.Script;
 import net.oneandone.stool.directions.Toolkit;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.util.Diff;
@@ -273,7 +274,7 @@ public class Configuration {
 
     //--
 
-    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, FileNode workdir, Map<String, String> prev) {
+    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, FileNode workdir, Map<String, String> prev) throws IOException {
         Freemarker freemarker;
         Map<String, Direction> execMap;
 
@@ -283,7 +284,7 @@ public class Configuration {
             execMap.put(name, exprLayer(name).get(name));
         }
         freemarker = toolkit.freemarker(stage, fqdn, workdir);
-        return freemarker.eval(prev, execMap.values(), toolkit.scripts);
+        return freemarker.eval(prev, execMap.values(), Script.scanOpt(toolkit.scripts));
     }
 
     private void verify() {

@@ -77,29 +77,29 @@ public class FreemarkerTest {
     }
 
     @Test
-    public void envNotFoundDefault() throws IOException {
+    public void envNotFoundDefault() {
         assertEquals("x", freemarker().eval("${env.NOT_FOUND!'x'}"));
     }
 
     @Test
-    public void directions() throws IOException {
+    public void directions() {
         Freemarker e;
         Directions directions;
         Map<String, String> values;
 
         directions = Directions.forTest("name", "two", "'2' + direction.one", "one", "1");
         e = freemarker();
-        values = e.eval(new HashMap<>(), directions.directions.values(), WORLD.getTemp().createTempDirectory());
+        values = e.eval(new HashMap<>(), directions.directions.values(), null);
         assertEquals(Strings.toMap("one", "1", "two", "21"), values);
     }
 
     @Test
-    public void directionsRecursion() throws IOException {
+    public void directionsRecursion() {
         Directions directions;
 
         directions = Directions.forTest("name", "one", "'1' + direction.one");
         try {
-            freemarker().eval(new HashMap<>(), directions.directions.values(), WORLD.getTemp().createTempDirectory());
+            freemarker().eval(new HashMap<>(), directions.directions.values(), null);
             fail();
         } catch (ArgumentException e) {
             assertEquals("invalid recursion on direction one", e.getMessage());
@@ -121,7 +121,7 @@ public class FreemarkerTest {
             """).setPermissions("rwxr-xr-x");
         directions = Directions.forTest("name", "one", "script.script('hello')");
         e = freemarker();
-        values = e.eval(new HashMap<>(), directions.directions.values(), dir);
+        values = e.eval(new HashMap<>(), directions.directions.values(), Script.scanOpt(dir));
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
     }
 

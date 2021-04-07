@@ -26,7 +26,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -53,7 +52,7 @@ public class Freemarker {
      *   null when eval of this key started
      */
     private Map<String, Object> context;
-    private FileNode contextScripts;
+    private List<Script> contextScripts;
     private Map<String, String> contextPrevious;
 
     public Freemarker(Map<String, String> environment, String stage, String host, FileNode workdir) {
@@ -71,7 +70,7 @@ public class Freemarker {
         this.contextPrevious = null;
     }
 
-    public Map<String, String> eval(Map<String, String> previous, Collection<Direction> directions, FileNode scripts) {
+    public Map<String, String> eval(Map<String, String> previous, Collection<Direction> directions, List<Script> scripts) {
         Map<String, String> result;
 
         if (context != null) {
@@ -265,21 +264,18 @@ public class Freemarker {
         return result;
     }
 
-    private Map<String, Object> scripts() throws IOException {
+    private Map<String, Object> scripts() {
         Map<String, Object> result;
 
         result = new HashMap<>();
-        if (contextScripts != null && contextScripts.exists()) {
-            for (FileNode script : contextScripts.list()) {
-                final String name = Strings.removeRight(script.checkFile().getName(), ".sh");
-                result.put(name, (TemplateMethodModelEx) list -> {
-                    try {
-                        return exec(script, list);
-                    } catch (IOException e) {
-                        throw new TemplateModelException(name + ": script failed: " + e.getMessage(), e);
-                    }
-                });
-            }
+        for (Script script : contextScripts) {
+            result.put(script.name, (TemplateMethodModelEx) list -> {
+                try {
+                    return exec(script.file, list);
+                } catch (IOException e) {
+                    throw new TemplateModelException(script.name + ": script failed: " + e.getMessage(), e);
+                }
+            });
         }
         return result;
     }
