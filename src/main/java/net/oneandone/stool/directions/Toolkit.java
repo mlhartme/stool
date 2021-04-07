@@ -84,7 +84,7 @@ public class Toolkit {
             LOGGER.info("loading toolkit " + name + " " + tag);
         }
         if (!dest.exists()) {
-            engine.copyImage(repository + ":" + tag, "/usr/local/toolkit", dest);
+            engine.imageCopy(repository + ":" + tag, "/usr/local/toolkit", dest);
             dest.checkDirectory();
             for (FileNode file : dest.join("scripts").find("*.sh")) {
                 file.setPermissions("rwxr-xr-x"); // TODO: lost somehow ...

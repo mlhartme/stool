@@ -51,7 +51,7 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             tmp = WORLD.getTemp().createTempDirectory().deleteDirectory();
-            engine.copyImage("debian:buster-slim", "/etc", tmp);
+            engine.imageCopy("debian:buster-slim", "/etc", tmp);
             assertTrue(tmp.find("**/*").size() > 1);
             tmp.deleteTree();
         }
@@ -64,7 +64,7 @@ public class EngineIT {
 
         try (Engine engine = create()) {
             engine.podCreate(name, "debian:buster-slim", 0, "sleep", "3600");
-            output = engine.podExec(name, "noname", "echo", "hi");
+            output = engine.podExec(name, Engine.CONTAINER_NAME, "echo", "hi");
             engine.podDelete(name);
         }
         assertEquals("hi\n", output);
@@ -78,7 +78,7 @@ public class EngineIT {
             engine.podDeleteAwaitOpt(name);
             assertFalse(engine.isOpenShift());
             assertFalse(engine.podCreate(name, "debian:stretch-slim", 0, "hostname"));
-            assertEquals(false, engine.podContainerRunning(name, "noname"));
+            assertEquals(false, engine.podContainerRunning(name, Engine.CONTAINER_NAME));
             assertEquals(name + "\n", engine.podLogs(name));
             engine.podDelete(name);
         }

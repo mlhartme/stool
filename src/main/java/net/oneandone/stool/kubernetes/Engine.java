@@ -477,6 +477,24 @@ public class Engine implements AutoCloseable {
                 .exec(command);
     }
 
+    public void podCopyOut(String podName, String container, String src, FileNode dest) throws IOException {
+        FileNode tmp;
+
+        dest.checkNotExists();
+        if (!src.startsWith("/") || src.endsWith("/")) {
+            throw new IllegalArgumentException(src);
+        }
+        tmp = dest.getParent().createTempDirectory();
+        try {
+            if (!client.pods().inNamespace(namespace).withName(podName).inContainer(container).dir(src).copy(tmp.toPath())) {
+                throw new IllegalStateException("pod: " + podName + " copy " + src + " " + dest);
+            }
+            tmp.join(src.substring(1)).checkDirectory().move(dest);
+        } finally {
+            tmp.deleteTree();
+        }
+    }
+
     private static String toString(String[] args) {
         StringBuilder result;
 
@@ -490,6 +508,8 @@ public class Engine implements AutoCloseable {
         return result.toString();
     }
 
+    public static final String CONTAINER_NAME = "noname";
+
     private static Container container(String image, String... command) {
         Map<String, Quantity> limits;
         ContainerBuilder container;
@@ -499,7 +519,7 @@ public class Engine implements AutoCloseable {
         lst = new ArrayList<>();
         container = new ContainerBuilder();
         container.withNewResources().withLimits(limits).endResources()
-                .withName("noname")
+                .withName(CONTAINER_NAME)
                 .withImage(image)
                 .withEnv(lst)
                 .withImagePullPolicy("Never");
@@ -755,36 +775,16 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    public void copyImage(String image, String src, FileNode dest) throws IOException {
+    public void imageCopy(String image, String src, FileNode dest) throws IOException {
         String podName;
-        ContainerBuilder container;
-        FileNode tmp;
 
-        dest.checkNotExists();
-        if (!src.startsWith("/") || src.endsWith("/")) {
-            throw new IllegalArgumentException(src);
-        }
         podName = UUID.randomUUID().toString();
-        container = new ContainerBuilder().withName("noname")
-                .withImage(image)
-                .withCommand("sleep", "3600");
-        if (!podCreate(new PodBuilder()
-                .withNewMetadata().withName(podName).endMetadata()
-                .withNewSpec()
-                .withRestartPolicy("Never")
-                .withTerminationGracePeriodSeconds(0L)
-                .addToContainers(container.build())
-                .endSpec().build())) {
+        if (!podCreate(podName, image, 0, "sleep", "3600")) {
             throw new IOException("failed to create pod for image " + image);
         }
-        tmp = dest.getParent().createTempDirectory();
         try {
-            if (!client.pods().inNamespace(namespace).withName(podName).inContainer("noname").dir(src).copy(tmp.toPath())) {
-                throw new IllegalStateException("image: " + image + " copy " + src + " " + dest);
-            }
-            tmp.join(src.substring(1)).checkDirectory().move(dest);
+            podCopyOut(podName, CONTAINER_NAME, src, dest);
         } finally {
-            tmp.deleteTree();
             podDelete(podName);
         }
     }
