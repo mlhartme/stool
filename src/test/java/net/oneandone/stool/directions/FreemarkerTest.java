@@ -117,7 +117,8 @@ public class FreemarkerTest {
             """);
         directions = Directions.forTest("name", "one", "script.script('hello')");
         e = freemarker();
-        values = e.eval(new HashMap<>(), directions.directions.values(), scripts, ProcessExecutor.forTesting(WORLD));
+        values = e.eval(new HashMap<>(), directions.directions.values(), scripts,
+                new ProcessExecutor(new HashMap<>(), WORLD.getTemp().createTempDirectory()));
         assertEquals(Strings.toMap("one", "arg:hello\n"), values);
     }
 

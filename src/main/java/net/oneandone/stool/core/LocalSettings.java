@@ -206,10 +206,13 @@ public class LocalSettings extends CoreSettings {
     }
 
     public Executor executor(Engine engine, FileNode working) throws IOException {
+        Toolkit t;
         String image;
 
-        image = toolkit().image;
-        return image == null ? new ProcessExecutor(working) : new PodExecutor(engine, image, working);
+        t = toolkit();
+        image = t.image;
+        return image == null ? new ProcessExecutor(t.environment, working)
+                : new PodExecutor(engine, image, t.environment, working);
     }
 
     public void validate() throws IOException {

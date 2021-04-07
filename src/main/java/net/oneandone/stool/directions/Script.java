@@ -25,7 +25,6 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Script {
     public static List<Script> forTest(World world, String str) throws IOException {
@@ -58,12 +57,12 @@ public class Script {
         this.file = file;
     }
 
-    public String exec(Executor executor, Map<String, String> environment, List argsRaw) throws IOException {
+    public String exec(Executor executor, List argsRaw) throws IOException {
         List<String> args;
 
         args = new ArrayList<>();
         args(argsRaw, args);
-        return executor.exec(this, args, environment);
+        return executor.exec(this, args);
     }
 
     private static void args(List lst, List<String> result) {

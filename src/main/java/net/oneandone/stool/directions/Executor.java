@@ -20,5 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Executor {
-    public abstract String exec(Script script, List<String> args, Map<String, String> env) throws IOException;
+    public final Map<String, String> environment;
+
+    public Executor(Map<String, String> environment) {
+        this.environment = environment;
+    }
+
+    public abstract String exec(Script script, List<String> args) throws IOException;
 }

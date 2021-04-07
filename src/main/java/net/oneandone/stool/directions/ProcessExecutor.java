@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.directions;
 
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 
@@ -24,17 +23,14 @@ import java.util.List;
 import java.util.Map;
 
 public class ProcessExecutor extends Executor {
-    public static ProcessExecutor forTesting(World world) throws IOException {
-        return new ProcessExecutor(world.getTemp().createTempDirectory());
-    }
-
     public final FileNode working;
 
-    public ProcessExecutor(FileNode working) {
+    public ProcessExecutor(Map<String, String> environment, FileNode working) {
+        super(environment);
         this.working = working;
     }
 
-    public String exec(Script script, List<String> args, Map<String, String> environment) throws IOException {
+    public String exec(Script script, List<String> args) throws IOException {
         Launcher launcher;
 
         launcher = script.file.getParent().launcher();

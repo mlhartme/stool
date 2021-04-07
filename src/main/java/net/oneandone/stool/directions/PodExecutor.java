@@ -33,13 +33,14 @@ public class PodExecutor extends Executor {
     public final String image;
     public final FileNode working;
 
-    public PodExecutor(Engine engine, String image, FileNode working) {
+    public PodExecutor(Engine engine, String image, Map<String, String> environment, FileNode working) {
+        super(environment);
         this.engine = engine;
         this.image = image;
         this.working = working;
     }
 
-    public String exec(Script script, List<String> args, Map<String, String> env) throws IOException {
+    public String exec(Script script, List<String> args) throws IOException {
         final String scriptsPath = "/usr/local/toolkit/scripts";
         final String workingPath = "/usr/local/working";
         String pod;
@@ -53,7 +54,7 @@ public class PodExecutor extends Executor {
         cb.withName(container)
                 .withImage(image)
                 .withWorkingDir(scriptsPath)
-                .withEnv(envVars(env))
+                .withEnv(envVars(environment))
                 .withImagePullPolicy("Never")
                 .withCommand("sleep", "3600");
         engine.podCreate(new PodBuilder()

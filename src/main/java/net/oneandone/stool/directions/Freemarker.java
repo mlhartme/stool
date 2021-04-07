@@ -274,7 +274,7 @@ public class Freemarker {
         for (Script script : contextScripts) {
             result.put(script.name, (TemplateMethodModelEx) list -> {
                 try {
-                    return script.exec(contextExecutor, environment, list);
+                    return script.exec(contextExecutor, list);
                 } catch (IOException e) {
                     throw new TemplateModelException(script.name + ": script failed: " + e.getMessage(), e);
                 }

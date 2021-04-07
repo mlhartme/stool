@@ -101,7 +101,7 @@ public class Toolkit {
 
     //--
 
-    private final Map<String, String> environment;
+    public final Map<String, String> environment;
     private final Map<String, Directions> directions;
     private final Map<String, Chart> charts;
     private final String version;
