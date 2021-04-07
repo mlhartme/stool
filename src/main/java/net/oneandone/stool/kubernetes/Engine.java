@@ -341,18 +341,18 @@ public class Engine implements AutoCloseable {
 
     public boolean podDeleteOpt(String name) throws IOException {
         try {
-            podDelete(name);
+            podDeleteAwait(name);
             return true;
         } catch (FileNotFoundException e) {
             return false;
         }
     }
-    public void podDelete(String name) throws IOException {
-        podDeleteBg(name);
-        podAwait(name, (String) null);
+    public void podDeleteAwait(String name) throws IOException {
+        podDelete(name);
+        podAwaitDeleted(name);
     }
 
-    public void podDeleteBg(String name) throws IOException {
+    public void podDelete(String name) throws IOException {
         try {
             client.pods().inNamespace(namespace).withName(name).delete();
         } catch (KubernetesClientException e) {
@@ -394,6 +394,10 @@ public class Engine implements AutoCloseable {
             }
         }
         throw new IllegalStateException(lst.toString());
+    }
+
+    public void podAwaitDeleted(String name) throws IOException {
+        podAwait(name, (String) null);
     }
 
     public String podAwait(String name, String... expectedPhases) throws IOException {
@@ -749,7 +753,7 @@ public class Engine implements AutoCloseable {
             tmp.join(src.substring(1)).checkDirectory().move(dest);
         } finally {
             tmp.deleteTree();
-            podDeleteBg(podName);
+            podDelete(podName);
         }
     }
 

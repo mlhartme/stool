@@ -64,7 +64,7 @@ public class Runtime {
             return engine.podExec(pod, "toolkit",
                     Strings.cons(scriptsPath + "/" + script.name + ".sh", Strings.toArray(args)));
         } finally {
-            engine.podDeleteBg(pod);
+            engine.podDelete(pod);
         }
     }
 
