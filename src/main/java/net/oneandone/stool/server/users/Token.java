@@ -59,8 +59,8 @@ public class Token {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof Token) {
-            return value.equals(((Token) obj).value);
+        if (obj instanceof Token token) {
+            return value.equals(token.value);
         } else {
             return false;
         }

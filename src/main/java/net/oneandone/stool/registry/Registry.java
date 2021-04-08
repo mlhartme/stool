@@ -94,14 +94,12 @@ public abstract class Registry {
     }
 
     protected JsonNode getJson(HttpNode node) throws IOException {
-        StatusException se;
         String auth;
 
         try {
             return json.readTree(node.readString());
         } catch (NewInputStreamException e) {
-            if (e.getCause() instanceof StatusException) {
-                se = (StatusException) e.getCause();
+            if (e.getCause() instanceof StatusException se) {
                 if (se.getStatusLine().code == 401) {
                     auth = se.getHeaderList().getFirstValue("Www-Authenticate");
                     if (auth != null) {

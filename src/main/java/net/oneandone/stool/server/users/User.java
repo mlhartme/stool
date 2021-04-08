@@ -47,8 +47,8 @@ public class User implements UserDetails {
             return null;
         }
         principal = authentication.getPrincipal();
-        if (principal instanceof User) {
-            return (User) principal;
+        if (principal instanceof User user) {
+            return user;
         } else if ("anonymousUser".equals(principal)) {
             return null;
         } else {
@@ -104,10 +104,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean equals(Object object) {
-        User user;
-
-        if (object instanceof User) {
-            user = (User) object;
+        if (object instanceof User user) {
             return login.equals(user.login) && name.equals(user.name) && Objects.equals(email, email);
         }
         return false;

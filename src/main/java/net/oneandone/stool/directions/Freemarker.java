@@ -104,7 +104,6 @@ public class Freemarker {
     private String evalValue(String name) {
         Object obj;
         String result;
-        Direction direction;
 
         if (!context.containsKey(name)) {
             throw new ArgumentException("unknown direction: " + name);
@@ -113,12 +112,11 @@ public class Freemarker {
         if (obj == null) {
             throw new ArgumentException("invalid recursion on direction " + name);
         }
-        if (obj instanceof String) {
-            return (String) obj;
+        if (obj instanceof String s) {
+            return s;
         }
-        if (obj instanceof Direction) {
+        if (obj instanceof Direction direction) {
             context.put(name, null); // start recursion
-            direction = (Direction) obj;
             result = direction.valueOpt();
             if (result == null) {
                 result = eval(direction.name, "${" + direction.expression + "}");

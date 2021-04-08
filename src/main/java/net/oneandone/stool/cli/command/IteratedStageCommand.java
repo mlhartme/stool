@@ -117,8 +117,8 @@ public abstract class IteratedStageCommand extends StageCommand {
                 }
                 failures.failure(referece, e);
             } finally {
-                if (console.info instanceof PrefixWriter) {
-                    ((PrefixWriter) console.info).setPrefix("");
+                if (console.info instanceof PrefixWriter w) {
+                    w.setPrefix("");
                 }
             }
         }

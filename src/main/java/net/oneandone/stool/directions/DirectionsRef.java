@@ -137,8 +137,8 @@ public class DirectionsRef {
     }
 
     private static ObjectNode object(JsonNode raw) throws IOException {
-        if (raw instanceof ObjectNode) {
-            return (ObjectNode) raw;
+        if (raw instanceof ObjectNode on) {
+            return on;
         } else {
             throw new IOException("object expected, got  " + raw.getNodeType());
         }

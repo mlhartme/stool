@@ -100,10 +100,7 @@ public final class Diff {
     }
 
     public boolean equals(Object obj) {
-        Diff d;
-
-        if (obj instanceof Diff) {
-            d = (Diff) obj;
+        if (obj instanceof Diff d) {
             return map.equals(d.map);
         } else {
             return false;

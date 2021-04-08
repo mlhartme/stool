@@ -125,8 +125,8 @@ public class Context {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof Context) {
-            return ((Context) obj).name.equals(name);
+        if (obj instanceof Context c) {
+            return c.name.equals(name);
         } else {
             return false;
         }

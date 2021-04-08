@@ -67,10 +67,10 @@ public class Script {
 
     private static void args(List lst, List<String> result) {
         for (Object obj : lst) {
-            if (obj instanceof List) {
-                args((List) obj, result);
-            } else if (obj instanceof TemplateSequenceModel) {
-                args(toList((TemplateSequenceModel) obj), result);
+            if (obj instanceof List objlst) {
+                args(objlst, result);
+            } else if (obj instanceof TemplateSequenceModel objtmpl) {
+                args(toList(objtmpl), result);
             } else {
                 result.add(obj.toString());
             }

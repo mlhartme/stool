@@ -218,29 +218,25 @@ public final class Json {
     public static JsonNode valueToJson(ObjectMapper json, Object value) {
         if (value == null) {
             return NullNode.getInstance();
-        } else if (value instanceof List) {
+        } else if (value instanceof List lst) {
             ArrayNode result;
-            List lst;
 
             result = json.createArrayNode();
-            lst = (List) value;
             for (Object item : lst) {
                 result.add(valueToJson(json, item));
             }
             return result;
-        } else if (value instanceof Map) {
+        } else if (value instanceof Map map) {
             ObjectNode result;
-            Map map;
 
             result = json.createObjectNode();
-            map = (Map) value;
             for (Object entryRaw : map.entrySet()) {
                 Map.Entry entry = (Map.Entry) entryRaw;
                 result.set((String) entry.getKey(), valueToJson(json, entry.getValue()));
             }
             return result;
-        } else if (value instanceof Integer) {
-            return new IntNode((Integer) value);
+        } else if (value instanceof Integer integer) {
+            return new IntNode(integer);
         } else {
             return new TextNode(value.toString());
         }

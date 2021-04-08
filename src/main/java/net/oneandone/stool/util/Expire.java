@@ -81,10 +81,7 @@ public class Expire {
     }
 
     public boolean equals(Object obj) {
-        Expire expire;
-
-        if (obj instanceof Expire) {
-            expire = (Expire) obj;
+        if (obj instanceof Expire expire) {
             if (date == null) {
                 return expire.date == null;
             } else {

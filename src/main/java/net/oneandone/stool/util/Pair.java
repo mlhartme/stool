@@ -17,10 +17,7 @@ public class Pair {
     }
 
     public boolean equals(Object obj) {
-        Pair p;
-
-        if (obj instanceof Pair) {
-            p = (Pair) obj;
+        if (obj instanceof Pair p) {
             return Objects.equals(p.left, left) && Objects.equals(p.right, right);
         } else {
             return false;

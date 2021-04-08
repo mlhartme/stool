@@ -41,8 +41,8 @@ public abstract class Client {
     }
 
     public boolean equals(Object object) {
-        if (object instanceof Client) {
-            return context.equals(((Client) object).getContext());
+        if (object instanceof Client c) {
+            return context.equals(c.getContext());
         }
         return false;
     }

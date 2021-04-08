@@ -42,10 +42,7 @@ public class Reference {
     }
 
     public boolean equals(Object object) {
-        Reference reference;
-
-        if (object instanceof Reference) {
-            reference = (Reference) object;
+        if (object instanceof Reference reference) {
             return stage.equals(reference.stage) && client.equals(reference.client);
         }
         return false;
