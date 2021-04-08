@@ -173,7 +173,7 @@ public class LocalSettings extends CoreSettings {
             if (result.length() > 0) {
                 result.append(',');
             }
-            result.append(entry.getKey() + "=" + entry.getValue().left + ":" + entry.getValue().right);
+            result.append(entry.getKey() + "=" + entry.getValue().left() + ":" + entry.getValue().right());
         }
         return result.toString();
     }
@@ -273,7 +273,7 @@ public class LocalSettings extends CoreSettings {
         uri = "https://";
         up = registryCredentials(host);
         if (up != null) {
-            uri = uri + up.left + ":" + up.right + "@";
+            uri = uri + up.left() + ":" + up.right() + "@";
         }
         uri = uri + host;
         return PortusRegistry.create(json, world, uri, null);

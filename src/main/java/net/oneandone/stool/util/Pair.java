@@ -1,33 +1,10 @@
 package net.oneandone.stool.util;
 
-import java.util.Objects;
-
 /** Immutable pair of (possibly null) strings */
-public class Pair {
-    public final String left;
-    public final String right;
-
-    public Pair(String left, String right) {
-        this.left = left;
-        this.right = right;
-    }
-
-    public int hashCode() {
-        return left == null ? right.hashCode() : left.hashCode();
-    }
-
-    public boolean equals(Object obj) {
-        if (obj instanceof Pair p) {
-            return Objects.equals(p.left, left) && Objects.equals(p.right, right);
-        } else {
-            return false;
-        }
-    }
-
+public record Pair(String left, String right) {
     public String encode() {
         return encode(left) + encode(right);
     }
-
 
     private static final int NIL_LEN = 9999;
     private static final String NIL = new String(new char[] { NIL_LEN });

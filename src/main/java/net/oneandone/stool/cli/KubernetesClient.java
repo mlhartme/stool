@@ -167,7 +167,7 @@ public class KubernetesClient extends Client {
                     result.put(variable.name,
                             Strings.toMap("value", variable.get(),
                             "doc", variable.doc,
-                            "layer", pair.left, "expr", pair.right
+                            "layer", pair.left(), "expr", pair.right()
                             ));
                 }
             }

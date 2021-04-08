@@ -114,13 +114,13 @@ public final class Diff {
         result = new StringBuilder();
         for (Map.Entry<String, Pair> entry : map.entrySet()) {
             pair = entry.getValue();
-            if (pair.left == null) {
-                result.append("+ " + entry.getKey() + "=" + pair.right + "\n");
-            } else if (pair.right == null) {
-                result.append("- " + entry.getKey() + "=" + pair.left + "\n");
+            if (pair.left() == null) {
+                result.append("+ " + entry.getKey() + "=" + pair.right() + "\n");
+            } else if (pair.right() == null) {
+                result.append("- " + entry.getKey() + "=" + pair.left() + "\n");
             } else {
-                result.append("- " + entry.getKey() + "=" + pair.left + "\n");
-                result.append("+ " + entry.getKey() + "=" + pair.right + "\n");
+                result.append("- " + entry.getKey() + "=" + pair.left() + "\n");
+                result.append("+ " + entry.getKey() + "=" + pair.right() + "\n");
             }
         }
         return result.toString();
