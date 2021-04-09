@@ -5,7 +5,7 @@
   <parent>
     <groupId>net.oneandone.stool</groupId>
     <artifactId>stool</artifactId>
-    <version>5.1.2</version>
+    <version>5.1.3-SNAPSHOT</version>
   </parent>
 
   <name>Stool Server</name>
