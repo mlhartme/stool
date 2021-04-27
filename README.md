@@ -228,7 +228,10 @@ Stool is configured via settings specified in its `settings.yaml` file. A settin
 (string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, in contrast to variables,
 they are not specific for a stage. Settings are usually adjusted by system administrators.
 
-TODO: available settings, toolkit etc ...
+TODO: more available settings, toolkit etc ...
+
+Local settings
+* toolkit: path (starting with a `/`) to a local toolkit checkout, or image containing the toolkit
 
 ### Dashboard
 

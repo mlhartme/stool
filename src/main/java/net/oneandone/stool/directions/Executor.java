@@ -21,7 +21,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/** executes scripts */
+/**
+ * Executes scripts. Toolkit is a factory for executors.
+ *
+ * Working is a directory that starts empty when a stage is created, scripts may store data inside, and the
+ * resulting directory is preserved as a special value in the helm release. Publishing - i.e. re-running scripts
+ * start with the working directory store with the previous release.
+ */
 public abstract class Executor implements AutoCloseable {
     public final Map<String, String> environment;
     public final FileNode working;
