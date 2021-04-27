@@ -1,4 +1,4 @@
-FROM contargo.server.lan/cisoops-public/java-16:1.2.4
+FROM contargo.server.lan/cisoops-public/java-16:1.2.5
 
 ENV SC_HOME=/usr/local/stool
 ENV SC_OPTS=
