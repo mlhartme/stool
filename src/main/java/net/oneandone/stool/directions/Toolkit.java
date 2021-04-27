@@ -35,28 +35,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** helmcharts, directions, scripts and environment to run scripts */
 public class Toolkit {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
     //--
 
-    public static Toolkit load(ObjectMapper yaml, FileNode directory, String version, String image) throws IOException {
-        ObjectNode toolkit;
-        Toolkit result;
-
-        result = new Toolkit(version, image, directory.join("scripts"));
-        try (Reader src = directory.join("toolkit.yaml").newReader()) {
-            toolkit = (ObjectNode) yaml.readTree(src);
-        }
-        result.environment.putAll(Json.stringMapOpt(toolkit, "environment"));
-        for (FileNode chart : directory.join("charts").list()) {
-            result.addChart(yaml, chart);
-        }
-        result.loadAll(yaml, directory.find("directions/*.yaml"));
-        return result;
-    }
-
-    /** @return version */
+    /**
+     * Ensures that dest contains the latest toolkit from the repository
+     * @return version
+     */
     public static synchronized String resolve(PortusRegistry registry, Engine engine, String repository, FileNode dest) throws IOException {
         String name;
         List<String> tags;
@@ -97,6 +85,24 @@ public class Toolkit {
     private static List<String> sortTags(List<String> lst) { // TODO: also used for taginfo sorting, that's still based on numbers
         Collections.sort(lst, Versions.CMP);
         return lst;
+    }
+
+    //--
+
+    public static Toolkit load(ObjectMapper yaml, FileNode directory, String version, String image) throws IOException {
+        ObjectNode toolkit;
+        Toolkit result;
+
+        result = new Toolkit(version, image, directory.join("scripts"));
+        try (Reader src = directory.join("toolkit.yaml").newReader()) {
+            toolkit = (ObjectNode) yaml.readTree(src);
+        }
+        result.environment.putAll(Json.stringMapOpt(toolkit, "environment"));
+        for (FileNode chart : directory.join("charts").list()) {
+            result.addChart(yaml, chart);
+        }
+        result.loadAll(yaml, directory.find("directions/*.yaml"));
+        return result;
     }
 
     //--

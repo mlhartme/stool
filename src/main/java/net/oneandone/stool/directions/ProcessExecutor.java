@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+/** execute scripts in a local process; use this for development and fast turn-arounds */
 public class ProcessExecutor extends Executor {
     public ProcessExecutor(Map<String, String> environment, FileNode working) {
         super(environment, working);

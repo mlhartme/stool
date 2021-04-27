@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/** execute script in a pod - use this for production */
 public class PodExecutor extends Executor {
     private static final String CONTAINER = "toolkit";
     private static final String SCRIPTS_PATH = "/usr/local/toolkit/scripts";
