@@ -542,8 +542,7 @@ public class Engine implements AutoCloseable {
         container.withNewResources().withLimits(limits).endResources()
                 .withName(CONTAINER_NAME)
                 .withImage(image)
-                .withEnv(lst)
-                .withImagePullPolicy("Never");
+                .withEnv(lst);
 
         if (command != null) {
             container.withCommand(command);

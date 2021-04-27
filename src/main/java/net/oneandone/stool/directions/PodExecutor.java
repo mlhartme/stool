@@ -57,7 +57,6 @@ public class PodExecutor extends Executor {
                 .withImage(image)
                 .withWorkingDir(SCRIPTS_PATH)
                 .withEnv(envVars(environment))
-                .withImagePullPolicy("Never")
                 .withCommand("sleep", "3600");
         engine.podCreate(new PodBuilder()
                 .withNewMetadata().withName(pod).endMetadata()
