@@ -21,7 +21,6 @@ import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerState;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
-import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
@@ -534,19 +533,13 @@ public class Engine implements AutoCloseable {
     private static Container container(String image, String... command) {
         Map<String, Quantity> limits;
         ContainerBuilder container;
-        List<EnvVar> lst;
 
         limits = new HashMap<>();
-        lst = new ArrayList<>();
         container = new ContainerBuilder();
         container.withNewResources().withLimits(limits).endResources()
                 .withName(CONTAINER_NAME)
                 .withImage(image)
-                .withEnv(lst);
-
-        if (command != null) {
-            container.withCommand(command);
-        }
+                .withCommand(command);
         return container.build();
     }
 

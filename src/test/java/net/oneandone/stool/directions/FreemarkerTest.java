@@ -38,15 +38,11 @@ public class FreemarkerTest {
     private static final World WORLD = World.createMinimal();
 
     private static Freemarker freemarker() {
-        return freemarker(WORLD, "MOD", "a");
+        return freemarker("MOD", "a");
     }
 
-    public static Freemarker freemarker(World world, String... env) {
-        try {
-            return new Freemarker(Strings.toMap(env),"stage", "localhost", world.getTemp().createTempDirectory());
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+    public static Freemarker freemarker(String... env) {
+        return new Freemarker(Strings.toMap(env),"stage", "localhost");
     }
 
     @Test

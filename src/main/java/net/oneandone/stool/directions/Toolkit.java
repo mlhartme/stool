@@ -140,8 +140,8 @@ public class Toolkit {
     }
 
 
-    public Freemarker freemarker(String stage, String host, FileNode workdir) {
-        return new Freemarker(environment, stage, host, workdir);
+    public Freemarker freemarker(String stage, String host) {
+        return new Freemarker(environment, stage, host);
     }
 
     //--

@@ -22,7 +22,6 @@ import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import freemarker.template.TemplateScalarModel;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
@@ -37,9 +36,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Freemarker {
+    public static final String STORAGE = "__storage__";
+
     private final Configuration configuration;
     private final Map<String, String> environment;
-    private final FileNode workdir;
     private final String fqdn;
     private final String stage;
     private final String host;
@@ -54,13 +54,12 @@ public class Freemarker {
     private Executor contextExecutor;
     private Map<String, String> contextPrevious;
 
-    public Freemarker(Map<String, String> environment, String stage, String host, FileNode workdir) {
+    public Freemarker(Map<String, String> environment, String stage, String host) {
         this.configuration = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
         this.configuration.setDefaultEncoding("UTF-8");
         this.configuration.setLogTemplateExceptions(false);
 
         this.environment = environment;
-        this.workdir = workdir;
         this.fqdn = stage + "." + host;
         this.stage = stage;
         this.host = host;
@@ -203,16 +202,7 @@ public class Freemarker {
         result.put("fqdn", fqdn);
         result.put("stage", stage);
         result.put("host", host);
-        result.put("workdir", (TemplateMethodModelEx) list -> {
-            if (list.size() != 1) {
-                throw new ArgumentException(list.toString());
-            }
-            try {
-                return workdir.join(list.get(0).toString()).mkdirsOpt().getAbsolute();
-            } catch (IOException e) {
-                throw new TemplateModelException(e.getMessage(), e);
-            }
-        });
+        result.put("storage", STORAGE);
         return result;
     }
 

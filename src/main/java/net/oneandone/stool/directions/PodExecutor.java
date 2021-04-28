@@ -67,32 +67,31 @@ public class PodExecutor extends Executor {
                 .addAllToVolumes(new ArrayList<>())
                 .addToContainers(cb.build())
                 .endSpec().build());
-        engine.podUpload(pod, CONTAINER, working, WORKING_PATH);
+        engine.podUpload(pod, CONTAINER, storageRoot, WORKING_PATH);
     }
 
     public String exec(Script script, List<String> args) throws IOException {
         String result;
+        String persitentPath;
+        List<String> cmd;
 
         lazyStart();
-        engine.podUpload(pod, CONTAINER, working, WORKING_PATH);
-        result = engine.podExec(pod, "toolkit",
-                Strings.cons(SCRIPTS_PATH + "/" + script.name + ".sh",
-                        Strings.toArray(replacePrefix(args, working.getAbsolute() + "/", WORKING_PATH + "/"))));
-        return result;
-    }
-
-    // TODO: doesn't work for working path itself
-    private static List<String> replacePrefix(List<String> lst, String inPrefix, String outPrefix) {
-        List<String> result;
-
-        result = new ArrayList<>();
-        for (String item : lst) {
-            if (item.startsWith(inPrefix)) {
-                result.add(outPrefix + item.substring(inPrefix.length()));
+        engine.podUpload(pod, CONTAINER, storageRoot, WORKING_PATH);
+        persitentPath = WORKING_PATH + "/" + script.name;
+        cmd = new ArrayList<>();
+        cmd.add(SCRIPTS_PATH + "/" + script.name + ".sh");
+        for (String arg : args) {
+            if (Freemarker.STORAGE.equals(arg)) {
+                result = engine.podExec(pod, "toolkit", "mkdir", "-p", persitentPath);
+                if (!result.isEmpty()) {
+                    throw new IOException("mkdir output: " + result);
+                }
+                cmd.add(WORKING_PATH + "/" + script.name);
             } else {
-                result.add(item);
+                cmd.add(arg);
             }
         }
+        result = engine.podExec(pod, "toolkit", Strings.toArray(cmd));
         return result;
     }
 

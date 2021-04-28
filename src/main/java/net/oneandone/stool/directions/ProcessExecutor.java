@@ -24,8 +24,8 @@ import java.util.Map;
 
 /** execute scripts in a local process; use this for development and fast turn-arounds */
 public class ProcessExecutor extends Executor {
-    public ProcessExecutor(Map<String, String> environment, FileNode working) {
-        super(environment, working);
+    public ProcessExecutor(Map<String, String> environment, FileNode storageRoot) {
+        super(environment, storageRoot);
     }
 
     public String exec(Script script, List<String> args) throws IOException {
@@ -36,7 +36,13 @@ public class ProcessExecutor extends Executor {
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             launcher.env(entry.getKey(), entry.getValue());
         }
-        launcher.args(args);
+        for (String arg : args) {
+            if (Freemarker.STORAGE.equals(arg)) {
+                launcher.arg(storageRoot.join(script.name).mkdirsOpt().getAbsolute());
+            } else {
+                launcher.arg(arg);
+            }
+        }
         return launcher.exec();
     }
 

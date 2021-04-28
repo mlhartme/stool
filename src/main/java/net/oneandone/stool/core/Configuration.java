@@ -276,8 +276,7 @@ public class Configuration {
 
     //--
 
-    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, FileNode workdir, Map<String, String> prev, Executor executor)
-            throws IOException {
+    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, Map<String, String> prev, Executor executor) throws IOException {
         Freemarker freemarker;
         Map<String, Direction> execMap;
 
@@ -286,7 +285,7 @@ public class Configuration {
         for (String name: names()) {
             execMap.put(name, exprLayer(name).get(name));
         }
-        freemarker = toolkit.freemarker(stage, fqdn, workdir);
+        freemarker = toolkit.freemarker(stage, fqdn);
         return freemarker.eval(prev, execMap.values(), Script.scanOpt(toolkit.scripts), executor);
     }
 
@@ -331,7 +330,7 @@ public class Configuration {
         LOGGER.info("chart: " + chartString());
         working = Tar.toDir(localSettings.world, prevWorking);
         try (Executor executor = toolkit.createExecutor(engine, working)) {
-            values = eval(toolkit, name, localSettings.fqdn, working, prev, executor);
+            values = eval(toolkit, name, localSettings.fqdn,  prev, executor);
         }
         result = Diff.diff(prev, values);
         if (allowOpt != null) {

@@ -182,7 +182,7 @@ public class LocalSettings extends CoreSettings {
         java.lang.reflect.Field field;
 
         try {
-            field = getClass().getField(key);
+            field = getClass().getDeclaredField(key);
         } catch (NoSuchFieldException e) {
             throw new ArgumentException("localSetting not found: " + key, e);
         }

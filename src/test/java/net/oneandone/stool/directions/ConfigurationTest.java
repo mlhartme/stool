@@ -139,8 +139,7 @@ public class ConfigurationTest {
             }
         }
         c = Configuration.create(toolkit, first, Collections.emptyMap());
-        assertEquals(expected, c.eval(toolkit,"stage", "fqdn", WORLD.getTemp().createTempDirectory(),
-                Collections.emptyMap(), null));
+        assertEquals(expected, c.eval(toolkit,"stage", "fqdn", Collections.emptyMap(), null));
     }
 
     @Test

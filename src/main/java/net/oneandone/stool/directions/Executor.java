@@ -24,17 +24,17 @@ import java.util.Map;
 /**
  * Executes scripts. Toolkit is a factory for executors.
  *
- * Working is a directory that starts empty when a stage is created, scripts may store data inside, and the
- * resulting directory is preserved as a special value in the helm release. Publishing - i.e. re-running scripts
- * start with the working directory store with the previous release.
+ * Running scripts can use a storage directory the keeps files between invocations of the script.
+ * This directory is managed per script. The first invocation starts with an empty persistent directory.
+ * Storage is implemented by special values in the respective helm release.
  */
 public abstract class Executor implements AutoCloseable {
     public final Map<String, String> environment;
-    public final FileNode working;
+    public final FileNode storageRoot;
 
-    public Executor(Map<String, String> environment, FileNode working) {
+    public Executor(Map<String, String> environment, FileNode storageRoot) {
         this.environment = environment;
-        this.working = working;
+        this.storageRoot = storageRoot;
     }
 
     public abstract String exec(Script script, List<String> args) throws IOException;
