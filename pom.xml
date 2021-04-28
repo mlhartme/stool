@@ -17,11 +17,8 @@
 
   <name>Stool</name>
   <url>https://github.com/mlhartme/stool</url>
-  <description>Runs multiple web applications in Docker containers.
-    Stool is a command line tool that provides a lifecycle for stages:
-    create, configure, build, run and remove. A stage contains web applications,
-    that may come in different flavors: Maven war projects or artifacts
-    (GAV coordinates).
+  <description>Stool is a tool to manage stages - create, publish, configure, delete.
+    A stage is a Kubernetes workload, typically a web application.
   </description>
 
   <ciManagement>
