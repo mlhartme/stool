@@ -23,7 +23,7 @@ import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.core.LocalSettings;
 import net.oneandone.stool.core.Field;
 import net.oneandone.stool.directions.DirectionsRef;
-import net.oneandone.stool.directions.Toolkit;
+import net.oneandone.stool.directions.Chartkit;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.kubernetes.PodInfo;
 import net.oneandone.stool.registry.Registry;
@@ -231,7 +231,7 @@ public class KubernetesClient extends Client {
     private List<String> directions(String name) throws IOException {
         int idx;
         String select;
-        Toolkit toolkit;
+        Chartkit chartkit;
         Directions directions;
 
         idx = name.indexOf('%');
@@ -241,9 +241,9 @@ public class KubernetesClient extends Client {
             select = name.substring(idx + 1);
             name = name.substring(0, idx);
         }
-        toolkit = localSettings.toolkit();
+        chartkit = localSettings.chartkit();
         directions = DirectionsRef.create(localSettings.world, name).resolve(localSettings);
-        return directions.toDescribe(toolkit, select);
+        return directions.toDescribe(chartkit, select);
     }
 
     private List<String> images(String imageName) throws IOException {

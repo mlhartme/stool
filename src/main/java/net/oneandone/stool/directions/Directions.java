@@ -194,22 +194,22 @@ public class Directions {
         }
     }
 
-    public List<Directions> createLayers(Toolkit toolkit) throws IOException {
+    public List<Directions> createLayers(Chartkit chartkit) throws IOException {
         List<Directions> result;
 
         result = new ArrayList<>();
-        addLayers(toolkit, result);
+        addLayers(chartkit, result);
         return result;
     }
 
-    private void addLayers(Toolkit toolkit, List<Directions> result) throws IOException {
+    private void addLayers(Chartkit chartkit, List<Directions> result) throws IOException {
         Directions layer;
 
         layer = clone();
         layer.bases.clear();
         result.add(layer);
         for (String base : bases) { // TODO: >1 bases ok?
-            toolkit.directions(base).addLayers(toolkit, result);
+            chartkit.directions(base).addLayers(chartkit, result);
         }
     }
 
@@ -265,21 +265,21 @@ public class Directions {
         return node;
     }
 
-    public List<String> toDescribe(Toolkit toolkit, String select) throws IOException {
+    public List<String> toDescribe(Chartkit chartkit, String select) throws IOException {
         List<String> result;
 
         result = new ArrayList<>();
-        toDescribe(toolkit, result, "", select);
+        toDescribe(chartkit, result, "", select);
         return result;
     }
 
-    private void toDescribe(Toolkit toolkit, List<String> result, String space, String select) throws IOException {
+    private void toDescribe(Chartkit chartkit, List<String> result, String space, String select) throws IOException {
         String moreSpace;
 
         result.add(space + DIRECTIONS + ": " + subject);
         moreSpace = space + "  ";
         for (String base : bases) {
-            toolkit.directions(base).toDescribe(toolkit, result, moreSpace, select);
+            chartkit.directions(base).toDescribe(chartkit, result, moreSpace, select);
         }
         for (Direction d : directions.values()) {
             if (select == null || d.name.equals(select)) {

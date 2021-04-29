@@ -24,15 +24,15 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ToolkitTest {
+public class ChartkitTest {
     private static final World WORLD = World.createMinimal();
     private static final ObjectMapper YAML = Json.newYaml();
 
     @Test
     public void loadAll() throws IOException {
-        Toolkit toolkit;
+        Chartkit chartkit;
 
-        toolkit = Toolkit.load(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/toolkit").checkDirectory(), "", null);
-        assertEquals(2, toolkit.directionsSize());
+        chartkit = Chartkit.load(YAML, WORLD.guessProjectHome(getClass()).join("src/test/data/chartkit").checkDirectory(), "", null);
+        assertEquals(2, chartkit.directionsSize());
     }
 }

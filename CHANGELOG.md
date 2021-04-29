@@ -35,10 +35,10 @@ Other changes:
   * created a separate `maven-dockerbuild-plugin` with the former `sc build` functionality
   * Stool no longer wipes images
   * dumped jmxmp/5555, rely on readyness probes instead; also dumped `heap` field
-* introduced toolkits
+* introduced chartkits
   * they define the available charts, directions, scripts and environment variables (with defaults)
-  * replaced hard-wired fault support by a toolkit script
-  * replaced cert configuration by a toolkit script
+  * replaced hard-wired fault support by a chartkit script
+  * replaced cert configuration by a chartkit script
 * dumped memory quota handling, Kubernetes takes care of that
 * dumped disk quota handling; I might re-add this with Kubernetes ephemeral quotas later
 * added `urlSubdomains`
@@ -63,10 +63,10 @@ Other changes:
   * SC_HOME replaces SC_YAML to configure the location of configuration files; sc.yaml is now $SC_HOME/settings.yaml
   * introducted `local` and `proxy` section
   * changes in `local`
-    * added `toolkit`
+    * added `chartkit`
     * replaced `registryPrefix` by `registryCredentials`
     * dumped `defaultExpire` and `defaultContact`  
-    * added `environment` to provide local overrides for the toolkit environment
+    * added `environment` to provide local overrides for the chartkit environment
     * added `defaultConfig` to defines automatically configures values for new stages; use this to setup default expires
 * log validation report result
 * readiness probe for Stool server

@@ -17,7 +17,7 @@ data:
         {{- end }}
       registryCredentials: "{{ .Values.registryCredentials }}"
       stageLogs: "{{ .Values.stageLogs }}"
-      toolkit: "{{ .Values.toolkit }}"
+      chartkit: "{{ .Values.chartkit }}"
       fqdn: "{{ .Values.fqdn }}"
       kubernetes: "{{ .Values.kubernetes }}"
       ldapUrl: "{{ .Values.ldapUrl }}"

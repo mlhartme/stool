@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.Main;
-import net.oneandone.stool.directions.Toolkit;
+import net.oneandone.stool.directions.Chartkit;
 import net.oneandone.stool.kubernetes.Engine;
 import net.oneandone.stool.registry.PortusRegistry;
 import net.oneandone.stool.server.users.UserManager;
@@ -56,7 +56,7 @@ public class LocalSettings extends CoreSettings {
      */
     public final String fqdn;
 
-    private final String toolkit;
+    private final String chartkit;
     public final Map<String, String> environment;
     public final Map<String, String> defaultConfig;
     public final Map<String, Pair> registryCredentials;
@@ -98,7 +98,7 @@ public class LocalSettings extends CoreSettings {
         super(yaml, json, home);
 
         this.fqdn = Json.string(local, "fqdn", "localhost");
-        this.toolkit = Json.string(local, "toolkit", BUILTIN_TOOLKIT);
+        this.chartkit = Json.string(local, "chartkit", BUILTIN_CHARTKIT);
         this.environment = Json.stringMapOpt(local, "environment");
         this.defaultConfig = Json.stringMapOpt(local,  "defaultConfig");
         this.registryCredentials = parseRegistryCredentials(string(local, "registryCredentials", ""));
@@ -125,7 +125,7 @@ public class LocalSettings extends CoreSettings {
         super(Json.newYaml(), Json.newJson(), World.create().file(from.home.toPath().toFile()));
 
         this.fqdn = from.fqdn;
-        this.toolkit = from.toolkit;
+        this.chartkit = from.chartkit;
         this.environment = new LinkedHashMap<>(from.environment);
         this.defaultConfig = new HashMap<>(from.defaultConfig);
         this.registryCredentials = new HashMap<>(from.registryCredentials);
@@ -232,8 +232,8 @@ public class LocalSettings extends CoreSettings {
         if (!registryCredentials.isEmpty()) {
             local.put("registryCredentials", registryCredentialsString());
         }
-        if (BUILTIN_TOOLKIT.equals(toolkit)) {
-            local.put("toolkit", toolkit);
+        if (BUILTIN_CHARTKIT.equals(chartkit)) {
+            local.put("chartkit", chartkit);
         }
         if (!admin.isEmpty()) {
             local.put("admin", admin);
@@ -284,37 +284,37 @@ public class LocalSettings extends CoreSettings {
     }
 
 
-    private Toolkit lazyToolkit;
+    private Chartkit lazyChartkit;
 
 
-    public static final String BUILTIN_TOOLKIT = "stool";
+    public static final String BUILTIN_CHARTKIT = "stool";
 
-    public Toolkit toolkit() throws IOException {
+    public Chartkit chartkit() throws IOException {
         FileNode directory;
         String version;
         String image;
 
-        if (lazyToolkit == null) {
-            if (BUILTIN_TOOLKIT.equals(toolkit)) {
-                directory = getLib().join("toolkit").mkdirsOpt();
+        if (lazyChartkit == null) {
+            if (BUILTIN_CHARTKIT.equals(chartkit)) {
+                directory = getLib().join("chartkit").mkdirsOpt();
                 version = Main.versionString(world);
-                world.resource("toolkit").copyDirectory(directory);
+                world.resource("chartkit").copyDirectory(directory);
                 image = null;
-            } else if (toolkit.startsWith("/")) {
-                directory = world.file(toolkit).checkDirectory();
+            } else if (chartkit.startsWith("/")) {
+                directory = world.file(chartkit).checkDirectory();
                 version = "unknown";
                 image = null;
             } else {
-                directory = getLib().join("toolkit");
+                directory = getLib().join("chartkit");
                 try (Engine engine = Engine.createClusterOrLocal(json, null /* TODO */)) {
-                    version = Toolkit.resolve(createRegistry(toolkit), engine, toolkit, directory);
+                    version = Chartkit.resolve(createRegistry(chartkit), engine, chartkit, directory);
                 }
-                image = toolkit + ":" + version;
+                image = chartkit + ":" + version;
             }
-            lazyToolkit = Toolkit.load(yaml, directory, version, image);
-            lazyToolkit.overrideEnvironment(environment);
+            lazyChartkit = Chartkit.load(yaml, directory, version, image);
+            lazyChartkit.overrideEnvironment(environment);
         }
-        return lazyToolkit;
+        return lazyChartkit;
     }
 
     //-- Stage access

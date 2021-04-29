@@ -13,7 +13,7 @@ cert: ""
 # Comma-separated list with host=username:password entries. Type string.
 registryCredentials: ""
 
-toolkit: "stool"
+chartkit: "stool"
 
 environment:
 

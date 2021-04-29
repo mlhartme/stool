@@ -24,7 +24,7 @@ import net.oneandone.stool.directions.Direction;
 import net.oneandone.stool.directions.Directions;
 import net.oneandone.stool.directions.Freemarker;
 import net.oneandone.stool.directions.Script;
-import net.oneandone.stool.directions.Toolkit;
+import net.oneandone.stool.directions.Chartkit;
 import net.oneandone.stool.directions.Variable;
 import net.oneandone.stool.directions.Executor;
 import net.oneandone.stool.kubernetes.Engine;
@@ -51,7 +51,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The directions needed to configure a stage. To make it independent from toolkit (changes).
+ * The directions needed to configure a stage. To make it independent from chartkit (changes).
  */
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
@@ -59,19 +59,19 @@ public class Configuration {
     public static final String WORKING_VALUE = "_working";
     private static final String DIRECTIONS_VALUE = "_directions";
 
-    public static Configuration create(Toolkit toolkit, Directions directions, Map<String, String> values) throws IOException {
-        return create(toolkit, directions, Directions.configDirections(values));
+    public static Configuration create(Chartkit chartkit, Directions directions, Map<String, String> values) throws IOException {
+        return create(chartkit, directions, Directions.configDirections(values));
     }
 
-    private static Configuration create(Toolkit toolkit, Directions directions, Directions config) throws IOException {
+    private static Configuration create(Chartkit chartkit, Directions directions, Directions config) throws IOException {
         List<Directions> result;
         Directions chartLayer;
 
         result = new ArrayList<>();
         result.add(config);
-        result.addAll(directions.createLayers(toolkit));
+        result.addAll(directions.createLayers(chartkit));
         chartLayer = chartLayer(result);
-        result.add(toolkit.chart(chartLayer.chartOpt).directions.clone());
+        result.add(chartkit.chart(chartLayer.chartOpt).directions.clone());
         return new Configuration(result);
     }
 
@@ -111,8 +111,8 @@ public class Configuration {
         return instance.origin;
     }
 
-    public Configuration withDirections(Toolkit toolkit, Directions directions) throws IOException {
-        return Configuration.create(toolkit, directions, config.clone());
+    public Configuration withDirections(Chartkit chartkit, Directions directions) throws IOException {
+        return Configuration.create(chartkit, directions, config.clone());
     }
 
     public Configuration withConfig(Map<String, String> overrides) {
@@ -276,7 +276,7 @@ public class Configuration {
 
     //--
 
-    public Map<String, String> eval(Toolkit toolkit, String stage, String fqdn, Map<String, String> prev, Executor executor) throws IOException {
+    public Map<String, String> eval(Chartkit chartkit, String stage, String fqdn, Map<String, String> prev, Executor executor) throws IOException {
         Freemarker freemarker;
         Map<String, Direction> execMap;
 
@@ -285,8 +285,8 @@ public class Configuration {
         for (String name: names()) {
             execMap.put(name, exprLayer(name).get(name));
         }
-        freemarker = toolkit.freemarker(stage, fqdn);
-        return freemarker.eval(prev, execMap.values(), Script.scanOpt(toolkit.scripts), executor);
+        freemarker = chartkit.freemarker(stage, fqdn);
+        return freemarker.eval(prev, execMap.values(), Script.scanOpt(chartkit.scripts), executor);
     }
 
     private void verify() {
@@ -319,18 +319,18 @@ public class Configuration {
 
     public Diff helm(Engine engine, String kubeContext, LocalSettings localSettings, String name, boolean upgrade, boolean dryrun, List<String> allowOpt,
                      Map<String, String> prev, String prevWorking) throws IOException {
-        Toolkit toolkit;
+        Chartkit chartkit;
         FileNode valuesFile;
         Map<String, String> values;
         Diff result;
         Diff forbidden;
         FileNode working;
 
-        toolkit = localSettings.toolkit();
+        chartkit = localSettings.chartkit();
         LOGGER.info("chart: " + chartString());
         working = Tar.toDir(localSettings.world, prevWorking);
-        try (Executor executor = toolkit.createExecutor(engine, working)) {
-            values = eval(toolkit, name, localSettings.fqdn,  prev, executor);
+        try (Executor executor = chartkit.createExecutor(engine, working)) {
+            values = eval(chartkit, name, localSettings.fqdn,  prev, executor);
         }
         result = Diff.diff(prev, values);
         if (allowOpt != null) {
@@ -346,7 +346,7 @@ public class Configuration {
             LOGGER.info("values: " + valuesFile.readString());
             helm(dryrun, kubeContext,
                     localSettings.home, upgrade ? "upgrade" : "install", "--debug", "--values", valuesFile.getAbsolute(), name,
-                    toolkit.chart(chart.chartOpt).reference);
+                    chartkit.chart(chart.chartOpt).reference);
             return result;
         } finally {
             valuesFile.deleteFile();

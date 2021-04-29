@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Executes scripts. Toolkit is a factory for executors.
+ * Executes scripts. Chartkit is a factory for executors.
  *
  * Running scripts can use a storage directory the keeps files between invocations of the script.
  * This directory is managed per script. The first invocation starts with an empty persistent directory.

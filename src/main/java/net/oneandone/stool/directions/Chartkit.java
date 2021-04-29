@@ -36,13 +36,13 @@ import java.util.List;
 import java.util.Map;
 
 /** helmcharts, directions, scripts and environment to run scripts */
-public class Toolkit {
+public class Chartkit {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalSettings.class);
 
     //--
 
     /**
-     * Ensures that dest contains the latest toolkit from the repository
+     * Ensures that dest contains the latest chartkit from the repository
      * @return version
      */
     public static synchronized String resolve(PortusRegistry registry, Engine engine, String repository, FileNode dest) throws IOException {
@@ -53,7 +53,7 @@ public class Toolkit {
         FileNode tagFile;
 
         if (repository.contains(":")) {
-            throw new ArgumentException("invalid toolkit repository: " + repository);
+            throw new ArgumentException("invalid chartkit repository: " + repository);
         }
         name = repository.substring(repository.lastIndexOf('/') + 1);
         tags = sortTags(registry.tags(Registry.getRepositoryPath(repository)));
@@ -65,14 +65,14 @@ public class Toolkit {
         if (dest.exists()) {
             existing = tagFile.readString().trim();
             if (!tag.equals(existing)) {
-                LOGGER.info("updating toolkit " + name + " " + existing + " -> " + tag);
+                LOGGER.info("updating chartkit " + name + " " + existing + " -> " + tag);
                 dest.deleteTree();
             }
         } else {
-            LOGGER.info("loading toolkit " + name + " " + tag);
+            LOGGER.info("loading chartkit " + name + " " + tag);
         }
         if (!dest.exists()) {
-            engine.imageDownload(repository + ":" + tag, "/usr/local/toolkit", dest);
+            engine.imageDownload(repository + ":" + tag, "/usr/local/chartkit", dest);
             dest.checkDirectory();
             for (FileNode file : dest.join("scripts").find("*.sh")) {
                 file.setPermissions("rwxr-xr-x"); // TODO: lost somehow ...
@@ -89,15 +89,15 @@ public class Toolkit {
 
     //--
 
-    public static Toolkit load(ObjectMapper yaml, FileNode directory, String version, String image) throws IOException {
-        ObjectNode toolkit;
-        Toolkit result;
+    public static Chartkit load(ObjectMapper yaml, FileNode directory, String version, String image) throws IOException {
+        ObjectNode chartkit;
+        Chartkit result;
 
-        result = new Toolkit(version, image, directory.join("scripts"));
-        try (Reader src = directory.join("toolkit.yaml").newReader()) {
-            toolkit = (ObjectNode) yaml.readTree(src);
+        result = new Chartkit(version, image, directory.join("scripts"));
+        try (Reader src = directory.join("chartkit.yaml").newReader()) {
+            chartkit = (ObjectNode) yaml.readTree(src);
         }
-        result.environment.putAll(Json.stringMapOpt(toolkit, "environment"));
+        result.environment.putAll(Json.stringMapOpt(chartkit, "environment"));
         for (FileNode chart : directory.join("charts").list()) {
             result.addChart(yaml, chart);
         }
@@ -114,7 +114,7 @@ public class Toolkit {
     public final String image; // null when running locally
     public final FileNode scripts;
 
-    public Toolkit(String version, String image, FileNode scripts) {
+    public Chartkit(String version, String image, FileNode scripts) {
         this.environment = new HashMap<>();
         this.directions = new HashMap<>();
         this.charts = new HashMap<>();

@@ -160,18 +160,18 @@ Each direction has a name and an expression.
 Directions define the available variables of the stage, the expression is evaluated to determine the initial values.
 
 The expression is denoted as a string. You can use [Freemarker](https://freemarker.apache.org) templating in it,
-and every toolkit script is available as a Freemarker function.
+and every chartkit script is available as a Freemarker function.
 
 Applications usually define directions in a `directions.yaml` file and attach them to images in a `directions` label.
 
-In addition, Stool is usually configured with pre-defined directions in its toolkit.
+In addition, Stool is usually configured with pre-defined directions in its chartkit.
 
 Technically, directions specify a Helm chart and how to evaluate its values. I.e. directions supply all info needed for
 Helm install/upgrade.
 
-### Toolkit
+### Chartkit
 
-The toolkit defines a set of charts, scripts and directions. TODO
+The chartkit defines a set of charts, scripts and directions. TODO
 
 
 ### Variables
@@ -228,10 +228,10 @@ Stool is configured via settings specified in its `settings.yaml` file. A settin
 (string, number, date, boolean, list (of strings), or map (string to string)). Settings are global, in contrast to variables,
 they are not specific for a stage. Settings are usually adjusted by system administrators.
 
-TODO: more available settings, toolkit etc ...
+TODO: more available settings, chartkit etc ...
 
 Local settings
-* toolkit: path (starting with a `/`) to a local toolkit checkout, or image containing the toolkit
+* chartkit: path (starting with a `/`) to a local chartkit checkout, or image containing the chartkit
 
 ### Dashboard
 
@@ -415,7 +415,7 @@ Use key/values pairs to configure local settings or proxies.
 #### EXAMPLES
 
 Create a home directory with defaults: `sc setup`
-Create a home directory with a custom toolkit: `sc setup toolkit=/my/path/to/toolkit`
+Create a home directory with a custom chartkit: `sc setup chartkit=/my/path/to/chartkit`
 
 
 ### sc-context
@@ -501,7 +501,7 @@ rejected otherwise because it would cause problems with urls or Kubernetes objec
 *directions* is a reference to the directions for this stage. Directions can be referenced in three ways:
 * a path pointing to a local yaml file containing the directions; this path has to start with a `/` or a `.`
 * an image with a `directions` label containing a base64 encoded directions yaml
-* a directions name defined in the configured toolkit
+* a directions name defined in the configured chartkit
 
 Note that previous changes by the `config` command get lost unless you repeat them in the assignment arguments.
 You'll normally call publish without arguments and thus get the configuration as defined by the directions.
@@ -1028,7 +1028,7 @@ print the correct build date.
 
 To enable the integration tests: touch `it.properties` and add the following entries
   * `kubernetes`: context to use for integration tests
-  * `toolkit`: reference to your toolkit
+  * `chartkit`: reference to your chartkit
   * `portus`: Portus registry with credentials to use
 
 Note: you might want to store this file in a different location an create a symlink

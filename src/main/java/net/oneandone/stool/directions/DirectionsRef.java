@@ -94,14 +94,14 @@ public class DirectionsRef {
     public static final String LABEL = "directions";
 
     public Directions resolve(LocalSettings localSettings) throws IOException {
-        Toolkit toolkit;
+        Chartkit chartkit;
         Directions result;
         String str;
 
-        toolkit = localSettings.toolkit();
+        chartkit = localSettings.chartkit();
         switch (type) {
             case BUILTIN:
-                result = toolkit.directions(value);
+                result = chartkit.directions(value);
                 break;
             case INLINE:
                 try (Reader src = new StringReader(value)) {

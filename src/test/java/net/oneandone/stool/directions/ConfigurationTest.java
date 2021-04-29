@@ -123,23 +123,23 @@ public class ConfigurationTest {
     private void check(Map<String, String> expected, Chart chart, String... directions) throws IOException {
         Configuration c;
 
-        Toolkit toolkit;
+        Chartkit chartkit;
         Directions d;
         Directions first;
 
-        toolkit = new Toolkit("empty", null, WORLD.getTemp().createTempDirectory());
-        toolkit.addChart(chart);
+        chartkit = new Chartkit("empty", null, WORLD.getTemp().createTempDirectory());
+        chartkit.addChart(chart);
         first = null;
         for (String str : directions) {
             d = directions(str);
             if (first == null) {
                 first = d;
             } else {
-                toolkit.addDirections(d);
+                chartkit.addDirections(d);
             }
         }
-        c = Configuration.create(toolkit, first, Collections.emptyMap());
-        assertEquals(expected, c.eval(toolkit,"stage", "fqdn", Collections.emptyMap(), null));
+        c = Configuration.create(chartkit, first, Collections.emptyMap());
+        assertEquals(expected, c.eval(chartkit,"stage", "fqdn", Collections.emptyMap(), null));
     }
 
     @Test

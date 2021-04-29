@@ -55,7 +55,7 @@ public class Stage {
         effectiveValues.putAll(explicitValues);
         history = new ArrayList<>(1);
         history.add(HistoryEntry.create(caller));
-        configuration = Configuration.create(localSettings.toolkit(), directionsRef.resolve(localSettings), effectiveValues);
+        configuration = Configuration.create(localSettings.chartkit(), directionsRef.resolve(localSettings), effectiveValues);
         configuration.helm(engine, kubeContext, localSettings, stageName, false, false, null, Collections.emptyMap(), null);
         stage = Stage.create(localSettings, stageName, engine.helmRead(stageName), history);
         stage.saveHistory(engine);
@@ -299,7 +299,7 @@ public class Stage {
         Configuration nextConfiguration;
 
         nextConfiguration = directionsRefOpt == null ? configuration
-                : configuration.withDirections(localSettings.toolkit(), directionsRefOpt.resolve(localSettings));
+                : configuration.withDirections(localSettings.chartkit(), directionsRefOpt.resolve(localSettings));
         nextConfiguration = nextConfiguration.withConfig(overrides);
         allowOpt = allow == null ? null : Separator.COMMA.split(allow);
         diff = nextConfiguration.helm(engine, kubeContext, localSettings, name, true, dryrun, allowOpt, valuesMap(), workingTarOpt);

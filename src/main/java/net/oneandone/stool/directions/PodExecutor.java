@@ -28,10 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** execute script in a pod - used when toolkit is configued by an image */
+/** execute script in a pod - used when chartkit is configued by an image */
 public class PodExecutor extends Executor {
-    private static final String CONTAINER = "toolkit";
-    private static final String SCRIPTS_PATH = "/usr/local/toolkit/scripts";
+    private static final String CONTAINER = "chartkit";
+    private static final String SCRIPTS_PATH = "/usr/local/chartkit/scripts";
     private static final String WORKING_PATH = "/usr/local/working";
 
     public final Engine engine;
@@ -82,7 +82,7 @@ public class PodExecutor extends Executor {
         cmd.add(SCRIPTS_PATH + "/" + script.name + ".sh");
         for (String arg : args) {
             if (Freemarker.STORAGE.equals(arg)) {
-                result = engine.podExec(pod, "toolkit", "mkdir", "-p", persitentPath);
+                result = engine.podExec(pod, "chartkit", "mkdir", "-p", persitentPath);
                 if (!result.isEmpty()) {
                     throw new IOException("mkdir output: " + result);
                 }
@@ -91,7 +91,7 @@ public class PodExecutor extends Executor {
                 cmd.add(arg);
             }
         }
-        result = engine.podExec(pod, "toolkit", Strings.toArray(cmd));
+        result = engine.podExec(pod, "chartkit", Strings.toArray(cmd));
         return result;
     }
 

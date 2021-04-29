@@ -20,7 +20,6 @@ import net.oneandone.stool.util.ITProperties;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -58,12 +57,12 @@ public class MainIT {
     public static class Fixture {
         public final String context;
         public final boolean kube;
-        public final String toolkit;
+        public final String chartkit;
 
-        public Fixture(String context, boolean kube, String toolkit) {
+        public Fixture(String context, boolean kube, String chartkit) {
             this.context = context;
             this.kube = kube;
-            this.toolkit = toolkit;
+            this.chartkit = chartkit;
         }
 
         public String toString() {
@@ -73,7 +72,7 @@ public class MainIT {
         public FileNode root() {
             String tk;
 
-            tk = toolkit.substring(toolkit.lastIndexOf('/') + 1);
+            tk = chartkit.substring(chartkit.lastIndexOf('/') + 1);
             return HOME.join("target/it/" + (kube ? "kube" : "proxy") + "-" + tk);
         }
 
@@ -86,8 +85,8 @@ public class MainIT {
             portus = ITProperties.load(WORLD).portus;
             lines = new ArrayList<>();
             lines.add("registryCredentials: " + portus.getHost() + "=" + portus.getUserInfo());
-            if (toolkit != null) {
-                lines.add("toolkit: \"" + toolkit + "\"");
+            if (chartkit != null) {
+                lines.add("chartkit: \"" + chartkit + "\"");
             }
             file.writeLines(lines);
             return file;
@@ -97,17 +96,17 @@ public class MainIT {
     public static List<Fixture> fixtures() throws IOException {
         ITProperties p;
         List<Fixture> result;
-        String toolkit;
+        String chartkit;
 
         p = ITProperties.load(WORLD);
-        toolkit = p.toolkit;
+        chartkit = p.chartkit;
         result = new ArrayList<>();
         if (p.portus != null) {
-            result.add(new Fixture(p.kubernetes, true, LocalSettings.BUILTIN_TOOLKIT));
-            result.add(new Fixture(p.kubernetes, false, LocalSettings.BUILTIN_TOOLKIT));
-            if (toolkit != null) {
-                result.add(new Fixture(p.kubernetes, true, toolkit));
-                result.add(new Fixture(p.kubernetes, false, toolkit));
+            result.add(new Fixture(p.kubernetes, true, LocalSettings.BUILTIN_CHARTKIT));
+            result.add(new Fixture(p.kubernetes, false, LocalSettings.BUILTIN_CHARTKIT));
+            if (chartkit != null) {
+                result.add(new Fixture(p.kubernetes, true, chartkit));
+                result.add(new Fixture(p.kubernetes, false, chartkit));
             }
         } else { // TODO: because junit complains about empty list
             result.add(null);
@@ -134,7 +133,7 @@ public class MainIT {
         if (fixture.kube) {
             URI uri = ITProperties.load(WORLD).portus.resolve("it-todo");
             String registryCredentials = uri.getHost() + "=" + uri.getUserInfo();
-            sc(home, "setup", "registryCredentials=" + registryCredentials, "toolkit=" + fixture.toolkit, "proxies=");
+            sc(home, "setup", "registryCredentials=" + registryCredentials, "chartkit=" + fixture.chartkit, "proxies=");
             sc(home, "context", fixture.context);
         } else {
             helm(fixture.context, working, "upgrade", "--install", "--wait", "--timeout=30s",
