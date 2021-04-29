@@ -136,9 +136,14 @@ public class MainIT {
             sc(home, "setup", "registryCredentials=" + registryCredentials, "chartkit=" + fixture.chartkit, "proxies=");
             sc(home, "context", fixture.context);
         } else {
-            helm(fixture.context, working, "upgrade", "--install", "--wait", "--timeout=30s",
+            helm(fixture.context, working, "upgrade", "--install", "--wait", "--timeout=120s",
                     "--values=" + fixture.serverValues().getAbsolute(), "stool", helmChart().getAbsolute());
             sc(home, "setup", "proxies=localtest=http://localhost:31000/api");
+            try {
+                Thread.sleep(20000); // TODO: why? I use helm --wait and stool has a readiness probe
+            } catch (InterruptedException e) {
+                // TODO
+            }
             sc(home, "context", "localtest");
         }
         try {
