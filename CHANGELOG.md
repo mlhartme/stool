@@ -82,6 +82,7 @@ Other changes:
     * thymeleaf 3.0.11 to 3.0.12  
     * jquery 3.4.1 to 3.5.1, bootstrap 4.4.1 to 4.5.3  
     * junit 5.7.1
+    * commons-compress 1.20 o 1.21
 
 
 ### 6.0.0 (2020-10-12)
