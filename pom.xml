@@ -63,7 +63,7 @@
 
   <properties>
     <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
-    <spring.version>5.3.5</spring.version>
+    <spring.version>5.3.18</spring.version>
     <spring.security.version>5.4.5</spring.security.version>
     <springboot.version>2.4.4</springboot.version>
     <junit.version>5.7.1</junit.version>
